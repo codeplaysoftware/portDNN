@@ -1,0 +1,53 @@
+# Copyright 2018 Codeplay Software Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use these files except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+cmake_minimum_required(VERSION 3.2.2)
+project(sycldnn LANGUAGES C CXX VERSION 0.1.0)
+
+option(SNN_DOWNLOAD_GTEST
+  "Download and build google test, rather than use the system version" OFF)
+option(SNN_DOWNLOAD_BENCHMARK
+  "Download and build google benchmark, rather than use the system version" ON)
+option(SNN_DOWNLOAD_MISSING_DEPS
+  "Download any dependencies which cannot be found" ON)
+
+option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
+option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
+
+option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
+option(SNN_FASTBUILD
+  "Disable setting the cmake build type if no flag specified" OFF)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+if(NOT SNN_FASTBUILD)
+  include(DefaultBuildType)
+endif()
+
+if(SNN_TRISYCL)
+  find_package(TriSYCL)
+else()
+  find_package(ComputeCpp)
+  list(APPEND COMPUTECPP_USER_FLAGS -no-serial-memop)
+endif()
+
+if(SNN_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
+if(SNN_BUILD_BENCHMARKS)
+  enable_testing()
+  add_subdirectory(bench)
+endif()
+
