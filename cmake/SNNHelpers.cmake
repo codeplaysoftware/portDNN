@@ -106,10 +106,6 @@ function(snn_target)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
   if(SNN_TARGET_WITH_SYCL)
-    set_property(
-      TARGET   ${SNN_TARGET_TARGET}
-      PROPERTY COMPUTECPP_INCLUDE_AFTER
-    )
     get_target_property(SNN_TARGET_SOURCES ${SNN_TARGET_TARGET} SOURCES)
     set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
     add_sycl_to_target(
@@ -216,7 +212,7 @@ function(snn_test)
     PUBLIC_LIBRARIES     ${SNN_TEST_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    GTest::GTest GTest::Main
     PUBLIC_INCLUDE_DIRS  ${SNN_TEST_PUBLIC_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS ${sycldnn_SOURCE_DIR}/test
+    PRIVATE_INCLUDE_DIRS
     CXX_OPTS             ${SNN_TEST_CXX_OPTS}
   )
   add_test(NAME ${_NAME} COMMAND ${_NAME}_bin --gtest_output=xml:output/)
@@ -277,7 +273,7 @@ function(snn_bench)
     PUBLIC_LIBRARIES     ${SNN_BENCH_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    benchmark::benchmark
     PUBLIC_INCLUDE_DIRS  ${SNN_BENCH_PUBLIC_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS ${sycldnn_SOURCE_DIR}/bench
+    PRIVATE_INCLUDE_DIRS
     CXX_OPTS             ${SNN_TEST_CXX_OPTS}
   )
   add_test(

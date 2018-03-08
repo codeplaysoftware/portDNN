@@ -81,3 +81,64 @@ snn_test(
   SOURCES
     helpers/tensor_index.cc
 )
+if(SNN_TEST_EIGEN)
+  add_library(eigen_matmul "")
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    # The Eigen tests only require int32, not int64 so to save time only
+    # compile for 32 bits.
+    foreach(INDEX_TYPE IN ITEMS int32_t)
+      set(_filename eigen_matmul_${DATA_TYPE}_${INDEX_TYPE}.cc)
+      set(_gen_dir ${CMAKE_BINARY_DIR}/generated/test/backend)
+      configure_file(backend/eigen_matmul_tpl.cc.in ${_gen_dir}/${_filename})
+      target_sources(eigen_matmul PRIVATE ${_gen_dir}/${_filename})
+    endforeach()
+  endforeach()
+  # Need to call this after setting the sources to ensure that all sources are
+  # compiled with SYCL support.
+  snn_target(
+    WITH_SYCL
+    TARGET eigen_matmul
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+      GTest::GTest
+  )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      eigen_death_tests
+    SOURCES
+      backend/eigen_backend_death_tests.cc
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+  )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      eigen_external_handler
+    SOURCES
+      backend/eigen_external_handler.cc
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+  )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      eigen_internal_handler
+    SOURCES
+      backend/eigen_internal_handler.cc
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+  )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      eigen_matmul_backend
+    SIZE
+      long
+    SOURCES
+      backend/eigen_matmul_backend.cc
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+      eigen_matmul
+  )
+endif()

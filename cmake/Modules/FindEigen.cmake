@@ -44,8 +44,19 @@ if(Eigen_FOUND AND NOT TARGET Eigen::Eigen)
   set_target_properties(Eigen::Eigen PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${EIGEN_INCLUDE_DIR}"
   )
+endif()
+if(Eigen_FOUND)
+  set(eigen_definitions DISABLE_SKINNY=1
+                        DISABLE_RANK1=1
+                        DISABLE_GEMV=1
+                        DISABLE_SCALAR=1)
+  if(SNN_EIGEN_LOCAL_MEM)
+    list(APPEND eigen_definitions LOCAL_MEM=1)
+  endif()
+  if(SNN_EIGEN_NO_LOCAL_MEM)
+    list(APPEND eigen_definitions NO_LOCAL_MEM=1)
+  endif()
   set_target_properties(Eigen::Eigen PROPERTIES
-    INTERFACE_COMPILE_DEFINITIONS DISABLE_SKINNY=1
+    INTERFACE_COMPILE_DEFINITIONS "${eigen_definitions}"
   )
 endif()
-
