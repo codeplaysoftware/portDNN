@@ -32,3 +32,31 @@ snn_test(
     basic_sycl_test.cc
     gtest_main.cc
 )
+snn_test(
+  TARGET
+    common_macros
+  SOURCES
+    helpers/common_macros.cc
+    gtest_main.cc
+)
+snn_test(
+  TARGET
+    non_device_macros
+  SOURCES
+    helpers/non_device_macros.cc
+    gtest_main.cc
+)
+snn_test(
+  TARGET
+    device_macros
+  SOURCES
+    helpers/device_macros.cc
+    gtest_main.cc
+)
+snn_test(
+  TARGET
+    min_max
+  SOURCES
+    helpers/min_max.cc
+    gtest_main.cc
+)
