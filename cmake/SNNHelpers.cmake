@@ -74,6 +74,7 @@ function(snn_executable)
     PUBLIC  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
     PRIVATE ${SNN_EXEC_PRIVATE_INCLUDE_DIRS}
             ${sycldnn_SOURCE_DIR}/include
+            ${sycldnn_SOURCE_DIR}
   )
   # Specify some C++11 features used widely across the library
   target_compile_features(${SNN_EXEC_TARGET} PUBLIC

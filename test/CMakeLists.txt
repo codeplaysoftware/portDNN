@@ -67,3 +67,17 @@ snn_test(
     helpers/ratio.cc
     gtest_main.cc
 )
+snn_test(
+  TARGET
+    input_window_index_helpers
+  SOURCES
+    helpers/input_window_index.cc
+    gtest_main.cc
+)
+snn_test(
+  TARGET
+    output_window_index_helpers
+  SOURCES
+    helpers/output_window_index.cc
+    gtest_main.cc
+)
