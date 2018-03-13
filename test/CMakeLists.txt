@@ -60,3 +60,10 @@ snn_test(
     helpers/min_max.cc
     gtest_main.cc
 )
+snn_test(
+  TARGET
+    ratio_helpers
+  SOURCES
+    helpers/ratio.cc
+    gtest_main.cc
+)

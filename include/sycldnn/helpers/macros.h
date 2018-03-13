@@ -40,4 +40,14 @@
 #else
 #define SNN_PRAGMA_UNROLL
 #endif
+// Optional assert macro. Can be redefined by the user if required.
+#ifndef SNN_ASSERT
+// By default don't assert on the device and use standard assert on the host.
+#ifdef __SYCL_DEVICE_ONLY__
+#define SNN_ASSERT(condition, message)
+#else
+#include <cassert>
+#define SNN_ASSERT(condition, message) assert((condition) && (message))
+#endif  // __SYCL_DEVICE_ONLY__
+#endif  // SNN_ASSERT
 #endif  // SYCLDNN_INCLUDE_HELPER_MACROS_H_
