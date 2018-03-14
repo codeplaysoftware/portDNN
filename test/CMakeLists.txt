@@ -33,6 +33,14 @@ snn_test(
     gtest_main.cc
 )
 snn_test(
+  WITH_SYCL
+  TARGET
+    fast_divison
+  SOURCES
+    helpers/fast_div.cc
+    gtest_main.cc
+)
+snn_test(
   TARGET
     common_macros
   SOURCES
