@@ -1,3 +1,20 @@
 build/
 Testing/
 
+# SYCL files
+*.sycl
+
+# Compiled files
+*.o
+*.so
+*.dll
+*.a
+*.lib
+*.exe
+*.out
+
+# editor temporaries
+*~
+*.tmp
+*.bak
+*.swp
