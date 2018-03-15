@@ -74,3 +74,10 @@ snn_test(
   SOURCES
     helpers/output_window_index.cc
 )
+snn_test(
+  WITH_SYCL
+  TARGET
+    tensor_index
+  SOURCES
+    helpers/tensor_index.cc
+)
