@@ -19,6 +19,7 @@ option(SNN_DOWNLOAD_GTEST
   "Download and build google test, rather than use the system version" OFF)
 option(SNN_DOWNLOAD_BENCHMARK
   "Download and build google benchmark, rather than use the system version" ON)
+option(SNN_DOWNLOAD_EIGEN "Download Eigen headers" ON)
 option(SNN_DOWNLOAD_MISSING_DEPS
   "Download any dependencies which cannot be found" ON)
 
@@ -41,6 +42,8 @@ else()
   find_package(ComputeCpp)
   list(APPEND COMPUTECPP_USER_FLAGS -no-serial-memop)
 endif()
+
+include(HandleEigen)
 
 if(SNN_BUILD_TESTS)
   enable_testing()

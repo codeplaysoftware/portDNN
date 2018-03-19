@@ -22,23 +22,24 @@
 # Sets the following variables:
 #   eigen_FOUND        - whether the system has Eigen
 #   eigen_INCLUDE_DIRS - the Eigen include directory
-#
+
 find_path(EIGEN_INCLUDE_DIR
   NAMES unsupported/Eigen/CXX11/Tensor
   PATH_SUFFIXES eigen3 Eigen3
+  HINTS ${CMAKE_BINARY_DIR}/eigen-src
   DOC "The Eigen SYCL Tensor module"
 )
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Eigen
-  FOUND_VAR EIGEN_FOUND
+  FOUND_VAR Eigen_FOUND
   REQUIRED_VARS EIGEN_INCLUDE_DIR
 )
-mark_as_advanced(EIGEN_FOUND EIGEN_INCLUDE_DIRS)
-if(EIGEN_FOUND)
+mark_as_advanced(Eigen_FOUND EIGEN_INCLUDE_DIRS)
+if(Eigen_FOUND)
   set(EIGEN_INCLUDE_DIRS ${EIGEN_INCLUDE_DIR})
 endif()
 
-if(EIGEN_FOUND AND NOT TARGET Eigen::Eigen)
+if(Eigen_FOUND AND NOT TARGET Eigen::Eigen)
   add_library(Eigen::Eigen INTERFACE IMPORTED)
   set_target_properties(Eigen::Eigen PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${EIGEN_INCLUDE_DIR}"
