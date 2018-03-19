@@ -28,66 +28,69 @@ if(NOT SNN_DOWNLOAD_GTEST)
   find_package(GTest)
   if(GTEST_FOUND AND NOT TARGET GTest::GTest)
     # Older versions of cmake don't create a GTest::GTest target
+    find_package(Threads REQUIRED)
     add_library(GTest::GTest IMPORTED UNKNOWN)
     set_target_properties(GTest::GTest PROPERTIES
-      IMPORTED_LOCATION ${GTEST_LIBRARIES}
-    )
-    find_package(Threads REQUIRED)
-    set_target_properties(GTest::GTest PROPERTIES
-      INTERFACE_LINK_LIBRARIES "Threads::Threads"
-    )
-    set_target_properties(GTest::GTest PROPERTIES
+      IMPORTED_LOCATION             ${GTEST_LIBRARIES}
+      INTERFACE_LINK_LIBRARIES      "Threads::Threads"
       INTERFACE_INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS}"
     )
   endif()
   if(GTEST_FOUND AND NOT TARGET GTest::Main)
     # Older versions of cmake don't create a GTest::Main target
-    add_library(GTest::Main IMPORTED STATIC)
+    add_library(GTest::Main IMPORTED UNKNOWN)
     set_target_properties(GTest::Main PROPERTIES
-      IMPORTED_LOCATION ${GTEST_MAIN_LIBRARIES}
-    )
-    set_target_properties(GTest::Main PROPERTIES
+      IMPORTED_LOCATION             ${GTEST_MAIN_LIBRARIES}
       INTERFACE_INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS}"
     )
   endif()
 endif()
 if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
-  message(STATUS "Downloading googletest library")
-  configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/GTestDownload.cmake.in
-    googletest-download/CMakeLists.txt
+  find_package(Threads REQUIRED)
+  include(ExternalProject)
+  set(GTEST_GIT_TAG "release-1.8.0" CACHE STRING
+    "Git tag, branch or commit to use for googletest"
   )
-  execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${snn_tests_BINARY_DIR}/googletest-download
+  set(GTEST_SOURCE_DIR ${snn_tests_BINARY_DIR}/googletest-src)
+  set(GTEST_BINARY_DIR ${snn_tests_BINARY_DIR}/googletest-build)
+  ExternalProject_Add(googletest
+    GIT_REPOSITORY    https://github.com/google/googletest.git
+    GIT_TAG           ${GTEST_GIT_TAG}
+    SOURCE_DIR        ${GTEST_SOURCE_DIR}
+    BINARY_DIR        ${GTEST_BINARY_DIR}
+    CMAKE_ARGS        -Dgtest_force_shared_crt=ON
+                      -DBUILD_SHARED_LIBS=OFF
+                      -DBUILD_GMOCK=OFF
+                      -DBUILD_GTEST=ON
+                      -DCMAKE_BUILD_TYPE=Release
+    INSTALL_COMMAND   ""
+    TEST_COMMAND      ""
   )
-  if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-  endif()
-  execute_process(COMMAND ${CMAKE_COMMAND} --build .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${snn_tests_BINARY_DIR}/googletest-download
-  )
-  if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-  endif()
+  set(GTEST_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(GTEST_MAIN_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(GTEST_LIBRARIES ${GTEST_BINARY_DIR}/googletest/${GTEST_LIBNAME})
+  set(GTEST_MAIN_LIBRARIES ${GTEST_BINARY_DIR}/googletest/${GTEST_MAIN_LIBNAME})
+  set(GTEST_INCLUDE_DIR ${GTEST_SOURCE_DIR}/googletest/include)
+  # Have to explicitly make the include directory to add it to the library
+  # target. This will be filled with the headers at build time when the
+  # googletest library is downloaded.
+  file(MAKE_DIRECTORY ${GTEST_INCLUDE_DIR})
+  list(APPEND GTEST_INCLUDE_DIRS ${GTEST_INCLUDE_DIR})
 
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  add_subdirectory(${snn_tests_BINARY_DIR}/googletest-src
-                   ${snn_tests_BINARY_DIR}/googletest-build
-                   EXCLUDE_FROM_ALL)
-
-  mark_as_advanced(GTEST_FOUND)
-  list(APPEND GTEST_LIBRARIES gtest)
-  list(APPEND GTEST_MAIN_LIBRARIES gtest_main)
-  list(APPEND GTEST_BOTH_LIBRARIES ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
-  list(APPEND GTEST_INCLUDE_DIRS ${gtest_SOURCE_DIR}/include)
-  if(NOT TARGET GTest::GTest)
-    add_library(GTest::GTest ALIAS ${GTEST_LIBRARIES})
-  endif()
-  if(NOT TARGET GTest::Main)
-    add_library(GTest::Main ALIAS ${GTEST_MAIN_LIBRARIES})
-  endif()
+  add_library(GTest::GTest IMPORTED STATIC)
+  add_dependencies(GTest::GTest googletest)
+  set_target_properties(GTest::GTest PROPERTIES
+    IMPORTED_LOCATION             ${GTEST_LIBRARIES}
+    INTERFACE_LINK_LIBRARIES      "Threads::Threads"
+    INTERFACE_INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS}"
+  )
+  add_library(GTest::Main IMPORTED STATIC)
+  add_dependencies(GTest::Main googletest)
+  set_target_properties(GTest::Main PROPERTIES
+    IMPORTED_LOCATION             ${GTEST_MAIN_LIBRARIES}
+    INTERFACE_INCLUDE_DIRECTORIES "${GTEST_INCLUDE_DIRS}"
+  )
+  mark_as_advanced(GTEST_FOUND GTEST_INCLUDE_DIRS)
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(GTest
     DEFAULT_MSG

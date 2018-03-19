@@ -329,6 +329,11 @@ function(__build_ir)
   # Convert argument list format
   separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
+  set(IR_DEPENDENCIES ${SNN_BUILD_IR_SOURCE})
+  foreach(library ${target_libraries})
+    list(APPEND IR_DEPENDENCIES ${library})
+  endforeach()
+
   # Add custom command for running compute++
   add_custom_command(
     OUTPUT ${outputSyclFile}
@@ -339,7 +344,7 @@ function(__build_ir)
             ${device_compiler_includes}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
-    DEPENDS ${SNN_BUILD_IR_SOURCE}
+    DEPENDS ${IR_DEPENDENCIES}
     IMPLICIT_DEPENDS CXX ${SNN_BUILD_IR_SOURCE}
     WORKING_DIRECTORY ${SNN_BUILD_IR_BINARY_DIR}
     COMMENT "Building ComputeCpp integration header file ${outputSyclFile}")

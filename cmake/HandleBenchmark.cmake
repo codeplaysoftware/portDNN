@@ -25,43 +25,53 @@ if(NOT SNN_DOWNLOAD_BENCHMARK)
   find_package(benchmark)
 endif()
 if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND))
-  message(STATUS "Downloading benchmark library")
-  configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/benchmarkDownload.cmake.in
-    benchmark-download/CMakeLists.txt
+  find_package(Threads REQUIRED)
+  include(ExternalProject)
+  set(BENCHMARK_GIT_TAG "v1.3.0" CACHE STRING
+    "Git tag, branch or commit to use for Google benchmark"
   )
-  execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${snn_bench_BINARY_DIR}/benchmark-download
+  set(benchmark_SOURCE_DIR ${snn_bench_BINARY_DIR}/benchmark-src)
+  set(benchmark_BINARY_DIR ${snn_bench_BINARY_DIR}/benchmark-build)
+  ExternalProject_Add(benchmark
+    GIT_REPOSITORY    https://github.com/google/benchmark.git
+    GIT_TAG           ${BENCHMARK_GIT_TAG}
+    SOURCE_DIR        ${benchmark_SOURCE_DIR}
+    BINARY_DIR        ${benchmark_BINARY_DIR}
+    CMAKE_ARGS        -DBENCHMARK_ENABLE_TESTING=OFF
+                      -DCMAKE_BUILD_TYPE=Release
+                      -DBUILD_SHARED_LIBS=OFF
+    INSTALL_COMMAND   ""
+    TEST_COMMAND      ""
   )
-  if(result)
-    message(FATAL_ERROR "CMake step for benchmark failed: ${result}")
+  set(benchmark_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}benchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(benchmark_LIBRARIES ${benchmark_BINARY_DIR}/src/${benchmark_LIBNAME})
+  set(benchmark_INCLUDE_DIR ${benchmark_SOURCE_DIR}/include)
+  # Have to explicitly make the include directory to add it to the library
+  # target. This will be filled with the headers at build time when the
+  # benchmark library is downloaded.
+  file(MAKE_DIRECTORY ${benchmark_INCLUDE_DIR})
+  set(benchmark_LINK_LIBRARIES Threads::Threads)
+  find_library(LIBRT rt)
+  if(LIBRT)
+    list(APPEND benchmark_LINK_LIBRARIES ${LIBRT})
   endif()
-  execute_process(COMMAND ${CMAKE_COMMAND} --build .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${snn_bench_BINARY_DIR}/benchmark-download
-  )
-  if(result)
-    message(FATAL_ERROR "Build step for benchmark failed: ${result}")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    list(APPEND benchmark_LINK_LIBRARIES Shlwapi)
   endif()
 
-  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
-  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
-  add_subdirectory(${snn_bench_BINARY_DIR}/benchmark-src
-                   ${snn_bench_BINARY_DIR}/benchmark-build
-                   EXCLUDE_FROM_ALL)
-
-  mark_as_advanced(benchmark_FOUND)
-  set(benchmark_LIBRARIES benchmark)
-
+  add_library(benchmark::benchmark IMPORTED STATIC)
+  add_dependencies(benchmark::benchmark benchmark)
+  set_target_properties(benchmark::benchmark PROPERTIES
+    IMPORTED_LOCATION             ${benchmark_LIBRARIES}
+    INTERFACE_LINK_LIBRARIES      "${benchmark_LINK_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${benchmark_INCLUDE_DIR}"
+  )
+  mark_as_advanced(benchmark_FOUND, benchmark_LIBRARIES)
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(benchmark
     DEFAULT_MSG
     benchmark_LIBRARIES
   )
-  if(NOT TARGET benchmark::benchmark)
-    add_library(benchmark::benchmark ALIAS ${benchmark_LIBRARIES})
-  endif()
   if(NOT DEFINED benchmark_FOUND)
     # Earlier versions of cmake only set BENCHMARK_FOUND, not benchmark_FOUND.
     set(benchmark_FOUND ${BENCHMARK_FOUND})
