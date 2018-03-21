@@ -19,18 +19,11 @@ include(HandleGTest)
 include(SNNHelpers)
 
 snn_test(
-  TARGET
-    snn_test_dummy
-  SOURCES
-    gtest_main.cc
-)
-snn_test(
   WITH_SYCL
   TARGET
     basic_sycl
   SOURCES
     basic_sycl_test.cc
-    gtest_main.cc
 )
 snn_test(
   WITH_SYCL
@@ -38,54 +31,46 @@ snn_test(
     fast_divison
   SOURCES
     helpers/fast_div.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     common_macros
   SOURCES
     helpers/common_macros.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     non_device_macros
   SOURCES
     helpers/non_device_macros.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     device_macros
   SOURCES
     helpers/device_macros.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     min_max
   SOURCES
     helpers/min_max.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     ratio_helpers
   SOURCES
     helpers/ratio.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     input_window_index_helpers
   SOURCES
     helpers/input_window_index.cc
-    gtest_main.cc
 )
 snn_test(
   TARGET
     output_window_index_helpers
   SOURCES
     helpers/output_window_index.cc
-    gtest_main.cc
 )
