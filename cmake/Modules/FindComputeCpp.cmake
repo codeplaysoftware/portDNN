@@ -234,6 +234,12 @@ define_property(
   the command line so that it is seen by the compiler first. Enables
   non-standards-conformant SYCL code to compile with ComputeCpp."
 )
+define_property(
+  TARGET PROPERTY INTERFACE_COMPUTECPP_FLAGS
+  BRIEF_DOCS "Interface compile flags to provide compute++"
+  FULL_DOCS  "Set additional compile flags to pass to compute++ when compiling
+  any target which links to this one."
+)
 
 ####################
 #   __build_ir
@@ -336,6 +342,10 @@ function(__build_ir)
         foreach(define ${lib_defines})
           list(APPEND target_compile_flags -D${define})
         endforeach()
+      endif()
+      get_target_property(ccpp_flags ${library} INTERFACE_COMPUTECPP_FLAGS)
+      if(ccpp_flags)
+        list(APPEND target_compile_flags ${ccpp_flags})
       endif()
     endforeach()
   endif()

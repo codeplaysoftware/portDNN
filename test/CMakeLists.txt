@@ -141,4 +141,14 @@ if(SNN_TEST_EIGEN)
       Eigen::Eigen
       eigen_matmul
   )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      simple_convolution
+    SOURCES
+      convolutions.cc
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+      direct_conv2d
+  )
 endif()

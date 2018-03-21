@@ -1,0 +1,184 @@
+/*
+ * Copyright 2018 Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "sycldnn/internal/conv2d/direct.h"
+
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/sizes.h"
+
+#include "src/conv2d/direct/kernel_params.h"
+#include "src/conv2d/direct/queue_direct_kernel.h"
+
+#include <CL/sycl.hpp>
+
+#include <limits>
+
+namespace sycldnn {
+namespace conv2d {
+namespace internal {
+namespace {
+/** Check whether fast divisions can be used for the given parameters. */
+template <typename ConvType>
+static inline bool can_use_fast_div(Conv2DParams const& params);
+
+template <>
+inline bool can_use_fast_div<conv_type::Forward>(Conv2DParams const& params) {
+  return params.features != 1 && params.out_rows != 1 && params.out_cols != 1;
+}
+template <>
+inline bool can_use_fast_div<conv_type::InputBackprop>(
+    Conv2DParams const& params) {
+  return params.features != 1 && params.in_rows != 1 && params.in_cols != 1;
+}
+template <>
+inline bool can_use_fast_div<conv_type::FilterBackprop>(
+    Conv2DParams const& params) {
+  return params.features != 1 && params.channels != 1 && params.out_cols != 1;
+}
+/**
+ * Check whether the provided window and stride can be used with the given
+ * convolution parameters.
+ */
+template <typename ConvType>
+inline bool can_use_static_conv(Conv2DParams const& params, int const window,
+                                int const stride) {
+  return (params.window_cols == window && params.window_rows == window &&
+          params.stride_rows == stride && params.stride_cols == stride);
+}
+/**
+ * Check whether fast divisions can be used for the convolution, and launch
+ * the convolution kernel to do the computation.
+ */
+template <typename T, typename Index, typename ConvType, int Window, int Stride>
+SNNStatus launch_with_index(ReadAccessor<T const> input,
+                            ReadAccessor<T const> filter,
+                            WriteAccessor<T> output, Conv2DParams const& params,
+                            Index output_size, cl::sycl::queue& queue) {
+  auto kernel_params = direct::get_kernel_params<ConvType>(params);
+  if (can_use_fast_div<ConvType>(kernel_params)) {
+    return queue_direct_kernel<T, Index, ConvType, true, Window, Stride>(
+        input, filter, output, kernel_params, output_size, queue);
+  } else {
+    return queue_direct_kernel<T, Index, ConvType, false, Window, Stride>(
+        input, filter, output, kernel_params, output_size, queue);
+  }
+}
+/**
+ * Check what data type is required to fit the index sizes, and launch the
+ * required kernel.
+ */
+template <typename T, typename ConvType, int Window, int Stride>
+SNNStatus launch_with_static_sizes(ReadAccessor<T const> input,
+                                   ReadAccessor<T const> filter,
+                                   WriteAccessor<T> output,
+                                   Conv2DParams const& params,
+                                   cl::sycl::queue& queue) {
+  auto conv_sizes = get_sizes<ConvType>(params);
+  size_t output_size = conv_sizes.output_size;
+  if (output_size > std::numeric_limits<int32_t>::max()) {
+#ifdef SNN_USE_INT64
+    return launch_with_index<T, int64_t, ConvType, Window, Stride>(
+        input, filter, output, params, static_cast<int64_t>(output_size),
+        queue);
+#else
+    SNNStatus tensor_too_large;
+    tensor_too_large.status = StatusCode::IndexExceeded;
+    return tensor_too_large;
+#endif  // SNN_USE_INT64
+  } else {
+    return launch_with_index<T, int32_t, ConvType, Window, Stride>(
+        input, filter, output, params, static_cast<int32_t>(output_size),
+        queue);
+  }
+}
+}  // namespace
+/**
+ * Use static window and stride sizes for the most common cases, or fall back
+ * to using dynamic window and strides. This allows the compiler to make use of
+ * the static window and stride sizes to better optimise when possible.
+ */
+template <typename T, typename ConvType>
+SNNStatus launch_direct(ReadAccessor<T const> input,
+                        ReadAccessor<T const> filter, WriteAccessor<T> output,
+                        Conv2DParams const& params, cl::sycl::queue& queue) {
+#ifdef SNN_CONV2D_STATIC_DIRECT
+  if (can_use_static_conv<ConvType>(params, 1, 1)) {
+    return launch_with_static_sizes<T, ConvType, 1, 1>(input, filter, output,
+                                                       params, queue);
+  } else if (can_use_static_conv<ConvType>(params, 3, 1)) {
+    return launch_with_static_sizes<T, ConvType, 3, 1>(input, filter, output,
+                                                       params, queue);
+  } else if (can_use_static_conv<ConvType>(params, 3, 2)) {
+    return launch_with_static_sizes<T, ConvType, 3, 2>(input, filter, output,
+                                                       params, queue);
+  } else if (can_use_static_conv<ConvType>(params, 5, 1)) {
+    return launch_with_static_sizes<T, ConvType, 5, 1>(input, filter, output,
+                                                       params, queue);
+  } else if (can_use_static_conv<ConvType>(params, 5, 2)) {
+    return launch_with_static_sizes<T, ConvType, 5, 2>(input, filter, output,
+                                                       params, queue);
+  } else
+#endif  // SNN_CONV2D_STATIC_DIRECT
+  {
+    return launch_with_static_sizes<T, ConvType, 0, 0>(input, filter, output,
+                                                       params, queue);
+  }
+}
+template SNNStatus launch_direct<float, conv_type::Forward>(
+    ReadAccessor<float const> input, ReadAccessor<float const> filter,
+    WriteAccessor<float> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+template SNNStatus launch_direct<float, conv_type::InputBackprop>(
+    ReadAccessor<float const> input, ReadAccessor<float const> filter,
+    WriteAccessor<float> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+template SNNStatus launch_direct<float, conv_type::FilterBackprop>(
+    ReadAccessor<float const> input, ReadAccessor<float const> filter,
+    WriteAccessor<float> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+#ifdef SNN_USE_DOUBLE
+template SNNStatus launch_direct<double, conv_type::Forward>(
+    ReadAccessor<double const> input, ReadAccessor<double const> filter,
+    WriteAccessor<double> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+template SNNStatus launch_direct<double, conv_type::InputBackprop>(
+    ReadAccessor<double const> input, ReadAccessor<double const> filter,
+    WriteAccessor<double> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+template SNNStatus launch_direct<double, conv_type::FilterBackprop>(
+    ReadAccessor<double const> input, ReadAccessor<double const> filter,
+    WriteAccessor<double> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+#endif  // SNN_USE_DOUBLE
+#ifdef SNN_USE_HALF
+template SNNStatus launch_direct<cl::sycl::half, conv_type::Forward>(
+    ReadAccessor<cl::sycl::half const> input,
+    ReadAccessor<cl::sycl::half const> filter,
+    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+template SNNStatus launch_direct<cl::sycl::half, conv_type::InputBackprop>(
+    ReadAccessor<cl::sycl::half const> input,
+    ReadAccessor<cl::sycl::half const> filter,
+    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+template SNNStatus launch_direct<cl::sycl::half, conv_type::FilterBackprop>(
+    ReadAccessor<cl::sycl::half const> input,
+    ReadAccessor<cl::sycl::half const> filter,
+    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
+    cl::sycl::queue& queue);
+#endif  // SNN_USE_HALF
+}  // namespace internal
+}  // namespace conv2d
+}  // namespace sycldnn

@@ -1,0 +1,48 @@
+/*
+ * Copyright 2018 Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
+#define SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
+namespace sycldnn {
+namespace conv2d {
+/** Parameter struct containing the parameters required for a 2D convolution. */
+struct Conv2DParams {
+  using Index = int;
+
+  Index channels;
+  Index features;
+  Index batch;
+
+  Index in_rows;
+  Index in_cols;
+
+  Index window_rows;
+  Index window_cols;
+
+  Index stride_rows;
+  Index stride_cols;
+
+  Index out_rows;
+  Index out_cols;
+
+  Index pad_rows;
+  Index pad_cols;
+
+  Index dilation_rows;
+  Index dilation_cols;
+};
+}  // namespace conv2d
+}  // namespace sycldnn
+#endif  // SYCLDNN_INCLUDE_CONV2D_PARAMS_H_

@@ -35,6 +35,8 @@ option(SNN_EIGEN_LOCAL_MEM
   "Only compile the local memory versions of Eigen kernels" ON)
 option(SNN_EIGEN_NO_LOCAL_MEM
   "Only compile the no local memory versions of Eigen kernels" OFF)
+option(SNN_EIGEN_COMPRESS_NAMES
+  "Compress Eigen SYCL kernel names" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_INDEX_TYPES int32_t)
@@ -54,6 +56,11 @@ if(SNN_ENABLE_64BIT_INDICES)
   list(APPEND SNN_INDEX_TYPES int64_t)
   add_definitions(-DSNN_USE_INT64=1)
 endif()
+option(SNN_CONV2D_DIRECT_STATIC_KERNELS
+  "Enable compiling static sizes of direct conv2d kernels" OFF)
+if(SNN_CONV2D_DIRECT_STATIC_KERNELS)
+  add_definitions(-DSNN_CONV2D_STATIC_DIRECT=1)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -66,9 +73,14 @@ if(SNN_TRISYCL)
 else()
   find_package(ComputeCpp)
   list(APPEND COMPUTECPP_USER_FLAGS -no-serial-memop)
+  list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-mad-enable")
+  list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-no-signed-zeros")
+  list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-strict-aliasing")
 endif()
 
 include(HandleEigen)
+
+add_subdirectory(src)
 
 if(SNN_BUILD_TESTS)
   enable_testing()

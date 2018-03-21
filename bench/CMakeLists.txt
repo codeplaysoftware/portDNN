@@ -18,11 +18,26 @@ project(snn_bench)
 include(HandleBenchmark)
 include(SNNHelpers)
 
+add_library(bench_main STATIC bench_main.cc)
+target_link_libraries(bench_main benchmark::benchmark)
+
 snn_bench(
   WITH_SYCL
   TARGET
     set_buffer
   SOURCES
     basic_sycl.cc
-    bench_main.cc
+  PUBLIC_LIBRARIES
+    bench_main
+)
+snn_bench(
+  WITH_SYCL
+  TARGET
+    simple_convolution
+  SOURCES
+    simple_convolution.cc
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+    direct_conv2d
 )

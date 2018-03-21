@@ -59,4 +59,9 @@ if(Eigen_FOUND)
   set_target_properties(Eigen::Eigen PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS "${eigen_definitions}"
   )
+  if(SNN_EIGEN_COMPRESS_NAMES)
+    set_target_properties(Eigen::Eigen PROPERTIES
+      INTERFACE_COMPUTECPP_FLAGS "-sycl-compress-name"
+    )
+  endif()
 endif()
