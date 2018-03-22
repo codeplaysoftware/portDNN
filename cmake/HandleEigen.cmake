@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.2.2)
 
-if(!SNN_DOWNLOAD_EIGEN)
+if(NOT SNN_DOWNLOAD_EIGEN)
   find_package(Eigen)
 endif()
 
