@@ -31,18 +31,89 @@
 # `CXX_OPTS`.
 #
 cmake_minimum_required(VERSION 3.2.2)
+# snn_target helper function
+# Adds the required links, include directories, SYCL support and flags to a
+# given cmake target.
+#
+# WITH_SYCL: whether to compile the executable for SYCL
+# TARGET: name of the target
+# PUBLIC_LIBRARIES: library targets to add to the target's interface
+# PRIVATE_LIBRARIES: library targets to use to compile the target
+# PUBLIC_INCLUDE_DIRS: include directories for using the target
+# PRIVATE_INCLUDE_DIRS: include directories for compiling the target
+# CXX_OPTS: additional compile flags to add to the target
+function(snn_target)
+  set(options
+    WITH_SYCL
+  )
+  set(one_value_args
+    TARGET
+  )
+  set(multi_value_args
+    PUBLIC_LIBRARIES
+    PRIVATE_LIBRARIES
+    PUBLIC_INCLUDE_DIRS
+    PRIVATE_INCLUDE_DIRS
+    CXX_OPTS
+  )
+  cmake_parse_arguments(SNN_TARGET
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  target_link_libraries(${SNN_TARGET_TARGET}
+    PUBLIC  ${SNN_TARGET_PUBLIC_LIBRARIES}
+    PRIVATE ${SNN_TARGET_PRIVATE_LIBRARIES}
+  )
+  target_include_directories(${SNN_TARGET_TARGET}
+    PUBLIC  ${SNN_TARGET_PUBLIC_INCLUDE_DIRS}
+    PRIVATE ${SNN_TARGET_PRIVATE_INCLUDE_DIRS}
+            ${sycldnn_SOURCE_DIR}/include
+            ${sycldnn_SOURCE_DIR}
+  )
+  # Specify some C++11 features used widely across the library
+  target_compile_features(${SNN_TARGET_TARGET} PUBLIC
+    cxx_auto_type
+    cxx_constexpr
+    cxx_final
+    cxx_lambdas
+    cxx_static_assert
+  )
+  target_compile_options(${SNN_TARGET_TARGET} PRIVATE -Wall -Wextra)
+  # The SYCL kernel names are only used when name mangling is turned on.
+  # By default we keep kernel name compression off, so these variables are
+  # typically not used.
+  target_compile_options(${SNN_TARGET_TARGET} PRIVATE -Wno-unused-variable)
+  if(SNN_TARGET_CXX_OPTS)
+    target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
+  endif()
+  if(SNN_TARGET_WITH_SYCL)
+    set_property(
+      TARGET   ${SNN_TARGET_TARGET}
+      PROPERTY COMPUTECPP_INCLUDE_AFTER
+    )
+    get_target_property(SNN_TARGET_SOURCES ${SNN_TARGET_TARGET} SOURCES)
+    set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
+    add_sycl_to_target(
+      TARGET     ${SNN_TARGET_TARGET}
+      BINARY_DIR ${SNN_TARGET_BIN_DIR}/${SNN_TARGET_TARGET}.dir
+      SOURCES    ${SNN_TARGET_SOURCES}
+    )
+  endif()
+endfunction()
 # snn_executable helper function
 # Adds an executable target with the specified sources, libraries and include
 # directories. If SYCL support is requested then that is added to the target as
 # well.
 #
 # WITH_SYCL: whether to compile the executable for SYCL
-# TARGET: name of binary for the target
-# SOURCES: sources files for the binary
-# PUBLIC_LIBRARIES: targets and flags for linking phase
-# PRIVATE_LIBRARIES: targets and flags for linking phase
-# PUBLIC_INCLUDE_DIRS: include directories for target
-# PRIVATE_INCLUDE_DIRS: include directories for target
+# TARGET: name of executable for the target
+# SOURCES: sources files for the executable
+# PUBLIC_LIBRARIES: library targets to add to the target's interface
+# PRIVATE_LIBRARIES: library targets to use to compile the target
+# PUBLIC_INCLUDE_DIRS: include directories for using the target
+# PRIVATE_INCLUDE_DIRS: include directories for compiling the target
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_executable)
   set(options
@@ -65,44 +136,19 @@ function(snn_executable)
     "${multi_value_args}"
     ${ARGN}
   )
+  if(${SNN_TEST_WITH_SYCL})
+    set(_WITH_SYCL WITH_SYCL)
+  endif()
   add_executable(${SNN_EXEC_TARGET} ${SNN_EXEC_SOURCES})
-  target_link_libraries(${SNN_EXEC_TARGET}
-    PUBLIC  ${SNN_EXEC_PUBLIC_LIBRARIES}
-    PRIVATE ${SNN_EXEC_PRIVATE_LIBRARIES}
+  snn_target(
+    ${_WITH_SYCL}
+    TARGET               ${SNN_EXEC_TARGET}
+    PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES}
+    PRIVATE_LIBRARIES    ${SNN_EXEC_PRIVATE_LIBRARIES}
+    PUBLIC_INCLUDE_DIRS  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
+    PRIVATE_INCLUDE_DIRS ${SNN_EXEC_PRIVATE_INCLUDE_DIRS}
+    CXX_OPTS             ${SNN_EXEC_CXX_OPTS}
   )
-  target_include_directories(${SNN_EXEC_TARGET}
-    PUBLIC  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
-    PRIVATE ${SNN_EXEC_PRIVATE_INCLUDE_DIRS}
-            ${sycldnn_SOURCE_DIR}/include
-            ${sycldnn_SOURCE_DIR}
-  )
-  # Specify some C++11 features used widely across the library
-  target_compile_features(${SNN_EXEC_TARGET} PUBLIC
-    cxx_auto_type
-    cxx_constexpr
-    cxx_final
-    cxx_lambdas
-    cxx_static_assert
-  )
-  target_compile_options(${SNN_EXEC_TARGET} PRIVATE -Wall -Wextra)
-  # The SYCL kernel names are only used when name mangling is turned on.
-  # By default we keep kernel name compression off, so these variables are
-  # typically not used.
-  target_compile_options(${SNN_EXEC_TARGET} PRIVATE -Wno-unused-variable)
-  if(SNN_EXEC_CXX_OPTS)
-    target_compile_options(${SNN_EXEC_TARGET} PUBLIC ${SNN_EXEC_CXX_OPTS})
-  endif()
-  if(SNN_EXEC_WITH_SYCL)
-    set_property(
-      TARGET   ${SNN_EXEC_TARGET}
-      PROPERTY COMPUTECPP_INCLUDE_AFTER
-    )
-    add_sycl_to_target(
-      TARGET     ${SNN_EXEC_TARGET}
-      BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${SNN_EXEC_TARGET}.dir
-      SOURCES    ${SNN_EXEC_SOURCES}
-    )
-  endif()
 endfunction()
 # snn_test helper function
 # Adds a test target with the specified sources, libraries and include
