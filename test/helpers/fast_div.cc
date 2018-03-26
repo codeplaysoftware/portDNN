@@ -17,6 +17,8 @@
 
 #include "src/helpers/fast_div.h"
 
+#include <numeric>
+
 template <typename T>
 struct FastDivTest : public ::testing::Test {
   void check_division_values(T const divisor, std::vector<T> const& values) {
