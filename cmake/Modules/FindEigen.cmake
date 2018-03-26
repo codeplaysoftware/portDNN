@@ -26,7 +26,6 @@
 find_path(EIGEN_INCLUDE_DIR
   NAMES unsupported/Eigen/CXX11/Tensor
   PATH_SUFFIXES eigen3 Eigen3
-  HINTS ${CMAKE_BINARY_DIR}/eigen-src
   DOC "The Eigen SYCL Tensor module"
 )
 include(FindPackageHandleStandardArgs)

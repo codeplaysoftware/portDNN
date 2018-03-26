@@ -22,32 +22,31 @@ if(NOT SNN_DOWNLOAD_EIGEN)
 endif()
 
 if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
-  message(STATUS "Configuring Eigen library")
-  # Select a commit from the Eigen-SYCL-OpenCL branch. This should be manually
-  # bumped as appropriate.
+  include(ExternalProject)
+  set(EIGEN_REPO "https://bitbucket.org/codeplaysoftware/eigen" CACHE STRING
+    "Eigen repository to use"
+  )
   set(EIGEN_HG_TAG "a00cfe3" CACHE STRING
     "Hg tag, branch or commit to use for the Eigen library"
   )
-  configure_file(${CMAKE_SOURCE_DIR}/cmake/EigenDownload.cmake.in
-    ${sycldnn_BINARY_DIR}/eigen-download/CMakeLists.txt)
-
-  execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${sycldnn_BINARY_DIR}/eigen-download
-  )
-  if(result)
-    message(FATAL_ERROR "CMake step for Eigen failed: ${result}")
+  set(EIGEN_SOURCE_DIR ${sycldnn_BINARY_DIR}/Eigen-src)
+  if(NOT TARGET Eigen_download)
+    ExternalProject_Add(Eigen_download
+      HG_REPOSITORY     ${EIGEN_REPO}
+      HG_TAG            ${EIGEN_HG_TAG}
+      SOURCE_DIR        ${EIGEN_SOURCE_DIR}
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND     ""
+      INSTALL_COMMAND   ""
+      TEST_COMMAND      ""
+    )
   endif()
-
-  execute_process(COMMAND ${CMAKE_COMMAND} --build .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${sycldnn_BINARY_DIR}/eigen-download
-  )
-  if(result)
-    message(FATAL_ERROR "Download step for Eigen failed: ${result}")
-  endif()
+  set(EIGEN_INCLUDE_DIR ${EIGEN_SOURCE_DIR})
+  file(MAKE_DIRECTORY ${EIGEN_INCLUDE_DIR})
 
   find_package(Eigen)
+  add_dependencies(Eigen::Eigen Eigen_download)
+  mark_as_advanced(EIGEN_REPO EIGEN_HG_TAG)
 endif()
 
 if(NOT Eigen_FOUND)
