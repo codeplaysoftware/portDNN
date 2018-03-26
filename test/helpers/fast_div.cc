@@ -65,19 +65,19 @@ TYPED_TEST(FastDivTest, DivideBy12) {
 }
 TYPED_TEST(FastDivTest, AllValuesDivisorsLessThan10) {
   TypeParam max = 1024;
-  for(TypeParam div = 2; div < 10; ++div) {
+  for (TypeParam div = 2; div < 10; ++div) {
     this->check_all_values_up_to(max, div);
   }
 }
 TYPED_TEST(FastDivTest, AllValuesDivisors10To20) {
   TypeParam max = 1024;
-  for(TypeParam div = 10; div < 20; ++div) {
+  for (TypeParam div = 10; div < 20; ++div) {
     this->check_all_values_up_to(max, div);
   }
 }
 TYPED_TEST(FastDivTest, AllValuesDivisors100To200) {
   TypeParam max = 1024;
-  for(TypeParam div = 100; div < 200; ++div) {
+  for (TypeParam div = 100; div < 200; ++div) {
     this->check_all_values_up_to(max, div);
   }
 }

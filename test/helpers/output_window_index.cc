@@ -20,9 +20,9 @@
 template <typename T>
 struct IndexHelpersOutWindow : public ::testing::Test {
   void check_output_window(T const stride, T const pad,
-                          std::vector<T> const& index,
-                          std::vector<T> const& exp_win,
-                          std::vector<T> const& exp_fil) {
+                           std::vector<T> const& index,
+                           std::vector<T> const& exp_win,
+                           std::vector<T> const& exp_fil) {
     ASSERT_EQ(index.size(), exp_win.size());
     ASSERT_EQ(index.size(), exp_fil.size());
     for (size_t i = 0; i < index.size(); ++i) {
