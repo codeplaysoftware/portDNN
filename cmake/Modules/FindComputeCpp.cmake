@@ -373,12 +373,26 @@ function(__build_ir)
   if(includeAfter)
     # Change the source file to the integration header - e.g.
     # g++ -c source_file_name.cpp.sycl
-    set_property(TARGET ${SNN_BUILD_IR_TARGET} PROPERTY SOURCES ${outputSyclFile})
+    get_target_property(current_sources ${SNN_BUILD_IR_TARGET} SOURCES)
+    # Remove absolute path to source file
+    list(REMOVE_ITEM current_sources ${SNN_BUILD_IR_SOURCE})
+    # Remove relative path to source file
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" ""
+      rel_source_file ${SNN_BUILD_IR_SOURCE}
+    )
+    list(REMOVE_ITEM current_sources ${rel_source_file})
+    # Add SYCL header to source list
+    list(APPEND current_sources ${outputSyclFile})
+    set_property(TARGET ${SNN_BUILD_IR_TARGET}
+      PROPERTY SOURCES ${current_sources}
+    )
     # CMake/gcc don't know what language a .sycl file is, so tell them
     set_property(SOURCE ${outputSyclFile} PROPERTY LANGUAGE CXX)
     set(includedFile ${SNN_BUILD_IR_SOURCE})
+    set(compiledFile ${outputSyclFile})
   else()
     set(includedFile ${outputSyclFile})
+    set(compiledFile ${SNN_BUILD_IR_SOURCE})
   endif()
 
   # Force inclusion of the integration header for the host compiler
@@ -410,9 +424,14 @@ function(__build_ir)
   #   target_compile_options(${targetName} BEFORE PUBLIC ${forceIncludeFlags})
   # To avoid the problem, we get the value of the property and manually append
   # it to the previous status.
-  get_property(currentFlags TARGET ${SNN_BUILD_IR_TARGET} PROPERTY COMPILE_FLAGS)
-  set_property(TARGET ${SNN_BUILD_IR_TARGET} PROPERTY COMPILE_FLAGS
-                  "${forceIncludeFlags} ${currentFlags}")
+  get_property(current_flags
+    SOURCE ${SNN_BUILD_IR_SOURCE}
+    PROPERTY COMPILE_FLAGS
+  )
+  set_property(
+    SOURCE ${compiledFile}
+    PROPERTY COMPILE_FLAGS "${forceIncludeFlags} ${currentFlags}"
+  )
 
   if(COMPUTECPP_DISABLE_GCC_DUAL_ABI)
     set_property(TARGET ${SNN_BUILD_IR_TARGET} APPEND PROPERTY COMPILE_DEFINITIONS
