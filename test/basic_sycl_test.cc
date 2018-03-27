@@ -17,6 +17,9 @@
 
 #include <CL/sycl.hpp>
 
+class HostSet;
+class DeviceSet;
+
 TEST(BasicSycl, construct_queue_with_selector) {
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
@@ -33,11 +36,11 @@ TEST(BasicSycl, host_set_float) {
     queue.submit([&](cl::sycl::handler& cgh) {
       auto accessorA = bufA.template get_access<write_mode>(cgh);
 
-      cgh.parallel_for<class HostSet>(cl::sycl::range<1>{num_elems},
-                                      [=](cl::sycl::item<1> item) {
-                                        const auto id = item.get_id(0);
-                                        accessorA[id] = id * 0.1;
-                                      });
+      cgh.parallel_for<HostSet>(cl::sycl::range<1>{num_elems},
+                                [=](cl::sycl::item<1> item) {
+                                  const auto id = item.get_id(0);
+                                  accessorA[id] = id * 0.1;
+                                });
     });
   }
   for (int i = 0; i < num_elems; ++i) {
@@ -56,11 +59,11 @@ TEST(BasicSycl, device_set_float) {
     queue.submit([&](cl::sycl::handler& cgh) {
       auto accessorA = bufA.template get_access<write_mode>(cgh);
 
-      cgh.parallel_for<class DeviceSet>(cl::sycl::range<1>{num_elems},
-                                        [=](cl::sycl::item<1> item) {
-                                          const auto id = item.get_id(0);
-                                          accessorA[id] = id * 0.1;
-                                        });
+      cgh.parallel_for<DeviceSet>(cl::sycl::range<1>{num_elems},
+                                  [=](cl::sycl::item<1> item) {
+                                    const auto id = item.get_id(0);
+                                    accessorA[id] = id * 0.1;
+                                  });
     });
   }
   for (int i = 0; i < num_elems; ++i) {
