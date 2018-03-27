@@ -263,15 +263,6 @@ function(__build_ir)
   foreach(directory ${targetIncludeDirectories})
     list(APPEND device_compiler_includes "-I${directory}")
   endforeach()
-  get_target_property(target_libraries ${SNN_BUILD_IR_TARGET} LINK_LIBRARIES)
-  foreach(library ${target_libraries})
-    get_target_property(lib_includes ${library} INTERFACE_INCLUDE_DIRECTORIES)
-    if(lib_includes)
-      foreach(directory ${lib_includes})
-        list(APPEND device_compiler_includes "-isystem${directory}")
-      endforeach()
-    endif()
-  endforeach()
   if (CMAKE_INCLUDE_PATH)
     foreach(directory ${CMAKE_INCLUDE_PATH})
       list(APPEND device_compiler_includes "-I${directory}")
@@ -307,18 +298,28 @@ function(__build_ir)
   if(target_compile_definitions)
     list(APPEND target_compile_flags ${target_compile_definitions})
   endif()
-  foreach(library ${target_libraries})
-    get_target_property(lib_options ${library} INTERFACE_COMPILE_OPTIONS)
-    if(lib_options)
-      list(APPEND target_compile_flags ${lib_options})
-    endif()
-    get_target_property(lib_defines ${library} INTERFACE_COMPILE_DEFINITIONS)
-    if(lib_defines)
-      foreach(define ${lib_defines})
-        list(APPEND target_compile_flags -D${define})
-      endforeach()
-    endif()
-  endforeach()
+  # Copy include directories, compile options and definitions from libraries
+  get_target_property(target_libraries ${SNN_BUILD_IR_TARGET} LINK_LIBRARIES)
+  if(target_libraries)
+    foreach(library ${target_libraries})
+      get_target_property(lib_includes ${library} INTERFACE_INCLUDE_DIRECTORIES)
+      if(lib_includes)
+        foreach(directory ${lib_includes})
+          list(APPEND device_compiler_includes -isystem${directory})
+        endforeach()
+      endif()
+      get_target_property(lib_options ${library} INTERFACE_COMPILE_OPTIONS)
+      if(lib_options)
+        list(APPEND target_compile_flags ${lib_options})
+      endif()
+      get_target_property(lib_defines ${library} INTERFACE_COMPILE_DEFINITIONS)
+      if(lib_defines)
+        foreach(define ${lib_defines})
+          list(APPEND target_compile_flags -D${define})
+        endforeach()
+      endif()
+    endforeach()
+  endif()
 
   set(COMPUTECPP_DEVICE_COMPILER_FLAGS
     ${device_compiler_cxx_standard}
@@ -329,10 +330,12 @@ function(__build_ir)
   # Convert argument list format
   separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
-  set(IR_DEPENDENCIES ${SNN_BUILD_IR_SOURCE})
-  foreach(library ${target_libraries})
-    list(APPEND IR_DEPENDENCIES ${library})
-  endforeach()
+  set(ir_dependencies ${SNN_BUILD_IR_SOURCE})
+  if(target_libraries)
+    foreach(library ${target_libraries})
+      list(APPEND ir_dependencies ${library})
+    endforeach()
+  endif()
 
   # Add custom command for running compute++
   add_custom_command(
@@ -344,7 +347,7 @@ function(__build_ir)
             ${device_compiler_includes}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
-    DEPENDS ${IR_DEPENDENCIES}
+    DEPENDS ${ir_dependencies}
     IMPLICIT_DEPENDS CXX ${SNN_BUILD_IR_SOURCE}
     WORKING_DIRECTORY ${SNN_BUILD_IR_BINARY_DIR}
     COMMENT "Building ComputeCpp integration header file ${outputSyclFile}")
