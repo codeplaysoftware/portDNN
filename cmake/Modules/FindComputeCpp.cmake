@@ -88,20 +88,20 @@ endif()
 
 # Obtain the path to compute++
 find_program(COMPUTECPP_DEVICE_COMPILER compute++ PATHS
-  ${COMPUTECPP_PACKAGE_ROOT_DIR} PATH_SUFFIXES bin)
+  ${COMPUTECPP_PACKAGE_ROOT_DIR} PATH_SUFFIXES bin NO_DEFAULT_PATH)
 if (EXISTS ${COMPUTECPP_DEVICE_COMPILER})
   mark_as_advanced(COMPUTECPP_DEVICE_COMPILER)
-  message(STATUS "compute++ - Found")
+  message(STATUS "compute++ - Found: ${COMPUTECPP_DEVICE_COMPILER}")
 else()
   message(FATAL_ERROR "compute++ - Not found! (${COMPUTECPP_DEVICE_COMPILER})")
 endif()
 
 # Obtain the path to computecpp_info
 find_program(COMPUTECPP_INFO_TOOL computecpp_info PATHS
-  ${COMPUTECPP_PACKAGE_ROOT_DIR} PATH_SUFFIXES bin)
+  ${COMPUTECPP_PACKAGE_ROOT_DIR} PATH_SUFFIXES bin NO_DEFAULT_PATH)
 if (EXISTS ${COMPUTECPP_INFO_TOOL})
   mark_as_advanced(${COMPUTECPP_INFO_TOOL})
-  message(STATUS "computecpp_info - Found")
+  message(STATUS "computecpp_info - Found: ${COMPUTECPP_INFO_TOOL}")
 else()
   message(FATAL_ERROR "computecpp_info - Not found! (${COMPUTECPP_INFO_TOOL})")
 endif()
