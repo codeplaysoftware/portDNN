@@ -60,6 +60,9 @@ mark_as_advanced(COMPUTECPP_DISABLE_GCC_DUAL_ABI)
 set(COMPUTECPP_USER_FLAGS "" CACHE STRING "User flags for compute++")
 mark_as_advanced(COMPUTECPP_USER_FLAGS)
 
+option(COMPUTECPP_FGLRX_WORKAROUND
+  "Linker workaround for fglrx AMD drivers to prevent deadlocks" OFF)
+
 # Platform-specific arguments
 if(MSVC)
   # Workaround to an unfixed Clang bug, rationale:
@@ -496,6 +499,20 @@ function(add_sycl_to_target)
     )
     MATH(EXPR file_counter "${file_counter} + 1")
   endforeach()
+  if(COMPUTECPP_FGLRX_WORKAROUND)
+    # AMD's fglrx driver will potentially cause deadlocks in threaded programs
+    # if the OpenCL library is linked after the standard library. In order to
+    # workaround this we explicitly force the linker to link against OpenCL
+    # before it links against ComputeCpp, rather than waiting until the OpenCL
+    # library is required.
+    get_target_property(current_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
+    list(APPEND current_links
+      "-Wl,--no-as-needed -l${OpenCL_LIBRARIES} -Wl,--as-needed"
+    )
+    set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
+      LINK_LIBRARIES "${current_links}"
+    )
+  endif()
 
   # Link with the ComputeCpp runtime library
   target_link_libraries(${SNN_ADD_SYCL_TARGET}
