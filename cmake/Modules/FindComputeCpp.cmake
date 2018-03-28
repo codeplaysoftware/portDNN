@@ -203,6 +203,22 @@ else()
   endif()
 endif()
 
+if(NOT TARGET OpenCL::OpenCL)
+  add_library(OpenCL::OpenCL IMPORTED UNKNOWN)
+  set_target_properties(OpenCL::OpenCL PROPERTIES
+    IMPORTED_LOCATION             "${OpenCL_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${OpenCL_INCLUDE_DIRS}"
+  )
+endif()
+add_library(ComputeCpp::ComputeCpp IMPORTED UNKNOWN)
+set_target_properties(ComputeCpp::ComputeCpp PROPERTIES
+  IMPORTED_LOCATION_DEBUG          "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
+  IMPORTED_LOCATION_RELWITHDEBINFO "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
+  IMPORTED_LOCATION                "${COMPUTECPP_RUNTIME_LIBRARY}"
+  INTERFACE_INCLUDE_DIRECTORIES    "${COMPUTECPP_INCLUDE_DIRECTORY}"
+  INTERFACE_LINK_LIBRARIES         "OpenCL::OpenCL"
+)
+
 # This property allows targets to specify that their sources should be
 # compiled with the integration header included after the user's
 # sources, not before (e.g. when an enum is used in a kernel name, this
@@ -467,11 +483,6 @@ function(add_sycl_to_target)
     ${ARGN}
   )
   set(file_counter 0)
-  target_include_directories(${SNN_ADD_SYCL_TARGET} SYSTEM
-    PRIVATE
-      ${OpenCL_INCLUDE_DIR}
-      ${COMPUTECPP_INCLUDE_DIRECTORY}
-  )
   # Add custom target to run compute++ and generate the integration header
   foreach(source_file ${SNN_ADD_SYCL_SOURCES})
     if(NOT IS_ABSOLUTE ${source_file})
@@ -489,9 +500,7 @@ function(add_sycl_to_target)
   # Link with the ComputeCpp runtime library
   target_link_libraries(${SNN_ADD_SYCL_TARGET}
     PUBLIC
-      $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}>
-      $<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>>:${COMPUTECPP_RUNTIME_LIBRARY}>
-      ${OpenCL_LIBRARIES}
+      ComputeCpp::ComputeCpp
   )
 endfunction(add_sycl_to_target)
 
