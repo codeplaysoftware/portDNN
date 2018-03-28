@@ -20,6 +20,9 @@ endif()
 
 if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
   message(STATUS "Configuring Eigen library")
+  set(EIGEN_HG_TAG "ComputeCpp-v0.6.0" CACHE STRING
+    "Hg tag, branch or commit to use for the Eigen library"
+  )
   configure_file(${CMAKE_SOURCE_DIR}/cmake/EigenDownload.cmake.in
     ${sycldnn_BINARY_DIR}/eigen-download/CMakeLists.txt)
 

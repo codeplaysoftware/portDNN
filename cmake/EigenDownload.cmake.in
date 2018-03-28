@@ -19,7 +19,7 @@ project(eigen-download NONE)
 include(ExternalProject)
 ExternalProject_Add(eigen
   HG_REPOSITORY     https://bitbucket.org/mehdi_goli/opencl
-  HG_TAG            ComputeCpp-v0.6.0
+  HG_TAG            "${EIGEN_HG_TAG}"
   SOURCE_DIR        "${sycldnn_BINARY_DIR}/eigen-src"
   BINARY_DIR        "${sycldnn_BINARY_DIR}/eigen-build"
   CONFIGURE_COMMAND ""
