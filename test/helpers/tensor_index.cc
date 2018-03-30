@@ -17,7 +17,6 @@
 
 #include "src/helpers/tensor_index.h"
 
-namespace {
 template <typename T>
 struct TensorIndexTest : public ::testing::Test {
   void check_unflatten_2d(std::vector<T> const& indices, T const size,
@@ -135,7 +134,6 @@ struct TensorIndexTest : public ::testing::Test {
 };
 using IntegerTypes = ::testing::Types<int32_t, int64_t>;
 TYPED_TEST_CASE(TensorIndexTest, IntegerTypes);
-}  // namespace
 
 TYPED_TEST(TensorIndexTest, Unflatten2DSize4) {
   std::vector<TypeParam> indices = {0, 1, 2,  3,  4,  5,  6,  7,
