@@ -31,6 +31,23 @@
 # `CXX_OPTS`.
 #
 cmake_minimum_required(VERSION 3.2.2)
+set(SNN_TEST_DEFAULT_TIMEOUT "30" CACHE STRING
+  "Default timeout for tests (seconds)")
+set(SNN_TEST_SHORT_TIMEOUT "30" CACHE STRING
+  "Timeout for short tests (seconds)")
+set(SNN_TEST_MODERATE_TIMEOUT "300" CACHE STRING
+  "Timeout for moderate tests (seconds)")
+set(SNN_TEST_LONG_TIMEOUT "900" CACHE STRING
+  "Timeout for long tests (seconds)")
+set(SNN_TEST_ETERNAL_TIMEOUT "3600" CACHE STRING
+  "Timeout for eternal tests (seconds)")
+mark_as_advanced(
+  SNN_TEST_DEFAULT_TIMEOUT
+  SNN_TEST_SHORT_TIMEOUT
+  SNN_TEST_MODERATE_TIMEOUT
+  SNN_TEST_LONG_TIMEOUT
+  SNN_TEST_ETERNAL_TIMEOUT
+)
 # snn_target helper function
 # Adds the required links, include directories, SYCL support and flags to a
 # given cmake target.
@@ -155,9 +172,13 @@ endfunction()
 # directories. If SYCL support is requested then that is added to the target as
 # well.
 #
+# Test timeouts are set depending on the SIZE of the test. The timeouts are
+# loosely based on bazel's test timeouts.
+#
 # parameters
 # WITH_SYCL: whether to compile the test for SYCL
 # TARGET: target name prefix
+# SIZE: size of the test (short/moderate/long/eternal)
 # SOURCES: sources files for the tests
 # PUBLIC_LIBRARIES: targets and flags for linking phase
 # PUBLIC_INCLUDE_DIRS: include directories for target
@@ -168,6 +189,7 @@ function(snn_test)
   )
   set(one_value_args
     TARGET
+    SIZE
   )
   set(multi_value_args
     SOURCES
@@ -198,6 +220,19 @@ function(snn_test)
     CXX_OPTS             ${SNN_TEST_CXX_OPTS}
   )
   add_test(NAME ${_NAME} COMMAND ${_NAME}_bin --gtest_output=xml:output/)
+  set(_TIMEOUT ${SNN_TEST_DEFAULT_TIMEOUT})
+  if(SNN_TEST_SIZE STREQUAL "short")
+    set(_TIMEOUT ${SNN_TEST_SHORT_TIMEOUT})
+  elseif(SNN_TEST_SIZE STREQUAL "moderate")
+    set(_TIMEOUT ${SNN_TEST_MODERATE_TIMEOUT})
+  elseif(SNN_TEST_SIZE STREQUAL "long")
+    set(_TIMEOUT ${SNN_TEST_LONG_TIMEOUT})
+  elseif(SNN_TEST_SIZE STREQUAL "eternal")
+    set(_TIMEOUT ${SNN_TEST_ETERNAL_TIMEOUT})
+  endif()
+  set_tests_properties(${_NAME} PROPERTIES
+    TIMEOUT ${_TIMEOUT}
+  )
 endfunction()
 # snn_bench helper function
 # Adds a benchmark target with the specified sources, libraries and include
