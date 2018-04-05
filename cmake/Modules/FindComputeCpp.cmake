@@ -224,6 +224,12 @@ define_property(
   FULL_DOCS  "Set additional compile flags to pass to compute++ when compiling
   any target which links to this one."
 )
+define_property(
+  SOURCE PROPERTY COMPUTECPP_SOURCE_FLAGS
+  BRIEF_DOCS "Source file compile flags for compute++"
+  FULL_DOCS  "Set additional compile flags for compiling the SYCL integration
+  header for the given source file."
+)
 
 ####################
 #   __build_ir
@@ -308,6 +314,13 @@ function(__build_ir)
   if(target_compile_definitions)
     list(APPEND target_compile_flags ${target_compile_definitions})
   endif()
+  get_property(source_compile_flags
+    SOURCE ${SNN_BUILD_IR_SOURCE}
+    PROPERTY COMPUTECPP_SOURCE_FLAGS
+  )
+  if(source_compile_flags)
+    list(APPEND target_compile_flags ${source_compile_flags})
+  endif()
   # Copy include directories, compile options and definitions from libraries
   get_target_property(target_libraries ${SNN_BUILD_IR_TARGET} LINK_LIBRARIES)
   if(target_libraries)
@@ -337,9 +350,9 @@ function(__build_ir)
 
   set(COMPUTECPP_DEVICE_COMPILER_FLAGS
     ${device_compiler_cxx_standard}
-    ${target_compile_flags}
     ${COMPUTECPP_DEVICE_COMPILER_FLAGS}
     ${COMPUTECPP_USER_FLAGS}
+    ${target_compile_flags}
   )
   # Convert argument list format
   separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)

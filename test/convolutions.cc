@@ -20,6 +20,7 @@
 #include "sycldnn/conv2d/sizes.h"
 
 #include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
 
 #include "test/backend/eigen_backend_test_fixture.h"
 
@@ -63,9 +64,17 @@ struct BasicConvolutionTest : public EigenBackendTest {
     DataType* out_gpu = static_cast<DataType*>(device_.allocate(out_bytes));
 
     SelectorType selector{};
-    auto status = sycldnn::conv2d::launch<DataType, ConvType>(
+    if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
+      // Do not run the test if the implementation is not supported.
+      return;
+    }
+    auto status = sycldnn::conv2d::launch<float, ConvType>(
         inp_gpu, fil_gpu, out_gpu, params, selector, backend_);
 
+    if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
+      // Do not check results if the implementation is not supported.
+      return;
+    }
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait();
 
@@ -88,7 +97,8 @@ struct BasicConvolutionTest : public EigenBackendTest {
 };
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector>;
+using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
+                                           sycldnn::conv2d::TiledSelector>;
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;

@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
-#define SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
+#ifndef SYCLDNN_SRC_HELPERS_VECTOR_TYPE_H_
+#define SYCLDNN_SRC_HELPERS_VECTOR_TYPE_H_
+
+#include <CL/sycl.hpp>
+
 namespace sycldnn {
-namespace conv2d {
-/** The implemented 2d convolution algorithms. */
-enum class Algorithm {
-  /** Fallback not supported algorithm tag. */
-  NotSupported,
-  /** Direct convolution using a naive implementation. */
-  Direct,
-  /** Tiled approach to maximise data reuse within a thread. */
-  Tiled,
+namespace helpers {
+/** Vector type for a given data type and vector size. */
+template <typename T, int Width>
+struct VectorType {
+  using type = cl::sycl::vec<T, Width>;
 };
-}  // namespace conv2d
+/** For vectors of size 1 just use the underlying data type. */
+template <typename T>
+struct VectorType<T, 1> {
+  using type = T;
+};
+}  // namespace helpers
 }  // namespace sycldnn
-#endif  // SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
+#endif  // SYCLDNN_SRC_HELPERS_VECTOR_TYPE_H_

@@ -182,6 +182,7 @@ if(SNN_TEST_EIGEN)
       convolutions.cc
     OBJECTS
       $<TARGET_OBJECTS:direct_conv2d>
+      $<TARGET_OBJECTS:tiled_conv2d>
     PUBLIC_LIBRARIES
       Eigen::Eigen
   )

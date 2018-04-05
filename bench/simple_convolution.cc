@@ -27,6 +27,7 @@
 #include "sycldnn/conv2d/params.h"
 
 #include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
 
 template <typename ConvType>
 static void RunConvolutionBM(benchmark::State& state,
@@ -157,6 +158,11 @@ BENCHMARK_TEMPLATE(BM_ConvolutionInputBackprop3x3,
 BENCHMARK_TEMPLATE(BM_ConvolutionFilterBackprop3x3,
                    sycldnn::conv2d::DirectSelector)
     ->UseManualTime();
+BENCHMARK_TEMPLATE(BM_Convolution3x3, sycldnn::conv2d::TiledSelector)
+    ->UseManualTime();
+BENCHMARK_TEMPLATE(BM_ConvolutionInputBackprop3x3,
+                   sycldnn::conv2d::TiledSelector)
+    ->UseManualTime();
 
 static sycldnn::conv2d::Conv2DParams get_3x3stride2_params() {
   sycldnn::conv2d::Conv2DParams params;
@@ -202,4 +208,9 @@ BENCHMARK_TEMPLATE(BM_ConvolutionInputBackprop3x3Stride2,
     ->UseManualTime();
 BENCHMARK_TEMPLATE(BM_ConvolutionFilterBackprop3x3Stride2,
                    sycldnn::conv2d::DirectSelector)
+    ->UseManualTime();
+BENCHMARK_TEMPLATE(BM_Convolution3x3Stride2, sycldnn::conv2d::TiledSelector)
+    ->UseManualTime();
+BENCHMARK_TEMPLATE(BM_ConvolutionInputBackprop3x3Stride2,
+                   sycldnn::conv2d::TiledSelector)
     ->UseManualTime();

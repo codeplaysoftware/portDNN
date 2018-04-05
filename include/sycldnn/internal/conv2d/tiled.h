@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
-#define SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
+#ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_TILED_H_
+#define SYCLDNN_INCLUDE_INTERNAL_CONV2D_TILED_H_
+
+#include "sycldnn/accessor_types.h"
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/status.h"
+
 namespace sycldnn {
 namespace conv2d {
-/** The implemented 2d convolution algorithms. */
-enum class Algorithm {
-  /** Fallback not supported algorithm tag. */
-  NotSupported,
-  /** Direct convolution using a naive implementation. */
-  Direct,
-  /** Tiled approach to maximise data reuse within a thread. */
-  Tiled,
-};
+namespace internal {
+/**
+ * The internal direct convolution launcher.
+ *
+ * Implemented in the compiled SYCL DNN library.
+ */
+template <typename T, typename ConvType>
+SNNStatus launch_tiled(ReadAccessor<T const> input,
+                       ReadAccessor<T const> filter, WriteAccessor<T> output,
+                       Conv2DParams const& params, cl::sycl::queue& queue);
+}  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
-#endif  // SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
+#endif  // SYCLDNN_INCLUDE_INTERNAL_CONV2D_TILED_H_
