@@ -24,7 +24,7 @@ using EigenInternalDeathTest = EigenBackendTest;
 
 namespace {
 cl::sycl::default_selector selector{};
-}
+}  // namespace
 std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
     new Eigen::QueueInterface{selector}};
 Eigen::SyclDevice EigenBackendTest::device_{
