@@ -33,6 +33,7 @@ sycldnn::backend::EigenBackend EigenBackendTest::backend_{
     EigenBackendTest::device_};
 
 TEST_F(EigenExternalDeathTest, FetchNonexistingBuffer) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr1 = backend_.allocate<float>(buffer_size);
@@ -41,10 +42,12 @@ TEST_F(EigenExternalDeathTest, FetchNonexistingBuffer) {
                "The pointer is not registered in the map");
 }
 TEST_F(EigenExternalDeathTest, FetchBeforeAllocating) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
   ASSERT_DEATH(backend_.get_buffer(ptr, 0), "There are no pointers allocated");
 }
 TEST_F(EigenExternalDeathTest, FetchAfterDeallocating) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr = backend_.allocate<float>(buffer_size);
@@ -53,6 +56,7 @@ TEST_F(EigenExternalDeathTest, FetchAfterDeallocating) {
                "There are no pointers allocated");
 }
 TEST_F(EigenInternalDeathTest, FetchNonexistingBuffer) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr1 = backend_.allocate<float>(buffer_size);
@@ -61,11 +65,13 @@ TEST_F(EigenInternalDeathTest, FetchNonexistingBuffer) {
                "The pointer is not registered in the map");
 }
 TEST_F(EigenInternalDeathTest, FetchBeforeAllocating) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
   ASSERT_DEATH(backend_.get_buffer_internal(ptr, 0),
                "There are no pointers allocated");
 }
 TEST_F(EigenInternalDeathTest, FetchAfterDeallocating) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr = backend_.allocate<float>(buffer_size);
