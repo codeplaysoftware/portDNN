@@ -81,6 +81,12 @@ snn_test(
   SOURCES
     helpers/tensor_index.cc
 )
+snn_test(
+  TARGET
+    round_to_power_two
+  SOURCES
+    helpers/round_power_two.cc
+)
 if(SNN_TEST_EIGEN)
   add_library(eigen_matmul "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
