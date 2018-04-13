@@ -87,6 +87,20 @@ snn_test(
   SOURCES
     helpers/round_power_two.cc
 )
+snn_test(
+  WITH_SYCL
+  TARGET
+    math_helpers
+  SOURCES
+    helpers/math.cc
+)
+snn_test(
+  WITH_SYCL
+  TARGET
+    vector_element
+  SOURCES
+    helpers/vector_element.cc
+)
 if(SNN_TEST_EIGEN)
   add_library(eigen_matmul "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
