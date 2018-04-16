@@ -101,6 +101,18 @@ snn_test(
   SOURCES
     helpers/vector_element.cc
 )
+snn_test(
+  TARGET
+    padding_helpers
+  SOURCES
+    helpers/padding.cc
+)
+snn_test(
+  TARGET
+    add_padding_to_conv2dparams
+  SOURCES
+    conv2d/helpers/add_padding_to_params.cc
+)
 if(SNN_TEST_EIGEN)
   add_library(eigen_matmul "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
