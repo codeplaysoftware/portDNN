@@ -23,45 +23,53 @@
 
 #include "test/backend/eigen_backend_test_fixture.h"
 
+#include "test/types/cartesian_product.h"
+#include "test/types/kernel_data_types.h"
+#include "test/types/to_gtest_types.h"
+
 #include <CL/sycl.hpp>
 
 #include <algorithm>
 #include <vector>
 
+template <typename Pair>
 struct BasicConvolutionTest : public EigenBackendTest {
+  using SelectorType = typename Pair::FirstType;
+  using DataType = typename Pair::SecondType;
+
  protected:
   /** Test a convolution with both input and filter set to `1, 2, 3,...` */
   template <typename ConvType>
-  void test_conv(std::vector<float> exp,
-                 sycldnn::conv2d::Conv2DParams const& params,
-                 sycldnn::conv2d::Selector& selector) {
+  void test_conv(std::vector<DataType> exp,
+                 sycldnn::conv2d::Conv2DParams const& params) {
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
     ASSERT_EQ(conv_sizes.output_size, exp.size());
 
-    std::vector<float> input;
-    iota_n(input, conv_sizes.input_size, static_cast<float>(1));
+    std::vector<DataType> input;
+    iota_n(input, conv_sizes.input_size, static_cast<DataType>(1));
 
-    std::vector<float> filter;
-    iota_n(filter, conv_sizes.filter_size, static_cast<float>(1));
+    std::vector<DataType> filter;
+    iota_n(filter, conv_sizes.filter_size, static_cast<DataType>(1));
 
     size_t inp_bytes = conv_sizes.input_size * sizeof(exp[0]);
-    float* inp_gpu = static_cast<float*>(device_.allocate(inp_bytes));
+    DataType* inp_gpu = static_cast<DataType*>(device_.allocate(inp_bytes));
     device_.memcpyHostToDevice(inp_gpu, input.data(), inp_bytes);
 
     size_t fil_bytes = conv_sizes.filter_size * sizeof(exp[0]);
-    float* fil_gpu = static_cast<float*>(device_.allocate(fil_bytes));
+    DataType* fil_gpu = static_cast<DataType*>(device_.allocate(fil_bytes));
     device_.memcpyHostToDevice(fil_gpu, filter.data(), fil_bytes);
 
     size_t out_bytes = conv_sizes.output_size * sizeof(exp[0]);
-    float* out_gpu = static_cast<float*>(device_.allocate(out_bytes));
+    DataType* out_gpu = static_cast<DataType*>(device_.allocate(out_bytes));
 
-    auto status = sycldnn::conv2d::launch<float, ConvType>(
+    SelectorType selector{};
+    auto status = sycldnn::conv2d::launch<DataType, ConvType>(
         inp_gpu, fil_gpu, out_gpu, params, selector, backend_);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait();
 
-    std::vector<float> output;
+    std::vector<DataType> output;
     output.reserve(conv_sizes.output_size);
     device_.memcpyDeviceToHost(output.data(), out_gpu, out_bytes);
 
@@ -78,6 +86,13 @@ struct BasicConvolutionTest : public EigenBackendTest {
     std::generate_n(std::back_inserter(c), size, [&value] { return value++; });
   }
 };
+
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector>;
+using SNNTypePairs =
+    sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
+using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+TYPED_TEST_CASE(BasicConvolutionTest, GTestTypePairs);
 
 namespace {
 cl::sycl::default_selector selector{};
@@ -158,12 +173,11 @@ sycldnn::conv2d::Conv2DParams get_1x1_params() {
  *         (5+12+21+36+50    (6+14+24+40+55
  *         +66+91+112+135)   +72+98+120+144)
  */
-TEST_F(BasicConvolutionTest, Simple3x3) {
-  std::vector<float> exp = {348, 393, 528, 573};
+TYPED_TEST(BasicConvolutionTest, Simple3x3) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {348, 393, 528, 573};
   auto params = get_3x3_params();
-
-  sycldnn::conv2d::DirectSelector direct_sel{};
-  this->test_conv<sycldnn::conv2d::conv_type::Forward>(exp, params, direct_sel);
+  this->template test_conv<sycldnn::conv2d::conv_type::Forward>(exp, params);
 }
 /**
  *  Input:  1    3    5       Filter:  1    2
@@ -184,13 +198,13 @@ TEST_F(BasicConvolutionTest, Simple3x3) {
  *          14+42  15+48  17+54
  *            26+56  30+64  34+72
  */
-TEST_F(BasicConvolutionTest, Simple1x1) {
-  std::vector<float> exp = {7,  10, 15, 22, 23, 34, 31, 46, 39,
-                            58, 47, 70, 55, 82, 63, 94, 71, 106};
+TYPED_TEST(BasicConvolutionTest, Simple1x1) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {7,  10, 15, 22, 23, 34, 31, 46, 39,
+                               58, 47, 70, 55, 82, 63, 94, 71, 106};
 
   auto params = get_1x1_params();
-  sycldnn::conv2d::DirectSelector direct_sel{};
-  this->test_conv<sycldnn::conv2d::conv_type::Forward>(exp, params, direct_sel);
+  this->template test_conv<sycldnn::conv2d::conv_type::Forward>(exp, params);
 }
 /*
  * Input: 1   2  Filter:  1  2  3
@@ -202,13 +216,13 @@ TEST_F(BasicConvolutionTest, Simple1x1) {
  *          7+12  8+14+15+16  9+16+18+20  18+24
  *          21      24+28       27+32      36
  */
-TEST_F(BasicConvolutionTest, InputBackprop3x3) {
-  std::vector<float> exp = {1,  4,  7,  6,  7,  23, 33, 24,
-                            19, 53, 63, 42, 21, 52, 59, 36};
+TYPED_TEST(BasicConvolutionTest, InputBackprop3x3) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {1,  4,  7,  6,  7,  23, 33, 24,
+                               19, 53, 63, 42, 21, 52, 59, 36};
   auto params = get_3x3_params();
-  sycldnn::conv2d::DirectSelector direct_sel{};
-  this->test_conv<sycldnn::conv2d::conv_type::InputBackprop>(exp, params,
-                                                             direct_sel);
+  this->template test_conv<sycldnn::conv2d::conv_type::InputBackprop>(exp,
+                                                                      params);
 }
 /*
  * Input: 1   2  Filter:   1   2   3
@@ -220,13 +234,13 @@ TEST_F(BasicConvolutionTest, InputBackprop3x3) {
  *        1x7+3x1  1x8+3x2  1x9+2x7+3x3+4x1  2x8+4x2
  *          3x4      3x5        3x6+4x4        4x5
  */
-TEST_F(BasicConvolutionTest, InputBackprop3x3Stride2) {
-  std::vector<float> exp = {1,  2,  5,  4,  4,  5,  14, 10,
-                            10, 14, 36, 24, 12, 15, 34, 20};
+TYPED_TEST(BasicConvolutionTest, InputBackprop3x3Stride2) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {1,  2,  5,  4,  4,  5,  14, 10,
+                               10, 14, 36, 24, 12, 15, 34, 20};
   auto params = get_3x3_stride2_params();
-  sycldnn::conv2d::DirectSelector selector{};
-  this->test_conv<sycldnn::conv2d::conv_type::InputBackprop>(exp, params,
-                                                             selector);
+  this->template test_conv<sycldnn::conv2d::conv_type::InputBackprop>(exp,
+                                                                      params);
 }
 /*
  * Input:   1    3    5   Filter:  1    2
@@ -248,14 +262,14 @@ TEST_F(BasicConvolutionTest, InputBackprop3x3Stride2) {
  *         13x1+14x2   15x1+16x2   17x1+18x2
  *           13x3+14x4   15x3+16x4   17x3+18x4
  */
-TEST_F(BasicConvolutionTest, InputBackprop1x1) {
-  std::vector<float> exp = {5,  11, 11, 25, 17, 39, 23,  53, 29,
-                            67, 35, 81, 41, 95, 47, 109, 53, 123};
+TYPED_TEST(BasicConvolutionTest, InputBackprop1x1) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {5,  11, 11, 25, 17, 39, 23,  53, 29,
+                               67, 35, 81, 41, 95, 47, 109, 53, 123};
 
   auto params = get_1x1_params();
-  sycldnn::conv2d::DirectSelector direct_sel{};
-  this->test_conv<sycldnn::conv2d::conv_type::InputBackprop>(exp, params,
-                                                             direct_sel);
+  this->template test_conv<sycldnn::conv2d::conv_type::InputBackprop>(exp,
+                                                                      params);
 }
 /*
  * Input:   1    3    5   Filter:  1    2
@@ -271,13 +285,13 @@ TEST_F(BasicConvolutionTest, InputBackprop1x1) {
  *           5x1+6x29x3+10x4     6x1+7x2+10x3+11x4     7x1+8x2+11x3+12x4
  *         9x1+10x2+13x3+14x4   10x1+11x2+14x3+15x4   11x1+12x2+15x3+16x4
  */
-TEST_F(BasicConvolutionTest, FilterBackprop3x3) {
-  std::vector<float> exp = {44, 54, 64, 84, 94, 104, 124, 134, 144};
+TYPED_TEST(BasicConvolutionTest, FilterBackprop3x3) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {44, 54, 64, 84, 94, 104, 124, 134, 144};
 
   auto params = get_3x3_params();
-  sycldnn::conv2d::DirectSelector direct_sel{};
-  this->test_conv<sycldnn::conv2d::conv_type::FilterBackprop>(exp, params,
-                                                              direct_sel);
+  this->template test_conv<sycldnn::conv2d::conv_type::FilterBackprop>(exp,
+                                                                       params);
 }
 /*
  * Input:   1    3    5   Filter:   1    3    5
@@ -295,11 +309,11 @@ TEST_F(BasicConvolutionTest, FilterBackprop3x3) {
  *         1x2+3x4+5x6+7x8+9x10+11x12+13x14+15x16+17x18
  *           2x2+4x4+6x6+8x8+10x10+12x12+14x14+16x16+18x18
  */
-TEST_F(BasicConvolutionTest, FilterBackprop1x1) {
-  std::vector<float> exp = {969, 1050, 1050, 1140};
+TYPED_TEST(BasicConvolutionTest, FilterBackprop1x1) {
+  using DataType = typename TestFixture::DataType;
+  std::vector<DataType> exp = {969, 1050, 1050, 1140};
 
   auto params = get_1x1_params();
-  sycldnn::conv2d::DirectSelector direct_sel{};
-  this->test_conv<sycldnn::conv2d::conv_type::FilterBackprop>(exp, params,
-                                                              direct_sel);
+  this->template test_conv<sycldnn::conv2d::conv_type::FilterBackprop>(exp,
+                                                                       params);
 }

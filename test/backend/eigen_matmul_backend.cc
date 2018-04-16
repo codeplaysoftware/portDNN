@@ -20,6 +20,8 @@
 
 #include "test/backend/eigen_matmul_backend_test_fixture.h"
 
+#include "test/types/kernel_data_types.h"
+
 namespace {
 cl::sycl::default_selector selector{};
 }  // namespace
@@ -32,16 +34,7 @@ sycldnn::backend::EigenBackend EigenBackendTest::backend_{
 
 template <typename T>
 using EigenMatmul = EigenBackendMatmul;
-using MatmulTypes = ::testing::Types<float
-#ifdef SNN_USE_DOUBLE
-                                     ,
-                                     double
-#endif
-#ifdef SNN_USE_HALF
-                                     ,
-                                     cl::sycl::half
-#endif
-                                     >;
+using MatmulTypes = sycldnn::types::GTestKernelDataTypes;
 TYPED_TEST_CASE(EigenMatmul, MatmulTypes);
 
 TYPED_TEST(EigenMatmul, SimpleMatmul) {
