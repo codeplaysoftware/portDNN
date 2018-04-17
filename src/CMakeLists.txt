@@ -165,6 +165,134 @@ snn_object_library(
   KERNEL_SOURCES ${tiled_conv2d_kernel_sources}
 )
 
+macro(instantiate_im2col_zero_transform_impl out_var vector)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(_filename
+    "${INST_IM2COL_ZERO_FILENAME}_${DTYPE_ID}_${vector}.cc"
+  )
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/im2col/${_filename})
+  set(VECTOR_WIDTH ${vector})
+  configure_file(${INST_IM2COL_ZERO_TEMPLATE_FILE} ${_gen_file})
+  list(APPEND ${out_var} ${_gen_file})
+endmacro()
+function(instantiate_im2col_zero_transform)
+  set(options)
+  set(one_value_args
+    OUTPUT_VAR
+    TEMPLATE_FILE
+    FILENAME
+  )
+  set(multi_value_args)
+  cmake_parse_arguments(INST_IM2COL_ZERO
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  snn_warn_unparsed_args(INST_IM2COL_ZERO)
+  set(_sources "")
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    instantiate_im2col_zero_transform_impl(_sources 1)
+    instantiate_im2col_zero_transform_impl(_sources 2)
+    instantiate_im2col_zero_transform_impl(_sources 4)
+  endforeach()
+  set(${INST_IM2COL_ZERO_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+endfunction()
+
+macro(instantiate_im2col_input_transform_impl out_var vector)
+  list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(_filename "${INST_IM2COL_INPUT_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}")
+  set(_filename "${_filename}_${CONV_TYPE_IDX}_${vector}.cc")
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/im2col/${_filename})
+  set(VECTOR_WIDTH ${vector})
+  configure_file(${INST_IM2COL_INPUT_TEMPLATE_FILE} ${_gen_file})
+  list(APPEND ${out_var} ${_gen_file})
+endmacro()
+function(instantiate_im2col_input_transform)
+  set(options)
+  set(one_value_args
+    OUTPUT_VAR
+    TEMPLATE_FILE
+    FILENAME
+  )
+  set(multi_value_args)
+  cmake_parse_arguments(INST_IM2COL_INPUT
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  snn_warn_unparsed_args(INST_IM2COL_INPUT)
+  set(_sources "")
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
+      foreach(CONV_TYPE IN LISTS SNN_CONV_TYPES)
+        instantiate_im2col_input_transform_impl(_sources 1)
+        instantiate_im2col_input_transform_impl(_sources 2)
+        instantiate_im2col_input_transform_impl(_sources 4)
+      endforeach()
+    endforeach()
+  endforeach()
+  set(${INST_IM2COL_INPUT_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+endfunction()
+
+macro(instantiate_im2col_filter_transform_impl out_var)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(_filename "${INST_IM2COL_FILTER_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}.cc")
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/im2col/${_filename})
+  configure_file(${INST_IM2COL_FILTER_TEMPLATE_FILE} ${_gen_file})
+  list(APPEND ${out_var} ${_gen_file})
+endmacro()
+function(instantiate_im2col_filter_transform)
+  set(options)
+  set(one_value_args
+    OUTPUT_VAR
+    TEMPLATE_FILE
+    FILENAME
+  )
+  set(multi_value_args)
+  cmake_parse_arguments(INST_IM2COL_FILTER
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  snn_warn_unparsed_args(INST_IM2COL_FILTER)
+  set(_sources "")
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
+      instantiate_im2col_filter_transform_impl(_sources)
+    endforeach()
+  endforeach()
+  set(${INST_IM2COL_FILTER_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+endfunction()
+
+instantiate_im2col_zero_transform(
+  OUTPUT_VAR    im2col_zero_kernels
+  TEMPLATE_FILE conv2d/im2col/zero_out_impl_tpl.cc.in
+  FILENAME      im2col_zero
+)
+instantiate_im2col_input_transform(
+  OUTPUT_VAR    im2col_input_kernels
+  TEMPLATE_FILE conv2d/im2col/input_transform_impl_tpl.cc.in
+  FILENAME      im2col_input
+)
+instantiate_im2col_filter_transform(
+  OUTPUT_VAR    im2col_filter_kernels
+  TEMPLATE_FILE conv2d/im2col/filter_transform_impl_tpl.cc.in
+  FILENAME      im2col_filter
+)
+snn_object_library(
+  WITH_SYCL
+  TARGET im2col_conv2d
+  SOURCES conv2d/im2col/launch_input_transform.cc
+          conv2d/im2col/launch_filter_transform.cc
+  KERNEL_SOURCES ${im2col_zero_kernels}
+                 ${im2col_input_kernels}
+                 ${im2col_filter_kernels}
+)
+
 snn_object_library(
   WITH_SYCL
   TARGET pooling

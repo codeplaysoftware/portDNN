@@ -62,6 +62,7 @@ snn_bench(
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
+    $<TARGET_OBJECTS:im2col_conv2d>
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
@@ -75,6 +76,7 @@ snn_bench(
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
+    $<TARGET_OBJECTS:im2col_conv2d>
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
@@ -88,6 +90,7 @@ snn_bench(
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
+    $<TARGET_OBJECTS:im2col_conv2d>
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen

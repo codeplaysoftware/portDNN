@@ -34,6 +34,8 @@ enum class Algorithm {
   Direct,
   /** Tiled approach to maximise data reuse within a thread. */
   Tiled,
+  /** Im2col implementation with temporary buffer. */
+  Im2col,
 };
 }  // namespace conv2d
 }  // namespace sycldnn

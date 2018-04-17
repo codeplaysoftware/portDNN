@@ -27,6 +27,7 @@
 #include "sycldnn/conv2d/sizes.h"
 
 #include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 
 #include "test/conv2d/convolution_fixture.h"
@@ -46,7 +47,8 @@ using BasicConvolutionTest = ConvolutionFixture<Pair>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
-                                           sycldnn::conv2d::TiledSelector>;
+                                           sycldnn::conv2d::TiledSelector,
+                                           sycldnn::conv2d::Im2colSelector>;
 #ifdef SNN_TEST_EIGEN_MATMULS
 using Backends =
     sycldnn::types::TypeList<sycldnn::backend::EigenBackend,

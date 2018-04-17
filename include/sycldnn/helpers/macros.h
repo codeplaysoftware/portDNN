@@ -95,4 +95,50 @@
     }                                                     \
   } while (0)
 
+/**
+ * Disable the copy constructor and copy assignment operator for type.
+ *
+ * This is expected to be used inside the definition of the struct or class of
+ * name type.
+ * \param type The struct or class name to disable copies for.
+ */
+#define SNN_DISABLE_COPY(type) \
+  type(type const&) = delete;  \
+  type& operator=(type const&) = delete
+
+/**
+ * Disable the move constructor and move assignment operator for type.
+ *
+ * This is expected to be used inside the definition of the struct or class of
+ * name type.
+ * \param type The struct or class name to disable moves for.
+ */
+#define SNN_DISABLE_MOVE(type) \
+  type(type&&) = delete;       \
+  type& operator=(type&&) = delete
+
+/**
+ * Use the default compiler generated copy constructor and copy assignment
+ * operator for type.
+ *
+ * This is expected to be used inside the definition of the struct or class of
+ * name type.
+ * \param type The struct or class name to add copy methods for.
+ */
+#define SNN_DEFAULT_COPY(type) \
+  type(type const&) = default; \
+  type& operator=(type const&) = default
+
+/**
+ * Use the default compiler generated move constructor and move assignment
+ * operator for type.
+ *
+ * This is expected to be used inside the definition of the struct or class of
+ * name type.
+ * \param type The struct or class name to add move methods for.
+ */
+#define SNN_DEFAULT_MOVE(type) \
+  type(type&&) = default;      \
+  type& operator=(type&&) = default
+
 #endif  // SYCLDNN_INCLUDE_HELPER_MACROS_H_

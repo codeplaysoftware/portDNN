@@ -27,6 +27,7 @@
 #include "sycldnn/conv2d/params.h"
 
 #include "sycldnn/conv2d/implementation/direct.h"
+#include "sycldnn/conv2d/implementation/im2col.h"
 #include "sycldnn/conv2d/implementation/tiled.h"
 #include "sycldnn/conv2d/selector/selector.h"
 
@@ -98,6 +99,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       return launch_direct<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::Tiled:
       return launch_tiled<T, ConvType>(input, filter, output, params, backend);
+    case Algorithm::Im2col:
+      return launch_im2col<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::NotSupported:
     default:
       SNNStatus not_supported_status;

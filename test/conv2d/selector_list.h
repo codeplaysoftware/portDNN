@@ -19,13 +19,15 @@
 #include "test/types/type_list.h"
 
 #include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 
 namespace sycldnn {
 namespace types {
 
 using SelectorList = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
-                                              sycldnn::conv2d::TiledSelector>;
+                                              sycldnn::conv2d::TiledSelector,
+                                              sycldnn::conv2d::Im2colSelector>;
 
 }  // namespace types
 }  // namespace sycldnn

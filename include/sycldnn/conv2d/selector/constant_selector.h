@@ -61,6 +61,8 @@ class ConstantSelector final : public Selector {
         return "Direct";
       case Algorithm::Tiled:
         return "Tiled";
+      case Algorithm::Im2col:
+        return "Im2col";
       default:
         SNN_ASSERT(false, "Unsupported algorithm in ConstantSelector::name()");
         return nullptr;
