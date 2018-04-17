@@ -37,6 +37,7 @@ TEST_F(EigenExternalDeathTest, FetchNonexistingBuffer) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr1 = backend_.allocate<float>(buffer_size);
+  ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
   ASSERT_DEATH(backend_.get_buffer(ptr2, n_elems),
                "The pointer is not registered in the map");
@@ -60,6 +61,7 @@ TEST_F(EigenInternalDeathTest, FetchNonexistingBuffer) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr1 = backend_.allocate<float>(buffer_size);
+  ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
   ASSERT_DEATH(backend_.get_buffer_internal(ptr2, n_elems),
                "The pointer is not registered in the map");

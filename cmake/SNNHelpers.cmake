@@ -98,10 +98,14 @@ function(snn_target)
     cxx_static_assert
   )
   target_compile_options(${SNN_TARGET_TARGET} PRIVATE -Wall -Wextra)
-  # The SYCL kernel names are only used when name mangling is turned on.
-  # By default we keep kernel name compression off, so these variables are
-  # typically not used.
-  target_compile_options(${SNN_TARGET_TARGET} PRIVATE -Wno-unused-variable)
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
+      CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+    # GCC 4.8 will warn when a struct is zero initialised but there are no
+    # explicit initializers for all the struct members.
+    target_compile_options(${SNN_TARGET_TARGET}
+      PRIVATE -Wno-missing-field-initializers
+    )
+  endif()
   if(SNN_TARGET_CXX_OPTS)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
