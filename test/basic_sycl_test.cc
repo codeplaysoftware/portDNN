@@ -39,12 +39,12 @@ TEST(BasicSycl, host_set_float) {
       cgh.parallel_for<HostSet>(cl::sycl::range<1>{num_elems},
                                 [=](cl::sycl::item<1> item) {
                                   const auto id = item.get_id(0);
-                                  accessorA[id] = id * 0.1;
+                                  accessorA[id] = id * 0.1f;
                                 });
     });
   }
   for (int i = 0; i < num_elems; ++i) {
-    ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1, base_mem[i]);
+    ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1f, base_mem[i]);
   }
 }
 TEST(BasicSycl, device_set_float) {
@@ -62,11 +62,11 @@ TEST(BasicSycl, device_set_float) {
       cgh.parallel_for<DeviceSet>(cl::sycl::range<1>{num_elems},
                                   [=](cl::sycl::item<1> item) {
                                     const auto id = item.get_id(0);
-                                    accessorA[id] = id * 0.1;
+                                    accessorA[id] = id * 0.1f;
                                   });
     });
   }
   for (int i = 0; i < num_elems; ++i) {
-    ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1, base_mem[i]);
+    ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1f, base_mem[i]);
   }
 }
