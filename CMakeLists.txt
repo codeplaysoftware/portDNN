@@ -37,6 +37,8 @@ option(SNN_EIGEN_NO_LOCAL_MEM
   "Only compile the no local memory versions of Eigen kernels" OFF)
 option(SNN_EIGEN_COMPRESS_NAMES
   "Compress Eigen SYCL kernel names" OFF)
+option(SNN_EIGEN_NO_BARRIER
+  "Use Eigen matmul which does not use barriers (implies NO_LOCAL_MEM)" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_INDEX_TYPES int32_t)

@@ -50,11 +50,16 @@ if(Eigen_FOUND)
                         DISABLE_RANK1=1
                         DISABLE_GEMV=1
                         DISABLE_SCALAR=1)
-  if(SNN_EIGEN_LOCAL_MEM)
-    list(APPEND eigen_definitions LOCAL_MEM=1)
-  endif()
-  if(SNN_EIGEN_NO_LOCAL_MEM)
-    list(APPEND eigen_definitions NO_LOCAL_MEM=1)
+  if(SNN_EIGEN_NO_BARRIER)
+    list(APPEND eigen_definitions DISABLE_ARM_GPU_CACHE_OPTIMISATION=1
+                                  NO_LOCAL_MEM=1)
+  else()
+    if(SNN_EIGEN_LOCAL_MEM)
+      list(APPEND eigen_definitions LOCAL_MEM=1)
+    endif()
+    if(SNN_EIGEN_NO_LOCAL_MEM)
+      list(APPEND eigen_definitions NO_LOCAL_MEM=1)
+    endif()
   endif()
   set_target_properties(Eigen::Eigen PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS "${eigen_definitions}"
