@@ -180,12 +180,38 @@ if(SNN_TEST_EIGEN)
     WITH_SYCL
     TARGET
       simple_convolution
+    SIZE
+      moderate
     SOURCES
-      convolutions.cc
+      conv2d/convolutions.cc
     OBJECTS
       $<TARGET_OBJECTS:direct_conv2d>
       $<TARGET_OBJECTS:tiled_conv2d>
     PUBLIC_LIBRARIES
       Eigen::Eigen
   )
+  set(_windows 1 1 3 3 5 5)
+  set(_strides 1 2 1 2 1 2)
+  list(LENGTH _windows _list_len_raw)
+  math(EXPR _list_len "${_list_len_raw} - 1")
+  foreach(_index RANGE ${_list_len})
+    list(GET _windows ${_index} _window)
+    list(GET _strides ${_index} _stride)
+    foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+      snn_test(
+        WITH_SYCL
+        TARGET
+          conv2d_${_type}_window${_window}_stride${_stride}
+        SIZE
+          moderate
+        SOURCES
+          conv2d/${_type}_window${_window}_stride${_stride}.cc
+        OBJECTS
+          $<TARGET_OBJECTS:direct_conv2d>
+          $<TARGET_OBJECTS:tiled_conv2d>
+        PUBLIC_LIBRARIES
+          Eigen::Eigen
+      )
+    endforeach()
+  endforeach()
 endif()

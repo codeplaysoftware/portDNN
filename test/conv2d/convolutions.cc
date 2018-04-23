@@ -22,7 +22,7 @@
 #include "sycldnn/conv2d/selector/direct_selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 
-#include "test/backend/eigen_backend_test_fixture.h"
+#include "test/conv2d/convolution_fixture.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
@@ -34,67 +34,7 @@
 #include <vector>
 
 template <typename Pair>
-struct BasicConvolutionTest : public EigenBackendTest {
-  using SelectorType = typename Pair::FirstType;
-  using DataType = typename Pair::SecondType;
-
- protected:
-  /** Test a convolution with both input and filter set to `1, 2, 3,...` */
-  template <typename ConvType>
-  void test_conv(std::vector<DataType> exp,
-                 sycldnn::conv2d::Conv2DParams const& params) {
-    auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
-    ASSERT_EQ(conv_sizes.output_size, exp.size());
-
-    std::vector<DataType> input;
-    iota_n(input, conv_sizes.input_size, static_cast<DataType>(1));
-
-    std::vector<DataType> filter;
-    iota_n(filter, conv_sizes.filter_size, static_cast<DataType>(1));
-
-    size_t inp_bytes = conv_sizes.input_size * sizeof(exp[0]);
-    DataType* inp_gpu = static_cast<DataType*>(device_.allocate(inp_bytes));
-    device_.memcpyHostToDevice(inp_gpu, input.data(), inp_bytes);
-
-    size_t fil_bytes = conv_sizes.filter_size * sizeof(exp[0]);
-    DataType* fil_gpu = static_cast<DataType*>(device_.allocate(fil_bytes));
-    device_.memcpyHostToDevice(fil_gpu, filter.data(), fil_bytes);
-
-    size_t out_bytes = conv_sizes.output_size * sizeof(exp[0]);
-    DataType* out_gpu = static_cast<DataType*>(device_.allocate(out_bytes));
-
-    SelectorType selector{};
-    if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
-      // Do not run the test if the implementation is not supported.
-      return;
-    }
-    auto status = sycldnn::conv2d::launch<DataType, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, selector, backend_);
-
-    if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
-      // Do not check results if the implementation is not supported.
-      return;
-    }
-    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait();
-
-    std::vector<DataType> output;
-    output.resize(conv_sizes.output_size);
-    device_.memcpyDeviceToHost(output.data(), out_gpu, out_bytes);
-
-    for (size_t i = 0; i < exp.size(); ++i) {
-      EXPECT_FLOAT_EQ(exp[i], output[i]);
-    }
-  }
-
- private:
-  /** Fill a vector with `value, value++,...` with `size` elements. */
-  template <typename T>
-  void iota_n(std::vector<T>& c, size_t size, T value) {
-    c.reserve(size);
-    std::generate_n(std::back_inserter(c), size, [&value] { return value++; });
-  }
-};
+using BasicConvolutionTest = ConvolutionFixture<Pair>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
