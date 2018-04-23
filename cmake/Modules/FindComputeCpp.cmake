@@ -49,11 +49,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     endif()
 endif()
 
-set(COMPUTECPP_64_BIT_DEFAULT ON)
-option(COMPUTECPP_64_BIT_CODE "Compile device code in 64 bit mode"
-        ${COMPUTECPP_64_BIT_DEFAULT})
-mark_as_advanced(COMPUTECPP_64_BIT_CODE)
-
 option(COMPUTECPP_DISABLE_GCC_DUAL_ABI "Compile with pre-5.1 ABI" OFF)
 mark_as_advanced(COMPUTECPP_DISABLE_GCC_DUAL_ABI)
 
@@ -62,6 +57,11 @@ mark_as_advanced(COMPUTECPP_USER_FLAGS)
 
 option(COMPUTECPP_FGLRX_WORKAROUND
   "Linker workaround for fglrx AMD drivers to prevent deadlocks" OFF)
+mark_as_advanced(COMPUTECPP_FGLRX_WORKAROUND)
+
+set(COMPUTECPP_BITCODE "spir64" CACHE STRING
+  "Bitcode type to use as SYCL target in compute++")
+mark_as_advanced(COMPUTECPP_BITCODE)
 
 # Platform-specific arguments
 if(MSVC)
@@ -162,35 +162,6 @@ else()
   message(STATUS "Package version - ${COMPUTECPP_PACKAGE_VERSION}")
 endif()
 
-# Obtain the device compiler flags
-set(USE_SPIRV "")
-if (COMPUTECPP_USE_SPIRV)
-  set(USE_SPIRV "--use-spirv")
-endif()
-
-set(USE_PTX "")
-if (COMPUTECPP_USE_PTX)
-  set(USE_PTX "--use-ptx")
-endif()
-
-execute_process(COMMAND ${COMPUTECPP_INFO_TOOL}
-  ${USE_SPIRV} ${USE_PTX} "--dump-device-compiler-flags"
-  OUTPUT_VARIABLE COMPUTECPP_DEVICE_COMPILER_FLAGS
-  RESULT_VARIABLE COMPUTECPP_INFO_TOOL_RESULT OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-if(NOT COMPUTECPP_INFO_TOOL_RESULT EQUAL "0")
-  message(FATAL_ERROR "compute++ flags - Error obtaining compute++ flags!")
-else()
-  mark_as_advanced(COMPUTECPP_COMPILER_FLAGS)
-  message(STATUS "compute++ flags - ${COMPUTECPP_DEVICE_COMPILER_FLAGS}")
-  separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
-endif()
-# computecpp_info adds an optimisation flag, but we want to ensure that device
-# code is always compiled with -O3, so remove the optimisation flag and add -O3
-list(REMOVE_ITEM COMPUTECPP_DEVICE_COMPILER_FLAGS "-O2")
-list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS ${CMAKE_CXX_FLAGS_RELEASE})
-separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
-
 # Check if the platform is supported
 execute_process(COMMAND ${COMPUTECPP_INFO_TOOL} "--dump-is-supported"
   OUTPUT_VARIABLE COMPUTECPP_PLATFORM_IS_SUPPORTED
@@ -205,6 +176,12 @@ else()
     message(STATUS "platform - your system CANNOT support ComputeCpp")
   endif()
 endif()
+
+# Add optimisation and bitcode options to device compiler flags
+list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS ${CMAKE_CXX_FLAGS_RELEASE})
+list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-mllvm -inline-threshold=1000")
+list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-sycl -sycl-target ${COMPUTECPP_BITCODE}")
+separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
 if(NOT TARGET OpenCL::OpenCL)
   add_library(OpenCL::OpenCL IMPORTED UNKNOWN)
