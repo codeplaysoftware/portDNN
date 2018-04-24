@@ -36,8 +36,9 @@ snn_bench(
     simple_convolution
   SOURCES
     simple_convolution.cc
+  OBJECTS
+    $<TARGET_OBJECTS:direct_conv2d>
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
-    direct_conv2d
 )

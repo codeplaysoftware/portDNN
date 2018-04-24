@@ -127,9 +127,10 @@ if(SNN_TEST_EIGEN)
   endforeach()
   # Need to call this after setting the sources to ensure that all sources are
   # compiled with SYCL support.
+  get_target_property(eigen_matmul_sources eigen_matmul SOURCES)
   snn_target(
-    WITH_SYCL
     TARGET eigen_matmul
+    SOURCES ${eigen_matmul_sources}
     PUBLIC_LIBRARIES
       Eigen::Eigen
       GTest::GTest
@@ -179,8 +180,9 @@ if(SNN_TEST_EIGEN)
       simple_convolution
     SOURCES
       convolutions.cc
+    OBJECTS
+      $<TARGET_OBJECTS:direct_conv2d>
     PUBLIC_LIBRARIES
       Eigen::Eigen
-      direct_conv2d
   )
 endif()

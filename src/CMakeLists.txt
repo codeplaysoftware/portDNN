@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
@@ -62,22 +62,22 @@ function(instantiate_direct_conv)
   endforeach()
 endfunction()
 
-add_library(direct_conv2d_kernels "")
+add_library(direct_conv2d OBJECT
+  conv2d/direct/launch_direct.cc
+)
 instantiate_direct_conv(
-  TARGET_LIB    direct_conv2d_kernels
+  TARGET_LIB    direct_conv2d
   TEMPLATE_FILE conv2d/direct/direct_impl_tpl.cc.in
   FILENAME      dc2d
 )
+
 # Need to call this after setting the sources to ensure that all sources are
 # compiled with SYCL support.
+get_target_property(direct_conv2d_kernel_sources direct_conv2d SOURCES)
+set_target_properties(direct_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 snn_target(
-  WITH_SYCL
-  TARGET direct_conv2d_kernels
-)
-add_library(direct_conv2d conv2d/direct/launch_direct.cc)
-target_link_libraries(direct_conv2d INTERFACE direct_conv2d_kernels)
-snn_target(
-  WITH_SYCL
   TARGET direct_conv2d
+  SOURCES ${direct_conv2d_kernel_sources}
+  DONT_LINK_SYCL_LIB
+  ADD_INCLUDE_DIRS
 )
-

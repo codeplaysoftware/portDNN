@@ -458,7 +458,11 @@ endfunction(__build_ir)
 #  SOURCES : Source files to be compiled for SYCL.
 #
 function(add_sycl_to_target)
-  set(options)
+  set(options
+    DONT_BUILD_SYCL_IR
+    ADD_INCLUDE_DIRS
+    DONT_LINK_SYCL_LIB
+  )
   set(one_value_args
     TARGET
     BINARY_DIR
@@ -472,39 +476,49 @@ function(add_sycl_to_target)
     "${multi_value_args}"
     ${ARGN}
   )
-  set(file_counter 0)
-  # Add custom target to run compute++ and generate the integration header
-  foreach(source_file ${SNN_ADD_SYCL_SOURCES})
-    if(NOT IS_ABSOLUTE ${source_file})
-      set(source_file "${CMAKE_CURRENT_SOURCE_DIR}/${source_file}")
+  if(NOT ${SNN_ADD_SYCL_DONT_BUILD_SYCL_IR})
+    set(file_counter 0)
+    # Add custom target to run compute++ and generate the integration header
+    foreach(source_file ${SNN_ADD_SYCL_SOURCES})
+      if(NOT IS_ABSOLUTE ${source_file})
+        set(source_file "${CMAKE_CURRENT_SOURCE_DIR}/${source_file}")
+      endif()
+      __build_ir(
+        TARGET     ${SNN_ADD_SYCL_TARGET}
+        SOURCE     ${source_file}
+        BINARY_DIR ${SNN_ADD_SYCL_BINARY_DIR}
+        COUNTER    ${file_counter}
+      )
+      MATH(EXPR file_counter "${file_counter} + 1")
+    endforeach()
+  endif()
+  if(NOT ${SNN_ADD_SYCL_DONT_LINK_SYCL_LIB})
+    if(COMPUTECPP_FGLRX_WORKAROUND)
+      # AMD's fglrx driver will potentially cause deadlocks in threaded programs
+      # if the OpenCL library is linked after the standard library. In order to
+      # workaround this we explicitly force the linker to link against OpenCL
+      # before it links against ComputeCpp, rather than waiting until the OpenCL
+      # library is required.
+      get_target_property(current_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
+      list(APPEND current_links
+        "-Wl,--no-as-needed -l${OpenCL_LIBRARIES} -Wl,--as-needed"
+      )
+      set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
+        LINK_LIBRARIES "${current_links}"
+      )
     endif()
-    __build_ir(
-      TARGET     ${SNN_ADD_SYCL_TARGET}
-      SOURCE     ${source_file}
-      BINARY_DIR ${SNN_ADD_SYCL_BINARY_DIR}
-      COUNTER    ${file_counter}
-    )
-    MATH(EXPR file_counter "${file_counter} + 1")
-  endforeach()
-  if(COMPUTECPP_FGLRX_WORKAROUND)
-    # AMD's fglrx driver will potentially cause deadlocks in threaded programs
-    # if the OpenCL library is linked after the standard library. In order to
-    # workaround this we explicitly force the linker to link against OpenCL
-    # before it links against ComputeCpp, rather than waiting until the OpenCL
-    # library is required.
-    get_target_property(current_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
-    list(APPEND current_links
-      "-Wl,--no-as-needed -l${OpenCL_LIBRARIES} -Wl,--as-needed"
-    )
-    set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
-      LINK_LIBRARIES "${current_links}"
+
+    # Link with the ComputeCpp runtime library
+    target_link_libraries(${SNN_ADD_SYCL_TARGET}
+      PUBLIC
+        -Wl,--allow-shlib-undefined
+        ComputeCpp::ComputeCpp
     )
   endif()
-
-  # Link with the ComputeCpp runtime library
-  target_link_libraries(${SNN_ADD_SYCL_TARGET}
-    PUBLIC
-      ComputeCpp::ComputeCpp
-  )
+  if(${SNN_ADD_SYCL_ADD_INCLUDE_DIRS})
+    target_include_directories(${SNN_ADD_SYCL_TARGET} SYSTEM
+      PUBLIC ${COMPUTECPP_INCLUDE_DIRECTORY}
+    )
+  endif()
 endfunction(add_sycl_to_target)
 

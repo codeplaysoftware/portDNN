@@ -48,11 +48,14 @@ mark_as_advanced(
   SNN_TEST_LONG_TIMEOUT
   SNN_TEST_ETERNAL_TIMEOUT
 )
+
 # snn_target helper function
 # Adds the required links, include directories, SYCL support and flags to a
 # given cmake target.
 #
-# WITH_SYCL: whether to compile the executable for SYCL
+# DONT_BUILD_SYCL_IR: If present, will not build the IR for this file
+# ADD_INCLUDE_DIRS: If present, will add SYCL include dirs to the target
+# DONT_LINK_SYCL_LIB: If present, will not attempt to link with SYCL library
 # TARGET: name of the target
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
@@ -61,12 +64,15 @@ mark_as_advanced(
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_target)
   set(options
-    WITH_SYCL
+    DONT_BUILD_SYCL_IR
+    ADD_INCLUDE_DIRS
+    DONT_LINK_SYCL_LIB
   )
   set(one_value_args
     TARGET
   )
   set(multi_value_args
+    SOURCES
     PUBLIC_LIBRARIES
     PRIVATE_LIBRARIES
     PUBLIC_INCLUDE_DIRS
@@ -79,16 +85,21 @@ function(snn_target)
     "${multi_value_args}"
     ${ARGN}
   )
-  target_link_libraries(${SNN_TARGET_TARGET}
-    PUBLIC  ${SNN_TARGET_PUBLIC_LIBRARIES}
-    PRIVATE ${SNN_TARGET_PRIVATE_LIBRARIES}
-  )
+
+  if((DEFINED SNN_TARGET_PUBLIC_LIBRARIES) OR
+    (DEFINED SNN_TARGET_PRIVATE_LIBRARIES))
+    target_link_libraries(${SNN_TARGET_TARGET}
+      PUBLIC  ${SNN_TARGET_PUBLIC_LIBRARIES}
+      PRIVATE ${SNN_TARGET_PRIVATE_LIBRARIES}
+    )
+  endif()
   target_include_directories(${SNN_TARGET_TARGET}
     PUBLIC  ${SNN_TARGET_PUBLIC_INCLUDE_DIRS}
     PRIVATE ${SNN_TARGET_PRIVATE_INCLUDE_DIRS}
             ${sycldnn_SOURCE_DIR}/include
             ${sycldnn_SOURCE_DIR}
   )
+
   # Specify some C++11 features used widely across the library
   target_compile_features(${SNN_TARGET_TARGET} PUBLIC
     cxx_auto_type
@@ -109,16 +120,26 @@ function(snn_target)
   if(SNN_TARGET_CXX_OPTS)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
-  if(SNN_TARGET_WITH_SYCL)
-    get_target_property(SNN_TARGET_SOURCES ${SNN_TARGET_TARGET} SOURCES)
-    set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
-    add_sycl_to_target(
-      TARGET     ${SNN_TARGET_TARGET}
-      BINARY_DIR ${SNN_TARGET_BIN_DIR}/${SNN_TARGET_TARGET}.dir
-      SOURCES    ${SNN_TARGET_SOURCES}
-    )
+  set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
+  if(SNN_TARGET_DONT_BUILD_SYCL_IR)
+    set(_DONT_BUILD_SYCL_IR "DONT_BUILD_SYCL_IR")
   endif()
+  if(SNN_TARGET_ADD_INCLUDE_DIRS)
+    set(_ADD_INCLUDE_DIRS "ADD_INCLUDE_DIRS")
+  endif()
+  if(SNN_TARGET_DONT_LINK_SYCL_LIB)
+    set(_DONT_LINK_SYCL_LIB "DONT_LINK_SYCL_LIB")
+  endif()
+  add_sycl_to_target(
+    TARGET     ${SNN_TARGET_TARGET}
+    BINARY_DIR ${SNN_TARGET_BIN_DIR}/${SNN_TARGET_TARGET}.dir
+    SOURCES    ${SNN_TARGET_SOURCES}
+    ${_DONT_BUILD_SYCL_IR}
+    ${_ADD_INCLUDE_DIRS}
+    ${_DONT_LINK_SYCL_LIB}
+  )
 endfunction()
+
 # snn_executable helper function
 # Adds an executable target with the specified sources, libraries and include
 # directories. If SYCL support is requested then that is added to the target as
@@ -141,6 +162,7 @@ function(snn_executable)
   )
   set(multi_value_args
     SOURCES
+    OBJECTS
     PUBLIC_LIBRARIES
     PRIVATE_LIBRARIES
     PUBLIC_INCLUDE_DIRS
@@ -153,13 +175,17 @@ function(snn_executable)
     "${multi_value_args}"
     ${ARGN}
   )
-  if(${SNN_TEST_WITH_SYCL})
-    set(_WITH_SYCL WITH_SYCL)
+  if(NOT ${SNN_EXEC_WITH_SYCL})
+    set(_WITH_SYCL DONT_BUILD_SYCL_IR DONT_LINK_SYCL_LIB ADD_INCLUDE_DIRS)
   endif()
-  add_executable(${SNN_EXEC_TARGET} ${SNN_EXEC_SOURCES})
+  add_executable(${SNN_EXEC_TARGET}
+    ${SNN_EXEC_SOURCES}
+    ${SNN_EXEC_OBJECTS}
+  )
   snn_target(
     ${_WITH_SYCL}
     TARGET               ${SNN_EXEC_TARGET}
+    SOURCES              ${SNN_EXEC_SOURCES}
     PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    ${SNN_EXEC_PRIVATE_LIBRARIES}
     PUBLIC_INCLUDE_DIRS  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
@@ -167,6 +193,7 @@ function(snn_executable)
     CXX_OPTS             ${SNN_EXEC_CXX_OPTS}
   )
 endfunction()
+
 # snn_test helper function
 # Adds a test target with the specified sources, libraries and include
 # directories. If SYCL support is requested then that is added to the target as
@@ -193,6 +220,7 @@ function(snn_test)
   )
   set(multi_value_args
     SOURCES
+    OBJECTS
     PUBLIC_LIBRARIES
     PUBLIC_INCLUDE_DIRS
     CXX_OPTS
@@ -213,6 +241,7 @@ function(snn_test)
     ${_WITH_SYCL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_TEST_SOURCES}
+    OBJECTS              ${SNN_TEST_OBJECTS}
     PUBLIC_LIBRARIES     ${SNN_TEST_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    GTest::GTest GTest::Main
     PUBLIC_INCLUDE_DIRS  ${SNN_TEST_PUBLIC_INCLUDE_DIRS}
@@ -234,6 +263,7 @@ function(snn_test)
     TIMEOUT ${_TIMEOUT}
   )
 endfunction()
+
 # snn_bench helper function
 # Adds a benchmark target with the specified sources, libraries and include
 # directories. If SYCL support is requested then that is added to the target as
@@ -255,6 +285,7 @@ function(snn_bench)
   )
   set(multi_value_args
     SOURCES
+    OBJECTS
     PUBLIC_LIBRARIES
     PUBLIC_INCLUDE_DIRS
     CXX_OPTS
@@ -274,6 +305,7 @@ function(snn_bench)
     ${_WITH_SYCL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_BENCH_SOURCES}
+    OBJECTS              ${SNN_BENCH_OBJECTS}
     PUBLIC_LIBRARIES     ${SNN_BENCH_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    benchmark::benchmark
     PUBLIC_INCLUDE_DIRS  ${SNN_BENCH_PUBLIC_INCLUDE_DIRS}

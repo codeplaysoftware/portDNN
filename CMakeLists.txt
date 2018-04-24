@@ -93,3 +93,13 @@ if(SNN_BUILD_BENCHMARKS)
   add_subdirectory(bench)
 endif()
 
+add_library(sycl_dnn SHARED $<TARGET_OBJECTS:direct_conv2d>)
+
+add_library(sycl_dnn_static  STATIC $<TARGET_OBJECTS:direct_conv2d>)
+
+export(
+  TARGETS sycl_dnn sycl_dnn_static
+  NAMESPACE SYCL_DNN::
+  FILE sycl_dnn-config.cmake
+)
+
