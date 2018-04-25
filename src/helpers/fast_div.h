@@ -138,7 +138,7 @@ struct FastDiv {
    * Perform the actual division using the FastDiv magic numbers.
    */
   SNN_ALWAYS_INLINE Index divide(Index value) {
-    SNN_ASSERT(value > 0, "FastDiv requires strictly positive values");
+    SNN_ASSERT(value >= 0, "FastDiv requires nonnegative values");
     Unsigned unsigned_value = static_cast<Unsigned>(value);
     Unsigned unsigned_ans = cl::sycl::mul_hi(unsigned_value, multiple) >> shift;
     return static_cast<Index>(unsigned_ans);
