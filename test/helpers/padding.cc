@@ -116,7 +116,7 @@ TYPED_TEST(PaddingTest, SameWindow3Stride2) {
   TypeParam stride = 2;
   auto type = sycldnn::PaddingMode::SAME;
   std::vector<TypeParam> inputs = {3, 4, 5, 6, 7, 8, 9, 10};
-  std::vector<TypeParam> exp_pad = {1, 1, 1, 1, 1, 1, 1, 1};
+  std::vector<TypeParam> exp_pad = {1, 0, 1, 0, 1, 0, 1, 0};
   std::vector<TypeParam> exp_out = {2, 2, 3, 3, 4, 4, 5, 5};
   this->test_values(inputs, window, stride, type, exp_pad, exp_out);
 }
@@ -125,7 +125,7 @@ TYPED_TEST(PaddingTest, SameWindow3Stride3) {
   TypeParam stride = 3;
   auto type = sycldnn::PaddingMode::SAME;
   std::vector<TypeParam> inputs = {3, 4, 5, 6, 7, 8, 9, 10};
-  std::vector<TypeParam> exp_pad = {1, 1, 1, 1, 1, 1, 1, 1};
+  std::vector<TypeParam> exp_pad = {0, 1, 0, 0, 1, 0, 0, 1};
   std::vector<TypeParam> exp_out = {1, 2, 2, 2, 3, 3, 3, 4};
   this->test_values(inputs, window, stride, type, exp_pad, exp_out);
 }

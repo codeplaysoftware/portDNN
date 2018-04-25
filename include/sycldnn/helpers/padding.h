@@ -43,7 +43,8 @@ PaddingAndOutput<Index> calculate_padding(Index input, Index window,
     }
     case PaddingMode::SAME: {
       Index output = round_ratio_up(input, stride);
-      Index padding = window / 2;
+      Index padding_needed = (output - 1) * stride + window - input;
+      Index padding = padding_needed / 2;
       return PaddingAndOutput<Index>{padding, output};
     }
     default:
