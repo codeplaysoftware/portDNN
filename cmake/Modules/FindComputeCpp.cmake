@@ -144,7 +144,7 @@ else()
 endif()
 
 # Obtain the ComputeCpp include directory
-set(COMPUTECPP_INCLUDE_DIRECTORY ${COMPUTECPP_PACKAGE_ROOT_DIR}/include/)
+set(COMPUTECPP_INCLUDE_DIRECTORY ${COMPUTECPP_PACKAGE_ROOT_DIR}/include)
 if (NOT EXISTS ${COMPUTECPP_INCLUDE_DIRECTORY})
   message(FATAL_ERROR "ComputeCpp includes - Not found!")
 else()
@@ -181,6 +181,13 @@ endif()
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS ${CMAKE_CXX_FLAGS_RELEASE})
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-mllvm -inline-threshold=1000")
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-sycl -sycl-target ${COMPUTECPP_BITCODE}")
+
+if(CMAKE_CROSSCOMPILING)
+  list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS --gcc-toolchain=${SNN_TOOLCHAIN_DIR})
+  list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS --sysroot=${SNN_SYSROOT_DIR})
+  list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS -target ${SNN_TARGET_TRIPLE})
+endif()
+
 separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
 if(NOT TARGET OpenCL::OpenCL)
@@ -255,6 +262,7 @@ function(__build_ir)
   set(outputSyclFile ${SNN_BUILD_IR_BINARY_DIR}/${sourceFileName}.sycl)
 
   # Add any user-defined include to the device compiler
+  target_include_directories(${SNN_BUILD_IR_TARGET} PRIVATE ${OpenCL_INCLUDE_DIRS})
   set(device_compiler_includes "")
   get_property(includeDirectories DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY
     INCLUDE_DIRECTORIES)

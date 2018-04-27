@@ -36,6 +36,11 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
   # Need to explicitly declare byproducts of external projects, or Ninja gets 
   # confused about dependencies. 
   list(APPEND benchmark_BYPRODUCTS "${benchmark_BINARY_DIR}/src/libbenchmark.a")
+  if(CMAKE_CROSSCOMPILING)
+    set(cmake_toolchain
+      "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+    )
+  endif()
   ExternalProject_Add(benchmark
     GIT_REPOSITORY    https://github.com/google/benchmark.git
     GIT_TAG           ${BENCHMARK_GIT_TAG}
@@ -44,6 +49,7 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
     CMAKE_ARGS        -DBENCHMARK_ENABLE_TESTING=OFF
                       -DCMAKE_BUILD_TYPE=Release
                       -DBUILD_SHARED_LIBS=OFF
+                      ${cmake_toolchain}
     INSTALL_COMMAND   ""
     TEST_COMMAND      ""
     BUILD_BYPRODUCTS ${benchmark_BYPRODUCTS}

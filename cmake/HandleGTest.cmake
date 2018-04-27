@@ -51,6 +51,11 @@ if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
   set(GTEST_GIT_TAG "release-1.8.0" CACHE STRING
     "Git tag, branch or commit to use for googletest"
   )
+  if(CMAKE_CROSSCOMPILING)
+    set(cmake_toolchain
+      "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+    )
+  endif()
   set(GTEST_SOURCE_DIR ${snn_tests_BINARY_DIR}/googletest-src)
   set(GTEST_BINARY_DIR ${snn_tests_BINARY_DIR}/googletest-build)
   set(GTEST_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
@@ -70,6 +75,7 @@ if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
                       -DBUILD_GMOCK=OFF
                       -DBUILD_GTEST=ON
                       -DCMAKE_BUILD_TYPE=Release
+                      ${cmake_toolchain}
     INSTALL_COMMAND   ""
     TEST_COMMAND      ""
     BUILD_BYPRODUCTS  ${GTEST_BYPRODUCTS}
