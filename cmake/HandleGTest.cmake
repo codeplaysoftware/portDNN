@@ -53,6 +53,13 @@ if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
   )
   set(GTEST_SOURCE_DIR ${snn_tests_BINARY_DIR}/googletest-src)
   set(GTEST_BINARY_DIR ${snn_tests_BINARY_DIR}/googletest-build)
+  set(GTEST_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(GTEST_MAIN_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(GTEST_LIBRARIES ${GTEST_BINARY_DIR}/googletest/${GTEST_LIBNAME})
+  set(GTEST_MAIN_LIBRARIES ${GTEST_BINARY_DIR}/googletest/${GTEST_MAIN_LIBNAME})
+  set(GTEST_INCLUDE_DIR ${GTEST_SOURCE_DIR}/googletest/include)
+  list(APPEND GTEST_BYPRODUCTS "${GTEST_LIBRARIES}")
+  list(APPEND GTEST_BYPRODUCTS "${GTEST_MAIN_LIBRARIES}")
   ExternalProject_Add(googletest
     GIT_REPOSITORY    https://github.com/google/googletest.git
     GIT_TAG           ${GTEST_GIT_TAG}
@@ -65,12 +72,9 @@ if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
                       -DCMAKE_BUILD_TYPE=Release
     INSTALL_COMMAND   ""
     TEST_COMMAND      ""
+    BUILD_BYPRODUCTS  ${GTEST_BYPRODUCTS}
   )
-  set(GTEST_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(GTEST_MAIN_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(GTEST_LIBRARIES ${GTEST_BINARY_DIR}/googletest/${GTEST_LIBNAME})
-  set(GTEST_MAIN_LIBRARIES ${GTEST_BINARY_DIR}/googletest/${GTEST_MAIN_LIBNAME})
-  set(GTEST_INCLUDE_DIR ${GTEST_SOURCE_DIR}/googletest/include)
+
   # Have to explicitly make the include directory to add it to the library
   # target. This will be filled with the headers at build time when the
   # googletest library is downloaded.

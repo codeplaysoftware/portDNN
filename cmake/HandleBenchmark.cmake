@@ -32,6 +32,10 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
   )
   set(benchmark_SOURCE_DIR ${snn_bench_BINARY_DIR}/benchmark-src)
   set(benchmark_BINARY_DIR ${snn_bench_BINARY_DIR}/benchmark-build)
+
+  # Need to explicitly declare byproducts of external projects, or Ninja gets 
+  # confused about dependencies. 
+  list(APPEND benchmark_BYPRODUCTS "${benchmark_BINARY_DIR}/src/libbenchmark.a")
   ExternalProject_Add(benchmark
     GIT_REPOSITORY    https://github.com/google/benchmark.git
     GIT_TAG           ${BENCHMARK_GIT_TAG}
@@ -42,6 +46,7 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
                       -DBUILD_SHARED_LIBS=OFF
     INSTALL_COMMAND   ""
     TEST_COMMAND      ""
+    BUILD_BYPRODUCTS ${benchmark_BYPRODUCTS}
   )
   set(benchmark_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}benchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
   set(benchmark_LIBRARIES ${benchmark_BINARY_DIR}/src/${benchmark_LIBNAME})
