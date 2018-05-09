@@ -79,7 +79,7 @@ struct BasicConvolutionTest : public EigenBackendTest {
     status.event.wait();
 
     std::vector<DataType> output;
-    output.reserve(conv_sizes.output_size);
+    output.resize(conv_sizes.output_size);
     device_.memcpyDeviceToHost(output.data(), out_gpu, out_bytes);
 
     for (size_t i = 0; i < exp.size(); ++i) {
