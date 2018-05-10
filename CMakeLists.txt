@@ -25,6 +25,7 @@ option(SNN_DOWNLOAD_MISSING_DEPS
 
 option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
 option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
+option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)
 
 option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
@@ -102,6 +103,11 @@ add_library(sycl_dnn_static  STATIC
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
 )
+
+# Optionally build the samples.
+if(SNN_BUILD_SAMPLES)
+  add_subdirectory(samples)
+endif()
 
 export(
   TARGETS sycl_dnn sycl_dnn_static
