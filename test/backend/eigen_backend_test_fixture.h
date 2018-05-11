@@ -17,10 +17,8 @@
 #define SYCLDNN_TEST_BACKEND_EIGEN_BACKEND_TEST_FIXTURE_H_
 #include <gtest/gtest.h>
 
-#define EIGEN_USE_SYCL
-#include "unsupported/Eigen/CXX11/Tensor"
-
 // Need to ensure that Eigen is included before the backend.
+#include <unsupported/Eigen/CXX11/Tensor>
 #include "sycldnn/backend/eigen_backend.h"
 
 struct EigenBackendTest : public ::testing::Test {

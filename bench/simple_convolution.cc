@@ -15,9 +15,7 @@
  */
 #include <benchmark/benchmark.h>
 
-#define EIGEN_USE_SYCL
-#include "unsupported/Eigen/CXX11/Tensor"
-
+#include <unsupported/Eigen/CXX11/Tensor>
 // Need to ensure that Eigen is included before the backend.
 // The backend itself doesn't include Eigen to allow useres of SYCL-DNN to
 // include it however they wish.

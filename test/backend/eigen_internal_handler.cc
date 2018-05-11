@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-
-#define EIGEN_USE_SYCL
-#include "unsupported/Eigen/CXX11/Tensor"
-
 #include "test/backend/eigen_backend_test_fixture.h"
 
 namespace {

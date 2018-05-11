@@ -49,7 +49,8 @@ if(Eigen_FOUND)
   set(eigen_definitions DISABLE_SKINNY=1
                         DISABLE_RANK1=1
                         DISABLE_GEMV=1
-                        DISABLE_SCALAR=1)
+                        DISABLE_SCALAR=1
+                        EIGEN_USE_SYCL)
   if(SNN_EIGEN_NO_BARRIER)
     list(APPEND eigen_definitions DISABLE_ARM_GPU_CACHE_OPTIMISATION=1
                                   NO_LOCAL_MEM=1)
