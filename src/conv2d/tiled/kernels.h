@@ -468,20 +468,15 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   inline SNN_ALWAYS_INLINE void convolve_one_row(
       Input const& input, Filter const& filter, Output& output,
       int const out_row, int const filter_row, int offset) {
-    int first_col = 0;
     for (int out_col = 0; out_col < OutTileCols; ++out_col) {
-      int in_offset = helpers::round_ratio_up(out_col - offset, Stride);
+      auto padded_out = out_col - offset;
+      auto in_offset = helpers::round_ratio_up_above_zero(padded_out, Stride);
+      auto first_col = in_offset * Stride - padded_out;
       for (int filter_col = first_col; filter_col < WindowCols;
            filter_col += Stride, ++in_offset) {
-        if (in_offset >= 0) {
-          output.data(out_row, out_col) = inputbackprop_accumulate(
-              input.data(in_offset), filter, filter_row, filter_col,
-              output.data(out_row, out_col));
-        }
-      }
-      first_col--;
-      if (first_col < 0) {
-        first_col = Stride - 1;
+        output.data(out_row, out_col) =
+            inputbackprop_accumulate(input.data(in_offset), filter, filter_row,
+                                     filter_col, output.data(out_row, out_col));
       }
     }
   }

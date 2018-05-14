@@ -160,7 +160,7 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
                const ReadAccessor<const T> filter, WriteAccessor<T> output)
       : n_elems_{params.batch * params.in_rows * params.in_cols *
-                 params.channels},
+                 params.features},
         div_features_{params.features},
         div_in_cols_{params.in_cols},
         div_in_rows_{params.in_rows},

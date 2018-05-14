@@ -238,7 +238,7 @@ inline SNNStatus launch_tiled(ReadAccessor<T const> input,
     LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 4)
     LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
     LAUNCH_IF_MATCH(params, 3, 2, 2, 4, 1, 2)
-    LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
+    LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 4)
   }
   LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
   LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
