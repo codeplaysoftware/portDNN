@@ -22,8 +22,9 @@ set(SNN_CONV_TYPES conv_type::Forward
 
 macro(instantiate_direct_conv_impl window stride)
   list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
   set(_filename
-    "${INST_DIRECT_FILENAME}_${DATA_TYPE}_${INDEX_TYPE}_${CONV_TYPE_IDX}_${window}_${stride}.cc"
+    "${INST_DIRECT_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${CONV_TYPE_IDX}_${window}_${stride}.cc"
   )
   set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/direct/${_filename})
   set(DIRECT_WINDOW ${window})
@@ -85,7 +86,8 @@ snn_target(
 macro(instantiate_tiled_conv_impl window stride tile_row tile_col
                                    channel_vector feature_vector)
   list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
-  set(_filename "${INST_TILED_FILENAME}_${DATA_TYPE}_${INDEX_TYPE}")
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(_filename "${INST_TILED_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}")
   set(_filename "${_filename}_${CONV_TYPE_IDX}_${tile_row}_${tile_col}")
   set(_filename
     "${_filename}_${channel_vector}_${feature_vector}_${window}_${stride}.cc"

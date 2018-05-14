@@ -119,7 +119,8 @@ if(SNN_TEST_EIGEN)
     # The Eigen tests only require int32, not int64 so to save time only
     # compile for 32 bits.
     foreach(INDEX_TYPE IN ITEMS int32_t)
-      set(_filename eigen_matmul_${DATA_TYPE}_${INDEX_TYPE}.cc)
+      string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+      set(_filename eigen_matmul_${DTYPE_ID}_${INDEX_TYPE}.cc)
       set(_gen_dir ${CMAKE_BINARY_DIR}/generated/test/backend)
       configure_file(backend/eigen_matmul_tpl.cc.in ${_gen_dir}/${_filename})
       target_sources(eigen_matmul PRIVATE ${_gen_dir}/${_filename})
