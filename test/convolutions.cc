@@ -68,7 +68,7 @@ struct BasicConvolutionTest : public EigenBackendTest {
       // Do not run the test if the implementation is not supported.
       return;
     }
-    auto status = sycldnn::conv2d::launch<float, ConvType>(
+    auto status = sycldnn::conv2d::launch<DataType, ConvType>(
         inp_gpu, fil_gpu, out_gpu, params, selector, backend_);
 
     if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
