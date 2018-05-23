@@ -145,6 +145,7 @@ endif()
 
 # Obtain the ComputeCpp include directory
 set(COMPUTECPP_INCLUDE_DIRECTORY ${COMPUTECPP_PACKAGE_ROOT_DIR}/include)
+get_filename_component(COMPUTECPP_INCLUDE_DIRECTORY ${COMPUTECPP_INCLUDE_DIRECTORY} ABSOLUTE)
 if (NOT EXISTS ${COMPUTECPP_INCLUDE_DIRECTORY})
   message(FATAL_ERROR "ComputeCpp includes - Not found!")
 else()
