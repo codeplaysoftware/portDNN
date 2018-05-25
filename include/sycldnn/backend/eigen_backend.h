@@ -16,6 +16,11 @@
 #ifndef SYCLDNN_INCLUDE_BACKEND_EIGEN_BACKEND_H_
 #define SYCLDNN_INCLUDE_BACKEND_EIGEN_BACKEND_H_
 
+/**
+ * \file
+ * Contains the implementation of \ref sycldnn::backend::EigenBackend,
+ * which provides pointer handling and matrix multiplies via Eigen.
+ */
 #include "sycldnn/backend/eigen_external_handler.h"
 #include "sycldnn/backend/eigen_internal_handler.h"
 #include "sycldnn/backend/eigen_pointer_to_eigen_pointer.h"
@@ -30,6 +35,11 @@ namespace backend {
 struct EigenBackend final : public EigenExternalHandler,
                             public EigenToEigenPointer,
                             public EigenInternalHandler {
+  /**
+   * Constructs an instance of \ref sycldnn::backend::EigenBackend from an
+   * instance of Eigen's SyclDevice.
+   * \param device The Eigen::SyclDevice to construct the backend from.
+   */
   EigenBackend(Eigen::SyclDevice const& device)
       : EigenExternalHandler{device},
         EigenToEigenPointer{},

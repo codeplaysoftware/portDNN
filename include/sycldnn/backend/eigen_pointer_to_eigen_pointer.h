@@ -15,6 +15,13 @@
  */
 #ifndef SYCLDNN_INCLUDE_BACKEND_EIGEN_POINTER_TO_EIGEN_POINTER_H_
 #define SYCLDNN_INCLUDE_BACKEND_EIGEN_POINTER_TO_EIGEN_POINTER_H_
+
+/**
+ * \file
+ * Contains the implementation of \ref sycldnn::backend::EigenToEigenPointer,
+ * which provides mapping from externally to internal pointer representations
+ * for the Eigen backend. For the Eigen backend this is a no-op.
+ */
 namespace sycldnn {
 namespace backend {
 /**
@@ -24,6 +31,14 @@ namespace backend {
  * are used externally and internally.
  */
 struct EigenToEigenPointer {
+  /**
+   * Maps from external to internal pointer representations. This is a no-op for
+   * the Eigen backend.
+   * \param ptr The external pointer to transform to the corresponding internal
+   *            pointer representation.
+   * \return Returns a pointer representation compatible with \ref
+   *         sycldnn::backend::EigenInternalHandler.
+   */
   template <typename T>
   T* to_internal_pointer(T* ptr) {
     return ptr;

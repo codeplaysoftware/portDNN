@@ -16,6 +16,12 @@
 #ifndef SYCLDNN_INCLUDE_BACKEND_EIGEN_INTERNAL_HANDLER_H_
 #define SYCLDNN_INCLUDE_BACKEND_EIGEN_INTERNAL_HANDLER_H_
 
+/**
+ * \file
+ * Contains the implementation of \ref sycldnn::backend::EigenInternalHandler,
+ * which provides single and batch matrix multiply implementations using Eigen,
+ * as well as internal tensor allocation and buffer fetching methods.
+ */
 #include <utility>
 
 #include "sycldnn/helpers/macros.h"
@@ -31,30 +37,52 @@ namespace backend {
  * is included and which files are actually needed.
  */
 struct EigenInternalHandler {
+  /** The pointer representation required by the internal handler. */
   template <typename T>
   using internal_pointer_type = T*;
 
+  /**
+   * Constructs an instance of \ref sycldnn::backend::EigenInternalHandler from
+   * an instance of Eigen's SyclDevice.
+   * \param device The Eigen::SyclDevice to construct the handler from.
+   */
   EigenInternalHandler(Eigen::SyclDevice const& device) : device_(device) {}
 
-  /** Allocate a tensor to be used internally.  */
+  /**
+   * Allocate a tensor to be used internally.
+   * \param n_bytes The size of the allocation in bytes.
+   * \return Returns a pointer to allocation, using the internal pointer
+   *         representation.
+   * */
   template <typename T>
-  T* allocate(size_t n_bytes) {
-    return static_cast<T*>(device_.allocate(n_bytes));
+  internal_pointer_type<T> allocate(size_t n_bytes) {
+    return static_cast<internal_pointer_type<T>>(device_.allocate(n_bytes));
   }
-  /** Deallocate an internal tensor.  */
+
+  /**
+   * Deallocate an internal tensor.
+   * \param ptr A pointer to the allocation to deallocate.
+   * \return void
+   */
   template <typename T>
-  void deallocate(T* ptr) {
+  void deallocate(internal_pointer_type<T> ptr) {
     device_.deallocate(ptr);
   }
-  // This deduced return type is required to ensure that the buffer type
-  // matches the allocator used in the Eigen device. We cannot assume that
-  // std::allocator is used.
-  /** Get a buffer from an internal pointer. */
+
+  /**
+   * Get a SYCL buffer from an internal pointer.
+   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
+   * \return Returns a SYCL buffer corresponding to ptr.
+   */
   template <typename T>
-  auto get_buffer_internal(T* ptr, size_t /*n_elems*/) -> decltype(
-      std::declval<Eigen::SyclDevice>()
-          .get_sycl_buffer(ptr)
-          .template reinterpret<T>(std::declval<cl::sycl::range<1>>())) {
+  auto get_buffer_internal(internal_pointer_type<T> ptr, size_t /*n_elems*/)
+      -> decltype(
+          std::declval<Eigen::SyclDevice>()
+              .get_sycl_buffer(ptr)
+              .template reinterpret<T>(std::declval<cl::sycl::range<1>>())) {
+    // The deduced return type is required to ensure that the buffer type
+    // matches the allocator used in the Eigen device. We cannot assume that
+    // std::allocator is used.
     auto raw_buffer = device_.get_sycl_buffer(ptr);
     auto buffer_size = raw_buffer.get_size();
     SNN_ASSERT(buffer_size % sizeof(T) == 0,
@@ -62,11 +90,20 @@ struct EigenInternalHandler {
     auto cast_size = cl::sycl::range<1>{buffer_size / sizeof(T)};
     return raw_buffer.template reinterpret<T>(cast_size);
   }
-  /** Get the offset from an internal pointer. */
+
+  /**
+   * Get the offset from an internal pointer. An internal pointer may be an
+   * offset from some base address, where the base address corresponds to a
+   * SYCL buffer, and the offset refers to some address internal to the SYCL
+   * buffer. This function enables querying such an offset.
+   * \param ptr The internal pointer to query the offset for.
+   * \return Returns the offset from the buffer base address, in elements.
+   */
   template <typename T>
-  size_t get_offset_internal(T* ptr) {
+  size_t get_offset_internal(internal_pointer_type<T> ptr) {
     return device_.get_offset(ptr) / sizeof(T);
   }
+
   /**
    * Make TensorMap objects out of the provided pointers and dimensions, then
    * use Tensor Contraction to compute the matrix multiply.
@@ -103,6 +140,7 @@ struct EigenInternalHandler {
     // Eigen does not provide a way to access the SYCL event from kernels.
     return cl::sycl::event{};
   }
+
   /**
    * As Eigen Tensor does not have a batch matrix multiply, just fall back to
    * multiple calls to the standard matrix multiply.
