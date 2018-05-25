@@ -16,6 +16,12 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_DIRECT_SELECTOR_H_
 #define SYCLDNN_INCLUDE_CONV2D_DIRECT_SELECTOR_H_
 
+/**
+ * \file
+ * Contains the definition of the \ref sycldnn::conv2d::DirectSelector alias.
+ * This \ref sycldnn::conv2d::Selector will always select the direct convolution
+ * algorithm, regardless of the convolution parameters.
+ */
 #include "sycldnn/conv2d/selector/constant_selector.h"
 
 namespace sycldnn {

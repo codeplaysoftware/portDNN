@@ -16,6 +16,12 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_HELPERS_ADD_PADDING_TO_PARAMS_H_
 #define SYCLDNN_INCLUDE_CONV2D_HELPERS_ADD_PADDING_TO_PARAMS_H_
 
+/**
+ * \file
+ * Contains helper functions to add the padding and output sizes to a
+ * \ref sycldnn::conv2d::Conv2DParams parameter struct from the input sizes,
+ * window sizes and strides.
+ */
 #include "sycldnn/padding_mode.h"
 
 #include "sycldnn/helpers/padding.h"

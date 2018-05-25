@@ -16,6 +16,11 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_LAUNCH_H_
 #define SYCLDNN_INCLUDE_CONV2D_LAUNCH_H_
 
+/**
+ * \file
+ * Implements the \ref sycldnn::conv2d::launch() function, which asynchronously
+ * dispatches the SYCL kernels required to perform a 2D convolution.
+ */
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/algorithm.h"
@@ -34,9 +39,20 @@ namespace conv2d {
  * corresponding kernels will be launched. If any additional temporary memory is
  * required then it will be allocated through the backend.
  *
- * Returns an SNNStatus containing the SYCL event tied to the kernel launches
- * and a StatusCode enum showing if the launch was OK or whether it encountered
- * some problem.
+ * \param input A pointer to the memory representing the input tensor.
+ * \param filter A pointer to the memory representing the tensor of filter
+ *               coefficients.
+ * \param output A pointer to the memory represnting the output tensor.
+ * \param params The convolution parameters, which describe the tensor shapes
+ *               and convolution strides.
+ * \param selector An instance of \ref sycldnn::conv2d::Selector, used to guide
+ *                 the selection of the most appropriate convolution algorithm
+ *                 for a specific target platform or problem size.
+ * \param backend The backend implementation, used to provide optimized matrix
+ *                multiplies and to map between pointer represntations.
+ * \return Returns an SNNStatus containing the SYCL event tied to the kernel
+ * launches and a StatusCode enum showing if the launch was OK or whether it
+ * encountered some problem.
  */
 template <typename T, typename ConvType, typename Backend>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,

@@ -16,7 +16,14 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_SELECTOR_H_
 #define SYCLDNN_INCLUDE_CONV2D_SELECTOR_H_
 
-#include "sycldnn/conv2d/algorithm.h"
+/**
+ * \file
+ * Contains the definition of the \ref sycldnn::conv2d::Selector abstract base
+ * class. Concrete implementations of \ref sycldnn::conv2d::Selector enable
+ * SYCL-DNN to select the most appropriate convolution algorithm for a specific
+ * target platform or scenario.
+ */
+#include <sycldnn/conv2d/algorithm.h>
 #include "sycldnn/conv2d/params.h"
 
 namespace sycldnn {
@@ -28,6 +35,14 @@ namespace conv2d {
  */
 class Selector {
  public:
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
+   *  the optimal choice of convolution of algorithm.
+   */
   virtual Algorithm select(Conv2DParams const& params) = 0;
 };
 }  // namespace conv2d

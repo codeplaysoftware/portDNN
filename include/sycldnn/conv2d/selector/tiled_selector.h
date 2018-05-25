@@ -16,6 +16,12 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_TILED_SELECTOR_H_
 #define SYCLDNN_INCLUDE_CONV2D_TILED_SELECTOR_H_
 
+/**
+ * \file
+ * Contains the definition of the \ref sycldnn::conv2d::TiledSelector class.
+ * This concrete implementation of \ref sycldnn::conv2d::Selector will always
+ * attempt to select the tiled convolution where supported.
+ */
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/params.h"
 
@@ -26,6 +32,14 @@ namespace conv2d {
 /** A selector which will returns the tiled algorithm if supported. */
 class TiledSelector final : public Selector {
  public:
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::Tiled where tiled algorithms are supported,
+   * or Algorithm::NotSupported otherwise.
+   */
   Algorithm select(Conv2DParams const& params) override {
     if (params.window_rows != params.window_cols ||
         params.stride_rows != params.stride_cols) {

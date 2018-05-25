@@ -16,6 +16,13 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_CONSTANT_SELECTOR_H_
 #define SYCLDNN_INCLUDE_CONV2D_CONSTANT_SELECTOR_H_
 
+/**
+ * \file
+ * Contains the definition of the \ref sycldnn::conv2d::ConstantSelector class.
+ * This concrete implementations of \ref sycldnn::conv2d::Selector will always
+ * select a specific convolution algorithm, regardless of the convolution
+ * parameters.
+ */
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/params.h"
 
@@ -23,11 +30,25 @@
 
 namespace sycldnn {
 namespace conv2d {
-/** A selector which will always return the same algorithm. */
+/**
+ * A selector which will always return the same algorithm, regardless of the
+ * convolution parameters passed to the select function.
+ */
 template <Algorithm Algo>
 class ConstantSelector final : public Selector {
  public:
-  Algorithm select(Conv2DParams const&) { return Algo; }
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   *               and strides used by the convolution).
+   * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
+   *         the optimal choice of convolution of algorithm.
+   */
+  Algorithm select(Conv2DParams const& params) {
+    SNN_UNUSED_VAR(params)
+    return Algo;
+  }
 };
 }  // namespace conv2d
 }  // namespace sycldnn

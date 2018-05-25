@@ -15,6 +15,14 @@
  */
 #ifndef SYCLDNN_INCLUDE_CONV2D_CONV_TYPE_H_
 #define SYCLDNN_INCLUDE_CONV2D_CONV_TYPE_H_
+
+/**
+ * \file
+ * Contains the declarations of the \ref sycldnn::conv2d::conv_type::Forward,
+ * \ref sycldnn::conv2d::conv_type::InputBackprop and
+ * \ref sycldnn::conv2d::conv_type::FilterBackprop tag types.
+ *
+ */
 namespace sycldnn {
 namespace conv2d {
 /**
@@ -22,8 +30,20 @@ namespace conv2d {
  * backprop or the filter backprop.
  */
 namespace conv_type {
+
+/** Tag type representing forward-only convolutions. */
 struct Forward {};
+
+/**
+ * Tag type representing computation of back-propagation gradients with respect
+ * to the input tensor.
+ */
 struct InputBackprop {};
+
+/**
+ * Tag type representing computation of back-propagation gradients with respect
+ * to the filter tensor.
+ */
 struct FilterBackprop {};
 }  // namespace conv_type
 }  // namespace conv2d

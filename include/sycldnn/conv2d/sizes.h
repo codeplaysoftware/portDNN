@@ -16,23 +16,40 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_SIZES_H_
 #define SYCLDNN_INCLUDE_CONV2D_SIZES_H_
 
+/**
+ * \file
+ * Contains functionality for calculating the size of tensors from the
+ * convolution parameters, including the declaration of the
+ * \ref sycldnn::conv2d::ConvSizes structure.
+ */
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
 
 namespace sycldnn {
 namespace conv2d {
+
 /** Tensor sizes for a given convolution. */
 struct ConvSizes {
+  /** The size of the input tensor in elements. */
   size_t input_size;
+  /** The size of the filter tensor in elements. */
   size_t filter_size;
+  /** The size of the output tensor in elements. */
   size_t output_size;
 };
+
 /**
  * Compute the total sizes of the tensors used in a convolution for the
  * specified parameters.
+ * \param params The convolution parameters, containing the tensor sizes and
+ *               filter strides.
+ * \return Returns a \ref sycldnn::conv2d::ConvSizes instance, containing the
+ *         sizes of the tensors in elements.
  */
 template <typename ConvType>
 ConvSizes get_sizes(Conv2DParams const& params);
+
+/** \copydoc sycldnn::conv2d::get_sizes(Conv2DParams const& params) */
 template <>
 inline ConvSizes get_sizes<conv_type::Forward>(Conv2DParams const& params) {
   size_t inp_size =
@@ -44,6 +61,8 @@ inline ConvSizes get_sizes<conv_type::Forward>(Conv2DParams const& params) {
   ConvSizes sizes{inp_size, fil_size, out_size};
   return sizes;
 }
+
+/** \copydoc sycldnn::conv2d::get_sizes(Conv2DParams const& params) */
 template <>
 inline ConvSizes get_sizes<conv_type::InputBackprop>(
     Conv2DParams const& params) {
@@ -56,6 +75,8 @@ inline ConvSizes get_sizes<conv_type::InputBackprop>(
   ConvSizes sizes{inp_size, fil_size, out_size};
   return sizes;
 }
+
+/** \copydoc sycldnn::conv2d::get_sizes(Conv2DParams const& params) */
 template <>
 inline ConvSizes get_sizes<conv_type::FilterBackprop>(
     Conv2DParams const& params) {

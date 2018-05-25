@@ -15,9 +15,18 @@
  */
 #ifndef SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
 #define SYCLDNN_INCLUDE_CONV2D_ALGORITHM_ALGORITHM_H_
+
+/**
+ * \file
+ * Contains the declaration of the \ref sycldnn::conv2d::Algorithm enumerated
+ * type.
+ * This type is used to describe the various supported convolution algorithms.
+ */
 namespace sycldnn {
 namespace conv2d {
-/** The implemented 2d convolution algorithms. */
+/**
+ * The implemented 2d convolution algorithms.
+ */
 enum class Algorithm {
   /** Fallback not supported algorithm tag. */
   NotSupported,
