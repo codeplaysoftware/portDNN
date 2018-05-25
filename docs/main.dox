@@ -1,0 +1,8 @@
+/**
+ * \namespace sycldnn The root namespace for SYCL-DNN.
+ */
+
+/**
+ * \namespace sycldnn::conv2d Functionality relating to 2D convolutions.
+ */
+

@@ -26,6 +26,7 @@ option(SNN_DOWNLOAD_MISSING_DEPS
 option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
 option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
 option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)
+option(SNN_BUILD_DOCUMENTATION "Whether or not to build documentation" ON)
 
 option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
@@ -107,6 +108,11 @@ add_library(sycl_dnn_static  STATIC
 # Optionally build the samples.
 if(SNN_BUILD_SAMPLES)
   add_subdirectory(samples)
+endif()
+
+# Optionally build the documentation.
+if(SNN_BUILD_DOCUMENTATION)
+  add_subdirectory(docs)
 endif()
 
 export(

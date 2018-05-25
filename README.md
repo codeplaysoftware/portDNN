@@ -1,4 +1,4 @@
-# SYCL-DNN Readme
+# SYCL-DNN Readme {#mainpage}
 
 ## Introduction
 
@@ -44,6 +44,8 @@ neural network algorithms, written using the SYCL API.
 
 * CMake version 3.2.2
 
+* Building documentation requires Doxygen 1.8.11 and Graphviz/Dot
+
 ## Setup
 
 SYCL-DNN uses CMake as its build system. There are provisions in the CMake
@@ -69,15 +71,13 @@ type is Release, though this can be overridden.
 The following example shows how to specify the ComputeCpp location, then
 build and run the tests.
 
-```sh
-mkdir build && cd build
-cmake .. -DCOMPUTECPP_PACKAGE_ROOT_DIR=/path/to/computecpp
-make -j`nproc`
-# Can then run tests
-ctest
-# If compiled with benchmark support, can run benchmarks exclusively
-ctest -C Benchmark -E test
-```
+    mkdir build && cd build
+    cmake .. -DCOMPUTECPP_PACKAGE_ROOT_DIR=/path/to/computecpp
+    make -j`nproc`
+    # Can then run tests
+    ctest
+    # If compiled with benchmark support, can run benchmarks exclusively
+    ctest -C Benchmark -E test
 
 ## Troubleshooting
 
@@ -96,5 +96,5 @@ Please get in touch if you have any issues or questions - you can reach us at
 
 ## Contributions
 
-Please see the file CONTRIBUTIONS.md for further details if you would like to
+Please see the file CONTRIBUTING.md for further details if you would like to
 contribute code, build systems, bug fixes or similar.
