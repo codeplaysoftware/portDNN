@@ -16,6 +16,11 @@
 #ifndef SYCLDNN_INCLUDE_HELPERS_PADDING_H_
 #define SYCLDNN_INCLUDE_HELPERS_PADDING_H_
 
+/**
+ * \file
+ * Contains helper functions to compute required output sizes and padding, based
+ * on convolution strides and filter sizes.
+ */
 #include "sycldnn/padding_mode.h"
 
 #include "sycldnn/helpers/ratio.h"
@@ -25,7 +30,10 @@ namespace helpers {
 /** A simple struct for padding and output sizes. */
 template <typename Index>
 struct PaddingAndOutput {
+  /** The number of required padding elements. */
   Index padding;
+
+  /** The number of output elements. */
   Index output;
 };
 /**

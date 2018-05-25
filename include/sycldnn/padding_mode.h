@@ -16,6 +16,12 @@
 #ifndef SYCLDNN_INCLUDE_PADDING_MODE_H_
 #define SYCLDNN_INCLUDE_PADDING_MODE_H_
 
+/**
+ * \file
+ * Contains the declaration of the \ref sycldnn::PaddingMode enumerated type.
+ * This type is used to control boundary mode behaviour and padding for
+ * convolutions.
+ */
 namespace sycldnn {
 /**
  * Padding Mode to use, similar to how Eigen specifies its padding.

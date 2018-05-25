@@ -16,6 +16,10 @@
 #ifndef SYCLDNN_INCLUDE_HELPERS_RATIO_H_
 #define SYCLDNN_INCLUDE_HELPERS_RATIO_H_
 
+/**
+ * \file
+ * Contains helper functions to control rounding behvaiour in integer division.
+ */
 #include "sycldnn/helpers/macros.h"
 
 #include <type_traits>
@@ -25,6 +29,10 @@ namespace helpers {
 /**
  * Helper function to provide the rounded up ratio of two integers if the
  * numerator is positive, or zero if the numerator is negative.
+ * \param num The numerator for the division operation.
+ * \param div The denominator for the division operation.
+ * \return Returns the ratio of two integers rounded up if the numerator is
+ *         positive, or zero if the numerator is negative.
  */
 template <
     typename Index, typename DependentIndexType = Index,
@@ -37,6 +45,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
                 "round_ratio_up_above_zero is only valid for integral types");
   return num < 0 ? 0 : (num % div != 0 ? num / div + 1 : num / div);
 }
+
 template <
     typename Index, typename DependentIndexType = Index,
     typename std::enable_if<std::is_same<Index, DependentIndexType>::value &&
@@ -48,6 +57,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
                 "round_ratio_up_above_zero is only valid for integral types");
   return num % div != 0 ? num / div + 1 : num / div;
 }
+
 /**
  * Helper function to provide the ratio of two integers, always rounded up.
  */
@@ -60,12 +70,18 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up(Index const num,
   Index additive = num % div == 0 ? 0 : 1;
   return num < 0 ? quotient : quotient + additive;
 }
+
 /**
  * Helper function to round up an integral value to the nearest multiple of a
  * given multiplier.
  *
  * NOTE: This is not implemented for negative integers, and will provide
  * incorrect results if used with them.
+ * \param val The value to round up to the nearest positive multiple of
+ *            multipler.
+ * \param multiplier The value to round val to a multiple of.
+ * \return Returns val rounded up to the nearest positive multiple of
+ *         multiplier.
  */
 template <typename Index>
 inline SNN_ALWAYS_INLINE Index

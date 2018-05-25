@@ -15,20 +15,36 @@
  */
 #ifndef SYCLDNN_INCLUDE_HELPERS_MINMAX_H_
 #define SYCLDNN_INCLUDE_HELPERS_MINMAX_H_
+
+/**
+ * \file
+ * Implements the \ref sycldnn::helpers::min() and \ref sycldnn::helpers::max()
+ * functions. The functions provide the compiler improved visibility for
+ * optimization purposes relative to the SYCL builtin functions.
+ */
 #include "sycldnn/helpers/macros.h"
+
 namespace sycldnn {
 namespace helpers {
+
 /**
  * Min function. Prefer this over cl::sycl::min to allow the compiler to
  * understand more about the code.
+ * \param a The first operand.
+ * \param b The second operand.
+ * \return Returns the minimum value of operands a and b.
  */
 template <typename T>
 inline SNN_ALWAYS_INLINE T min(T a, T b) {
   return (a < b) ? a : b;
 }
+
 /**
  * Max function. Prefer this over cl::sycl::max to allow the compiler to
  * understand more about the code.
+ * \param a The first operand.
+ * \param b The second operand.
+ * \return Returns the maximum value of operands a and b.
  */
 template <typename T>
 inline SNN_ALWAYS_INLINE T max(T a, T b) {

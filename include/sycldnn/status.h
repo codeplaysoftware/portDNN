@@ -16,6 +16,13 @@
 #ifndef SYCLDNN_INCLUDE_STATUS_H_
 #define SYCLDNN_INCLUDE_STATUS_H_
 
+/**
+ * \file
+ * Contains the declarations of the \ref sycldnn::StatusCode and
+ * \ref sycldnn::SNNStatus types.
+ * These types are used to provide error codes and synchronization events for
+ * SYCL-DNN kernel launches.
+ */
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
@@ -38,7 +45,19 @@ enum class StatusCode {
  * launching the kernel.
  */
 struct SNNStatus {
+  /**
+   * A SYCL event corresponding to the final SYCL kernel launch. This event can
+   * be used to facilitate synchronization between the host processor and the
+   * asynchronously executing OpenCL kernels that implement SYCL-DNN operators.
+   *
+   * This event is only valid for a successful launch, i.e. when status == OK
+   */
   cl::sycl::event event;
+
+  /**
+   * A status code indicating whether the operator was launched sucessfully, or
+   * the reason for an unsucessful launch.
+   */
   StatusCode status;
 };
 }  // namespace sycldnn

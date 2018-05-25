@@ -16,6 +16,10 @@
 #ifndef SYCLDNN_INCLUDE_ACCESSOR_TYPES_H_
 #define SYCLDNN_INCLUDE_ACCESSOR_TYPES_H_
 
+/**
+ * \file
+ * Provides the \ref sycldnn::ReadAccessor and sycldnn::WriteAccessor aliases.
+ */
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
