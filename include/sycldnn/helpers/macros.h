@@ -18,6 +18,8 @@
 // Standard stringification macros
 #define SNN_MAKE_STRING(x) SNN_MAKE_STRING_IMPL(x)
 #define SNN_MAKE_STRING_IMPL(x) #x
+// Silences unused parameter warnings
+#define SNN_UNUSED_VAR(x) (void)x;
 // Provide a dummy attribute check for compilers which don't provide one.
 #ifdef __has_attribute
 #define SNN_HAS_ATTRIBUTE(x) __has_attribute(x)
