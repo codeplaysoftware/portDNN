@@ -37,7 +37,7 @@ TEST_F(EigenExternalDeathTest, FetchNonexistingBuffer) {
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
   ASSERT_DEATH(backend_.get_buffer(ptr2, n_elems),
-               "The pointer is not registered in the map");
+               "Cannot access null pointer");
 }
 TEST_F(EigenExternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -61,7 +61,7 @@ TEST_F(EigenInternalDeathTest, FetchNonexistingBuffer) {
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
   ASSERT_DEATH(backend_.get_buffer_internal(ptr2, n_elems),
-               "The pointer is not registered in the map");
+               "Cannot access null pointer");
 }
 TEST_F(EigenInternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
