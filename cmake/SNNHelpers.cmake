@@ -21,6 +21,7 @@
 #
 # Low level functions:
 #   snn_executable - adds an executable target
+#   snn_target     - adds common flags, features and libraries to a target
 #
 # These helper functions all take named parameters, detais of which can be
 # found below. Typically they take a `TARGET` and a list of `SOURCES`, along
@@ -49,14 +50,27 @@ mark_as_advanced(
   SNN_TEST_ETERNAL_TIMEOUT
 )
 
+# Check whether the option `${PREFIX}_${OPTION_NAME}` is set, and if so then
+# set the variable `OUT_VAR` to the text `${OPTION_NAME}`. This is useful for
+# forwarding options though mutliple layers of cmake_parse_arguments.
+macro(snn_forward_option OUT_VAR PREFIX OPTION_NAME)
+  # This constructs the variable name for the option, then sets
+  # `_is_option_set` to the value of this option
+  set(_is_option_set ${${PREFIX}_${OPTION_NAME}})
+  if(_is_option_set)
+    set(${OUT_VAR} "${OPTION_NAME}")
+  else()
+    set(${OUT_VAR} "")
+  endif()
+endmacro()
+
 # snn_target helper function
 # Adds the required links, include directories, SYCL support and flags to a
 # given cmake target.
 #
-# DONT_BUILD_SYCL_IR: If present, will not build the IR for this file
-# ADD_INCLUDE_DIRS: If present, will add SYCL include dirs to the target
-# DONT_LINK_SYCL_LIB: If present, will not attempt to link with SYCL library
+# WITH_SYCL: whether to compile the executable for SYCL
 # TARGET: name of the target
+# SOURCES: source files for the executable
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
 # PUBLIC_INCLUDE_DIRS: include directories for using the target
@@ -64,9 +78,7 @@ mark_as_advanced(
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_target)
   set(options
-    DONT_BUILD_SYCL_IR
-    ADD_INCLUDE_DIRS
-    DONT_LINK_SYCL_LIB
+    WITH_SYCL
   )
   set(one_value_args
     TARGET
@@ -120,24 +132,14 @@ function(snn_target)
   if(SNN_TARGET_CXX_OPTS)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
-  set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
-  if(SNN_TARGET_DONT_BUILD_SYCL_IR)
-    set(_DONT_BUILD_SYCL_IR "DONT_BUILD_SYCL_IR")
+  if(${SNN_TARGET_WITH_SYCL})
+    set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
+    add_sycl_to_target(
+      TARGET     ${SNN_TARGET_TARGET}
+      BINARY_DIR ${SNN_TARGET_BIN_DIR}/${SNN_TARGET_TARGET}.dir
+      SOURCES    ${SNN_TARGET_SOURCES}
+    )
   endif()
-  if(SNN_TARGET_ADD_INCLUDE_DIRS)
-    set(_ADD_INCLUDE_DIRS "ADD_INCLUDE_DIRS")
-  endif()
-  if(SNN_TARGET_DONT_LINK_SYCL_LIB)
-    set(_DONT_LINK_SYCL_LIB "DONT_LINK_SYCL_LIB")
-  endif()
-  add_sycl_to_target(
-    TARGET     ${SNN_TARGET_TARGET}
-    BINARY_DIR ${SNN_TARGET_BIN_DIR}/${SNN_TARGET_TARGET}.dir
-    SOURCES    ${SNN_TARGET_SOURCES}
-    ${_DONT_BUILD_SYCL_IR}
-    ${_ADD_INCLUDE_DIRS}
-    ${_DONT_LINK_SYCL_LIB}
-  )
 endfunction()
 
 # snn_executable helper function
@@ -147,7 +149,8 @@ endfunction()
 #
 # WITH_SYCL: whether to compile the executable for SYCL
 # TARGET: name of executable for the target
-# SOURCES: sources files for the executable
+# SOURCES: source files for the executable
+# OBJECTS: object files to add to the executable
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
 # PUBLIC_INCLUDE_DIRS: include directories for using the target
@@ -175,13 +178,11 @@ function(snn_executable)
     "${multi_value_args}"
     ${ARGN}
   )
-  if(NOT ${SNN_EXEC_WITH_SYCL})
-    set(_WITH_SYCL DONT_BUILD_SYCL_IR DONT_LINK_SYCL_LIB ADD_INCLUDE_DIRS)
-  endif()
   add_executable(${SNN_EXEC_TARGET}
     ${SNN_EXEC_SOURCES}
     ${SNN_EXEC_OBJECTS}
   )
+  snn_forward_option(_WITH_SYCL SNN_EXEC WITH_SYCL)
   snn_target(
     ${_WITH_SYCL}
     TARGET               ${SNN_EXEC_TARGET}
@@ -206,7 +207,8 @@ endfunction()
 # WITH_SYCL: whether to compile the test for SYCL
 # TARGET: target name prefix
 # SIZE: size of the test (short/moderate/long/eternal)
-# SOURCES: sources files for the tests
+# SOURCES: source files for the test
+# OBJECTS: object files to add to the test
 # PUBLIC_LIBRARIES: targets and flags for linking phase
 # PUBLIC_INCLUDE_DIRS: include directories for target
 # CXX_OPTS: additional compile flags to add to the target
@@ -231,12 +233,9 @@ function(snn_test)
     "${multi_value_args}"
     ${ARGN}
   )
-  if(${SNN_TEST_WITH_SYCL})
-    set(_WITH_SYCL WITH_SYCL)
-  endif()
   message(STATUS "Test target: ${SNN_TEST_TARGET}")
   set(_NAME ${SNN_TEST_TARGET}_test)
-
+  snn_forward_option(_WITH_SYCL SNN_TEST WITH_SYCL)
   snn_executable(
     ${_WITH_SYCL}
     TARGET               ${_NAME}_bin
@@ -272,7 +271,8 @@ endfunction()
 # parameters
 # WITH_SYCL: whether to compile the benchmark for SYCL
 # TARGET: target name prefix
-# SOURCES: sources files for the tests
+# SOURCES: source files for the benchmark
+# OBJECTS: object files to add to the benchmark
 # PUBLIC_LIBRARIES: targets and flags for linking phase
 # PUBLIC_INCLUDE_DIRS: include directories for target
 # CXX_OPTS: additional compile flags to add to the target
@@ -298,9 +298,7 @@ function(snn_bench)
   )
   message(STATUS "Bench target: ${SNN_BENCH_TARGET}")
   set(_NAME ${SNN_BENCH_TARGET}_bench)
-  if(${SNN_BENCH_WITH_SYCL})
-    set(_WITH_SYCL WITH_SYCL)
-  endif()
+  snn_forward_option(_WITH_SYCL SNN_BENCH WITH_SYCL)
   snn_executable(
     ${_WITH_SYCL}
     TARGET               ${_NAME}_bin

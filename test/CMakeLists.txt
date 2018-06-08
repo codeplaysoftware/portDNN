@@ -130,6 +130,7 @@ if(SNN_TEST_EIGEN)
   # compiled with SYCL support.
   get_target_property(eigen_matmul_sources eigen_matmul SOURCES)
   snn_target(
+    WITH_SYCL
     TARGET eigen_matmul
     SOURCES ${eigen_matmul_sources}
     PUBLIC_LIBRARIES

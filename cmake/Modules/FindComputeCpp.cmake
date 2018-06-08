@@ -482,11 +482,7 @@ endfunction(__build_ir)
 #  SOURCES : Source files to be compiled for SYCL.
 #
 function(add_sycl_to_target)
-  set(options
-    DONT_BUILD_SYCL_IR
-    ADD_INCLUDE_DIRS
-    DONT_LINK_SYCL_LIB
-  )
+  set(options)
   set(one_value_args
     TARGET
     BINARY_DIR
@@ -500,7 +496,8 @@ function(add_sycl_to_target)
     "${multi_value_args}"
     ${ARGN}
   )
-  if(NOT ${SNN_ADD_SYCL_DONT_BUILD_SYCL_IR})
+  list(LENGTH SNN_ADD_SYCL_SOURCES _num_sources)
+  if(${_num_sources} GREATER 0)
     set(file_counter 0)
     # Add custom target to run compute++ and generate the integration header
     foreach(source_file ${SNN_ADD_SYCL_SOURCES})
@@ -516,33 +513,44 @@ function(add_sycl_to_target)
       MATH(EXPR file_counter "${file_counter} + 1")
     endforeach()
   endif()
-  if(NOT ${SNN_ADD_SYCL_DONT_LINK_SYCL_LIB})
-    if(COMPUTECPP_FGLRX_WORKAROUND)
-      # AMD's fglrx driver will potentially cause deadlocks in threaded programs
-      # if the OpenCL library is linked after the standard library. In order to
-      # workaround this we explicitly force the linker to link against OpenCL
-      # before it links against ComputeCpp, rather than waiting until the OpenCL
-      # library is required.
-      get_target_property(current_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
-      list(APPEND current_links
-        "-Wl,--no-as-needed -l${OpenCL_LIBRARIES} -Wl,--as-needed"
-      )
-      set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
-        LINK_LIBRARIES "${current_links}"
-      )
-    endif()
+  if(COMPUTECPP_FGLRX_WORKAROUND)
+    # AMD's fglrx driver will potentially cause deadlocks in threaded programs
+    # if the OpenCL library is linked after the standard library. In order to
+    # workaround this we explicitly force the linker to link against OpenCL
+    # before it links against ComputeCpp, rather than waiting until the OpenCL
+    # library is required.
+    get_target_property(current_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
+    list(APPEND current_links
+      "-Wl,--no-as-needed -l${OpenCL_LIBRARIES} -Wl,--as-needed"
+    )
+    set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
+      LINK_LIBRARIES "${current_links}"
+    )
+  endif()
 
-    # Link with the ComputeCpp runtime library
-    target_link_libraries(${SNN_ADD_SYCL_TARGET}
-      PUBLIC
-        -Wl,--allow-shlib-undefined
-        ComputeCpp::ComputeCpp
-    )
-  endif()
-  if(${SNN_ADD_SYCL_ADD_INCLUDE_DIRS})
-    target_include_directories(${SNN_ADD_SYCL_TARGET} SYSTEM
-      PUBLIC ${COMPUTECPP_INCLUDE_DIRECTORY}
-    )
-  endif()
+  # Link with the ComputeCpp runtime library.
+  #
+  # There are some types of target which do not allow the use of
+  # target_link_libraries, such as object libraries and interface libraries. To
+  # get around this we can explictly append ComputeCpp to the LINK_LIBRARIES
+  # property.
+  # This has the same effect as:
+  # target_link_libraries(${SNN_ADD_SYCL_TARGET}
+  #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+  # )
+  get_target_property(_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
+  list(APPEND _links
+    -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+  )
+  get_target_property(_interface_links
+    ${SNN_ADD_SYCL_TARGET} INTERFACE_LINK_LIBRARIES
+  )
+  list(APPEND _interface_links
+    -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+  )
+  set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
+    LINK_LIBRARIES "${_links}"
+    INTERFACE_LINK_LIBRARIES "${_interface_links}"
+  )
 endfunction(add_sycl_to_target)
 

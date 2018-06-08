@@ -77,10 +77,9 @@ instantiate_direct_conv(
 get_target_property(direct_conv2d_kernel_sources direct_conv2d SOURCES)
 set_target_properties(direct_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 snn_target(
+  WITH_SYCL
   TARGET direct_conv2d
   SOURCES ${direct_conv2d_kernel_sources}
-  DONT_LINK_SYCL_LIB
-  ADD_INCLUDE_DIRS
 )
 
 macro(instantiate_tiled_conv_impl window stride tile_row tile_col
@@ -167,8 +166,7 @@ instantiate_tiled_conv(
 get_target_property(tiled_conv2d_kernel_sources tiled_conv2d SOURCES)
 set_target_properties(tiled_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 snn_target(
+  WITH_SYCL
   TARGET tiled_conv2d
   SOURCES ${tiled_conv2d_kernel_sources}
-  DONT_LINK_SYCL_LIB
-  ADD_INCLUDE_DIRS
 )
