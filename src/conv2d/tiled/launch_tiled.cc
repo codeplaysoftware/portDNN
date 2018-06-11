@@ -18,66 +18,15 @@
 #include "sycldnn/conv2d/sizes.h"
 #include "sycldnn/helpers/ratio.h"
 
+#include "src/conv2d/tiled/kernel_params.h"
+#include "src/conv2d/tiled/output_size.h"
 #include "src/conv2d/tiled/queue_tiled_kernel.h"
 
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
 namespace {
-template <typename ConvType>
-inline Conv2DParams get_kernel_params(Conv2DParams params) {
-  return params;
-}
-template <>
-inline Conv2DParams get_kernel_params<conv_type::InputBackprop>(
-    Conv2DParams params) {
-  // We need to change the padding from input padding to output padding for
-  // the kernel. pad_out = filt_size - 1 - pad_in
-  params.pad_rows = params.window_rows - 1 - params.pad_rows;
-  params.pad_cols = params.window_cols - 1 - params.pad_cols;
-  return params;
-}
-template <>
-inline Conv2DParams get_kernel_params<conv_type::FilterBackprop>(
-    Conv2DParams params) {
-  // Map the input dimensions to those expected in the convolution kernel.
-  const auto window_rows =
-      params.out_rows * params.stride_rows - (params.stride_rows - 1);
-  const auto window_cols =
-      params.out_cols * params.stride_cols - (params.stride_cols - 1);
-  params.out_rows = params.window_rows;
-  params.out_cols = params.window_cols;
-  params.window_rows = window_rows;
-  params.window_cols = window_cols;
-  return params;
-}
-template <typename ConvType, int TileRows, int Tile_cols,
-          int ChannelVectorWidth, int FeatureVectorWidth>
-struct TiledOutputSize {
-  static size_t get(Conv2DParams const&) { return 0; }
-};
-template <int TileRows, int TileCols, int ChannelVectorWidth,
-          int FeatureVectorWidth>
-struct TiledOutputSize<conv_type::Forward, TileRows, TileCols,
-                       ChannelVectorWidth, FeatureVectorWidth> {
-  static size_t get(Conv2DParams const& params) {
-    return params.batch *
-           helpers::round_ratio_up_above_zero(params.out_rows, TileRows) *
-           helpers::round_ratio_up_above_zero(params.out_cols, TileCols) *
-           params.features / FeatureVectorWidth;
-  }
-};
-template <int TileRows, int TileCols, int ChannelVectorWidth,
-          int FeatureVectorWidth>
-struct TiledOutputSize<conv_type::InputBackprop, TileRows, TileCols,
-                       ChannelVectorWidth, FeatureVectorWidth> {
-  static size_t get(Conv2DParams const& params) {
-    return params.batch *
-           helpers::round_ratio_up_above_zero(params.in_rows, TileRows) *
-           helpers::round_ratio_up_above_zero(params.in_cols, TileCols) *
-           params.channels / ChannelVectorWidth;
-  }
-};
+
 template <typename ConvType>
 inline bool can_use_fast_div(Conv2DParams const& params,
                              int channel_vector_width, int feature_vector_width,

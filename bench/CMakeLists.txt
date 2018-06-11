@@ -96,6 +96,10 @@ snn_bench(
     Eigen::Eigen
 )
 
+if(SNN_BUILD_INTERNAL_BENCHMARKS)
+  add_subdirectory(internal)
+endif()
+
 if(SNN_ARM_COMPUTE_ENABLED)
   find_package(ARMCompute REQUIRED)
 

@@ -27,6 +27,7 @@ option(SNN_DOWNLOAD_MISSING_DEPS
 
 option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
 option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
+option(SNN_BUILD_INTERNAL_BENCHMARKS "Whether or not to build internal benchmarks" OFF)
 option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)
 option(SNN_BUILD_DOCUMENTATION "Whether or not to build documentation" ON)
 option(SNN_INSTALL_TESTS
