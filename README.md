@@ -34,17 +34,21 @@ neural network algorithms, written using the SYCL API.
 
 ## Requirements
 
+* SYCL-DNN is primarily tested on Ubuntu 16.04 LTS, with the corresponding
+  default package versions. These are summarized below.
+
 * SYCL-DNN will generally match the most recently released ComputeCpp, though
   it is likely that it will be compatible with multiple versions concurrently
   as the SYCL interface is fixed. We test against the most recent version.
 
-* OpenCL 1.2-capable hardware and drivers with SPIR 1.2/SPIR-V/PTX support
+* OpenCL 1.2-capable hardware and drivers with SPIR 1.2/SPIR-V/PTX support.
 
-* A C++-11 compiler and STL implementation
+* A C++-11 compiler and STL implementation. We test against GCC 5.4.0.
 
-* CMake version 3.2.2
+* CMake. Tested against version 3.5.1.
 
-* Building documentation requires Doxygen 1.8.11 and Graphviz/Dot
+* Building documentation requires Doxygen and Graphviz/Dot. Tested 
+  against versions 1.8.11 and 2.38.0 respectively.
 
 ## Setup
 
