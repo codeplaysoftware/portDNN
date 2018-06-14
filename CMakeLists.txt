@@ -27,6 +27,10 @@ option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
 option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
 option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)
 option(SNN_BUILD_DOCUMENTATION "Whether or not to build documentation" ON)
+option(SNN_INSTALL_TESTS
+  "Whether or not to include unit tests when installing" OFF)
+option(SNN_INSTALL_BENCHMARKS
+  "Whether or not to include benchmarks when installing" OFF)
 
 option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
@@ -104,6 +108,13 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
 )
+
+install(TARGETS sycl_dnn sycl_dnn_static
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	PUBLIC_HEADER DESTINATION include
+	INCLUDES DESTINATION include)
+install(DIRECTORY include/sycldnn DESTINATION include)
 
 # Optionally build the samples.
 if(SNN_BUILD_SAMPLES)

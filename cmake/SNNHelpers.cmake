@@ -79,6 +79,7 @@ endmacro()
 function(snn_target)
   set(options
     WITH_SYCL
+    INSTALL
   )
   set(one_value_args
     TARGET
@@ -140,6 +141,15 @@ function(snn_target)
       SOURCES    ${SNN_TARGET_SOURCES}
     )
   endif()
+  if(${SNN_TARGET_INSTALL})
+    install(
+      TARGETS ${SNN_TARGET_TARGET}
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib
+      PUBLIC_HEADER DESTINATION include
+    )
+  endif()
 endfunction()
 
 # snn_executable helper function
@@ -148,6 +158,7 @@ endfunction()
 # well.
 #
 # WITH_SYCL: whether to compile the executable for SYCL
+# INSTALL: whether to exclude the executable from installation rules
 # TARGET: name of executable for the target
 # SOURCES: source files for the executable
 # OBJECTS: object files to add to the executable
@@ -159,6 +170,7 @@ endfunction()
 function(snn_executable)
   set(options
     WITH_SYCL
+    INSTALL
   )
   set(one_value_args
     TARGET
@@ -183,8 +195,10 @@ function(snn_executable)
     ${SNN_EXEC_OBJECTS}
   )
   snn_forward_option(_WITH_SYCL SNN_EXEC WITH_SYCL)
+  snn_forward_option(_INSTALL SNN_EXEC INSTALL)
   snn_target(
     ${_WITH_SYCL}
+    ${_INSTALL}
     TARGET               ${SNN_EXEC_TARGET}
     SOURCES              ${SNN_EXEC_SOURCES}
     PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES}
@@ -236,8 +250,12 @@ function(snn_test)
   message(STATUS "Test target: ${SNN_TEST_TARGET}")
   set(_NAME ${SNN_TEST_TARGET}_test)
   snn_forward_option(_WITH_SYCL SNN_TEST WITH_SYCL)
+  if(SNN_INSTALL_TESTS)
+    set(_INSTALL "INSTALL")
+  endif()
   snn_executable(
     ${_WITH_SYCL}
+    ${_INSTALL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_TEST_SOURCES}
     OBJECTS              ${SNN_TEST_OBJECTS}
@@ -299,8 +317,12 @@ function(snn_bench)
   message(STATUS "Bench target: ${SNN_BENCH_TARGET}")
   set(_NAME ${SNN_BENCH_TARGET}_bench)
   snn_forward_option(_WITH_SYCL SNN_BENCH WITH_SYCL)
+  if(${SNN_INSTALL_BENCHMARKS})
+    set(_INSTALL "INSTALL")
+  endif()
   snn_executable(
     ${_WITH_SYCL}
+    ${_INSTALL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_BENCH_SOURCES}
     OBJECTS              ${SNN_BENCH_OBJECTS}
