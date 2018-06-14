@@ -28,6 +28,7 @@
 #
 #  Latest version of this file can be found at:
 #    https://github.com/codeplaysoftware/computecpp-sdk
+
 cmake_minimum_required(VERSION 3.2.2)
 
 # Check that a supported host compiler can be found
@@ -49,9 +50,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     endif()
 endif()
 
-option(COMPUTECPP_DISABLE_GCC_DUAL_ABI "Compile with pre-5.1 ABI" OFF)
-mark_as_advanced(COMPUTECPP_DISABLE_GCC_DUAL_ABI)
-
 set(COMPUTECPP_USER_FLAGS "" CACHE STRING "User flags for compute++")
 mark_as_advanced(COMPUTECPP_USER_FLAGS)
 
@@ -63,14 +61,6 @@ set(COMPUTECPP_BITCODE "spir64" CACHE STRING
   "Bitcode type to use as SYCL target in compute++")
 mark_as_advanced(COMPUTECPP_BITCODE)
 
-# Platform-specific arguments
-if(MSVC)
-  # Workaround to an unfixed Clang bug, rationale:
-  # https://github.com/codeplaysoftware/computecpp-sdk/pull/51#discussion_r139399093
-  set (COMPUTECPP_PLATFORM_SPECIFIC_ARGS "-fno-ms-compatibility")
-endif()
-
-# Find OpenCL package
 find_package(OpenCL REQUIRED)
 
 # Find ComputeCpp package
@@ -200,6 +190,7 @@ if(NOT TARGET OpenCL::OpenCL)
     INTERFACE_INCLUDE_DIRECTORIES "${OpenCL_INCLUDE_DIRS}"
   )
 endif()
+
 add_library(ComputeCpp::ComputeCpp IMPORTED UNKNOWN)
 set_target_properties(ComputeCpp::ComputeCpp PROPERTIES
   IMPORTED_LOCATION_DEBUG          "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
@@ -264,10 +255,9 @@ function(__build_ir)
     "${multi_value_args}"
     ${ARGN}
   )
-  # Retrieve source file name.
   get_filename_component(sourceFileName ${SNN_BUILD_IR_SOURCE} NAME)
 
-  # Set the path to the Sycl file.
+  # Set the path to the integration header.
   set(outputSyclFile ${SNN_BUILD_IR_BINARY_DIR}/${sourceFileName}.sycl)
 
   # Add any user-defined include to the device compiler
@@ -303,6 +293,7 @@ function(__build_ir)
   else ()
     set(device_compiler_cxx_standard "")
   endif()
+
   # Add any user-defined compiler options
   set(target_compile_flags "")
   get_target_property(target_compile_options
@@ -324,6 +315,7 @@ function(__build_ir)
   if(source_compile_flags)
     list(APPEND target_compile_flags ${source_compile_flags})
   endif()
+
   # Copy include directories, compile options and definitions from libraries
   get_target_property(target_libraries ${SNN_BUILD_IR_TARGET} LINK_LIBRARIES)
   if(target_libraries)
@@ -357,7 +349,6 @@ function(__build_ir)
     ${COMPUTECPP_USER_FLAGS}
     ${target_compile_flags}
   )
-  # Convert argument list format
   separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
   set(ir_dependencies ${SNN_BUILD_IR_SOURCE})
@@ -373,7 +364,6 @@ function(__build_ir)
     COMMAND ${COMPUTECPP_DEVICE_COMPILER}
             ${COMPUTECPP_DEVICE_COMPILER_FLAGS}
             -isystem ${COMPUTECPP_INCLUDE_DIRECTORY}
-            ${COMPUTECPP_PLATFORM_SPECIFIC_ARGS}
             ${device_compiler_includes}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
@@ -382,16 +372,13 @@ function(__build_ir)
     WORKING_DIRECTORY ${SNN_BUILD_IR_BINARY_DIR}
     COMMENT "Building ComputeCpp integration header file ${outputSyclFile}")
 
-  # Name:
-  # (user-defined name)_(source file)_(counter)_ih
+  # Name: (user-defined name)_(source file)_(counter)_ih
   set(headerTargetName
     ${SNN_BUILD_IR_TARGET}_${sourceFileName}_${SNN_BUILD_IR_COUNTER}_ih)
 
   if(NOT MSVC)
     # Add a custom target for the generated integration header
     add_custom_target(${headerTargetName} DEPENDS ${outputSyclFile})
-
-    # Add a dependency on the integration header
     add_dependencies(${SNN_BUILD_IR_TARGET} ${headerTargetName})
   endif()
 
@@ -414,15 +401,14 @@ function(__build_ir)
     # Add SYCL header to source list
     list(APPEND current_sources ${outputSyclFile})
     set_property(TARGET ${SNN_BUILD_IR_TARGET}
-      PROPERTY SOURCES ${current_sources}
-    )
+      PROPERTY SOURCES ${current_sources})
     # CMake/gcc don't know what language a .sycl file is, so tell them
     set_property(SOURCE ${outputSyclFile} PROPERTY LANGUAGE CXX)
     set(includedFile ${SNN_BUILD_IR_SOURCE})
-    set(compiledFile ${outputSyclFile})
+    set(cppFile ${outputSyclFile})
   else()
     set(includedFile ${outputSyclFile})
-    set(compiledFile ${SNN_BUILD_IR_SOURCE})
+    set(cppFile ${SNN_BUILD_IR_SOURCE})
   endif()
 
   # Force inclusion of the integration header for the host compiler
@@ -437,7 +423,7 @@ function(__build_ir)
     endif()
 
     # Add both source and the sycl files to the VS solution.
-    target_sources(${SNN_BUILD_IR_TARGET} PUBLIC ${SNN_BUILD_IR_TARGET} ${outputSyclFile})
+    target_sources(${SNN_BUILD_IR_TARGET} PUBLIC ${SNN_BUILD_IR_SOURCE} ${outputSyclFile})
 
     # NOTE: The Visual Studio generators parse compile flags differently,
     # hence the different argument syntax
@@ -447,26 +433,13 @@ function(__build_ir)
       set(forceIncludeFlags /FI ${includedFile} /TP)
     endif()
   else()
-      set(forceIncludeFlags "-include ${includedFile} -x c++")
+      set(forceIncludeFlags "-include ${includedFile} -x c++ ")
   endif()
-  # target_compile_options removes duplicated flags, which does not work
-  # for -include (it should appear once per included file - CMake bug #15826)
-  #   target_compile_options(${targetName} BEFORE PUBLIC ${forceIncludeFlags})
-  # To avoid the problem, we get the value of the property and manually append
-  # it to the previous status.
-  get_property(current_flags
-    SOURCE ${SNN_BUILD_IR_SOURCE}
-    PROPERTY COMPILE_FLAGS
-  )
-  set_property(
-    SOURCE ${compiledFile}
-    PROPERTY COMPILE_FLAGS "${forceIncludeFlags} ${currentFlags}"
-  )
 
-  if(COMPUTECPP_DISABLE_GCC_DUAL_ABI)
-    set_property(TARGET ${SNN_BUILD_IR_TARGET} APPEND PROPERTY COMPILE_DEFINITIONS
-      "_GLIBCXX_USE_CXX11_ABI=0")
-  endif()
+  set_property(
+    SOURCE ${cppFile}
+    APPEND_STRING PROPERTY COMPILE_FLAGS "${forceIncludeFlags}"
+  )
 
 endfunction(__build_ir)
 
@@ -477,7 +450,7 @@ endfunction(__build_ir)
 #  Adds a SYCL compilation custom command associated with an existing
 #  target and sets a dependancy on that new command.
 #
-#  TARGET : Name of the target to add a SYCL to.
+#  TARGET : Name of the target to add SYCL to.
 #  BINARY_DIR : Intermediate directory to output the integration header.
 #  SOURCES : Source files to be compiled for SYCL.
 #
