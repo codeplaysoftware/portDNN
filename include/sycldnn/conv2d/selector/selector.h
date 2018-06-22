@@ -44,6 +44,13 @@ class Selector {
    *  the optimal choice of convolution of algorithm.
    */
   virtual Algorithm select(Conv2DParams const& params) = 0;
+
+  /**
+   * Gets the name of the selector.
+   * \return Returns a character string containing the descriptive name of the
+   * selector.
+   */
+  virtual char const* name() const = 0;
 };
 }  // namespace conv2d
 }  // namespace sycldnn

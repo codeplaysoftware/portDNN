@@ -62,6 +62,13 @@ class TiledSelector final : public Selector {
     }
     return Algorithm::NotSupported;
   }
+
+  /**
+   * Gets the name of the selector.
+   * \return Returns a character string containing the descriptive name of the
+   * selector.
+   */
+  char const* name() const override { return "TiledSelector"; }
 };
 }  // namespace conv2d
 }  // namespace sycldnn

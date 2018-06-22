@@ -18,8 +18,31 @@ project(snn_bench)
 include(HandleBenchmark)
 include(SNNHelpers)
 
-add_library(bench_main STATIC bench_main.cc)
+# Creates a git-config.tmp file containing the commit hash and date. A custom
+# target ensures that this command is always executed.
+add_custom_target(generate_git_config
+  ${CMAKE_CURRENT_SOURCE_DIR}/make_git_config.sh >
+    ${CMAKE_CURRENT_BINARY_DIR}/git_config.tmp
+  BYPRODUCTS
+    git_config.tmp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Conditionally copies the new git-config.tmp to git-config.h if the file has
+# changed. This pattern is used to prevent constant rebuilds even though the git
+# history hasn't changed.
+add_custom_command(OUTPUT git_config.h
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different git_config.tmp git_config.h
+  DEPENDS
+    generate_git_config git_config.tmp
+  WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
+add_library(bench_main STATIC bench_main.cc git_config.h)
 target_link_libraries(bench_main benchmark::benchmark)
+target_include_directories(bench_main PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 snn_bench(
   WITH_SYCL

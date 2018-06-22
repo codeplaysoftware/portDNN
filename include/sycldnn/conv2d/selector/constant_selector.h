@@ -23,9 +23,9 @@
  * select a specific convolution algorithm, regardless of the convolution
  * parameters.
  */
+#include <cassert>
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/params.h"
-
 #include "sycldnn/conv2d/selector/selector.h"
 
 namespace sycldnn {
@@ -45,9 +45,26 @@ class ConstantSelector final : public Selector {
    * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
    *         the optimal choice of convolution of algorithm.
    */
-  Algorithm select(Conv2DParams const& params) {
+  Algorithm select(Conv2DParams const& params) override {
     SNN_UNUSED_VAR(params)
     return Algo;
+  }
+
+  /**
+   * Gets the name of the selector.
+   * \return Returns a character string containing the descriptive name of the
+   * selector.
+   */
+  char const* name() const override {
+    switch (Algo) {
+      case Algorithm::Direct:
+        return "Direct";
+      case Algorithm::Tiled:
+        return "Tiled";
+      default:
+        assert(false && "Unsupported algorithm in ConstantSelector::name()");
+        return nullptr;
+    }
   }
 };
 }  // namespace conv2d
