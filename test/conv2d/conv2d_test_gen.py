@@ -345,10 +345,10 @@ FILENAME_TPL = "{test_type}_window{window}_stride{stride}.cc"
 def get_test_case_filename(test_type, window, stride):
     "Get filename for test case."
     return FILENAME_TPL.format(test_type=test_type, window=window,
-                                    stride=stride)
-if __name__ == "main":
+                               stride=stride)
+if __name__ == "__main__":
     np.set_printoptions(suppress=True, precision=10, threshold=1000000, linewidth=1000000)
-    
+
     for window, stride in zip(WINDOW_LIST, STRIDE_LIST):
         for test_type in TEST_TYPES:
            filename = get_test_case_filename(test_type, window, stride)
