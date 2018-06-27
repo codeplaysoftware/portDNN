@@ -190,8 +190,8 @@ if(SNN_TEST_EIGEN)
     PUBLIC_LIBRARIES
       Eigen::Eigen
   )
-  set(_windows 1 1 3 3 5 5)
-  set(_strides 1 2 1 2 1 2)
+  set(_windows 1 1 3 3 5 5 7 7 11 11)
+  set(_strides 1 2 1 2 1 2 1 4 1 4)
   list(LENGTH _windows _list_len_raw)
   math(EXPR _list_len "${_list_len_raw} - 1")
   foreach(_index RANGE ${_list_len})

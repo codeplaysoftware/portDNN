@@ -35,8 +35,8 @@ import string
 import tensorflow as tf
 import numpy as np
 
-WINDOW_LIST = [1, 1, 3, 3, 5, 5]
-STRIDE_LIST = [1, 2, 1, 2, 1, 2]
+WINDOW_LIST = [1, 1, 3, 3, 5, 5, 7, 7, 11, 11]
+STRIDE_LIST = [1, 2, 1, 2, 1, 2, 1, 4, 1, 4]
 BATCHES = [1, 3]
 CHANNELS = [1, 2, 4]
 FEATURES = [1, 2, 4]
