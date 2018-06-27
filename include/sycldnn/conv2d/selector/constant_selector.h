@@ -23,10 +23,10 @@
  * select a specific convolution algorithm, regardless of the convolution
  * parameters.
  */
-#include <cassert>
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
+#include "sycldnn/helpers/macros.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -62,7 +62,7 @@ class ConstantSelector final : public Selector {
       case Algorithm::Tiled:
         return "Tiled";
       default:
-        assert(false && "Unsupported algorithm in ConstantSelector::name()");
+        SNN_ASSERT(false, "Unsupported algorithm in ConstantSelector::name()");
         return nullptr;
     }
   }
