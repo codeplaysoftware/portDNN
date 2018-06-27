@@ -30,7 +30,7 @@ TEST(DeviceHelperMacro, AlwaysInlineOnDevice) {
 }
 TEST(DeviceHelperMacro, PragmaUnrollOnDevice) {
   auto test_str = SNN_MAKE_STRING(SNN_PRAGMA_UNROLL);
-#ifdef __CLANG__
+#ifdef __clang__
   auto expected = "_Pragma(\"clang loop unroll(enable) interleave(enable)\")";
 #else
   auto expected = "";
