@@ -60,7 +60,7 @@
  * Suggests to the compiler to unroll loops, typically on the device this leads
  * to performance benefits, but make sure that this is benchmarked.
  */
-#if defined(__SYCL_DEVICE_ONLY__) && defined(__CLANG__)
+#if defined(__SYCL_DEVICE_ONLY__) && defined(__clang__)
 #define SNN_PRAGMA_UNROLL \
   _Pragma("clang loop unroll(enable) interleave(enable)")
 #else
