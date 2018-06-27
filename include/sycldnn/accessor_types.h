@@ -18,7 +18,8 @@
 
 /**
  * \file
- * Provides the \ref sycldnn::ReadAccessor and sycldnn::WriteAccessor aliases.
+ * Provides the \ref sycldnn::ReadAccessor, sycldnn::WriteAccessor and
+ * sycldnn::ReadWriteAccessor aliases.
  */
 #include <CL/sycl.hpp>
 
@@ -32,6 +33,12 @@ using ReadAccessor = cl::sycl::accessor<T, 1, cl::sycl::access::mode::read,
 template <typename T>
 using WriteAccessor =
     cl::sycl::accessor<T, 1, cl::sycl::access::mode::write,
+                       cl::sycl::access::target::global_buffer,
+                       cl::sycl::access::placeholder::true_t>;
+/** Read-write placeholder SYCL accessor for a 1D buffer of type T. */
+template <typename T>
+using ReadWriteAccessor =
+    cl::sycl::accessor<T, 1, cl::sycl::access::mode::read_write,
                        cl::sycl::access::target::global_buffer,
                        cl::sycl::access::placeholder::true_t>;
 }  // namespace sycldnn

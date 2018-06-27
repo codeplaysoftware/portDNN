@@ -15,6 +15,8 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
+add_subdirectory(matmul)
+
 set(SNN_CONV_TYPES conv_type::Forward
                    conv_type::InputBackprop
                    conv_type::FilterBackprop

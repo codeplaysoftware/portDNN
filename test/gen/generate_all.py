@@ -15,9 +15,11 @@
 # limitations under the License.
 
 from generate_conv2d_tests import generate_conv2d_tests
+from generate_matmul_tests import generate_matmul_tests
 
 def generate_all():
     generate_conv2d_tests()
+    generate_matmul_tests()
 
 if __name__ == "__main__":
     generate_all()

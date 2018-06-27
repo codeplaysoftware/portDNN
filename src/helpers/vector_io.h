@@ -17,6 +17,7 @@
 #define SYCLDNN_SRC_HELPERS_VECTOR_IO_H_
 
 #include <CL/sycl.hpp>
+#include <type_traits>
 
 namespace sycldnn {
 namespace helpers {
@@ -30,62 +31,123 @@ namespace helpers {
 namespace io {
 template <typename T>
 struct Load {
-  template <typename _T, typename Index>
-  T SNN_ALWAYS_INLINE operator()(_T const* const ptr, Index const offset) {
+  template <typename U, typename Index>
+  T SNN_ALWAYS_INLINE operator()(U const* const ptr, Index const offset) {
+    static_assert(std::is_convertible<U, T>::value,
+                  "Type U must be convertible to type T.");
     return ptr[offset];
+  }
+  template <typename U, typename Index, cl::sycl::access::address_space Space>
+  T SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<U, Space> ptr,
+                                 Index const offset) {
+    static_assert(std::is_convertible<U, T>::value,
+                  "Type U must be convertible to type T.");
+    return *(ptr + offset);
   }
 };
 template <typename T, int N>
 struct Load<cl::sycl::vec<T, N>> {
-  template <typename _T, typename Index>
-  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE operator()(_T const* const ptr,
+  static_assert(!std::is_const<T>::value,
+                "Cannot load values into a vector of const types.");
+  template <typename Index, cl::sycl::access::address_space Space>
+  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<T, Space> ptr, Index const offset) {
+    cl::sycl::vec<T, N> result;
+    result.load(0, ptr + offset);
+    return result;
+  }
+  template <typename U, typename Index, cl::sycl::access::address_space Space,
+            typename DependentU = U,
+            typename std::enable_if<std::is_same<U, DependentU>::value &&
+                                        std::is_const<DependentU>::value,
+                                    int>::type = 0>
+  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<U, Space> ptr, Index const offset) {
+    static_assert(std::is_convertible<U, T>::value,
+                  "Type U must be convertible to type T.");
+    // When the pointer is of the form multi_ptr<T const> we need to cast away
+    // the const as vec<T> will only load values from a multi_ptr<T>
+    using NonConstT = typename std::remove_const<U>::type;
+    auto non_const_ptr = const_cast<NonConstT*>(ptr.get());
+    cl::sycl::multi_ptr<T, Space> multi_ptr(non_const_ptr);
+    return operator()(multi_ptr, offset);
+  }
+  template <typename U, typename Index>
+  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE operator()(U const* const ptr,
                                                    Index const offset) {
+    static_assert(std::is_convertible<U, T>::value,
+                  "Type U must be convertible to type T.");
     static constexpr auto address_space =
         cl::sycl::access::address_space::global_space;
-    _T* non_const_ptr = const_cast<_T*>(ptr);
-    cl::sycl::multi_ptr<T, address_space> mptr(non_const_ptr + offset);
-    cl::sycl::vec<T, N> result;
-    result.load(0, mptr);
-    return result;
+    U* non_const_ptr = const_cast<U*>(ptr);
+    cl::sycl::multi_ptr<T, address_space> mptr(non_const_ptr);
+    return operator()(mptr, offset);
   }
 };
 template <typename T>
 struct Load<cl::sycl::vec<T, 1>> {
-  template <typename _T, typename Index>
-  cl::sycl::vec<T, 1> SNN_ALWAYS_INLINE operator()(_T const* const ptr,
+  template <typename U, typename Index, cl::sycl::access::address_space Space>
+  cl::sycl::vec<T, 1> SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<U, Space> ptr, Index const offset) {
+    static_assert(std::is_convertible<U, T>::value,
+                  "Type U must be convertible to type T.");
+    cl::sycl::vec<T, 1> result(ptr[offset]);
+    return result;
+  }
+  template <typename U, typename Index>
+  cl::sycl::vec<T, 1> SNN_ALWAYS_INLINE operator()(U const* const ptr,
                                                    Index const offset) {
+    static_assert(std::is_convertible<U, T>::value,
+                  "Type U must be convertible to type T.");
     cl::sycl::vec<T, 1> result(ptr[offset]);
     return result;
   }
 };
 template <typename T>
 struct Store {
-  template <typename _T, typename Index>
-  void SNN_ALWAYS_INLINE operator()(_T* ptr, Index const offset, T const val) {
-    static_assert(!std::is_const<_T>::value,
+  template <typename Index, cl::sycl::access::address_space Space>
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
+                                    Index const offset, T const val) {
+    *(ptr + offset) = val;
+  }
+  template <typename U, typename Index>
+  void SNN_ALWAYS_INLINE operator()(U* ptr, Index const offset, T const val) {
+    static_assert(!std::is_const<U>::value,
                   "Cannot store values in a pointer to const types.");
     ptr[offset] = val;
   }
 };
 template <typename T, int N>
 struct Store<cl::sycl::vec<T, N>> {
-  template <typename _T, typename Index>
-  void SNN_ALWAYS_INLINE operator()(_T* ptr, Index const offset,
+  template <typename Index, cl::sycl::access::address_space Space>
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
+                                    Index const offset,
                                     cl::sycl::vec<T, N> const val) {
-    static_assert(!std::is_const<_T>::value,
+    val.store(0, ptr + offset);
+  }
+  template <typename U, typename Index>
+  void SNN_ALWAYS_INLINE operator()(U* ptr, Index const offset,
+                                    cl::sycl::vec<T, N> const val) {
+    static_assert(!std::is_const<U>::value,
                   "Cannot store values in a pointer to const types.");
     static constexpr auto address_space =
         cl::sycl::access::address_space::global_space;
-    cl::sycl::multi_ptr<T, address_space> mptr(ptr + offset);
-    val.store(0, mptr);
+    cl::sycl::multi_ptr<T, address_space> mptr(ptr);
+    operator()(mptr, offset, val);
   }
 };
 template <typename T>
 struct Store<cl::sycl::vec<T, 1>> {
-  template <typename _T, typename Index>
-  void SNN_ALWAYS_INLINE operator()(_T* ptr, Index const offset,
+  template <typename Index, cl::sycl::access::address_space Space>
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
+                                    Index const offset,
+                                    cl::sycl::vec<T, 1> const val) {
+    *(ptr + offset) = val.s0();
+  }
+  template <typename U, typename Index>
+  void SNN_ALWAYS_INLINE operator()(U* ptr, Index const offset,
                                     cl::sycl::vec<T, 1> val) {
-    static_assert(!std::is_const<_T>::value,
+    static_assert(!std::is_const<U>::value,
                   "Cannot store values in a pointer to const types.");
     ptr[offset] = val.s0();
   }

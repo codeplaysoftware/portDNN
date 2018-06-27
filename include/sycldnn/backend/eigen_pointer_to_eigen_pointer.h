@@ -53,7 +53,9 @@ struct EigenToEigenPointer {
    * \param ptr The internal pointer to release.
    */
   template <typename T>
-  void release_internal_pointer(T* ptr) {}
+  void release_internal_pointer(T* ptr) {
+    SNN_UNUSED_VAR(ptr);
+  }
 };
 }  // namespace backend
 }  // namespace sycldnn

@@ -212,4 +212,39 @@ if(SNN_TEST_EIGEN)
       )
     endforeach()
   endforeach()
+  foreach(_trans_lhs IN ITEMS "true" "false")
+    foreach(_trans_rhs IN ITEMS "true" "false")
+      foreach(_batch IN ITEMS 1 3)
+        foreach(_beta IN ITEMS 0 1)
+          snn_test(
+            WITH_SYCL
+            TARGET
+              matmul_batch${_batch}_beta${_beta}_${_trans_lhs}_${_trans_rhs}
+            SIZE
+              moderate
+            SOURCES
+              matmul/matmul_batch${_batch}_beta${_beta}_${_trans_lhs}_${_trans_rhs}.cc
+            OBJECTS
+              $<TARGET_OBJECTS:matmul>
+            PUBLIC_LIBRARIES
+              Eigen::Eigen
+          )
+        endforeach()
+      endforeach()
+    endforeach()
+  endforeach()
+  snn_test(
+    WITH_SYCL
+    TARGET
+      matmul_offset
+    SIZE
+      moderate
+    SOURCES
+      matmul/matmul_offset.cc
+    OBJECTS
+      $<TARGET_OBJECTS:matmul>
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+  )
+
 endif()
