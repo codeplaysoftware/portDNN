@@ -83,7 +83,6 @@ else()
   list(APPEND COMPUTECPP_USER_FLAGS -no-serial-memop)
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-mad-enable")
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-no-signed-zeros")
-  list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-strict-aliasing")
 endif()
 
 include(HandleEigen)
