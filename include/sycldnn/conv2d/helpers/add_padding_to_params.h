@@ -31,9 +31,15 @@
 namespace sycldnn {
 namespace conv2d {
 namespace helpers {
+
 /**
  * Add the padding and output sizes to a conv2d parameter struct from the input
  * sizes, window sizes and strides.
+ * \param params The convolution parameters that the output will be based
+ *               on.
+ * \param type The type of padding that should be used to calculate the actual
+ *             size of padding to be used in the convolution.
+ * \return The original params, modified with the padding sizes required.
  */
 conv2d::Conv2DParams add_padding_to(conv2d::Conv2DParams params,
                                     PaddingMode type) {

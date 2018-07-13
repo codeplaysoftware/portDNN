@@ -11,7 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-add_subdirectory(conv2d)
-add_subdirectory(pooling)
 
+snn_executable(
+  WITH_SYCL
+  TARGET
+    maxpooling
+  SOURCES
+    maxpooling.cc
+  PRIVATE_LIBRARIES
+    sycl_dnn_static
+    Eigen::Eigen
+)

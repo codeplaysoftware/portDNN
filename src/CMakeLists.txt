@@ -162,3 +162,11 @@ snn_object_library(
   SOURCES conv2d/tiled/launch_tiled.cc
   KERNEL_SOURCES ${tiled_conv2d_kernel_sources}
 )
+
+snn_object_library(
+  WITH_SYCL
+  TARGET pooling
+  KERNEL_SOURCES
+    pooling/launch_max_pooling.cc
+    pooling/launch_avg_pooling.cc
+)

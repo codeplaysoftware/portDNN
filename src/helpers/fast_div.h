@@ -81,7 +81,7 @@ namespace fast_div {
  * In this implementation we assume that the divisor is positive, which allows
  * us to skip certain branches and checks otherwise required. This approach
  * also only works for divisors strictly greater than 1.
-*/
+ */
 template <typename Index>
 struct FastDiv {
   static_assert(std::is_signed<Index>::value,

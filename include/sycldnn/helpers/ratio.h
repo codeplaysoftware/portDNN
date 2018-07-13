@@ -60,6 +60,9 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
 
 /**
  * Helper function to provide the ratio of two integers, always rounded up.
+ * \param num The numerator of the integer ratio.
+ * \param div The divisor of the integer ratio.
+ * \return The integral ratio of num and dim, rounded toward +Inf.
  */
 template <typename Index>
 inline SNN_ALWAYS_INLINE Index round_ratio_up(Index const num,

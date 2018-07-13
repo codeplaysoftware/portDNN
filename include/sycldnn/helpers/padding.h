@@ -36,9 +36,16 @@ struct PaddingAndOutput {
   /** The number of output elements. */
   Index output;
 };
+
 /**
  * Calculate the padding and output size given the input size, window and
- * stride.
+ * stride. Padding is independent per-dimension.
+ * \param input The size of the tensor to be padded.
+ * \param window The size of the filter that will be convolved with
+ *               the input.
+ * \param stride The stride that the window will be advanced by.
+ * \param type The type of padding that will be applied.
+ * \return The padding and new size of the tensor as a pair (POD struct).
  */
 template <typename Index>
 PaddingAndOutput<Index> calculate_padding(Index input, Index window,

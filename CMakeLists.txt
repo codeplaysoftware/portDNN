@@ -107,11 +107,13 @@ endif()
 add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
+  $<TARGET_OBJECTS:pooling>
 )
 
 add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
+  $<TARGET_OBJECTS:pooling>
 )
 
 install(TARGETS sycl_dnn sycl_dnn_static
