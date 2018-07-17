@@ -20,6 +20,13 @@
 
 #include <gtest/gtest.h>
 
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
+#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
+
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
@@ -31,6 +38,7 @@
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/to_gtest_types.h"
 
 #include <CL/sycl.hpp>
@@ -39,13 +47,27 @@
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
+
+#ifdef SNN_TEST_EIGEN_MATMULS
+using Backends =
+    sycldnn::types::TypeList<sycldnn::backend::EigenBackend,
+                             sycldnn::backend::EigenBackendSNNMatmul>;
+#else
+using Backends =
+    sycldnn::types::TypeList<sycldnn::backend::EigenBackendSNNMatmul>;
+#endif
+
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+using BackendTypePairs =
+    sycldnn::types::CartesianProduct<SNNTypePairs, Backends>::type;
+using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
+
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
 template <typename Pair>
 using FilterBackpropWindow11Stride4 = WindowStrideTest<Pair, 11, 4>;
-TYPED_TEST_CASE(FilterBackpropWindow11Stride4, GTestTypePairs);
+TYPED_TEST_CASE(FilterBackpropWindow11Stride4, GTestTypeTriples);
 TYPED_TEST(FilterBackpropWindow11Stride4, SAME1x15x15x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {

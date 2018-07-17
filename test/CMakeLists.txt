@@ -185,6 +185,7 @@ if(SNN_TEST_EIGEN)
     OBJECTS
       $<TARGET_OBJECTS:direct_conv2d>
       $<TARGET_OBJECTS:tiled_conv2d>
+      $<TARGET_OBJECTS:matmul>
     PUBLIC_LIBRARIES
       Eigen::Eigen
   )
@@ -196,6 +197,12 @@ if(SNN_TEST_EIGEN)
     list(GET _windows ${_index} _window)
     list(GET _strides ${_index} _stride)
     foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+      if(SNN_TEST_EIGEN_MATMULS)
+        set(_cxx_opts CXX_OPTS -DSNN_TEST_EIGEN_MATMULS=1)
+        set(_kernel_src KERNEL_SOURCES
+          conv2d/${_type}_window${_window}_stride${_stride}.cc
+        )
+      endif()
       snn_test(
         WITH_SYCL
         TARGET
@@ -207,8 +214,11 @@ if(SNN_TEST_EIGEN)
         OBJECTS
           $<TARGET_OBJECTS:direct_conv2d>
           $<TARGET_OBJECTS:tiled_conv2d>
+          $<TARGET_OBJECTS:matmul>
         PUBLIC_LIBRARIES
           Eigen::Eigen
+        ${_cxx_opts}
+        ${_kernel_src}
       )
     endforeach()
   endforeach()

@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
 #include "test/backend/eigen_backend_test_fixture.h"
 
-TEST_F(EigenBackendTest, CheckQueue) {
+#include "sycldnn/backend/eigen_backend.h"
+
+using EigenExternalHandlerTest =
+    EigenBackendTest<sycldnn::backend::EigenBackend>;
+
+TEST_F(EigenExternalHandlerTest, CheckQueue) {
   auto d_queue = get_eigen_device().sycl_queue();
   auto b_queue = backend_.get_queue();
   ASSERT_EQ(d_queue, b_queue);
 }
-TEST_F(EigenBackendTest, GetBufferExternalCheckSizes) {
+TEST_F(EigenExternalHandlerTest, GetBufferExternalCheckSizes) {
   auto device = get_eigen_device();
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
@@ -29,7 +39,7 @@ TEST_F(EigenBackendTest, GetBufferExternalCheckSizes) {
   auto backend_buffer = backend_.get_buffer(ptr, n_elems);
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
-TEST_F(EigenBackendTest, FillExternalBufferThenCheck) {
+TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
@@ -64,7 +74,7 @@ TEST_F(EigenBackendTest, FillExternalBufferThenCheck) {
     EXPECT_EQ(static_cast<float>(4), snn_host_access[i]);
   }
 }
-TEST_F(EigenBackendTest, ExternalPointerOffset) {
+TEST_F(EigenExternalHandlerTest, ExternalPointerOffset) {
   auto device = get_eigen_device();
   size_t size = 1024;
   int* ptr1 = static_cast<int*>(device.allocate(size));

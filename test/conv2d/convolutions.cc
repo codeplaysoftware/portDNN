@@ -15,6 +15,13 @@
  */
 #include <gtest/gtest.h>
 
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
+#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
+
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
@@ -26,6 +33,7 @@
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/to_gtest_types.h"
 
 #include <CL/sycl.hpp>
@@ -39,10 +47,23 @@ using BasicConvolutionTest = ConvolutionFixture<Pair>;
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
                                            sycldnn::conv2d::TiledSelector>;
+#ifdef SNN_TEST_EIGEN_MATMULS
+using Backends =
+    sycldnn::types::TypeList<sycldnn::backend::EigenBackend,
+                             sycldnn::backend::EigenBackendSNNMatmul>;
+#else
+using Backends =
+    sycldnn::types::TypeList<sycldnn::backend::EigenBackendSNNMatmul>;
+#endif
+
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
-TYPED_TEST_CASE(BasicConvolutionTest, GTestTypePairs);
+using BackendTypePairs =
+    sycldnn::types::CartesianProduct<SNNTypePairs, Backends>::type;
+using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
+
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
+TYPED_TEST_CASE(BasicConvolutionTest, GTestTypeTriples);
 
 sycldnn::conv2d::Conv2DParams get_3x3_params() {
   sycldnn::conv2d::Conv2DParams params;

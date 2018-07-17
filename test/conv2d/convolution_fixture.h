@@ -25,11 +25,13 @@
 #include "test/gen/eigen_generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
-template <typename Pair>
+template <typename Triple>
 struct ConvolutionFixture
-    : public EigenGeneratedTestFixture<typename Pair::SecondType> {
-  using SelectorType = typename Pair::FirstType;
-  using DataType = typename Pair::SecondType;
+    : public EigenGeneratedTestFixture<typename Triple::SecondType,
+                                       typename Triple::ThirdType> {
+  using SelectorType = typename Triple::FirstType;
+  using DataType = typename Triple::SecondType;
+  using Backend = typename Triple::ThirdType;
 
  protected:
   /** Test a convolution with both input and filter set to `1, 2, 3,...` */

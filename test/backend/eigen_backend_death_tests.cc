@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
 #include "test/backend/eigen_backend_test_fixture.h"
+
+#include "sycldnn/backend/eigen_backend.h"
 
 #ifdef EIGEN_EXCEPTIONS
 #define MAYBE_DEATH(a, b) ASSERT_ANY_THROW(a)
@@ -22,8 +29,8 @@
 #define MAYBE_DEATH(a, b) ASSERT_DEATH(a, b)
 #endif
 
-using EigenExternalDeathTest = EigenBackendTest;
-using EigenInternalDeathTest = EigenBackendTest;
+using EigenExternalDeathTest = EigenBackendTest<sycldnn::backend::EigenBackend>;
+using EigenInternalDeathTest = EigenBackendTest<sycldnn::backend::EigenBackend>;
 
 TEST_F(EigenExternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";

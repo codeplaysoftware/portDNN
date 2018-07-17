@@ -41,6 +41,8 @@ option(SNN_FASTBUILD
 option(SNN_ARM_COMPUTE_ENABLED "Whether or not to build ARM compute library benchmarks" OFF)
 
 option(SNN_TEST_EIGEN "Test implementation using Eigen" ON)
+option(SNN_TEST_EIGEN_MATMULS
+  "Enable testing using Eigen matmul in addition to internal matmul" OFF)
 option(SNN_EIGEN_LOCAL_MEM
   "Only compile the local memory versions of Eigen kernels" ON)
 option(SNN_EIGEN_NO_LOCAL_MEM

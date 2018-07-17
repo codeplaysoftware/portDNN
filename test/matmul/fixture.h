@@ -19,12 +19,18 @@
 #include <gtest/gtest.h>
 #include <vector>
 
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
+#include "sycldnn/backend/eigen_backend.h"
 #include "sycldnn/matmul/launch.h"
 #include "test/gen/eigen_generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 template <typename T, bool TransposeLhs, bool TransposeRhs>
-struct MatmulFixture : public EigenGeneratedTestFixture<T> {
+struct MatmulFixture
+    : public EigenGeneratedTestFixture<T, sycldnn::backend::EigenBackend> {
   using DataType = T;
 
  protected:

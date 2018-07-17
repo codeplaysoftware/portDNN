@@ -17,13 +17,12 @@
 #define SYCLDNN_TEST_BACKEND_EIGEN_BACKEND_TEST_FIXTURE_H_
 #include <gtest/gtest.h>
 
-// Need to ensure that Eigen is included before the backend.
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
-#include "sycldnn/backend/eigen_backend.h"
 
+template <typename Backend>
 struct EigenBackendTest : public ::testing::Test {
-  using Backend = sycldnn::backend::EigenBackend;
-
   EigenBackendTest() : backend_{get_eigen_device()} {}
 
  protected:

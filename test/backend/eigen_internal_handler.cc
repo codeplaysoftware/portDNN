@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
 #include "test/backend/eigen_backend_test_fixture.h"
 
-TEST_F(EigenBackendTest, AllocateInternalCheckSizes) {
+#include "sycldnn/backend/eigen_backend.h"
+
+using EigenInternalHandlerTest =
+    EigenBackendTest<sycldnn::backend::EigenBackend>;
+
+TEST_F(EigenInternalHandlerTest, AllocateInternalCheckSizes) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr = backend_.allocate<float>(buffer_size);
   auto backend_buffer = backend_.get_buffer_internal(ptr, n_elems);
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
-TEST_F(EigenBackendTest, FillInternalBufferThenCheck) {
+TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
@@ -58,7 +68,7 @@ TEST_F(EigenBackendTest, FillInternalBufferThenCheck) {
     EXPECT_EQ(static_cast<float>(4), snn_host_access[i]);
   }
 }
-TEST_F(EigenBackendTest, InternalPointerConversion) {
+TEST_F(EigenInternalHandlerTest, InternalPointerConversion) {
   auto device = get_eigen_device();
   size_t size = 1024;
   float* ptr1 = static_cast<float*>(device.allocate(size));
@@ -70,7 +80,7 @@ TEST_F(EigenBackendTest, InternalPointerConversion) {
   float* iptr2 = ptr2;
   EXPECT_EQ(iptr2, backend_.to_internal_pointer(ptr2));
 }
-TEST_F(EigenBackendTest, InternalPointerOffset) {
+TEST_F(EigenInternalHandlerTest, InternalPointerOffset) {
   size_t size = 1024;
   int* ptr1 = backend_.allocate<int>(size);
   int* ptr2 = ptr1 + 1;
