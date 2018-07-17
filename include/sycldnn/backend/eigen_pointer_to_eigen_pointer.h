@@ -43,6 +43,17 @@ struct EigenToEigenPointer {
   T* to_internal_pointer(T* ptr) {
     return ptr;
   }
+
+  /**
+   * Release the internal pointer, which has previously been returned from \ref
+   * sycldnn::backend::EigenToEigenPointer::to_internal_pointer.
+   *
+   * In this case it is a no-op.
+   *
+   * \param ptr The internal pointer to release.
+   */
+  template <typename T>
+  void release_internal_pointer(T* ptr) {}
 };
 }  // namespace backend
 }  // namespace sycldnn

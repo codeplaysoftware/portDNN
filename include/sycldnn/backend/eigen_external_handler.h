@@ -21,43 +21,56 @@
  * Contains the implementation of \ref sycldnn::backend::EigenExternalHandler,
  * which provides access to buffers from externally passed Eigen pointers.
  */
+
 #include <utility>
+
+#include "sycldnn/backend/backend_traits.h"
+#include "sycldnn/backend/crtp_backend.h"
+
+#include "sycldnn/helpers/macros.h"
 
 namespace sycldnn {
 namespace backend {
+
 /**
  * Handler to provide access to buffers from externally passed Eigen pointers.
  */
-struct EigenExternalHandler {
+template <typename EigenBackend>
+struct EigenExternalHandler
+    : public CRTPBackend<EigenBackend, EigenExternalHandler> {
+ private:
   /** The pointer representation required by the external handler. */
   template <typename T>
-  using pointer_type = T*;
+  using pointer_type =
+      typename BackendTraits<EigenBackend>::template pointer_type<T>;
 
-  /**
-   * Constructs an instance of \ref sycldnn::backend::EigenExternalHandler from
-   * an instance of Eigen's SyclDevice.
-   * \param device The Eigen::SyclDevice to construct the handler from.
-   */
-  EigenExternalHandler(Eigen::SyclDevice const& device) : device_(device) {}
-
+ public:
   /**
    * Get a SYCL buffer from an external pointer.
    * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
+   * \param n_elems The number of elements in the buffer.
    * \return Returns a SYCL buffer corresponding to ptr.
    */
   template <typename T>
-  auto get_buffer(pointer_type<T> ptr, size_t /*n_elems*/) -> decltype(
+  auto get_buffer(pointer_type<T> ptr, size_t n_elems) -> decltype(
       std::declval<Eigen::SyclDevice>()
           .get_sycl_buffer(ptr)
           .template reinterpret<T>(std::declval<cl::sycl::range<1>>())) {
     // This deduced return type is required to ensure that the buffer type
     // matches the allocator used in the Eigen device. We cannot assume that
     // std::allocator is used.
-    auto raw_buffer = device_.get_sycl_buffer(ptr);
+    auto eigen_device = this->underlying_backend().get_eigen_device();
+    auto raw_buffer = eigen_device.get_sycl_buffer(ptr);
     auto buffer_size = raw_buffer.get_size();
-    assert(buffer_size % sizeof(T) == 0);
-    auto cast_size = cl::sycl::range<1>{buffer_size / sizeof(T)};
-    return raw_buffer.template reinterpret<T>(cast_size);
+    SNN_ASSERT(buffer_size % sizeof(T) == 0,
+               "Buffer size must exactly divide the size of its type.");
+    auto cast_size = buffer_size / sizeof(T);
+    SNN_ASSERT(cast_size >= n_elems,
+               "Buffer must contain at least n_elems elements.");
+    // n_elems is used for the debug assert, but otherwise unused.
+    SNN_UNUSED_VAR(n_elems);
+    auto cast_range = cl::sycl::range<1>{cast_size};
+    return raw_buffer.template reinterpret<T>(cast_range);
   }
 
   /**
@@ -70,18 +83,11 @@ struct EigenExternalHandler {
    */
   template <typename T>
   size_t get_offset(pointer_type<T> ptr) {
-    return device_.get_offset(ptr) / sizeof(T);
+    auto eigen_device = this->underlying_backend().get_eigen_device();
+    return eigen_device.get_offset(ptr) / sizeof(T);
   }
-
-  /**
-   * Gets the SYCL queue that the backend is bound to.
-   * \return Returns the SYCL queue that the backend is bound to.
-   */
-  cl::sycl::queue get_queue() { return device_.sycl_queue(); }
-
- private:
-  Eigen::SyclDevice const& device_;
 };
 }  // namespace backend
 }  // namespace sycldnn
-#endif  // SYCLDNN_INCLUDE_BACKEND_EIGEN_BACKEND_H_
+
+#endif  // SYCLDNN_INCLUDE_BACKEND_EIGEN_EXTERNAL_HANDLER_H_

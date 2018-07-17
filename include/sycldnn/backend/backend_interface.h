@@ -115,16 +115,26 @@ struct InternalHandler {
   cl::sycl::event batch_matmul(internal_pointer_type<const T> const lhs,
                                internal_pointer_type<const T> const rhs,
                                internal_pointer_type<T> const output,
-                               T const n_batches, Index const m, Index const k,
-                               Index const n);
+                               Index const n_batches, Index const m,
+                               Index const k, Index const n);
 };
 struct ExternalToInternalConverter {
   template <typename T>
   using pointer_type = /* implementation defined */;
   template <typename T>
   using internal_pointer_type = /* implementation defined */;
-  /** Convert an external pointer type into an internal pointer type. */
+  /**
+   * Convert an external pointer type into an internal pointer type.
+   * \param ptr An external pointer to convert to an internal pointer.
+   * \return An internal pointer corresponding to external pointer ptr.
+   */
   template <typename T>
-  internal_pointer_type<T> to_internal_ptr(pointer_type<T> ptr);
+  internal_pointer_type<T> to_internal_pointer(pointer_type<T> ptr);
+  /**
+   * Release an internal pointer which was contructed by to_internal_pointer.
+   * \param ptr An internal pointer to release.
+   */
+  template <typename T>
+  void release_internal_pointer(internal_pointer_type<T> ptr);
 };
 }  // namespace sycldnn
