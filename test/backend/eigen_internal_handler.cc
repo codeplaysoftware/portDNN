@@ -16,16 +16,6 @@
 #include <gtest/gtest.h>
 #include "test/backend/eigen_backend_test_fixture.h"
 
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-
 TEST_F(EigenBackendTest, AllocateInternalCheckSizes) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
@@ -37,14 +27,15 @@ TEST_F(EigenBackendTest, FillInternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
+  auto device = get_eigen_device();
   size_t n_floats = 16;
   size_t buffer_size = n_floats * sizeof(float);
   float* ptr = backend_.allocate<float>(buffer_size);
 
   Tensor tensor{ptr, n_floats};
-  tensor.device(device_) = tensor.constant(static_cast<float>(4));
+  tensor.device(device) = tensor.constant(static_cast<float>(4));
   // First check that the buffer returned by the Eigen has the correct contents.
-  auto device_buffer = device_.get_sycl_buffer(ptr);
+  auto device_buffer = device.get_sycl_buffer(ptr);
   {
     // This is required for ComputeCpp 0.6, to ensure that the host accessors
     // used below can access the data.
@@ -68,12 +59,13 @@ TEST_F(EigenBackendTest, FillInternalBufferThenCheck) {
   }
 }
 TEST_F(EigenBackendTest, InternalPointerConversion) {
+  auto device = get_eigen_device();
   size_t size = 1024;
-  float* ptr1 = static_cast<float*>(device_.allocate(size));
+  float* ptr1 = static_cast<float*>(device.allocate(size));
   float* iptr1 = ptr1;
   EXPECT_EQ(iptr1, backend_.to_internal_pointer(ptr1));
 
-  float* ptr2 = static_cast<float*>(device_.allocate(size));
+  float* ptr2 = static_cast<float*>(device.allocate(size));
   EXPECT_NE(ptr1, ptr2);
   float* iptr2 = ptr2;
   EXPECT_EQ(iptr2, backend_.to_internal_pointer(ptr2));

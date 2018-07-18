@@ -95,17 +95,6 @@ TYPED_TEST_CASE_DECL_TPL = r"""
 template <typename Pair>
 using {test_case} = WindowStrideTest<Pair, {window}, {stride}>;
 TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
-EIGEN_STATIC_VARS = r"""
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-"""
 
 def get_tensor_data(size, max_val):
     "Get a list of data values to use as input data."
@@ -332,7 +321,6 @@ def test_case_for_window_stride(test_type, window, stride):
         DATA_TYPES,
         TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case, window=window,
                                         stride=stride),
-        EIGEN_STATIC_VARS
     ]
     in_sizes = get_input_sizes(window, stride)
     for in_shape in itertools.product(BATCHES, in_sizes, in_sizes, CHANNELS):

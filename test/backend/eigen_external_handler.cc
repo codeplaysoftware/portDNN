@@ -16,25 +16,16 @@
 #include <gtest/gtest.h>
 #include "test/backend/eigen_backend_test_fixture.h"
 
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-
 TEST_F(EigenBackendTest, CheckQueue) {
-  auto d_queue = device_.sycl_queue();
+  auto d_queue = get_eigen_device().sycl_queue();
   auto b_queue = backend_.get_queue();
   ASSERT_EQ(d_queue, b_queue);
 }
 TEST_F(EigenBackendTest, GetBufferExternalCheckSizes) {
+  auto device = get_eigen_device();
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr = static_cast<float*>(device_.allocate(buffer_size));
+  float* ptr = static_cast<float*>(device.allocate(buffer_size));
   auto backend_buffer = backend_.get_buffer(ptr, n_elems);
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
@@ -42,14 +33,15 @@ TEST_F(EigenBackendTest, FillExternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
+  auto device = get_eigen_device();
   size_t n_floats = 16;
   size_t buffer_size = n_floats * sizeof(float);
-  float* ptr = static_cast<float*>(device_.allocate(buffer_size));
+  float* ptr = static_cast<float*>(device.allocate(buffer_size));
 
   Tensor tensor{ptr, n_floats};
-  tensor.device(device_) = tensor.constant(static_cast<float>(4));
+  tensor.device(device) = tensor.constant(static_cast<float>(4));
   // First check that the buffer returned by the Eigen has the correct contents.
-  auto device_buffer = device_.get_sycl_buffer(ptr);
+  auto device_buffer = device.get_sycl_buffer(ptr);
   {
     // This is required for ComputeCpp 0.6, to ensure that the host accessors
     // used below can access the data.
@@ -73,8 +65,9 @@ TEST_F(EigenBackendTest, FillExternalBufferThenCheck) {
   }
 }
 TEST_F(EigenBackendTest, ExternalPointerOffset) {
+  auto device = get_eigen_device();
   size_t size = 1024;
-  int* ptr1 = static_cast<int*>(device_.allocate(size));
+  int* ptr1 = static_cast<int*>(device.allocate(size));
   int* ptr2 = ptr1 + 1;
   size_t exp1 = 1;
   EXPECT_EQ(exp1, backend_.get_offset(ptr2));

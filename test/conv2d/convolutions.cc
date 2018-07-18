@@ -44,16 +44,6 @@ using SNNTypePairs =
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 TYPED_TEST_CASE(BasicConvolutionTest, GTestTypePairs);
 
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-
 sycldnn::conv2d::Conv2DParams get_3x3_params() {
   sycldnn::conv2d::Conv2DParams params;
   params.channels = 1;

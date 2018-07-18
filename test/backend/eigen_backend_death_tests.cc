@@ -19,16 +19,6 @@
 using EigenExternalDeathTest = EigenBackendTest;
 using EigenInternalDeathTest = EigenBackendTest;
 
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-
 TEST_F(EigenExternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;

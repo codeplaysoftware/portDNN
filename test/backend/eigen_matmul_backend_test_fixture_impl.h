@@ -21,18 +21,19 @@ void EigenBackendMatmul::test_square_matmul(std::vector<T>& lhs,
                                             std::vector<T>& rhs,
                                             std::vector<T>& expected,
                                             Index dim) {
+  auto device = get_eigen_device();
   const auto size = dim * dim * sizeof(T);
   T* lhs_ptr = backend_.allocate<T>(size);
   T* rhs_ptr = backend_.allocate<T>(size);
   T* out_ptr = backend_.allocate<T>(size);
 
-  device_.memcpyHostToDevice(lhs_ptr, lhs.data(), size);
-  device_.memcpyHostToDevice(rhs_ptr, rhs.data(), size);
+  device.memcpyHostToDevice(lhs_ptr, lhs.data(), size);
+  device.memcpyHostToDevice(rhs_ptr, rhs.data(), size);
 
   backend_.matmul<TransposeLHS, TransposeRHS>(lhs_ptr, rhs_ptr, out_ptr,
                                               static_cast<T>(0), dim, dim, dim);
   std::vector<T> out(dim * dim);
-  device_.memcpyDeviceToHost(out.data(), out_ptr, size);
+  device.memcpyDeviceToHost(out.data(), out_ptr, size);
   for (int i = 0; i < dim * dim; ++i) {
     EXPECT_EQ(expected[i], out[i]);
   }
@@ -42,18 +43,19 @@ void EigenBackendMatmul::test_square_batch_matmul(std::vector<T>& lhs,
                                                   std::vector<T>& rhs,
                                                   std::vector<T>& expected,
                                                   Index batch, Index dim) {
+  auto device = get_eigen_device();
   const auto size = batch * dim * dim * sizeof(T);
   T* lhs_ptr = backend_.allocate<T>(size);
   T* rhs_ptr = backend_.allocate<T>(size);
   T* out_ptr = backend_.allocate<T>(size);
 
-  device_.memcpyHostToDevice(lhs_ptr, lhs.data(), size);
-  device_.memcpyHostToDevice(rhs_ptr, rhs.data(), size);
+  device.memcpyHostToDevice(lhs_ptr, lhs.data(), size);
+  device.memcpyHostToDevice(rhs_ptr, rhs.data(), size);
 
   backend_.batch_matmul<TransposeLHS, TransposeRHS>(lhs_ptr, rhs_ptr, out_ptr,
                                                     batch, dim, dim, dim);
   std::vector<T> out(batch * dim * dim);
-  device_.memcpyDeviceToHost(out.data(), out_ptr, size);
+  device.memcpyDeviceToHost(out.data(), out_ptr, size);
   for (int i = 0; i < dim * dim; ++i) {
     EXPECT_EQ(expected[i], out[i]);
   }

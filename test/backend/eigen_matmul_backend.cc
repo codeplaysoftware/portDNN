@@ -17,16 +17,6 @@
 #include "test/backend/eigen_matmul_backend_test_fixture.h"
 #include "test/types/kernel_data_types.h"
 
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-
 template <typename T>
 using EigenMatmul = EigenBackendMatmul;
 using MatmulTypes = sycldnn::types::GTestKernelDataTypes;

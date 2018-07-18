@@ -50,17 +50,6 @@ using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 template <typename Pair>
 using ForwardWindow11Stride4 = WindowStrideTest<Pair, 11, 4>;
 TYPED_TEST_CASE(ForwardWindow11Stride4, GTestTypePairs);
-
-namespace {
-cl::sycl::default_selector selector{};
-}  // namespace
-std::unique_ptr<Eigen::QueueInterface> EigenBackendTest::queue_interface_{
-    new Eigen::QueueInterface{selector}};
-Eigen::SyclDevice EigenBackendTest::device_{
-    EigenBackendTest::queue_interface_.get()};
-sycldnn::backend::EigenBackend EigenBackendTest::backend_{
-    EigenBackendTest::device_};
-
 TYPED_TEST(ForwardWindow11Stride4, SAME1x15x15x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {

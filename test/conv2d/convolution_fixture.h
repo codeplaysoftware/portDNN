@@ -50,16 +50,17 @@ struct ConvolutionFixture : public EigenBackendTest {
                   max_val);
     ASSERT_EQ(conv_sizes.filter_size, filter.size());
 
+    auto device = get_eigen_device();
     size_t inp_bytes = conv_sizes.input_size * sizeof(exp[0]);
-    DataType* inp_gpu = static_cast<DataType*>(device_.allocate(inp_bytes));
-    device_.memcpyHostToDevice(inp_gpu, input.data(), inp_bytes);
+    DataType* inp_gpu = static_cast<DataType*>(device.allocate(inp_bytes));
+    device.memcpyHostToDevice(inp_gpu, input.data(), inp_bytes);
 
     size_t fil_bytes = conv_sizes.filter_size * sizeof(exp[0]);
-    DataType* fil_gpu = static_cast<DataType*>(device_.allocate(fil_bytes));
-    device_.memcpyHostToDevice(fil_gpu, filter.data(), fil_bytes);
+    DataType* fil_gpu = static_cast<DataType*>(device.allocate(fil_bytes));
+    device.memcpyHostToDevice(fil_gpu, filter.data(), fil_bytes);
 
     size_t out_bytes = conv_sizes.output_size * sizeof(exp[0]);
-    DataType* out_gpu = static_cast<DataType*>(device_.allocate(out_bytes));
+    DataType* out_gpu = static_cast<DataType*>(device.allocate(out_bytes));
 
     SelectorType selector{};
     if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
@@ -78,7 +79,7 @@ struct ConvolutionFixture : public EigenBackendTest {
 
     std::vector<DataType> output;
     output.resize(conv_sizes.output_size);
-    device_.memcpyDeviceToHost(output.data(), out_gpu, out_bytes);
+    device.memcpyDeviceToHost(output.data(), out_gpu, out_bytes);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -88,7 +89,7 @@ struct ConvolutionFixture : public EigenBackendTest {
         EXPECT_FLOAT_EQ(exp[i], output[i]);
       }
     }
-    device_.deallocate_all();
+    device.deallocate_all();
   }
 
  private:
