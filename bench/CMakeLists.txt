@@ -66,3 +66,29 @@ snn_bench(
     bench_main
     Eigen::Eigen
 )
+snn_bench(
+  WITH_SYCL
+  TARGET
+    resnet_convolution
+  SOURCES
+    resnet.cc
+  OBJECTS
+    $<TARGET_OBJECTS:direct_conv2d>
+    $<TARGET_OBJECTS:tiled_conv2d>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+)
+snn_bench(
+  WITH_SYCL
+  TARGET
+    vgg_convolution
+  SOURCES
+    vgg.cc
+  OBJECTS
+    $<TARGET_OBJECTS:direct_conv2d>
+    $<TARGET_OBJECTS:tiled_conv2d>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+)

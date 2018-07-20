@@ -15,11 +15,6 @@
  */
 #include "fixture.h"
 
-#define CONVOLUTION_BENCHMARK(name, ...)                               \
-  BENCHMARK_TEMPLATE_DEFINE_F(ConvolutionBenchmark, name, __VA_ARGS__) \
-  (benchmark::State & state) { this->run(state); }                     \
-  BENCHMARK_REGISTER_F(ConvolutionBenchmark, name)->UseManualTime()
-
 namespace {
 
 struct Dense3x3Params {

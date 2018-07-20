@@ -160,9 +160,12 @@ void BaseConvolutionBenchmark::add_opencl_device_info(
     return s;
   };
   auto device_name = device.get_info<cl::sycl::info::device::name>();
+  auto device_version = device.get_info<cl::sycl::info::device::version>();
   auto vendor_name = device.get_info<cl::sycl::info::device::vendor>();
-  auto driver_version = device.get_info<cl::sycl::info::device::version>();
+  auto driver_version =
+      device.get_info<cl::sycl::info::device::driver_version>();
   key_value_map["device_name"] = trim(device_name);
+  key_value_map["device_version"] = trim(device_version);
   key_value_map["vendor_name"] = trim(vendor_name);
   key_value_map["driver_version"] = trim(driver_version);
 }
@@ -198,6 +201,13 @@ void BaseConvolutionBenchmark::execute(
     auto status = sycldnn::conv2d::launch<float, ConvType>(
         inp_gpu, fil_gpu, out_gpu, params, selector, backend);
     status.event.wait();
+
+    if (sycldnn::StatusCode::OK != status.status) {
+      state.SkipWithError(
+          "Invalid or unsupported benchmark configuration. "
+          "This may be expected behaviour and does not indicate a problem.");
+      return;
+    }
   }
 
   for (auto _ : state) {
@@ -225,8 +235,7 @@ void BaseConvolutionBenchmark::execute(
   add_bandwidth_counters<float>(state, conv_sizes);
 
   key_value_map["selector"] = selector.name();
-  key_value_map["git-hash"] = commit_hash;
-  key_value_map["git-date"] = commit_date;
+  key_value_map["git_hash"] = commit_hash;
   set_label(state);
 }
 }
@@ -234,6 +243,8 @@ void BaseConvolutionBenchmark::execute(
 #define CONVOLUTION_BENCHMARK(name, ...)                               \
   BENCHMARK_TEMPLATE_DEFINE_F(ConvolutionBenchmark, name, __VA_ARGS__) \
   (benchmark::State & state) { this->run(state); }                     \
-  BENCHMARK_REGISTER_F(ConvolutionBenchmark, name)->UseManualTime()
+  BENCHMARK_REGISTER_F(ConvolutionBenchmark, name)                     \
+      ->UseManualTime()                                                \
+      ->Unit(benchmark::kNanosecond);
 
 #endif  // define SYCLDNN_BENCH_FIXTURE_H_
