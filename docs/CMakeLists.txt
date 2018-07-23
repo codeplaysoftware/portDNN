@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-find_package(Doxygen REQUIRED DOXYGEN_SKIP_DOT FALSE)
+set(DOXYGEN_SKIP_DOT FALSE)
+find_package(Doxygen REQUIRED)
 if(NOT ${DOXYGEN_DOT_FOUND})
   message(FATAL_ERROR
     "Building documentation requires dot/graphviz. Install graphviz, or set "

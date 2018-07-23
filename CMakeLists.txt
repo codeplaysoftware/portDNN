@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 cmake_minimum_required(VERSION 3.2.2)
+cmake_policy(VERSION 3.2.2)
+
 project(sycldnn LANGUAGES C CXX VERSION 0.1.0)
 
 option(SNN_DOWNLOAD_GTEST
