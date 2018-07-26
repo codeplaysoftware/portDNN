@@ -17,17 +17,17 @@
 #define SYCLDNN_TEST_CONV2D_CONVOLUTION_FIXTURE_H_
 
 #include <gtest/gtest.h>
-#include <CL/sycl.hpp>
-#include <algorithm>
-#include <iostream>
 #include <vector>
+
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
-#include "test/backend/eigen_backend_test_fixture.h"
+#include "test/gen/eigen_generated_test_fixture.h"
+#include "test/gen/iota_initialised_data.h"
 
 template <typename Pair>
-struct ConvolutionFixture : public EigenBackendTest {
+struct ConvolutionFixture
+    : public EigenGeneratedTestFixture<typename Pair::SecondType> {
   using SelectorType = typename Pair::FirstType;
   using DataType = typename Pair::SecondType;
 
@@ -40,27 +40,19 @@ struct ConvolutionFixture : public EigenBackendTest {
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
     ASSERT_EQ(conv_sizes.output_size, exp.size());
 
-    std::vector<DataType> input;
-    iota_n_modulo(input, conv_sizes.input_size, static_cast<DataType>(1),
-                  max_val);
-    ASSERT_EQ(conv_sizes.input_size, input.size());
+    std::vector<DataType> input =
+        iota_initialised_data(conv_sizes.input_size, max_val);
+    std::vector<DataType> filter =
+        iota_initialised_data(conv_sizes.filter_size, max_val);
+    std::vector<DataType> output(conv_sizes.output_size,
+                                 static_cast<DataType>(0));
 
-    std::vector<DataType> filter;
-    iota_n_modulo(filter, conv_sizes.filter_size, static_cast<DataType>(1),
-                  max_val);
-    ASSERT_EQ(conv_sizes.filter_size, filter.size());
-
-    auto device = get_eigen_device();
-    size_t inp_bytes = conv_sizes.input_size * sizeof(exp[0]);
-    DataType* inp_gpu = static_cast<DataType*>(device.allocate(inp_bytes));
-    device.memcpyHostToDevice(inp_gpu, input.data(), inp_bytes);
-
-    size_t fil_bytes = conv_sizes.filter_size * sizeof(exp[0]);
-    DataType* fil_gpu = static_cast<DataType*>(device.allocate(fil_bytes));
-    device.memcpyHostToDevice(fil_gpu, filter.data(), fil_bytes);
-
-    size_t out_bytes = conv_sizes.output_size * sizeof(exp[0]);
-    DataType* out_gpu = static_cast<DataType*>(device.allocate(out_bytes));
+    auto inp_gpu =
+        this->get_initialised_device_memory(conv_sizes.input_size, input);
+    auto fil_gpu =
+        this->get_initialised_device_memory(conv_sizes.filter_size, filter);
+    auto out_gpu =
+        this->get_initialised_device_memory(conv_sizes.output_size, output);
 
     SelectorType selector{};
     if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
@@ -68,7 +60,7 @@ struct ConvolutionFixture : public EigenBackendTest {
       return;
     }
     auto status = sycldnn::conv2d::launch<DataType, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, selector, backend_);
+        inp_gpu, fil_gpu, out_gpu, params, selector, this->backend_);
 
     if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
       // Do not check results if the implementation is not supported.
@@ -77,9 +69,10 @@ struct ConvolutionFixture : public EigenBackendTest {
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait();
 
-    std::vector<DataType> output;
-    output.resize(conv_sizes.output_size);
-    device.memcpyDeviceToHost(output.data(), out_gpu, out_bytes);
+    this->copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
+    this->deallocate_ptr(inp_gpu);
+    this->deallocate_ptr(fil_gpu);
+    this->deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -89,39 +82,6 @@ struct ConvolutionFixture : public EigenBackendTest {
         EXPECT_FLOAT_EQ(exp[i], output[i]);
       }
     }
-    device.deallocate_all();
-  }
-
- private:
-  /**
-   * Fill a vector with the values:
-   *   `init_value, init_value+1, ..., max_value-1, max_value, init_value,...`
-   * where the values will increase by `1` each step, but the values are
-   * limited by `max_value`. Once `max_value` is reached, the values begin
-   * again at init_value.
-   */
-  template <typename T>
-  void iota_n_modulo(std::vector<T>& c, size_t size, T init_value,
-                     T max_value) {
-    if (max_value < 1) {
-      return iota_n(c, size, init_value);
-    }
-    c.reserve(size);
-    // Want the max value to ba attained, so need to add an additional step.
-    size_t n_steps = static_cast<size_t>(max_value - init_value) + 1;
-    size_t n_done = 0;
-    while (n_done < size) {
-      size_t to_do = size - n_done;
-      size_t this_time = to_do > n_steps ? n_steps : to_do;
-      iota_n(c, this_time, init_value);
-      n_done += this_time;
-    }
-  }
-  /** Fill a vector with `value, value+1,...` with `size` elements. */
-  template <typename T>
-  void iota_n(std::vector<T>& c, size_t size, T value) {
-    c.reserve(size);
-    std::generate_n(std::back_inserter(c), size, [&value] { return value++; });
   }
 };
 

@@ -12,6 +12,7 @@ Testing/
 *.lib
 *.exe
 *.out
+*.pyc
 
 # editor temporaries
 *~
