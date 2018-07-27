@@ -20,7 +20,7 @@ set(SNN_CONV_TYPES conv_type::Forward
                    conv_type::FilterBackprop
 )
 
-macro(instantiate_direct_conv_impl window stride)
+macro(instantiate_direct_conv_impl out_var window stride)
   list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
   string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
   set(_filename
@@ -30,13 +30,13 @@ macro(instantiate_direct_conv_impl window stride)
   set(DIRECT_WINDOW ${window})
   set(DIRECT_STRIDE ${stride})
   configure_file(${INST_DIRECT_TEMPLATE_FILE} ${_gen_file})
-  target_sources(${INST_DIRECT_TARGET_LIB} PRIVATE ${_gen_file})
+  list(APPEND ${out_var} ${_gen_file})
 endmacro()
 
 function(instantiate_direct_conv)
   set(options)
   set(one_value_args
-    TARGET_LIB
+    OUTPUT_VAR
     TEMPLATE_FILE
     FILENAME
   )
@@ -47,39 +47,37 @@ function(instantiate_direct_conv)
     "${multi_value_args}"
     ${ARGN}
   )
+  set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
       foreach(CONV_TYPE IN LISTS SNN_CONV_TYPES)
-        instantiate_direct_conv_impl(0 0)
+        instantiate_direct_conv_impl(_sources 0 0)
         if(SNN_CONV2D_DIRECT_STATIC_KERNELS)
-          instantiate_direct_conv_impl(1 1)
-          instantiate_direct_conv_impl(3 1)
-          instantiate_direct_conv_impl(3 2)
-          instantiate_direct_conv_impl(5 1)
-          instantiate_direct_conv_impl(5 2)
+          instantiate_direct_conv_impl(_sources 1 1)
+          instantiate_direct_conv_impl(_sources 3 1)
+          instantiate_direct_conv_impl(_sources 3 2)
+          instantiate_direct_conv_impl(_sources 5 1)
+          instantiate_direct_conv_impl(_sources 5 2)
         endif()
       endforeach()
     endforeach()
   endforeach()
+  set(${INST_DIRECT_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
 endfunction()
 
-add_library(direct_conv2d OBJECT "")
 instantiate_direct_conv(
-  TARGET_LIB    direct_conv2d
+  OUTPUT_VAR    direct_conv2d_kernel_sources
   TEMPLATE_FILE conv2d/direct/direct_impl_tpl.cc.in
   FILENAME      dc2d
 )
-
-get_target_property(direct_conv2d_kernel_sources direct_conv2d SOURCES)
-set_target_properties(direct_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_sources(direct_conv2d PRIVATE conv2d/direct/launch_direct.cc)
-snn_target(
+snn_object_library(
   WITH_SYCL
   TARGET direct_conv2d
+  SOURCES conv2d/direct/launch_direct.cc
   KERNEL_SOURCES ${direct_conv2d_kernel_sources}
 )
 
-macro(instantiate_tiled_conv_impl window stride tile_row tile_col
+macro(instantiate_tiled_conv_impl out_var window stride tile_row tile_col
                                   channel_vector feature_vector)
   list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
   string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
@@ -96,16 +94,16 @@ macro(instantiate_tiled_conv_impl window stride tile_row tile_col
   set(WINDOW ${window})
   set(STRIDE ${stride})
   configure_file(${INST_TILED_TEMPLATE_FILE} ${_gen_file})
-  target_sources(${INST_TILED_TARGET_LIB} PRIVATE ${_gen_file})
   if(COMPUTECPP_FGLRX_WORKAROUND AND ${window} EQUAL 1 AND ${stride} EQUAL 1)
     # Workaround an AMD OpenCL compiler bug
     set_property(SOURCE ${_gen_file} PROPERTY COMPUTECPP_SOURCE_FLAGS "-O2")
   endif()
+  list(APPEND ${out_var} ${_gen_file})
 endmacro()
 function(instantiate_tiled_conv)
   set(options)
   set(one_value_args
-    TARGET_LIB
+    OUTPUT_VAR
     TEMPLATE_FILE
     FILENAME
   )
@@ -116,6 +114,7 @@ function(instantiate_tiled_conv)
     "${multi_value_args}"
     ${ARGN}
   )
+  set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
       foreach(CONV_TYPE IN LISTS SNN_CONV_TYPES)
@@ -123,46 +122,43 @@ function(instantiate_tiled_conv)
         # required in sycldnn::conv2d::launch_tiled() function defined in
         # src/conv2d/tiled/launch_tiled.cc
         if(NOT CONV_TYPE STREQUAL "conv_type::FilterBackprop")
-          instantiate_tiled_conv_impl(3 1 1 4 1 1)
-          instantiate_tiled_conv_impl(3 2 2 4 1 4)
+          instantiate_tiled_conv_impl(_sources 3 1 1 4 1 1)
+          instantiate_tiled_conv_impl(_sources 3 2 2 4 1 4)
           if(CONV_TYPE STREQUAL "conv_type::Forward")
-            instantiate_tiled_conv_impl(1 2 1 2 1 4)
-            instantiate_tiled_conv_impl(1 2 1 2 1 1)
-            instantiate_tiled_conv_impl(3 2 2 2 1 4)
-            instantiate_tiled_conv_impl(3 2 2 2 1 1)
+            instantiate_tiled_conv_impl(_sources 1 2 1 2 1 4)
+            instantiate_tiled_conv_impl(_sources 1 2 1 2 1 1)
+            instantiate_tiled_conv_impl(_sources 3 2 2 2 1 4)
+            instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
           endif()
           if(CONV_TYPE STREQUAL "conv_type::InputBackprop")
-            instantiate_tiled_conv_impl(1 2 2 2 1 4)
-            instantiate_tiled_conv_impl(1 2 2 2 1 1)
-            instantiate_tiled_conv_impl(3 2 2 4 1 2)
-            instantiate_tiled_conv_impl(3 1 3 4 1 4)
+            instantiate_tiled_conv_impl(_sources 1 2 2 2 1 4)
+            instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+            instantiate_tiled_conv_impl(_sources 3 2 2 4 1 2)
+            instantiate_tiled_conv_impl(_sources 3 1 3 4 1 4)
           endif()
-          instantiate_tiled_conv_impl(3 1 2 2 1 4)
-          instantiate_tiled_conv_impl(3 1 3 4 1 1)
-          instantiate_tiled_conv_impl(3 2 2 2 1 1)
-          instantiate_tiled_conv_impl(5 1 2 2 1 2)
-          instantiate_tiled_conv_impl(5 1 2 4 1 1)
-          instantiate_tiled_conv_impl(1 1 2 2 1 4)
-          instantiate_tiled_conv_impl(1 1 2 2 1 1)
-          instantiate_tiled_conv_impl(1 2 2 2 1 1)
+          instantiate_tiled_conv_impl(_sources 3 1 2 2 1 4)
+          instantiate_tiled_conv_impl(_sources 3 1 3 4 1 1)
+          instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+          instantiate_tiled_conv_impl(_sources 5 1 2 2 1 2)
+          instantiate_tiled_conv_impl(_sources 5 1 2 4 1 1)
+          instantiate_tiled_conv_impl(_sources 1 1 2 2 1 4)
+          instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
+          instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
         endif()
       endforeach()
     endforeach()
   endforeach()
+  set(${INST_TILED_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
 endfunction()
 
-add_library(tiled_conv2d OBJECT "")
 instantiate_tiled_conv(
-  TARGET_LIB    tiled_conv2d
+  OUTPUT_VAR    tiled_conv2d_kernel_sources
   TEMPLATE_FILE conv2d/tiled/tiled_impl_tpl.cc.in
   FILENAME      tc2d
 )
-
-get_target_property(tiled_conv2d_kernel_sources tiled_conv2d SOURCES)
-set_target_properties(tiled_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_sources(tiled_conv2d PRIVATE conv2d/tiled/launch_tiled.cc)
-snn_target(
+snn_object_library(
   WITH_SYCL
   TARGET tiled_conv2d
+  SOURCES conv2d/tiled/launch_tiled.cc
   KERNEL_SOURCES ${tiled_conv2d_kernel_sources}
 )

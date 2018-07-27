@@ -18,6 +18,7 @@
 # Supported helper functions:
 #   snn_test  - adds a test executable target and registers it with ctest
 #   snn_bench - adds a benchmark executable and registers it with ctest
+#   snn_object_library - adds an object library target
 #
 # Low level functions:
 #   snn_executable - adds an executable target
@@ -362,4 +363,56 @@ function(snn_bench)
   )
   # Ensure that the benchmark output directory is made
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output)
+endfunction()
+
+# snn_object_library helper function
+# Adds an object library target with the specified sources, libraries and include
+# directories. If SYCL support is requested then that is added to the target as
+# well.
+#
+# Parameters:
+# WITH_SYCL: whether to add SYCL to the target
+# TARGET: object library target name
+# SOURCES: source files for the object library
+# KERNEL_SOURCES: source files containing SYCL kernels
+# PUBLIC_LIBRARIES: targets and flags for linking phase
+# PUBLIC_INCLUDE_DIRS: include directories for target
+# CXX_OPTS: additional compile flags to add to the target
+function(snn_object_library)
+  set(options
+    WITH_SYCL
+  )
+  set(one_value_args
+    TARGET
+  )
+  set(multi_value_args
+    SOURCES
+    KERNEL_SOURCES
+    PUBLIC_LIBRARIES
+    PUBLIC_INCLUDE_DIRS
+    CXX_OPTS
+  )
+  cmake_parse_arguments(SNN_OBJLIB
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  snn_warn_unparsed_args(SNN_OBJLIB)
+  list(APPEND SNN_OBJLIB_SOURCES ${SNN_OBJLIB_KERNEL_SOURCES})
+  list(REMOVE_DUPLICATES SNN_OBJLIB_SOURCES)
+  add_library(${SNN_OBJLIB_TARGET} OBJECT ${SNN_OBJLIB_SOURCES})
+
+  set_target_properties(${SNN_OBJLIB_TARGET}
+    PROPERTIES POSITION_INDEPENDENT_CODE TRUE
+  )
+  snn_forward_option(_WITH_SYCL SNN_OBJLIB WITH_SYCL)
+  snn_target(
+    ${_WITH_SYCL}
+    TARGET               ${SNN_OBJLIB_TARGET}
+    KERNEL_SOURCES       ${SNN_OBJLIB_KERNEL_SOURCES}
+    PUBLIC_LIBRARIES     ${SNN_OBJLIB_PUBLIC_LIBRARIES}
+    PUBLIC_INCLUDE_DIRS  ${SNN_OBJLIB_PUBLIC_INCLUDE_DIRS}
+    CXX_OPTS             ${SNN_OBJLIB_CXX_OPTS}
+  )
 endfunction()
