@@ -22,7 +22,7 @@ snn_test(
   WITH_SYCL
   TARGET
     basic_sycl
-  SOURCES
+  KERNEL_SOURCES
     basic_sycl_test.cc
 )
 snn_test(
@@ -126,13 +126,11 @@ if(SNN_TEST_EIGEN)
       target_sources(eigen_matmul PRIVATE ${_gen_dir}/${_filename})
     endforeach()
   endforeach()
-  # Need to call this after setting the sources to ensure that all sources are
-  # compiled with SYCL support.
   get_target_property(eigen_matmul_sources eigen_matmul SOURCES)
   snn_target(
     WITH_SYCL
     TARGET eigen_matmul
-    SOURCES ${eigen_matmul_sources}
+    KERNEL_SOURCES ${eigen_matmul_sources}
     PUBLIC_LIBRARIES
       Eigen::Eigen
       GTest::GTest
@@ -150,7 +148,7 @@ if(SNN_TEST_EIGEN)
     WITH_SYCL
     TARGET
       eigen_external_handler
-    SOURCES
+    KERNEL_SOURCES
       backend/eigen_external_handler.cc
     PUBLIC_LIBRARIES
       Eigen::Eigen
@@ -159,7 +157,7 @@ if(SNN_TEST_EIGEN)
     WITH_SYCL
     TARGET
       eigen_internal_handler
-    SOURCES
+    KERNEL_SOURCES
       backend/eigen_internal_handler.cc
     PUBLIC_LIBRARIES
       Eigen::Eigen

@@ -48,7 +48,7 @@ snn_bench(
   WITH_SYCL
   TARGET
     set_buffer
-  SOURCES
+  KERNEL_SOURCES
     basic_sycl.cc
   PUBLIC_LIBRARIES
     bench_main

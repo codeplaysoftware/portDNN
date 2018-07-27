@@ -64,13 +64,21 @@ macro(snn_forward_option OUT_VAR PREFIX OPTION_NAME)
   endif()
 endmacro()
 
+# Warn if there are unparsed arguments left over from cmake_parse_arguments.
+# This likely indicates an error in the cmake files.
+macro(snn_warn_unparsed_args PREFIX)
+  if(${PREFIX}_UNPARSED_ARGUMENTS)
+    message(WARNING "Unparsed arguments: ${${PREFIX}_UNPARSED_ARGUMENTS}")
+  endif()
+endmacro()
+
 # snn_target helper function
 # Adds the required links, include directories, SYCL support and flags to a
 # given cmake target.
 #
-# WITH_SYCL: whether to compile the executable for SYCL
+# WITH_SYCL: whether to compile the target for SYCL
 # TARGET: name of the target
-# SOURCES: source files for the executable
+# KERNEL_SOURCES: source files containing SYCL kernels
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
 # PUBLIC_INCLUDE_DIRS: include directories for using the target
@@ -85,7 +93,7 @@ function(snn_target)
     TARGET
   )
   set(multi_value_args
-    SOURCES
+    KERNEL_SOURCES
     PUBLIC_LIBRARIES
     PRIVATE_LIBRARIES
     PUBLIC_INCLUDE_DIRS
@@ -98,6 +106,7 @@ function(snn_target)
     "${multi_value_args}"
     ${ARGN}
   )
+  snn_warn_unparsed_args(SNN_TARGET)
 
   if((DEFINED SNN_TARGET_PUBLIC_LIBRARIES) OR
     (DEFINED SNN_TARGET_PRIVATE_LIBRARIES))
@@ -138,7 +147,7 @@ function(snn_target)
     add_sycl_to_target(
       TARGET     ${SNN_TARGET_TARGET}
       BINARY_DIR ${SNN_TARGET_BIN_DIR}/${SNN_TARGET_TARGET}.dir
-      SOURCES    ${SNN_TARGET_SOURCES}
+      SOURCES    ${SNN_TARGET_KERNEL_SOURCES}
     )
   endif()
   if(${SNN_TARGET_INSTALL})
@@ -161,6 +170,7 @@ endfunction()
 # INSTALL: whether to exclude the executable from installation rules
 # TARGET: name of executable for the target
 # SOURCES: source files for the executable
+# KERNEL_SOURCES: source files containing SYCL kernels
 # OBJECTS: object files to add to the executable
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
@@ -177,6 +187,7 @@ function(snn_executable)
   )
   set(multi_value_args
     SOURCES
+    KERNEL_SOURCES
     OBJECTS
     PUBLIC_LIBRARIES
     PRIVATE_LIBRARIES
@@ -190,6 +201,9 @@ function(snn_executable)
     "${multi_value_args}"
     ${ARGN}
   )
+  snn_warn_unparsed_args(SNN_EXEC)
+  list(APPEND SNN_EXEC_SOURCES ${SNN_EXEC_KERNEL_SOURCES})
+  list(REMOVE_DUPLICATES SNN_EXEC_SOURCES)
   add_executable(${SNN_EXEC_TARGET}
     ${SNN_EXEC_SOURCES}
     ${SNN_EXEC_OBJECTS}
@@ -200,7 +214,7 @@ function(snn_executable)
     ${_WITH_SYCL}
     ${_INSTALL}
     TARGET               ${SNN_EXEC_TARGET}
-    SOURCES              ${SNN_EXEC_SOURCES}
+    KERNEL_SOURCES       ${SNN_EXEC_KERNEL_SOURCES}
     PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    ${SNN_EXEC_PRIVATE_LIBRARIES}
     PUBLIC_INCLUDE_DIRS  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
@@ -222,6 +236,7 @@ endfunction()
 # TARGET: target name prefix
 # SIZE: size of the test (short/moderate/long/eternal)
 # SOURCES: source files for the test
+# KERNEL_SOURCES: source files containing SYCL kernels
 # OBJECTS: object files to add to the test
 # PUBLIC_LIBRARIES: targets and flags for linking phase
 # PUBLIC_INCLUDE_DIRS: include directories for target
@@ -236,6 +251,7 @@ function(snn_test)
   )
   set(multi_value_args
     SOURCES
+    KERNEL_SOURCES
     OBJECTS
     PUBLIC_LIBRARIES
     PUBLIC_INCLUDE_DIRS
@@ -247,6 +263,7 @@ function(snn_test)
     "${multi_value_args}"
     ${ARGN}
   )
+  snn_warn_unparsed_args(SNN_TEST)
   message(STATUS "Test target: ${SNN_TEST_TARGET}")
   set(_NAME ${SNN_TEST_TARGET}_test)
   snn_forward_option(_WITH_SYCL SNN_TEST WITH_SYCL)
@@ -258,6 +275,7 @@ function(snn_test)
     ${_INSTALL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_TEST_SOURCES}
+    KERNEL_SOURCES       ${SNN_TEST_KERNEL_SOURCES}
     OBJECTS              ${SNN_TEST_OBJECTS}
     PUBLIC_LIBRARIES     ${SNN_TEST_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    GTest::GTest GTest::Main
@@ -290,6 +308,7 @@ endfunction()
 # WITH_SYCL: whether to compile the benchmark for SYCL
 # TARGET: target name prefix
 # SOURCES: source files for the benchmark
+# KERNEL_SOURCES: source files containing SYCL kernels
 # OBJECTS: object files to add to the benchmark
 # PUBLIC_LIBRARIES: targets and flags for linking phase
 # PUBLIC_INCLUDE_DIRS: include directories for target
@@ -303,6 +322,7 @@ function(snn_bench)
   )
   set(multi_value_args
     SOURCES
+    KERNEL_SOURCES
     OBJECTS
     PUBLIC_LIBRARIES
     PUBLIC_INCLUDE_DIRS
@@ -314,6 +334,7 @@ function(snn_bench)
     "${multi_value_args}"
     ${ARGN}
   )
+  snn_warn_unparsed_args(SNN_BENCH)
   message(STATUS "Bench target: ${SNN_BENCH_TARGET}")
   set(_NAME ${SNN_BENCH_TARGET}_bench)
   snn_forward_option(_WITH_SYCL SNN_BENCH WITH_SYCL)
@@ -325,6 +346,7 @@ function(snn_bench)
     ${_INSTALL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_BENCH_SOURCES}
+    KERNEL_SOURCES       ${SNN_BENCH_KERNEL_SOURCES}
     OBJECTS              ${SNN_BENCH_OBJECTS}
     PUBLIC_LIBRARIES     ${SNN_BENCH_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    benchmark::benchmark

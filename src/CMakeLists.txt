@@ -63,27 +63,24 @@ function(instantiate_direct_conv)
   endforeach()
 endfunction()
 
-add_library(direct_conv2d OBJECT
-  conv2d/direct/launch_direct.cc
-)
+add_library(direct_conv2d OBJECT "")
 instantiate_direct_conv(
   TARGET_LIB    direct_conv2d
   TEMPLATE_FILE conv2d/direct/direct_impl_tpl.cc.in
   FILENAME      dc2d
 )
 
-# Need to call this after setting the sources to ensure that all sources are
-# compiled with SYCL support.
 get_target_property(direct_conv2d_kernel_sources direct_conv2d SOURCES)
 set_target_properties(direct_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+target_sources(direct_conv2d PRIVATE conv2d/direct/launch_direct.cc)
 snn_target(
   WITH_SYCL
   TARGET direct_conv2d
-  SOURCES ${direct_conv2d_kernel_sources}
+  KERNEL_SOURCES ${direct_conv2d_kernel_sources}
 )
 
 macro(instantiate_tiled_conv_impl window stride tile_row tile_col
-                                   channel_vector feature_vector)
+                                  channel_vector feature_vector)
   list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
   string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
   set(_filename "${INST_TILED_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}")
@@ -154,9 +151,7 @@ function(instantiate_tiled_conv)
   endforeach()
 endfunction()
 
-add_library(tiled_conv2d OBJECT
-  conv2d/tiled/launch_tiled.cc
-)
+add_library(tiled_conv2d OBJECT "")
 instantiate_tiled_conv(
   TARGET_LIB    tiled_conv2d
   TEMPLATE_FILE conv2d/tiled/tiled_impl_tpl.cc.in
@@ -165,8 +160,9 @@ instantiate_tiled_conv(
 
 get_target_property(tiled_conv2d_kernel_sources tiled_conv2d SOURCES)
 set_target_properties(tiled_conv2d PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+target_sources(tiled_conv2d PRIVATE conv2d/tiled/launch_tiled.cc)
 snn_target(
   WITH_SYCL
   TARGET tiled_conv2d
-  SOURCES ${tiled_conv2d_kernel_sources}
+  KERNEL_SOURCES ${tiled_conv2d_kernel_sources}
 )
