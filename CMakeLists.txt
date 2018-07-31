@@ -38,6 +38,8 @@ option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
   "Disable setting the cmake build type if no flag specified" OFF)
 
+option(SNN_ARM_COMPUTE_ENABLED "Whether or not to build ARM compute library benchmarks" OFF)
+
 option(SNN_TEST_EIGEN "Test implementation using Eigen" ON)
 option(SNN_EIGEN_LOCAL_MEM
   "Only compile the local memory versions of Eigen kernels" ON)

@@ -92,3 +92,51 @@ snn_bench(
     bench_main
     Eigen::Eigen
 )
+
+if(SNN_ARM_COMPUTE_ENABLED)
+  find_package(ARMCompute REQUIRED)
+
+  # Create local copies of the benchmark source files in order to do the ARM
+  # compute benchmarks. These are required because FindComputeCpp.cmake doesn't
+  # handle compiling the same input file with multiple configurations well.
+  add_custom_command(
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/arm_resnet.cc 
+      ${CMAKE_CURRENT_BINARY_DIR}/arm_vgg.cc
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_CURRENT_SOURCE_DIR}/resnet.cc
+      ${CMAKE_CURRENT_BINARY_DIR}/arm_resnet.cc
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_CURRENT_SOURCE_DIR}/vgg.cc
+      ${CMAKE_CURRENT_BINARY_DIR}/arm_vgg.cc
+    DEPENDS
+      ${CMAKE_CURRENT_SOURCE_DIR}/resnet.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/vgg.cc
+  )
+  snn_bench(
+    TARGET
+      arm_resnet_convolution
+    SOURCES
+      ${CMAKE_CURRENT_BINARY_DIR}/arm_resnet.cc
+    PRIVATE_INCLUDE_DIRS
+      ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+  )
+  snn_bench(
+    TARGET
+      arm_vgg_convolution
+    SOURCES
+      ${CMAKE_CURRENT_BINARY_DIR}/arm_vgg.cc
+    PRIVATE_INCLUDE_DIRS
+      ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+  )
+endif()

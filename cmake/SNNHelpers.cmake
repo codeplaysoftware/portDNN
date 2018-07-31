@@ -209,6 +209,18 @@ function(snn_executable)
     ${SNN_EXEC_SOURCES}
     ${SNN_EXEC_OBJECTS}
   )
+  # Allows for resolved symbols in executables, which is required for debug
+  # builds, where some unreachable references to undefined functions don't get
+  # dead code eliminated.
+  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set_property(
+      TARGET
+        ${SNN_EXEC_TARGET}
+       APPEND_STRING
+       PROPERTY LINK_FLAGS
+	 " -Wl,-zlazy -Wl,--unresolved-symbols=ignore-all"
+    )
+  endif()
   snn_forward_option(_WITH_SYCL SNN_EXEC WITH_SYCL)
   snn_forward_option(_INSTALL SNN_EXEC INSTALL)
   snn_target(
@@ -216,7 +228,7 @@ function(snn_executable)
     ${_INSTALL}
     TARGET               ${SNN_EXEC_TARGET}
     KERNEL_SOURCES       ${SNN_EXEC_KERNEL_SOURCES}
-    PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES}
+    PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES} 
     PRIVATE_LIBRARIES    ${SNN_EXEC_PRIVATE_LIBRARIES}
     PUBLIC_INCLUDE_DIRS  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
     PRIVATE_INCLUDE_DIRS ${SNN_EXEC_PRIVATE_INCLUDE_DIRS}
@@ -353,7 +365,7 @@ function(snn_bench)
     PRIVATE_LIBRARIES    benchmark::benchmark
     PUBLIC_INCLUDE_DIRS  ${SNN_BENCH_PUBLIC_INCLUDE_DIRS}
     PRIVATE_INCLUDE_DIRS
-    CXX_OPTS             ${SNN_TEST_CXX_OPTS}
+    CXX_OPTS             ${SNN_BENCH_CXX_OPTS}
   )
   add_test(
     NAME           ${_NAME}

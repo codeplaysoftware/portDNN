@@ -13,7 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "fixture.h"
+#ifdef ARM_COMPUTE
+#include "arm_fixture.h"
+
+#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)              \
+  CONVOLUTION_BENCHMARK(                                       \
+      ARM_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                   \
+      sycldnn::conv2d::conv_type::Forward)
+#else
+#include "snn_fixture.h"
+
+#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)                           \
+  CONVOLUTION_BENCHMARK(                                                    \
+      Direct_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,           \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
+      sycldnn::conv2d::conv_type::Forward, sycldnn::conv2d::DirectSelector) \
+  CONVOLUTION_BENCHMARK(                                                    \
+      Tiled_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,            \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
+      sycldnn::conv2d::conv_type::Forward, sycldnn::conv2d::TiledSelector)  \
+  CONVOLUTION_BENCHMARK(                                                    \
+      Direct_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,     \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
+      sycldnn::conv2d::conv_type::InputBackprop,                            \
+      sycldnn::conv2d::DirectSelector)                                      \
+  CONVOLUTION_BENCHMARK(                                                    \
+      Tiled_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,      \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
+      sycldnn::conv2d::conv_type::InputBackprop,                            \
+      sycldnn::conv2d::TiledSelector)                                       \
+  CONVOLUTION_BENCHMARK(                                                    \
+      Direct_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,    \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
+      sycldnn::conv2d::conv_type::FilterBackprop,                           \
+      sycldnn::conv2d::DirectSelector)                                      \
+  CONVOLUTION_BENCHMARK(                                                    \
+      Tiled_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,     \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
+      sycldnn::conv2d::conv_type::FilterBackprop,                           \
+      sycldnn::conv2d::TiledSelector)
+
+#endif
 
 /*
  * Channels | Width | Height | Filter | Stride | Features
@@ -65,36 +106,6 @@ struct ParameterSet {
   }
 };
 }
-
-#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)                           \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Direct_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,           \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::Forward, sycldnn::conv2d::DirectSelector) \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Tiled_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,            \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::Forward, sycldnn::conv2d::TiledSelector)  \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Direct_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,     \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::InputBackprop,                            \
-      sycldnn::conv2d::DirectSelector)                                      \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Tiled_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,      \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::InputBackprop,                            \
-      sycldnn::conv2d::TiledSelector)                                       \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Direct_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,    \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::FilterBackprop,                           \
-      sycldnn::conv2d::DirectSelector)                                      \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Tiled_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,     \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::FilterBackprop,                           \
-      sycldnn::conv2d::TiledSelector)
 
 RESNET_BENCHMARK(1, 3, 230, 230, 7, 2, 64);
 RESNET_BENCHMARK(1, 64, 56, 56, 1, 1, 256);

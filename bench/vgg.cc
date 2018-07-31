@@ -13,8 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "fixture.h"
 
+#ifdef ARM_COMPUTE
+#include "arm_fixture.h"
+
+#define VGG_BENCHMARK(N, C, W, H, F)                           \
+  CONVOLUTION_BENCHMARK(                                       \
+      ARM_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::Forward)
+#else
+#include "snn_fixture.h"
+
+#define VGG_BENCHMARK(N, C, W, H, F)                                           \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Direct_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,              \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::Forward,        \
+      sycldnn::conv2d::DirectSelector)                                         \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Tiled_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,               \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::Forward,        \
+      sycldnn::conv2d::TiledSelector)                                          \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Direct_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,        \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::InputBackprop,  \
+      sycldnn::conv2d::DirectSelector)                                         \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Tiled_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,         \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::InputBackprop,  \
+      sycldnn::conv2d::TiledSelector)                                          \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Direct_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,       \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::FilterBackprop, \
+      sycldnn::conv2d::DirectSelector)                                         \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Tiled_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,        \
+      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::FilterBackprop, \
+      sycldnn::conv2d::TiledSelector)
+
+#endif
 /*
  * Channels | Width | Height | Filter | Stride | Features
  * ---------|-------|--------|--------|--------|---------
@@ -53,32 +89,6 @@ struct ParameterSet {
   }
 };
 }
-
-#define VGG_BENCHMARK(N, C, W, H, F)                                           \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Direct_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,              \
-      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::Forward,        \
-      sycldnn::conv2d::DirectSelector)                                         \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Tiled_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,               \
-      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::Forward,        \
-      sycldnn::conv2d::TiledSelector)                                          \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Direct_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,        \
-      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::InputBackprop,  \
-      sycldnn::conv2d::DirectSelector)                                         \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Tiled_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,         \
-      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::InputBackprop,  \
-      sycldnn::conv2d::TiledSelector)                                          \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Direct_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,       \
-      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::FilterBackprop, \
-      sycldnn::conv2d::DirectSelector)                                         \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Tiled_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,        \
-      ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::FilterBackprop, \
-      sycldnn::conv2d::TiledSelector)
 
 VGG_BENCHMARK(1, 3, 224, 224, 64);
 VGG_BENCHMARK(1, 64, 224, 224, 64);
