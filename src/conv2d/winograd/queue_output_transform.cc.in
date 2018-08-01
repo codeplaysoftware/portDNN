@@ -1,0 +1,44 @@
+/*
+ * Copyright 2018 Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "src/conv2d/winograd/queue_output_transform_impl.h"
+
+// clang-format off
+#define SNN_DATA_TYPE  ${DATA_TYPE}
+#define SNN_INDEX_TYPE ${INDEX_TYPE}
+#define SNN_M          ${WINOGRAD_M}
+#define SNN_N          ${WINOGRAD_N}
+#define SNN_R          ${WINOGRAD_R}
+#define SNN_S          ${WINOGRAD_S}
+#define SNN_CTYPE      ${CONV_TYPE}
+#define SNN_ACC        ${ACCUMULATE}
+// clang-format on
+
+namespace sycldnn {
+namespace conv2d {
+namespace internal {
+namespace winograd {
+
+template SNNStatus
+queue_output_transform<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_M, SNN_N,
+                       SNN_R, SNN_S, SNN_ACC>(
+    ReadAccessor<SNN_DATA_TYPE const> intermediate,
+    WriteAccessor<SNN_DATA_TYPE> output, Conv2DParams const& kernel_params,
+    TileInfo const& tile_info, cl::sycl::queue& queue);
+
+}  // namespace winograd
+}  // namespace internal
+}  // namespace conv2d
+}  // namespace sycldnn

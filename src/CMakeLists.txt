@@ -293,6 +293,113 @@ snn_object_library(
                  ${im2col_filter_kernels}
 )
 
+macro(winograd_filter_impl out_var)
+  set(_filename "${WG_FILTER_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${CONV_TYPE_IDX}")
+  set(_filename "${_filename}_${WINOGRAD_M}_${WINOGRAD_N}")
+  set(_filename "${_filename}_${WINOGRAD_R}_${WINOGRAD_S}.cc")
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/winograd/${_filename})
+  configure_file(${WG_FILTER_TEMPLATE_FILE} ${_gen_file})
+  list(APPEND ${out_var} ${_gen_file})
+endmacro()
+
+macro(winograd_input_impl out_var)
+  set(_base_filename "${WG_INPUT_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${CONV_TYPE_IDX}")
+  set(_base_filename "${_base_filename}_${WINOGRAD_M}_${WINOGRAD_N}")
+  set(_base_filename "${_base_filename}_${WINOGRAD_R}_${WINOGRAD_S}")
+  foreach(CHANNEL_VECTOR IN ITEMS 1 2 4)
+    set(_filename "${_base_filename}_${CHANNEL_VECTOR}.cc")
+    set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/winograd/${_filename})
+    configure_file(${WG_INPUT_TEMPLATE_FILE} ${_gen_file})
+    list(APPEND ${out_var} ${_gen_file})
+  endforeach()
+endmacro()
+
+macro(winograd_output_impl out_var)
+  set(_base_filename "${WG_OUTPUT_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${CONV_TYPE_IDX}")
+  set(_base_filename "${_base_filename}_${WINOGRAD_M}_${WINOGRAD_N}")
+  set(_base_filename "${_base_filename}_${WINOGRAD_R}_${WINOGRAD_S}")
+  if(CONV_TYPE STREQUAL "conv_type::FilterBackprop")
+    set(_acc_list true false)
+  else()
+    set(_acc_list false)
+  endif()
+  foreach(ACCUMULATE IN LISTS _acc_list)
+    set(_filename "${_base_filename}_${ACCUMULATE}.cc")
+    set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/winograd/${_filename})
+    configure_file(${WG_OUTPUT_TEMPLATE_FILE} ${_gen_file})
+    list(APPEND ${out_var} ${_gen_file})
+  endforeach()
+endmacro()
+
+macro(instantiate_winograd_impl out_var m n r s)
+  list(FIND SNN_CONV_TYPES ${CONV_TYPE} CONV_TYPE_IDX)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(WINOGRAD_M ${m})
+  set(WINOGRAD_N ${n})
+  set(WINOGRAD_R ${r})
+  set(WINOGRAD_S ${s})
+  winograd_filter_impl(${out_var})
+  winograd_input_impl(${out_var})
+  winograd_output_impl(${out_var})
+endmacro()
+
+function(instantiate_winograd)
+  set(options)
+  set(one_value_args
+    OUTPUT_VAR
+    FILTER_TEMPLATE_FILE
+    FILTER_FILENAME
+    INPUT_TEMPLATE_FILE
+    INPUT_FILENAME
+    OUTPUT_TEMPLATE_FILE
+    OUTPUT_FILENAME
+  )
+  set(multi_value_args)
+  cmake_parse_arguments(WG
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  snn_warn_unparsed_args(WG)
+  set(_sources "")
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
+      foreach(CONV_TYPE IN LISTS SNN_CONV_TYPES)
+        if(CONV_TYPE STREQUAL "conv_type::FilterBackprop")
+          instantiate_winograd_impl(_sources 3 3 2 2)
+          instantiate_winograd_impl(_sources 3 1 2 1)
+          instantiate_winograd_impl(_sources 1 3 1 2)
+        else()
+          instantiate_winograd_impl(_sources 2 2 3 3)
+          instantiate_winograd_impl(_sources 2 1 3 1)
+          instantiate_winograd_impl(_sources 1 2 1 3)
+        endif()
+      endforeach()
+    endforeach()
+  endforeach()
+  set(${WG_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+endfunction()
+
+instantiate_winograd(
+  OUTPUT_VAR winograd_kernel_sources
+  FILTER_TEMPLATE_FILE conv2d/winograd/queue_filter_transform.cc.in
+  FILTER_FILENAME winograd_filter
+  INPUT_TEMPLATE_FILE conv2d/winograd/queue_input_transform.cc.in
+  INPUT_FILENAME winograd_input
+  OUTPUT_TEMPLATE_FILE conv2d/winograd/queue_output_transform.cc.in
+  OUTPUT_FILENAME winograd_output
+)
+
+snn_object_library(
+  WITH_SYCL
+  TARGET winograd_conv2d
+  KERNEL_SOURCES ${winograd_kernel_sources}
+  SOURCES conv2d/winograd/launch_filter_transform.cc
+          conv2d/winograd/launch_input_transform.cc
+          conv2d/winograd/launch_output_transform.cc
+)
+
 snn_object_library(
   WITH_SYCL
   TARGET pooling

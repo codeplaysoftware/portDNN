@@ -40,6 +40,22 @@ struct BatchInfo {
 };
 
 /**
+ * Get the number of batches needed to split work up into a given size of
+ * minibatch.
+ *
+ * \param minibatch_size Size of each mini-batch.
+ * \param n_images       The total number of images to process.
+ * \return A BatchInfo struct containing info on how to process the images.
+ */
+inline BatchInfo get_batch_info(size_t minibatch_size, size_t n_images) {
+  size_t const n_batches =
+      helpers::round_ratio_up_above_zero(n_images, minibatch_size);
+  size_t const last_batch_size = n_images - minibatch_size * (n_batches - 1);
+
+  return BatchInfo{minibatch_size, n_batches, last_batch_size};
+}
+
+/**
  * Get the number of batches needed to spread work over a number of images
  * given a transform buffer of fixed size.
  *

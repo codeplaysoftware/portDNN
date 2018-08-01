@@ -117,6 +117,7 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
   $<TARGET_OBJECTS:im2col_conv2d>
+  $<TARGET_OBJECTS:winograd_conv2d>
   $<TARGET_OBJECTS:pooling>
 )
 snn_target(TARGET sycl_dnn WITH_SYCL)
@@ -130,6 +131,7 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
   $<TARGET_OBJECTS:im2col_conv2d>
+  $<TARGET_OBJECTS:winograd_conv2d>
   $<TARGET_OBJECTS:pooling>
 )
 snn_target(TARGET sycl_dnn_static WITH_SYCL)

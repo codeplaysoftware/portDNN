@@ -186,6 +186,7 @@ if(SNN_TEST_EIGEN)
       $<TARGET_OBJECTS:direct_conv2d>
       $<TARGET_OBJECTS:tiled_conv2d>
       $<TARGET_OBJECTS:im2col_conv2d>
+      $<TARGET_OBJECTS:winograd_conv2d>
       $<TARGET_OBJECTS:matmul>
     PUBLIC_LIBRARIES
       Eigen::Eigen
@@ -216,6 +217,7 @@ if(SNN_TEST_EIGEN)
           $<TARGET_OBJECTS:direct_conv2d>
           $<TARGET_OBJECTS:tiled_conv2d>
           $<TARGET_OBJECTS:im2col_conv2d>
+          $<TARGET_OBJECTS:winograd_conv2d>
           $<TARGET_OBJECTS:matmul>
         PUBLIC_LIBRARIES
           Eigen::Eigen

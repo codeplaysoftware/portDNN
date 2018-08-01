@@ -36,6 +36,8 @@ enum class Algorithm {
   Tiled,
   /** Im2col implementation with temporary buffer. */
   Im2col,
+  /** Winograd implementation with temporary buffer. */
+  Winograd,
 };
 }  // namespace conv2d
 }  // namespace sycldnn
