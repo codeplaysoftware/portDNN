@@ -52,11 +52,11 @@
 #undef RESNET_PARAMS
 
 #define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(32, channels, width, height, filter, stride, features);
+  RESNET_BENCHMARK(2, channels, width, height, filter, stride, features);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(64, channels, width, height, filter, stride, features);
+  RESNET_BENCHMARK(4, channels, width, height, filter, stride, features);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS

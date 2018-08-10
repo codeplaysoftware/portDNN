@@ -57,7 +57,12 @@ set(COMPUTECPP_BITCODE "spir64" CACHE STRING
   "Bitcode type to use as SYCL target in compute++")
 mark_as_advanced(COMPUTECPP_BITCODE)
 
-find_package(OpenCL REQUIRED)
+# We only need the headers, so leave OpenCL optional and then check the include
+# path variable is set.
+find_package(OpenCL)
+if(NOT OpenCL_INCLUDE_DIRS)
+  message(FATAL_ERROR "Failed to locate OpenCL headers.")
+endif()
 
 # Find ComputeCpp package
 
@@ -176,21 +181,13 @@ endif()
 
 separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
-if(NOT TARGET OpenCL::OpenCL)
-  add_library(OpenCL::OpenCL IMPORTED UNKNOWN)
-  set_target_properties(OpenCL::OpenCL PROPERTIES
-    IMPORTED_LOCATION             "${OpenCL_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${OpenCL_INCLUDE_DIRS}"
-  )
-endif()
-
-add_library(ComputeCpp::ComputeCpp IMPORTED UNKNOWN)
+add_library(ComputeCpp::ComputeCpp IMPORTED SHARED GLOBAL)
 set_target_properties(ComputeCpp::ComputeCpp PROPERTIES
   IMPORTED_LOCATION_DEBUG          "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
   IMPORTED_LOCATION_RELWITHDEBINFO "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
   IMPORTED_LOCATION                "${COMPUTECPP_RUNTIME_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES    "${ComputeCpp_INCLUDE_DIRS}"
-  INTERFACE_LINK_LIBRARIES         "OpenCL::OpenCL"
+  INTERFACE_INCLUDE_DIRECTORIES    "${ComputeCpp_INCLUDE_DIRS};${OpenCL_INCLUDE_DIRS}"
+  INTERFACE_COMPILE_DEFINITIONS    "CL_TARGET_OPENCL_VERSION=120"
 )
 
 # This property allows targets to specify that their sources should be

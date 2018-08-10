@@ -46,11 +46,11 @@
 #undef VGG_PARAMS
 
 #define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(32, channels, width, height, features);
+  VGG_BENCHMARK(2, channels, width, height, features);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 
 #define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(64, channels, width, height, features);
+  VGG_BENCHMARK(4, channels, width, height, features);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
