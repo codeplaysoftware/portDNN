@@ -17,18 +17,40 @@
 #ifndef SYCLDNN_INCLUDE_POOLING_LAUNCH_H_
 #define SYCLDNN_INCLUDE_POOLING_LAUNCH_H_
 
+/**
+ * \file
+ * Implements the \ref sycldnn::pooling::launch() function, which asynchronously
+ * dispatches the SYCL kernels to compute a 2D pooling operation.
+ */
+
 #include "sycldnn/accessor_types.h"
 #include "sycldnn/internal/pooling/launch_internal.h"
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/status.h"
 
 namespace sycldnn {
+/** Namespace containing all pooling operations. */
 namespace pooling {
 
-/*
- * Returns an SNNStatus containing the SYCL event tied to the kernel launches
- * and a StatusCode enum showing if the launch was OK or whether it encountered
- * some problem.
+/**
+ * Launch the pooling operation kernel.
+ *
+ * \tparam T         The data type of the input tensor.
+ * \tparam PoolType  The type of pooling used depends on the PoolType template
+ *                   parameter, which can be used to specify either Max or
+ *                   Average pooling.
+ * \tparam Direction Whether the pooling operation computed should be the
+ *                   Forward or Backpropagate pass.
+ * \tparam Backend   The type of the Backend.
+ *
+ * \param [in]  input    A pointer to the input tensor.
+ * \param [out] output   A pointer to the output tensor.
+ * \param [in]  pp       The parameters of the pooling operation.
+ * \param [in]  backend  The backend that provides access to the SYCL buffers
+ *                       corresponding to the input and output pointers.
+ * \return An SNNStatus containing the SYCL event tied to the kernel launches
+ *         and a StatusCode enum showing if the launch was OK or whether it
+ *         encountered some problem.
  */
 template <typename T, template <typename U> class PoolType, typename Direction,
           typename Backend>
@@ -60,10 +82,21 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       pp.pad_cols >= 0,
       "The padding in the column direction must be non-negative.");
 
-  auto inp_buf = backend.get_buffer(input, pp.in_rows * pp.in_cols);
-  auto outp_buf = backend.get_buffer(output, pp.out_rows * pp.out_cols);
-  ReadAccessor<T const> inp_access{inp_buf};
-  WriteAccessor<T> outp_access{outp_buf};
+  size_t const input_size = pp.batches * pp.in_rows * pp.in_cols * pp.channels;
+  size_t const output_size =
+      pp.batches * pp.out_rows * pp.out_cols * pp.channels;
+
+  auto inp_buf = backend.get_buffer(input, input_size);
+  auto outp_buf = backend.get_buffer(output, output_size);
+
+  auto const inp_offset = backend.get_offset(input);
+  auto const outp_offset = backend.get_offset(output);
+
+  ReadAccessor<T const> inp_access{inp_buf, cl::sycl::range<1>{input_size},
+                                   cl::sycl::id<1>{inp_offset}};
+  WriteAccessor<T> outp_access{outp_buf, cl::sycl::range<1>{output_size},
+                               cl::sycl::id<1>{outp_offset}};
+
   auto queue = backend.get_queue();
   return internal::launch_pooling<T, PoolType, Direction>(
       inp_access, outp_access, pp, queue);
