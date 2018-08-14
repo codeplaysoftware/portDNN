@@ -81,4 +81,18 @@
 #endif  // __SYCL_DEVICE_ONLY__
 #endif  // SNN_ASSERT
 
+/**
+ * Validate that a condition is always true. Throw an assert or return
+ * InvalidParameter if not.
+ * \param condition Condition to check.
+ * \param message   Error message to give if condition not met.
+ */
+#define SNN_VALIDATE_PARAM(condition, message)            \
+  do {                                                    \
+    SNN_ASSERT(condition, message);                       \
+    if (!(condition)) {                                   \
+      return SNNStatus{{}, StatusCode::InvalidParameter}; \
+    }                                                     \
+  } while (0)
+
 #endif  // SYCLDNN_INCLUDE_HELPER_MACROS_H_

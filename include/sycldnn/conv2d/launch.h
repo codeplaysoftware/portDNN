@@ -60,6 +60,38 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  Conv2DParams const& params, Selector& selector,
                  Backend& backend) {
+  SNN_VALIDATE_PARAM(params.batch > 0,
+                     "The number of batches must be positive.");
+  SNN_VALIDATE_PARAM(params.channels > 0,
+                     "The number of channels must be positive.");
+  SNN_VALIDATE_PARAM(params.features > 0,
+                     "The number of features must be positive.");
+  SNN_VALIDATE_PARAM(params.in_rows > 0,
+                     "The number of input rows must be positive.");
+  SNN_VALIDATE_PARAM(params.in_cols > 0,
+                     "The number of input columns must be positive.");
+  SNN_VALIDATE_PARAM(params.out_rows > 0,
+                     "The number of output rows must be positive.");
+  SNN_VALIDATE_PARAM(params.out_cols > 0,
+                     "The number of output columns must be positive.");
+  SNN_VALIDATE_PARAM(params.window_rows > 0,
+                     "The number of window rows must be positive.");
+  SNN_VALIDATE_PARAM(params.window_cols > 0,
+                     "The number of window columns must be positive.");
+  SNN_VALIDATE_PARAM(params.stride_rows > 0,
+                     "The stride in the row direction must be positive.");
+  SNN_VALIDATE_PARAM(params.stride_cols > 0,
+                     "The stride in the column direction must be positive.");
+  SNN_VALIDATE_PARAM(params.pad_rows >= 0,
+                     "The padding in the row direction must be non-negative.");
+  SNN_VALIDATE_PARAM(
+      params.pad_cols >= 0,
+      "The padding in the column direction must be non-negative.");
+  SNN_VALIDATE_PARAM(params.dilation_rows == 1,
+                     "Currently SYCL-DNN only supports dilation 1.");
+  SNN_VALIDATE_PARAM(params.dilation_cols == 1,
+                     "Currently SYCL-DNN only supports dilation 1.");
+
   Algorithm algo_tag = selector.select(params);
   switch (algo_tag) {
     case Algorithm::Direct:

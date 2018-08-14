@@ -38,6 +38,8 @@ enum class StatusCode {
   InsufficientWorkspace,
   /** A sufficient workspace buffer cannot be allocated on the SYCL device. */
   AllocationProblem,
+  /** An invalid parameter was passed to a kernel launcher. */
+  InvalidParameter,
 };
 /**
  * A status object containing the SYCL event corresponding to the last kernel

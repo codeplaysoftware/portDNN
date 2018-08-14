@@ -35,6 +35,31 @@ template <typename T, template <typename U> class PoolType, typename Direction,
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  const PoolingParams& pp, Backend& backend) {
+  SNN_VALIDATE_PARAM(pp.batches > 0, "The number of batches must be positive.");
+  SNN_VALIDATE_PARAM(pp.channels > 0,
+                     "The number of channels must be positive.");
+  SNN_VALIDATE_PARAM(pp.in_rows > 0,
+                     "The number of input rows must be positive.");
+  SNN_VALIDATE_PARAM(pp.in_cols > 0,
+                     "The number of input columns must be positive.");
+  SNN_VALIDATE_PARAM(pp.out_rows > 0,
+                     "The number of output rows must be positive.");
+  SNN_VALIDATE_PARAM(pp.out_cols > 0,
+                     "The number of output columns must be positive.");
+  SNN_VALIDATE_PARAM(pp.window_rows > 0,
+                     "The number of window rows must be positive.");
+  SNN_VALIDATE_PARAM(pp.window_cols > 0,
+                     "The number of window columns must be positive.");
+  SNN_VALIDATE_PARAM(pp.stride_rows > 0,
+                     "The stride in the row direction must be positive.");
+  SNN_VALIDATE_PARAM(pp.stride_cols > 0,
+                     "The stride in the column direction must be positive.");
+  SNN_VALIDATE_PARAM(pp.pad_rows >= 0,
+                     "The padding in the row direction must be non-negative.");
+  SNN_VALIDATE_PARAM(
+      pp.pad_cols >= 0,
+      "The padding in the column direction must be non-negative.");
+
   auto inp_buf = backend.get_buffer(input, pp.in_rows * pp.in_cols);
   auto outp_buf = backend.get_buffer(output, pp.out_rows * pp.out_cols);
   ReadAccessor<T const> inp_access{inp_buf};
