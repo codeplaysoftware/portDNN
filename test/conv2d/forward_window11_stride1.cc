@@ -26,9 +26,7 @@
 
 #include "sycldnn/conv2d/helpers/add_padding_to_params.h"
 
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-
+#include "test/conv2d/selector_list.h"
 #include "test/conv2d/window_stride_fixture.h"
 
 #include "test/types/cartesian_product.h"
@@ -40,8 +38,7 @@
 #include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
-                                           sycldnn::conv2d::TiledSelector>;
+using Selectors = sycldnn::types::SelectorList;
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
