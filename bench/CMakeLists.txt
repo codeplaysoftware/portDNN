@@ -58,7 +58,7 @@ snn_bench(
   TARGET
     simple_convolution
   SOURCES
-    simple_convolution.cc
+    conv2d/simple_convolution.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
@@ -71,7 +71,7 @@ snn_bench(
   TARGET
     resnet_convolution
   SOURCES
-    resnet.cc
+    conv2d/resnet.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
@@ -84,7 +84,7 @@ snn_bench(
   TARGET
     vgg_convolution
   SOURCES
-    vgg.cc
+    conv2d/vgg.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
@@ -96,32 +96,11 @@ snn_bench(
 if(SNN_ARM_COMPUTE_ENABLED)
   find_package(ARMCompute REQUIRED)
 
-  # Create local copies of the benchmark source files in order to do the ARM
-  # compute benchmarks. These are required because FindComputeCpp.cmake doesn't
-  # handle compiling the same input file with multiple configurations well.
-  add_custom_command(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/arm_resnet.cc 
-      ${CMAKE_CURRENT_BINARY_DIR}/arm_vgg.cc
-    COMMAND
-      ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_CURRENT_SOURCE_DIR}/resnet.cc
-      ${CMAKE_CURRENT_BINARY_DIR}/arm_resnet.cc
-    COMMAND
-      ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_CURRENT_SOURCE_DIR}/vgg.cc
-      ${CMAKE_CURRENT_BINARY_DIR}/arm_vgg.cc
-    DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/resnet.cc
-      ${CMAKE_CURRENT_SOURCE_DIR}/vgg.cc
-  )
   snn_bench(
     TARGET
       arm_resnet_convolution
     SOURCES
-      ${CMAKE_CURRENT_BINARY_DIR}/arm_resnet.cc
-    PRIVATE_INCLUDE_DIRS
-      ${CMAKE_CURRENT_SOURCE_DIR}
+      conv2d/arm_resnet.cc
     PUBLIC_LIBRARIES
       bench_main
       ARMCompute::ARMCompute
@@ -131,9 +110,7 @@ if(SNN_ARM_COMPUTE_ENABLED)
     TARGET
       arm_vgg_convolution
     SOURCES
-      ${CMAKE_CURRENT_BINARY_DIR}/arm_vgg.cc
-    PRIVATE_INCLUDE_DIRS
-      ${CMAKE_CURRENT_SOURCE_DIR}
+      conv2d/arm_vgg.cc
     PUBLIC_LIBRARIES
       bench_main
       ARMCompute::ARMCompute
