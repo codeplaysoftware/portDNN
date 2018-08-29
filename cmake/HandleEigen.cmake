@@ -22,7 +22,7 @@ if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
   message(STATUS "Configuring Eigen library")
   # Select a commit from the Eigen-SYCL-OpenCL branch. This should be manually
   # bumped as appropriate.
-  set(EIGEN_HG_TAG "411f783" CACHE STRING
+  set(EIGEN_HG_TAG "b98f954" CACHE STRING
     "Hg tag, branch or commit to use for the Eigen library"
   )
   configure_file(${CMAKE_SOURCE_DIR}/cmake/EigenDownload.cmake.in

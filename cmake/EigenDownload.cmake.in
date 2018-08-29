@@ -18,7 +18,7 @@ project(eigen-download NONE)
 
 include(ExternalProject)
 ExternalProject_Add(eigen
-  HG_REPOSITORY     https://bitbucket.org/mehdi_goli/opencl
+  HG_REPOSITORY     https://bitbucket.org/codeplaysoftware/eigen
   HG_TAG            "${EIGEN_HG_TAG}"
   SOURCE_DIR        "${sycldnn_BINARY_DIR}/eigen-src"
   BINARY_DIR        "${sycldnn_BINARY_DIR}/eigen-build"
