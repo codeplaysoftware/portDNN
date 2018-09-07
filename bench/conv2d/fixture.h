@@ -26,8 +26,6 @@
 extern const char* commit_date;
 extern const char* commit_hash;
 
-namespace {
-
 class BaseConvolutionBenchmark : public benchmark::Fixture {
  private:
   using State = benchmark::State;
@@ -129,6 +127,5 @@ void BaseConvolutionBenchmark::set_label(benchmark::State& state) {
   }
   state.SetLabel(label);
 }
-}  // namespace
 
 #endif  // define SYCLDNN_BENCH_FIXTURE_H_

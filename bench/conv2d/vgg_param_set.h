@@ -18,8 +18,6 @@
 
 #include "sycldnn/conv2d/params.h"
 
-namespace {
-
 /**
  * Function object which returns a conv2d parameter struct required for the VGG
  * model. All filter sizes are 3, all strides are 1. The output has the same
@@ -53,7 +51,5 @@ struct ParameterSet {
     return params;
   }
 };
-
-}  // namespace
 
 #endif  // SYCLDNN_BENCH_CONV2D_VGG_PARAM_SET_H_

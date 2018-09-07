@@ -32,8 +32,6 @@ extern const char* commit_hash;
 
 namespace arm = arm_compute;
 
-namespace {
-
 template <typename ParamGen, typename ConvType>
 class ARMConvolutionBenchmark : public BaseConvolutionBenchmark {
  private:
@@ -153,7 +151,6 @@ void ARMConvolutionBenchmark<ParamGen, ConvType>::add_opencl_device_info(
   key_value_map["device_version"] = trim(device_version);
   key_value_map["vendor_name"] = trim(vendor_name);
   key_value_map["driver_version"] = trim(driver_version);
-}
 }
 
 #define CONVOLUTION_BENCHMARK(name, ...)                                  \

@@ -25,7 +25,6 @@
 #include "sycldnn/backend/eigen_backend.h"
 #include "sycldnn/conv2d/launch.h"
 
-namespace {
 template <typename ParamGen, typename ConvType, typename Selector>
 class SNNConvolutionBenchmark : public BaseConvolutionBenchmark {
  private:
@@ -124,7 +123,6 @@ void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::
   key_value_map["device_version"] = trim(device_version);
   key_value_map["vendor_name"] = trim(vendor_name);
   key_value_map["driver_version"] = trim(driver_version);
-}
 }
 
 #define CONVOLUTION_BENCHMARK(name, ...)                                  \

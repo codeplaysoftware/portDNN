@@ -18,8 +18,6 @@
 
 #include "sycldnn/conv2d/params.h"
 
-namespace {
-
 /**
  * Function object which returns a conv2d parameter struct required for the
  * Resnet model.
@@ -54,7 +52,5 @@ struct ParameterSet {
     return params;
   }
 };
-
-}  // namespace
 
 #endif  // SYCLDNN_BENCH_CONV2D_RESNET_PARAM_SET_H_
