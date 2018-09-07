@@ -261,23 +261,12 @@ function(__build_ir)
   set(outputSyclFile ${SNN_BUILD_IR_BINARY_DIR}/${sourceFileName}.sycl)
 
   # Add any user-defined include to the device compiler
-  target_include_directories(${SNN_BUILD_IR_TARGET} PRIVATE ${OpenCL_INCLUDE_DIRS})
-  set(device_compiler_includes "")
-  get_property(includeDirectories DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY
-    INCLUDE_DIRECTORIES)
-  foreach(directory ${includeDirectories})
-    list(APPEND device_compiler_includes "-I${directory}")
-  endforeach()
-  get_target_property(targetIncludeDirectories ${SNN_BUILD_IR_TARGET} INCLUDE_DIRECTORIES)
-  foreach(directory ${targetIncludeDirectories})
-    list(APPEND device_compiler_includes "-I${directory}")
-  endforeach()
-  if (CMAKE_INCLUDE_PATH)
-    foreach(directory ${CMAKE_INCLUDE_PATH})
-      list(APPEND device_compiler_includes "-I${directory}")
-    endforeach()
-  endif()
-  list(REMOVE_DUPLICATES device_compiler_includes)
+  set(include_directories
+    "$<TARGET_PROPERTY:${SNN_BUILD_IR_TARGET},INCLUDE_DIRECTORIES>"
+  )
+  set(device_compiler_includes
+    "$<$<BOOL:${include_directories}>:-I$<JOIN:${include_directories},\t-I>>"
+  )
 
   # Obtain language standard of the file
   set(device_compiler_cxx_standard)
@@ -302,12 +291,6 @@ function(__build_ir)
   if(target_compile_options)
     list(APPEND target_compile_flags ${target_compile_options})
   endif()
-  get_target_property(target_compile_definitions
-    ${SNN_BUILD_IR_TARGET} INTERFACE_COMPILE_DEFINITIONS
-  )
-  if(target_compile_definitions)
-    list(APPEND target_compile_flags ${target_compile_definitions})
-  endif()
   get_property(source_compile_flags
     SOURCE ${SNN_BUILD_IR_SOURCE}
     PROPERTY COMPUTECPP_SOURCE_FLAGS
@@ -320,21 +303,9 @@ function(__build_ir)
   get_target_property(target_libraries ${SNN_BUILD_IR_TARGET} LINK_LIBRARIES)
   if(target_libraries)
     foreach(library ${target_libraries})
-      get_target_property(lib_includes ${library} INTERFACE_INCLUDE_DIRECTORIES)
-      if(lib_includes)
-        foreach(directory ${lib_includes})
-          list(APPEND device_compiler_includes -isystem${directory})
-        endforeach()
-      endif()
       get_target_property(lib_options ${library} INTERFACE_COMPILE_OPTIONS)
       if(lib_options)
         list(APPEND target_compile_flags ${lib_options})
-      endif()
-      get_target_property(lib_defines ${library} INTERFACE_COMPILE_DEFINITIONS)
-      if(lib_defines)
-        foreach(define ${lib_defines})
-          list(APPEND target_compile_flags -D${define})
-        endforeach()
       endif()
       get_target_property(ccpp_flags ${library} INTERFACE_COMPUTECPP_FLAGS)
       if(ccpp_flags)
@@ -343,11 +314,19 @@ function(__build_ir)
     endforeach()
   endif()
 
+  set(compile_definitions
+    "$<TARGET_PROPERTY:${SNN_BUILD_IR_TARGET},COMPILE_DEFINITIONS>"
+  )
+  set(target_compile_definitions
+    "$<$<BOOL:${compile_definitions}>:-D$<JOIN:${compile_definitions},\t-D>>"
+  )
+
   set(COMPUTECPP_DEVICE_COMPILER_FLAGS
     ${device_compiler_cxx_standard}
     ${COMPUTECPP_DEVICE_COMPILER_FLAGS}
     ${COMPUTECPP_USER_FLAGS}
     ${target_compile_flags}
+    ${target_compile_definitions}
   )
   separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
@@ -363,7 +342,6 @@ function(__build_ir)
     OUTPUT ${outputSyclFile}
     COMMAND ${COMPUTECPP_DEVICE_COMPILER}
             ${COMPUTECPP_DEVICE_COMPILER_FLAGS}
-            -isystem ${COMPUTECPP_INCLUDE_DIRECTORY}
             ${device_compiler_includes}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
