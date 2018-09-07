@@ -492,12 +492,8 @@ function(add_sycl_to_target)
     # workaround this we explicitly force the linker to link against OpenCL
     # before it links against ComputeCpp, rather than waiting until the OpenCL
     # library is required.
-    get_target_property(current_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
-    list(APPEND current_links
-      "-Wl,--no-as-needed -l${OpenCL_LIBRARIES} -Wl,--as-needed"
-    )
-    set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
-      LINK_LIBRARIES "${current_links}"
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+      LINK_LIBRARIES -Wl,--no-as-needed ${OpenCL_LIBRARIES} -Wl,--as-needed
     )
   endif()
 
@@ -511,19 +507,11 @@ function(add_sycl_to_target)
   # target_link_libraries(${SNN_ADD_SYCL_TARGET}
   #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   # )
-  get_target_property(_links ${SNN_ADD_SYCL_TARGET} LINK_LIBRARIES)
-  list(APPEND _links
-    -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+  set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+    LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   )
-  get_target_property(_interface_links
-    ${SNN_ADD_SYCL_TARGET} INTERFACE_LINK_LIBRARIES
-  )
-  list(APPEND _interface_links
-    -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
-  )
-  set_target_properties(${SNN_ADD_SYCL_TARGET} PROPERTIES
-    LINK_LIBRARIES "${_links}"
-    INTERFACE_LINK_LIBRARIES "${_interface_links}"
+  set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+    INTERFACE_LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   )
 endfunction(add_sycl_to_target)
 
