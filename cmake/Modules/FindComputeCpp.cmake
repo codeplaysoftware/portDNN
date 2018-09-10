@@ -259,6 +259,7 @@ function(__build_ir)
 
   # Set the path to the integration header.
   set(outputSyclFile ${SNN_BUILD_IR_BINARY_DIR}/${sourceFileName}.sycl)
+  set(depfile_name ${outputSyclFile}.d)
 
   # Add any user-defined include to the device compiler
   set(include_directories
@@ -337,6 +338,17 @@ function(__build_ir)
     endforeach()
   endif()
 
+  # Depfile support was only added in CMake 3.7
+  # CMake throws an error if it is unsupported by the generator (i. e. not ninja)
+  if(CMAKE_GENERATOR MATCHES "Ninja" AND NOT CMAKE_VERSION VERSION_LESS 3.7.0)
+    file(RELATIVE_PATH rel_output_file ${CMAKE_BINARY_DIR} ${outputSyclFile})
+    set(generate_depfile -MMD -MF ${depfile_name} -MT ${rel_output_file})
+    set(enable_depfile DEPFILE ${depfile_name})
+  else()
+    set(generate_depfile)
+    set(enable_depfile)
+  endif()
+
   # Add custom command for running compute++
   add_custom_command(
     OUTPUT ${outputSyclFile}
@@ -345,8 +357,10 @@ function(__build_ir)
             ${device_compiler_includes}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
+            ${generate_depfile}
     DEPENDS ${ir_dependencies}
     IMPLICIT_DEPENDS CXX ${SNN_BUILD_IR_SOURCE}
+    ${enable_depfile}
     WORKING_DIRECTORY ${SNN_BUILD_IR_BINARY_DIR}
     COMMENT "Building ComputeCpp integration header file ${outputSyclFile}")
 
