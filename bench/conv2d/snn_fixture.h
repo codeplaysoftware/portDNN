@@ -42,14 +42,19 @@ class SNNConvolutionBenchmark : public BaseConvolutionBenchmark {
     auto selector = Selector();
     this->execute(state, params, selector);
   };
+
+ private:
+  Eigen::QueueInterface* get_eigen_queue() {
+    static Eigen::QueueInterface queue_interface{cl::sycl::default_selector{}};
+    return &queue_interface;
+  }
 };
 
 template <typename ParamGen, typename ConvType, typename Selector>
 void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::execute(
     benchmark::State& state, sycldnn::conv2d::Conv2DParams const& params,
     sycldnn::conv2d::Selector& selector) {
-  Eigen::QueueInterface queue_interface{cl::sycl::default_selector{}};
-  Eigen::SyclDevice device{&queue_interface};
+  Eigen::SyclDevice device{get_eigen_queue()};
   sycldnn::backend::EigenBackend backend{device};
 
   auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
@@ -91,7 +96,7 @@ void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::execute(
   device.deallocate_all();
 
   // Get the SYCL device, and add device and driver info to the key-value map.
-  auto dev = queue_interface.sycl_queue().get_device();
+  auto dev = backend.get_queue().get_device();
   add_opencl_device_info(dev);
 
   set_items_processed<ConvType>(state, params);
