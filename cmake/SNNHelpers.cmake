@@ -119,8 +119,9 @@ function(snn_target)
   target_include_directories(${SNN_TARGET_TARGET}
     PUBLIC  ${SNN_TARGET_PUBLIC_INCLUDE_DIRS}
     PRIVATE ${SNN_TARGET_PRIVATE_INCLUDE_DIRS}
-            ${sycldnn_SOURCE_DIR}/include
-            ${sycldnn_SOURCE_DIR}
+            $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}>
+            $<INSTALL_INTERFACE:${include_dest}>
   )
 
   # Specify some C++11 features used widely across the library
@@ -154,10 +155,10 @@ function(snn_target)
   if(${SNN_TARGET_INSTALL})
     install(
       TARGETS ${SNN_TARGET_TARGET}
-      RUNTIME DESTINATION bin
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib
-      PUBLIC_HEADER DESTINATION include
+      RUNTIME DESTINATION ${runtime_dest}
+      LIBRARY DESTINATION ${library_dest}
+      ARCHIVE DESTINATION ${library_dest}
+      PUBLIC_HEADER DESTINATION ${include_dest}
     )
   endif()
 endfunction()
@@ -216,9 +217,9 @@ function(snn_executable)
     set_property(
       TARGET
         ${SNN_EXEC_TARGET}
-       APPEND_STRING
-       PROPERTY LINK_FLAGS
-	 " -Wl,-zlazy -Wl,--unresolved-symbols=ignore-all"
+      APPEND_STRING
+      PROPERTY LINK_FLAGS
+        " -Wl,-zlazy -Wl,--unresolved-symbols=ignore-all"
     )
   endif()
   snn_forward_option(_WITH_SYCL SNN_EXEC WITH_SYCL)
@@ -228,7 +229,7 @@ function(snn_executable)
     ${_INSTALL}
     TARGET               ${SNN_EXEC_TARGET}
     KERNEL_SOURCES       ${SNN_EXEC_KERNEL_SOURCES}
-    PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES} 
+    PUBLIC_LIBRARIES     ${SNN_EXEC_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    ${SNN_EXEC_PRIVATE_LIBRARIES}
     PUBLIC_INCLUDE_DIRS  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
     PRIVATE_INCLUDE_DIRS ${SNN_EXEC_PRIVATE_INCLUDE_DIRS}

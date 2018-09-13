@@ -93,6 +93,12 @@ endif()
 
 include(HandleEigen)
 
+set(CMAKE_DEBUG_POSTFIX "-debug")
+set(include_dest "include")
+set(library_dest "lib/sycldnn")
+set(cmake_config_dest "${library_dest}/cmake")
+set(runtime_dest "bin")
+
 add_subdirectory(src)
 
 if(SNN_BUILD_TESTS)
@@ -109,19 +115,44 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:tiled_conv2d>
   $<TARGET_OBJECTS:pooling>
 )
+snn_target(TARGET sycl_dnn WITH_SYCL)
+set_target_properties(sycl_dnn PROPERTIES
+  OUTPUT_NAME "sycldnn"
+  VERSION ${sycldnn_VERSION}
+  SOVERSION ${sycldnn_VERSION}
+)
 
 add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
   $<TARGET_OBJECTS:pooling>
 )
+snn_target(TARGET sycl_dnn_static WITH_SYCL)
+set_target_properties(sycl_dnn_static PROPERTIES
+  OUTPUT_NAME "sycldnn_static"
+  VERSION ${sycldnn_VERSION}
+)
+include(CMakePackageConfigHelpers)
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/sycldnn-version.cmake")
+write_basic_package_version_file(${version_file}
+  VERSION ${sycldnn_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
 
 install(TARGETS sycl_dnn sycl_dnn_static
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	PUBLIC_HEADER DESTINATION include
-	INCLUDES DESTINATION include)
-install(DIRECTORY include/sycldnn DESTINATION include)
+  EXPORT sycldnn
+  LIBRARY DESTINATION ${library_dest}
+  ARCHIVE DESTINATION ${library_dest}
+  PUBLIC_HEADER DESTINATION ${include_dest}
+  INCLUDES DESTINATION ${include_dest}
+)
+install(DIRECTORY include/sycldnn DESTINATION ${include_dest})
+install(FILES ${version_file} DESTINATION ${cmake_config_dest})
+install(EXPORT sycldnn
+  DESTINATION ${cmake_config_dest}
+  NAMESPACE SYCLDNN::
+  FILE sycldnn-config.cmake
+)
 
 # Optionally build the samples.
 if(SNN_BUILD_SAMPLES)
@@ -132,10 +163,4 @@ endif()
 if(SNN_BUILD_DOCUMENTATION)
   add_subdirectory(docs)
 endif()
-
-export(
-  TARGETS sycl_dnn sycl_dnn_static
-  NAMESPACE SYCL_DNN::
-  FILE sycl_dnn-config.cmake
-)
 
