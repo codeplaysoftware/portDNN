@@ -53,10 +53,10 @@ ENV TARGET=${target}
 CMD cd /SYCL-DNN && \
     if [ "${SYCL_IMPL}" = 'COMPUTECPP' ]; then \
       if [ "${TARGET}" = 'host' ]; then \
-        COMPUTECPP_TARGET="host" ./build.sh /tmp/ComputeCpp; \
+        COMPUTECPP_TARGET="host" CMAKE_ARGS="-DSNN_BUILD_DOCUMENTATION=OFF " ./build.sh /tmp/ComputeCpp; \
       else \
-        /tmp/ComputeCpp-latest/bin/computecpp_info && \
-        COMPUTECPP_TARGET="intel:cpu" ./build.sh /tmp/ComputeCpp; \
+        /tmp/ComputeCpp/bin/computecpp_info && \
+        COMPUTECPP_TARGET="intel:cpu" CMAKE_ARGS="-DSNN_BUILD_DOCUMENTATION=OFF " ./build.sh /tmp/ComputeCpp; \
       fi \
     else \
       echo "Unknown SYCL implementation ${SYCL_IMPL}"; return 1; \
