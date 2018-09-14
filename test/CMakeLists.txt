@@ -224,6 +224,39 @@ if(SNN_TEST_EIGEN)
       )
     endforeach()
   endforeach()
+
+  # Pooling instantiations - should this be factored to a function?
+  # windows/strides are different here - Tensorflow doesn't allow
+  # stride > window
+  set(pooling_windows 1 3 3 5 5 7 7 11 11)
+  set(pooling_strides 1 1 2 1 2 1 4 1 4)
+  list(LENGTH pooling_windows pooling_list_len_raw)
+  math(EXPR pooling_list_len "${pooling_list_len_raw} - 1")
+  foreach(_index RANGE ${pooling_list_len})
+    list(GET pooling_windows ${_index} _window)
+    list(GET pooling_strides ${_index} _stride)
+    foreach(_type IN ITEMS "max" "avg")
+      if((_type STREQUAL "avg") AND
+        (_window EQUAL 11 OR ((_window EQUAL 7) AND (_stride EQUAL 4))))
+        message(STATUS "Skipping avg_window${_window}_stride${_stride}")
+      else()
+        snn_test(
+          WITH_SYCL
+          TARGET
+            pooling_${_type}_window${_window}_stride${_stride}
+          SIZE
+            moderate
+          SOURCES
+            pooling/${_type}_window${_window}_stride${_stride}.cc
+          OBJECTS
+            $<TARGET_OBJECTS:pooling>
+          PUBLIC_LIBRARIES
+            Eigen::Eigen
+        )
+      endif()
+    endforeach()
+  endforeach()
+
   foreach(_trans_lhs IN ITEMS "true" "false")
     foreach(_trans_rhs IN ITEMS "true" "false")
       foreach(_batch IN ITEMS 1 3)

@@ -32,7 +32,7 @@ SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int64_t, Average, Forward)
 #endif  // SNN_USE_INT64
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(float, Average, Forward)
 #ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::float, Average, Forward)
+SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Average, Forward)
 #endif  // SNN_USE_HALF
 #ifdef SNN_USE_DOUBLE
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(double, Average, Forward)

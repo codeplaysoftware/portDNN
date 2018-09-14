@@ -24,6 +24,7 @@
  */
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/helpers/macros.h"
 #include "sycldnn/internal/pooling/launch_internal.h"
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/status.h"
