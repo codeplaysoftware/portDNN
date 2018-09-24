@@ -55,7 +55,7 @@ struct PoolingParams {
   Index stride_cols;
 
   /** The number of tensors in the calculation. */
-  Index batches;
+  Index batch;
 
   /** The number of channels in each tensor. */
   Index channels;

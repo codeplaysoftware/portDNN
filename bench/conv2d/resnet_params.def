@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for VGG convolution sizes.
+ * X-Macro definiton file for ResNet convolution sizes.
  *
  * Contains a number of calls to the RESNET_PARAMS function macro defining
  * the following convolution parameters, as used in the Resnet network.

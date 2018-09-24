@@ -50,7 +50,7 @@ SNNStatus queue_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
 template <typename T, template <typename U> class PoolType, typename Direction>
 SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
                          const PoolingParams& pp, cl::sycl::queue& queue) {
-  size_t threads = pp.batches * pp.in_rows * pp.in_cols * pp.channels;
+  size_t threads = pp.batch * pp.in_rows * pp.in_cols * pp.channels;
   if (threads > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
     return queue_pooling<T, int64_t, PoolType, Direction>(input, output, pp,

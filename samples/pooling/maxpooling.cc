@@ -48,16 +48,16 @@ int main() {
   params.window_cols = 2;
   params.stride_rows = 2;
   params.stride_cols = 2;
-  params.batches = 1;
+  params.batch = 1;
   params.channels = 1;
   params.pad_rows = 0;
   params.pad_cols = 0;
 
   /* Device memory of the size of the tensor. */
   using value_type = int;
-  auto input_nbytes = params.batches * params.in_rows * params.in_cols *
+  auto input_nbytes = params.batch * params.in_rows * params.in_cols *
                       params.channels * sizeof(value_type);
-  auto output_nbytes = params.batches * params.out_rows * params.out_cols *
+  auto output_nbytes = params.batch * params.out_rows * params.out_cols *
                        params.channels * sizeof(value_type);
 
   auto* input_gpu_buffer =

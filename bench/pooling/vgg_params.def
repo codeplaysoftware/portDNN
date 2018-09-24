@@ -1,0 +1,46 @@
+/*
+ * Copyright 2018 Codeplay Software Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * \file
+ * X-Macro definiton file for VGG pooling sizes.
+ *
+ * Contains a number of calls to the VGG_PARAMS function-like macro defining
+ * the following pooling parameters, as used in the VGG network.
+ *
+ * The ordering of the arguments is:
+ * \code
+ *   VGG_PARAMS(Channels, Input Width, Input Height)
+ * \endcode
+ * The pooling neighbourhoods are all 2x2, and the strides are all 1.
+ *
+ * Channels | Width | Height | Window | Stride 
+ * ---------|-------|--------|--------|-------
+ *       64 |   224 |    224 |      2 |      1 
+ *      128 |   112 |    112 |      2 |      1 
+ *      256 |    56 |     56 |      2 |      1 
+ *      512 |    28 |     28 |      2 |      1 
+ *      512 |    14 |     14 |      2 |      1 
+ */
+#ifndef VGG_PARAMS
+#error This file expects the VGG_PARAMS macro to be defined.
+#endif
+
+VGG_PARAMS( 64, 224, 224)
+VGG_PARAMS(128, 112, 112)
+VGG_PARAMS(256,  56,  56)
+VGG_PARAMS(512,  28,  28)
+VGG_PARAMS(512,  14,  14)

@@ -72,7 +72,7 @@ class PoolingOp<T, Index, Op, Forward> {
  public:
   SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
     Index index = item.get_id(0);
-    if (index < params_.batches * params_.out_rows * params_.out_cols *
+    if (index < params_.batch * params_.out_rows * params_.out_cols *
                     params_.channels) {
       Op<T> op;
       const auto tensor_id =

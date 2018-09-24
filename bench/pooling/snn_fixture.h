@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_SNN_FIXTURE_H_
-#define SYCLDNN_BENCH_SNN_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
+#define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
 
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
@@ -23,24 +23,21 @@
 // The backend itself doesn't include Eigen to allow users of SYCL-DNN to
 // include it however they wish.
 #include "sycldnn/backend/eigen_backend.h"
-#include "sycldnn/conv2d/launch.h"
+#include "sycldnn/pooling/launch.h"
 
-template <typename ParamGen, typename ConvType, typename Selector>
-class SNNConvolutionBenchmark : public BaseConvolutionBenchmark {
+template <typename ParamGen, typename Direction,
+          template <typename> class Operator>
+class SNNPoolingBenchmark : public BasePoolingBenchmark {
  private:
   using State = benchmark::State;
-  using Conv2DParams = sycldnn::conv2d::Conv2DParams;
 
  protected:
   void add_opencl_device_info(const cl::sycl::device& device);
-  void execute(benchmark::State& state,
-               sycldnn::conv2d::Conv2DParams const& params,
-               sycldnn::conv2d::Selector& selector);
+  void execute(benchmark::State& state, PoolingParams const& params);
 
   void run(State& state) {
     auto params = ParamGen()();
-    auto selector = Selector();
-    this->execute(state, params, selector);
+    this->execute(state, params);
   };
 
  private:
@@ -50,25 +47,23 @@ class SNNConvolutionBenchmark : public BaseConvolutionBenchmark {
   }
 };
 
-template <typename ParamGen, typename ConvType, typename Selector>
-void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::execute(
-    benchmark::State& state, sycldnn::conv2d::Conv2DParams const& params,
-    sycldnn::conv2d::Selector& selector) {
+template <typename ParamGen, typename Direction,
+          template <typename> class Operator>
+void SNNPoolingBenchmark<ParamGen, Direction, Operator>::execute(
+    benchmark::State& state, PoolingParams const& params) {
   Eigen::SyclDevice device{get_eigen_queue()};
   sycldnn::backend::EigenBackend backend{device};
 
-  auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
+  auto pool_sizes = sycldnn::pooling::get_sizes<Direction>(params);
 
-  size_t inp_bytes = conv_sizes.input_size * sizeof(float);
+  size_t inp_bytes = pool_sizes.input_size * sizeof(float);
   float* inp_gpu = static_cast<float*>(device.allocate(inp_bytes));
-  size_t fil_bytes = conv_sizes.filter_size * sizeof(float);
-  float* fil_gpu = static_cast<float*>(device.allocate(fil_bytes));
-  size_t out_bytes = conv_sizes.output_size * sizeof(float);
+  size_t out_bytes = pool_sizes.output_size * sizeof(float);
   float* out_gpu = static_cast<float*>(device.allocate(out_bytes));
 
   {  // Ensure the kernel is built before benchmarking
-    auto status = sycldnn::conv2d::launch<float, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, selector, backend);
+    auto status = sycldnn::pooling::launch<float, Operator, Direction>(
+        inp_gpu, out_gpu, params, backend);
     status.event.wait();
 
     if (sycldnn::StatusCode::OK != status.status) {
@@ -81,8 +76,8 @@ void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::execute(
 
   for (auto _ : state) {
     auto start = std::chrono::high_resolution_clock::now();
-    auto status = sycldnn::conv2d::launch<float, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, selector, backend);
+    auto status = sycldnn::pooling::launch<float, Operator, Direction>(
+        inp_gpu, out_gpu, params, backend);
 
     status.event.wait();
     auto end = std::chrono::high_resolution_clock::now();
@@ -99,18 +94,18 @@ void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::execute(
   auto dev = backend.get_queue().get_device();
   add_opencl_device_info(dev);
 
-  set_items_processed<ConvType>(state, params);
+  set_items_processed<Direction>(state, params);
   add_param_counters(state, params);
-  add_bandwidth_counters<float>(state, conv_sizes);
+  add_bandwidth_counters<float>(state, pool_sizes);
 
-  key_value_map["selector"] = selector.name();
   key_value_map["git_hash"] = commit_hash;
   set_label(state);
 }
 
-template <typename ParamGen, typename ConvType, typename Selector>
-void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::
-    add_opencl_device_info(const cl::sycl::device& device) {
+template <typename ParamGen, typename Direction,
+          template <typename> class Operator>
+void SNNPoolingBenchmark<ParamGen, Direction, Operator>::add_opencl_device_info(
+    const cl::sycl::device& device) {
   // OpenCL is unclear whether strings returned from clGet*Info() should be
   // null terminated, and ComputeCpp currently copies embedded nulls.
   // On some OpenCL implementations this results in strings that behave
@@ -130,11 +125,11 @@ void SNNConvolutionBenchmark<ParamGen, ConvType, Selector>::
   key_value_map["driver_version"] = trim(driver_version);
 }
 
-#define CONVOLUTION_BENCHMARK(name, ...)                                  \
-  BENCHMARK_TEMPLATE_DEFINE_F(SNNConvolutionBenchmark, name, __VA_ARGS__) \
-  (benchmark::State & state) { this->run(state); }                        \
-  BENCHMARK_REGISTER_F(SNNConvolutionBenchmark, name)                     \
-      ->UseManualTime()                                                   \
+#define POOLING_BENCHMARK(name, ...)                                  \
+  BENCHMARK_TEMPLATE_DEFINE_F(SNNPoolingBenchmark, name, __VA_ARGS__) \
+  (benchmark::State & state) { this->run(state); }                    \
+  BENCHMARK_REGISTER_F(SNNPoolingBenchmark, name)                     \
+      ->UseManualTime()                                               \
       ->Unit(benchmark::kNanosecond);
 
-#endif  // define SYCLDNN_BENCH_SNN_FIXTURE_H_
+#endif  // define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_

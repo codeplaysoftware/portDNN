@@ -57,7 +57,7 @@ template <typename T, template <typename U> class PoolType, typename Direction,
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  const PoolingParams& pp, Backend& backend) {
-  SNN_VALIDATE_PARAM(pp.batches > 0, "The number of batches must be positive.");
+  SNN_VALIDATE_PARAM(pp.batch > 0, "The batch size must be positive.");
   SNN_VALIDATE_PARAM(pp.channels > 0,
                      "The number of channels must be positive.");
   SNN_VALIDATE_PARAM(pp.in_rows > 0,
@@ -82,9 +82,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       pp.pad_cols >= 0,
       "The padding in the column direction must be non-negative.");
 
-  size_t const input_size = pp.batches * pp.in_rows * pp.in_cols * pp.channels;
-  size_t const output_size =
-      pp.batches * pp.out_rows * pp.out_cols * pp.channels;
+  size_t const input_size = pp.batch * pp.in_rows * pp.in_cols * pp.channels;
+  size_t const output_size = pp.batch * pp.out_rows * pp.out_cols * pp.channels;
 
   auto inp_buf = backend.get_buffer(input, input_size);
   auto outp_buf = backend.get_buffer(output, output_size);

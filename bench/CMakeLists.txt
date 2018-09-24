@@ -95,6 +95,30 @@ snn_bench(
     bench_main
     Eigen::Eigen
 )
+snn_bench(
+  WITH_SYCL
+  TARGET
+    resnet_pooling
+  SOURCES
+    pooling/resnet.cc
+  OBJECTS
+    $<TARGET_OBJECTS:pooling>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+)
+snn_bench(
+  WITH_SYCL
+  TARGET
+    vgg_pooling
+  SOURCES
+    pooling/vgg.cc
+  OBJECTS
+    $<TARGET_OBJECTS:pooling>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+)
 
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)
