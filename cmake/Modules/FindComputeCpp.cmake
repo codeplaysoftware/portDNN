@@ -23,13 +23,13 @@
 #
 #  Tools for finding and building with ComputeCpp.
 #
-#  User must define COMPUTECPP_PACKAGE_ROOT_DIR pointing to the ComputeCpp
-#   installation.
+#  User must define ComputeCpp_DIR pointing to the ComputeCpp installation.
 #
 #  Latest version of this file can be found at:
 #    https://github.com/codeplaysoftware/computecpp-sdk
 
 cmake_minimum_required(VERSION 3.2.2)
+include(FindPackageHandleStandardArgs)
 
 # Check that a supported host compiler can be found
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -37,16 +37,12 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
       message(FATAL_ERROR
         "host compiler - Not found! (gcc version must be at least 4.8)")
-    else()
-      message(STATUS "host compiler - gcc ${CMAKE_CXX_COMPILER_VERSION}")
     endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # Require at least clang 3.6
     if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 3.6)
       message(FATAL_ERROR
         "host compiler - Not found! (clang version must be at least 3.6)")
-    else()
-      message(STATUS "host compiler - clang ${CMAKE_CXX_COMPILER_VERSION}")
     endif()
 endif()
 
@@ -65,107 +61,104 @@ find_package(OpenCL REQUIRED)
 
 # Find ComputeCpp package
 
-# Try to read the environment variable
-if(DEFINED ENV{COMPUTECPP_PACKAGE_ROOT_DIR})
-  if(NOT COMPUTECPP_PACKAGE_ROOT_DIR)
-    set(COMPUTECPP_PACKAGE_ROOT_DIR $ENV{COMPUTECPP_PACKAGE_ROOT_DIR})
+if(DEFINED ComputeCpp_DIR)
+  set(computecpp_find_hint ${ComputeCpp_DIR})
+elseif(DEFINED ENV{COMPUTECPP_DIR})
+  set(computecpp_find_hint $ENV{COMPUTECPP_DIR})
+elseif(DEFINED COMPUTECPP_PACKAGE_ROOT_DIR)
+  message(DEPRECATION
+    "COMPUTECPP_PACKAGE_ROOT_DIR is not supported. Use ComputeCpp_DIR instead.")
+  set(computecpp_find_hint ${COMPUTECPP_PACKAGE_ROOT_DIR})
+endif()
+
+# Used for running executables on the host
+set(computecpp_host_find_hint ${computecpp_find_hint})
+
+if(CMAKE_CROSSCOMPILING)
+  # ComputeCpp_HOST_DIR is used to find executables that are run on the host
+  if(DEFINED ComputeCpp_HOST_DIR)
+    set(computecpp_host_find_hint ${ComputeCpp_HOST_DIR})
+  elseif(DEFINED ENV{COMPUTECPP_HOST_DIR})
+    set(computecpp_host_find_hint $ENV{COMPUTECPP_HOST_DIR})
   endif()
 endif()
 
-if(NOT COMPUTECPP_PACKAGE_ROOT_DIR)
-  message(FATAL_ERROR
-    "ComputeCpp package - Not found! (please set COMPUTECPP_PACKAGE_ROOT_DIR)")
-else()
-  message(STATUS "ComputeCpp package - Found")
-endif()
+find_program(ComputeCpp_DEVICE_COMPILER_EXECUTABLE compute++
+  PATHS ${computecpp_host_find_hint}
+  PATH_SUFFIXES bin
+  DOC "ComputeCpp device compiler")
 
-# Obtain the path to compute++
-find_program(COMPUTECPP_DEVICE_COMPILER compute++ PATHS
-  ${COMPUTECPP_PACKAGE_ROOT_DIR} PATH_SUFFIXES bin NO_DEFAULT_PATH)
-if (EXISTS ${COMPUTECPP_DEVICE_COMPILER})
-  mark_as_advanced(COMPUTECPP_DEVICE_COMPILER)
-  message(STATUS "compute++ - Found: ${COMPUTECPP_DEVICE_COMPILER}")
-else()
-  message(FATAL_ERROR "compute++ - Not found! (${COMPUTECPP_DEVICE_COMPILER})")
-endif()
+find_program(ComputeCpp_INFO_EXECUTABLE computecpp_info
+  PATHS ${computecpp_host_find_hint}
+  PATH_SUFFIXES bin
+  DOC "ComputeCpp Info tool")
 
-# Obtain the path to computecpp_info
-find_program(COMPUTECPP_INFO_TOOL computecpp_info PATHS
-  ${COMPUTECPP_PACKAGE_ROOT_DIR} PATH_SUFFIXES bin NO_DEFAULT_PATH)
-if (EXISTS ${COMPUTECPP_INFO_TOOL})
-  mark_as_advanced(${COMPUTECPP_INFO_TOOL})
-  message(STATUS "computecpp_info - Found: ${COMPUTECPP_INFO_TOOL}")
-else()
-  message(FATAL_ERROR "computecpp_info - Not found! (${COMPUTECPP_INFO_TOOL})")
-endif()
-
-# Obtain the path to the ComputeCpp runtime library
 find_library(COMPUTECPP_RUNTIME_LIBRARY
   NAMES ComputeCpp ComputeCpp_vs2015
-  PATHS ${COMPUTECPP_PACKAGE_ROOT_DIR}
-  HINTS ${COMPUTECPP_PACKAGE_ROOT_DIR}/lib PATH_SUFFIXES lib
-  DOC "ComputeCpp Runtime Library" NO_DEFAULT_PATH)
-
-if (EXISTS ${COMPUTECPP_RUNTIME_LIBRARY})
-  mark_as_advanced(COMPUTECPP_RUNTIME_LIBRARY)
-else()
-  message(FATAL_ERROR "ComputeCpp Runtime Library - Not found!")
-endif()
+  PATHS ${computecpp_find_hint}
+  PATH_SUFFIXES lib
+  DOC "ComputeCpp Runtime Library")
 
 find_library(COMPUTECPP_RUNTIME_LIBRARY_DEBUG
   NAMES ComputeCpp ComputeCpp_vs2015_d
-  PATHS ${COMPUTECPP_PACKAGE_ROOT_DIR}
-  HINTS ${COMPUTECPP_PACKAGE_ROOT_DIR}/lib PATH_SUFFIXES lib
-  DOC "ComputeCpp Debug Runtime Library" NO_DEFAULT_PATH)
+  PATHS ${computecpp_find_hint}
+  PATH_SUFFIXES lib
+  DOC "ComputeCpp Debug Runtime Library")
 
-if (EXISTS ${COMPUTECPP_RUNTIME_LIBRARY_DEBUG})
-  mark_as_advanced(COMPUTECPP_RUNTIME_LIBRARY_DEBUG)
-else()
-  message(FATAL_ERROR "ComputeCpp Debug Runtime Library - Not found!")
-endif()
+find_path(ComputeCpp_INCLUDE_DIRS
+  NAMES "CL/sycl.hpp"
+  PATHS ${computecpp_find_hint}/include
+  DOC "The ComputeCpp include directory")
+get_filename_component(ComputeCpp_INCLUDE_DIRS
+  ${ComputeCpp_INCLUDE_DIRS} ABSOLUTE)
 
-# NOTE: Having two sets of libraries is Windows specific, not MSVC specific.
-# Compiling with Clang on Windows would still require linking to both of them.
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  message(STATUS "ComputeCpp runtime (Release): ${COMPUTECPP_RUNTIME_LIBRARY} - Found")
-  message(STATUS "ComputeCpp runtime  (Debug) : ${COMPUTECPP_RUNTIME_LIBRARY_DEBUG} - Found")
-else()
-  message(STATUS "ComputeCpp runtime: ${COMPUTECPP_RUNTIME_LIBRARY} - Found")
-endif()
+get_filename_component(computecpp_canonical_root_dir
+  "${ComputeCpp_INCLUDE_DIRS}/.." ABSOLUTE)
+set(ComputeCpp_ROOT_DIR "${computecpp_canonical_root_dir}" CACHE PATH
+    "The root of the ComputeCpp install")
 
-# Obtain the ComputeCpp include directory
-set(COMPUTECPP_INCLUDE_DIRECTORY ${COMPUTECPP_PACKAGE_ROOT_DIR}/include)
-get_filename_component(COMPUTECPP_INCLUDE_DIRECTORY ${COMPUTECPP_INCLUDE_DIRECTORY} ABSOLUTE)
-if (NOT EXISTS ${COMPUTECPP_INCLUDE_DIRECTORY})
-  message(FATAL_ERROR "ComputeCpp includes - Not found!")
-else()
-  message(STATUS "ComputeCpp includes - Found")
-endif()
-
-# Obtain the package version
-execute_process(COMMAND ${COMPUTECPP_INFO_TOOL} "--dump-version"
-  OUTPUT_VARIABLE COMPUTECPP_PACKAGE_VERSION
-  RESULT_VARIABLE COMPUTECPP_INFO_TOOL_RESULT OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(NOT COMPUTECPP_INFO_TOOL_RESULT EQUAL "0")
+execute_process(COMMAND ${ComputeCpp_INFO_EXECUTABLE} "--dump-version"
+  OUTPUT_VARIABLE ComputeCpp_VERSION
+  RESULT_VARIABLE ComputeCpp_INFO_EXECUTABLE_RESULT
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT ComputeCpp_INFO_EXECUTABLE_RESULT EQUAL "0")
   message(FATAL_ERROR "Package version - Error obtaining version!")
-else()
-  mark_as_advanced(COMPUTECPP_PACKAGE_VERSION)
-  message(STATUS "Package version - ${COMPUTECPP_PACKAGE_VERSION}")
 endif()
 
-# Check if the platform is supported
-execute_process(COMMAND ${COMPUTECPP_INFO_TOOL} "--dump-is-supported"
-  OUTPUT_VARIABLE COMPUTECPP_PLATFORM_IS_SUPPORTED
-  RESULT_VARIABLE COMPUTECPP_INFO_TOOL_RESULT OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(NOT COMPUTECPP_INFO_TOOL_RESULT EQUAL "0")
+execute_process(COMMAND ${ComputeCpp_INFO_EXECUTABLE} "--dump-is-supported"
+  OUTPUT_VARIABLE ComputeCpp_PLATFORM_IS_SUPPORTED
+  RESULT_VARIABLE ComputeCpp_INFO_EXECUTABLE_RESULT
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT ComputeCpp_INFO_EXECUTABLE_RESULT EQUAL "0")
   message(FATAL_ERROR "platform - Error checking platform support!")
 else()
-  mark_as_advanced(COMPUTECPP_PLATFORM_IS_SUPPORTED)
-  if (COMPUTECPP_PLATFORM_IS_SUPPORTED)
+  if (ComputeCpp_PLATFORM_IS_SUPPORTED)
     message(STATUS "platform - your system can support ComputeCpp")
   else()
-    message(STATUS "platform - your system CANNOT support ComputeCpp")
+    message(WARNING "platform - your system CANNOT support ComputeCpp")
   endif()
+endif()
+
+find_package_handle_standard_args(ComputeCpp
+  FOUND_VAR ComputeCpp_FOUND
+  REQUIRED_VARS ComputeCpp_ROOT_DIR
+                ComputeCpp_DEVICE_COMPILER_EXECUTABLE
+                ComputeCpp_INFO_EXECUTABLE
+                COMPUTECPP_RUNTIME_LIBRARY
+                COMPUTECPP_RUNTIME_LIBRARY_DEBUG
+                ComputeCpp_INCLUDE_DIRS
+  VERSION_VAR ComputeCpp_VERSION)
+mark_as_advanced(ComputeCpp_ROOT_DIR
+                 ComputeCpp_DEVICE_COMPILER_EXECUTABLE
+                 ComputeCpp_INFO_EXECUTABLE
+                 COMPUTECPP_RUNTIME_LIBRARY
+                 COMPUTECPP_RUNTIME_LIBRARY_DEBUG
+                 ComputeCpp_INCLUDE_DIRS
+                 ComputeCpp_VERSION
+                 ComputeCpp_PLATFORM_IS_SUPPORTED)
+
+if(NOT ComputeCpp_FOUND)
+  return()
 endif()
 
 # Add optimisation and bitcode options to device compiler flags
@@ -196,7 +189,7 @@ set_target_properties(ComputeCpp::ComputeCpp PROPERTIES
   IMPORTED_LOCATION_DEBUG          "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
   IMPORTED_LOCATION_RELWITHDEBINFO "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
   IMPORTED_LOCATION                "${COMPUTECPP_RUNTIME_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES    "${COMPUTECPP_INCLUDE_DIRECTORY}"
+  INTERFACE_INCLUDE_DIRECTORIES    "${ComputeCpp_INCLUDE_DIRS}"
   INTERFACE_LINK_LIBRARIES         "OpenCL::OpenCL"
 )
 
@@ -354,7 +347,7 @@ function(__build_ir)
   # Add custom command for running compute++
   add_custom_command(
     OUTPUT ${outputSyclFile}
-    COMMAND ${COMPUTECPP_DEVICE_COMPILER}
+    COMMAND ${ComputeCpp_DEVICE_COMPILER_EXECUTABLE}
             ${COMPUTECPP_DEVICE_COMPILER_FLAGS}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
