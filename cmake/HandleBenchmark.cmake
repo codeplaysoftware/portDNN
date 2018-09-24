@@ -32,10 +32,12 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
   )
   set(benchmark_SOURCE_DIR ${snn_bench_BINARY_DIR}/benchmark-src)
   set(benchmark_BINARY_DIR ${snn_bench_BINARY_DIR}/benchmark-build)
+  set(benchmark_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}benchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(benchmark_LIBRARIES ${benchmark_BINARY_DIR}/src/${benchmark_LIBNAME})
 
-  # Need to explicitly declare byproducts of external projects, or Ninja gets 
-  # confused about dependencies. 
-  list(APPEND benchmark_BYPRODUCTS "${benchmark_BINARY_DIR}/src/libbenchmark.a")
+  # Need to explicitly declare byproducts of external projects, or Ninja gets
+  # confused about dependencies.
+  list(APPEND benchmark_BYPRODUCTS "${benchmark_LIBRARIES}")
   if(CMAKE_CROSSCOMPILING)
     set(cmake_toolchain
       "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
@@ -54,8 +56,6 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
     TEST_COMMAND      ""
     BUILD_BYPRODUCTS ${benchmark_BYPRODUCTS}
   )
-  set(benchmark_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}benchmark${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(benchmark_LIBRARIES ${benchmark_BINARY_DIR}/src/${benchmark_LIBNAME})
   set(benchmark_INCLUDE_DIR ${benchmark_SOURCE_DIR}/include)
   # Have to explicitly make the include directory to add it to the library
   # target. This will be filled with the headers at build time when the

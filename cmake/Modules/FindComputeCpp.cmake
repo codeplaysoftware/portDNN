@@ -261,14 +261,6 @@ function(__build_ir)
   set(outputSyclFile ${SNN_BUILD_IR_BINARY_DIR}/${sourceFileName}.sycl)
   set(depfile_name ${outputSyclFile}.d)
 
-  # Add any user-defined include to the device compiler
-  set(include_directories
-    "$<TARGET_PROPERTY:${SNN_BUILD_IR_TARGET},INCLUDE_DIRECTORIES>"
-  )
-  set(device_compiler_includes
-    "$<$<BOOL:${include_directories}>:-I$<JOIN:${include_directories},\t-I>>"
-  )
-
   # Obtain language standard of the file
   set(device_compiler_cxx_standard)
   get_target_property(targetCxxStandard ${SNN_BUILD_IR_TARGET} CXX_STANDARD)
@@ -300,7 +292,7 @@ function(__build_ir)
     list(APPEND target_compile_flags ${source_compile_flags})
   endif()
 
-  # Copy include directories, compile options and definitions from libraries
+  # Copy compile options from libraries
   get_target_property(target_libraries ${SNN_BUILD_IR_TARGET} LINK_LIBRARIES)
   if(target_libraries)
     foreach(library ${target_libraries})
@@ -315,11 +307,20 @@ function(__build_ir)
     endforeach()
   endif()
 
+  # Add any user-defined definitions to the device compiler command
   set(compile_definitions
     "$<TARGET_PROPERTY:${SNN_BUILD_IR_TARGET},COMPILE_DEFINITIONS>"
   )
   set(target_compile_definitions
-    "$<$<BOOL:${compile_definitions}>:-D$<JOIN:${compile_definitions},\t-D>>"
+    $<$<BOOL:${compile_definitions}>:-D$<JOIN:${compile_definitions},\t-D>>
+  )
+
+  # Add any user-defined include directories to the device compiler command
+  set(include_directories
+    "$<TARGET_PROPERTY:${SNN_BUILD_IR_TARGET},INCLUDE_DIRECTORIES>"
+  )
+  set(target_compile_includes
+    $<$<BOOL:${include_directories}>:-I\"$<JOIN:${include_directories},\"\t-I\">\">
   )
 
   set(COMPUTECPP_DEVICE_COMPILER_FLAGS
@@ -328,6 +329,7 @@ function(__build_ir)
     ${COMPUTECPP_USER_FLAGS}
     ${target_compile_flags}
     ${target_compile_definitions}
+    ${target_compile_includes}
   )
   separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
@@ -354,7 +356,6 @@ function(__build_ir)
     OUTPUT ${outputSyclFile}
     COMMAND ${COMPUTECPP_DEVICE_COMPILER}
             ${COMPUTECPP_DEVICE_COMPILER_FLAGS}
-            ${device_compiler_includes}
             -o ${outputSyclFile}
             -c ${SNN_BUILD_IR_SOURCE}
             ${generate_depfile}
