@@ -26,6 +26,7 @@
 #include <sycldnn/conv2d/launch.h>
 #include <sycldnn/conv2d/params.h>
 #include <sycldnn/conv2d/selector/direct_selector.h>
+#include <sycldnn/conv2d/selector/im2col_selector.h>
 #include <sycldnn/conv2d/sizes.h>
 
 int main(int, char**) {
@@ -53,30 +54,53 @@ int main(int, char**) {
 
   // In order to execute a convolution we construct a parameters object, which
   // describes the shape of the convolution operands, along with strides and
-  // padding. For this particular example the parameters are configured to
-  // generate 12 feature maps per-input image by applying 12 5 x 5 filters to a
-  // batch of 128 256 x 256 3-channel images.
-  sycldnn::conv2d::Conv2DParams params{};
-  params.channels = 3;
-  params.features = 12;
-  params.batch = 128;
-  params.in_rows = 256;
-  params.in_cols = 256;
-  params.window_rows = 5;
-  params.window_cols = 5;
-  params.stride_rows = 1;
-  params.stride_cols = 1;
-  params.out_rows = 252;
-  params.out_cols = 252;
-  params.pad_rows = 0;
-  params.pad_cols = 0;
-  params.dilation_rows = 1;
-  params.dilation_cols = 1;
+  // padding. For this particular example the first set of parameters are
+  // configured to generate 12 feature maps per-input image by applying 12
+  // 5 x 5 filters to a batch of 128 256 x 256 3-channel images.
+  sycldnn::conv2d::Conv2DParams conv1_params{};
+  conv1_params.channels = 3;
+  conv1_params.features = 12;
+  conv1_params.batch = 128;
+  conv1_params.in_rows = 256;
+  conv1_params.in_cols = 256;
+  conv1_params.window_rows = 5;
+  conv1_params.window_cols = 5;
+  conv1_params.stride_rows = 1;
+  conv1_params.stride_cols = 1;
+  conv1_params.out_rows = 252;
+  conv1_params.out_cols = 252;
+  conv1_params.pad_rows = 0;
+  conv1_params.pad_cols = 0;
+  conv1_params.dilation_rows = 1;
+  conv1_params.dilation_cols = 1;
+
+  // This second set of parameters are configured to consume the output of the
+  // previous layer, and apply a second set of 5 x 5 convolution layers.
+  sycldnn::conv2d::Conv2DParams conv2_params{};
+  conv2_params.channels = conv1_params.features;
+  conv2_params.features = 32;
+  conv2_params.batch = conv1_params.batch;
+  conv2_params.in_rows = conv1_params.out_rows;
+  conv2_params.in_cols = conv1_params.out_cols;
+  conv2_params.window_rows = 5;
+  conv2_params.window_cols = 5;
+  conv2_params.stride_rows = 1;
+  conv2_params.stride_cols = 1;
+  conv2_params.out_rows = 252;
+  conv2_params.out_cols = 252;
+  conv2_params.pad_rows = 2;
+  conv2_params.pad_cols = 2;
+  conv2_params.dilation_rows = 1;
+  conv2_params.dilation_cols = 1;
 
   // We can derive the sizes of the tensors from the convolution params. A real
   // application/framework likely already has this information.
-  auto conv_sizes =
-      sycldnn::conv2d::get_sizes<sycldnn::conv2d::conv_type::Forward>(params);
+  auto conv1_sizes =
+      sycldnn::conv2d::get_sizes<sycldnn::conv2d::conv_type::Forward>(
+          conv1_params);
+  auto conv2_sizes =
+      sycldnn::conv2d::get_sizes<sycldnn::conv2d::conv_type::Forward>(
+          conv2_params);
 
   // A 2D convolution requires an input tensor representing a batch of images,
   // a filter tensor containing a filter kernel for each feature, and an output
@@ -85,43 +109,76 @@ int main(int, char**) {
   // Here we calculate the storage requirements for these tensors, and then
   // allocate storage for them via Eigen's GPU device memory allocator.
   using value_type = float;
-  auto input_nbytes = conv_sizes.input_size * sizeof(value_type);
-  auto output_nbytes = conv_sizes.output_size * sizeof(value_type);
-  auto filter_nbytes = conv_sizes.filter_size * sizeof(value_type);
+  auto input_nbytes = conv1_sizes.input_size * sizeof(value_type);
+  auto intermediate_nbytes = conv1_sizes.output_size * sizeof(value_type);
+  auto output_nbytes = conv2_sizes.output_size * sizeof(value_type);
+
+  auto filter1_nbytes = conv1_sizes.filter_size * sizeof(value_type);
+  auto filter2_nbytes = conv2_sizes.filter_size * sizeof(value_type);
 
   auto* input_gpu_buffer =
       static_cast<value_type*>(device.allocate(input_nbytes));
+  auto* intermediate_gpu_buffer =
+      static_cast<value_type*>(device.allocate(intermediate_nbytes));
   auto* output_gpu_buffer =
       static_cast<value_type*>(device.allocate(output_nbytes));
-  auto* filter_gpu_buffer =
-      static_cast<value_type*>(device.allocate(filter_nbytes));
+
+  auto* filter1_gpu_buffer =
+      static_cast<value_type*>(device.allocate(filter1_nbytes));
+  auto* filter2_gpu_buffer =
+      static_cast<value_type*>(device.allocate(filter2_nbytes));
 
   // The GPU buffers are initially unpopulated. Here we fill the input and
-  // filter tensors. The output tensor is left undefined.
+  // filter tensors. The output tensors are left undefined.
   std::vector<value_type> input;
-  input.resize(conv_sizes.input_size);
+  input.resize(conv1_sizes.input_size);
   std::iota(begin(input), end(input), 0);
 
-  std::vector<value_type> filter;
-  filter.resize(conv_sizes.filter_size);
-  std::iota(begin(filter), end(filter), 0);
+  std::vector<value_type> filter1;
+  filter1.resize(conv1_sizes.filter_size);
+  std::iota(begin(filter1), end(filter1), 0);
+
+  std::vector<value_type> filter2;
+  filter2.resize(conv2_sizes.filter_size);
+  std::iota(begin(filter2), end(filter2), 0);
 
   device.memcpyHostToDevice(input_gpu_buffer, input.data(), input_nbytes);
-  device.memcpyHostToDevice(filter_gpu_buffer, filter.data(), filter_nbytes);
+  device.memcpyHostToDevice(filter1_gpu_buffer, filter1.data(), filter1_nbytes);
+  device.memcpyHostToDevice(filter2_gpu_buffer, filter2.data(), filter1_nbytes);
 
   // Now that all of our buffers are populated, and parameters configured, we
   // can execute the convolution itself. This happens asynchronously, so we
   // follow the launch of the convolution kernel with a blocking wait.
-  auto algo_selector = sycldnn::conv2d::DirectSelector{};
+  auto direct_algo_selector = sycldnn::conv2d::DirectSelector{};
   auto status =
       sycldnn::conv2d::launch<value_type, sycldnn::conv2d::conv_type::Forward>(
-          input_gpu_buffer, filter_gpu_buffer, output_gpu_buffer, params,
-          algo_selector, backend);
+          input_gpu_buffer, filter1_gpu_buffer, intermediate_gpu_buffer,
+          conv1_params, direct_algo_selector, backend);
   if (sycldnn::StatusCode::OK != status.status) {
     // If the launch failed, then clean up our GPU buffers and return failure.
     device.deallocate(input_gpu_buffer);
+    device.deallocate(intermediate_gpu_buffer);
     device.deallocate(output_gpu_buffer);
-    device.deallocate(filter_gpu_buffer);
+    device.deallocate(filter1_gpu_buffer);
+    device.deallocate(filter2_gpu_buffer);
+    return -1;
+  }
+
+  // We can now launch the second layer. We use a different algorithm selector
+  // to force the use of the im2col algorithm rather than the direct convolution
+  // algorithm.
+  auto im2col_algo_selector = sycldnn::conv2d::Im2colSelector{};
+  status =
+      sycldnn::conv2d::launch<value_type, sycldnn::conv2d::conv_type::Forward>(
+          intermediate_gpu_buffer, filter2_gpu_buffer, output_gpu_buffer,
+          conv2_params, im2col_algo_selector, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    // If the launch failed, then clean up our GPU buffers and return failure.
+    device.deallocate(input_gpu_buffer);
+    device.deallocate(intermediate_gpu_buffer);
+    device.deallocate(output_gpu_buffer);
+    device.deallocate(filter1_gpu_buffer);
+    device.deallocate(filter2_gpu_buffer);
     return -1;
   }
 
@@ -129,7 +186,7 @@ int main(int, char**) {
   // host-accessible vector, then wait for completion and trigger a copy via
   // Eigen to return the results to system memory.
   std::vector<value_type> output;
-  output.resize(conv_sizes.output_size);
+  output.resize(conv2_sizes.output_size);
 
   // Wait for completetion, then copy results to system memory.
   status.event.wait();
@@ -139,8 +196,10 @@ int main(int, char**) {
 
   // We can now deallocate the Eigen GPU buffers.
   device.deallocate(input_gpu_buffer);
+  device.deallocate(intermediate_gpu_buffer);
   device.deallocate(output_gpu_buffer);
-  device.deallocate(filter_gpu_buffer);
+  device.deallocate(filter1_gpu_buffer);
+  device.deallocate(filter2_gpu_buffer);
 
   return 0;
 }

@@ -16,7 +16,7 @@ snn_executable(
   WITH_SYCL
   TARGET
     conv2d
-  SOURCES
+  KERNEL_SOURCES
     conv2d.cc
   PRIVATE_LIBRARIES
     sycl_dnn_static
