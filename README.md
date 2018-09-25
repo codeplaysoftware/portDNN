@@ -47,7 +47,7 @@ neural network algorithms, written using the SYCL API.
 
 * CMake. Tested against version 3.5.1.
 
-* Building documentation requires Doxygen and Graphviz/Dot. Tested 
+* Building documentation requires Doxygen and Graphviz/Dot. Tested
   against versions 1.8.11 and 2.38.0 respectively.
 
 ## Setup
@@ -67,16 +67,16 @@ machine, downloading them as part of the SYCL-DNN means a more consistent
 configuration.
 
 You will need to provide the location of the ComputeCpp install you are
-using in the variable `COMPUTECPP_PACKAGE_ROOT_DIR`. It should point to
-the folder where bin/, lib/ etc. are. This should be the only argument
-that is mandatory, everything else should be optional. The default build
-type is Release, though this can be overridden.
+using in the variable `ComputeCpp_DIR`. It should point to the folder
+where bin/, lib/ etc. are. This should be the only argument that is
+mandatory, everything else should be optional. The default build type is
+Release, though this can be overridden.
 
 The following example shows how to specify the ComputeCpp location, then
 build and run the tests.
 
     mkdir build && cd build
-    cmake .. -DCOMPUTECPP_PACKAGE_ROOT_DIR=/path/to/computecpp
+    cmake .. -DComputeCpp_DIR=/path/to/computecpp
     make -j`nproc`
     # Can then run tests
     ctest
