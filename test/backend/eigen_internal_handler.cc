@@ -46,14 +46,8 @@ TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   tensor.device(device) = tensor.constant(static_cast<float>(4));
   // First check that the buffer returned by the Eigen has the correct contents.
   auto device_buffer = device.get_sycl_buffer(ptr);
-  {
-    // This is required for ComputeCpp 0.6, to ensure that the host accessors
-    // used below can access the data.
-    auto workaround_buffer =
-        device_buffer.get_access<cl::sycl::access::mode::read>();
-  }
-  auto converted_buffer = device_buffer.reinterpret<float, 1>(
-      cl::sycl::range<1>{static_cast<size_t>(n_floats)});
+  auto converted_buffer =
+      device_buffer.reinterpret<float, 1>(cl::sycl::range<1>{n_floats});
   auto eigen_host_access =
       converted_buffer.get_access<cl::sycl::access::mode::read>();
   for (size_t i = 0; i < n_floats; ++i) {
