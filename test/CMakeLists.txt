@@ -238,24 +238,26 @@ if(SNN_TEST_EIGEN)
     list(GET pooling_windows ${_index} _window)
     list(GET pooling_strides ${_index} _stride)
     foreach(_type IN ITEMS "max" "avg")
-      if((_type STREQUAL "avg") AND
-        (_window EQUAL 11 OR ((_window EQUAL 7) AND (_stride EQUAL 4))))
-        message(STATUS "Skipping avg_window${_window}_stride${_stride}")
-      else()
-        snn_test(
-          WITH_SYCL
-          TARGET
-            pooling_${_type}_window${_window}_stride${_stride}
-          SIZE
-            moderate
-          SOURCES
-            pooling/${_type}_window${_window}_stride${_stride}.cc
-          OBJECTS
-            $<TARGET_OBJECTS:pooling>
-          PUBLIC_LIBRARIES
-            Eigen::Eigen
-        )
-      endif()
+      foreach(_direction IN ITEMS "forward" "grad")
+        if((_type STREQUAL "avg") AND
+          (_window EQUAL 11 OR ((_window EQUAL 7) AND (_stride EQUAL 4))))
+          message(STATUS "Skipping avg_window${_window}_stride${_stride}_${_direction}")
+        else()
+          snn_test(
+            WITH_SYCL
+            TARGET
+              pooling_${_type}_window${_window}_stride${_stride}_${_direction}
+            SIZE
+              moderate
+            SOURCES
+              pooling/${_type}_window${_window}_stride${_stride}_${_direction}.cc
+            OBJECTS
+              $<TARGET_OBJECTS:pooling>
+            PUBLIC_LIBRARIES
+              Eigen::Eigen
+          )
+        endif()
+      endforeach()
     endforeach()
   endforeach()
 

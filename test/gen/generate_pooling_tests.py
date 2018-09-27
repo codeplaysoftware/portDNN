@@ -32,16 +32,18 @@ import os
 from collections import namedtuple
 
 import tensorflow as tf
+from tensorflow.python.framework.ops import get_gradient_function
 import numpy as np
 
 import helpers
 
 WINDOW_LIST = [1, 3, 3, 5, 5, 7, 7, 11, 11]
-STRIDE_LIST = [1, 1, 2, 1, 2, 1, 4,  1,  4]
+STRIDE_LIST = [1, 1, 2, 1, 2, 1, 4, 1, 4]
 BATCHES = [1, 3]
 CHANNELS = [1, 2, 4]
 PADDING_VALUES = ["SAME", "VALID"]
 TEST_TYPES = ["max", "avg"]
+DIRECTIONS = ['forward', 'grad']
 
 INCLUDES = r"""
 #include <gtest/gtest.h>
@@ -59,16 +61,60 @@ INCLUDES = r"""
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn;
 template <typename DataType>
-using {test_case} = PoolingFixture<DataType>;
+using {test_case} = PoolingFixture<DataType, {operation}, {direction}>;
 TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
-                            ['test_type', 'window', 'stride'])
-TestParams = namedtuple('TestParams', TestCaseParams._fields +
-                        ('in_shape', 'padding'))
+                            ['test_type', 'direction', 'window', 'stride'])
+TestParams = namedtuple('TestParams',
+                        TestCaseParams._fields + ('in_shape', 'padding'))
 
-def get_pool_results(max_val, pool_op, input_shape, window_shape,
-                     stride_shape, padding):
+
+def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
+                     padding):
+    """
+    Construct and run a Tensorflow graph to compute pooling backprop values.
+
+    Will create an input tensor of the required size filled with values 1, 2,
+    3... and use these to compute the pooling, then create another tensor with
+    the same values to use as the errors to back-propagate.
+    Returns the computed values in a numpy array.
+    """
+    with tf.Graph().as_default():
+        total_inp_size = np.product(input_shape)
+        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+        inp_tensor = tf.constant(
+            input_vals, shape=input_shape, dtype=np.float64)
+
+        pool_output = tf.nn.pool(
+            inp_tensor,
+            window_shape=window_shape,
+            pooling_type=pool_op.upper(),
+            strides=stride_shape,
+            padding=padding,
+            name='pool',
+            data_format="NHWC")
+
+        tf_op = tf.get_default_graph().get_operation_by_name('pool')
+        grad_fn = get_gradient_function(tf_op)
+        output_shape = pool_output.shape
+
+        total_out_size = np.product(output_shape)
+        error_vals = helpers.get_tensor_data(total_out_size, max_val)
+        error_tensor = tf.constant(
+            error_vals, shape=output_shape, dtype=np.float64)
+
+        output = grad_fn(tf_op, error_tensor)
+
+        with tf.Session() as sess:
+            init = tf.global_variables_initializer()
+            sess.run(init)
+            sess.graph.finalize()
+            return sess.run(output)
+
+
+def get_pool_results(max_val, pool_op, input_shape, window_shape, stride_shape,
+                     padding):
     """
     Construct and run a Tensorflow graph to compute pooling.
 
@@ -97,6 +143,17 @@ def get_pool_results(max_val, pool_op, input_shape, window_shape,
             sess.graph.finalize()
             return sess.run(output)
 
+
+def get_result_function(test_params):
+    """
+    Get the function which will compute the expected values for the given test case.
+    """
+    if (test_params.direction == 'grad'):
+        return get_grad_results
+    else:
+        return get_pool_results
+
+
 def get_result_and_size(test_params):
     """
     Get the result of the specified convolution and max input value.
@@ -107,20 +164,28 @@ def get_result_and_size(test_params):
     window_shape = [test_params.window, test_params.window]
     stride_shape = [test_params.stride, test_params.stride]
     return helpers.get_result_and_size(
-        get_pool_results,
+        get_result_function(test_params),
         pool_op=test_params.test_type,
         input_shape=test_params.in_shape,
         window_shape=window_shape,
         stride_shape=stride_shape,
         padding=test_params.padding)
 
-TEST_CASE_TPL = "{test_type}Window{window}Stride{stride}"
+
+TEST_CASE_TPL = "{test_type}Window{window}Stride{stride}{direction}"
 TEST_NAME_TPL = "{padding}{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
 
-operator_map = { 'max' : 'pooling::Max',
-                 'avg' : 'pooling::Average',
-               }
+OPERATOR_MAP = {
+    'max': 'pooling::Max',
+    'avg': 'pooling::Average',
+}
+
+DIRECTION_MAP = {
+    'forward': 'pooling::Forward',
+    'grad': 'pooling::Backpropagate',
+}
+
 
 def get_test_lines(test_params):
     """
@@ -134,10 +199,10 @@ def get_test_lines(test_params):
     test_case = TEST_CASE_TPL.format(
         test_type=camel_case_type,
         window=test_params.window,
-        stride=test_params.stride)
+        stride=test_params.stride,
+        direction=helpers.to_camel_case(test_params.direction))
     test_name = TEST_NAME_TPL.format(
-        padding=test_params.padding,
-        in_s=test_params.in_shape)
+        padding=test_params.padding, in_s=test_params.in_shape)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     test_lines = [
         "TYPED_TEST({}, {}) {{".format(test_case, test_name),
@@ -145,17 +210,15 @@ def get_test_lines(test_params):
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
         "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-        "  const auto padding = PaddingMode::{};".format(
-            test_params.padding),
+        "  const auto padding = PaddingMode::{};".format(test_params.padding),
         "  const auto params = getPoolingParams<{}, {}>(in_shape, padding);".format(
             test_params.window, test_params.stride),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
-        "  this->template test_pool<pooling::Forward, {}>(".format(
-            operator_map[test_params.test_type]),
-        "       exp_out, params, max_input_val);"
+        "  this->test_pool(exp_out, params, max_input_val);",
         "}"
     ]
     return test_lines
+
 
 def get_input_sizes(test_case):
     """
@@ -174,6 +237,7 @@ def get_input_sizes(test_case):
     else:
         return [start, start + 1, start + 2]
 
+
 def test_params_for_test_case(test_case):
     "Test params generator for all different tests in a given test case."
     in_sizes = get_input_sizes(test_case)
@@ -183,8 +247,10 @@ def test_params_for_test_case(test_case):
                 test_type=test_case.test_type,
                 window=test_case.window,
                 stride=test_case.stride,
+                direction=test_case.direction,
                 in_shape=in_shape,
                 padding=padding)
+
 
 def output_for_test_case(test_case):
     """
@@ -197,35 +263,46 @@ def output_for_test_case(test_case):
     test_case_name = TEST_CASE_TPL.format(
         test_type=camel_case_type,
         window=test_case.window,
-        stride=test_case.stride)
-    output = [
-        helpers.get_license(),
-        helpers.get_dont_modify_comment(scriptname=scriptname),
-        INCLUDES,
-        TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name)
-    ]
+        stride=test_case.stride,
+        direction=helpers.to_camel_case(test_case.direction))
+    output = [helpers.get_license(),
+              helpers.get_dont_modify_comment(scriptname=scriptname),
+              INCLUDES,
+              TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name,
+                                              operation=OPERATOR_MAP[test_case.test_type],
+                                              direction=DIRECTION_MAP[test_case.direction])]
 
     for test_params in test_params_for_test_case(test_case):
         output.extend(get_test_lines(test_params))
     output.append("\n")
     return output
 
-FILENAME_TPL = "pooling/{test_type}_window{window}_stride{stride}.cc"
+
+FILENAME_TPL = "pooling/{test_type}_window{window}_stride{stride}_{direction}.cc"
+
 
 def get_test_case_filename(test_case):
     "Get filename for test case."
     return FILENAME_TPL.format(
         test_type=test_case.test_type,
         window=test_case.window,
-        stride=test_case.stride)
+        stride=test_case.stride,
+        direction=test_case.direction)
+
 
 def test_cases():
     "Test case generator giving all possible test cases."
     for window, stride in zip(WINDOW_LIST, STRIDE_LIST):
-        for test_type in TEST_TYPES:
-            if test_type == "avg" and (window == 11 or (window == 7 and stride == 4)):
+        for test_type, direction in itertools.product(TEST_TYPES, DIRECTIONS):
+            if test_type == "avg" and (window == 11 or
+                                       (window == 7 and stride == 4)):
                 continue
-            yield TestCaseParams(test_type=test_type, window=window, stride=stride)
+            yield TestCaseParams(
+                test_type=test_type,
+                window=window,
+                stride=stride,
+                direction=direction)
+
 
 def generate_pooling_tests():
     np.set_printoptions(
@@ -238,6 +315,7 @@ def generate_pooling_tests():
         with open(filename, 'w') as f:
             f.write('\n'.join(output))
         print("File '{}' written".format(filename))
+
 
 if __name__ == "__main__":
     generate_pooling_tests()

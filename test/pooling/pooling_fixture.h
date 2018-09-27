@@ -37,12 +37,11 @@
 
 #include <vector>
 
-template <typename DType>
+template <typename DType, template <typename T> class Op, typename Direction>
 struct PoolingFixture
     : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
-  template <typename Direction, template <typename T> class Op>
   void test_pool(std::vector<DataType> exp,
                  sycldnn::pooling::PoolingParams const& params,
                  DataType max_val = DataType{0}) {
@@ -71,6 +70,70 @@ struct PoolingFixture
         EXPECT_DOUBLE_EQ(exp[i], output[i]);
       } else {
         EXPECT_FLOAT_EQ(exp[i], output[i]);
+      }
+    }
+  }
+};
+
+// Need a specific fixture for maxpooling gradient, as this operation requires
+// both the original pooling values and the backprop values.
+template <typename DType>
+struct PoolingFixture<DType, sycldnn::pooling::Max,
+                      sycldnn::pooling::Backpropagate>
+    : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+  using DataType = DType;
+
+  void test_pool(std::vector<DataType> exp,
+                 sycldnn::pooling::PoolingParams const& params,
+                 DataType max_val = DataType{0}) {
+    auto pooling_size =
+        sycldnn::pooling::get_sizes<sycldnn::pooling::Forward>(params);
+    auto in_size = pooling_size.input_size;
+    auto out_size = pooling_size.output_size;
+
+    std::vector<DataType> input_data = iota_initialised_data(in_size, max_val);
+    std::vector<DataType> output_data(out_size);
+    std::vector<DataType> input_backprop =
+        iota_initialised_data(out_size, max_val);
+    std::vector<DataType> output_backprop(in_size);
+
+    auto inp_data_gpu =
+        this->get_initialised_device_memory(in_size, input_data);
+    auto out_data_gpu =
+        this->get_initialised_device_memory(out_size, output_data);
+
+    auto fwd_status = sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
+                                               sycldnn::pooling::Forward>(
+        inp_data_gpu, out_data_gpu, params, this->backend_);
+    ASSERT_EQ(sycldnn::StatusCode::OK, fwd_status.status);
+
+    auto inp_backprop_gpu =
+        this->get_initialised_device_memory(out_size, input_backprop);
+    auto out_backprop_gpu =
+        this->get_initialised_device_memory(in_size, output_backprop);
+
+    auto back_status =
+        sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
+                                 sycldnn::pooling::Backpropagate>(
+            inp_data_gpu, out_data_gpu, inp_backprop_gpu, out_backprop_gpu,
+            params, this->backend_);
+    ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
+
+    fwd_status.event.wait();
+    back_status.event.wait();
+
+    this->copy_device_data_to_host(in_size, out_backprop_gpu, output_backprop);
+    this->deallocate_ptr(inp_data_gpu);
+    this->deallocate_ptr(out_data_gpu);
+    this->deallocate_ptr(inp_backprop_gpu);
+    this->deallocate_ptr(out_backprop_gpu);
+
+    for (size_t i = 0; i < exp.size(); ++i) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      if (std::is_same<DataType, double>::value) {
+        EXPECT_DOUBLE_EQ(exp[i], output_backprop[i]);
+      } else {
+        EXPECT_FLOAT_EQ(exp[i], output_backprop[i]);
       }
     }
   }

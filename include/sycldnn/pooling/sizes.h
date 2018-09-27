@@ -25,6 +25,8 @@
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 
+#include <cstddef>
+
 namespace sycldnn {
 namespace pooling {
 

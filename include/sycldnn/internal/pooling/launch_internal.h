@@ -18,18 +18,41 @@
 #define SYCLDNN_INCLUDE_POOLING_LAUNCH_INTERNAL_H_
 
 #include "sycldnn/accessor_types.h"
-#include "sycldnn/pooling/params.h"
 #include "sycldnn/status.h"
+
+#include "sycldnn/pooling/operators.h"
+#include "sycldnn/pooling/params.h"
 
 namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-template <typename T, template <typename U> class PoolingType,
-          typename Direction>
-SNNStatus launch_pooling(ReadAccessor<T const> inp_access,
-                         WriteAccessor<T> outp_access, const PoolingParams& pp,
-                         cl::sycl::queue& queue);
+template <typename T, template <typename> class PoolType, typename Direction>
+struct IsMaxGradient {
+  static constexpr bool value = std::is_same<PoolType<T>, Max<T>>::value &&
+                                std::is_same<Direction, Backpropagate>::value;
+};
+
+template <typename T, template <typename> class PoolType, typename Direction>
+using DisableIfMaxGradient = typename std::enable_if<
+    !IsMaxGradient<T, PoolType, Direction>::value>::type;
+
+template <typename T, template <typename> class PoolType, typename Direction>
+using EnableIfMaxGradient =
+    typename std::enable_if<IsMaxGradient<T, PoolType, Direction>::value>::type;
+
+template <typename T, template <typename> class PoolType, typename Direction,
+          typename = DisableIfMaxGradient<T, PoolType, Direction>>
+SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
+                         const PoolingParams& pp, cl::sycl::queue& queue);
+
+template <typename T, template <typename> class PoolType, typename Direction,
+          typename = EnableIfMaxGradient<T, PoolType, Direction>>
+SNNStatus launch_pooling(ReadAccessor<T const> inp_data,
+                         ReadAccessor<T const> outp_data,
+                         ReadAccessor<T const> inp_backprop,
+                         WriteAccessor<T> outp_backprop,
+                         const PoolingParams& pp, cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace pooling

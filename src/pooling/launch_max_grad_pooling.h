@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
-#define SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
+#ifndef SYCLDNN_SRC_POOLING_LAUNCH_MAX_GRAD_POOLING_H_
+#define SYCLDNN_SRC_POOLING_LAUNCH_MAX_GRAD_POOLING_H_
 
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
@@ -24,24 +24,25 @@
 
 #include "src/pooling/kernels.h"
 
-#define SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(DTYPE, OP, DIRECTION)           \
-  template SNNStatus launch_pooling<DTYPE, OP, DIRECTION>(                    \
-      ReadAccessor<DTYPE const> inp_access, WriteAccessor<DTYPE> outp_access, \
-      const PoolingParams& pp, cl::sycl::queue& queue);
-
 namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-template <typename T, typename Index, template <typename> class PoolType,
+template <typename T, typename Index, template <typename U> class PoolType,
           typename Direction>
-SNNStatus queue_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
+SNNStatus queue_pooling(ReadAccessor<T const> input_data,
+                        ReadAccessor<T const> output_data,
+                        ReadAccessor<T const> input_backprop,
+                        WriteAccessor<T> output_backprop,
                         const PoolingParams& pp, size_t threads,
                         cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(output);
-    PoolingOp<T, Index, PoolType, Direction> pool(input, output, pp);
+    cgh.require(input_data);
+    cgh.require(output_data);
+    cgh.require(input_backprop);
+    cgh.require(output_backprop);
+    PoolingOp<T, Index, PoolType, Direction> pool(
+        input_data, output_data, input_backprop, output_backprop, pp);
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);
   });
@@ -51,7 +52,10 @@ SNNStatus queue_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
 
 template <typename T, template <typename> class PoolType, typename Direction,
           typename EnableIf>
-SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
+SNNStatus launch_pooling(ReadAccessor<T const> inp_data,
+                         ReadAccessor<T const> outp_data,
+                         ReadAccessor<T const> inp_backprop,
+                         WriteAccessor<T> outp_backprop,
                          const PoolingParams& pp, cl::sycl::queue& queue) {
   auto sizes = get_sizes<Direction>(pp);
   size_t threads = sizes.output_size;
@@ -65,12 +69,13 @@ SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
     return index_too_large;
 #endif  // SNN_USE_INT64
   } else {
-    return queue_pooling<T, int32_t, PoolType, Direction>(input, output, pp,
-                                                          threads, queue);
+    return queue_pooling<T, int32_t, PoolType, Direction>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
   }
 }
 
 }  // namespace internal
 }  // namespace pooling
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
+
+#endif  // SYCLDNN_SRC_POOLING_LAUNCH_MAX_GRAD_POOLING_H_
