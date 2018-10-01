@@ -15,14 +15,8 @@
  */
 #include <benchmark/benchmark.h>
 
-// TODO(jwlawson): Remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
 #include "sycldnn/accessor_types.h"
 #include "sycldnn/status.h"
-
-#include "sycldnn/backend/eigen_backend.h"
 
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
@@ -32,7 +26,11 @@
 #include "src/conv2d/tiled/output_size.h"
 #include "src/conv2d/tiled/queue_tiled_kernel_impl.h"
 
-#include "bench/conv2d/fixture.h"
+#include "bench/conv2d/base_convolution_fixture.h"
+
+#include "bench/fixture/add_sycl_device_info.h"
+#include "bench/fixture/eigen_backend_provider.h"
+#include "bench/fixture/string_reporter.h"
 
 namespace {
 
@@ -73,13 +71,14 @@ sycldnn::SNNStatus launch_kernel(
 template <typename ParamGen, typename ConvType, int TileRows, int TileCols,
           int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
           int WindowRows, int WindowCols, int Stride>
-class TiledConvolutionBenchmark : public BaseConvolutionBenchmark {
+class TiledConvolutionBenchmark : public sycldnn::bench::EigenBackendProvider,
+                                  public sycldnn::bench::StringReporter,
+                                  public BaseConvolutionBenchmark {
  private:
   using State = benchmark::State;
   using Conv2DParams = sycldnn::conv2d::Conv2DParams;
 
  protected:
-  void add_opencl_device_info(cl::sycl::device const& device);
   void execute(State& state, Conv2DParams const& params);
 
   void run(State& state) {
@@ -94,19 +93,6 @@ class TiledConvolutionBenchmark : public BaseConvolutionBenchmark {
   };
 };
 
-/**
- * Get a pointer to a cached Eigen SYCL queue.
- *
- * By making the Eigen queue a static object it is kept alive between bechmark
- * runs, and so any kernels which have been built once do not need to be built
- * again for later benchmarks. This ensures that running multiple benchmarks in
- * the same binary does not waste time continually rebuilding kernels.
- */
-Eigen::QueueInterface* get_eigen_queue() {
-  static Eigen::QueueInterface queue{cl::sycl::default_selector{}};
-  return &queue;
-}
-
 template <typename ParamGen, typename ConvType, int TileRows, int TileCols,
           int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
           int WindowRows, int WindowCols, int Stride>
@@ -115,17 +101,13 @@ void TiledConvolutionBenchmark<
     FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols,
     Stride>::execute(benchmark::State& state,
                      sycldnn::conv2d::Conv2DParams const& params) {
-  Eigen::SyclDevice device{get_eigen_queue()};
-  sycldnn::backend::EigenBackend backend{device};
+  auto backend = get_backend();
 
   auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
 
-  size_t inp_bytes = conv_sizes.input_size * sizeof(float);
-  float* inp_gpu = static_cast<float*>(device.allocate(inp_bytes));
-  size_t fil_bytes = conv_sizes.filter_size * sizeof(float);
-  float* fil_gpu = static_cast<float*>(device.allocate(fil_bytes));
-  size_t out_bytes = conv_sizes.output_size * sizeof(float);
-  float* out_gpu = static_cast<float*>(device.allocate(out_bytes));
+  auto inp_gpu = allocate<float>(conv_sizes.input_size);
+  auto fil_gpu = allocate<float>(conv_sizes.filter_size);
+  auto out_gpu = allocate<float>(conv_sizes.output_size);
 
   {  // Ensure the kernel is built before benchmarking
     auto status = launch_kernel<float, int, ConvType, TileRows, TileCols,
@@ -158,11 +140,13 @@ void TiledConvolutionBenchmark<
     state.SetIterationTime(elapsed_seconds.count());
   }
 
-  device.deallocate_all();
+  this->deallocate(out_gpu);
+  this->deallocate(fil_gpu);
+  this->deallocate(inp_gpu);
 
   // Get the SYCL device, and add device and driver info to the key-value map.
   auto dev = backend.get_queue().get_device();
-  add_opencl_device_info(dev);
+  sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 
   set_items_processed<ConvType>(state, params);
   add_param_counters(state, params);
@@ -173,43 +157,10 @@ void TiledConvolutionBenchmark<
   state.counters["fast_div"] = UseFastDiv;
   add_bandwidth_counters<float>(state, conv_sizes);
 
-  key_value_map["selector"] = "TiledSelector";
-  key_value_map["git_hash"] = commit_hash;
+  add_to_label("selector", "TiledSelector");
+  add_to_label("git_hash", commit_hash);
   set_label(state);
 }
-
-template <typename ParamGen, typename ConvType, int TileRows, int TileCols,
-          int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
-          int WindowRows, int WindowCols, int Stride>
-void TiledConvolutionBenchmark<
-    ParamGen, ConvType, TileRows, TileCols, ChannelVectorWidth,
-    FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols,
-    Stride>::add_opencl_device_info(const cl::sycl::device& device) {
-  // OpenCL is unclear whether strings returned from clGet*Info() should be
-  // null terminated, and ComputeCpp currently copies embedded nulls.
-  // On some OpenCL implemntations this results in strings that behave
-  // unexpectedly when appended to. This lambda trims those strings.
-  auto trim = [](std::string s) -> std::string {
-    s.resize(strlen(s.c_str()));
-    return s;
-  };
-  auto device_name = device.get_info<cl::sycl::info::device::name>();
-  auto device_version = device.get_info<cl::sycl::info::device::version>();
-  auto vendor_name = device.get_info<cl::sycl::info::device::vendor>();
-  auto driver_version =
-      device.get_info<cl::sycl::info::device::driver_version>();
-  key_value_map["device_name"] = trim(device_name);
-  key_value_map["device_version"] = trim(device_version);
-  key_value_map["vendor_name"] = trim(vendor_name);
-  key_value_map["driver_version"] = trim(driver_version);
-}
-
-#define TILED_BENCHMARK(name, ...)                                          \
-  BENCHMARK_TEMPLATE_DEFINE_F(TiledConvolutionBenchmark, name, __VA_ARGS__) \
-  (benchmark::State & state) { this->run(state); }                          \
-  BENCHMARK_REGISTER_F(TiledConvolutionBenchmark, name)                     \
-      ->UseManualTime()                                                     \
-      ->Unit(benchmark::kNanosecond);
 
 template <int WindowRows, int WindowCols, int Stride>
 struct ParamGenerator {
@@ -235,6 +186,13 @@ struct ParamGenerator {
 };
 
 }  // namespace
+
+#define TILED_BENCHMARK(name, ...)                                          \
+  BENCHMARK_TEMPLATE_DEFINE_F(TiledConvolutionBenchmark, name, __VA_ARGS__) \
+  (benchmark::State & state) { this->run(state); }                          \
+  BENCHMARK_REGISTER_F(TiledConvolutionBenchmark, name)                     \
+      ->UseManualTime()                                                     \
+      ->Unit(benchmark::kNanosecond);
 
 #define PARAM_BENCHMARK(name, direction, tile_row, tile_col, ch_vect,        \
                         feat_vect, fast_div, window_row, window_col, stride) \

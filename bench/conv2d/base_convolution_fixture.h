@@ -30,28 +30,20 @@ class BaseConvolutionBenchmark : public benchmark::Fixture {
  private:
   using State = benchmark::State;
   using Conv2DParams = sycldnn::conv2d::Conv2DParams;
+  using Conv2DSizes = sycldnn::conv2d::ConvSizes;
 
- protected:
+ public:
   // Adds the convolution parameters to the counter set.
   void add_param_counters(State& state, Conv2DParams const& params);
 
   // Adds theoretical best-case bandwidth requirements to the counter set.
   template <typename T>
-  void add_bandwidth_counters(State& state,
-                              sycldnn::conv2d::ConvSizes const& sizes);
+  void add_bandwidth_counters(State& state, Conv2DSizes const& sizes);
 
   // Records the number of elements processed to the counter set. How this
   // calculated varies based on the type of convolution.
   template <typename ConvType>
-  void set_items_processed(benchmark::State& state,
-                           sycldnn::conv2d::Conv2DParams const& params);
-
-  // Serializes the key-value map into a single comma separated string and
-  // stores it in the benchmark label.
-  void set_label(State& state);
-
-  // A map holding key-value pairs to be emitted along with the counter set.
-  std::map<std::string, std::string> key_value_map;
+  void set_items_processed(State& state, Conv2DParams const& params);
 };
 
 // Add a full set of counters corresponding to the convolution parameters.
@@ -116,16 +108,6 @@ void BaseConvolutionBenchmark::set_items_processed<
                           params.in_cols * params.window_rows *
                           params.window_cols * params.channels *
                           params.features * 2);
-}
-
-void BaseConvolutionBenchmark::set_label(benchmark::State& state) {
-  std::string label;
-  for (auto& kv : key_value_map) {
-    if (label.size()) label += ",";
-
-    label += kv.first + "=" + kv.second;
-  }
-  state.SetLabel(label);
 }
 
 #endif  // define SYCLDNN_BENCH_FIXTURE_H_

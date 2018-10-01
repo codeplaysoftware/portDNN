@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POOLING_FIXTURE_H_
-#define SYCLDNN_BENCH_POOLING_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
+#define SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
 
 #include <benchmark/benchmark.h>
 
@@ -24,11 +24,12 @@ extern const char* commit_date;
 extern const char* commit_hash;
 
 class BasePoolingBenchmark : public benchmark::Fixture {
- protected:
+ private:
   using State = benchmark::State;
   using PoolingParams = sycldnn::pooling::PoolingParams;
   using PoolingSizes = sycldnn::pooling::PoolingSizes;
 
+ public:
   // Adds the pooling parameters to the counter set.
   void add_param_counters(State& state, PoolingParams const& params);
 
@@ -39,15 +40,7 @@ class BasePoolingBenchmark : public benchmark::Fixture {
   // Records the number of elements processed to the counter set. How this
   // calculated varies based on the type of operation.
   template <typename Direction>
-  void set_items_processed(benchmark::State& state,
-                           PoolingParams const& params);
-
-  // Serializes the key-value map into a single comma separated string and
-  // stores it in the benchmark label.
-  void set_label(State& state);
-
-  // A map holding key-value pairs to be emitted along with the counter set.
-  std::map<std::string, std::string> key_value_map;
+  void set_items_processed(State& state, PoolingParams const& params);
 };
 
 // Add a full set of counters corresponding to the pooling parameters.
@@ -94,14 +87,4 @@ void BasePoolingBenchmark::set_items_processed<sycldnn::pooling::Forward>(
   state.SetItemsProcessed(state.iterations() * window_size * tensor_size);
 }
 
-void BasePoolingBenchmark::set_label(benchmark::State& state) {
-  std::string label;
-  for (auto& kv : key_value_map) {
-    if (label.size()) label += ",";
-
-    label += kv.first + "=" + kv.second;
-  }
-  state.SetLabel(label);
-}
-
-#endif  // define SYCLDNN_BENCH_POOLING_FIXTURE_H_
+#endif  // SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
