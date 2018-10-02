@@ -20,7 +20,9 @@
 
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
 #include "sycldnn/conv2d/sizes.h"
 
 extern const char* commit_date;

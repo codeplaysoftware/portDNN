@@ -44,6 +44,14 @@ add_library(bench_main STATIC bench_main.cc git_config.h)
 target_link_libraries(bench_main benchmark::benchmark)
 target_include_directories(bench_main PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
+if(SNN_BUILD_EXTENDED_BENCHMARKS)
+  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_EXTENDED_BENCHMARKS)
+endif()
+
+if(SNN_BUILD_LARGE_BATCH_BENCHMARKS)
+  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_LARGE_BATCH_BENCHMARKS)
+endif()
+
 snn_bench(
   WITH_SYCL
   TARGET
@@ -57,7 +65,7 @@ snn_bench(
   WITH_SYCL
   TARGET
     simple_convolution
-  SOURCES
+  KERNEL_SOURCES
     conv2d/simple_convolution.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
@@ -72,7 +80,7 @@ snn_bench(
   WITH_SYCL
   TARGET
     resnet_convolution
-  SOURCES
+  KERNEL_SOURCES
     conv2d/resnet.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
@@ -82,12 +90,14 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
 )
 snn_bench(
   WITH_SYCL
   TARGET
     vgg_convolution
-  SOURCES
+  KERNEL_SOURCES
     conv2d/vgg.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
@@ -97,6 +107,8 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
 )
 snn_bench(
   WITH_SYCL
@@ -109,6 +121,8 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
 )
 snn_bench(
   WITH_SYCL
@@ -121,6 +135,8 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_main
     Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
 )
 
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
@@ -139,6 +155,8 @@ if(SNN_ARM_COMPUTE_ENABLED)
       bench_main
       ARMCompute::ARMCompute
       ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
   )
   snn_bench(
     TARGET
@@ -149,5 +167,7 @@ if(SNN_ARM_COMPUTE_ENABLED)
       bench_main
       ARMCompute::ARMCompute
       ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
   )
 endif()

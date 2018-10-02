@@ -62,47 +62,25 @@ struct Stride2_3x3Params {
 };
 }
 
-// Register forward convolution benchmarks..
-CONVOLUTION_BENCHMARK(DirectForward, Dense3x3Params,
-                      sycldnn::conv2d::conv_type::Forward,
-                      sycldnn::conv2d::DirectSelector);
-CONVOLUTION_BENCHMARK(TiledForward, Dense3x3Params,
-                      sycldnn::conv2d::conv_type::Forward,
-                      sycldnn::conv2d::TiledSelector);
+#define CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Algo, Dir)    \
+  CONVOLUTION_BENCHMARK(Algo##Dir, Dense3x3Params,             \
+                        sycldnn::conv2d::conv_type::Dir,       \
+                        sycldnn::conv2d::Algo##Selector);      \
+  CONVOLUTION_BENCHMARK(Algo##Dir##Stride2, Stride2_3x3Params, \
+                        sycldnn::conv2d::conv_type::Dir,       \
+                        sycldnn::conv2d::Algo##Selector)
 
-CONVOLUTION_BENCHMARK(DirectForwardStride2, Stride2_3x3Params,
-                      sycldnn::conv2d::conv_type::Forward,
-                      sycldnn::conv2d::DirectSelector);
-CONVOLUTION_BENCHMARK(TiledForwardStride2, Stride2_3x3Params,
-                      sycldnn::conv2d::conv_type::Forward,
-                      sycldnn::conv2d::TiledSelector);
+#define CONVOLUTION_BENCHMARKS_WITH_DIR(Dir)            \
+  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Direct, Dir) \
+  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Tiled, Dir)  \
+  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Im2col, Dir) \
+  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Winograd, Dir)
+
+// Register forward convolution benchmarks..
+CONVOLUTION_BENCHMARKS_WITH_DIR(Forward);
 
 /// Register input back-propagation benchmarks.
-CONVOLUTION_BENCHMARK(DirectInputBackprop, Dense3x3Params,
-                      sycldnn::conv2d::conv_type::InputBackprop,
-                      sycldnn::conv2d::DirectSelector);
-CONVOLUTION_BENCHMARK(TiledInputBackprop, Dense3x3Params,
-                      sycldnn::conv2d::conv_type::InputBackprop,
-                      sycldnn::conv2d::TiledSelector);
-
-CONVOLUTION_BENCHMARK(DirectInputBackpropStride2, Stride2_3x3Params,
-                      sycldnn::conv2d::conv_type::InputBackprop,
-                      sycldnn::conv2d::DirectSelector);
-CONVOLUTION_BENCHMARK(TiledInputBackpropStride2, Stride2_3x3Params,
-                      sycldnn::conv2d::conv_type::InputBackprop,
-                      sycldnn::conv2d::TiledSelector);
+CONVOLUTION_BENCHMARKS_WITH_DIR(InputBackprop);
 
 /// Register filter back-propagation benchmarks.
-CONVOLUTION_BENCHMARK(DirectFilterBackprop, Dense3x3Params,
-                      sycldnn::conv2d::conv_type::FilterBackprop,
-                      sycldnn::conv2d::DirectSelector);
-CONVOLUTION_BENCHMARK(TiledFilterBackprop, Dense3x3Params,
-                      sycldnn::conv2d::conv_type::FilterBackprop,
-                      sycldnn::conv2d::TiledSelector);
-
-CONVOLUTION_BENCHMARK(DirectFilterBackpropStride2, Stride2_3x3Params,
-                      sycldnn::conv2d::conv_type::FilterBackprop,
-                      sycldnn::conv2d::DirectSelector);
-CONVOLUTION_BENCHMARK(TiledFilterBackpropStride2, Stride2_3x3Params,
-                      sycldnn::conv2d::conv_type::FilterBackprop,
-                      sycldnn::conv2d::TiledSelector);
+CONVOLUTION_BENCHMARKS_WITH_DIR(FilterBackprop);

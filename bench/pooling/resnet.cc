@@ -24,13 +24,39 @@
                     ParameterSet<N, C, W, H, K, S>, sycldnn::pooling::Forward, \
                     sycldnn::pooling::Average)
 
+// Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define RESNET_PARAMS(channels, width, height, window, stride) \
   RESNET_BENCHMARK(1, channels, width, height, window, stride);
 #include "bench/pooling/resnet_params.def"
 #undef RESNET_PARAMS
 
 #define RESNET_PARAMS(channels, width, height, window, stride) \
+  RESNET_BENCHMARK(4, channels, width, height, window, stride);
+#include "bench/pooling/resnet_params.def"
+#undef RESNET_PARAMS
+
+#ifdef SNN_LARGE_BATCH_BENCHMARKS
+#define RESNET_PARAMS(channels, width, height, window, stride) \
   RESNET_BENCHMARK(32, channels, width, height, window, stride);
+#include "bench/pooling/resnet_params.def"
+#undef RESNET_PARAMS
+#endif  // SNN_LARGE_BATCH_BENCHMARKS
+
+// Extended benchmarks (batch size: 2, optionally 8, 16, 64)
+#ifdef SNN_EXTENDED_BENCHMARKS
+#define RESNET_PARAMS(channels, width, height, window, stride) \
+  RESNET_BENCHMARK(2, channels, width, height, window, stride);
+#include "bench/pooling/resnet_params.def"
+#undef RESNET_PARAMS
+
+#ifdef SNN_LARGE_BATCH_BENCHMARKS
+#define RESNET_PARAMS(channels, width, height, window, stride) \
+  RESNET_BENCHMARK(8, channels, width, height, window, stride);
+#include "bench/pooling/resnet_params.def"
+#undef RESNET_PARAMS
+
+#define RESNET_PARAMS(channels, width, height, window, stride) \
+  RESNET_BENCHMARK(16, channels, width, height, window, stride);
 #include "bench/pooling/resnet_params.def"
 #undef RESNET_PARAMS
 
@@ -38,3 +64,5 @@
   RESNET_BENCHMARK(64, channels, width, height, window, stride);
 #include "bench/pooling/resnet_params.def"
 #undef RESNET_PARAMS
+#endif  // SNN_LARGE_BATCH_BENCHMARKS
+#endif  // SNN_EXTENDED_BENCHMARKS

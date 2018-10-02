@@ -16,43 +16,28 @@
 #include "resnet_param_set.h"
 #include "snn_fixture.h"
 
-#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)                           \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Direct_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,           \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::Forward, sycldnn::conv2d::DirectSelector) \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Tiled_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,            \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::Forward, sycldnn::conv2d::TiledSelector)  \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Direct_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,     \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::InputBackprop,                            \
-      sycldnn::conv2d::DirectSelector)                                      \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Tiled_InputBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,      \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::InputBackprop,                            \
-      sycldnn::conv2d::TiledSelector)                                       \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Direct_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,    \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::FilterBackprop,                           \
-      sycldnn::conv2d::DirectSelector)                                      \
-  CONVOLUTION_BENCHMARK(                                                    \
-      Tiled_FilterBackprop_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,     \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                                \
-      sycldnn::conv2d::conv_type::FilterBackprop,                           \
-      sycldnn::conv2d::TiledSelector)
+#define RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo, Dir) \
+  CONVOLUTION_BENCHMARK(                                                       \
+      Algo##_##Dir##_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,              \
+      ParameterSet<N, C, W, H, Flt, S, Ftr>, sycldnn::conv2d::conv_type::Dir,  \
+      sycldnn::conv2d::Algo##Selector)
 
+#define RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Algo)            \
+  RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo, Forward) \
+  RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo,          \
+                                     InputBackprop)                          \
+  RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo,          \
+                                     FilterBackprop)
+
+#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)             \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Direct) \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Tiled)  \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Im2col) \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Winograd)
+
+// Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define RESNET_PARAMS(channels, width, height, filter, stride, features) \
   RESNET_BENCHMARK(1, channels, width, height, filter, stride, features);
-#include "bench/conv2d/resnet_params.def"
-#undef RESNET_PARAMS
-
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(2, channels, width, height, filter, stride, features);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
@@ -60,3 +45,35 @@
   RESNET_BENCHMARK(4, channels, width, height, filter, stride, features);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
+
+#ifdef SNN_LARGE_BATCH_BENCHMARKS
+#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
+  RESNET_BENCHMARK(32, channels, width, height, filter, stride, features);
+#include "bench/conv2d/resnet_params.def"
+#undef RESNET_PARAMS
+#endif  // SNN_LARGE_BATCH_BENCHMARKS
+
+// Extended benchmarks (batch size: 2, optionally 8, 16, 64)
+#ifdef SNN_EXTENDED_BENCHMARKS
+#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
+  RESNET_BENCHMARK(2, channels, width, height, filter, stride, features);
+#include "bench/conv2d/resnet_params.def"
+#undef RESNET_PARAMS
+
+#ifdef SNN_LARGE_BATCH_BENCHMARKS
+#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
+  RESNET_BENCHMARK(8, channels, width, height, filter, stride, features);
+#include "bench/conv2d/resnet_params.def"
+#undef RESNET_PARAMS
+
+#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
+  RESNET_BENCHMARK(16, channels, width, height, filter, stride, features);
+#include "bench/conv2d/resnet_params.def"
+#undef RESNET_PARAMS
+
+#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
+  RESNET_BENCHMARK(64, channels, width, height, filter, stride, features);
+#include "bench/conv2d/resnet_params.def"
+#undef RESNET_PARAMS
+#endif  // SNN_LARGE_BATCH_BENCHMARKS
+#endif  // SNN_EXTENDED_BENCHMARKS
