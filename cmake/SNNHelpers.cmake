@@ -73,6 +73,17 @@ macro(snn_warn_unparsed_args PREFIX)
   endif()
 endmacro()
 
+# Add a compile flag to the target if that flag is supported.
+# Will check that the compiler supports `FLAG`, and if so add it to `TARGET`
+# with the specified `MODE` (one of `PUBLIC`, `PRIVATE` or `INTERFACE`)
+function(snn_add_compile_flag TARGET MODE FLAG)
+  include(CheckCXXCompilerFlag)
+  check_cxx_compiler_flag(${FLAG} HAVE_${FLAG}_SUPPORT)
+  if(HAVE_${FLAG}_SUPPORT)
+    target_compile_options(${TARGET} ${MODE} ${FLAG})
+  endif()
+endfunction()
+
 # snn_target helper function
 # Adds the required links, include directories, SYCL support and flags to a
 # given cmake target.
@@ -132,7 +143,8 @@ function(snn_target)
     cxx_lambdas
     cxx_static_assert
   )
-  target_compile_options(${SNN_TARGET_TARGET} PRIVATE -Wall -Wextra)
+  snn_add_compile_flag(${SNN_TARGET_TARGET} PRIVATE -Wall)
+  snn_add_compile_flag(${SNN_TARGET_TARGET} PRIVATE -Wextra)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
       CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
     # GCC 4.8 will warn when a struct is zero initialised but there are no
