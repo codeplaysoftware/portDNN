@@ -26,11 +26,10 @@
 #
 # These helper functions all take named parameters, detais of which can be
 # found below. Typically they take a `TARGET` and a list of `SOURCES`, along
-# with a list of `PUBLIC_LIBRARIES` and `PUBLIC_INCLUDE_DIRS` to add to the
-# target. As not all targets will need to be compiled with SYCL support, there
-# is an option `WITH_SYCL` to specify that SYCL support is required. Any
-# additional C++ compiler flags required can be added to the target with
-# `CXX_OPTS`.
+# with a list of `PUBLIC_LIBRARIES` to add to the target. As not all targets
+# will need to be compiled with SYCL support, there is an option `WITH_SYCL` to
+# specify that SYCL support is required. Any additional C++ compiler flags
+# required can be added to the target with `CXX_OPTS`.
 #
 cmake_minimum_required(VERSION 3.2.2)
 set(SNN_TEST_DEFAULT_TIMEOUT "30" CACHE STRING
@@ -93,8 +92,6 @@ endfunction()
 # KERNEL_SOURCES: source files containing SYCL kernels
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
-# PUBLIC_INCLUDE_DIRS: include directories for using the target
-# PRIVATE_INCLUDE_DIRS: include directories for compiling the target
 # PUBLIC_COMPILE_DEFINITIONS: compile definitions to add to the target
 # PRIVATE_COMPILE_DEFINITIONS: compile definitions to add to the target
 # CXX_OPTS: additional compile flags to add to the target
@@ -110,8 +107,6 @@ function(snn_target)
     KERNEL_SOURCES
     PUBLIC_LIBRARIES
     PRIVATE_LIBRARIES
-    PUBLIC_INCLUDE_DIRS
-    PRIVATE_INCLUDE_DIRS
     PUBLIC_COMPILE_DEFINITIONS
     PRIVATE_COMPILE_DEFINITIONS
     CXX_OPTS
@@ -139,11 +134,9 @@ function(snn_target)
     )
   endif()
   target_include_directories(${SNN_TARGET_TARGET}
-    PUBLIC  ${SNN_TARGET_PUBLIC_INCLUDE_DIRS}
-    PRIVATE ${SNN_TARGET_PRIVATE_INCLUDE_DIRS}
+    PUBLIC  $<INSTALL_INTERFACE:${include_dest}>
             $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${include_dest}>
+    PRIVATE $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}>
   )
 
   # Specify some C++11 features used widely across the library
@@ -199,8 +192,8 @@ endfunction()
 # OBJECTS: object files to add to the executable
 # PUBLIC_LIBRARIES: library targets to add to the target's interface
 # PRIVATE_LIBRARIES: library targets to use to compile the target
-# PUBLIC_INCLUDE_DIRS: include directories for using the target
-# PRIVATE_INCLUDE_DIRS: include directories for compiling the target
+# PUBLIC_COMPILE_DEFINITIONS: compile definitions to add to the target
+# PRIVATE_COMPILE_DEFINITIONS: compile definitions to add to the target
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_executable)
   set(options
@@ -218,8 +211,6 @@ function(snn_executable)
     PRIVATE_LIBRARIES
     PUBLIC_COMPILE_DEFINITIONS
     PRIVATE_COMPILE_DEFINITIONS
-    PUBLIC_INCLUDE_DIRS
-    PRIVATE_INCLUDE_DIRS
     CXX_OPTS
   )
   cmake_parse_arguments(SNN_EXEC
@@ -258,8 +249,6 @@ function(snn_executable)
     PRIVATE_LIBRARIES    ${SNN_EXEC_PRIVATE_LIBRARIES}
     PUBLIC_COMPILE_DEFINITIONS ${SNN_EXEC_PUBLIC_COMPILE_DEFINITIONS}
     PRIVATE_COMPILE_DEFINITIONS ${SNN_EXEC_PRIVATE_COMPILE_DEFINITIONS}
-    PUBLIC_INCLUDE_DIRS  ${SNN_EXEC_PUBLIC_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS ${SNN_EXEC_PRIVATE_INCLUDE_DIRS}
     CXX_OPTS             ${SNN_EXEC_CXX_OPTS}
   )
 endfunction()
@@ -280,7 +269,6 @@ endfunction()
 # KERNEL_SOURCES: source files containing SYCL kernels
 # OBJECTS: object files to add to the test
 # PUBLIC_LIBRARIES: targets and flags for linking phase
-# PUBLIC_INCLUDE_DIRS: include directories for target
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_test)
   set(options
@@ -295,7 +283,6 @@ function(snn_test)
     KERNEL_SOURCES
     OBJECTS
     PUBLIC_LIBRARIES
-    PUBLIC_INCLUDE_DIRS
     CXX_OPTS
   )
   cmake_parse_arguments(SNN_TEST
@@ -320,8 +307,6 @@ function(snn_test)
     OBJECTS              ${SNN_TEST_OBJECTS}
     PUBLIC_LIBRARIES     ${SNN_TEST_PUBLIC_LIBRARIES}
     PRIVATE_LIBRARIES    GTest::GTest GTest::Main
-    PUBLIC_INCLUDE_DIRS  ${SNN_TEST_PUBLIC_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS
     CXX_OPTS             ${SNN_TEST_CXX_OPTS}
   )
   add_test(NAME ${_NAME} COMMAND ${_NAME}_bin --gtest_output=xml:output/)
@@ -352,7 +337,7 @@ endfunction()
 # KERNEL_SOURCES: source files containing SYCL kernels
 # OBJECTS: object files to add to the benchmark
 # PUBLIC_LIBRARIES: targets and flags for linking phase
-# PUBLIC_INCLUDE_DIRS: include directories for target
+# PUBLIC_COMPILE_DEFINITIONS: compile definitions to add to the target
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_bench)
   set(options
@@ -367,7 +352,6 @@ function(snn_bench)
     OBJECTS
     PUBLIC_LIBRARIES
     PUBLIC_COMPILE_DEFINITIONS
-    PUBLIC_INCLUDE_DIRS
     CXX_OPTS
   )
   cmake_parse_arguments(SNN_BENCH
@@ -394,8 +378,6 @@ function(snn_bench)
     PRIVATE_LIBRARIES    benchmark::benchmark
     PUBLIC_COMPILE_DEFINITIONS ${SNN_BENCH_PUBLIC_COMPILE_DEFINITIONS}
     PRIVATE_COMPILE_DEFINITIONS
-    PUBLIC_INCLUDE_DIRS  ${SNN_BENCH_PUBLIC_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS
     CXX_OPTS             ${SNN_BENCH_CXX_OPTS}
   )
   add_test(
@@ -419,7 +401,6 @@ endfunction()
 # SOURCES: source files for the object library
 # KERNEL_SOURCES: source files containing SYCL kernels
 # PUBLIC_LIBRARIES: targets and flags for linking phase
-# PUBLIC_INCLUDE_DIRS: include directories for target
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_object_library)
   set(options
@@ -432,7 +413,6 @@ function(snn_object_library)
     SOURCES
     KERNEL_SOURCES
     PUBLIC_LIBRARIES
-    PUBLIC_INCLUDE_DIRS
     CXX_OPTS
   )
   cmake_parse_arguments(SNN_OBJLIB
@@ -455,7 +435,6 @@ function(snn_object_library)
     TARGET               ${SNN_OBJLIB_TARGET}
     KERNEL_SOURCES       ${SNN_OBJLIB_KERNEL_SOURCES}
     PUBLIC_LIBRARIES     ${SNN_OBJLIB_PUBLIC_LIBRARIES}
-    PUBLIC_INCLUDE_DIRS  ${SNN_OBJLIB_PUBLIC_INCLUDE_DIRS}
     CXX_OPTS             ${SNN_OBJLIB_CXX_OPTS}
   )
 endfunction()
