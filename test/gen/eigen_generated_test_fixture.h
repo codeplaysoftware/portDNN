@@ -42,6 +42,7 @@ struct EigenGeneratedTestFixture : public EigenBackendTest<Backend> {
   /** Copy the device memory into the provided host vector. */
   void copy_device_data_to_host(size_t size, DataType* gpu_ptr,
                                 std::vector<DataType>& host_data) {
+    host_data.resize(size);
     auto device = this->get_eigen_device();
     size_t n_bytes = size * sizeof(DataType);
     device.memcpyDeviceToHost(host_data.data(), gpu_ptr, n_bytes);
