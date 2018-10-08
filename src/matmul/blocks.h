@@ -62,7 +62,8 @@ load_row(cl::sycl::multi_ptr<T, Space> row_start, int start_col, int n_cols) {
   if (CheckBounds) {
     for (int i = 0; i < Cols; ++i) {
       vec_elem::set(output, i,
-                    (start_col + i < n_cols ? ScalarLoad()(row_start, i) : 0));
+                    (start_col + i < n_cols ? ScalarLoad()(row_start, i)
+                                            : ScalarType{0}));
     }
   } else {
     output = VectorLoad()(row_start, 0);

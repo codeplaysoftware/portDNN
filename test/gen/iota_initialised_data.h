@@ -44,7 +44,7 @@ void iota_n(std::vector<DataType>& c, size_t size, DataType value) {
 template <typename DataType>
 void iota_n_modulo(std::vector<DataType>& c, size_t size, DataType init_value,
                    DataType max_value) {
-  if (max_value < 1) {
+  if (max_value < static_cast<DataType>(1)) {
     return iota_n(c, size, init_value);
   }
   c.reserve(size);
