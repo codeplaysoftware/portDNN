@@ -14,6 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import print_function
+
+try:
+    # With python3 `zip` returns an iterator, however with python2, use
+    # `itertools.izip` instead
+    import itertools.izip as zip
+except ImportError:
+    pass
 
 import argparse
 import re
@@ -91,11 +99,37 @@ def get_conv_title(data, main_title):
     conv_type = get_conv_type(data)
     fil_rows, fil_cols = get_filter_sizes(data)
     stride_rows, stride_cols = get_stride_sizes(data)
-    conv_info = 'for a {}x{} {} convolution'.format(
-        fil_rows, fil_cols, conv_type)
+    conv_info = 'for a {}x{} {} convolution'.format(fil_rows, fil_cols,
+                                                    conv_type)
     stride_info = 'with {}x{} strides'.format(stride_rows, stride_cols)
     device_info = 'Device = {}, Driver = {}'.format(device, driver)
-    return '\n'.join([' '.join([main_title, conv_info, stride_info]), device_info])
+    return '\n'.join(
+        [' '.join([main_title, conv_info, stride_info]), device_info])
+
+
+def get_readable_float_fmt_string(min_val, max_val):
+    """
+    Get a string format string to convert large floats into a human readable
+    form, and the divisor required for the data.
+
+    This takes both a max and min value to use to compute the best divisor.
+    Currently only min_val is used, however this could be changed in the future.
+    """
+    exp_string = {
+        1: '',
+        1e3: 'Kilo',
+        1e6: 'Mega',
+        1e9: 'Giga',
+        1e12: 'Tera',
+        1e15: 'Peta'
+    }
+    exp_list = exp_string.keys()
+    exp_list.sort()
+
+    for low_exp, high_exp in zip(exp_list, exp_list[1:]):
+        if (min_val < high_exp):
+            return low_exp, '.1f', exp_string[low_exp]
+    return 1, '.3e', ''
 
 
 def plot_against_tuple(data):
@@ -105,14 +139,14 @@ def plot_against_tuple(data):
         main_title = 'Flops with and without fast_div'
         return get_conv_title(data, main_title)
 
+    if (len(data.index) == 0):
+        print("Skipping plot, as dataframe is empty")
+        return
+
     fg = sns.catplot(
-        x='tuple',
-        y='items_per_second',
-        data=data,
-        hue='fast_div',
-        kind='bar')
-    fg.set_axis_labels(
-        '(tile_rows, tile_cols, ch_vector, feat_vector)', 'Flops')
+        x='tuple', y='items_per_second', data=data, hue='fast_div', kind='bar')
+    fg.set_axis_labels('(tile_rows, tile_cols, ch_vector, feat_vector)',
+                       'Flops')
     fg.ax.set_xticklabels(fg.ax.get_xticklabels(), rotation=90)
     fg.fig.subplots_adjust(top=0.9)
     fg.fig.suptitle(_get_title(data))
@@ -133,21 +167,31 @@ def plot_grid(data):
         reshaped = reshaped.sort_index(ascending=False, axis=0)
         sns.heatmap(reshaped, **kwargs)
 
-    def _get_title(data):
-        main_title = 'Flops for different tile sizes and vector sizes'
+    def _get_title(prefix, data):
+        main_title = '{}Flops for different tile sizes and vector sizes'.format(
+            prefix)
         return get_conv_title(data, main_title)
+
+    if (len(data.index) == 0):
+        print("Skipping plot, as dataframe is empty")
+        return
 
     vmin = data['items_per_second'].min()
     vmax = data['items_per_second'].max()
+    div, fmt, prefix = get_readable_float_fmt_string(vmin, vmax)
+    scaled_data = data.copy()
+    scaled_data['items_per_second'] = scaled_data['items_per_second'] / div
+    scaled_vmin = vmin / div
+    scaled_vmax = vmax / div
     fg = sns.FacetGrid(
-        data, row='tile_rows', col='tile_cols', margin_titles=True)
+        scaled_data, row='tile_rows', col='tile_cols', margin_titles=True)
     fg.map_dataframe(
         _draw_heatmap,
         annot=True,
-        fmt='.2e',
+        fmt=fmt,
         cmap='YlGnBu',
-        vmin=vmin,
-        vmax=vmax,
+        vmin=scaled_vmin,
+        vmax=scaled_vmax,
         cbar=False)
     fg.set_titles(
         template='Tile size: {row_name}x{col_name}',
@@ -155,7 +199,7 @@ def plot_grid(data):
         col_template='{col_name} cols per tile')
     fg.set_axis_labels('Feature vectors', 'Channel vectors')
     fg.fig.subplots_adjust(top=0.9, hspace=0.25, wspace=0.15)
-    fg.fig.suptitle(_get_title(data))
+    fg.fig.suptitle(_get_title(prefix, data))
     return fg
 
 
