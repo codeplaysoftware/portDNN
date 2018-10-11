@@ -123,7 +123,7 @@ def get_readable_float_fmt_string(min_val, max_val):
         1e12: 'Tera',
         1e15: 'Peta'
     }
-    exp_list = exp_string.keys()
+    exp_list = list(exp_string.keys())
     exp_list.sort()
 
     for low_exp, high_exp in zip(exp_list, exp_list[1:]):
