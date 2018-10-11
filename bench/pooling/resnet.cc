@@ -16,13 +16,18 @@
 #include "resnet_param_set.h"
 #include "snn_fixture.h"
 
-#define RESNET_BENCHMARK(N, C, W, H, K, S)                                     \
-  POOLING_BENCHMARK(MaxPool_Forward_##N##_##C##_##W##_##H##_##K##_##S,         \
-                    ParameterSet<N, C, W, H, K, S>, sycldnn::pooling::Forward, \
-                    sycldnn::pooling::Max)                                     \
-  POOLING_BENCHMARK(AveragePool_Forward_##N##_##C##_##W##_##H##_##K##_##S,     \
-                    ParameterSet<N, C, W, H, K, S>, sycldnn::pooling::Forward, \
-                    sycldnn::pooling::Average)
+#define RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)        \
+  POOLING_BENCHMARK(OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S, \
+                    ParameterSet<N, C, W, H, K, S>,                       \
+                    sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
+
+#define RESNET_BM_WITH_DIRECTION(N, C, W, H, K, S, DIRECTION) \
+  RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Max) \
+  RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Average)
+
+#define RESNET_BENCHMARK(N, C, W, H, K, S)            \
+  RESNET_BM_WITH_DIRECTION(N, C, W, H, K, S, Forward) \
+  RESNET_BM_WITH_DIRECTION(N, C, W, H, K, S, Backpropagate)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define RESNET_PARAMS(channels, width, height, window, stride) \

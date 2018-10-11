@@ -16,10 +16,18 @@
 #include "snn_fixture.h"
 #include "vgg_param_set.h"
 
-#define VGG_BENCHMARK(N, C, W, H)                                           \
-  POOLING_BENCHMARK(MaxPool_Forward_##N##_##C##_##W##_##H##_2,              \
-                    ParameterSet<N, C, W, H, 2>, sycldnn::pooling::Forward, \
-                    sycldnn::pooling::Max)
+#define VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, OP)                     \
+  POOLING_BENCHMARK(OP##_##DIRECTION##_##N##_##C##_##W##_##H##_2,             \
+                    ParameterSet<N, C, W, H, 2>, sycldnn::pooling::DIRECTION, \
+                    sycldnn::pooling::OP)
+
+#define VGG_BM_WITH_DIRECTION(N, C, W, H, DIRECTION) \
+  VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, Max) \
+  VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, Average)
+
+#define VGG_BENCHMARK(N, C, W, H)            \
+  VGG_BM_WITH_DIRECTION(N, C, W, H, Forward) \
+  VGG_BM_WITH_DIRECTION(N, C, W, H, Backpropagate)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define VGG_PARAMS(channels, width, height) \

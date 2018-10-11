@@ -87,4 +87,23 @@ void BasePoolingBenchmark::set_items_processed<sycldnn::pooling::Forward>(
   state.SetItemsProcessed(state.iterations() * window_size * tensor_size);
 }
 
+template <>
+void BasePoolingBenchmark::set_items_processed<sycldnn::pooling::Backpropagate>(
+    benchmark::State& state, PoolingParams const& params) {
+  // For average backprop, each value in the output tensor (with shape
+  // [batch, in_rows, in_cols, channels]) is computed with an addition and a
+  // divide for each element in the pooling window.
+  //
+  // Similarly for max backprop there is a comparison and conditionally an
+  // addition for each element in the pooling window for each output value.
+  // The additional correctness checks add up to window_size / 2 extra
+  // comparisons per output value.
+  auto window_size = params.window_rows * params.window_cols;
+  auto tensor_size =
+      params.batch * params.in_rows * params.in_cols * params.channels;
+  auto flops_per_input = window_size * 2;
+
+  state.SetItemsProcessed(state.iterations() * flops_per_input * tensor_size);
+}
+
 #endif  // SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
