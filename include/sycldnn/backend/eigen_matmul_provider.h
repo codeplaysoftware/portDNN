@@ -40,8 +40,26 @@ template <typename EigenBackend>
 struct EigenMatmulProvider
     : public CRTPBackend<EigenBackend, EigenMatmulProvider> {
   /**
-   * Make TensorMap objects out of the provided pointers and dimensions, then
-   * use Tensor Contraction to compute the matrix multiply.
+   * Compute a single matrix multiply using Eigen.
+   *
+   * Perform the matrix multiply operation:
+   * \code
+   *   output = lhs * rhs + alpha * output
+   * \endcode
+   * where lhs is a [m x k] matrix, rhs is a [k x n] matrix. The `bool`
+   * template parameters determine whether or not to transpose the matrices.
+   * The matrices provided here are assumed to be in row-major ordering.
+   *
+   * \param [in]     lhs    Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs    Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output Pointer to a buffer containing the output matrix.
+   * \param [in]     alpha  Scale multiplier for the output matrix.
+   * \param [in]     m      Number of rows in the LHS matrix.
+   * \param [in]     k      Number of columns in the LHS matrix and rows in the
+   *                        RHS matrix.
+   * \param [in]     n      Number of columns in the RHS matrix.
+   *
+   * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
   cl::sycl::event matmul(T const* const lhs, T const* const rhs,
@@ -79,8 +97,29 @@ struct EigenMatmulProvider
   }
 
   /**
+   * Compute a batch of matrix multiplies.
+   *
+   * Perform the batched matrix multiply operation:
+   * \code
+   *   output[i] = lhs[i] * rhs[i]
+   * \endcode
+   * for 0 <= i < batch, where lhs is a [batch x m x k] tensor and rhs is a
+   * [batch x k x n] tensor. Each matrix is assumed to be contiguous in memory
+   * and in row-major format. The `bool` template parameters determine whether
+   * or not to transpose the matrices.
    * As Eigen Tensor does not have a batch matrix multiply, just fall back to
    * multiple calls to the standard matrix multiply.
+   *
+   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output    Pointer to a buffer containing the output matrix.
+   * \param [in]     n_batches Scale multiplier for the output matrix.
+   * \param [in]     m         Number of rows in the LHS matrix.
+   * \param [in]     k         Number of columns in the LHS matrix and rows in
+   *                           the RHS matrix.
+   * \param [in]     n         Number of columns in the RHS matrix.
+   *
+   * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
   cl::sycl::event batch_matmul(T const* const lhs, T const* const rhs,
