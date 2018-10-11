@@ -23,8 +23,8 @@
 #include "sycldnn/conv2d/selector/selector.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
-#include "src/conv2d/tiled/output_size.h"
 #include "src/conv2d/tiled/queue_tiled_kernel_impl.h"
+#include "src/conv2d/tiled/tile_info.h"
 
 #include "bench/conv2d/base_convolution_fixture.h"
 
@@ -54,9 +54,8 @@ sycldnn::SNNStatus launch_kernel(
   sycldnn::WriteAccessor<T> out_acc{out_buff};
 
   auto queue = backend.get_queue();
-  Index output_size = sycldnn::conv2d::internal::TiledOutputSize<
-      ConvType, TileRows, TileCols, ChannelVectorWidth,
-      FeatureVectorWidth>::get(params);
+  auto tile_info = sycldnn::conv2d::internal::tiled::get_tile_info<ConvType>(
+      params, TileRows, TileCols, ChannelVectorWidth, FeatureVectorWidth);
 
   auto kernel_params =
       sycldnn::conv2d::internal::get_kernel_params<ConvType>(params);
@@ -64,7 +63,7 @@ sycldnn::SNNStatus launch_kernel(
   auto status = sycldnn::conv2d::internal::queue_tiled_kernel<
       T, Index, ConvType, TileRows, TileCols, ChannelVectorWidth,
       FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride>(
-      in_acc, fil_acc, out_acc, kernel_params, output_size, queue);
+      in_acc, fil_acc, out_acc, kernel_params, tile_info, queue);
   return status;
 }
 

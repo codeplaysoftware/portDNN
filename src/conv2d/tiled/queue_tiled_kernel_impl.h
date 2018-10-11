@@ -24,12 +24,36 @@
 #include "sycldnn/conv2d/params.h"
 
 #include "src/conv2d/tiled/kernels.h"
+#include "src/conv2d/tiled/tile_info.h"
 
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
+
+namespace {
+
+size_t round_up_to_size(int val, cl::sycl::device const& device) {
+  int const workgroup_size =
+      device.get_info<cl::sycl::info::device::max_work_group_size>();
+
+  int rounded = helpers::round_up_to_nearest_multiple(val, workgroup_size);
+  return static_cast<size_t>(rounded);
+}
+
+cl::sycl::range<1> get_thread_range(Conv2DParams const& params,
+                                    tiled::TileInfo const& tile_info,
+                                    cl::sycl::queue const& queue) {
+  cl::sycl::device device = queue.get_device();
+  auto size = round_up_to_size(params.batch * tile_info.n_rows *
+                                   tile_info.n_cols * tile_info.output_vectors,
+                               device);
+  return {size};
+}
+
+}  // namespace
+
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
@@ -37,29 +61,28 @@ SNNStatus queue_tiled_kernel(ReadAccessor<T const> input,
                              ReadAccessor<T const> filter,
                              WriteAccessor<T> output,
                              Conv2DParams const& kernel_params,
-                             Index output_size, cl::sycl::queue& queue) {
+                             tiled::TileInfo const& tile_info,
+                             cl::sycl::queue& queue) {
   using Functor =
       tiled::TiledConv2D<T, Index, ConvType, TileRows, TileCols,
                          ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
                          WindowRows, WindowCols, Stride>;
-  cl::sycl::device device = queue.get_device();
-  Index const workgroup_size =
-      device.get_info<cl::sycl::info::device::max_work_group_size>();
-  size_t const n_threads =
-      helpers::round_up_to_nearest_multiple(output_size, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.require(input);
     cgh.require(filter);
     cgh.require(output);
-    Functor conv(kernel_params, input, filter, output);
+    Functor conv(input, filter, output, kernel_params, tile_info);
+    auto threads = get_thread_range(kernel_params, tile_info, queue);
 
-    cgh.parallel_for(cl::sycl::range<1>{n_threads}, conv);
+    cgh.parallel_for(threads, conv);
   });
   SNNStatus ok_status{event, StatusCode::OK};
   return ok_status;
 }
+
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
+
 #endif  // SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_

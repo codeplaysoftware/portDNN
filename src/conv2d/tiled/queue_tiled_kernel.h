@@ -21,11 +21,14 @@
 
 #include "sycldnn/conv2d/params.h"
 
+#include "src/conv2d/tiled/tile_info.h"
+
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
+
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
@@ -33,8 +36,11 @@ SNNStatus queue_tiled_kernel(ReadAccessor<T const> input,
                              ReadAccessor<T const> filter,
                              WriteAccessor<T> output,
                              Conv2DParams const& kernel_params,
-                             Index output_size, cl::sycl::queue& queue);
+                             tiled::TileInfo const& tile_info,
+                             cl::sycl::queue& queue);
+
 }  // internal
 }  // conv2d
 }  // sycldnn
+
 #endif  // SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_

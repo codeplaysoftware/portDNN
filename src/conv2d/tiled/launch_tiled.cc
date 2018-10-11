@@ -19,7 +19,6 @@
 #include "sycldnn/helpers/ratio.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
-#include "src/conv2d/tiled/output_size.h"
 #include "src/conv2d/tiled/queue_tiled_kernel.h"
 
 namespace sycldnn {
@@ -96,7 +95,8 @@ template <typename T, typename Index, typename ConvType, int TileRows,
 SNNStatus launch_with_index_type(ReadAccessor<T const> input,
                                  ReadAccessor<T const> filter,
                                  WriteAccessor<T> output,
-                                 Conv2DParams const& params, Index output_size,
+                                 Conv2DParams const& params,
+                                 tiled::TileInfo const& tile_info,
                                  cl::sycl::queue& queue) {
   auto kernel_params = get_kernel_params<ConvType>(params);
   if (can_use_fast_div<ConvType>(kernel_params, ChannelVectorWidth,
@@ -104,12 +104,12 @@ SNNStatus launch_with_index_type(ReadAccessor<T const> input,
     return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
                               ChannelVectorWidth, FeatureVectorWidth, true,
                               Window, Window, Stride>(
-        input, filter, output, kernel_params, output_size, queue);
+        input, filter, output, kernel_params, tile_info, queue);
   } else {
     return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
                               ChannelVectorWidth, FeatureVectorWidth, false,
                               Window, Window, Stride>(
-        input, filter, output, kernel_params, output_size, queue);
+        input, filter, output, kernel_params, tile_info, queue);
   }
 }
 /**
@@ -123,16 +123,16 @@ SNNStatus launch_with_sizes(ReadAccessor<T const> input,
                             ReadAccessor<T const> filter,
                             WriteAccessor<T> output, Conv2DParams const& params,
                             cl::sycl::queue& queue) {
-  size_t const output_size =
-      TiledOutputSize<ConvType, TileRows, TileCols, ChannelVectorWidth,
-                      FeatureVectorWidth>::get(params);
+  auto const tile_info = tiled::get_tile_info<ConvType>(
+      params, TileRows, TileCols, ChannelVectorWidth, FeatureVectorWidth);
+  size_t const output_size = params.batch * tile_info.n_rows *
+                             tile_info.n_cols * tile_info.output_vectors;
   if (output_size > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
     return launch_with_index_type<T, int64_t, ConvType, TileRows, TileCols,
                                   ChannelVectorWidth, FeatureVectorWidth,
-                                  Window, Stride>(
-        input, filter, output, params, static_cast<int64_t>(output_size),
-        queue);
+                                  Window, Stride>(input, filter, output, params,
+                                                  tile_info, queue);
 #else
     SNNStatus tensor_too_large;
     tensor_too_large.status = StatusCode::IndexExceeded;
@@ -141,9 +141,8 @@ SNNStatus launch_with_sizes(ReadAccessor<T const> input,
   } else {
     return launch_with_index_type<T, int32_t, ConvType, TileRows, TileCols,
                                   ChannelVectorWidth, FeatureVectorWidth,
-                                  Window, Stride>(
-        input, filter, output, params, static_cast<int32_t>(output_size),
-        queue);
+                                  Window, Stride>(input, filter, output, params,
+                                                  tile_info, queue);
   }
 }
 }  // namespace

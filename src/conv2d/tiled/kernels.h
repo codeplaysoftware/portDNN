@@ -30,147 +30,14 @@
 #include "src/helpers/vector_type.h"
 #include "src/helpers/window_index.h"
 
+#include "src/conv2d/tiled/tile_info.h"
+#include "src/conv2d/tiled/tiles.h"
+
 namespace sycldnn {
 namespace conv2d {
+namespace internal {
 namespace tiled {
-struct check_bounds_tag {};
-struct mirror_filter_tag {};
-/** A 1 x Width row from the input tensor. */
-template <typename T, int ChannelVector, int Width>
-struct InputRow final
-    : public helpers::RegisterTile1D<
-          typename helpers::VectorType<T, ChannelVector>::type, Width> {
-  using VecType = typename helpers::VectorType<T, ChannelVector>::type;
-  using helpers::RegisterTile1D<VecType, Width>::data;
-  InputRow() = default;
-  template <typename _T, typename Index>
-  inline SNN_ALWAYS_INLINE InputRow(_T const* input, Index const row,
-                                    Index const /*n_rows*/, Index const col,
-                                    Index const n_cols, Index const channel,
-                                    Index const n_channels) {
-    Index idx = (row * n_cols + col) * n_channels + channel;
-    for (int i = 0; i < Width; ++i) {
-      data(i) = helpers::io::Load<VecType>()(input, idx);
-      idx += n_channels;
-    }
-  }
-  template <typename _T, typename Index>
-  inline SNN_ALWAYS_INLINE InputRow(_T const* input, Index const row,
-                                    Index const /*n_rows*/, Index const col,
-                                    Index const n_cols, Index const channel,
-                                    Index const n_channels, check_bounds_tag) {
-    Index idx = (row * n_cols + col) * n_channels + channel;
-    for (int i = 0; i < Width; ++i) {
-      data(i) = (col + i < 0 || col + i >= n_cols)
-                    ? VecType{static_cast<T>(0)}
-                    : helpers::io::Load<VecType>()(input, idx);
-      idx += n_channels;
-    }
-  }
-};
-/** A WindowRows x WindowCols tile from the filter tensor. */
-template <typename T, int ChannelVector, int FeatureVector, int WindowRows,
-          int WindowCols>
-struct FilterTile : public helpers::RegisterTile3D<
-                        typename helpers::VectorType<T, FeatureVector>::type,
-                        WindowRows, WindowCols, ChannelVector> {
-  using VecType = typename helpers::VectorType<T, FeatureVector>::type;
-  using helpers::RegisterTile3D<VecType, WindowRows, WindowCols,
-                                ChannelVector>::data;
-  template <typename _T, typename Index>
-  inline SNN_ALWAYS_INLINE FilterTile(_T const* const input,
-                                      Index const channel,
-                                      Index const n_channels,
-                                      Index const feature,
-                                      Index const n_features) {
-    Index row_idx = 0;
-    for (int i = 0; i < WindowRows; ++i) {
-      Index col_idx = row_idx;
-      for (int j = 0; j < WindowCols; ++j) {
-        Index ch_idx = col_idx + channel * n_features + feature;
-        for (int ch_v = 0; ch_v < ChannelVector; ++ch_v) {
-          data(i, j, ch_v) = helpers::io::Load<VecType>()(input, ch_idx);
-          ch_idx += n_features;
-        }
-        col_idx += n_channels * n_features;
-      }
-      row_idx += WindowCols * n_channels * n_features;
-    }
-  }
-  template <typename _T, typename Index>
-  inline SNN_ALWAYS_INLINE FilterTile(
-      _T const* const input, Index const channel, Index const n_channels,
-      Index const feature, Index const n_features, mirror_filter_tag) {
-    Index row_idx = 0;
-    for (int i = 0; i < WindowRows; ++i) {
-      Index col_idx = row_idx;
-      for (int j = 0; j < WindowCols; ++j) {
-        Index ch_idx = col_idx + channel * n_features + feature;
-        for (int ch_v = 0; ch_v < ChannelVector; ++ch_v) {
-          data(WindowRows - 1 - i, WindowCols - 1 - j, ch_v) =
-              helpers::io::Load<VecType>()(input, ch_idx);
-          ch_idx += n_features;
-        }
-        col_idx += n_channels * n_features;
-      }
-      row_idx += WindowCols * n_channels * n_features;
-    }
-  }
-};
-/* An OutTileRows x OutTileCols tile to collect output results. */
-template <typename T, int VectorWidth, int OutTileRows, int OutTileCols>
-struct OutputTile final
-    : helpers::RegisterTile2D<
-          typename helpers::VectorType<T, VectorWidth>::type, OutTileRows,
-          OutTileCols> {
-  using VecType = typename helpers::VectorType<T, VectorWidth>::type;
-  using helpers::RegisterTile2D<VecType, OutTileRows, OutTileCols>::data;
-  template <typename _T, typename Index>
-  inline SNN_ALWAYS_INLINE void write_out(
-      _T* output, Index const batch, Index const out_row, Index const n_rows,
-      Index const out_col, Index const n_cols, Index const feature,
-      Index const n_features, check_bounds_tag) {
-    static_assert(!std::is_const<_T>::value,
-                  "Cannot write values to a pointer to const types.");
-    Index const offset =
-        ((batch * n_rows + out_row) * n_cols + out_col) * n_features + feature;
-    output += offset;
-    Index row_idx = 0;
-    for (Index tile_row = 0; tile_row < OutTileRows; ++tile_row) {
-      if (tile_row < n_rows - out_row) {
-        Index idx = row_idx;
-        for (Index tile_col = 0; tile_col < OutTileCols; ++tile_col) {
-          if (tile_col < n_cols - out_col) {
-            helpers::io::Store<VecType>()(output, idx,
-                                          data(tile_row, tile_col));
-            idx += n_features;
-          }
-        }
-        row_idx += n_cols * n_features;
-      }
-    }
-  }
-  template <typename _T, typename Index>
-  inline SNN_ALWAYS_INLINE void write_out(
-      _T* output, Index const batch, Index const out_row, Index const n_rows,
-      Index const out_col, Index const n_cols, Index const feature,
-      Index const n_features) {
-    static_assert(!std::is_const<_T>::value,
-                  "Cannot write values to a pointer to const types.");
-    Index const offset =
-        ((batch * n_rows + out_row) * n_cols + out_col) * n_features + feature;
-    output += offset;
-    Index row_idx = 0;
-    for (Index tile_row = 0; tile_row < OutTileRows; ++tile_row) {
-      Index idx = row_idx;
-      for (Index tile_col = 0; tile_col < OutTileCols; ++tile_col) {
-        helpers::io::Store<VecType>()(output, idx, data(tile_row, tile_col));
-        idx += n_features;
-      }
-      row_idx += n_cols * n_features;
-    }
-  }
-};
+
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride = 0>
@@ -179,8 +46,9 @@ struct TiledConv2D {
               ReadAccessor<T const> const /*input*/,
               ReadAccessor<T const> const /*kernel*/,
               WriteAccessor<T> /*output*/) {}
-  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> /*item*/) {}
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> /*item*/) {}
 };
+
 /**
  * Forward convolution using a tiled direct computation technique.
  *
@@ -197,6 +65,7 @@ template <typename T, typename Index, int OutTileRows, int OutTileCols,
 struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
                    ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
                    WindowRows, WindowCols, Stride> {
+ private:
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   static constexpr auto InputTileCols = (OutTileCols - 1) * Stride + WindowCols;
   static constexpr auto InputTileRows = (OutTileRows - 1) * Stride + WindowRows;
@@ -207,18 +76,18 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   using InVecType = typename Input::VecType;
   using OutVecType = typename Output::VecType;
 
-  TiledConv2D(Conv2DParams const& params, ReadAccessor<T const> input,
-              ReadAccessor<T const> kernel, WriteAccessor<T> output)
-      : n_tile_cols_{helpers::round_ratio_up_above_zero(params.out_cols,
-                                                        OutTileCols)},
-        n_tile_rows_{
-            helpers::round_ratio_up_above_zero(params.out_rows, OutTileRows)},
-        n_elems_{params.batch * n_tile_rows_ * n_tile_cols_ * params.features /
-                 FeatureVectorWidth},
-        n_feature_vectors_{params.features / FeatureVectorWidth},
+ public:
+  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> kernel,
+              WriteAccessor<T> output, Conv2DParams const& params,
+              TileInfo const& tile_info)
+      : n_tile_cols_{tile_info.n_cols},
+        n_tile_rows_{tile_info.n_rows},
+        n_feature_vectors_{tile_info.output_vectors},
         div_feature_vectors_{n_feature_vectors_},
         div_n_tile_cols_{n_tile_cols_},
         div_n_tile_rows_{n_tile_rows_},
+        n_elems_{params.batch * n_tile_rows_ * n_tile_cols_ *
+                 n_feature_vectors_},
         channels_{params.channels},
         features_{params.features},
         batch_{params.batch},
@@ -232,23 +101,22 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
         filter_accessor_{std::move(kernel)},
         output_accessor_{std::move(output)} {}
 
-  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
-    Index index = item.get_id(0);
-    const Index range = item.get_range().get(0);
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+    Index const index = item.get_id(0);
 
-    for (; index < n_elems_; index += range) {
-      const T* input_data = input_accessor_.get_pointer().get();
-      const T* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+    if (index < n_elems_) {
+      auto input_data = input_accessor_.get_pointer();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
-      const auto tensor_idx =
+      auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
               index, div_n_tile_rows_, n_tile_rows_, div_n_tile_cols_,
               n_tile_cols_, div_feature_vectors_, n_feature_vectors_);
-      const Index feature = tensor_idx.s3 * FeatureVectorWidth;
-      const Index col_idx = tensor_idx.s2 * OutTileCols;
-      const Index row_idx = tensor_idx.s1 * OutTileRows;
-      const Index batch = tensor_idx.s0;
+      Index const feature = tensor_idx.s3 * FeatureVectorWidth;
+      Index const col_idx = tensor_idx.s2 * OutTileCols;
+      Index const row_idx = tensor_idx.s1 * OutTileRows;
+      Index const batch = tensor_idx.s0;
 
       const auto col_window =
           helpers::in_window_from_output(col_idx, Stride, pad_cols_);
@@ -258,42 +126,28 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       const Index rstart = row_window.window_start;
 
       Output out_tile{};
-      const T* input_data_n =
-          input_data + batch * in_cols_ * in_rows_ * channels_;
+      auto input_data_n = input_data + batch * in_cols_ * in_rows_ * channels_;
       for (Index channel = 0; channel < channels_;
            channel += ChannelVectorWidth) {
         Filter filter_tile{filter_data, channel, channels_, feature, features_};
+
         for (Index r = rstart, i = 0; i < InputTileRows; ++r, ++i) {
           if (r >= 0 && r < in_rows_) {
-            Input input_tile;
-            if (cstart >= 0 && cstart + InputTileCols < in_cols_) {
-              input_tile = Input{input_data_n, r,       in_rows_, cstart,
-                                 in_cols_,     channel, channels_};
-            } else {
-              input_tile =
-                  Input{input_data_n, r,       in_rows_,  cstart,
-                        in_cols_,     channel, channels_, check_bounds_tag{}};
-            }
+            auto input_tile =
+                Input::load_input_row(input_data_n, r, in_rows_, cstart,
+                                      in_cols_, channel, channels_);
             convolve_tile(input_tile, filter_tile, out_tile, i);
           }
         }
       }
-      if (row_idx + OutTileRows < out_rows_ &&
-          col_idx + OutTileCols < out_cols_) {
-        out_tile.write_out(output_data, batch, row_idx, out_rows_, col_idx,
-                           out_cols_, feature, features_);
-      } else {
-        out_tile.write_out(output_data, batch, row_idx, out_rows_, col_idx,
-                           out_cols_, feature, features_, check_bounds_tag{});
-      }
+      out_tile.write_out(output_data, batch, row_idx, out_rows_, col_idx,
+                         out_cols_, feature, features_);
     }
   }
 
  private:
-  inline SNN_ALWAYS_INLINE void convolve_tile(Input const& input,
-                                              Filter const& filter,
-                                              Output& output,
-                                              int const row_idx) {
+  void SNN_ALWAYS_INLINE convolve_tile(Input const& input, Filter const& filter,
+                                       Output& output, int const row_idx) {
     SNN_PRAGMA_UNROLL
     for (int out_row = 0; out_row < OutTileRows; ++out_row) {
       int const filter_row = row_idx - out_row * Stride;
@@ -302,13 +156,15 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       }
     }
   }
-  inline SNN_ALWAYS_INLINE void convolve_one_row(Input const& input,
-                                                 Filter const& filter,
-                                                 Output& output,
-                                                 int const out_row,
-                                                 int const filter_row) {
+
+  void SNN_ALWAYS_INLINE convolve_one_row(Input const& input,
+                                          Filter const& filter, Output& output,
+                                          int const out_row,
+                                          int const filter_row) {
     int in_offset = 0;
+    SNN_PRAGMA_UNROLL
     for (int out_col = 0; out_col < OutTileCols; ++out_col) {
+      SNN_PRAGMA_UNROLL
       for (int filter_col = 0; filter_col < WindowCols; ++filter_col) {
         output.data(out_row, out_col) = forward_accumulate(
             input.data(in_offset + filter_col), filter, filter_row, filter_col,
@@ -317,11 +173,13 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       in_offset += Stride;
     }
   }
-  inline SNN_ALWAYS_INLINE OutVecType forward_accumulate(InVecType input,
-                                                         Filter const& filter,
-                                                         int const filter_row,
-                                                         int const filter_col,
-                                                         OutVecType value) {
+
+  OutVecType SNN_ALWAYS_INLINE forward_accumulate(InVecType input,
+                                                  Filter const& filter,
+                                                  int const filter_row,
+                                                  int const filter_col,
+                                                  OutVecType value) {
+    SNN_PRAGMA_UNROLL
     for (int i = 0; i < ChannelVectorWidth; i++) {
       value =
           helpers::math::mad(OutVecType{helpers::vector_element::get(input, i)},
@@ -332,11 +190,11 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
 
   const Index n_tile_cols_;
   const Index n_tile_rows_;
-  const Index n_elems_;
   const Index n_feature_vectors_;
   const IndexDivType div_feature_vectors_;
   const IndexDivType div_n_tile_cols_;
   const IndexDivType div_n_tile_rows_;
+  const Index n_elems_;
   const Index channels_;
   const Index features_;
   const Index batch_;
@@ -356,6 +214,7 @@ template <typename T, typename Index, int OutTileRows, int OutTileCols,
 struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
                    ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
                    WindowRows, WindowCols, Stride> {
+ private:
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   static constexpr auto InputTileCols = (OutTileCols + WindowCols - 1) / Stride;
   static constexpr auto InputTileRows = OutTileRows + WindowRows - 1;
@@ -366,17 +225,18 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   using InVecType = typename Input::VecType;
   using OutVecType = typename Output::VecType;
 
-  TiledConv2D(Conv2DParams const& params, ReadAccessor<T const> input,
-              ReadAccessor<T const> kernel, WriteAccessor<T> output)
-      : n_tile_cols_{helpers::round_ratio_up_above_zero(params.in_cols,
-                                                        OutTileCols)},
-        n_tile_rows_{
-            helpers::round_ratio_up_above_zero(params.in_rows, OutTileRows)},
-        n_elems_{params.batch * n_tile_rows_ * n_tile_cols_ * params.channels /
-                 ChannelVectorWidth},
-        div_channels_{params.channels / ChannelVectorWidth},
+ public:
+  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> kernel,
+              WriteAccessor<T> output, Conv2DParams const& params,
+              TileInfo const& tile_info)
+      : n_tile_cols_{tile_info.n_cols},
+        n_tile_rows_{tile_info.n_rows},
+        n_channel_vectors_{tile_info.output_vectors},
+        div_channels_{n_channel_vectors_},
         div_n_tile_cols_{n_tile_cols_},
         div_n_tile_rows_{n_tile_rows_},
+        n_elems_{params.batch * n_tile_rows_ * n_tile_cols_ *
+                 n_channel_vectors_},
         channels_{params.channels},
         features_{params.features},
         batch_{params.batch},
@@ -390,23 +250,22 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
         filter_accessor_{std::move(kernel)},
         output_accessor_{std::move(output)} {}
 
-  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
-    Index index = item.get_id(0);
-    const Index range = item.get_range().get(0);
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+    Index const index = item.get_id(0);
 
-    for (; index < n_elems_; index += range) {
-      const T* input_data = input_accessor_.get_pointer().get();
-      const T* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+    if (index < n_elems_) {
+      auto input_data = input_accessor_.get_pointer();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
-      const auto tensor_idx =
+      auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
               index, div_n_tile_rows_, n_tile_rows_, div_n_tile_cols_,
-              n_tile_cols_, div_channels_, channels_ / ChannelVectorWidth);
-      const Index channel = tensor_idx.s3 * ChannelVectorWidth;
-      const Index col_idx = tensor_idx.s2 * OutTileCols;
-      const Index row_idx = tensor_idx.s1 * OutTileRows;
-      const Index batch = tensor_idx.s0;
+              n_tile_cols_, div_channels_, n_channel_vectors_);
+      Index const channel = tensor_idx.s3 * ChannelVectorWidth;
+      Index const col_idx = tensor_idx.s2 * OutTileCols;
+      Index const row_idx = tensor_idx.s1 * OutTileRows;
+      Index const batch = tensor_idx.s0;
 
       const auto col_window =
           helpers::out_window_from_input(col_idx, Stride, pad_cols_);
@@ -418,7 +277,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       const Index first_row = row_window.filter_start;
 
       Output out_tile{};
-      const T* input_data_n =
+      auto input_data_n =
           input_data + batch * out_cols_ * out_rows_ * features_;
       for (Index feature = 0; feature < features_;
            feature += FeatureVectorWidth) {
@@ -428,35 +287,22 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
         for (Index r = rstart, i = first_row; i < InputTileRows;
              ++r, i += Stride) {
           if (r < out_rows_) {
-            Input input_tile;
-            if (cstart + InputTileCols < out_cols_) {
-              input_tile = Input{input_data_n, r,       out_rows_, cstart,
-                                 out_cols_,    feature, features_};
-            } else {
-              input_tile =
-                  Input{input_data_n, r,       out_rows_, cstart,
-                        out_cols_,    feature, features_, check_bounds_tag{}};
-            }
+            auto input_tile =
+                Input::load_input_row(input_data_n, r, out_rows_, cstart,
+                                      out_cols_, feature, features_);
             convolve_tile(input_tile, filter_tile, out_tile, i, first_col);
           }
         }
       }
-      if (row_idx + OutTileRows < in_rows_ &&
-          col_idx + OutTileCols < in_cols_) {
-        out_tile.write_out(output_data, batch, row_idx, in_rows_, col_idx,
-                           in_cols_, channel, channels_);
-      } else {
-        out_tile.write_out(output_data, batch, row_idx, in_rows_, col_idx,
-                           in_cols_, channel, channels_, check_bounds_tag{});
-      }
+      out_tile.write_out(output_data, batch, row_idx, in_rows_, col_idx,
+                         in_cols_, channel, channels_);
     }
   }
 
  private:
-  inline SNN_ALWAYS_INLINE void convolve_tile(Input const& input,
-                                              Filter const& filter,
-                                              Output& output, int const row_idx,
-                                              int const first_col) {
+  void SNN_ALWAYS_INLINE convolve_tile(Input const& input, Filter const& filter,
+                                       Output& output, int const row_idx,
+                                       int const first_col) {
     SNN_PRAGMA_UNROLL
     for (int out_row = 0; out_row < OutTileRows; ++out_row) {
       int const filter_row = row_idx - out_row;
@@ -465,24 +311,41 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       }
     }
   }
-  inline SNN_ALWAYS_INLINE void convolve_one_row(
-      Input const& input, Filter const& filter, Output& output,
-      int const out_row, int const filter_row, int offset) {
+  void SNN_ALWAYS_INLINE convolve_one_row(Input const& input,
+                                          Filter const& filter, Output& output,
+                                          int const out_row,
+                                          int const filter_row, int offset) {
+    SNN_PRAGMA_UNROLL
     for (int out_col = 0; out_col < OutTileCols; ++out_col) {
       auto padded_out = out_col - offset;
       auto in_offset = helpers::round_ratio_up_above_zero(padded_out, Stride);
       auto first_col = in_offset * Stride - padded_out;
-      for (int filter_col = first_col; filter_col < WindowCols;
-           filter_col += Stride, ++in_offset) {
-        output.data(out_row, out_col) =
-            inputbackprop_accumulate(input.data(in_offset), filter, filter_row,
-                                     filter_col, output.data(out_row, out_col));
+      // first_col is always non-negative. If padded_out is negative, then
+      // in_offset is zero so first_col = -padded_out > 0. If padded_out is
+      // zero, then in_offset is zero and so is first_col. If padded_out is
+      // positive, then in_offset*Stride is the multiple of Stride greater or
+      // equal to padded_out.
+      //
+      // This allows us to start the following loop at zero, and use first_col
+      // to shift each loop value. Then the shifted value will always be
+      // greater or equal to zero.
+      for (int filter_col = 0; filter_col < WindowCols; filter_col += Stride) {
+        auto const shifted_filter_col = filter_col + first_col;
+        if (shifted_filter_col < WindowCols) {
+          output.data(out_row, out_col) = inputbackprop_accumulate(
+              input.data(in_offset), filter, filter_row, shifted_filter_col,
+              output.data(out_row, out_col));
+          ++in_offset;
+        }
       }
     }
   }
-  inline SNN_ALWAYS_INLINE OutVecType inputbackprop_accumulate(
-      InVecType input, Filter const& filter, int const filter_row,
-      int const filter_col, OutVecType value) {
+  OutVecType SNN_ALWAYS_INLINE inputbackprop_accumulate(InVecType input,
+                                                        Filter const& filter,
+                                                        int const filter_row,
+                                                        int const filter_col,
+                                                        OutVecType value) {
+    SNN_PRAGMA_UNROLL
     for (int i = 0; i < FeatureVectorWidth; ++i) {
       OutVecType filter_slice =
           slice_transpose(filter, filter_row, filter_col, i);
@@ -492,11 +355,11 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
     }
     return value;
   }
-  inline SNN_ALWAYS_INLINE OutVecType slice_transpose(Filter const& filter,
-                                                      int filter_row,
-                                                      int filter_col,
-                                                      int index) {
+  OutVecType SNN_ALWAYS_INLINE slice_transpose(Filter const& filter,
+                                               int filter_row, int filter_col,
+                                               int index) {
     OutVecType output;
+    SNN_PRAGMA_UNROLL
     for (int i = 0; i < ChannelVectorWidth; ++i) {
       helpers::vector_element::set(
           output, i, helpers::vector_element::get(
@@ -507,10 +370,11 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
 
   const Index n_tile_cols_;
   const Index n_tile_rows_;
-  const Index n_elems_;
+  const Index n_channel_vectors_;
   const IndexDivType div_channels_;
   const IndexDivType div_n_tile_cols_;
   const IndexDivType div_n_tile_rows_;
+  const Index n_elems_;
   const Index channels_;
   const Index features_;
   const Index batch_;
@@ -524,7 +388,10 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   const ReadAccessor<const T> filter_accessor_;
   WriteAccessor<T> output_accessor_;
 };
+
 }  // namespace tiled
+}  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_CONV2D_TILEL_KERNELS_H_
+
+#endif  // SYCLDNN_SRC_CONV2D_TILED_KERNELS_H_
