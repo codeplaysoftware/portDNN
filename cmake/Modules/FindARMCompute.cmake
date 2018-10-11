@@ -25,8 +25,7 @@
 #   ARMCompute_INCLUDE_DIRS - the ARMCompute include directory
 
 find_path(ARMCompute_INCLUDE_DIR
-  NAMES graph.h
-  PATH_SUFFIXES arm_compute
+  NAMES arm_compute/graph.h
   PATHS ${ARM_COMPUTE_ROOT_DIR}
   DOC "ARM Compute Library public headers"
 )
@@ -61,7 +60,7 @@ if(ARMCompute_FOUND)
 endif()
 
 if(ARMCompute_FOUND AND NOT TARGET ARMCompute::ARMCompute)
-  add_library(ARMCompute::ARMCompute IMPORTED UNKNOWN)
+  add_library(ARMCompute::ARMCompute IMPORTED SHARED)
   set_target_properties(ARMCompute::ARMCompute PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES
       "${ARMCompute_INCLUDE_DIRS}"
@@ -69,9 +68,11 @@ if(ARMCompute_FOUND AND NOT TARGET ARMCompute::ARMCompute)
       ARM_COMPUTE
     IMPORTED_LOCATION
       ${ARMCompute_LIBRARY}
+    IMPORTED_NO_SONAME
+      TRUE
   )
 
-  add_library(ARMCompute::Core IMPORTED UNKNOWN)
+  add_library(ARMCompute::Core IMPORTED SHARED)
   set_target_properties(ARMCompute::Core PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES
       "${ARMCompute_INCLUDE_DIRS}"
@@ -79,6 +80,8 @@ if(ARMCompute_FOUND AND NOT TARGET ARMCompute::ARMCompute)
       ARM_COMPUTE
     IMPORTED_LOCATION
       ${ARMComputeCore_LIBRARY}
+    IMPORTED_NO_SONAME
+      TRUE
   )
 endif()
 
