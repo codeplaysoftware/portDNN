@@ -49,6 +49,7 @@ class SNNPoolingBenchmark
     this->add_to_label("@operator",
                        sycldnn::bench::OperatorTypeName<Operator>::name);
     this->add_to_label("@direction", sycldnn::bench::TypeName<Direction>::name);
+    this->add_to_label("short_name", "Pooling");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
   };

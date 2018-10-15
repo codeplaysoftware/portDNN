@@ -46,6 +46,7 @@ class SNNConvolutionBenchmark
 
     this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
     this->add_to_label("@selector", selector.name());
+    this->add_to_label("short_name", "Convolution");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
   };
