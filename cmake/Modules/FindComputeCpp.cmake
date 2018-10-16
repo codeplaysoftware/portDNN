@@ -181,14 +181,16 @@ endif()
 
 separate_arguments(COMPUTECPP_DEVICE_COMPILER_FLAGS)
 
-add_library(ComputeCpp::ComputeCpp IMPORTED SHARED GLOBAL)
-set_target_properties(ComputeCpp::ComputeCpp PROPERTIES
-  IMPORTED_LOCATION_DEBUG          "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
-  IMPORTED_LOCATION_RELWITHDEBINFO "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
-  IMPORTED_LOCATION                "${COMPUTECPP_RUNTIME_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES    "${ComputeCpp_INCLUDE_DIRS};${OpenCL_INCLUDE_DIRS}"
-  INTERFACE_COMPILE_DEFINITIONS    "CL_TARGET_OPENCL_VERSION=120"
-)
+if(NOT TARGET ComputeCpp::ComputeCpp)
+  add_library(ComputeCpp::ComputeCpp UNKNOWN IMPORTED)
+  set_target_properties(ComputeCpp::ComputeCpp PROPERTIES
+    IMPORTED_LOCATION_DEBUG          "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
+    IMPORTED_LOCATION_RELWITHDEBINFO "${COMPUTECPP_RUNTIME_LIBRARY_DEBUG}"
+    IMPORTED_LOCATION                "${COMPUTECPP_RUNTIME_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES    "${ComputeCpp_INCLUDE_DIRS};${OpenCL_INCLUDE_DIRS}"
+    INTERFACE_COMPILE_DEFINITIONS    "CL_TARGET_OPENCL_VERSION=120"
+  )
+endif()
 
 # This property allows targets to specify that their sources should be
 # compiled with the integration header included after the user's
