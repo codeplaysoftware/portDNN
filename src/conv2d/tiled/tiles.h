@@ -55,24 +55,21 @@ struct InputRow final
    */
   template <typename Index, cl::sycl::access::address_space Space>
   static InputRow SNN_ALWAYS_INLINE
-  load_input_row(cl::sycl::multi_ptr<T const, Space> input, Index const row,
-                 Index const n_rows, Index const col, Index const n_cols,
-                 Index const channel, Index const n_channels) {
+  load_input_row(cl::sycl::multi_ptr<T const, Space> input, Index const offset,
+                 Index const col, Index const n_cols, Index const n_channels) {
     if (col >= 0 && col + Width < n_cols) {
-      return {input, row, n_rows, col, n_cols, channel, n_channels};
+      return {input, offset, col, n_cols, n_channels};
     } else {
-      return {input,  row,     n_rows,     col,
-              n_cols, channel, n_channels, check_bounds_tag{}};
+      return {input, offset, col, n_cols, n_channels, check_bounds_tag{}};
     };
   }
 
  private:
   template <typename Index, cl::sycl::access::address_space Space>
   SNN_ALWAYS_INLINE InputRow(cl::sycl::multi_ptr<T const, Space> input,
-                             Index const row, Index const /*n_rows*/,
-                             Index const col, Index const n_cols,
-                             Index const channel, Index const n_channels) {
-    Index idx = (row * n_cols + col) * n_channels + channel;
+                             Index const offset, Index const col,
+                             Index const /*n_cols*/, Index const n_channels) {
+    Index idx = offset + col * n_channels;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < Width; ++i) {
       data(i) = helpers::io::Load<VecType>()(input, idx);
@@ -82,11 +79,10 @@ struct InputRow final
 
   template <typename Index, cl::sycl::access::address_space Space>
   SNN_ALWAYS_INLINE InputRow(cl::sycl::multi_ptr<T const, Space> input,
-                             Index const row, Index const /*n_rows*/,
-                             Index const col, Index const n_cols,
-                             Index const channel, Index const n_channels,
+                             Index const offset, Index const col,
+                             Index const n_cols, Index const n_channels,
                              check_bounds_tag) {
-    Index idx = (row * n_cols + col) * n_channels + channel;
+    Index idx = offset + col * n_channels;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < Width; ++i) {
       data(i) = (col + i < 0 || col + i >= n_cols)
@@ -109,15 +105,15 @@ struct FilterTile : public helpers::RegisterTile3D<
 
   template <typename Index, cl::sycl::access::address_space Space>
   SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<T const, Space> input,
-                               Index const channel, Index const n_channels,
-                               Index const feature, Index const n_features) {
-    Index row_idx = 0;
+                               Index const offset, Index const n_channels,
+                               Index const n_features) {
+    Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < WindowRows; ++i) {
       Index col_idx = row_idx;
       SNN_PRAGMA_UNROLL
       for (int j = 0; j < WindowCols; ++j) {
-        Index ch_idx = col_idx + channel * n_features + feature;
+        Index ch_idx = col_idx;
         SNN_PRAGMA_UNROLL
         for (int ch_v = 0; ch_v < ChannelVector; ++ch_v) {
           data(i, j, ch_v) = helpers::io::Load<VecType>()(input, ch_idx);
@@ -131,16 +127,15 @@ struct FilterTile : public helpers::RegisterTile3D<
 
   template <typename Index, cl::sycl::access::address_space Space>
   SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<T const, Space> input,
-                               Index const channel, Index const n_channels,
-                               Index const feature, Index const n_features,
-                               mirror_filter_tag) {
-    Index row_idx = 0;
+                               Index const offset, Index const n_channels,
+                               Index const n_features, mirror_filter_tag) {
+    Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < WindowRows; ++i) {
       Index col_idx = row_idx;
       SNN_PRAGMA_UNROLL
       for (int j = 0; j < WindowCols; ++j) {
-        Index ch_idx = col_idx + channel * n_features + feature;
+        Index ch_idx = col_idx;
         SNN_PRAGMA_UNROLL
         for (int ch_v = 0; ch_v < ChannelVector; ++ch_v) {
           data(WindowRows - 1 - i, WindowCols - 1 - j, ch_v) =
@@ -186,9 +181,8 @@ struct OutputTile final
       Index const n_cols, Index const feature, Index const n_features) {
     Index const offset =
         ((batch * n_rows + out_row) * n_cols + out_col) * n_features + feature;
-    output += offset;
 
-    Index row_idx = 0;
+    Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
       if (tile_row < n_rows - out_row) {
@@ -213,9 +207,8 @@ struct OutputTile final
       Index const n_cols, Index const feature, Index const n_features) {
     Index const offset =
         ((batch * n_rows + out_row) * n_cols + out_col) * n_features + feature;
-    output += offset;
 
-    Index row_idx = 0;
+    Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
       Index idx = row_idx;

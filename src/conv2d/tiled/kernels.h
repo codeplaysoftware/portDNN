@@ -126,19 +126,24 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       const Index rstart = row_window.window_start;
 
       Output out_tile{};
-      auto input_data_n = input_data + batch * in_cols_ * in_rows_ * channels_;
+      Index filter_offset = feature;
+      Index input_channel_offset = batch * in_cols_ * in_rows_ * channels_;
       for (Index channel = 0; channel < channels_;
            channel += ChannelVectorWidth) {
-        Filter filter_tile{filter_data, channel, channels_, feature, features_};
+        Filter filter_tile{filter_data, filter_offset, channels_, features_};
 
-        for (Index r = rstart, i = 0; i < InputTileRows; ++r, ++i) {
-          if (r >= 0 && r < in_rows_) {
-            auto input_tile =
-                Input::load_input_row(input_data_n, r, in_rows_, cstart,
-                                      in_cols_, channel, channels_);
+        Index input_offset =
+            input_channel_offset + rstart * in_cols_ * channels_;
+        for (Index i = 0; i < InputTileRows; ++i) {
+          if (rstart + i >= 0 && rstart + i < in_rows_) {
+            auto input_tile = Input::load_input_row(
+                input_data, input_offset, cstart, in_cols_, channels_);
             convolve_tile(input_tile, filter_tile, out_tile, i);
           }
+          input_offset += in_cols_ * channels_;
         }
+        input_channel_offset += ChannelVectorWidth;
+        filter_offset += ChannelVectorWidth * features_;
       }
       out_tile.write_out(output_data, batch, row_idx, out_rows_, col_idx,
                          out_cols_, feature, features_);
@@ -277,22 +282,26 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       const Index first_row = row_window.filter_start;
 
       Output out_tile{};
-      auto input_data_n =
-          input_data + batch * out_cols_ * out_rows_ * features_;
+
+      Index filter_offset = channel * features_;
+      Index input_feat_offset = batch * out_cols_ * out_rows_ * features_;
       for (Index feature = 0; feature < features_;
            feature += FeatureVectorWidth) {
-        Filter filter_tile{filter_data, channel,   channels_,
-                           feature,     features_, mirror_filter_tag{}};
+        Filter filter_tile{filter_data, filter_offset, channels_, features_,
+                           mirror_filter_tag{}};
 
+        Index input_offset = input_feat_offset + rstart * out_cols_ * features_;
         for (Index r = rstart, i = first_row; i < InputTileRows;
              ++r, i += Stride) {
           if (r < out_rows_) {
-            auto input_tile =
-                Input::load_input_row(input_data_n, r, out_rows_, cstart,
-                                      out_cols_, feature, features_);
+            auto input_tile = Input::load_input_row(
+                input_data, input_offset, cstart, out_cols_, features_);
             convolve_tile(input_tile, filter_tile, out_tile, i, first_col);
           }
+          input_offset += out_cols_ * features_;
         }
+        input_feat_offset += FeatureVectorWidth;
+        filter_offset += FeatureVectorWidth;
       }
       out_tile.write_out(output_data, batch, row_idx, in_rows_, col_idx,
                          in_cols_, channel, channels_);
