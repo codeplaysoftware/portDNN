@@ -52,6 +52,7 @@ static inline SNN_ALWAYS_INLINE T get(cl::sycl::vec<T, 1> const& vec,
     case 0:
       return vec.s0();
     default:
+      SNN_UNREACHABLE;
       return 0;
   }
 }
@@ -73,6 +74,7 @@ static inline SNN_ALWAYS_INLINE T get(cl::sycl::vec<T, 2> const& vec,
     case 1:
       return vec.s1();
     default:
+      SNN_UNREACHABLE;
       return 0;
   }
 }
@@ -99,6 +101,7 @@ static inline SNN_ALWAYS_INLINE T get(cl::sycl::vec<T, 3> const& vec,
     case 2:
       return vec.s2();
     default:
+      SNN_UNREACHABLE;
       return 0;
   }
 }
@@ -130,6 +133,7 @@ static inline SNN_ALWAYS_INLINE T get(cl::sycl::vec<T, 4> const& vec,
     case 3:
       return vec.s3();
     default:
+      SNN_UNREACHABLE;
       return 0;
   }
 }
@@ -172,6 +176,7 @@ static inline SNN_ALWAYS_INLINE T get(cl::sycl::vec<T, 8> const& vec,
     case 7:
       return vec.s7();
     default:
+      SNN_UNREACHABLE;
       return 0;
   }
 }
@@ -242,6 +247,7 @@ static inline SNN_ALWAYS_INLINE T get(cl::sycl::vec<T, 16> const& vec,
     case 15:
       return vec.sF();
     default:
+      SNN_UNREACHABLE;
       return 0;
   }
 }

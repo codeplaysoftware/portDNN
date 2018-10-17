@@ -36,6 +36,16 @@
 #define SNN_UNUSED_VAR(x) (void)x;
 
 /**
+ * Provide a dummy builtin check for compilers which don't provide one. Always
+ * returns false for compilers without __has_builtin() support.
+ */
+#ifdef __has_builtin
+#define SNN_HAS_BUILTIN(x) __has_builtin(x)
+#else
+#define SNN_HAS_BUILTIN(x) 0
+#endif
+
+/**
  * Provide a dummy attribute check for compilers which don't provide one. Always
  * returns false for compilers without __has_attribute() support.
  */
@@ -43,6 +53,21 @@
 #define SNN_HAS_ATTRIBUTE(x) __has_attribute(x)
 #else
 #define SNN_HAS_ATTRIBUTE(x) 0
+#endif
+
+/**
+ * Provides an unreachable builtin to tell compiler that any code which reaches
+ * the unreachable block is entering undefined behaviour. This allows the
+ * compiler to assume that these circumstances never occur and it can optimise
+ * around them.
+ */
+#if SNN_HAS_BUILTIN(__builtin_unreachable)
+#define SNN_UNREACHABLE __builtin_unreachable()
+#else
+#define SNN_UNREACHABLE                                                      \
+  SNN_ASSERT(false,                                                          \
+             "Code reached an unreachable block, check there are no out of " \
+             "bounds accesses.")
 #endif
 
 /**
