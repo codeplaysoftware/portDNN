@@ -410,13 +410,7 @@ function(__build_ir)
     # Add both source and the sycl files to the VS solution.
     target_sources(${SNN_BUILD_IR_TARGET} PUBLIC ${SNN_BUILD_IR_SOURCE} ${outputSyclFile})
 
-    # NOTE: The Visual Studio generators parse compile flags differently,
-    # hence the different argument syntax
-    if(CMAKE_GENERATOR MATCHES "Visual Studio")
-      set(forceIncludeFlags "/FI\"${includedFile}\" /TP")
-    else()
-      set(forceIncludeFlags /FI ${includedFile} /TP)
-    endif()
+    set(forceIncludeFlags "/FI\"${includedFile}\" /TP")
   else()
       set(forceIncludeFlags "-include ${includedFile} -x c++ ")
   endif()

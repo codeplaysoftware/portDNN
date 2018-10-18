@@ -20,6 +20,7 @@
 // we do that as well.
 #include <cassert>
 #include <memory>
+#include <numeric>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include <sycldnn/backend/eigen_backend.h>

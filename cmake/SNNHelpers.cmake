@@ -147,8 +147,10 @@ function(snn_target)
     cxx_lambdas
     cxx_static_assert
   )
-  snn_add_compile_flag(${SNN_TARGET_TARGET} PRIVATE -Wall)
-  snn_add_compile_flag(${SNN_TARGET_TARGET} PRIVATE -Wextra)
+  if(NOT MSVC)
+    snn_add_compile_flag(${SNN_TARGET_TARGET} PRIVATE -Wall)
+    snn_add_compile_flag(${SNN_TARGET_TARGET} PRIVATE -Wextra)
+  endif()
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND
       CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
     # GCC 4.8 will warn when a struct is zero initialised but there are no
