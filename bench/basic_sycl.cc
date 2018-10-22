@@ -27,7 +27,7 @@ struct SetBuffer {
 
   void operator()(cl::sycl::item<1> item) {
     const auto id = item.get_id(0);
-    output[id] = id * 0.1;
+    output[id] = id * static_cast<T>(0.1);
   }
 
  private:
