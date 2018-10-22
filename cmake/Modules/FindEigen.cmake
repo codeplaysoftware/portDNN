@@ -51,6 +51,13 @@ if(Eigen_FOUND)
                         DISABLE_GEMV=1
                         DISABLE_SCALAR=1
                         EIGEN_USE_SYCL)
+  find_package(Threads)
+  if(Threads_FOUND)
+    list(APPEND eigen_definitions ASYNC_EXECUTION=1)
+    set_property(TARGET Eigen::Eigen
+      APPEND PROPERTY INTERFACE_LINK_LIBRARIES Threads::Threads
+    )
+  endif()
   if(SNN_EIGEN_NO_BARRIER)
     list(APPEND eigen_definitions DISABLE_ARM_GPU_CACHE_OPTIMISATION=1
                                   NO_LOCAL_MEM=1)
