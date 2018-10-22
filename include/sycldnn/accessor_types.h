@@ -32,7 +32,7 @@ using ReadAccessor = cl::sycl::accessor<T, 1, cl::sycl::access::mode::read,
 /** Write only placeholder SYCL accessor for a 1D buffer of type T. */
 template <typename T>
 using WriteAccessor =
-    cl::sycl::accessor<T, 1, cl::sycl::access::mode::write,
+    cl::sycl::accessor<T, 1, cl::sycl::access::mode::discard_write,
                        cl::sycl::access::target::global_buffer,
                        cl::sycl::access::placeholder::true_t>;
 /** Read-write placeholder SYCL accessor for a 1D buffer of type T. */
