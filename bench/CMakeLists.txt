@@ -155,6 +155,20 @@ snn_bench(
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
+snn_bench(
+  WITH_SYCL
+  TARGET
+    mobilenet_pooling
+  SOURCES
+    pooling/mobilenet.cc
+  OBJECTS
+    $<TARGET_OBJECTS:pooling>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
 
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)
