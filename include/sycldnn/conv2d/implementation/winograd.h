@@ -47,7 +47,7 @@ inline SNNStatus launch_winograd(
                                                  backend);
 }
 
-}  // namespace sycldnn
 }  // namespace conv2d
+}  // namespace sycldnn
 
 #endif  // SYCLDNN_INCLUDE_CONV2D_IMPLEMENTATION_WINOGRAD_H_

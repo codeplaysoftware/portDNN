@@ -34,7 +34,7 @@ SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
                               WriteAccessor<T> output,
                               Conv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue);
-}  // internal
-}  // conv2d
-}  // sycldnn
+}  // namespace internal
+}  // namespace conv2d
+}  // namespace sycldnn
 #endif  // SYCLDNN_SRC_CONV2D_DIRECT_LAUNCH_DIRECT_IMPL_H_

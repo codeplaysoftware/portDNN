@@ -16,9 +16,9 @@
 #include "arm_fixture.h"
 #include "vgg_param_set.h"
 
-#define VGG_BENCHMARK(N, C, W, H, F)                           \
-  CONVOLUTION_BENCHMARK(                                       \
-      ARM_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
+#define VGG_BENCHMARK(N, C, W, H, F)                                  \
+  CONVOLUTION_BENCHMARK(                                              \
+      "VGG", ARM_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
       ParameterSet<N, C, W, H, F>, sycldnn::conv2d::conv_type::Forward)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32

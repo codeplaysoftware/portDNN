@@ -22,6 +22,7 @@
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/eigen_backend_provider.h"
 #include "bench/fixture/string_reporter.h"
+#include "bench/fixture/typenames.h"
 
 template <typename ParamGen, typename ConvType, typename Selector>
 class SNNConvolutionBenchmark
@@ -43,15 +44,23 @@ class SNNConvolutionBenchmark
     auto dev = get_backend().get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 
-    this->add_to_label("selector", selector.name());
+    this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
+    this->add_to_label("@selector", selector.name());
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
   };
+
+  void set_model(const char* model_name) {
+    this->add_to_label("@model_name", model_name);
+  }
 };
 
-#define CONVOLUTION_BENCHMARK(name, ...)                                  \
+#define CONVOLUTION_BENCHMARK(model, name, ...)                           \
   BENCHMARK_TEMPLATE_DEFINE_F(SNNConvolutionBenchmark, name, __VA_ARGS__) \
-  (benchmark::State & state) { this->run(state); }                        \
+  (benchmark::State & state) {                                            \
+    this->set_model(model);                                               \
+    this->run(state);                                                     \
+  }                                                                       \
   BENCHMARK_REGISTER_F(SNNConvolutionBenchmark, name)                     \
       ->UseManualTime()                                                   \
       ->Unit(benchmark::kNanosecond);

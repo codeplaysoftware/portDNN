@@ -41,6 +41,6 @@ inline SNNStatus launch_im2col(
   return internal::launch_im2col<T, ConvType>(input, filter, output, params,
                                               backend);
 }
-}  // namespace sycldnn
 }  // namespace conv2d
+}  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_CONV2D_IM2COL_H_

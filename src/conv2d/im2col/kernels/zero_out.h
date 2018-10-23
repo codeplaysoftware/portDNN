@@ -54,7 +54,7 @@ struct ZeroFunctor {
   WriteAccessor<T> output_;
 };
 
-}  // namesapce im2col
+}  // namespace im2col
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

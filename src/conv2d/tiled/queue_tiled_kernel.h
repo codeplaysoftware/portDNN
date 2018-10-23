@@ -39,8 +39,8 @@ SNNStatus queue_tiled_kernel(ReadAccessor<T const> input,
                              tiled::TileInfo const& tile_info,
                              cl::sycl::queue& queue);
 
-}  // internal
-}  // conv2d
-}  // sycldnn
+}  // namespace internal
+}  // namespace conv2d
+}  // namespace sycldnn
 
 #endif  // SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_

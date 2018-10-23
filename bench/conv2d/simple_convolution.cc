@@ -60,14 +60,14 @@ struct Stride2_3x3Params {
     return params;
   }
 };
-}
+}  // namespace
 
-#define CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Algo, Dir)    \
-  CONVOLUTION_BENCHMARK(Algo##Dir, Dense3x3Params,             \
-                        sycldnn::conv2d::conv_type::Dir,       \
-                        sycldnn::conv2d::Algo##Selector);      \
-  CONVOLUTION_BENCHMARK(Algo##Dir##Stride2, Stride2_3x3Params, \
-                        sycldnn::conv2d::conv_type::Dir,       \
+#define CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Algo, Dir)                 \
+  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir, Dense3x3Params,     \
+                        sycldnn::conv2d::conv_type::Dir,                    \
+                        sycldnn::conv2d::Algo##Selector);                   \
+  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Stride2,            \
+                        Stride2_3x3Params, sycldnn::conv2d::conv_type::Dir, \
                         sycldnn::conv2d::Algo##Selector)
 
 #define CONVOLUTION_BENCHMARKS_WITH_DIR(Dir)            \

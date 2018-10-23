@@ -18,7 +18,7 @@
 
 #define RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo, Dir) \
   CONVOLUTION_BENCHMARK(                                                       \
-      Algo##_##Dir##_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,              \
+      "ResNet", Algo##_##Dir##_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,    \
       ParameterSet<N, C, W, H, Flt, S, Ftr>, sycldnn::conv2d::conv_type::Dir,  \
       sycldnn::conv2d::Algo##Selector)
 

@@ -21,6 +21,7 @@
 
 #include "bench/fixture/add_arm_opencl_device_info.h"
 #include "bench/fixture/string_reporter.h"
+#include "bench/fixture/typenames.h"
 
 // The OpenCL C++ wrapper, used by ARM Compute Library, generates warnings
 // about deprecated functions. This silences those warnings.
@@ -54,15 +55,23 @@ class ARMConvolutionBenchmark
     auto device = cl::Device::getDefault();
     sycldnn::bench::device_info::add_opencl_device_info(device, *this);
 
-    this->add_to_label("selector", "ARMCompute");
+    this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
+    this->add_to_label("@selector", "ARMCompute");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
   };
+
+  void set_model(const char* model_name) {
+    this->add_to_label("@model_name", model_name);
+  }
 };
 
-#define CONVOLUTION_BENCHMARK(name, ...)                                  \
+#define CONVOLUTION_BENCHMARK(model, name, ...)                           \
   BENCHMARK_TEMPLATE_DEFINE_F(ARMConvolutionBenchmark, name, __VA_ARGS__) \
-  (benchmark::State & state) { this->run(state); }                        \
+  (benchmark::State & state) {                                            \
+    this->set_model(model);                                               \
+    this->run(state);                                                     \
+  }                                                                       \
   BENCHMARK_REGISTER_F(ARMConvolutionBenchmark, name)                     \
       ->UseManualTime()                                                   \
       ->Unit(benchmark::kNanosecond);

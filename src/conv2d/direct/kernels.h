@@ -394,8 +394,8 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
   const ReadAccessor<const T> filter_accessor_;
   WriteAccessor<T> output_accessor_;
 };
-}  // direct
-}  // internal
-}  // conv2d
-}  // sycldnn
+}  // namespace direct
+}  // namespace internal
+}  // namespace conv2d
+}  // namespace sycldnn
 #endif  // SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_H_

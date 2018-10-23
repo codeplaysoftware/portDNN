@@ -21,7 +21,9 @@
 
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/eigen_backend_provider.h"
+#include "bench/fixture/operator_typenames.h"
 #include "bench/fixture/string_reporter.h"
+#include "bench/fixture/typenames.h"
 
 template <typename ParamGen, typename Direction,
           template <typename> class Operator>
@@ -44,14 +46,24 @@ class SNNPoolingBenchmark
     auto dev = get_backend().get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 
+    this->add_to_label("@operator",
+                       sycldnn::bench::OperatorTypeName<Operator>::name);
+    this->add_to_label("@direction", sycldnn::bench::TypeName<Direction>::name);
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
   };
+
+  void set_model(const char* model_name) {
+    this->add_to_label("@model_name", model_name);
+  }
 };
 
-#define POOLING_BENCHMARK(name, ...)                                  \
+#define POOLING_BENCHMARK(model, name, ...)                           \
   BENCHMARK_TEMPLATE_DEFINE_F(SNNPoolingBenchmark, name, __VA_ARGS__) \
-  (benchmark::State & state) { this->run(state); }                    \
+  (benchmark::State & state) {                                        \
+    this->set_model(model);                                           \
+    this->run(state);                                                 \
+  }                                                                   \
   BENCHMARK_REGISTER_F(SNNPoolingBenchmark, name)                     \
       ->UseManualTime()                                               \
       ->Unit(benchmark::kNanosecond);

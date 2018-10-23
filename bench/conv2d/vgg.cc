@@ -16,10 +16,11 @@
 #include "snn_fixture.h"
 #include "vgg_param_set.h"
 
-#define VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Dir)              \
-  CONVOLUTION_BENCHMARK(                                                       \
-      Algo##_##Dir##_##N##_##C##_##W##_##H##_##F, ParameterSet<N, C, W, H, F>, \
-      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
+#define VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Dir)          \
+  CONVOLUTION_BENCHMARK("VGG", Algo##_##Dir##_##N##_##C##_##W##_##H##_##F, \
+                        ParameterSet<N, C, W, H, F>,                       \
+                        sycldnn::conv2d::conv_type::Dir,                   \
+                        sycldnn::conv2d::Algo##Selector)
 
 #define VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Algo)                  \
   VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Forward)       \
