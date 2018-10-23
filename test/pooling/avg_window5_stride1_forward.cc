@@ -41,8 +41,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x6x6x1) {
   const std::vector<DataType> exp_out = {
       8.,  8.5,  9.,  10., 10.5, 11., 11., 11.5, 12., 13., 13.5, 14.,
       14., 14.5, 15., 16., 16.5, 17., 20., 20.5, 21., 22., 22.5, 23.,
-      23., 23.5, 24., 25., 25.5, 26., 26., 26.5, 27., 28., 28.5, 29.,
-  };
+      23., 23.5, 24., 25., 25.5, 26., 26., 26.5, 27., 28., 28.5, 29.};
   const std::array<int, 4> in_shape = {{1, 6, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -120,8 +119,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x6x7x1) {
       9.,   9.5,  10.,  11.,  12.,  12.5, 13.,  12.5, 13.,  13.5, 14.5,
       15.5, 16.,  16.5, 16.,  16.5, 17.,  18.,  19.,  19.5, 20.,  23.,
       23.5, 24.,  25.,  26.,  26.5, 27.,  26.5, 27.,  27.5, 28.5, 29.5,
-      30.,  30.5, 30.,  30.5, 31.,  32.,  33.,  33.5, 34.,
-  };
+      30.,  30.5, 30.,  30.5, 31.,  32.,  33.,  33.5, 34.};
   const std::array<int, 4> in_shape = {{1, 6, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -202,8 +200,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x6x8x1) {
       10., 10.5, 11.,  12., 13., 14.,  14.5, 15., 14., 14.5, 15.,  16.,
       17., 18.,  18.5, 19., 18., 18.5, 19.,  20., 21., 22.,  22.5, 23.,
       26., 26.5, 27.,  28., 29., 30.,  30.5, 31., 30., 30.5, 31.,  32.,
-      33., 34.,  34.5, 35., 34., 34.5, 35.,  36., 37., 38.,  38.5, 39.,
-  };
+      33., 34.,  34.5, 35., 34., 34.5, 35.,  36., 37., 38.,  38.5, 39.};
   const std::array<int, 4> in_shape = {{1, 6, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -290,8 +287,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x7x6x1) {
       8.,   8.5,  9.,   10.,  10.5, 11.,  11.,  11.5, 12.,  13.,  13.5,
       14.,  14.,  14.5, 15.,  16.,  16.5, 17.,  20.,  20.5, 21.,  22.,
       22.5, 23.,  26.,  26.5, 27.,  28.,  28.5, 29.,  29.,  29.5, 30.,
-      31.,  31.5, 32.,  32.,  32.5, 33.,  34.,  34.5, 35.,
-  };
+      31.,  31.5, 32.,  32.,  32.5, 33.,  34.,  34.5, 35.};
   const std::array<int, 4> in_shape = {{1, 7, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -373,8 +369,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x7x7x1) {
       14.5, 15.5, 16.,  16.5, 16., 16.5, 17.,  18.,  19.,  19.5,
       20.,  23.,  23.5, 24.,  25., 26.,  26.5, 27.,  30.,  30.5,
       31.,  32.,  33.,  33.5, 34., 33.5, 34.,  34.5, 35.5, 36.5,
-      37.,  37.5, 37.,  37.5, 38., 39.,  40.,  40.5, 41.,
-  };
+      37.,  37.5, 37.,  37.5, 38., 39.,  40.,  40.5, 41.};
   const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -463,8 +458,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x7x8x1) {
       17., 18.,  18.5, 19., 18., 18.5, 19.,  20., 21., 22.,  22.5, 23.,
       26., 26.5, 27.,  28., 29., 30.,  30.5, 31., 34., 34.5, 35.,  36.,
       37., 38.,  38.5, 39., 38., 38.5, 39.,  40., 41., 42.,  42.5, 43.,
-      42., 42.5, 43.,  44., 45., 46.,  46.5, 47.,
-  };
+      42., 42.5, 43.,  44., 45., 46.,  46.5, 47.};
   const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -556,8 +550,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x8x6x1) {
       8.,  8.5,  9.,  10., 10.5, 11., 11., 11.5, 12., 13., 13.5, 14.,
       14., 14.5, 15., 16., 16.5, 17., 20., 20.5, 21., 22., 22.5, 23.,
       26., 26.5, 27., 28., 28.5, 29., 32., 32.5, 33., 34., 34.5, 35.,
-      35., 35.5, 36., 37., 37.5, 38., 38., 38.5, 39., 40., 40.5, 41.,
-  };
+      35., 35.5, 36., 37., 37.5, 38., 38., 38.5, 39., 40., 40.5, 41.};
   const std::array<int, 4> in_shape = {{1, 8, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -645,8 +638,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x8x7x1) {
       16.,  16.5, 16.,  16.5, 17.,  18.,  19.,  19.5, 20.,  23.,  23.5, 24.,
       25.,  26.,  26.5, 27.,  30.,  30.5, 31.,  32.,  33.,  33.5, 34.,  37.,
       37.5, 38.,  39.,  40.,  40.5, 41.,  40.5, 41.,  41.5, 42.5, 43.5, 44.,
-      44.5, 44.,  44.5, 45.,  46.,  47.,  47.5, 48.,
-  };
+      44.5, 44.,  44.5, 45.,  46.,  47.,  47.5, 48.};
   const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -739,8 +731,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME1x8x8x1) {
       18., 18.5, 19.,  18., 18.5, 19.,  20.,  21.,  22., 22.5, 23.,  26., 26.5,
       27., 28.,  29.,  30., 30.5, 31.,  34.,  34.5, 35., 36.,  37.,  38., 38.5,
       39., 42.,  42.5, 43., 44.,  45.,  46.,  46.5, 47., 46.,  46.5, 47., 48.,
-      49., 50.,  50.5, 51., 50.,  50.5, 51.,  52.,  53., 54.,  54.5, 55.,
-  };
+      49., 50.,  50.5, 51., 50.,  50.5, 51.,  52.,  53., 54.,  54.5, 55.};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -847,8 +838,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x6x6x1) {
       59., 59.5, 60., 61., 61.5, 62., 62., 62.5, 63., 64.,  64.5,  65.,
       80., 80.5, 81., 82., 82.5, 83., 83., 83.5, 84., 85.,  85.5,  86.,
       86., 86.5, 87., 88., 88.5, 89., 92., 92.5, 93., 94.,  94.5,  95.,
-      95., 95.5, 96., 97., 97.5, 98., 98., 98.5, 99., 100., 100.5, 101.,
-  };
+      95., 95.5, 96., 97., 97.5, 98., 98., 98.5, 99., 100., 100.5, 101.};
   const std::array<int, 4> in_shape = {{3, 6, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -976,8 +966,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x6x7x1) {
       97.,   96.5, 97.,   97.5,  98.5,  99.5,  100.,  100.5, 100.,  100.5,
       101.,  102., 103.,  103.5, 104.,  107.,  107.5, 108.,  109.,  110.,
       110.5, 111., 110.5, 111.,  111.5, 112.5, 113.5, 114.,  114.5, 114.,
-      114.5, 115., 116.,  117.,  117.5, 118.,
-  };
+      114.5, 115., 116.,  117.,  117.5, 118.};
   const std::array<int, 4> in_shape = {{3, 6, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -1119,8 +1108,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x6x8x1) {
       114.5, 115., 114.,  114.5, 115., 116.,  117.,  118., 118.5, 119.,  122.,
       122.5, 123., 124.,  125.,  126., 126.5, 127.,  126., 126.5, 127.,  128.,
       129.,  130., 130.5, 131.,  130., 130.5, 131.,  132., 133.,  134.,  134.5,
-      135.,
-  };
+      135.};
   const std::array<int, 4> in_shape = {{3, 6, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -1272,8 +1260,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x7x6x1) {
       94.5,  95.,   95.,   95.5,  96.,   97.,   97.5, 98.,   98.,   98.5, 99.,
       100.,  100.5, 101.,  104.,  104.5, 105.,  106., 106.5, 107.,  110., 110.5,
       111.,  112.,  112.5, 113.,  113.,  113.5, 114., 115.,  115.5, 116., 116.,
-      116.5, 117.,  118.,  118.5, 119.,
-  };
+      116.5, 117.,  118.,  118.5, 119.};
   const std::array<int, 4> in_shape = {{3, 7, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -1416,8 +1403,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x7x7x1) {
       114.,  114.5, 114., 114.5, 115.,  116.,  117.,  117.5, 118.,  121.,
       121.5, 122.,  123., 124.,  124.5, 125.,  128.,  128.5, 129.,  130.,
       131.,  131.5, 132., 131.5, 132.,  132.5, 133.5, 134.5, 135.,  135.5,
-      135.,  135.5, 136., 137.,  138.,  138.5, 139.,
-  };
+      135.,  135.5, 136., 137.,  138.,  138.5, 139.};
   const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -1578,8 +1564,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x7x8x1) {
       133.,  134.,  134.5, 135.,  138.,  138.5, 139., 140.,  141.,  142., 142.5,
       143.,  146.,  146.5, 147.,  148.,  149.,  150., 150.5, 151.,  150., 150.5,
       151.,  152.,  153.,  154.,  154.5, 155.,  154., 154.5, 155.,  156., 157.,
-      158.,  158.5, 159.,
-  };
+      158.,  158.5, 159.};
   const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -1753,8 +1738,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x8x6x1) {
       111.,  112.,  112.5, 113.,  116.,  116.5, 117.,  118.,  118.5, 119.,
       122.,  122.5, 123.,  124.,  124.5, 125.,  128.,  128.5, 129.,  130.,
       130.5, 131.,  131.,  131.5, 132.,  133.,  133.5, 134.,  134.,  134.5,
-      135.,  136.,  136.5, 137.,
-  };
+      135.,  136.,  136.5, 137.};
   const std::array<int, 4> in_shape = {{3, 8, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -1911,8 +1895,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x8x7x1) {
       131.,  131.5, 132.,  135.,  135.5, 136.,  137.,  138.,  138.5, 139.,
       142.,  142.5, 143.,  144.,  145.,  145.5, 146.,  149.,  149.5, 150.,
       151.,  152.,  152.5, 153.,  152.5, 153.,  153.5, 154.5, 155.5, 156.,
-      156.5, 156.,  156.5, 157.,  158.,  159.,  159.5, 160.,
-  };
+      156.5, 156.,  156.5, 157.,  158.,  159.,  159.5, 160.};
   const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);
@@ -2091,8 +2074,7 @@ TYPED_TEST(AvgWindow5Stride1Forward, SAME3x8x8x1) {
       162.,  162.5, 163.,  164.,  165.,  166.,  166.5, 167.,  170.,  170.5,
       171.,  172.,  173.,  174.,  174.5, 175.,  174.,  174.5, 175.,  176.,
       177.,  178.,  178.5, 179.,  178.,  178.5, 179.,  180.,  181.,  182.,
-      182.5, 183.,
-  };
+      182.5, 183.};
   const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 1>(in_shape, padding);

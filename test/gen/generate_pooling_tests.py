@@ -294,9 +294,6 @@ def test_cases():
     "Test case generator giving all possible test cases."
     for window, stride in zip(WINDOW_LIST, STRIDE_LIST):
         for test_type, direction in itertools.product(TEST_TYPES, DIRECTIONS):
-            if test_type == "avg" and (window == 11 or
-                                       (window == 7 and stride == 4)):
-                continue
             yield TestCaseParams(
                 test_type=test_type,
                 window=window,
@@ -305,8 +302,7 @@ def test_cases():
 
 
 def generate_pooling_tests():
-    np.set_printoptions(
-        suppress=True, precision=10, threshold=1000000, linewidth=1000000)
+    np.set_printoptions(suppress=True, threshold=1000000, linewidth=1000000)
     test_dir = helpers.get_test_directory()
     os.chdir(test_dir)
     for test_case in test_cases():

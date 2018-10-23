@@ -38,9 +38,8 @@ using AvgWindow3Stride2Forward =
 TYPED_TEST_CASE(AvgWindow3Stride2Forward, types::GTestKernelDataTypes);
 TYPED_TEST(AvgWindow3Stride2Forward, SAME1x5x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4., 5.5, 7., 11.5, 13., 14.5, 19., 20.5, 22.,
-  };
+  const std::vector<DataType> exp_out = {4.,   5.5, 7.,   11.5, 13.,
+                                         14.5, 19., 20.5, 22.};
   const std::array<int, 4> in_shape = {{1, 5, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
@@ -229,9 +228,8 @@ TYPED_TEST(AvgWindow3Stride2Forward, VALID1x5x8x4) {
 }
 TYPED_TEST(AvgWindow3Stride2Forward, SAME1x6x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6.5, 8., 9.5, 16.5, 18., 19.5, 24., 25.5, 27.,
-  };
+  const std::vector<DataType> exp_out = {6.5,  8.,  9.5,  16.5, 18.,
+                                         19.5, 24., 25.5, 27.};
   const std::array<int, 4> in_shape = {{1, 6, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
@@ -420,9 +418,8 @@ TYPED_TEST(AvgWindow3Stride2Forward, VALID1x6x8x4) {
 }
 TYPED_TEST(AvgWindow3Stride2Forward, SAME1x8x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6.5, 8., 9.5, 16.5, 18., 19.5, 26.5, 28., 29.5, 34., 35.5, 37.,
-  };
+  const std::vector<DataType> exp_out = {6.5,  8.,  9.5,  16.5, 18.,  19.5,
+                                         26.5, 28., 29.5, 34.,  35.5, 37.};
   const std::array<int, 4> in_shape = {{1, 8, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
@@ -620,11 +617,10 @@ TYPED_TEST(AvgWindow3Stride2Forward, VALID1x8x8x4) {
 }
 TYPED_TEST(AvgWindow3Stride2Forward, SAME3x5x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4.,  5.5,  7.,  11.5, 13., 14.5, 19., 20.5, 22.,
-      29., 30.5, 32., 36.5, 38., 39.5, 44., 45.5, 47.,
-      54., 55.5, 57., 61.5, 63., 64.5, 69., 70.5, 72.,
-  };
+  const std::vector<DataType> exp_out = {4.,   5.5, 7.,   11.5, 13.,  14.5, 19.,
+                                         20.5, 22., 29.,  30.5, 32.,  36.5, 38.,
+                                         39.5, 44., 45.5, 47.,  54.,  55.5, 57.,
+                                         61.5, 63., 64.5, 69.,  70.5, 72.};
   const std::array<int, 4> in_shape = {{3, 5, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
@@ -866,8 +862,7 @@ TYPED_TEST(AvgWindow3Stride2Forward, SAME3x6x5x1) {
   const std::vector<DataType> exp_out = {
       6.5,  8.,  9.5,  16.5, 18., 19.5, 24., 25.5, 27.,
       36.5, 38., 39.5, 46.5, 48., 49.5, 54., 55.5, 57.,
-      66.5, 68., 69.5, 76.5, 78., 79.5, 84., 85.5, 87.,
-  };
+      66.5, 68., 69.5, 76.5, 78., 79.5, 84., 85.5, 87.};
   const std::array<int, 4> in_shape = {{3, 6, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
@@ -1110,8 +1105,7 @@ TYPED_TEST(AvgWindow3Stride2Forward, SAME3x8x5x1) {
   const std::vector<DataType> exp_out = {
       6.5,  8.,  9.5,  16.5, 18., 19.5, 26.5,  28.,  29.5,  34.,  35.5,  37.,
       46.5, 48., 49.5, 56.5, 58., 59.5, 66.5,  68.,  69.5,  74.,  75.5,  77.,
-      86.5, 88., 89.5, 96.5, 98., 99.5, 106.5, 108., 109.5, 114., 115.5, 117.,
-  };
+      86.5, 88., 89.5, 96.5, 98., 99.5, 106.5, 108., 109.5, 114., 115.5, 117.};
   const std::array<int, 4> in_shape = {{3, 8, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);

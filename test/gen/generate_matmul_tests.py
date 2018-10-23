@@ -176,8 +176,7 @@ def get_test_case_filename(batch, beta, trans_lhs, trans_rhs):
 
 
 def generate_matmul_tests():
-    np.set_printoptions(
-        suppress=True, precision=10, threshold=1000000, linewidth=1000000)
+    np.set_printoptions(suppress=True, threshold=1000000, linewidth=1000000)
     test_dir = helpers.get_test_directory()
     os.chdir(test_dir)
     for batch, beta, trans_lhs, trans_rhs in itertools.product(

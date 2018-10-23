@@ -381,8 +381,7 @@ def test_cases():
 
 
 def generate_conv2d_tests():
-    np.set_printoptions(
-        suppress=True, precision=10, threshold=1000000, linewidth=1000000)
+    np.set_printoptions(suppress=True, threshold=1000000, linewidth=1000000)
     test_dir = helpers.get_test_directory()
     os.chdir(test_dir)
     for test_case in test_cases():
