@@ -67,6 +67,31 @@ PaddingAndOutput<Index> calculate_padding(Index input, Index window,
       return PaddingAndOutput<Index>{0, 0};
   }
 }
+
+/**
+ * Add the padding and output sizes to a parameter struct from the input
+ * sizes, window sizes and strides.
+ * \param params The parameters that the output will be based on.
+ * \param type The type of padding that should be used to calculate the actual
+ *             size of padding to be used in the convolution.
+ * \return The original params, modified with the padding sizes required.
+ */
+template <typename Params>
+Params add_padding_to(Params params, PaddingMode type) {
+  auto row_padding = sycldnn::helpers::calculate_padding(
+      params.in_rows, params.window_rows, params.stride_rows, type);
+  params.out_rows = row_padding.output;
+  params.pad_rows = row_padding.padding;
+
+  auto col_padding = sycldnn::helpers::calculate_padding(
+      params.in_cols, params.window_cols, params.stride_cols, type);
+  params.out_cols = col_padding.output;
+  params.pad_cols = col_padding.padding;
+
+  return params;
+}
+
 }  // namespace helpers
 }  // namespace sycldnn
+
 #endif  // SYCLDNN_INCLUDE_HELPERS_PADDING_H_

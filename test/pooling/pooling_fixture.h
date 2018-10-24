@@ -26,7 +26,8 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 
-#include "sycldnn/pooling/add_padding_to_params.h"
+#include "sycldnn/helpers/padding.h"
+
 #include "sycldnn/pooling/launch.h"
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
@@ -152,7 +153,7 @@ inline sycldnn::pooling::PoolingParams getPoolingParams(
   ret.batch = in_shape[0];
   ret.channels = in_shape[3];
 
-  ret = sycldnn::pooling::helpers::add_padding_to(ret, pad);
+  ret = sycldnn::helpers::add_padding_to(ret, pad);
   return ret;
 }
 

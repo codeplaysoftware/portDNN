@@ -19,7 +19,7 @@
 
 #include "sycldnn/conv2d/params.h"
 
-#include "sycldnn/conv2d/helpers/add_padding_to_params.h"
+#include "sycldnn/helpers/padding.h"
 
 #include "test/conv2d/convolution_fixture.h"
 
@@ -66,7 +66,7 @@ struct WindowStrideTest : public ConvolutionFixture<Triple> {
     params.stride_cols = Stride;
     params.dilation_rows = 1;
     params.dilation_cols = 1;
-    return sycldnn::conv2d::helpers::add_padding_to(params, padding);
+    return sycldnn::helpers::add_padding_to(params, padding);
   }
   void test_forward(std::vector<DataType> const& exp,
                     Conv2DParams const& params, DataType max_val) {

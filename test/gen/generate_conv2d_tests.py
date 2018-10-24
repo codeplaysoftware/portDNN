@@ -54,12 +54,6 @@ INCLUDES = r"""
 #include "sycldnn/backend/eigen_backend.h"
 #include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
 
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/sizes.h"
-
-#include "sycldnn/conv2d/helpers/add_padding_to_params.h"
-
 #include "test/conv2d/selector_list.h"
 #include "test/conv2d/window_stride_fixture.h"
 

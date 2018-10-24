@@ -109,9 +109,9 @@ snn_test(
 )
 snn_test(
   TARGET
-    add_padding_to_conv2dparams
+    add_padding_to_params
   SOURCES
-    conv2d/helpers/add_padding_to_params.cc
+    helpers/add_padding_to_params.cc
 )
 if(SNN_TEST_EIGEN)
   add_library(eigen_matmul "")
