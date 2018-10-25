@@ -50,6 +50,11 @@ TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
 
   Tensor tensor{ptr, n_floats};
   tensor.device(device) = tensor.constant(static_cast<float>(4));
+  // Currently there is a problem with using async mode in Eigen, which requires
+  // us to wait until the kernel is finished.
+  // TODO(jwlawson): remove wait once no longer needed
+  device.synchronize();
+
   // First check that the buffer returned by the Eigen has the correct contents.
   auto device_buffer = device.get_sycl_buffer(ptr);
   auto converted_buffer =
