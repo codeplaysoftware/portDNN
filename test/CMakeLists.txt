@@ -113,6 +113,16 @@ snn_test(
   SOURCES
     helpers/add_padding_to_params.cc
 )
+snn_test(
+  WITH_SYCL
+  TARGET
+    selector
+  SOURCES
+    conv2d/default_selector.cc
+  OBJECTS
+    $<TARGET_OBJECTS:direct_conv2d>
+    $<TARGET_OBJECTS:selector_conv2d>
+)
 if(SNN_TEST_EIGEN)
   add_library(eigen_matmul "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)

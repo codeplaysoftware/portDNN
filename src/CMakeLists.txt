@@ -408,8 +408,16 @@ snn_object_library(
 
 snn_object_library(
   WITH_SYCL
+  TARGET selector_conv2d
+  SOURCES
+    conv2d/selector/default_selector.cc
+)
+
+snn_object_library(
+  WITH_SYCL
   TARGET pooling
   KERNEL_SOURCES
     pooling/launch_max_pooling.cc
     pooling/launch_avg_pooling.cc
 )
+
