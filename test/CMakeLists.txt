@@ -177,6 +177,19 @@ if(SNN_TEST_EIGEN)
   snn_test(
     WITH_SYCL
     TARGET
+      simple_depthwise_conv2d
+    SIZE
+      moderate
+    SOURCES
+      depthwise_conv2d/simple_depthwise.cc
+    OBJECTS
+      $<TARGET_OBJECTS:depthwise_conv2d>
+    PUBLIC_LIBRARIES
+      Eigen::Eigen
+  )
+  snn_test(
+    WITH_SYCL
+    TARGET
       simple_convolution
     SIZE
       moderate
@@ -223,6 +236,25 @@ if(SNN_TEST_EIGEN)
           Eigen::Eigen
         ${_cxx_opts}
         ${_kernel_src}
+      )
+    endforeach()
+  endforeach()
+  foreach(_index RANGE ${_list_len})
+    list(GET _windows ${_index} _window)
+    list(GET _strides ${_index} _stride)
+    foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+      snn_test(
+        WITH_SYCL
+        TARGET
+          depthwise_conv2d_${_type}_window${_window}_stride${_stride}
+        SIZE
+          moderate
+        SOURCES
+          depthwise_conv2d/${_type}_window${_window}_stride${_stride}.cc
+        OBJECTS
+          $<TARGET_OBJECTS:depthwise_conv2d>
+        PUBLIC_LIBRARIES
+          Eigen::Eigen
       )
     endforeach()
   endforeach()

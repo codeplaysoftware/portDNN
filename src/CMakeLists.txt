@@ -402,6 +402,12 @@ snn_object_library(
 
 snn_object_library(
   WITH_SYCL
+  TARGET depthwise_conv2d
+  KERNEL_SOURCES depthwise_conv2d/launch.cc
+)
+
+snn_object_library(
+  WITH_SYCL
   TARGET pooling
   KERNEL_SOURCES
     pooling/launch_max_pooling.cc

@@ -41,5 +41,12 @@ using ReadWriteAccessor =
     cl::sycl::accessor<T, 1, cl::sycl::access::mode::read_write,
                        cl::sycl::access::target::global_buffer,
                        cl::sycl::access::placeholder::true_t>;
+
+/** Local memory accessor for a given dimension of type T. */
+template <typename T, int Dimension = 1>
+using LocalAccessor =
+    cl::sycl::accessor<T, Dimension, cl::sycl::access::mode::read_write,
+                       cl::sycl::access::target::local>;
+
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_ACCESSOR_TYPES_H_
