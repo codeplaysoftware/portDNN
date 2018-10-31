@@ -50,7 +50,7 @@ namespace internal {
  * \return An SNNStatus obejct containing either \ref StatusCode::OK if all
  *         parameters are valid, or \ref StatusCode::InvalidParameter otherwise.
  */
-SNNStatus validate_params(PoolingParams const& params) {
+SNNStatus inline validate_params(PoolingParams const& params) {
   SNN_VALIDATE_PARAM(params.batch > 0, "The batch size must be positive.");
   SNN_VALIDATE_PARAM(params.channels > 0,
                      "The number of channels must be positive.");
