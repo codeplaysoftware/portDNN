@@ -83,6 +83,68 @@ build and run the tests.
     # If compiled with benchmark support, can run benchmarks exclusively
     ctest -C Benchmark -E test
 
+## Cross-compilation with ComputeCpp
+
+SYCL-DNN supports cross-compilation targeting a number of devices. However,
+because of the two-step compilation process used in ComputeCpp, "normal"
+CMake toolchain files won't provide enough information to SYCL-DNN's build
+scripts to work properly.
+
+To that end, two toolchains are available. The first, gcc-generic.cmake,
+will likely work with any prebuilt GCC toolchain (it is not compatible
+with those installed through package managers). The second is designed to
+work with the poky toolchain available as part of the Yocto Linux system.
+
+The first step is to download ComputeCpp for both the host machine you are
+running on and for the platform you would like to target. You should make
+sure to match the ComputeCpp version for both downloads. Both are required
+so that the host can run the compiler binary, while the tools can link
+using the target device library. Similarly, acquire a GCC toolchain for
+the platform you are targeting. Lastly you should download the OpenCL
+headers. They are standard across all platforms, but you cannot specify
+the default package-managed location of `/usr/include` for them, as that
+will cause conflicts with other system headers. An easy fix is to download
+the headers [from GitHub](https://github.com/KhronosGroup/OpenCL-Headers).
+
+Toolchain files cannot make use cache variables set by the user when
+running CMake, as the cache does not exist when the toolchain is executed.
+Environment variables are available to toolchain files, however, so they
+are used to pass information to the toolchain. The gcc-generic.cmake
+toolchain relies on the following environment variables:
+
+```cmake
+SNN_TARGET_TRIPLE # the triple of the platform you are targeting
+SNN_TOOLCHAIN_DIR # The root directory of the GCC you downloaded
+SNN_SYSROOT_DIR   # The system root, probably (but not necessarily)
+                  # ${SNN_TOOLCHAIN_DIR}/${SNN_TARGET_TRIPLE}/libc
+```
+
+CMake can then be invoked in a build directory as follows:
+
+```bash
+cmake -DComputeCpp_DIR=/path/to/computecpp \
+      -DComputeCpp_HOST_DIR=/path/to/host/computecpp \
+      -DOpenCL_INCLUDE_DIR=/path/to/opencl/headers \
+      `# For cross-compiling, check documentation for your platform` \
+      -DCOMPUTECPP_BITCODE=[(spir[32|64]|spirv[32|64]|ptx64)] \
+      -DSNN_BUILD_DOCUMENTATION=OFF \
+      `# Next options let you install the tests to a zippable folder` \
+      -DSNN_BUILD_TESTS=ON \
+      -DSNN_BUILD_BENCHMARKS=ON \
+      -DSNN_INSTALL_TESTS=ON \
+      -DSNN_INSTALL_BENCHMARKS=ON \
+      `# This is the most important part - tells CMake to crosscompile` \
+      -DCMAKE_TOOLCHAIN_FILE=$PWD/../cmake/toolchains/(gcc-generic|arm-gcc-poky).cmake \
+      -DCMAKE_INSTALL_PREFIX=packaged-binaries \
+      -GNinja ../
+```
+
+The process for the poky toolchain is similar, save that you only need to
+provide the `SNN_SYSROOT_DIR` environment variable. It should be set to
+point to the directory named `sysroots` in the poky toolchain. You will
+likely want `COMPUTECPP_BITCODE=spir32`. Otherwise, these instructions
+should still work.
+
 ## Troubleshooting
 
 The master branch of SYCL-DNN should always compile and tests should always
