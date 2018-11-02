@@ -21,6 +21,7 @@
 
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/eigen_backend_provider.h"
+#include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
@@ -38,6 +39,12 @@ class SNNConvolutionBenchmark
   void run(State& state) {
     auto params = ParamGen()();
     auto selector = Selector();
+    this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
+        new sycldnn::bench::MaxStatistic{}});
+    this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
+        new sycldnn::bench::MinStatistic{}});
+    this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
+        new sycldnn::bench::StdDevStatistic{}});
     this->execute(state, params, selector);
 
     // Get the SYCL device, and add device and driver info to the benchmark.

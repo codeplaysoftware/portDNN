@@ -20,12 +20,14 @@
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
 
+#include "bench/fixture/base_executor.h"
+
 namespace sycldnn {
 namespace bench {
 
 /** Executor to perform the Conv2d benchmark using SYCL-DNN.  */
 template <typename Benchmark, typename ConvType>
-struct SNNConv2DExecutor {
+struct SNNConv2DExecutor : public BaseExecutor {
  private:
   using State = ::benchmark::State;
   using Conv2DParams = conv2d::Conv2DParams;
@@ -60,18 +62,13 @@ struct SNNConv2DExecutor {
     }
 
     for (auto _ : state) {
-      auto start = std::chrono::high_resolution_clock::now();
+      this->start_timing();
       auto status = sycldnn::conv2d::launch<float, ConvType>(
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
 
       status.event.wait();
-      auto end = std::chrono::high_resolution_clock::now();
-
-      auto elapsed_seconds =
-          std::chrono::duration_cast<std::chrono::duration<double>>(end -
-                                                                    start);
-
-      state.SetIterationTime(elapsed_seconds.count());
+      this->end_timing();
+      this->set_iteration_time(state);
     }
 
     benchmark.deallocate(out_gpu);
@@ -81,6 +78,8 @@ struct SNNConv2DExecutor {
     benchmark.template set_items_processed<ConvType>(state, params);
     benchmark.add_param_counters(state, params);
     benchmark.template add_bandwidth_counters<float>(state, conv_sizes);
+
+    this->finish_benchmark(state);
   }
 };
 

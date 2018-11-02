@@ -29,7 +29,9 @@
 #include "bench/conv2d/base_convolution_fixture.h"
 
 #include "bench/fixture/add_sycl_device_info.h"
+#include "bench/fixture/base_executor.h"
 #include "bench/fixture/eigen_backend_provider.h"
+#include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 
 namespace {
@@ -72,6 +74,7 @@ template <typename ParamGen, typename ConvType, int TileRows, int TileCols,
           int WindowRows, int WindowCols, int Stride>
 class TiledConvolutionBenchmark : public sycldnn::bench::EigenBackendProvider,
                                   public sycldnn::bench::StringReporter,
+                                  public sycldnn::bench::BaseExecutor,
                                   public BaseConvolutionBenchmark {
  private:
   using State = benchmark::State;
@@ -82,6 +85,12 @@ class TiledConvolutionBenchmark : public sycldnn::bench::EigenBackendProvider,
 
   void run(State& state) {
     auto params = ParamGen()();
+    this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
+        new sycldnn::bench::MaxStatistic{}});
+    this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
+        new sycldnn::bench::MinStatistic{}});
+    this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
+        new sycldnn::bench::StdDevStatistic{}});
     if (params.window_rows != WindowRows || params.window_cols != WindowCols ||
         params.stride_rows != Stride || params.stride_cols != Stride) {
       state.SkipWithError(
@@ -124,19 +133,15 @@ void TiledConvolutionBenchmark<
   }
 
   for (auto _ : state) {
-    auto start = std::chrono::high_resolution_clock::now();
+    this->start_timing();
     auto status = launch_kernel<float, int, ConvType, TileRows, TileCols,
                                 ChannelVectorWidth, FeatureVectorWidth,
                                 UseFastDiv, WindowRows, WindowCols, Stride>(
         inp_gpu, fil_gpu, out_gpu, params, conv_sizes, backend);
 
     status.event.wait();
-    auto end = std::chrono::high_resolution_clock::now();
-
-    auto elapsed_seconds =
-        std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-    state.SetIterationTime(elapsed_seconds.count());
+    this->end_timing();
+    this->set_iteration_time(state);
   }
 
   this->deallocate(out_gpu);
@@ -159,6 +164,7 @@ void TiledConvolutionBenchmark<
   add_to_label("selector", "TiledSelector");
   add_to_label("git_hash", commit_hash);
   set_label(state);
+  this->finish_benchmark(state);
 }
 
 template <int WindowRows, int WindowCols, int Stride>

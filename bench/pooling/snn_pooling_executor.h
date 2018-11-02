@@ -22,13 +22,15 @@
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
 
+#include "bench/fixture/base_executor.h"
+
 namespace sycldnn {
 namespace bench {
 
 /** Executor to perform the pooling benchmark using SYCL-DNN.  */
 template <typename Benchmark, typename Direction,
           template <typename> class Operator>
-struct SNNPoolingExecutor {
+struct SNNPoolingExecutor : public BaseExecutor {
  private:
   using State = ::benchmark::State;
   using PoolingParams = pooling::PoolingParams;
@@ -61,18 +63,14 @@ struct SNNPoolingExecutor {
     }
 
     for (auto _ : state) {
-      auto start = std::chrono::high_resolution_clock::now();
+      this->start_timing();
       auto status = sycldnn::pooling::launch<float, Operator, Direction>(
           inp_gpu, out_gpu, params, backend);
 
       status.event.wait();
-      auto end = std::chrono::high_resolution_clock::now();
+      this->end_timing();
 
-      auto elapsed_seconds =
-          std::chrono::duration_cast<std::chrono::duration<double>>(end -
-                                                                    start);
-
-      state.SetIterationTime(elapsed_seconds.count());
+      this->set_iteration_time(state);
     }
 
     benchmark.deallocate(out_gpu);
@@ -81,6 +79,8 @@ struct SNNPoolingExecutor {
     benchmark.template set_items_processed<Direction>(state, params);
     benchmark.add_param_counters(state, params);
     benchmark.template add_bandwidth_counters<float>(state, pool_sizes);
+
+    this->finish_benchmark(state);
   }
 };
 
@@ -94,7 +94,7 @@ struct SNNPoolingExecutor {
  */
 template <typename Benchmark>
 struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
-                          sycldnn::pooling::Max> {
+                          sycldnn::pooling::Max> : public BaseExecutor {
  private:
   using State = ::benchmark::State;
   using PoolingParams = pooling::PoolingParams;
@@ -135,18 +135,13 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
     }
 
     for (auto _ : state) {
-      auto start = std::chrono::high_resolution_clock::now();
+      this->start_timing();
       auto status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
                                              sycldnn::pooling::Backpropagate>(
           inp_gpu, out_gpu, inp_back_gpu, out_back_gpu, params, backend);
       status.event.wait();
-      auto end = std::chrono::high_resolution_clock::now();
-
-      auto elapsed_seconds =
-          std::chrono::duration_cast<std::chrono::duration<double>>(end -
-                                                                    start);
-
-      state.SetIterationTime(elapsed_seconds.count());
+      this->end_timing();
+      this->set_iteration_time(state);
     }
 
     benchmark.deallocate(out_back_gpu);
@@ -158,6 +153,8 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
         state, params);
     benchmark.add_param_counters(state, params);
     benchmark.template add_bandwidth_counters<float>(state, back_sizes);
+
+    this->finish_benchmark(state);
   }
 };
 

@@ -21,6 +21,8 @@
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
 
+#include "bench/fixture/base_executor.h"
+
 // The OpenCL C++ wrapper, used by ARM Compute Library, generates warnings
 // about deprecated functions. This silences those warnings.
 #pragma GCC diagnostic push
@@ -37,7 +39,7 @@ namespace arm = arm_compute;
 
 /** Executor to perform the Conv2d benchmark using ARM Compute Library.  */
 template <typename Benchmark, typename ConvType>
-struct ARMConv2DExecutor {
+struct ARMConv2DExecutor : public BaseExecutor {
  private:
   using State = ::benchmark::State;
   using Conv2DParams = conv2d::Conv2DParams;
@@ -95,17 +97,12 @@ struct ARMConv2DExecutor {
     scheduler.sync();
 
     for (auto _ : state) {
-      auto start = std::chrono::high_resolution_clock::now();
+      this->start_timing();
       conv1.run();
       scheduler.sync();
+      this->end_timing();
 
-      auto end = std::chrono::high_resolution_clock::now();
-
-      auto elapsed_seconds =
-          std::chrono::duration_cast<std::chrono::duration<double>>(end -
-                                                                    start);
-
-      state.SetIterationTime(elapsed_seconds.count());
+      this->set_iteration_time(state);
     }
 
     X.allocator()->free();
@@ -118,6 +115,7 @@ struct ARMConv2DExecutor {
     benchmark.add_param_counters(state, params);
     benchmark.template add_bandwidth_counters<float>(
         state, sycldnn::conv2d::get_sizes<ConvType>(params));
+    this->finish_benchmark(state);
   }
 };
 
