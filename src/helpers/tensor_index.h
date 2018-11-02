@@ -51,7 +51,7 @@ struct TensorIndex4D {
 /**
  * Helper class to provide factory methods for the TensorIndex objects from a
  * flattened index. If UseFastDiv is true then the fast division type is used to
- * convert each integer divison to a mutliply and shift, otherwise a standard
+ * convert each integer divison to a multiply and shift, otherwise a standard
  * integer division is used.
  */
 template <typename Index, bool UseFastDiv>

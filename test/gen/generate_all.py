@@ -17,11 +17,13 @@
 from generate_conv2d_tests import generate_conv2d_tests
 from generate_matmul_tests import generate_matmul_tests
 from generate_pooling_tests import generate_pooling_tests
+from generate_pointwise_tests import generate_pointwise_tests
 
 def generate_all():
     generate_conv2d_tests()
     generate_matmul_tests()
     generate_pooling_tests()
+    generate_pointwise_tests()
 
 if __name__ == "__main__":
     generate_all()

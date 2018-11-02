@@ -269,6 +269,24 @@ if(SNN_TEST_EIGEN)
     endforeach()
   endforeach()
 
+  foreach(_type IN ITEMS "relu" "tanh")
+    foreach(_direction IN ITEMS "forward" "grad")
+      snn_test(
+        WITH_SYCL
+        TARGET
+          pointwise_${_type}_${_direction}
+        SIZE
+          moderate
+        SOURCES
+          pointwise/${_type}_${_direction}.cc
+        OBJECTS
+          $<TARGET_OBJECTS:pointwise>
+        PUBLIC_LIBRARIES
+          Eigen::Eigen
+      )
+    endforeach()
+  endforeach()
+
   # Pooling instantiations - should this be factored to a function?
   # windows/strides are different here - Tensorflow doesn't allow
   # stride > window

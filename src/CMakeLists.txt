@@ -422,3 +422,10 @@ snn_object_library(
     pooling/launch_avg_pooling.cc
 )
 
+snn_object_library(
+  WITH_SYCL
+  TARGET pointwise
+  KERNEL_SOURCES
+    pointwise/launch_relu_pointwise.cc
+    pointwise/launch_tanh_pointwise.cc
+)

@@ -19,6 +19,8 @@
 #include <CL/sycl.hpp>
 #include <type_traits>
 
+#include "sycldnn/helpers/macros.h"
+
 namespace sycldnn {
 namespace helpers {
 /**

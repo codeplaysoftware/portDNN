@@ -78,4 +78,20 @@ std::vector<DataType> iota_initialised_data(size_t size, DataType max_val) {
   return data;
 }
 
+/**
+ * Get a vector of the required size initialised as with
+ * iota_initialised_data.
+ *
+ * The vector returned will contain `size` elements of the values:
+ *   `-n, -n+1, ..., 0, 1, ..., n-2, n-1`
+ * where n is half of `size`, rounded up when `size` is odd.
+ */
+template <typename DataType>
+std::vector<DataType> iota_initialised_signed_data(size_t size) {
+  std::vector<DataType> data;
+  DataType difference = (size % 2 == 0) ? (size / 2) : ((size + 1) / 2);
+  internal::iota_n_modulo(data, size, -difference, size - 1 - difference);
+  return data;
+}
+
 #endif  // SYCLDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_

@@ -62,16 +62,23 @@ def get_dont_modify_comment(scriptname):
 REQUIRED_MAX = 2**24
 
 
-def get_result_and_size(func, **kwargs):
+def get_result_and_size(func, max_input_val=2**12, floor_div=False, **kwargs):
     """
     Compute the result of func called with passed keyword arguments, ensuring
     that the resulting values are less than the REQUIRED_MAX, and if not adjust
-    the maximum values in the input tensors.
+    the maximum values in the input tensors, with those values being set by 
+    max_input_val.
+
+    floor_div is used in the case of max_input_val taking a value other than
+    a power of 2. This ensures that inputs remain consistent for other functions
+    regardless of the value of max_input_val.
     """
-    max_input_val = 2**12
     max_output_val = REQUIRED_MAX + 1
     while max_output_val > REQUIRED_MAX:
-        max_input_val /= 2
+        if floor_div:
+            max_input_val = max_input_val // 2
+        else:
+            max_input_val /= 2
         output = func(max_input_val, **kwargs)
         max_output_val = np.max(output)
     return output, max_input_val
@@ -83,6 +90,20 @@ def get_tensor_data(size, max_val):
         return [i for i in range(1, size + 1)]
     else:
         return [(i % max_val) + 1 for i in range(size)]
+
+
+def get_signed_tensor_data(size, min_val, max_val):
+    """
+    As with get_tensor_data(), but enables negative-valued data
+    as well.
+    """
+    assert(min_val < max_val)
+    res = []
+
+    while len(res) < size:
+        res.extend([i for i in range(min_val, max_val)])
+
+    return res[0:size]
 
 
 SPACE_REGEX = re.compile(r'([0-9]\.?)\s+')
