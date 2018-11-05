@@ -74,7 +74,7 @@ struct ARMConv2DExecutor {
     // Construct a convolution layer.
     arm::CLConvolutionLayer conv1;
     arm::PadStrideInfo psi(params.stride_cols, params.stride_rows,
-                           params.window_cols / 2, params.window_rows / 2);
+                           params.pad_cols, params.pad_rows);
     conv1.configure(&X, &W, &B, &Z, psi);
 
     // Validate the configuration.
