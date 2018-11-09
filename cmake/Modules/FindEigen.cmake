@@ -50,6 +50,7 @@ if(Eigen_FOUND)
                         DISABLE_RANK1=1
                         DISABLE_GEMV=1
                         DISABLE_SCALAR=1
+                        EIGEN_HAS_CXX11_MATH=1
                         EIGEN_USE_SYCL)
   find_package(Threads)
   if(Threads_FOUND)
