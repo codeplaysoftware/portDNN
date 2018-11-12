@@ -51,6 +51,12 @@ class Selector {
    * selector.
    */
   virtual char const* name() const = 0;
+
+  /**
+   * Virtual destructor to ensure that the destructor of a derived class is
+   * called.
+   */
+  virtual ~Selector() = default;
 };
 }  // namespace conv2d
 }  // namespace sycldnn
