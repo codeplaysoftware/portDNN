@@ -22,13 +22,13 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
-#include "test/gen/eigen_generated_test_fixture.h"
+#include "test/gen/generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 template <typename Triple>
 struct ConvolutionFixture
-    : public EigenGeneratedTestFixture<typename Triple::SecondType,
-                                       typename Triple::ThirdType> {
+    : public GeneratedTestFixture<typename Triple::SecondType,
+                                  typename Triple::ThirdType> {
   using SelectorType = typename Triple::FirstType;
   using DataType = typename Triple::SecondType;
   using Backend = typename Triple::ThirdType;
@@ -61,16 +61,20 @@ struct ConvolutionFixture
       // Do not run the test if the implementation is not supported.
       return;
     }
-    auto status = sycldnn::conv2d::launch<DataType, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, selector, this->backend_);
+    try {
+      auto status = sycldnn::conv2d::launch<DataType, ConvType>(
+          inp_gpu, fil_gpu, out_gpu, params, selector, this->backend_);
 
-    if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
-      // Do not check results if the implementation is not supported.
-      return;
+      if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
+        // Do not check results if the implementation is not supported.
+        return;
+      }
+      ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+      status.event.wait_and_throw();
+    } catch (cl::sycl::exception const& e) {
+      std::cerr << "Caught SYCL exception:\n" << e.what() << std::endl;
+      throw;
     }
-    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait();
-
     this->copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
     this->deallocate_ptr(inp_gpu);
     this->deallocate_ptr(fil_gpu);

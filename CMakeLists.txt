@@ -17,21 +17,30 @@ cmake_policy(VERSION 3.2.2)
 
 project(sycldnn LANGUAGES C CXX VERSION 0.1.0)
 
+# Configuration options controlling automatic downloading of dependencies.
 option(SNN_DOWNLOAD_GTEST
   "Download and build google test, rather than use the system version" OFF)
 option(SNN_DOWNLOAD_BENCHMARK
   "Download and build google benchmark, rather than use the system version" ON)
 option(SNN_DOWNLOAD_EIGEN "Download Eigen headers" ON)
+option(SNN_DOWNLOAD_SYCLBLAS "Download SyclBLAS headers" ON)
 option(SNN_DOWNLOAD_MISSING_DEPS
   "Download any dependencies which cannot be found" ON)
 
+# Configuration options controlling which SYCL-DNN components are built.
 option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
 option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
-option(SNN_BUILD_INTERNAL_BENCHMARKS "Whether or not to build internal benchmarks" OFF)
-option(SNN_BUILD_EXTENDED_BENCHMARKS "Whether or not to build a more comprehesive (but extremely time consuming) set of benchmarks" OFF)
-option(SNN_BUILD_LARGE_BATCH_BENCHMARKS "Whether or not to build benchmarks that use a batch sizes larger than 4" OFF)
+option(SNN_BUILD_INTERNAL_BENCHMARKS
+  "Whether or not to build internal benchmarks" OFF)
+option(SNN_BUILD_EXTENDED_BENCHMARKS
+  "Whether or not to build a more comprehesive (but extremely time consuming) set of benchmarks" OFF)
+option(SNN_BUILD_LARGE_BATCH_BENCHMARKS
+  "Whether or not to build benchmarks that use a batch sizes larger than 4" OFF)
 option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)
 option(SNN_BUILD_DOCUMENTATION "Whether or not to build documentation" ON)
+
+# Configuration options controlling the installation of test and benchmark 
+# executables.
 option(SNN_INSTALL_TESTS
   "Whether or not to include unit tests when installing" OFF)
 option(SNN_INSTALL_BENCHMARKS
@@ -41,11 +50,15 @@ option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
   "Disable setting the cmake build type if no flag specified" OFF)
 
-option(SNN_ARM_COMPUTE_ENABLED "Whether or not to build ARM compute library benchmarks" OFF)
+option(SNN_ARM_COMPUTE_ENABLED
+  "Whether or not to build ARM compute library benchmarks" OFF)
 
+# Eigen configuration options.
 option(SNN_TEST_EIGEN "Test implementation using Eigen" ON)
 option(SNN_TEST_EIGEN_MATMULS
   "Enable testing using Eigen matmul in addition to internal matmul" OFF)
+option(SNN_TEST_SYCLBLAS_MATMULS
+  "Enable testing using SYCL-BLAS matmul in addition to internal matmul" OFF)
 option(SNN_EIGEN_LOCAL_MEM
   "Only compile the local memory versions of Eigen kernels" ON)
 option(SNN_EIGEN_NO_LOCAL_MEM
@@ -101,6 +114,7 @@ else()
 endif()
 
 include(HandleEigen)
+include(HandleSyclBLAS)
 
 set(CMAKE_DEBUG_POSTFIX "-debug")
 set(include_dest "include")

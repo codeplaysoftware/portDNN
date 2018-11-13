@@ -43,7 +43,7 @@ if(SNN_TEST_EIGEN)
             OBJECTS
               $<TARGET_OBJECTS:pooling>
             PUBLIC_LIBRARIES
-              Eigen::Eigen
+              ${_matmul_providers}
           )
         endif()
       endforeach()
@@ -54,6 +54,6 @@ if(SNN_TEST_EIGEN)
     TARGET max_pooling_with_nan
     SOURCES max_pooling_with_nan.cc
     OBJECTS $<TARGET_OBJECTS:pooling>
-    PUBLIC_LIBRARIES Eigen::Eigen
+    PUBLIC_LIBRARIES ${_matmul_providers}
   )
 endif(SNN_TEST_EIGEN)

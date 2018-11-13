@@ -33,7 +33,7 @@
 
 template <typename DType>
 struct MaxPoolingWithNan
-    : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   template <template <typename> class Op>
@@ -51,7 +51,7 @@ struct MaxPoolingWithNan
         inp_gpu, out_gpu, params, this->backend_);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait();
+    status.event.wait_and_throw();
 
     this->copy_device_data_to_host(out_size, out_gpu, output);
     this->deallocate_ptr(inp_gpu);
@@ -105,8 +105,8 @@ struct MaxPoolingWithNan
             params, this->backend_);
     ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
 
-    fwd_status.event.wait();
-    back_status.event.wait();
+    fwd_status.event.wait_and_throw();
+    back_status.event.wait_and_throw();
 
     this->copy_device_data_to_host(in_size, out_backprop_gpu, output_backprop);
     this->deallocate_ptr(inp_data_gpu);

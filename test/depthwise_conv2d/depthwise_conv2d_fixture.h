@@ -23,7 +23,7 @@
 #include "sycldnn/depthwise_conv2d/params.h"
 #include "sycldnn/depthwise_conv2d/sizes.h"
 
-#include "test/gen/eigen_generated_test_fixture.h"
+#include "test/gen/generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 namespace sycldnn {
@@ -31,8 +31,8 @@ namespace depthwise_conv2d {
 
 template <typename Pair>
 struct DepthwiseConv2DFixture
-    : public EigenGeneratedTestFixture<typename Pair::FirstType,
-                                       typename Pair::SecondType> {
+    : public GeneratedTestFixture<typename Pair::FirstType,
+                                  typename Pair::SecondType> {
   using DataType = typename Pair::FirstType;
   using Backend = typename Pair::SecondType;
 
@@ -67,7 +67,7 @@ struct DepthwiseConv2DFixture
       return;
     }
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait();
+    status.event.wait_and_throw();
 
     this->copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
     this->deallocate_ptr(inp_gpu);

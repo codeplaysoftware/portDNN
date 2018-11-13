@@ -32,7 +32,7 @@ if(SNN_TEST_EIGEN)
       $<TARGET_OBJECTS:winograd_conv2d>
       $<TARGET_OBJECTS:matmul>
     PUBLIC_LIBRARIES
-      Eigen::Eigen
+      ${_matmul_providers}
   )
   set(_windows 1 1 3 3 5 5 7 7 11 11)
   set(_strides 1 2 1 2 1 2 1 4 1 4)
@@ -42,8 +42,15 @@ if(SNN_TEST_EIGEN)
     list(GET _windows ${_index} _window)
     list(GET _strides ${_index} _stride)
     foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+      set(_cxx_opts CXX_OPTS)
       if(SNN_TEST_EIGEN_MATMULS)
-        set(_cxx_opts CXX_OPTS -DSNN_TEST_EIGEN_MATMULS=1)
+        list(APPEND _cxx_opts -DSNN_TEST_EIGEN_MATMULS=1)
+        set(_kernel_src KERNEL_SOURCES
+          ${_type}_window${_window}_stride${_stride}.cc
+        )
+      endif()
+      if(SNN_TEST_SYCLBLAS_MATMULS)
+        list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS_MATMULS=1)
         set(_kernel_src KERNEL_SOURCES
           ${_type}_window${_window}_stride${_stride}.cc
         )
@@ -63,7 +70,7 @@ if(SNN_TEST_EIGEN)
           $<TARGET_OBJECTS:winograd_conv2d>
           $<TARGET_OBJECTS:matmul>
         PUBLIC_LIBRARIES
-          Eigen::Eigen
+          ${_matmul_providers}
         ${_cxx_opts}
         ${_kernel_src}
       )

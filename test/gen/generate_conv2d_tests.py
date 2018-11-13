@@ -51,8 +51,15 @@ INCLUDES = r"""
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend.h"
 #include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
+
+#ifdef SNN_TEST_EIGEN_MATMULS
+#include "sycldnn/backend/eigen_backend.h"
+#endif
+
+#ifdef SNN_TEST_SYCLBLAS_MATMULS
+#include "sycldnn/backend/sycl_blas_backend.h"
+#endif
 
 #include "test/conv2d/selector_list.h"
 #include "test/conv2d/window_stride_fixture.h"
@@ -69,14 +76,15 @@ DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
 
+using Backends =
+    sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN_MATMULS
-using Backends =
-    sycldnn::types::TypeList<sycldnn::backend::EigenBackend,
-                             sycldnn::backend::EigenBackendSNNMatmul>;
-#else
-using Backends =
-    sycldnn::types::TypeList<sycldnn::backend::EigenBackendSNNMatmul>;
+                             sycldnn::backend::EigenBackend,
 #endif
+#ifdef SNN_TEST_SYCLBLAS_MATMULS
+                             sycldnn::backend::SyclBLASBackend,
+#endif                             
+                             sycldnn::backend::EigenBackendSNNMatmul>;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;

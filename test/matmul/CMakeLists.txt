@@ -32,7 +32,7 @@ if(SNN_TEST_EIGEN)
             OBJECTS
               $<TARGET_OBJECTS:matmul>
             PUBLIC_LIBRARIES
-              Eigen::Eigen
+              ${_matmul_providers}
           )
         endforeach()
       endforeach()
@@ -49,6 +49,6 @@ if(SNN_TEST_EIGEN)
     OBJECTS
       $<TARGET_OBJECTS:matmul>
     PUBLIC_LIBRARIES
-      Eigen::Eigen
+      ${_matmul_providers}
   )
 endif(SNN_TEST_EIGEN)

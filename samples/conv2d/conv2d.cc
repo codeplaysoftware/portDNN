@@ -251,7 +251,7 @@ int main(int, char**) {
   output.resize(conv2_sizes.output_size);
 
   // Wait for completion, then copy results to system memory.
-  status.event.wait();
+  status.event.wait_and_throw();
   device.memcpyDeviceToHost(output.data(), output_gpu_buffer, output_nbytes);
 
   // The convolution results are now available in host-accessible system memory.

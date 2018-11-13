@@ -19,12 +19,11 @@
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "test/backend/eigen_backend_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 
 #include "sycldnn/backend/eigen_backend.h"
 
-using EigenInternalHandlerTest =
-    EigenBackendTest<sycldnn::backend::EigenBackend>;
+using EigenInternalHandlerTest = BackendTest<sycldnn::backend::EigenBackend>;
 
 TEST_F(EigenInternalHandlerTest, AllocateInternalCheckSizes) {
   size_t buffer_size = 1024;

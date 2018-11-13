@@ -25,12 +25,12 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 #include "sycldnn/matmul/launch.h"
-#include "test/gen/eigen_generated_test_fixture.h"
+#include "test/gen/generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 template <typename T, bool TransposeLhs, bool TransposeRhs>
 struct MatmulFixture
-    : public EigenGeneratedTestFixture<T, sycldnn::backend::EigenBackend> {
+    : public GeneratedTestFixture<T, sycldnn::backend::EigenBackend> {
   using DataType = T;
 
  protected:
@@ -57,7 +57,7 @@ struct MatmulFixture
               batches, m, k, n, beta, this->backend_);
 
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-      status.event.wait();
+      status.event.wait_and_throw();
 
       this->copy_device_data_to_host(out_size, out_gpu, out_data);
       this->deallocate_ptr(lhs_gpu);

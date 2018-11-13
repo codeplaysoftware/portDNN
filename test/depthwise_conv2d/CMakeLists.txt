@@ -28,7 +28,7 @@ if(SNN_TEST_EIGEN)
     OBJECTS
       $<TARGET_OBJECTS:depthwise_conv2d>
     PUBLIC_LIBRARIES
-      Eigen::Eigen
+      ${_matmul_providers}
   )
   set(_windows 1 1 3 3 5 5 7 7 11 11)
   set(_strides 1 2 1 2 1 2 1 4 1 4)
@@ -49,7 +49,7 @@ if(SNN_TEST_EIGEN)
         OBJECTS
           $<TARGET_OBJECTS:depthwise_conv2d>
         PUBLIC_LIBRARIES
-          Eigen::Eigen
+          ${_matmul_providers}
       )
     endforeach()
   endforeach()

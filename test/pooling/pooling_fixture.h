@@ -33,7 +33,7 @@
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
 
-#include "test/gen/eigen_generated_test_fixture.h"
+#include "test/gen/generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include <vector>
@@ -42,7 +42,7 @@ template <typename DType, template <typename T> class Op, typename Direction,
           bool = sycldnn::pooling::internal::IsMaxGradient<DType, Op,
                                                            Direction>::value>
 struct PoolingFixture
-    : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,
@@ -61,7 +61,7 @@ struct PoolingFixture
         inp_gpu, out_gpu, params, this->backend_);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait();
+    status.event.wait_and_throw();
 
     this->copy_device_data_to_host(out_size, out_gpu, output);
     this->deallocate_ptr(inp_gpu);
@@ -82,7 +82,7 @@ struct PoolingFixture
 // both the original pooling values and the backprop values.
 template <typename DType, template <typename> class Op, typename Direction>
 struct PoolingFixture<DType, Op, Direction, true>
-    : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,
@@ -121,8 +121,8 @@ struct PoolingFixture<DType, Op, Direction, true>
             params, this->backend_);
     ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
 
-    fwd_status.event.wait();
-    back_status.event.wait();
+    fwd_status.event.wait_and_throw();
+    back_status.event.wait_and_throw();
 
     this->copy_device_data_to_host(in_size, out_backprop_gpu, output_backprop);
     this->deallocate_ptr(inp_data_gpu);

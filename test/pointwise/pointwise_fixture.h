@@ -28,14 +28,14 @@
 #include "sycldnn/pointwise/launch.h"
 #include "sycldnn/pointwise/operators.h"
 
-#include "test/gen/eigen_generated_test_fixture.h"
+#include "test/gen/generated_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include <vector>
 
 template <typename DType, template <typename> class Op, typename Direction>
 struct PointwiseFixture
-    : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {
@@ -51,7 +51,7 @@ struct PointwiseFixture
         inp_gpu, out_gpu, size, this->backend_);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait();
+    status.event.wait_and_throw();
 
     this->copy_device_data_to_host(size, out_gpu, output);
     this->deallocate_ptr(inp_gpu);
@@ -70,7 +70,7 @@ struct PointwiseFixture
 
 template <typename DType, template <typename T> class Op>
 struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
-    : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {
@@ -103,8 +103,8 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
             out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, this->backend_);
     ASSERT_EQ(sycldnn::StatusCode::OK, bk_status.status);
 
-    fwd_status.event.wait();
-    bk_status.event.wait();
+    fwd_status.event.wait_and_throw();
+    bk_status.event.wait_and_throw();
 
     this->copy_device_data_to_host(size, out_bk_gpu, output_backprop);
     this->deallocate_ptr(inp_fwd_gpu);

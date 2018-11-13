@@ -30,7 +30,7 @@ if(SNN_TEST_EIGEN)
         OBJECTS
           $<TARGET_OBJECTS:pointwise>
         PUBLIC_LIBRARIES
-          Eigen::Eigen
+          ${_matmul_providers}
       )
     endforeach()
   endforeach()
