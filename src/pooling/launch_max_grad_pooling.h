@@ -22,6 +22,8 @@
 
 #include "sycldnn/internal/pooling/launch_internal.h"
 
+#include "src/pooling/can_fastdiv.h"
+#include "src/pooling/can_vectorize.h"
 #include "src/pooling/kernels.h"
 
 namespace sycldnn {
@@ -29,7 +31,7 @@ namespace pooling {
 namespace internal {
 
 template <typename T, typename Index, template <typename U> class PoolType,
-          typename Direction>
+          typename Direction, int VectorWidth, bool UseFastDiv>
 SNNStatus queue_pooling(ReadAccessor<T const> input_data,
                         ReadAccessor<T const> output_data,
                         ReadAccessor<T const> input_backprop,
@@ -41,13 +43,51 @@ SNNStatus queue_pooling(ReadAccessor<T const> input_data,
     cgh.require(output_data);
     cgh.require(input_backprop);
     cgh.require(output_backprop);
-    PoolingOp<T, Index, PoolType, Direction> pool(
+    PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv> pool(
         input_data, output_data, input_backprop, output_backprop, pp);
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);
   });
 
   return {event, StatusCode::OK};
+}
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth>
+SNNStatus launch_with_vector_size(ReadAccessor<T const> inp_data,
+                                  ReadAccessor<T const> outp_data,
+                                  ReadAccessor<T const> inp_backprop,
+                                  WriteAccessor<T> outp_backprop,
+                                  const PoolingParams& pp, size_t threads,
+                                  cl::sycl::queue& queue) {
+  threads /= VectorWidth;
+  if (can_use_fastdiv<Direction>(pp, VectorWidth)) {
+    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, true>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
+  } else {
+    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, false>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
+  }
+}
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction>
+SNNStatus launch_with_index(ReadAccessor<T const> inp_data,
+                            ReadAccessor<T const> outp_data,
+                            ReadAccessor<T const> inp_backprop,
+                            WriteAccessor<T> outp_backprop,
+                            const PoolingParams& pp, size_t threads,
+                            cl::sycl::queue& queue) {
+  if (can_vectorize<Direction, PoolType>(pp, 4)) {
+    return launch_with_vector_size<T, Index, PoolType, Direction, 4>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
+  } else if (can_vectorize<Direction, PoolType>(pp, 2)) {
+    return launch_with_vector_size<T, Index, PoolType, Direction, 2>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
+  } else {
+    return launch_with_vector_size<T, Index, PoolType, Direction, 1>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
+  }
 }
 
 template <typename T, template <typename> class PoolType, typename Direction,
@@ -61,15 +101,15 @@ SNNStatus launch_pooling(ReadAccessor<T const> inp_data,
   size_t threads = sizes.output_size;
   if (threads > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
-    return queue_pooling<T, int64_t, PoolType, Direction>(input, output, pp,
-                                                          threads, queue);
+    return launch_with_index<T, int64_t, PoolType, Direction>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
 #else
     SNNStatus index_too_large;
     index_too_large.status = StatusCode::IndexExceeded;
     return index_too_large;
 #endif  // SNN_USE_INT64
   } else {
-    return queue_pooling<T, int32_t, PoolType, Direction>(
+    return launch_with_index<T, int32_t, PoolType, Direction>(
         inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
   }
 }
