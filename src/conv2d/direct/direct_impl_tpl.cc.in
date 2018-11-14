@@ -19,6 +19,7 @@
 #define SNN_WINDOW     ${DIRECT_WINDOW}
 #define SNN_STRIDE     ${DIRECT_STRIDE}
 #define SNN_CTYPE      ${CONV_TYPE}
+#define SNN_WIDTH      ${VECTOR_WIDTH}
 // clang-format on
 
 #include "sycldnn/conv2d/conv_type.h"
@@ -28,18 +29,21 @@
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
+
 template SNNStatus queue_direct_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE,
-                                       false, SNN_WINDOW, SNN_STRIDE>(
+                                       false, SNN_WINDOW, SNN_STRIDE, SNN_WIDTH>(
     ReadAccessor<SNN_DATA_TYPE const> input,
     ReadAccessor<SNN_DATA_TYPE const> filter,
     WriteAccessor<SNN_DATA_TYPE> output, Conv2DParams const& kernel_params,
     SNN_INDEX_TYPE output_size, cl::sycl::queue& queue);
+
 template SNNStatus queue_direct_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE,
-                                       true, SNN_WINDOW, SNN_STRIDE>(
+                                       true, SNN_WINDOW, SNN_STRIDE, SNN_WIDTH>(
     ReadAccessor<SNN_DATA_TYPE const> input,
     ReadAccessor<SNN_DATA_TYPE const> filter,
     WriteAccessor<SNN_DATA_TYPE> output, Conv2DParams const& kernel_params,
     SNN_INDEX_TYPE output_size, cl::sycl::queue& queue);
+
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

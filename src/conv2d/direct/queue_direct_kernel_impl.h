@@ -25,20 +25,32 @@
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
+
+template <typename ConvType, int VectorWidth, typename Index>
+Index calculate_required_threads(Index output_size) {
+  if (std::is_same<ConvType, conv_type::InputBackprop>::value) {
+    return output_size;
+  } else {
+    return output_size / VectorWidth;
+  }
+}
+
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride>
+          int Window, int Stride, int VectorWidth>
 SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
                               ReadAccessor<T const> filter,
                               WriteAccessor<T> output,
                               Conv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue) {
-  using Functor =
-      direct::DirectConv2D<T, Index, ConvType, UseFastDiv, Window, Stride>;
+  using Functor = direct::DirectConv2D<T, Index, ConvType, UseFastDiv, Window,
+                                       Stride, VectorWidth>;
   cl::sycl::device device = queue.get_device();
   Index const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
+  Index const required_threads =
+      calculate_required_threads<ConvType, VectorWidth>(output_size);
   size_t const n_threads =
-      helpers::round_up_to_nearest_multiple(output_size, workgroup_size);
+      helpers::round_up_to_nearest_multiple(required_threads, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.require(input);
@@ -50,7 +62,9 @@ SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
   });
   return {event, StatusCode::OK};
 }
+
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
+
 #endif  // SYCLDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_

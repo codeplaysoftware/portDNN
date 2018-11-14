@@ -31,21 +31,24 @@ namespace internal {
 namespace {
 /** Check whether fast divisions can be used for the given parameters. */
 template <typename ConvType>
-static inline bool can_use_fast_div(Conv2DParams const& params);
+static inline bool can_use_fast_div(Conv2DParams const& params, int vec_width);
 
 template <>
-inline bool can_use_fast_div<conv_type::Forward>(Conv2DParams const& params) {
-  return params.features != 1 && params.out_rows != 1 && params.out_cols != 1;
+inline bool can_use_fast_div<conv_type::Forward>(Conv2DParams const& params,
+                                                 int vec_width) {
+  return (params.features / vec_width) != 1 && params.out_rows != 1 &&
+         params.out_cols != 1;
 }
 template <>
 inline bool can_use_fast_div<conv_type::InputBackprop>(
-    Conv2DParams const& params) {
+    Conv2DParams const& params, int /*vec_width*/) {
   return params.features != 1 && params.in_rows != 1 && params.in_cols != 1;
 }
 template <>
 inline bool can_use_fast_div<conv_type::FilterBackprop>(
-    Conv2DParams const& params) {
-  return params.features != 1 && params.channels != 1 && params.out_cols != 1;
+    Conv2DParams const& params, int vec_width) {
+  return (params.features / vec_width) != 1 && params.channels != 1 &&
+         params.out_cols != 1;
 }
 /**
  * Check whether the provided window and stride can be used with the given
@@ -57,8 +60,43 @@ inline bool can_use_static_conv(Conv2DParams const& params, int const window,
   return (params.window_cols == window && params.window_rows == window &&
           params.stride_rows == stride && params.stride_cols == stride);
 }
+
+/**
+ * Check whether a given vector width can be used for the given convolution.
+ *
+ * Expects the convolution parameters to be the original parameters, not the
+ * kernel parameters.
+ * */
+template <typename ConvType>
+inline bool can_use_vector_width(Conv2DParams const& params, int const width) {
+  return params.features % width == 0;
+}
+
 /**
  * Check whether fast divisions can be used for the convolution, and launch
+ * the convolution kernel to do the computation.
+ */
+template <typename T, typename Index, typename ConvType, int Window, int Stride,
+          int VectorWidth>
+SNNStatus launch_with_vector(ReadAccessor<T const> input,
+                             ReadAccessor<T const> filter,
+                             WriteAccessor<T> output,
+                             Conv2DParams const& params, Index output_size,
+                             cl::sycl::queue& queue) {
+  auto kernel_params = direct::get_kernel_params<ConvType>(params);
+  if (can_use_fast_div<ConvType>(kernel_params, VectorWidth)) {
+    return queue_direct_kernel<T, Index, ConvType, true, Window, Stride,
+                               VectorWidth>(input, filter, output,
+                                            kernel_params, output_size, queue);
+  } else {
+    return queue_direct_kernel<T, Index, ConvType, false, Window, Stride,
+                               VectorWidth>(input, filter, output,
+                                            kernel_params, output_size, queue);
+  }
+}
+
+/**
+ * Check which vector widths can be used for the convolution, and launch
  * the convolution kernel to do the computation.
  */
 template <typename T, typename Index, typename ConvType, int Window, int Stride>
@@ -66,15 +104,18 @@ SNNStatus launch_with_index(ReadAccessor<T const> input,
                             ReadAccessor<T const> filter,
                             WriteAccessor<T> output, Conv2DParams const& params,
                             Index output_size, cl::sycl::queue& queue) {
-  auto kernel_params = direct::get_kernel_params<ConvType>(params);
-  if (can_use_fast_div<ConvType>(kernel_params)) {
-    return queue_direct_kernel<T, Index, ConvType, true, Window, Stride>(
-        input, filter, output, kernel_params, output_size, queue);
+  if (can_use_vector_width<ConvType>(params, 4)) {
+    return launch_with_vector<T, Index, ConvType, Window, Stride, 4>(
+        input, filter, output, params, output_size, queue);
+  } else if (can_use_vector_width<ConvType>(params, 2)) {
+    return launch_with_vector<T, Index, ConvType, Window, Stride, 2>(
+        input, filter, output, params, output_size, queue);
   } else {
-    return queue_direct_kernel<T, Index, ConvType, false, Window, Stride>(
-        input, filter, output, kernel_params, output_size, queue);
+    return launch_with_vector<T, Index, ConvType, Window, Stride, 1>(
+        input, filter, output, params, output_size, queue);
   }
 }
+
 /**
  * Check what data type is required to fit the index sizes, and launch the
  * required kernel.

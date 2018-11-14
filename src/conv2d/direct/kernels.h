@@ -16,7 +16,10 @@
 #ifndef SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_H_
 #define SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_H_
 
+#include "src/helpers/math.h"
 #include "src/helpers/tensor_index.h"
+#include "src/helpers/vector_io.h"
+#include "src/helpers/vector_type.h"
 #include "src/helpers/window_index.h"
 
 #include "sycldnn/accessor_types.h"
@@ -32,19 +35,27 @@ namespace direct {
  * SYCL kernel for direct convolution computation.
  */
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int StaticWindow, int StaticStride>
+          int StaticWindow, int StaticStride, int VectorWidth>
 struct DirectConv2D;
+
 template <typename T, typename Index, bool UseFastDiv, int StaticWindow,
-          int StaticStride>
+          int StaticStride, int VectorWidth>
 struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
-                    StaticStride> {
+                    StaticStride, VectorWidth> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
+
+  using ScalarType = T;
+  using LoadScalar = helpers::io::Load<ScalarType>;
+
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
+  using LoadData = helpers::io::Load<DataType>;
+  using StoreData = helpers::io::Store<DataType>;
 
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
                const ReadAccessor<const T> filter, WriteAccessor<T> output)
       : n_elems_{params.batch * params.out_rows * params.out_cols *
-                 params.features},
-        div_features_{params.features},
+                 params.features / VectorWidth},
+        div_features_{params.features / VectorWidth},
         div_out_cols_{params.out_cols},
         div_out_rows_{params.out_rows},
         channels_{params.channels},
@@ -69,15 +80,15 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const T* input_data = input_accessor_.get_pointer().get();
-      const T* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      const auto input_data = input_accessor_.get_pointer();
+      const auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
               index, div_out_rows_, out_rows_, div_out_cols_, out_cols_,
-              div_features_, features_);
-      const Index feature = tensor_idx.s3;
+              div_features_, features_ / VectorWidth);
+      const Index feature = tensor_idx.s3 * VectorWidth;
       const Index col_idx = tensor_idx.s2;
       const Index row_idx = tensor_idx.s1;
       const Index batch = tensor_idx.s0;
@@ -94,28 +105,43 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
       const Index rstart = row_window_struct.window_start;
       const Index firstr = row_window_struct.filter_start;
 
-      T out_val = static_cast<T>(0);
-      const T* input_data_n =
+      DataType out_val{0};
+
+      const auto input_data_n =
           input_data + batch * in_cols_ * in_rows_ * channels_;
+      const auto filter_data_n = filter_data + feature;
       const Index row_window = static_window_param(window_rows_);
       const Index col_window = static_window_param(window_cols_);
-      for (Index r = rstart, i = firstr; i < row_window; ++r, ++i) {
+
+      Index in_row_idx = rstart * in_cols_ * channels_;
+      Index fil_row_idx = firstr * col_window * channels_ * features_;
+      for (Index r = rstart, i = firstr; i < row_window; ++r, ++i,
+                 in_row_idx += in_cols_ * channels_,
+                 fil_row_idx += col_window * channels_ * features_) {
         if (r >= 0 && r < in_rows_) {
-          for (Index c = cstart, j = firstc; j < col_window; ++c, ++j) {
+          Index in_col_idx = in_row_idx + cstart * channels_;
+          Index fil_col_idx = fil_row_idx + firstc * channels_ * features_;
+
+          for (Index c = cstart, j = firstc; j < col_window; ++c, ++j,
+                     in_col_idx += channels_,
+                     fil_col_idx += channels_ * features_) {
             if (c >= 0 && c < in_cols_) {
-              for (Index channel = 0; channel < channels_; ++channel) {
-                const Index idx = (r * in_cols_ + c) * channels_ + channel;
-                const Index k_idx =
-                    ((i * col_window + j) * channels_ + channel) * features_ +
-                    feature;
-                out_val = cl::sycl::mad(input_data_n[idx], filter_data[k_idx],
-                                        out_val);
-              }
+              Index idx = in_col_idx;
+              Index k_idx = fil_col_idx;
+
+              for (Index channel = 0; channel < channels_;
+                   ++channel, ++idx, k_idx += features_) {
+                DataType in_val = DataType{LoadScalar()(input_data_n, idx)};
+                DataType fil_vals = LoadData()(filter_data_n, k_idx);
+
+                out_val = helpers::math::mad(in_val, fil_vals, out_val);
+              }  // channel loop
             }
-          }
+          }  // col loop
         }
-      }
-      output_data[index] = out_val;
+      }  // row loop
+
+      StoreData()(output_data, index * VectorWidth, out_val);
     }
   }
 
@@ -152,10 +178,18 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
   WriteAccessor<T> output_accessor_;
 };
 template <typename T, typename Index, bool UseFastDiv, int StaticWindow,
-          int StaticStride>
+          int StaticStride, int VectorWidth>
 struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
-                    StaticWindow, StaticStride> {
+                    StaticWindow, StaticStride, VectorWidth> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
+
+  using ScalarType = T;
+  using LoadScalar = helpers::io::Load<ScalarType>;
+  using StoreScalar = helpers::io::Store<ScalarType>;
+
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
+  using LoadData = helpers::io::Load<DataType>;
+  using StoreData = helpers::io::Store<DataType>;
 
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
                const ReadAccessor<const T> filter, WriteAccessor<T> output)
@@ -188,9 +222,9 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const T* input_data = input_accessor_.get_pointer().get();
-      const T* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      const auto input_data = input_accessor_.get_pointer();
+      const auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -213,33 +247,47 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
       const Index rstart = row_window_struct.window_start;
       const Index firstr = row_window_struct.filter_start;
 
-      T out_val = static_cast<T>(0);
-      const T* input_data_n =
+      ScalarType out_val{0};
+
+      const auto input_data_n =
           input_data + batch * out_cols_ * out_rows_ * channels_;
+      const auto filter_data_n = filter_data + feature * channels_;
       const Index row_window = static_window_param(window_rows_);
       const Index col_window = static_window_param(window_cols_);
-      for (Index r = rstart, i = firstr; i < row_window; ++r, i += row_stride) {
+
+      Index in_row_idx = rstart * out_cols_ * channels_;
+      Index fil_row_idx =
+          (row_window - firstr - 1) * col_window * features_ * channels_;
+      for (Index r = rstart, i = firstr; i < row_window; ++r, i += row_stride,
+                 in_row_idx += out_cols_ * channels_,
+                 fil_row_idx -= row_stride * col_window * features_ *
+                                                         channels_) {
         if (r >= 0 && r < out_rows_) {
-          for (Index c = cstart, j = firstc; j < col_window;
-               ++c, j += col_stride) {
+          Index in_col_idx = in_row_idx + cstart * channels_;
+          Index fil_col_idx =
+              fil_row_idx + (col_window - firstc - 1) * features_ * channels_;
+
+          for (Index c = cstart, j = firstc; j < col_window; ++c,
+                     j += col_stride, in_col_idx += channels_,
+                     fil_col_idx -= col_stride * features_ * channels_) {
             if (c >= 0 && c < out_cols_) {
-              for (Index channel = 0; channel < channels_; ++channel) {
-                const Index idx = (r * out_cols_ + c) * channels_ + channel;
-                const Index mirrored_row = row_window - i - 1;
-                const Index mirrored_col = col_window - j - 1;
-                const Index k_idx =
-                    ((mirrored_row * col_window + mirrored_col) * features_ +
-                     feature) *
-                        channels_ +
-                    channel;
-                out_val = cl::sycl::mad(input_data_n[idx], filter_data[k_idx],
-                                        out_val);
-              }
+              Index idx = in_col_idx;
+              Index k_idx = fil_col_idx;
+
+              for (Index channel = 0; channel < channels_;
+                   channel += VectorWidth, idx += VectorWidth,
+                         k_idx += VectorWidth) {
+                DataType in_val = LoadData()(input_data_n, idx);
+                DataType fil_val = LoadData()(filter_data_n, k_idx);
+
+                out_val += helpers::math::dot(in_val, fil_val);
+              }  // channel loop
             }
-          }
+          }  // col loop
         }
-      }
-      output_data[index] = out_val;
+      }  // row loop
+
+      StoreScalar()(output_data, index, out_val);
     }
   }
 
@@ -281,16 +329,24 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
  * params.out_rows_ and params.out_cols_ rather than the params.window_*.
  */
 template <typename T, typename Index, bool UseFastDiv, int StaticOut,
-          int StaticStride>
+          int StaticStride, int VectorWidth>
 struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
-                    StaticStride> {
+                    StaticStride, VectorWidth> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
+
+  using ScalarType = T;
+  using LoadScalar = helpers::io::Load<ScalarType>;
+  using StoreScalar = helpers::io::Store<ScalarType>;
+
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
+  using LoadData = helpers::io::Load<DataType>;
+  using StoreData = helpers::io::Store<DataType>;
 
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
                const ReadAccessor<const T> filter, WriteAccessor<T> output)
       : n_elems_{params.out_rows * params.out_cols * params.channels *
-                 params.features},
-        div_features_{params.features},
+                 params.features / VectorWidth},
+        div_features_{params.features / VectorWidth},
         div_channels_{params.channels},
         div_out_cols_{params.out_cols},
         channels_{params.channels},
@@ -315,16 +371,16 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const T* input_data = input_accessor_.get_pointer().get();
-      const T* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      const auto input_data = input_accessor_.get_pointer();
+      const auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       const Index col_out = static_out_param(out_cols_);
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
               index, div_out_cols_, col_out, div_channels_, channels_,
-              div_features_, features_);
-      const Index feature = tensor_idx.s3;
+              div_features_, features_ / VectorWidth);
+      const Index feature = tensor_idx.s3 * VectorWidth;
       const Index channel = tensor_idx.s2;
       const Index col_idx = tensor_idx.s1;
       const Index row_idx = tensor_idx.s0;
@@ -342,26 +398,37 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
       const Index filter_cols =
           helpers::round_ratio_up_above_zero(window_cols_, col_stride);
 
-      T out_val = static_cast<T>(0);
-      const T* input_data_n = input_data;
+      DataType out_val{0};
+
+      auto input_data_n = input_data + channel;
+      auto filter_data_n = filter_data + feature;
+
       for (Index b = 0; b < batch_; b++) {
-        for (Index r = rstart, i = 0; r < rend; ++i, r += row_stride) {
+        Index in_row_idx = rstart * in_cols_ * channels_;
+        Index fil_row_idx = 0;
+        for (Index r = rstart; r < rend; r += row_stride,
+                   in_row_idx += row_stride * in_cols_ * channels_,
+                   fil_row_idx += filter_cols * features_) {
           if (r >= 0 && r < in_rows_) {
-            for (Index c = cstart, j = 0; c < cend; ++j, c += col_stride) {
+            Index idx = in_row_idx + cstart * channels_;
+            Index k_idx = fil_row_idx;
+            for (Index c = cstart; c < cend; c += col_stride,
+                       idx += col_stride * channels_, k_idx += features_) {
               if (c >= 0 && c < in_cols_) {
-                const Index idx = (r * in_cols_ + c) * channels_ + channel;
-                const Index k_idx =
-                    ((b * filter_rows + i) * filter_cols + j) * features_ +
-                    feature;
-                out_val = cl::sycl::mad(input_data_n[idx], filter_data[k_idx],
-                                        out_val);
+                DataType in_val = DataType{LoadScalar()(input_data_n, idx)};
+                DataType fil_vals = LoadData()(filter_data_n, k_idx);
+
+                out_val = helpers::math::mad(in_val, fil_vals, out_val);
               }
-            }
+            }  // col loop
           }
-        }
+        }  // row loop
+
         input_data_n += in_cols_ * in_rows_ * channels_;
-      }
-      output_data[index] = out_val;
+        filter_data_n += filter_rows * filter_cols * features_;
+      }  // batch loop
+
+      StoreData()(output_data, index * VectorWidth, out_val);
     }
   }
 
@@ -394,8 +461,10 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
   const ReadAccessor<const T> filter_accessor_;
   WriteAccessor<T> output_accessor_;
 };
+
 }  // namespace direct
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
+
 #endif  // SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_H_

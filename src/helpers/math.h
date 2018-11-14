@@ -23,17 +23,42 @@
 namespace sycldnn {
 namespace helpers {
 namespace math {
+
 template <typename T>
-static inline SNN_ALWAYS_INLINE T mad(T a, T b, T c) {
+inline SNN_ALWAYS_INLINE T mad(T a, T b, T c) {
   return cl::sycl::mad(a, b, c);
 }
+
 /** Overload for 1-element vectors to workaround missing mad() function. */
 template <typename T>
-static inline SNN_ALWAYS_INLINE cl::sycl::vec<T, 1> mad(cl::sycl::vec<T, 1> a,
-                                                        cl::sycl::vec<T, 1> b,
-                                                        cl::sycl::vec<T, 1> c) {
+inline SNN_ALWAYS_INLINE cl::sycl::vec<T, 1> mad(cl::sycl::vec<T, 1> a,
+                                                 cl::sycl::vec<T, 1> b,
+                                                 cl::sycl::vec<T, 1> c) {
   return cl::sycl::vec<T, 1>{cl::sycl::mad(a.s0(), b.s0(), c.s0())};
 }
+
+template <typename T>
+inline SNN_ALWAYS_INLINE T dot(T a, T b) {
+  return a * b;
+}
+
+/** For 1, 2, 3 and 4 element vectors just use cl::sycl::dot. */
+template <typename T, int Width,
+          typename std::enable_if<(Width <= 4), int>::type = 0>
+inline SNN_ALWAYS_INLINE T dot(cl::sycl::vec<T, Width> a,
+                               cl::sycl::vec<T, Width> b) {
+  return cl::sycl::dot(a, b);
+}
+
+/** For larger vectors, compute dot on the upper half and lower half then sum
+ * the results. */
+template <typename T, int Width,
+          typename std::enable_if<(Width > 4), int>::type = 0>
+inline SNN_ALWAYS_INLINE T dot(cl::sycl::vec<T, Width> a,
+                               cl::sycl::vec<T, Width> b) {
+  return dot(a.hi(), b.hi()) + dot(a.lo(), b.lo());
+}
+
 }  // namespace math
 }  // namespace helpers
 }  // namespace sycldnn
