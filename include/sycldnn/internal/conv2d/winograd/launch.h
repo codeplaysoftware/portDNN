@@ -72,7 +72,9 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> const& pointers,
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
   constexpr bool transpose_input = false;
-  constexpr bool transpose_filter = true;
+  // Need to transpose for the input backprop, but not for the forward pass
+  constexpr bool transpose_filter =
+      std::is_same<ConvType, conv_type::InputBackprop>::value;
   auto fil_status = launch_filter_transform<T, ConvType, M, N, R, S>(
       pointers.filter, pointers.filter_transform, params, tile_info, backend);
   if (fil_status.status != StatusCode::OK) {

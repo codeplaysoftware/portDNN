@@ -62,7 +62,7 @@ struct ExtractFilterTiles {
       TransformedFilterTile<T, M, N, R, S> transformed{filter};
 
       OutputData<T, M, N, R, S>::write_transformed_filter(
-          output_data, channel_idx, feature_idx, n_channels_, n_features_,
+          output_data, feature_idx, channel_idx, n_features_, n_channels_,
           transformed);
     }
   }
