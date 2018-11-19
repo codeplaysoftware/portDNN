@@ -23,6 +23,17 @@ namespace pooling {
 template <typename T>
 struct Max;
 
+/**
+ * Max pooling operator which treats NaN as a maximal value.
+ *
+ * This will force NaNs to propagate through max pooling layers, and so prevents
+ * any error in calculation from being silently replaced with a valid value. Any
+ * pooling window which contains a NaN will return NaN as the result of the
+ * pooling layer, otherwise the result will be the same as with max pooling.
+ */
+template <typename T>
+struct MaxWithNan;
+
 template <typename T>
 struct Average;
 

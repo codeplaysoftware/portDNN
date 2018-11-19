@@ -38,7 +38,9 @@
 
 #include <vector>
 
-template <typename DType, template <typename T> class Op, typename Direction>
+template <typename DType, template <typename T> class Op, typename Direction,
+          bool = sycldnn::pooling::internal::IsMaxGradient<DType, Op,
+                                                           Direction>::value>
 struct PoolingFixture
     : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
@@ -78,9 +80,8 @@ struct PoolingFixture
 
 // Need a specific fixture for maxpooling gradient, as this operation requires
 // both the original pooling values and the backprop values.
-template <typename DType>
-struct PoolingFixture<DType, sycldnn::pooling::Max,
-                      sycldnn::pooling::Backpropagate>
+template <typename DType, template <typename> class Op, typename Direction>
+struct PoolingFixture<DType, Op, Direction, true>
     : public EigenGeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
   using DataType = DType;
 

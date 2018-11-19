@@ -102,7 +102,7 @@ SNNStatus inline validate_params(PoolingParams const& params) {
  */
 template <typename T, template <typename> class PoolType, typename Direction,
           typename Backend,
-          typename = internal::DisableIfMaxGradient<T, PoolType, Direction>>
+          typename internal::DisableIfMaxGradient<T, PoolType, Direction> = 0>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  const PoolingParams& pp, Backend& backend) {
@@ -154,7 +154,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  */
 template <typename T, template <typename> class PoolType, typename Direction,
           typename Backend,
-          typename = internal::EnableIfMaxGradient<T, PoolType, Direction>>
+          typename internal::EnableIfMaxGradient<T, PoolType, Direction> = 0>
 SNNStatus launch(
     typename Backend::template pointer_type<T const> input_data,
     typename Backend::template pointer_type<T const> output_data,

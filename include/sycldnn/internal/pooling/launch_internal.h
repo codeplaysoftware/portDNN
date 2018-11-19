@@ -27,27 +27,35 @@ namespace sycldnn {
 namespace pooling {
 namespace internal {
 
+template <typename T, template <typename> class PoolType>
+struct IsMax {
+  static constexpr bool value = std::is_same<PoolType<T>, Max<T>>::value ||
+                                std::is_same<PoolType<T>, MaxWithNan<T>>::value;
+};
+
 template <typename T, template <typename> class PoolType, typename Direction>
 struct IsMaxGradient {
-  static constexpr bool value = std::is_same<PoolType<T>, Max<T>>::value &&
+  static constexpr bool value = IsMax<T, PoolType>::value &&
                                 std::is_same<Direction, Backpropagate>::value;
 };
 
 template <typename T, template <typename> class PoolType, typename Direction>
-using DisableIfMaxGradient = typename std::enable_if<
-    !IsMaxGradient<T, PoolType, Direction>::value>::type;
+using DisableIfMaxGradient =
+    typename std::enable_if<!IsMaxGradient<T, PoolType, Direction>::value,
+                            int>::type;
 
 template <typename T, template <typename> class PoolType, typename Direction>
 using EnableIfMaxGradient =
-    typename std::enable_if<IsMaxGradient<T, PoolType, Direction>::value>::type;
+    typename std::enable_if<IsMaxGradient<T, PoolType, Direction>::value,
+                            int>::type;
 
 template <typename T, template <typename> class PoolType, typename Direction,
-          typename = DisableIfMaxGradient<T, PoolType, Direction>>
+          DisableIfMaxGradient<T, PoolType, Direction> = 0>
 SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
                          const PoolingParams& pp, cl::sycl::queue& queue);
 
 template <typename T, template <typename> class PoolType, typename Direction,
-          typename = EnableIfMaxGradient<T, PoolType, Direction>>
+          EnableIfMaxGradient<T, PoolType, Direction> = 0>
 SNNStatus launch_pooling(ReadAccessor<T const> inp_data,
                          ReadAccessor<T const> outp_data,
                          ReadAccessor<T const> inp_backprop,

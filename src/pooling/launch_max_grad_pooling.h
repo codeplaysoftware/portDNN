@@ -91,7 +91,7 @@ SNNStatus launch_with_index(ReadAccessor<T const> inp_data,
 }
 
 template <typename T, template <typename> class PoolType, typename Direction,
-          typename EnableIf>
+          EnableIfMaxGradient<T, PoolType, Direction>>
 SNNStatus launch_pooling(ReadAccessor<T const> inp_data,
                          ReadAccessor<T const> outp_data,
                          ReadAccessor<T const> inp_backprop,

@@ -42,7 +42,7 @@ STRIDE_LIST = [1, 1, 2, 1, 2, 1, 4, 1, 4]
 BATCHES = [1, 3]
 CHANNELS = [1, 2, 4]
 PADDING_VALUES = ["SAME", "VALID"]
-TEST_TYPES = ["max", "avg"]
+TEST_TYPES = ["maxwithnan", "max", "avg"]
 DIRECTIONS = ['forward', 'grad']
 
 INCLUDES = r"""
@@ -69,6 +69,12 @@ TestCaseParams = namedtuple('TestCaseParams',
 TestParams = namedtuple('TestParams',
                         TestCaseParams._fields + ('in_shape', 'padding'))
 
+TF_OPERATOR_MAP = {
+    'maxwithnan': 'MAX',
+    'max': 'MAX',
+    'avg': 'AVG',
+}
+
 
 def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
                      padding):
@@ -89,7 +95,7 @@ def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
         pool_output = tf.nn.pool(
             inp_tensor,
             window_shape=window_shape,
-            pooling_type=pool_op.upper(),
+            pooling_type=TF_OPERATOR_MAP[pool_op],
             strides=stride_shape,
             padding=padding,
             name='pool',
@@ -132,7 +138,7 @@ def get_pool_results(max_val, pool_op, input_shape, window_shape, stride_shape,
         output = tf.nn.pool(
             inp_tensor,
             window_shape=window_shape,
-            pooling_type=pool_op.upper(),
+            pooling_type=TF_OPERATOR_MAP[pool_op],
             strides=stride_shape,
             padding=padding,
             data_format="NHWC")
@@ -177,6 +183,7 @@ TEST_NAME_TPL = "{padding}{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
 
 OPERATOR_MAP = {
+    'maxwithnan': 'pooling::MaxWithNan',
     'max': 'pooling::Max',
     'avg': 'pooling::Average',
 }

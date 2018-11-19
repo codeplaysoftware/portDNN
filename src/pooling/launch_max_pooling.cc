@@ -22,26 +22,34 @@ namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int32_t, Max, Forward);
+#define SNN_INSTANTIATE_FORWARD_MAX_POOL(DTYPE)               \
+  SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(DTYPE, Max, Forward); \
+  SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(DTYPE, MaxWithNan, Forward)
+
+SNN_INSTANTIATE_FORWARD_MAX_POOL(int32_t);
 #ifdef SNN_USE_INT64
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int64_t, Max, Forward);
+SNN_INSTANTIATE_FORWARD_MAX_POOL(int64_t);
 #endif  // SNN_USE_INT64
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(float, Max, Forward);
+SNN_INSTANTIATE_FORWARD_MAX_POOL(float);
 #ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Max, Forward);
+SNN_INSTANTIATE_FORWARD_MAX_POOL(cl::sycl::half);
 #endif  // SNN_USE_HALF
 #ifdef SNN_USE_DOUBLE
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(double, Max, Forward);
+SNN_INSTANTIATE_FORWARD_MAX_POOL(double);
 #endif  // SNN_USE_DOUBLE
 
-#define SNN_INSTANTIATE_LAUNCH_MAX_GRAD_POOLING_KERNEL(DTYPE)         \
-  template SNNStatus launch_pooling<DTYPE, sycldnn::pooling::Max,     \
-                                    sycldnn::pooling::Backpropagate>( \
-      ReadAccessor<DTYPE const> input_data,                           \
-      ReadAccessor<DTYPE const> output_data,                          \
-      ReadAccessor<DTYPE const> input_backprop,                       \
-      WriteAccessor<DTYPE> outp_backprop, const PoolingParams& pp,    \
+#define SNN_INSTANTIATE_GRAD_POOLING_KERNEL(DTYPE, OP)             \
+  template SNNStatus                                               \
+  launch_pooling<DTYPE, OP, sycldnn::pooling::Backpropagate>(      \
+      ReadAccessor<DTYPE const> input_data,                        \
+      ReadAccessor<DTYPE const> output_data,                       \
+      ReadAccessor<DTYPE const> input_backprop,                    \
+      WriteAccessor<DTYPE> outp_backprop, const PoolingParams& pp, \
       cl::sycl::queue& queue)
+
+#define SNN_INSTANTIATE_LAUNCH_MAX_GRAD_POOLING_KERNEL(DTYPE)        \
+  SNN_INSTANTIATE_GRAD_POOLING_KERNEL(DTYPE, sycldnn::pooling::Max); \
+  SNN_INSTANTIATE_GRAD_POOLING_KERNEL(DTYPE, sycldnn::pooling::MaxWithNan)
 
 SNN_INSTANTIATE_LAUNCH_MAX_GRAD_POOLING_KERNEL(int32_t);
 #ifdef SNN_USE_INT64

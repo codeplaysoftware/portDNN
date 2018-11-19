@@ -50,6 +50,30 @@ struct Max<cl::sycl::vec<T, N>> {
   cl::sycl::vec<T, N> value() { return max; }
 };
 
+template <typename T>
+struct MaxWithNan {
+  T max = std::numeric_limits<T>::lowest();
+
+  void accumulate(T val) {
+    if (std::isnan(val) || val > max) {
+      max = val;
+    }
+  }
+  T value() { return max; }
+};
+
+template <typename T, int N>
+struct MaxWithNan<cl::sycl::vec<T, N>> {
+  using VecType = cl::sycl::vec<T, N>;
+  VecType max = VecType{std::numeric_limits<T>::lowest()};
+
+  void accumulate(VecType val) {
+    auto select_mask = val != val || val > max;
+    max = cl::sycl::select(max, val, select_mask);
+  }
+  VecType value() { return max; }
+};
+
 /** Template that will average a sequence of accumulated values. */
 template <typename T>
 struct Average {
@@ -70,6 +94,27 @@ struct Average {
   /** Observes the average, by dividing the sum  by the number of tallies.
    * \return The average of all accumulated values. */
   T value() { return sum / T(tally); }
+};
+
+template <template <typename> class Op>
+struct EqualCheck;
+
+template <>
+struct EqualCheck<Max> {
+  /** Consider two values equal if they are not NaN and have the same value. */
+  template <typename T>
+  static bool are_equal(T a, T b) {
+    return a == b;
+  }
+};
+
+template <>
+struct EqualCheck<MaxWithNan> {
+  /** Consider two values equal if both are NaN or have the same value. */
+  template <typename T>
+  static bool are_equal(T a, T b) {
+    return a == b || (std::isnan(a) && std::isnan(b));
+  }
 };
 
 template <typename T, typename Index, template <typename> class Op,
@@ -146,8 +191,9 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
  *
  * Expects to be run with one thread per output value in the backprop kernel.
  */
-template <typename T, typename Index, int VectorWidth, bool UseFastDiv>
-class PoolingOp<T, Index, Max, Backpropagate, VectorWidth, UseFastDiv> {
+template <typename T, typename Index, template <typename> class MaxOp,
+          int VectorWidth, bool UseFastDiv>
+class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
   using DataType = typename helpers::VectorType<T, 1>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
@@ -222,7 +268,7 @@ class PoolingOp<T, Index, Max, Backpropagate, VectorWidth, UseFastDiv> {
               (poolr * params_.out_cols + poolc) * params_.channels;
           auto const output_value = LoadData()(output_data_n, output_data_idx);
 
-          bool is_max = input_value == output_value;
+          bool is_max = EqualCheck<MaxOp>::are_equal(input_value, output_value);
           bool should_continue = is_max;
 
           // Even if this thread's output value is the maximum, we cannot say
@@ -252,11 +298,13 @@ class PoolingOp<T, Index, Max, Backpropagate, VectorWidth, UseFastDiv> {
               if (input_data_idx == index_no_n) {
                 // Only check up to the input index
                 should_continue = false;
-              } else if (LoadData()(input_data_n, input_data_idx) ==
-                         output_value) {
-                // Found another maximum value before this thread's value
-                should_continue = false;
-                is_max = false;
+              } else {
+                DataType next_val = LoadData()(input_data_n, input_data_idx);
+                if (EqualCheck<MaxOp>::are_equal(next_val, output_value)) {
+                  // Found another maximum value before this thread's value
+                  should_continue = false;
+                  is_max = false;
+                }
               }
             }
           }

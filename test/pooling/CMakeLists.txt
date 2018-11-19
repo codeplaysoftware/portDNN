@@ -26,7 +26,7 @@ if(SNN_TEST_EIGEN)
   foreach(_index RANGE ${pooling_list_len})
     list(GET pooling_windows ${_index} _window)
     list(GET pooling_strides ${_index} _stride)
-    foreach(_type IN ITEMS "max" "avg")
+    foreach(_type IN ITEMS "maxwithnan" "max" "avg")
       foreach(_direction IN ITEMS "forward" "grad")
         if((_type STREQUAL "avg") AND
           (_window EQUAL 11 OR ((_window EQUAL 7) AND (_stride EQUAL 4))))
@@ -49,4 +49,11 @@ if(SNN_TEST_EIGEN)
       endforeach()
     endforeach()
   endforeach()
+  snn_test(
+    WITH_SYCL
+    TARGET max_pooling_with_nan
+    SOURCES max_pooling_with_nan.cc
+    OBJECTS $<TARGET_OBJECTS:pooling>
+    PUBLIC_LIBRARIES Eigen::Eigen
+  )
 endif(SNN_TEST_EIGEN)

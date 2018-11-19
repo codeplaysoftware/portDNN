@@ -87,7 +87,7 @@ SNNStatus launch_with_index(ReadAccessor<T const> input,
 }
 
 template <typename T, template <typename> class PoolType, typename Direction,
-          typename EnableIf>
+          DisableIfMaxGradient<T, PoolType, Direction>>
 SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
                          const PoolingParams& pp, cl::sycl::queue& queue) {
   auto sizes = get_sizes<Direction>(pp);
