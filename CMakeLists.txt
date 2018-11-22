@@ -49,16 +49,15 @@ option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
   "Disable setting the cmake build type if no flag specified" OFF)
 
-option(SNN_ARM_COMPUTE_ENABLED
-  "Whether or not to build ARM compute library benchmarks" OFF)
-
-# Eigen configuration options.
-option(SNN_TEST_EIGEN "Test implementation using Eigen" ON)
+# Testing configuration options
+option(SNN_TEST_EIGEN "Test Eigen backend" OFF)
+option(SNN_TEST_SYCLBLAS "Test SYCL-BLAS backend" OFF)
 option(SNN_TEST_EIGEN_MATMULS
   "Enable testing using Eigen matmul in addition to internal matmul" OFF)
 option(SNN_TEST_SYCLBLAS_MATMULS
   "Enable testing using SYCL-BLAS matmul in addition to internal matmul" OFF)
 
+# Eigen configuration options.
 option(SNN_EIGEN_LOCAL_MEM
   "Only compile the local memory versions of Eigen kernels" ON)
 option(SNN_EIGEN_NO_LOCAL_MEM
@@ -69,11 +68,13 @@ option(SNN_EIGEN_NO_BARRIER
   "Use Eigen matmul which does not use barriers (implies NO_LOCAL_MEM)" OFF)
 option(SNN_ENABLE_EXCEPTIONS
   "Enable exception support in the Eigen library" ON)
-option(SNN_BENCH_EIGEN "Benchmark implementation using Eigen" ON)
 
-# SYCLBLAS configuration options.
-option(SNN_BENCH_SYCLBLAS "Benchmark implementation using SYCLBLAS" OFF)
+# Benchmark configuration options
+option(SNN_BENCH_EIGEN "Benchmark SYCL-DNN using Eigen" OFF)
+option(SNN_BENCH_SYCLBLAS "Benchmark SYCL-DNN using SYCL-BLAS" ON)
 option(SNN_BENCH_MKLDNN "Whether or not to build MKL-DNN benchmarks" OFF)
+option(SNN_BENCH_ARM_COMPUTE
+  "Whether or not to build ARM compute library benchmarks" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_INDEX_TYPES int32_t)

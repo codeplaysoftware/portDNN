@@ -15,10 +15,6 @@
  */
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
 #include <CL/sycl.hpp>
 
 #include <iterator>
@@ -27,6 +23,8 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+
+#include "sycldnn/backend/snn_backend.h"
 
 #include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/status.h"
@@ -43,7 +41,7 @@ using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 template <typename T>
 struct TransposeConversion
-    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::SNNBackend> {
  public:
   using DataType = T;
 };

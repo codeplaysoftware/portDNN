@@ -18,6 +18,8 @@
 #include "sycldnn/accessor_types.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/backend/snn_backend.h"
+
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
@@ -31,7 +33,7 @@
 #include "bench/conv2d/base_convolution_fixture.h"
 
 #include "src/backend/backend_provider.h"
-#include "src/backend/eigen_backend_provider.h"
+#include "src/backend/snn_backend_provider.h"
 
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/base_executor.h"
@@ -213,7 +215,7 @@ struct ParamGenerator {
                         feat_vect, fast_div, window_row, window_col, stride) \
   TILED_BENCHMARK(                                                           \
       name##_##tile_row##_##tile_col##_##ch_vect##_##feat_vect##_##fast_div, \
-      sycldnn::backend::EigenBackend,                                        \
+      sycldnn::backend::SNNBackend,                                          \
       ParamGenerator<window_row, window_col, stride>, direction, tile_row,   \
       tile_col, ch_vect, feat_vect, fast_div, window_row, window_col, stride);
 

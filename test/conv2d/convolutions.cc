@@ -15,13 +15,6 @@
  */
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
-#include "sycldnn/backend/eigen_backend.h"
-#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
-
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
@@ -32,10 +25,12 @@
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
 #include "test/conv2d/convolution_fixture.h"
+#include "test/conv2d/selector_list.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 #include <CL/sycl.hpp>
@@ -47,17 +42,8 @@ template <typename Pair>
 using BasicConvolutionTest = ConvolutionFixture<Pair>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Selectors = sycldnn::types::TypeList<
-    sycldnn::conv2d::DirectSelector, sycldnn::conv2d::TiledSelector,
-    sycldnn::conv2d::Im2colSelector, sycldnn::conv2d::WinogradSelector>;
-#ifdef SNN_TEST_EIGEN_MATMULS
-using Backends =
-    sycldnn::types::TypeList<sycldnn::backend::EigenBackend,
-                             sycldnn::backend::EigenBackendSNNMatmul>;
-#else
-using Backends =
-    sycldnn::types::TypeList<sycldnn::backend::EigenBackendSNNMatmul>;
-#endif
+using Selectors = sycldnn::types::SelectorList;
+using Backends = sycldnn::types::TypeList<sycldnn::backend::SNNBackend>;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;

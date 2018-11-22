@@ -18,12 +18,6 @@ project(snn_tests)
 include(HandleGTest)
 include(SNNHelpers)
 
-include(HandleEigen)
-
-if(SNN_TEST_SYCLBLAS_MATMULS)
-  include(HandleSyclBLAS)
-endif()
-
 snn_test(
   WITH_SYCL
   TARGET
@@ -141,91 +135,8 @@ snn_test(
   SOURCES
     conv2d/workspace_size.cc
 )
-if(SNN_TEST_EIGEN)
-  list(APPEND _matmul_backends EigenBackendSNNMatmul)
-  list(APPEND _matmul_providers Eigen::Eigen)
 
-  list(APPEND _cxx_opts CXX_OPTS)
-  if(SNN_TEST_EIGEN_MATMULS)
-    list(APPEND _cxx_opts -DSNN_TEST_EIGEN_MATMULS=1)
-    list(APPEND _matmul_backends EigenBackend)
-  endif()
-
-  if(SNN_TEST_SYCLBLAS_MATMULS)
-    list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS_MATMULS=1)
-    list(APPEND _matmul_backends SyclBLASBackend)
-    list(APPEND _matmul_providers SyclBLAS::SyclBLAS)
-  endif()
-
-  add_library(backend_matmul "")
-  foreach(BACKEND_TYPE IN LISTS _matmul_backends)
-    foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
-      # The Eigen tests only require int32, not int64 so to save time only
-      # compile for 32 bits.
-      foreach(INDEX_TYPE IN ITEMS int32_t)
-        string(MAKE_C_IDENTIFIER ${BACKEND_TYPE} BACKEND_ID)
-        string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
-        set(_filename matmul_${BACKEND_TYPE}_${DTYPE_ID}_${INDEX_TYPE}.cc)
-        set(_gen_dir ${CMAKE_BINARY_DIR}/generated/test/backend)
-        configure_file(backend/matmul_tpl.cc.in ${_gen_dir}/${_filename})
-        target_sources(backend_matmul PRIVATE ${_gen_dir}/${_filename})
-      endforeach()
-    endforeach()
-  endforeach()
-  get_target_property(backend_matmul_sources backend_matmul SOURCES)
-  snn_target(
-    WITH_SYCL
-    TARGET backend_matmul
-    KERNEL_SOURCES ${backend_matmul_sources}
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-      GTest::GTest
-    ${_cxx_opts}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
-      backend_death_tests
-    SOURCES
-      backend/backend_death_tests.cc
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
-      eigen_external_handler
-    KERNEL_SOURCES
-      backend/eigen_external_handler.cc
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
-      eigen_internal_handler
-    KERNEL_SOURCES
-      backend/eigen_internal_handler.cc
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
-      matmul_backend
-    SIZE
-      long
-    SOURCES
-      backend/matmul_backend.cc
-    OBJECTS
-      $<TARGET_OBJECTS:matmul>
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-      backend_matmul
-    ${_cxx_opts}
-  )
-endif()
-
+add_subdirectory(backend)
 add_subdirectory(matmul)
 add_subdirectory(conv2d)
 add_subdirectory(depthwise_conv2d)

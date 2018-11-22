@@ -16,41 +16,35 @@ cmake_minimum_required(VERSION 3.2.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-if(SNN_TEST_EIGEN)
-  snn_test(
-    WITH_SYCL
-    TARGET
-      simple_depthwise_conv2d
-    SIZE
-      moderate
-    SOURCES
-      simple_depthwise.cc
-    OBJECTS
-      $<TARGET_OBJECTS:depthwise_conv2d>
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-  )
-  set(_windows 1 1 3 3 5 5 7 7 11 11)
-  set(_strides 1 2 1 2 1 2 1 4 1 4)
-  list(LENGTH _windows _list_len_raw)
-  math(EXPR _list_len "${_list_len_raw} - 1")
-  foreach(_index RANGE ${_list_len})
-    list(GET _windows ${_index} _window)
-    list(GET _strides ${_index} _stride)
-    foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
-      snn_test(
-        WITH_SYCL
-        TARGET
-          depthwise_conv2d_${_type}_window${_window}_stride${_stride}
-        SIZE
-          moderate
-        SOURCES
-          ${_type}_window${_window}_stride${_stride}.cc
-        OBJECTS
-          $<TARGET_OBJECTS:depthwise_conv2d>
-        PUBLIC_LIBRARIES
-          ${_matmul_providers}
-      )
-    endforeach()
+snn_test(
+  WITH_SYCL
+  TARGET
+    simple_depthwise_conv2d
+  SIZE
+    moderate
+  SOURCES
+    simple_depthwise.cc
+  OBJECTS
+    $<TARGET_OBJECTS:depthwise_conv2d>
+)
+set(_windows 1 1 3 3 5 5 7 7 11 11)
+set(_strides 1 2 1 2 1 2 1 4 1 4)
+list(LENGTH _windows _list_len_raw)
+math(EXPR _list_len "${_list_len_raw} - 1")
+foreach(_index RANGE ${_list_len})
+  list(GET _windows ${_index} _window)
+  list(GET _strides ${_index} _stride)
+  foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+    snn_test(
+      WITH_SYCL
+      TARGET
+        depthwise_conv2d_${_type}_window${_window}_stride${_stride}
+      SIZE
+        moderate
+      SOURCES
+        ${_type}_window${_window}_stride${_stride}.cc
+      OBJECTS
+        $<TARGET_OBJECTS:depthwise_conv2d>
+    )
   endforeach()
-endif(SNN_TEST_EIGEN)
+endforeach()

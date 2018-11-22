@@ -16,39 +16,34 @@ cmake_minimum_required(VERSION 3.2.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-if(SNN_TEST_EIGEN)
-  # windows/strides are different to conv2d here - Tensorflow doesn't allow
-  # stride > window
-  set(pooling_windows 1 3 3 5 5 7 7 11 11)
-  set(pooling_strides 1 1 2 1 2 1 4 1 4)
-  list(LENGTH pooling_windows pooling_list_len_raw)
-  math(EXPR pooling_list_len "${pooling_list_len_raw} - 1")
-  foreach(_index RANGE ${pooling_list_len})
-    list(GET pooling_windows ${_index} _window)
-    list(GET pooling_strides ${_index} _stride)
-    foreach(_type IN ITEMS "maxwithnan" "max" "avg")
-      foreach(_direction IN ITEMS "forward" "grad")
-        snn_test(
-          WITH_SYCL
-          TARGET
-            pooling_${_type}_window${_window}_stride${_stride}_${_direction}
-          SIZE
-            moderate
-          SOURCES
-            ${_type}_window${_window}_stride${_stride}_${_direction}.cc
-          OBJECTS
-            $<TARGET_OBJECTS:pooling>
-          PUBLIC_LIBRARIES
-            ${_matmul_providers}
-        )
-      endforeach()
+# windows/strides are different to conv2d here - Tensorflow doesn't allow
+# stride > window
+set(pooling_windows 1 3 3 5 5 7 7 11 11)
+set(pooling_strides 1 1 2 1 2 1 4 1 4)
+list(LENGTH pooling_windows pooling_list_len_raw)
+math(EXPR pooling_list_len "${pooling_list_len_raw} - 1")
+foreach(_index RANGE ${pooling_list_len})
+  list(GET pooling_windows ${_index} _window)
+  list(GET pooling_strides ${_index} _stride)
+  foreach(_type IN ITEMS "maxwithnan" "max" "avg")
+    foreach(_direction IN ITEMS "forward" "grad")
+      snn_test(
+        WITH_SYCL
+        TARGET
+          pooling_${_type}_window${_window}_stride${_stride}_${_direction}
+        SIZE
+          moderate
+        SOURCES
+          ${_type}_window${_window}_stride${_stride}_${_direction}.cc
+        OBJECTS
+          $<TARGET_OBJECTS:pooling>
+      )
     endforeach()
   endforeach()
-  snn_test(
-    WITH_SYCL
-    TARGET max_pooling_with_nan
-    SOURCES max_pooling_with_nan.cc
-    OBJECTS $<TARGET_OBJECTS:pooling>
-    PUBLIC_LIBRARIES ${_matmul_providers}
-  )
-endif(SNN_TEST_EIGEN)
+endforeach()
+snn_test(
+  WITH_SYCL
+  TARGET max_pooling_with_nan
+  SOURCES max_pooling_with_nan.cc
+  OBJECTS $<TARGET_OBJECTS:pooling>
+)

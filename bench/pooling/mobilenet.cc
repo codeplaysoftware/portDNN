@@ -16,17 +16,17 @@
 #include "mobilenet_param_set.h"
 #include "snn_fixture.h"
 
-#include "src/backend/eigen_backend_provider.h"
+#include "src/backend/snn_backend_provider.h"
 
-#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 
 #include "sycldnn/pooling/operators.h"
 
-#define MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)        \
-  POOLING_BENCHMARK(                                                         \
-      "MobileNet",                                                           \
-      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##EigenBackend, \
-      sycldnn::backend::EigenBackend, ParameterSet<N, C, W, H, K, S>,        \
+#define MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)      \
+  POOLING_BENCHMARK(                                                       \
+      "MobileNet",                                                         \
+      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##SNNBackend, \
+      sycldnn::backend::SNNBackend, ParameterSet<N, C, W, H, K, S>,        \
       sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
 #define MOBILENET_BM_WITH_DIRECTION(N, C, W, H, K, S, DIRECTION) \

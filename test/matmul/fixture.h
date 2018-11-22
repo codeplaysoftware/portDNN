@@ -19,11 +19,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
-#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 #include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/matmul/launch.h"
 #include "test/backend/backend_test_fixture.h"
@@ -31,8 +27,7 @@
 #include "test/helpers/float_comparison.h"
 
 template <typename T, bool TransposeLhs, bool TransposeRhs>
-struct MatmulFixture
-    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
+struct MatmulFixture : public BackendTestFixture<sycldnn::backend::SNNBackend> {
   using DataType = T;
 
  protected:

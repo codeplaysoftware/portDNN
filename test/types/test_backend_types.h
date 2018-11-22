@@ -19,13 +19,13 @@
 #include "test/types/to_gtest_types.h"
 #include "test/types/type_list.h"
 
+#include "sycldnn/backend/snn_backend.h"
+
+#ifdef SNN_TEST_EIGEN_MATMULS
 // TODO(jwlawson): remove cassert when no longer needed before Eigen include
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
-
-#ifdef SNN_TEST_EIGEN_MATMULS
 #include "sycldnn/backend/eigen_backend.h"
 #endif
 
@@ -38,7 +38,7 @@ namespace types {
 
 /** List of backend types to use by default in tests.  */
 using DefaultBackendTypes =
-    sycldnn::types::TypeList<sycldnn::backend::EigenBackendSNNMatmul>;
+    sycldnn::types::TypeList<sycldnn::backend::SNNBackend>;
 /** The same as DefaultBackends but in the googletest Types format. */
 using GTestDefaultBackendTypes = ToGTestTypes<DefaultBackendTypes>::type;
 
@@ -50,7 +50,7 @@ using AllBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
     sycldnn::backend::SyclBLASBackend,
 #endif
-    sycldnn::backend::EigenBackendSNNMatmul>;
+    sycldnn::backend::SNNBackend>;
 /** The same as AllBackends but in the googletest Types format. */
 using GTestAllBackendTypes = ToGTestTypes<AllBackendTypes>::type;
 

@@ -16,42 +16,35 @@ cmake_minimum_required(VERSION 3.2.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-if(SNN_TEST_EIGEN)
-  foreach(_transpose_dim IN ITEMS 2 3 4)
-    snn_test(
-      WITH_SYCL
-      TARGET
-        transpose_${_transpose_dim}d
-      SIZE
-        moderate
-      SOURCES
-        transpose_${_transpose_dim}d.cc
-      OBJECTS
-        $<TARGET_OBJECTS:transpose>
-      PUBLIC_LIBRARIES
-        ${_matmul_providers}
-    )
-  endforeach()
+foreach(_transpose_dim IN ITEMS 2 3 4)
   snn_test(
     WITH_SYCL
     TARGET
-      transpose_conversions
+      transpose_${_transpose_dim}d
+    SIZE
+      moderate
     SOURCES
-      conversions.cc
+      transpose_${_transpose_dim}d.cc
     OBJECTS
       $<TARGET_OBJECTS:transpose>
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
   )
-  snn_test(
-    WITH_SYCL
-    TARGET
-      transpose_offsets
-    SOURCES
-      offsets.cc
-    OBJECTS
-      $<TARGET_OBJECTS:transpose>
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-  )
-endif(SNN_TEST_EIGEN)
+endforeach()
+
+snn_test(
+  WITH_SYCL
+  TARGET
+    transpose_conversions
+  SOURCES
+    conversions.cc
+  OBJECTS
+    $<TARGET_OBJECTS:transpose>
+)
+snn_test(
+  WITH_SYCL
+  TARGET
+    transpose_offsets
+  SOURCES
+    offsets.cc
+  OBJECTS
+    $<TARGET_OBJECTS:transpose>
+)

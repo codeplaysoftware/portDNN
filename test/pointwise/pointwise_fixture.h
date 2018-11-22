@@ -19,11 +19,7 @@
 
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
-#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 
 #include "sycldnn/helpers/scope_exit.h"
 
@@ -39,7 +35,7 @@
 
 template <typename DType, template <typename> class Op, typename Direction>
 struct PointwiseFixture
-    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::SNNBackend> {
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {
@@ -75,7 +71,7 @@ struct PointwiseFixture
 
 template <typename DType, template <typename T> class Op>
 struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
-    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::SNNBackend> {
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {

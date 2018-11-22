@@ -15,11 +15,9 @@
  */
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
 #include "sycldnn/padding_mode.h"
+
+#include "sycldnn/backend/snn_backend.h"
 
 #include "sycldnn/helpers/scope_exit.h"
 
@@ -39,7 +37,7 @@
 
 template <typename DType>
 struct MaxPoolingWithNan
-    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::SNNBackend> {
   using DataType = DType;
 
   template <template <typename> class Op>

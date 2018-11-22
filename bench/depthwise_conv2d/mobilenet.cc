@@ -16,16 +16,16 @@
 #include "mobilenet_param_set.h"
 #include "snn_fixture.h"
 
-#include "src/backend/eigen_backend_provider.h"
+#include "src/backend/snn_backend_provider.h"
 
-#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 
 #include "sycldnn/conv2d/conv_type.h"
 
-#define MOBILENET_BENCHMARK_WITH_DIR(N, Win, Str, Row, Col, Ch, Dir)           \
-  DEPTHWISE_CONVOLUTION_BENCHMARK(                                             \
-      "MobileNet", Dir##_##N##_##Win##_##Str##_##Row##_##Col##_##Ch,           \
-      sycldnn::backend::EigenBackend, ParameterSet<N, Win, Str, Row, Col, Ch>, \
+#define MOBILENET_BENCHMARK_WITH_DIR(N, Win, Str, Row, Col, Ch, Dir)         \
+  DEPTHWISE_CONVOLUTION_BENCHMARK(                                           \
+      "MobileNet", Dir##_##N##_##Win##_##Str##_##Row##_##Col##_##Ch,         \
+      sycldnn::backend::SNNBackend, ParameterSet<N, Win, Str, Row, Col, Ch>, \
       sycldnn::conv2d::conv_type::Dir)
 
 #define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch)                   \

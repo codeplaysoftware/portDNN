@@ -16,22 +16,18 @@ cmake_minimum_required(VERSION 3.2.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-if(SNN_TEST_EIGEN)
-  foreach(_type IN ITEMS "relu" "tanh")
-    foreach(_direction IN ITEMS "forward" "grad")
-      snn_test(
-        WITH_SYCL
-        TARGET
-          pointwise_${_type}_${_direction}
-        SIZE
-          moderate
-        SOURCES
-          ${_type}_${_direction}.cc
-        OBJECTS
-          $<TARGET_OBJECTS:pointwise>
-        PUBLIC_LIBRARIES
-          ${_matmul_providers}
-      )
-    endforeach()
+foreach(_type IN ITEMS "relu" "tanh")
+  foreach(_direction IN ITEMS "forward" "grad")
+    snn_test(
+      WITH_SYCL
+      TARGET
+        pointwise_${_type}_${_direction}
+      SIZE
+        moderate
+      SOURCES
+        ${_type}_${_direction}.cc
+      OBJECTS
+        $<TARGET_OBJECTS:pointwise>
+    )
   endforeach()
-endif(SNN_TEST_EIGEN)
+endforeach()

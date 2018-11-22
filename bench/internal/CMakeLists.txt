@@ -15,7 +15,6 @@
 
 cmake_minimum_required(VERSION 3.2.2)
 project(snn_bench_internal)
-include(HandleEigen)
 
 snn_bench(
   WITH_SYCL
@@ -25,5 +24,4 @@ snn_bench(
     tiled_conv2d_benchmark.cc
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
 )

@@ -168,7 +168,6 @@ snn_bench(
     $<TARGET_OBJECTS:pooling>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -182,7 +181,6 @@ snn_bench(
     $<TARGET_OBJECTS:pooling>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -196,7 +194,6 @@ snn_bench(
     $<TARGET_OBJECTS:pooling>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -210,7 +207,6 @@ snn_bench(
     $<TARGET_OBJECTS:pointwise>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -224,7 +220,6 @@ snn_bench(
     $<TARGET_OBJECTS:pointwise>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -238,7 +233,6 @@ snn_bench(
     $<TARGET_OBJECTS:depthwise_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )

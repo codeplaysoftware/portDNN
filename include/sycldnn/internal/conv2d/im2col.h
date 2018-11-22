@@ -65,7 +65,7 @@ static SNNStatus launch_im2col_for_minibatch(
   int const n_tiles = params.batch * tile_info.number;
   int const tile_size = tile_info.size;
   auto event = backend.template matmul<false, false>(
-      ConstPointer{pointers.transform}, pointers.filter,
+      ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
       pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
       matmul_size);
   return {event, StatusCode::OK};
