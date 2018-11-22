@@ -16,6 +16,11 @@
 
 #ifndef SYCLDNN_INCLUDE_POINTWISE_OPERATORS_H_
 #define SYCLDNN_INCLUDE_POINTWISE_OPERATORS_H_
+/**
+ * \file
+ * Contains the declarations of the \ref sycldnn::pointwise::Relu
+ * and \ref sycldnn::pointwise::Tanh tag types.
+ */
 
 namespace sycldnn {
 namespace pointwise {

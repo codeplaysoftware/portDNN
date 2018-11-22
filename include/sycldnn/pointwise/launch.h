@@ -35,6 +35,7 @@
 #include "sycldnn/internal/pointwise/launch_internal.h"
 
 namespace sycldnn {
+/** Namespace containing all pointwise operations. */
 namespace pointwise {
 
 /**

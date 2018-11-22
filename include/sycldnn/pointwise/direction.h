@@ -17,6 +17,12 @@
 #ifndef SYCLDNN_INCLUDE_POINTWISE_DIRECTION_H_
 #define SYCLDNN_INCLUDE_POINTWISE_DIRECTION_H_
 
+/**
+ * \file
+ * Contains the declarations of the Forward, Gradient, and GradGrad
+ * tag types.
+ */
+
 namespace sycldnn {
 namespace pointwise {
 
