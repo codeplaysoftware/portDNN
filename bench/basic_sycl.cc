@@ -43,11 +43,12 @@ static void BM_SetHostBufferDestruct(benchmark::State& state) {
   for (auto _ : state) {
     cl::sycl::buffer<float, 1> bufA{base_mem.data(),
                                     cl::sycl::range<1>{num_elems}};
-    queue.submit([&](cl::sycl::handler& cgh) {
+    auto ev = queue.submit([&](cl::sycl::handler& cgh) {
       auto accessor = bufA.template get_access<write_mode>(cgh);
       SetBuffer<float> functor(accessor);
       cgh.parallel_for(cl::sycl::range<1>{num_elems}, functor);
     });
+    ev.wait_and_throw();
   }
 }
 static void BM_SetDeviceBufferDestruct(benchmark::State& state) {
@@ -57,11 +58,12 @@ static void BM_SetDeviceBufferDestruct(benchmark::State& state) {
   cl::sycl::queue queue{selector};
   for (auto _ : state) {
     cl::sycl::buffer<float, 1> bufA{cl::sycl::range<1>{num_elems}};
-    queue.submit([&](cl::sycl::handler& cgh) {
+    auto ev = queue.submit([&](cl::sycl::handler& cgh) {
       auto accessor = bufA.template get_access<write_mode>(cgh);
       SetBuffer<float> functor(accessor);
       cgh.parallel_for(cl::sycl::range<1>{num_elems}, functor);
     });
+    ev.wait_and_throw();
   }
 }
 static void BM_SetDeviceBufferNoDestruct(benchmark::State& state) {
@@ -71,11 +73,12 @@ static void BM_SetDeviceBufferNoDestruct(benchmark::State& state) {
   cl::sycl::queue queue{selector};
   cl::sycl::buffer<float, 1> bufA{cl::sycl::range<1>{num_elems}};
   for (auto _ : state) {
-    queue.submit([&](cl::sycl::handler& cgh) {
+    auto ev = queue.submit([&](cl::sycl::handler& cgh) {
       auto accessor = bufA.template get_access<write_mode>(cgh);
       SetBuffer<float> functor(accessor);
       cgh.parallel_for(cl::sycl::range<1>{num_elems}, functor);
     });
+    ev.wait_and_throw();
   }
 }
 BENCHMARK(BM_SetHostBufferDestruct)->Range(8 << 4, 8 << 10);
