@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cmake_minimum_required(VERSION 3.2.2)
+
+# Helpers macro to ensure a file is only included once, to avoid creating
+# multiple identical targets or overriding variables
+macro(snn_include_guard NAME)
+  if(_SNN_${NAME}_INCLUDED)
+    return()
+  else()
+    set(_SNN_${NAME}_INCLUDED ON)
+  endif()
+endmacro()
+
+snn_include_guard(SNN_HELPERS)
 
 # Helper functions to add targets to SYCL DNN
 #
@@ -31,7 +44,6 @@
 # specify that SYCL support is required. Any additional C++ compiler flags
 # required can be added to the target with `CXX_OPTS`.
 #
-cmake_minimum_required(VERSION 3.2.2)
 set(SNN_TEST_DEFAULT_TIMEOUT "30" CACHE STRING
   "Default timeout for tests (seconds)")
 set(SNN_TEST_SHORT_TIMEOUT "30" CACHE STRING

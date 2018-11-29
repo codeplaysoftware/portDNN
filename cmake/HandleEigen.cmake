@@ -14,6 +14,9 @@
 
 cmake_minimum_required(VERSION 3.2.2)
 
+include(SNNHelpers)
+snn_include_guard(HANDLE_EIGEN)
+
 if(NOT SNN_DOWNLOAD_EIGEN)
   find_package(Eigen)
 endif()

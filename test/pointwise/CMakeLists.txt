@@ -1,0 +1,37 @@
+# Copyright 2018 Codeplay Software Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use these files except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+cmake_minimum_required(VERSION 3.2.2)
+
+include(HandleGTest)
+include(SNNHelpers)
+
+if(SNN_TEST_EIGEN)
+  foreach(_type IN ITEMS "relu" "tanh")
+    foreach(_direction IN ITEMS "forward" "grad")
+      snn_test(
+        WITH_SYCL
+        TARGET
+          pointwise_${_type}_${_direction}
+        SIZE
+          moderate
+        SOURCES
+          ${_type}_${_direction}.cc
+        OBJECTS
+          $<TARGET_OBJECTS:pointwise>
+        PUBLIC_LIBRARIES
+          Eigen::Eigen
+      )
+    endforeach()
+  endforeach()
+endif(SNN_TEST_EIGEN)

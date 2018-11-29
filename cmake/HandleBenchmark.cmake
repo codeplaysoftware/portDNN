@@ -21,6 +21,9 @@
 # be available in the `benchmark::benchmark` target.
 cmake_minimum_required(VERSION 3.2.2)
 
+include(SNNHelpers)
+snn_include_guard(HANDLE_BENCHMARK)
+
 if(NOT SNN_DOWNLOAD_BENCHMARK)
   find_package(benchmark)
 endif()

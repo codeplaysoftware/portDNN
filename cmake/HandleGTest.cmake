@@ -24,8 +24,11 @@
 # fail if it cannot find this.
 cmake_minimum_required(VERSION 3.2.2)
 
+include(SNNHelpers)
+snn_include_guard(HANDLE_GTEST)
+
 if(NOT SNN_DOWNLOAD_GTEST)
-  find_package(GTest)
+  find_package(GTest QUIET)
   if(GTEST_FOUND AND NOT TARGET GTest::GTest)
     # Older versions of cmake don't create a GTest::GTest target
     find_package(Threads REQUIRED)
