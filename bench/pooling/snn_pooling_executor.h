@@ -52,7 +52,7 @@ struct SNNPoolingExecutor : public BaseExecutor {
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pooling::launch<float, Operator, Direction>(
           inp_gpu, out_gpu, params, backend);
-      status.event.wait();
+      status.event.wait_and_throw();
 
       if (sycldnn::StatusCode::OK != status.status) {
         state.SkipWithError(
@@ -67,7 +67,7 @@ struct SNNPoolingExecutor : public BaseExecutor {
       auto status = sycldnn::pooling::launch<float, Operator, Direction>(
           inp_gpu, out_gpu, params, backend);
 
-      status.event.wait();
+      status.event.wait_and_throw();
       this->end_timing();
 
       this->set_iteration_time(state);
@@ -75,6 +75,9 @@ struct SNNPoolingExecutor : public BaseExecutor {
 
     benchmark.deallocate(out_gpu);
     benchmark.deallocate(inp_gpu);
+
+    // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
+    backend.get_queue().wait_and_throw();
 
     benchmark.template set_items_processed<Direction>(state, params);
     benchmark.add_param_counters(state, params);
@@ -124,7 +127,7 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
       auto status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
                                              sycldnn::pooling::Backpropagate>(
           inp_gpu, out_gpu, inp_back_gpu, out_back_gpu, params, backend);
-      status.event.wait();
+      status.event.wait_and_throw();
 
       if (sycldnn::StatusCode::OK != status.status) {
         state.SkipWithError(
@@ -139,7 +142,7 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
       auto status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
                                              sycldnn::pooling::Backpropagate>(
           inp_gpu, out_gpu, inp_back_gpu, out_back_gpu, params, backend);
-      status.event.wait();
+      status.event.wait_and_throw();
       this->end_timing();
       this->set_iteration_time(state);
     }
@@ -148,6 +151,9 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
     benchmark.deallocate(inp_back_gpu);
     benchmark.deallocate(out_gpu);
     benchmark.deallocate(inp_gpu);
+
+    // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
+    backend.get_queue().wait_and_throw();
 
     benchmark.template set_items_processed<sycldnn::pooling::Backpropagate>(
         state, params);

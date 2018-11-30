@@ -51,7 +51,7 @@ struct SNNConv2DExecutor : public BaseExecutor {
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::conv2d::launch<float, ConvType>(
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
-      status.event.wait();
+      status.event.wait_and_throw();
 
       if (sycldnn::StatusCode::OK != status.status) {
         state.SkipWithError(
@@ -66,7 +66,7 @@ struct SNNConv2DExecutor : public BaseExecutor {
       auto status = sycldnn::conv2d::launch<float, ConvType>(
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
 
-      status.event.wait();
+      status.event.wait_and_throw();
       this->end_timing();
       this->set_iteration_time(state);
     }
@@ -74,6 +74,9 @@ struct SNNConv2DExecutor : public BaseExecutor {
     benchmark.deallocate(out_gpu);
     benchmark.deallocate(fil_gpu);
     benchmark.deallocate(inp_gpu);
+
+    // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
+    backend.get_queue().wait_and_throw();
 
     benchmark.template set_items_processed<ConvType>(state, params);
     benchmark.add_param_counters(state, params);
