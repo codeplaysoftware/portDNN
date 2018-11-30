@@ -30,6 +30,7 @@
 #define VGG_BENCHMARK(N, C, W, H, F)             \
   VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Direct) \
   VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Tiled)  \
+  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Im2col) \
   VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Winograd)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
