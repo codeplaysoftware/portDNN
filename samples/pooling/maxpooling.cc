@@ -54,7 +54,7 @@ int main() {
   params.pad_cols = 0;
 
   /* Device memory of the size of the tensor. */
-  using value_type = int;
+  using value_type = float;
   auto input_nbytes = params.batch * params.in_rows * params.in_cols *
                       params.channels * sizeof(value_type);
   auto output_nbytes = params.batch * params.out_rows * params.out_cols *
@@ -67,7 +67,7 @@ int main() {
 
   /* Use random number generation to initialise the device memory. */
   std::mt19937 rng;
-  std::uniform_int_distribution<int> dist(0, 20);
+  std::uniform_real_distribution<value_type> dist(0, 20);
   std::vector<value_type> input(params.in_rows * params.in_cols);
   std::generate(input.begin(), input.end(), [&] { return dist(rng); });
   device.memcpyHostToDevice(input_gpu_buffer, input.data(), input_nbytes);

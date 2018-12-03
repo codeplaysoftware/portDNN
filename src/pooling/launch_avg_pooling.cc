@@ -26,10 +26,6 @@ namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int32_t, Average, Forward)
-#ifdef SNN_USE_INT64
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int64_t, Average, Forward)
-#endif  // SNN_USE_INT64
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(float, Average, Forward)
 #ifdef SNN_USE_HALF
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Average, Forward)
@@ -38,10 +34,6 @@ SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Average, Forward)
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(double, Average, Forward)
 #endif  // SNN_USE_DOUBLE
 
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int32_t, Average, Backpropagate)
-#ifdef SNN_USE_INT64
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(int64_t, Average, Backpropagate)
-#endif  // SNN_USE_INT64
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(float, Average, Backpropagate)
 #ifdef SNN_USE_HALF
 SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Average, Backpropagate)

@@ -55,7 +55,7 @@ struct MaxWithNan {
   T max = std::numeric_limits<T>::lowest();
 
   void accumulate(T val) {
-    if (std::isnan(val) || val > max) {
+    if (cl::sycl::isnan(val) || val > max) {
       max = val;
     }
   }
@@ -113,7 +113,7 @@ struct EqualCheck<MaxWithNan> {
   /** Consider two values equal if both are NaN or have the same value. */
   template <typename T>
   static bool are_equal(T a, T b) {
-    return a == b || (std::isnan(a) && std::isnan(b));
+    return a == b || (cl::sycl::isnan(a) && cl::sycl::isnan(b));
   }
 };
 
