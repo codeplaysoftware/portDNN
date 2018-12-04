@@ -170,6 +170,36 @@ snn_bench(
     ${_BENCHMARK_DEFINITIONS}
 )
 
+snn_bench(
+  WITH_SYCL
+  TARGET
+    relu
+  SOURCES
+    pointwise/relu.cc
+  OBJECTS
+    $<TARGET_OBJECTS:pointwise>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+
+snn_bench(
+  WITH_SYCL
+  TARGET
+    tanh
+  SOURCES
+    pointwise/tanh.cc
+  OBJECTS
+    $<TARGET_OBJECTS:pointwise>
+  PUBLIC_LIBRARIES
+    bench_main
+    Eigen::Eigen
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)
 endif()

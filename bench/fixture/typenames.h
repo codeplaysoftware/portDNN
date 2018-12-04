@@ -17,6 +17,7 @@
 #define SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_
 
 #include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pooling/operators.h"
 
 namespace sycldnn {
@@ -39,6 +40,16 @@ constexpr const char* TypeName<sycldnn::pooling::Forward>::name = "Forward";
 template <>
 constexpr const char* TypeName<sycldnn::pooling::Backpropagate>::name =
     "Backpropagate";
+
+// Direction for Pointwise
+template <>
+constexpr const char* TypeName<sycldnn::pointwise::Forward>::name = "Forward";
+
+template <>
+constexpr const char* TypeName<sycldnn::pointwise::Gradient>::name = "Gradient";
+
+template <>
+constexpr const char* TypeName<sycldnn::pointwise::GradGrad>::name = "GradGrad";
 
 // Types of convolution
 template <>

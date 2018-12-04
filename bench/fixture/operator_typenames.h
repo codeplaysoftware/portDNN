@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
 #define SYCLDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
 
+#include "sycldnn/pointwise/operators.h"
 #include "sycldnn/pooling/operators.h"
 
 namespace sycldnn {
@@ -34,6 +35,13 @@ constexpr const char* OperatorTypeName<sycldnn::pooling::Max>::name = "Max";
 template <>
 constexpr const char* OperatorTypeName<sycldnn::pooling::Average>::name =
     "Average";
+
+// Templated Pointwise operators
+template <>
+constexpr const char* OperatorTypeName<sycldnn::pointwise::Relu>::name = "Relu";
+
+template <>
+constexpr const char* OperatorTypeName<sycldnn::pointwise::Tanh>::name = "Tanh";
 
 }  // namespace bench
 }  // namespace sycldnn
