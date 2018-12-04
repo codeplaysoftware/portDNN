@@ -47,13 +47,14 @@ struct Relu {
 template <>
 template <typename DType>
 DType Relu<Forward>::apply(DType val) {
-  return helpers::max(val, DType{0});
+  return cl::sycl::max(val, DType{0});
 }
 
 template <>
 template <typename DType>
 DType Relu<Gradient>::apply(DType val, DType err) {
-  return val > DType{0} ? err : 0;
+  auto mask = cl::sycl::isgreater(val, DType{0.f});
+  return cl::sycl::select(DType{0.f}, err, mask);
 }
 
 template <typename Direction>
@@ -73,11 +74,11 @@ DType Tanh<Forward>::apply(DType val) {
 template <>
 template <typename DType>
 DType Tanh<Gradient>::apply(DType val, DType err) {
-  return (1 - (val * val)) * err;
+  return (DType{1} - (val * val)) * err;
 }
 
 template <typename T, typename Index, template <typename> class Op,
-          typename Direction>
+          typename Direction, int VectorWidth>
 class PointwiseOp;
 
 /**
@@ -85,9 +86,10 @@ class PointwiseOp;
  * since we wish to keep the results for the back-propogation stage
  * if we are training.
  */
-template <typename T, typename Index, template <typename> class Op>
-class PointwiseOp<T, Index, Op, Forward> {
-  using DataType = typename helpers::VectorType<T, 1>::type;
+template <typename T, typename Index, template <typename> class Op,
+          int VectorWidth>
+class PointwiseOp<T, Index, Op, Forward, VectorWidth> {
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
 
@@ -111,11 +113,12 @@ class PointwiseOp<T, Index, Op, Forward> {
     Index const idx = item.get_id(0);
     if (idx < n_items_) {
       Op<Forward> op;
+      auto vec_idx = idx * VectorWidth;
 
       auto in_ptr = input_.get_pointer();
-      auto in_offset_idx = in_offset_ + idx;
+      auto in_offset_idx = in_offset_ + vec_idx;
       auto out_ptr = output_.get_pointer();
-      auto out_offset_idx = out_offset_ + idx;
+      auto out_offset_idx = out_offset_ + vec_idx;
 
       auto in_value = LoadData()(in_ptr, in_offset_idx);
       auto out_value = op.apply(in_value);
@@ -124,9 +127,10 @@ class PointwiseOp<T, Index, Op, Forward> {
   }
 };
 
-template <typename T, typename Index, template <typename> class Op>
-class PointwiseOp<T, Index, Op, Gradient> {
-  using DataType = typename helpers::VectorType<T, 1>::type;
+template <typename T, typename Index, template <typename> class Op,
+          int VectorWidth>
+class PointwiseOp<T, Index, Op, Gradient, VectorWidth> {
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
 
@@ -157,15 +161,16 @@ class PointwiseOp<T, Index, Op, Gradient> {
     Index const idx = item.get_id(0);
     if (idx < n_items_) {
       Op<Gradient> op;
+      auto vec_idx = idx * VectorWidth;
 
       auto out_fwd_ptr = output_forward_.get_pointer();
-      auto out_fwd_offset_idx = out_fwd_offset_ + idx;
+      auto out_fwd_offset_idx = out_fwd_offset_ + vec_idx;
 
       auto in_bk_ptr = input_backprop_.get_pointer();
-      auto in_bk_offset_idx = in_bk_offset_ + idx;
+      auto in_bk_offset_idx = in_bk_offset_ + vec_idx;
 
       auto out_bk_ptr = output_backprop_.get_pointer();
-      auto out_bk_offset_idx = out_bk_offset_ + idx;
+      auto out_bk_offset_idx = out_bk_offset_ + vec_idx;
 
       auto out_fwd_value = LoadData()(out_fwd_ptr, out_fwd_offset_idx);
       auto in_bk_value = LoadData()(in_bk_ptr, in_bk_offset_idx);
