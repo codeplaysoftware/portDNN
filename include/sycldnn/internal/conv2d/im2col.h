@@ -47,6 +47,8 @@ static SNNStatus launch_im2col_for_minibatch(
     FullPointerSet<T, Backend, ConvType> const& pointers, size_t in_offset,
     size_t out_offset, TileInfo const& tile_info, Conv2DParams const& params,
     Backend& backend) {
+  using ConstPointer =
+      typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
   auto status =
       launch_input_transform(pointers, in_offset, tile_info, params, backend);
   if (status.status != StatusCode::OK) {
@@ -62,8 +64,9 @@ static SNNStatus launch_im2col_for_minibatch(
   int const n_tiles = params.batch * tile_info.number;
   int const tile_size = tile_info.size;
   auto event = backend.template matmul<false, false>(
-      pointers.transform, pointers.filter, pointers.output + out_offset,
-      static_cast<T>(0), n_tiles, tile_size, matmul_size);
+      ConstPointer{pointers.transform}, pointers.filter,
+      pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
+      matmul_size);
   return {event, StatusCode::OK};
 }
 
@@ -79,6 +82,8 @@ static SNNStatus launch_im2col_for_minibatch(
     FullPointerSet<T, Backend, ConvType> const& pointers, size_t in_offset,
     size_t out_offset, TileInfo const& tile_info, Conv2DParams const& params,
     Backend& backend) {
+  using ConstPointer =
+      typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
   auto status =
       launch_input_transform(pointers, in_offset, tile_info, params, backend);
   if (status.status != StatusCode::OK) {
@@ -90,12 +95,14 @@ static SNNStatus launch_im2col_for_minibatch(
   cl::sycl::event matmul_event;
   if (in_offset == 0) {
     matmul_event = backend.template matmul<false, false>(
-        pointers.transform, pointers.filter + out_offset, pointers.output,
-        static_cast<T>(0), n_tiles, tile_size, params.features);
+        ConstPointer{pointers.transform}, pointers.filter + out_offset,
+        pointers.output, static_cast<T>(0), n_tiles, tile_size,
+        params.features);
   } else {
     matmul_event = backend.template matmul<false, false>(
-        pointers.transform, pointers.filter + out_offset, pointers.output,
-        static_cast<T>(1), n_tiles, tile_size, params.features);
+        ConstPointer{pointers.transform}, pointers.filter + out_offset,
+        pointers.output, static_cast<T>(1), n_tiles, tile_size,
+        params.features);
   }
   return {matmul_event, StatusCode::OK};
 }

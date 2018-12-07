@@ -26,8 +26,9 @@ namespace im2col {
  */
 template <typename T, typename Backend, typename ConvType>
 struct FullPointerSet {
-  using ConstPointer = typename Backend::template pointer_type<T const>;
-  using Pointer = typename Backend::template pointer_type<T>;
+  using ConstPointer =
+      typename Backend::template internal_pointer_type<T const>;
+  using Pointer = typename Backend::template internal_pointer_type<T>;
 
   ConstPointer input;
   ConstPointer filter;
@@ -43,8 +44,9 @@ struct FullPointerSet {
  */
 template <typename T, typename Backend>
 struct FullPointerSet<T, Backend, conv_type::InputBackprop> {
-  using ConstPointer = typename Backend::template pointer_type<T const>;
-  using Pointer = typename Backend::template pointer_type<T>;
+  using ConstPointer =
+      typename Backend::template internal_pointer_type<T const>;
+  using Pointer = typename Backend::template internal_pointer_type<T>;
 
   ConstPointer input;
   ConstPointer original_filter;

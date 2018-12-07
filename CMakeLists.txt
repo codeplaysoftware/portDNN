@@ -128,6 +128,7 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:selector_conv2d>
   $<TARGET_OBJECTS:pooling>
   $<TARGET_OBJECTS:pointwise>
+  $<TARGET_OBJECTS:matmul>
 )
 snn_target(TARGET sycl_dnn WITH_SYCL)
 set_target_properties(sycl_dnn PROPERTIES
@@ -145,6 +146,7 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:selector_conv2d>
   $<TARGET_OBJECTS:pooling>
   $<TARGET_OBJECTS:pointwise>
+  $<TARGET_OBJECTS:matmul>
 )
 snn_target(TARGET sycl_dnn_static WITH_SYCL)
 set_target_properties(sycl_dnn_static PROPERTIES
