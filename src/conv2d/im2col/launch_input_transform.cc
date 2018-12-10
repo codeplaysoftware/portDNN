@@ -20,6 +20,8 @@
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
 
+#include "sycldnn/internal/conv2d/im2col/launch_input_transform.h"
+
 #include "src/conv2d/im2col/queue_input_transform.h"
 #include "src/conv2d/im2col/queue_zero_out_transform.h"
 
@@ -28,6 +30,8 @@
 #include <limits>
 
 #include <CL/sycl.hpp>
+
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -117,7 +121,7 @@ SNNStatus launch_input_transform(BaseMemObject<T const>& input,
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, CTYPE)                               \
-  template SNNStatus launch_input_transform<DTYPE, CTYPE>(               \
+  template SNN_EXPORT SNNStatus launch_input_transform<DTYPE, CTYPE>(    \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
       Conv2DParams const& params, int n_tiles, int tile_size,            \
       cl::sycl::queue& queue);

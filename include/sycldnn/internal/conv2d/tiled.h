@@ -20,6 +20,8 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -29,9 +31,11 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T, typename ConvType>
-SNNStatus launch_tiled(BaseMemObject<T const>& input,
-                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
-                       Conv2DParams const& params, cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_tiled(BaseMemObject<T const>& input,
+                                  BaseMemObject<T const>& filter,
+                                  BaseMemObject<T>& output,
+                                  Conv2DParams const& params,
+                                  cl::sycl::queue& queue);
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

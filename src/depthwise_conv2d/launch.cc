@@ -30,6 +30,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
@@ -82,7 +84,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, DIRECTION)                                 \
-  template SNNStatus launch<DIRECTION, DTYPE>(                                 \
+  template SNN_EXPORT SNNStatus launch<DIRECTION, DTYPE>(                      \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
       BaseMemObject<DTYPE> & output, DepthwiseConv2DParams const& params,      \
       cl::sycl::queue& queue)

@@ -20,15 +20,18 @@
 #include "sycldnn/internal/pointwise/launch_internal.h"
 
 #include "sycldnn/pointwise/direction.h"
-
 #include "sycldnn/pointwise/operators.h"
 
 #include "src/pointwise/kernels.h"
 
-#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP, DIRECTION) \
-  template SNNStatus launch_pointwise<DTYPE, OP, DIRECTION>(          \
-      BaseMemObject<DTYPE const> & inp_access,                        \
-      BaseMemObject<DTYPE> & outp_access, size_t const n_items,       \
+#include <CL/sycl.hpp>
+
+#include "sycldnn/export.h"
+
+#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP, DIRECTION)   \
+  template SNN_EXPORT SNNStatus launch_pointwise<DTYPE, OP, DIRECTION>( \
+      BaseMemObject<DTYPE const> & inp_access,                          \
+      BaseMemObject<DTYPE> & outp_access, size_t const n_items,         \
       cl::sycl::queue& queue);
 
 namespace sycldnn {

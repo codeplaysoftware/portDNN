@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.3)
 
 # Helpers macro to ensure a file is only included once, to avoid creating
 # multiple identical targets or overriding variables
@@ -148,6 +148,7 @@ function(snn_target)
   target_include_directories(${SNN_TARGET_TARGET}
     PUBLIC  $<INSTALL_INTERFACE:${include_dest}>
             $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${sycldnn_BINARY_DIR}>
     PRIVATE $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}>
   )
 

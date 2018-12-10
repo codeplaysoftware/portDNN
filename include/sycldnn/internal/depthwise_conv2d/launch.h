@@ -29,6 +29,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
@@ -49,9 +51,11 @@ namespace internal {
  * encountered some problem.
  */
 template <typename ConvType, typename T>
-SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
-                 BaseMemObject<T>& output, DepthwiseConv2DParams const& params,
-                 cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
+                            BaseMemObject<T const>& filter,
+                            BaseMemObject<T>& output,
+                            DepthwiseConv2DParams const& params,
+                            cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace depthwise_conv2d

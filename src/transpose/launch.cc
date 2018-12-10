@@ -22,6 +22,8 @@
 #include <iterator>
 #include <vector>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace transpose {
 namespace internal {
@@ -129,7 +131,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
 }
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                    \
-  template SNNStatus launch(                                           \
+  template SNN_EXPORT SNNStatus launch(                                \
       BaseMemObject<DTYPE const>& input, BaseMemObject<DTYPE>& output, \
       std::vector<int> dimensions, std::vector<int> permutation,       \
       cl::sycl::queue& backend)

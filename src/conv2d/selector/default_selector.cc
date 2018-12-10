@@ -26,6 +26,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 /**
  * \file Implemented selectors for convolution algorithms on various devices,
  * selecting the fastest algorithm for the given device and convolution
@@ -213,7 +215,8 @@ class AMDGPUSelector final : public DefaultSelector {
 namespace sycldnn {
 namespace conv2d {
 
-std::unique_ptr<Selector> get_default_selector(const cl::sycl::device& device) {
+SNN_EXPORT std::unique_ptr<Selector> get_default_selector(
+    const cl::sycl::device& device) {
   auto vendor = device.get_info<cl::sycl::info::device::vendor>();
   bool is_intel = vendor.find("Intel(R) Corporation") != std::string::npos;
   bool is_amd =

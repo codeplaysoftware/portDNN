@@ -23,6 +23,8 @@
 
 #include <vector>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace transpose {
 namespace internal {
@@ -33,9 +35,11 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T>
-SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                 std::vector<int> dimensions, std::vector<int> permutation,
-                 cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
+                            BaseMemObject<T>& output,
+                            std::vector<int> dimensions,
+                            std::vector<int> permutation,
+                            cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace transpose

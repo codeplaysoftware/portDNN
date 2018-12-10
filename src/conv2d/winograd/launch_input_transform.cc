@@ -19,6 +19,8 @@
 
 #include "src/conv2d/winograd/queue_input_transform.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -53,7 +55,8 @@ SNNStatus launch_input_transform(BaseMemObject<T const>& input,
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, M, N, R, S)                      \
-  template SNNStatus launch_input_transform<DTYPE, CTYPE, M, N, R, S>(      \
+  template SNN_EXPORT SNNStatus                                             \
+  launch_input_transform<DTYPE, CTYPE, M, N, R, S>(                         \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & transform, \
       Conv2DParams const& params, TileInfo const& tile_info,                \
       cl::sycl::queue& queue);

@@ -28,6 +28,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 /**
  * \file
  * Contains the sycldnn::conv2d::internal::winograd::launch_output_transform()
@@ -56,11 +58,10 @@ namespace winograd {
  */
 template <typename T, typename ConvType, int M, int N, int R, int S,
           bool Accumulate = false>
-SNNStatus launch_output_transform(BaseMemObject<T const>& intermediate,
-                                  BaseMemObject<T>& output,
-                                  Conv2DParams const& params,
-                                  TileInfo const& tile_info,
-                                  cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus
+launch_output_transform(BaseMemObject<T const>& intermediate,
+                        BaseMemObject<T>& output, Conv2DParams const& params,
+                        TileInfo const& tile_info, cl::sycl::queue& queue);
 
 /**
  * Extract the buffers from the backend and launch the Winograd output transform

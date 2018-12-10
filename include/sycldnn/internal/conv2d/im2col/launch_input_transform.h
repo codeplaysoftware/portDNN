@@ -26,6 +26,8 @@
 #include "sycldnn/internal/conv2d/im2col/full_pointer_set.h"
 #include "sycldnn/internal/conv2d/im2col/tile_info.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -45,10 +47,11 @@ namespace im2col {
  * \return An SNNStatus with event linked to the kernel launch or an error code.
  */
 template <typename T, typename ConvType>
-SNNStatus launch_input_transform(BaseMemObject<T const>& input,
-                                 BaseMemObject<T>& output,
-                                 Conv2DParams const& params, int n_tiles,
-                                 int tile_size, cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_input_transform(BaseMemObject<T const>& input,
+                                            BaseMemObject<T>& output,
+                                            Conv2DParams const& params,
+                                            int n_tiles, int tile_size,
+                                            cl::sycl::queue& queue);
 
 /** Extract the buffers from the backend and call the kernel launcher. */
 template <typename T, typename ConvType, typename Backend>

@@ -23,6 +23,8 @@
 #include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pointwise/operators.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace pointwise {
 namespace internal {
@@ -43,17 +45,19 @@ using DisableIfGradient =
 // The internal pointwise operation launcher for the forward pass.
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename = DisableIfGradient<Direction>>
-SNNStatus launch_pointwise(BaseMemObject<T const>& input,
-                           BaseMemObject<T>& output, size_t const n_items,
-                           cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_pointwise(BaseMemObject<T const>& input,
+                                      BaseMemObject<T>& output,
+                                      size_t const n_items,
+                                      cl::sycl::queue& queue);
 
 // The internal pointwise operation launcher for the backward pass.
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename = EnableIfGradient<Direction>>
-SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
-                           BaseMemObject<T const>& input_backprop,
-                           BaseMemObject<T>& output, size_t const n_items,
-                           cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
+                                      BaseMemObject<T const>& input_backprop,
+                                      BaseMemObject<T>& output,
+                                      size_t const n_items,
+                                      cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace pointwise

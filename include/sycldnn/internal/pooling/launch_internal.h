@@ -23,6 +23,8 @@
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace pooling {
 namespace internal {
@@ -62,17 +64,19 @@ using EnableIfMaxGradient =
 
 template <typename T, template <typename> class PoolType, typename Direction,
           DisableIfMaxGradient<T, PoolType, Direction> = 0>
-SNNStatus launch_pooling(BaseMemObject<T const>& input,
-                         BaseMemObject<T>& output, const PoolingParams& pp,
-                         cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_pooling(BaseMemObject<T const>& input,
+                                    BaseMemObject<T>& output,
+                                    const PoolingParams& pp,
+                                    cl::sycl::queue& queue);
 
 template <typename T, template <typename> class PoolType, typename Direction,
           EnableIfMaxGradient<T, PoolType, Direction> = 0>
-SNNStatus launch_pooling(BaseMemObject<T const>& inp_data,
-                         BaseMemObject<T const>& outp_data,
-                         BaseMemObject<T const>& inp_backprop,
-                         BaseMemObject<T>& outp_backprop,
-                         const PoolingParams& pp, cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_pooling(BaseMemObject<T const>& inp_data,
+                                    BaseMemObject<T const>& outp_data,
+                                    BaseMemObject<T const>& inp_backprop,
+                                    BaseMemObject<T>& outp_backprop,
+                                    const PoolingParams& pp,
+                                    cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace pooling

@@ -26,6 +26,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -63,7 +65,7 @@ SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE)                                      \
-  template SNNStatus launch_filter_transform<DTYPE>(                     \
+  template SNN_EXPORT SNNStatus launch_filter_transform<DTYPE>(          \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
       Conv2DParams const& params, cl::sycl::queue& queue);
 

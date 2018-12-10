@@ -26,6 +26,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 /**
  * \file
  * Contains the sycldnn::conv2d::internal::winograd::launch_input_transform()
@@ -53,11 +55,11 @@ namespace winograd {
  * kernel launched.
  */
 template <typename T, typename ConvType, int M, int N, int R, int S>
-SNNStatus launch_input_transform(BaseMemObject<T const>& input,
-                                 BaseMemObject<T>& transform,
-                                 Conv2DParams const& params,
-                                 TileInfo const& tile_info,
-                                 cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_input_transform(BaseMemObject<T const>& input,
+                                            BaseMemObject<T>& transform,
+                                            Conv2DParams const& params,
+                                            TileInfo const& tile_info,
+                                            cl::sycl::queue& queue);
 
 /**
  * Extract the buffers from the backend and launch the Winograd input transform

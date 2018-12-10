@@ -27,6 +27,8 @@
 #include <CL/sycl.hpp>
 #include <memory>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 
@@ -35,7 +37,8 @@ namespace conv2d {
  * \param device The SYCL device to make algorithm selections for.
  * \return Returns a unique (owning) pointer to an algorithm selector.
  */
-std::unique_ptr<Selector> get_default_selector(const cl::sycl::device& device);
+SNN_EXPORT std::unique_ptr<Selector> get_default_selector(
+    const cl::sycl::device& device);
 
 }  // namespace conv2d
 }  // namespace sycldnn

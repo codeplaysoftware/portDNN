@@ -29,6 +29,10 @@
 #include "src/pooling/kernels.h"
 #include "src/pooling/queue_pooling_kernel.h"
 
+#include <CL/sycl.hpp>
+
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace pooling {
 namespace internal {
@@ -88,10 +92,10 @@ SNNStatus launch_pooling(BaseMemObject<T const>& input,
   }
 }
 
-#define INSTANTIATE_LAUNCH(DTYPE, OP, DIRECTION)                   \
-  template SNNStatus launch_pooling<DTYPE, OP, DIRECTION>(         \
-      BaseMemObject<DTYPE const> & inp_access,                     \
-      BaseMemObject<DTYPE> & outp_access, const PoolingParams& pp, \
+#define INSTANTIATE_LAUNCH(DTYPE, OP, DIRECTION)                      \
+  template SNN_EXPORT SNNStatus launch_pooling<DTYPE, OP, DIRECTION>( \
+      BaseMemObject<DTYPE const> & inp_access,                        \
+      BaseMemObject<DTYPE> & outp_access, const PoolingParams& pp,    \
       cl::sycl::queue& queue)
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)               \

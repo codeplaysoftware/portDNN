@@ -19,6 +19,8 @@
 
 #include "src/conv2d/winograd/queue_output_transform.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -35,10 +37,11 @@ SNNStatus launch_output_transform(BaseMemObject<T const>& intermediate,
       intermediate, output, params, tile_info, queue);
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, M, N, R, S, ACC)                  \
-  template SNNStatus launch_output_transform<DTYPE, CTYPE, M, N, R, S, ACC>( \
-      BaseMemObject<DTYPE const> & intermediate,                             \
-      BaseMemObject<DTYPE> & output, Conv2DParams const& params,             \
+#define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, M, N, R, S, ACC)      \
+  template SNN_EXPORT SNNStatus                                  \
+  launch_output_transform<DTYPE, CTYPE, M, N, R, S, ACC>(        \
+      BaseMemObject<DTYPE const> & intermediate,                 \
+      BaseMemObject<DTYPE> & output, Conv2DParams const& params, \
       TileInfo const& tile_info, cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                         \

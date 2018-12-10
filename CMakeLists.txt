@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.3)
 
 project(sycldnn LANGUAGES C CXX VERSION 0.6.0)
 
@@ -106,6 +106,12 @@ option(SNN_REGISTER_TILE_SPECIALISATIONS
 if(SNN_REGISTER_TILE_SPECIALISATIONS)
   add_definitions(-DSNN_REGISTER_TILE_SPECIALISATIONS=1)
 endif()
+option(SNN_VISIBILITY_HIDDEN
+  "Set default visibility to hidden, reducing the number of exported symbols" ON)
+if(SNN_VISIBILITY_HIDDEN)
+  set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+  set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -179,6 +185,13 @@ set_target_properties(sycl_dnn_static PROPERTIES
   OUTPUT_NAME "sycldnn_static"
   VERSION ${sycldnn_VERSION}
 )
+
+include(GenerateExportHeader)
+generate_export_header(sycl_dnn
+  BASE_NAME "SNN"
+  EXPORT_FILE_NAME "sycldnn/export.h"
+)
+
 include(CMakePackageConfigHelpers)
 set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/sycldnn-version.cmake")
 write_basic_package_version_file(${version_file}
@@ -195,6 +208,7 @@ install(TARGETS sycl_dnn sycl_dnn_static
 )
 install(DIRECTORY include/sycldnn DESTINATION ${include_dest})
 install(FILES ${version_file} DESTINATION ${cmake_config_dest})
+install(FILES ${sycldnn_BINARY_DIR}/sycldnn/export.h DESTINATION ${include_dest}/sycldnn)
 install(EXPORT sycldnn
   DESTINATION ${cmake_config_dest}
   NAMESPACE SYCLDNN::

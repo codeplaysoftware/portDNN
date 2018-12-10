@@ -34,6 +34,8 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -249,7 +251,7 @@ inline SNNStatus launch_tiled(BaseMemObject<T const>& input,
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                       \
-  template SNNStatus launch_tiled<DTYPE, DIR>(                                 \
+  template SNN_EXPORT SNNStatus launch_tiled<DTYPE, DIR>(                      \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
       BaseMemObject<DTYPE> & output, Conv2DParams const& params,               \
       cl::sycl::queue& queue)

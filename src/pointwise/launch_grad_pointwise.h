@@ -20,13 +20,16 @@
 #include "sycldnn/internal/pointwise/launch_internal.h"
 
 #include "sycldnn/pointwise/direction.h"
-
 #include "sycldnn/pointwise/operators.h"
 
 #include "src/pointwise/kernels.h"
 
+#include <CL/sycl.hpp>
+
+#include "sycldnn/export.h"
+
 #define SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(DTYPE, OP) \
-  template SNNStatus                                                \
+  template SNN_EXPORT SNNStatus                                     \
   launch_pointwise<DTYPE, OP, sycldnn::pointwise::Gradient>(        \
       BaseMemObject<DTYPE const> & inp_fwd_access,                  \
       BaseMemObject<DTYPE const> & inp_bk_access,                   \

@@ -23,6 +23,8 @@
 
 #include "sycldnn/internal/conv2d/im2col/full_pointer_set.h"
 
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -41,10 +43,10 @@ namespace im2col {
  * \return An SNNStatus with event linked to the kernel launch or an error code.
  */
 template <typename T>
-SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
-                                  BaseMemObject<T>& output,
-                                  Conv2DParams const& params,
-                                  cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
+                                             BaseMemObject<T>& output,
+                                             Conv2DParams const& params,
+                                             cl::sycl::queue& queue);
 
 /**
  * For forward and filter backprop the original filter is used, so just return.
