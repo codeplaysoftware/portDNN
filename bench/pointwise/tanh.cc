@@ -15,8 +15,9 @@
  */
 #include "snn_fixture.h"
 
-#define TANH_BM_WITH_DIRECTION(N, DIRECTION)             \
-  POINTWISE_BENCHMARK("Tanh", OP##_##DIRECTION##_##N, N, \
+#define TANH_BM_WITH_DIRECTION(N, DIRECTION)                           \
+  POINTWISE_BENCHMARK("Tanh", OP##_##DIRECTION##_##N##_##EigenBackend, \
+                      sycldnn::backend::EigenBackend, N,               \
                       sycldnn::pointwise::DIRECTION, sycldnn::pointwise::Tanh)
 
 #define TANH_BENCHMARK(N)            \
@@ -34,11 +35,9 @@
  *      128 |    28 |     28 | --> 100,352
  *      512 |    28 |     28 | --> 401,408
  *      256 |    14 |     14 | -->  50,176
- *     1024 |     7 |      7 | -->  25,088
  */
 TANH_BENCHMARK(802816);
 TANH_BENCHMARK(200704);
 TANH_BENCHMARK(100352);
 TANH_BENCHMARK(401408);
 TANH_BENCHMARK(50176);
-TANH_BENCHMARK(25088);

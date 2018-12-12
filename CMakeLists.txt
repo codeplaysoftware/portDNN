@@ -69,6 +69,10 @@ option(SNN_EIGEN_NO_BARRIER
   "Use Eigen matmul which does not use barriers (implies NO_LOCAL_MEM)" OFF)
 option(SNN_ENABLE_EXCEPTIONS
   "Enable exception support in the Eigen library" ON)
+option(SNN_BENCH_EIGEN "Benchmark implementation using Eigen" ON)
+
+# SYCLBLAS configuration options.
+option(SNN_BENCH_SYCLBLAS "Benchmark implementation using SYCLBLAS" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_INDEX_TYPES int32_t)

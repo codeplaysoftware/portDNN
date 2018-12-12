@@ -18,14 +18,40 @@
 
 #include "sycldnn/conv2d/selector/direct_selector.h"
 #include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/matmul_selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
-#define VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Dir)          \
-  CONVOLUTION_BENCHMARK("VGG", Algo##_##Dir##_##N##_##C##_##W##_##H##_##F, \
-                        ParameterSet<N, C, W, H, F>,                       \
-                        sycldnn::conv2d::conv_type::Dir,                   \
-                        sycldnn::conv2d::Algo##Selector)
+#if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
+#error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
+#endif
+
+#define VGG_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, C, W, H, F, Algo, Dir, \
+                                                 Back)                     \
+  CONVOLUTION_BENCHMARK(                                                   \
+      "VGG", Algo##_##Dir##_##N##_##C##_##W##_##H##_##F##_##Back,          \
+      sycldnn::backend::Back, ParameterSet<N, C, W, H, F>,                 \
+      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
+
+#ifdef SNN_BENCH_EIGEN
+#define VGG_BENCHMARK_WITH_EIGEN(N, C, W, H, F, Algo, Dir)           \
+  VGG_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, C, W, H, F, Algo, Dir, \
+                                           EigenBackend)
+#else
+#define VGG_BENCHMARK_WITH_EIGEN(N, C, W, H, F, Algo, Dir)
+#endif
+
+#ifdef SNN_BENCH_SYCLBLAS
+#define VGG_BENCHMARK_WITH_SYCLBLAS(N, C, W, H, F, Algo, Dir)        \
+  VGG_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, C, W, H, F, Algo, Dir, \
+                                           SyclBLASBackend)
+#else
+#define VGG_BENCHMARK_WITH_SYCLBLAS(N, C, W, H, F, Algo, Dir)
+#endif
+
+#define VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Dir) \
+  VGG_BENCHMARK_WITH_EIGEN(N, C, W, H, F, Algo, Dir)              \
+  VGG_BENCHMARK_WITH_SYCLBLAS(N, C, W, H, F, Algo, Dir)
 
 #define VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Algo)                  \
   VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Forward)       \

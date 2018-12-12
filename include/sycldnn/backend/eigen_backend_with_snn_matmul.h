@@ -82,6 +82,12 @@ struct EigenBackendSNNMatmul final
   EigenBackendSNNMatmul(Eigen::SyclDevice const& device) : device_{device} {}
 
   /**
+   * Gets a descriptive name for this backend.
+   * \return a descriptive name for this backend.
+   */
+  char const* name() const { return "EigenBackendSNNMatmul"; }
+
+  /**
    * Gets the SYCL queue that the backend is bound to.
    * \return Returns the SYCL queue that the backend is bound to.
    */

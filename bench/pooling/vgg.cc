@@ -16,10 +16,11 @@
 #include "snn_fixture.h"
 #include "vgg_param_set.h"
 
-#define VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, OP)                     \
-  POOLING_BENCHMARK("VGG", OP##_##DIRECTION##_##N##_##C##_##W##_##H##_2,      \
-                    ParameterSet<N, C, W, H, 2>, sycldnn::pooling::DIRECTION, \
-                    sycldnn::pooling::OP)
+#define VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, OP)                   \
+  POOLING_BENCHMARK(                                                        \
+      "VGG", OP##_##DIRECTION##_##N##_##C##_##W##_##H##_2##_##EigenBackend, \
+      sycldnn::backend::EigenBackend, ParameterSet<N, C, W, H, 2>,          \
+      sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
 #define VGG_BM_WITH_DIRECTION(N, C, W, H, DIRECTION) \
   VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, Max) \

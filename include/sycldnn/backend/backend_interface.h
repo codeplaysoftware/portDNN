@@ -29,7 +29,11 @@ namespace sycldnn {
  */
 struct BackendInterface : public ExternalHandler,
                           public InternalHandler,
-                          public ExternalToInternalConverter {};
+                          public ExternalToInternalConverter {
+  /** Return a descriptive name for this backend. */
+  char const* name() const;
+};
+
 struct ExternalHandler {
   /**
    * Pointer type used in the external interface, and passed by the user.

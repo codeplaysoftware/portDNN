@@ -79,6 +79,12 @@ struct EigenBackend final : public EigenExternalHandler<EigenBackend>,
   EigenBackend(Eigen::SyclDevice const& device) : device_{device} {}
 
   /**
+   * Gets a descriptive name for this backend.
+   * \return a descriptive name for this backend.
+   */
+  char const* name() const { return "EigenBackend"; }
+
+  /**
    * Gets the SYCL queue that the backend is bound to.
    * \return Returns the SYCL queue that the backend is bound to.
    */

@@ -20,17 +20,19 @@
 #include "snn_pointwise_executor.h"
 
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/eigen_backend_provider.h"
+#include "bench/fixture/backend_provider.h"
 #include "bench/fixture/operator_typenames.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <size_t N, typename Direction, template <typename> class Operator>
+template <typename Backend, size_t N, typename Direction,
+          template <typename> class Operator>
 class SNNPointwiseBenchmark
     : public sycldnn::bench::SNNPointwiseExecutor<
-          SNNPointwiseBenchmark<N, Direction, Operator>, Direction, Operator>,
-      public sycldnn::bench::EigenBackendProvider,
+          SNNPointwiseBenchmark<Backend, N, Direction, Operator>, Direction,
+          Operator>,
+      public sycldnn::bench::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BasePointwiseBenchmark {
  private:
@@ -47,12 +49,14 @@ class SNNPointwiseBenchmark
     this->execute(state, N);
 
     // Get the SYCL device, and add device and driver info to the benchmark.
-    auto dev = get_backend().get_queue().get_device();
+    auto backend = this->get_backend();
+    auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 
     this->add_to_label("@operator",
                        sycldnn::bench::OperatorTypeName<Operator>::name);
     this->add_to_label("@direction", sycldnn::bench::TypeName<Direction>::name);
+    this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Pointwise");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);

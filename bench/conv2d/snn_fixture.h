@@ -20,16 +20,18 @@
 #include "snn_conv2d_executor.h"
 
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/eigen_backend_provider.h"
+#include "bench/fixture/backend_provider.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename ParamGen, typename ConvType, typename Selector>
+template <typename Backend, typename ParamGen, typename ConvType,
+          typename Selector>
 class SNNConvolutionBenchmark
     : public sycldnn::bench::SNNConv2DExecutor<
-          SNNConvolutionBenchmark<ParamGen, ConvType, Selector>, ConvType>,
-      public sycldnn::bench::EigenBackendProvider,
+          SNNConvolutionBenchmark<Backend, ParamGen, ConvType, Selector>,
+          ConvType>,
+      public sycldnn::bench::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BaseConvolutionBenchmark {
  private:
@@ -48,11 +50,13 @@ class SNNConvolutionBenchmark
     this->execute(state, params, selector);
 
     // Get the SYCL device, and add device and driver info to the benchmark.
-    auto dev = get_backend().get_queue().get_device();
+    auto backend = this->get_backend();
+    auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 
     this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
     this->add_to_label("@selector", selector.name());
+    this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Convolution");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);

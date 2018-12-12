@@ -18,8 +18,6 @@ project(snn_bench)
 include(HandleBenchmark)
 include(SNNHelpers)
 
-include(HandleEigen)
-
 # Creates a git-config.tmp file containing the commit hash and date. A custom
 # target ensures that this command is always executed.
 add_custom_target(generate_git_config
@@ -54,6 +52,18 @@ if(SNN_BUILD_LARGE_BATCH_BENCHMARKS)
   list(APPEND _BENCHMARK_DEFINITIONS -DSNN_LARGE_BATCH_BENCHMARKS)
 endif()
 
+if(SNN_BENCH_EIGEN)
+  include(HandleEigen)
+  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_EIGEN)
+  list(APPEND _BACKENDS Eigen::Eigen)
+endif()
+
+if(SNN_BENCH_SYCLBLAS)
+  include(HandleSyclBLAS)
+  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_SYCLBLAS)
+  list(APPEND _BACKENDS SyclBLAS::SyclBLAS)
+endif()
+
 snn_bench(
   WITH_SYCL
   TARGET
@@ -76,7 +86,9 @@ snn_bench(
     $<TARGET_OBJECTS:winograd_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS} 
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
 )
 snn_bench(
   WITH_SYCL
@@ -91,7 +103,7 @@ snn_bench(
     $<TARGET_OBJECTS:winograd_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS} 
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -108,7 +120,7 @@ snn_bench(
     $<TARGET_OBJECTS:winograd_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -125,7 +137,7 @@ snn_bench(
     $<TARGET_OBJECTS:winograd_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -139,7 +151,7 @@ snn_bench(
     $<TARGET_OBJECTS:pooling>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -153,7 +165,7 @@ snn_bench(
     $<TARGET_OBJECTS:pooling>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -167,7 +179,7 @@ snn_bench(
     $<TARGET_OBJECTS:pooling>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -182,7 +194,7 @@ snn_bench(
     $<TARGET_OBJECTS:pointwise>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -197,7 +209,7 @@ snn_bench(
     $<TARGET_OBJECTS:pointwise>
   PUBLIC_LIBRARIES
     bench_main
-    Eigen::Eigen
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )

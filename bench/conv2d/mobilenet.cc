@@ -22,26 +22,56 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
-#define BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo,     \
-                                    Dir)                                       \
-  CONVOLUTION_BENCHMARK(                                                       \
-      "MobileNet", Algo##_##Dir##_##N##_##Win##_##Row##_##Col##_##Ch##_##Feat, \
-      ParameterSet<N, Win, Str, Row, Col, Ch, Feat>,                           \
+#if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
+#error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
+#endif
+
+#define MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(                      \
+    N, Win, Str, Row, Col, Ch, Feat, Algo, Dir, Back)                        \
+  CONVOLUTION_BENCHMARK(                                                     \
+      "MobileNet",                                                           \
+      Algo##_##Dir##_##N##_##Win##_##Row##_##Col##_##Ch##_##Feat##_##Back,   \
+      sycldnn::backend::Back, ParameterSet<N, Win, Str, Row, Col, Ch, Feat>, \
       sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
 
-#define BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Algo)            \
-  BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo, Forward) \
-  BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo,          \
-                              InputBackprop)                                  \
-  BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo,          \
-                              FilterBackprop)
+#ifdef SNN_BENCH_EIGEN
+#define MOBILENET_BENCHMARK_WITH_EIGEN(N, Win, Str, Row, Col, Ch, Feat, Algo, \
+                                       Dir)                                   \
+  MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(                             \
+      N, Win, Str, Row, Col, Ch, Feat, Algo, Dir, EigenBackend)
+#else
+#define MOBILENET_BENCHMARK_WITH_EIGEN(N, Win, Str, Row, Col, Ch, Feat, Algo, \
+                                       Dir)
+#endif
 
-#define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat)     \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Direct)   \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Tiled)    \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Im2col)   \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Winograd) \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Matmul)
+#ifdef SNN_BENCH_SYCLBLAS
+#define MOBILENET_BENCHMARK_WITH_SYCLBLAS(N, Win, Str, Row, Col, Ch, Feat, \
+                                          Algo, Dir)                       \
+  MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(                          \
+      N, Win, Str, Row, Col, Ch, Feat, Algo, Dir, SyclBLASBackend)
+#else
+#define MOBILENET_BENCHMARK_WITH_SYCLBLAS(N, Win, Str, Row, Col, Ch, Feat, \
+                                          Algo, Dir)
+#endif
+
+#define MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, \
+                                              Algo, Dir)                       \
+  MOBILENET_BENCHMARK_WITH_EIGEN(N, Win, Str, Row, Col, Ch, Feat, Algo, Dir)   \
+  MOBILENET_BENCHMARK_WITH_SYCLBLAS(N, Win, Str, Row, Col, Ch, Feat, Algo, Dir)
+
+#define MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Algo)   \
+  MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo, \
+                                        Forward)                               \
+  MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo, \
+                                        InputBackprop)                         \
+  MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo, \
+                                        FilterBackprop)
+
+#define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat)             \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Direct) \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Tiled)  \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Im2col) \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Winograd)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat) \

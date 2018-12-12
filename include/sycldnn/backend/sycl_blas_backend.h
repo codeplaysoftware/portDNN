@@ -82,6 +82,12 @@ struct SyclBLASBackend final {
   SyclBLASBackend(const cl::sycl::queue& queue) : executor_{queue} {}
 
   /**
+   * Gets a descriptive name for this backend.
+   * \return a descriptive name for this backend.
+   */
+  char const* name() const { return "SyclBLASBackend"; }
+
+  /**
    * Gets the SYCL queue that the backend is bound to.
    * \return Returns the SYCL queue that the backend is bound to.
    */
@@ -148,6 +154,17 @@ struct SyclBLASBackend final {
       -> decltype(this->executor_.get_buffer(ptr)) {
     SNN_UNUSED_VAR(n_elems);
     return executor_.get_buffer(ptr);
+  }
+
+  /**
+   * Return the offset from the start of the buffer.
+   * \param ptr The pointer for which to retrieve the offset from the base of
+   *            the corresponding SYCL buffer.
+   * \return Returns the offset from the base of the SYCL buffer.
+   */
+  template <typename T>
+  size_t get_offset(pointer_type<T> ptr) {
+    return get_offset_internal(to_internal_pointer<T>(ptr));
   }
 
   /**

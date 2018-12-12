@@ -67,25 +67,49 @@ struct Stride2_3x3Params {
 };
 }  // namespace
 
-#define CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Algo, Dir)                 \
-  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir, Dense3x3Params,     \
-                        sycldnn::conv2d::conv_type::Dir,                    \
-                        sycldnn::conv2d::Algo##Selector);                   \
-  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Stride2,            \
-                        Stride2_3x3Params, sycldnn::conv2d::conv_type::Dir, \
+#if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
+#error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
+#endif
+
+#define BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(Algo, Dir, Back)          \
+  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Back,          \
+                        sycldnn::backend::Back, Dense3x3Params,        \
+                        sycldnn::conv2d::conv_type::Dir,               \
+                        sycldnn::conv2d::Algo##Selector);              \
+  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Stride2##Back, \
+                        sycldnn::backend::Back, Stride2_3x3Params,     \
+                        sycldnn::conv2d::conv_type::Dir,               \
                         sycldnn::conv2d::Algo##Selector)
 
-#define CONVOLUTION_BENCHMARKS_WITH_DIR(Dir)            \
-  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Direct, Dir) \
-  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Tiled, Dir)  \
-  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Im2col, Dir) \
-  CONVOLUTION_BENCHMARKS_WITH_ALGO_AND_DIR(Winograd, Dir)
+#ifdef SNN_BENCH_EIGEN
+#define BENCHMARK_WITH_EIGEN(Algo, Dir) \
+  BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(Algo, Dir, EigenBackend)
+#else
+#define BENCHMARK_WITH_EIGEN(Algo, Dir)
+#endif
 
-// Register forward convolution benchmarks..
-CONVOLUTION_BENCHMARKS_WITH_DIR(Forward);
+#ifdef SNN_BENCH_SYCLBLAS
+#define BENCHMARK_WITH_SYCLBLAS(Algo, Dir) \
+  BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(Algo, Dir, SyclBLASBackend)
+#else
+#define BENCHMARK_WITH_SYCLBLAS(Algo, Dir)
+#endif
 
-/// Register input back-propagation benchmarks.
-CONVOLUTION_BENCHMARKS_WITH_DIR(InputBackprop);
+#define BENCHMARKS_WITH_ALGO_AND_DIR(Algo, Dir) \
+  BENCHMARK_WITH_EIGEN(Algo, Dir)               \
+  BENCHMARK_WITH_SYCLBLAS(Algo, Dir)
 
-/// Register filter back-propagation benchmarks.
-CONVOLUTION_BENCHMARKS_WITH_DIR(FilterBackprop);
+#define BENCHMARKS_WITH_DIR(Dir)            \
+  BENCHMARKS_WITH_ALGO_AND_DIR(Direct, Dir) \
+  BENCHMARKS_WITH_ALGO_AND_DIR(Tiled, Dir)  \
+  BENCHMARKS_WITH_ALGO_AND_DIR(Im2col, Dir) \
+  BENCHMARKS_WITH_ALGO_AND_DIR(Winograd, Dir)
+
+// Register forward convolution benchmarks.
+BENCHMARKS_WITH_DIR(Forward);
+
+// Register input back-propagation benchmarks.
+BENCHMARKS_WITH_DIR(InputBackprop);
+
+// Register filter back-propagation benchmarks.
+BENCHMARKS_WITH_DIR(FilterBackprop);

@@ -17,33 +17,36 @@
 #define SYCLDNN_BENCH_FIXTURE_EIGEN_BACKEND_PROVIDER_H_
 
 #include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
 
+#include <unsupported/Eigen/CXX11/Tensor>
 #include "sycldnn/backend/eigen_backend.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Abstraction layer over the benchmark backend.
+template <typename Provider>
+struct BackendProvider;
+
+/**
+ * Specialisation of the benchmark backend using Eigen.
  *
- * Provides access to a sycldnn::backend::EigenBackend and helper methods to
- * allocate and deallocate memory to use with that backend.
+ * Provides access to sycldnn::backend::BackendProvider using Eigen and its
+ * helper methods to allocate and deallocate memory.
  */
-struct EigenBackendProvider {
+template <>
+struct BackendProvider<sycldnn::backend::EigenBackend> {
  private:
-  /** The Backend type which is provided. */
   using EigenBackend = sycldnn::backend::EigenBackend;
 
-  /** The pointer type which can be allocated for the EigenBackend. */
   template <typename T>
   using Pointer = typename EigenBackend::pointer_type<T>;
 
  public:
   /**
-   * Construct an EigenBackendProvider using the static Eigen::QueueInterface
+   * Construct an BackendProvider using the static queue interface
    * managed by this provider.
    */
-  EigenBackendProvider() : device_{get_eigen_queue()}, backend_{device_} {}
+  BackendProvider() : device_{get_eigen_queue()}, backend_{device_} {}
 
   /** Get an EigenBackend instance.  */
   EigenBackend get_backend() { return backend_; }
@@ -70,6 +73,7 @@ struct EigenBackendProvider {
     static Eigen::QueueInterface queue_interface{cl::sycl::default_selector{}};
     return &queue_interface;
   }
+
   Eigen::SyclDevice device_;
   EigenBackend backend_;
 };

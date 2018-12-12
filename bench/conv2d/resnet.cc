@@ -22,11 +22,37 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
+#if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
+#error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
+#endif
+
+#define RESNET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, C, W, H, Flt, S, Ftr, \
+                                                    Algo, Dir, Back)         \
+  CONVOLUTION_BENCHMARK(                                                     \
+      "ResNet",                                                              \
+      Algo##_##Dir##_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr##_##Back,   \
+      sycldnn::backend::Back, ParameterSet<N, C, W, H, Flt, S, Ftr>,         \
+      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
+
+#ifdef SNN_BENCH_EIGEN
+#define RESNET_BENCHMARK_WITH_EIGEN(N, C, W, H, Flt, S, Ftr, Algo, Dir)      \
+  RESNET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, C, W, H, Flt, S, Ftr, Algo, \
+                                              Dir, EigenBackend)
+#else
+#define RESNET_BENCHMARK_WITH_EIGEN(N, C, W, H, Flt, S, Ftr, Algo, Dir)
+#endif
+
+#ifdef SNN_BENCH_SYCLBLAS
+#define RESNET_BENCHMARK_WITH_SYCLBLAS(N, C, W, H, Flt, S, Ftr, Algo, Dir)   \
+  RESNET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, C, W, H, Flt, S, Ftr, Algo, \
+                                              Dir, SyclBLASBackend)
+#else
+#define RESNET_BENCHMARK_WITH_SYCLBLAS(N, C, W, H, Flt, S, Ftr, Algo, Dir)
+#endif
+
 #define RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo, Dir) \
-  CONVOLUTION_BENCHMARK(                                                       \
-      "ResNet", Algo##_##Dir##_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,    \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>, sycldnn::conv2d::conv_type::Dir,  \
-      sycldnn::conv2d::Algo##Selector)
+  RESNET_BENCHMARK_WITH_EIGEN(N, C, W, H, Flt, S, Ftr, Algo, Dir)              \
+  RESNET_BENCHMARK_WITH_SYCLBLAS(N, C, W, H, Flt, S, Ftr, Algo, Dir)
 
 #define RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Algo)            \
   RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo, Forward) \

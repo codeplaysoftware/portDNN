@@ -29,8 +29,8 @@
 #include "bench/conv2d/base_convolution_fixture.h"
 
 #include "bench/fixture/add_sycl_device_info.h"
+#include "bench/fixture/backend_provider.h"
 #include "bench/fixture/base_executor.h"
-#include "bench/fixture/eigen_backend_provider.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 
@@ -69,13 +69,14 @@ sycldnn::SNNStatus launch_kernel(
   return status;
 }
 
-template <typename ParamGen, typename ConvType, int TileRows, int TileCols,
-          int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
-          int WindowRows, int WindowCols, int Stride>
-class TiledConvolutionBenchmark : public sycldnn::bench::EigenBackendProvider,
-                                  public sycldnn::bench::StringReporter,
-                                  public sycldnn::bench::BaseExecutor,
-                                  public BaseConvolutionBenchmark {
+template <typename Backend, typename ParamGen, typename ConvType, int TileRows,
+          int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
+          bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
+class TiledConvolutionBenchmark
+    : public sycldnn::bench::BackendProvider<Backend>,
+      public sycldnn::bench::StringReporter,
+      public sycldnn::bench::BaseExecutor,
+      public BaseConvolutionBenchmark {
  private:
   using State = benchmark::State;
   using Conv2DParams = sycldnn::conv2d::Conv2DParams;
@@ -101,15 +102,15 @@ class TiledConvolutionBenchmark : public sycldnn::bench::EigenBackendProvider,
   };
 };
 
-template <typename ParamGen, typename ConvType, int TileRows, int TileCols,
-          int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
-          int WindowRows, int WindowCols, int Stride>
+template <typename Backend, typename ParamGen, typename ConvType, int TileRows,
+          int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
+          bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
 void TiledConvolutionBenchmark<
-    ParamGen, ConvType, TileRows, TileCols, ChannelVectorWidth,
+    Backend, ParamGen, ConvType, TileRows, TileCols, ChannelVectorWidth,
     FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols,
     Stride>::execute(benchmark::State& state,
                      sycldnn::conv2d::Conv2DParams const& params) {
-  auto backend = get_backend();
+  auto backend = this->get_backend();
 
   auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
 
@@ -202,12 +203,20 @@ struct ParamGenerator {
       ->UseManualTime()                                                     \
       ->Unit(benchmark::kNanosecond);
 
-#define PARAM_BENCHMARK(name, direction, tile_row, tile_col, ch_vect,        \
-                        feat_vect, fast_div, window_row, window_col, stride) \
-  TILED_BENCHMARK(                                                           \
-      name##_##tile_row##_##tile_col##_##ch_vect##_##feat_vect##_##fast_div, \
-      ParamGenerator<window_row, window_col, stride>, direction, tile_row,   \
-      tile_col, ch_vect, feat_vect, fast_div, window_row, window_col, stride);
+#define PARAM_BENCHMARK_WITH_BACKEND(name, direction, tile_row, tile_col,      \
+                                     ch_vect, feat_vect, fast_div, window_row, \
+                                     window_col, stride, backend)              \
+  TILED_BENCHMARK(                                                             \
+      name##_##tile_row##_##tile_col##_##ch_vect##_##feat_vect##_##fast_div,   \
+      backend, ParamGenerator<window_row, window_col, stride>, direction,      \
+      tile_row, tile_col, ch_vect, feat_vect, fast_div, window_row,            \
+      window_col, stride);
+
+#define PARAM_BENCHMARK(name, direction, tile_row, tile_col, fast_div,        \
+                        window_row, window_col, stride)                       \
+  PARAM_BENCHMARK_WITH_BACKEND(name, direction, tile_row, tile_col, fast_div, \
+                               window_row, window_col, stride,                \
+                               sycldnn::bench::EigenBackend)
 
 #define BENCH_WITH_TILES(name, direction, tile_row, tile_col, fast_div, \
                          window_row, window_col, stride)                \

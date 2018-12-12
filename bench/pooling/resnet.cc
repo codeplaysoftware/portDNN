@@ -16,11 +16,12 @@
 #include "resnet_param_set.h"
 #include "snn_fixture.h"
 
-#define RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)        \
-  POOLING_BENCHMARK("ResNet",                                             \
-                    OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S, \
-                    ParameterSet<N, C, W, H, K, S>,                       \
-                    sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
+#define RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)           \
+  POOLING_BENCHMARK(                                                         \
+      "ResNet",                                                              \
+      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##EigenBackend, \
+      sycldnn::backend::EigenBackend, ParameterSet<N, C, W, H, K, S>,        \
+      sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
 #define RESNET_BM_WITH_DIRECTION(N, C, W, H, K, S, DIRECTION) \
   RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Max) \

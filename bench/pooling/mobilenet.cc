@@ -16,11 +16,12 @@
 #include "mobilenet_param_set.h"
 #include "snn_fixture.h"
 
-#define MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)     \
-  POOLING_BENCHMARK("MobileNet",                                          \
-                    OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S, \
-                    ParameterSet<N, C, W, H, K, S>,                       \
-                    sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
+#define MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)        \
+  POOLING_BENCHMARK(                                                         \
+      "MobileNet",                                                           \
+      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##EigenBackend, \
+      sycldnn::backend::EigenBackend, ParameterSet<N, C, W, H, K, S>,        \
+      sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
 #define MOBILENET_BM_WITH_DIRECTION(N, C, W, H, K, S, DIRECTION) \
   MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Max) \
