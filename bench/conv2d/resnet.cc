@@ -16,6 +16,12 @@
 #include "resnet_param_set.h"
 #include "snn_fixture.h"
 
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/matmul_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
+
 #define RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo, Dir) \
   CONVOLUTION_BENCHMARK(                                                       \
       "ResNet", Algo##_##Dir##_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr,    \
@@ -29,11 +35,12 @@
   RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo,          \
                                      FilterBackprop)
 
-#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)             \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Direct) \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Tiled)  \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Im2col) \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Winograd)
+#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)               \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Direct)   \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Tiled)    \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Im2col)   \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Winograd) \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Matmul)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define RESNET_PARAMS(channels, width, height, filter, stride, features) \

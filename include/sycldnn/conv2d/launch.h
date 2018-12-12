@@ -28,6 +28,7 @@
 
 #include "sycldnn/conv2d/implementation/direct.h"
 #include "sycldnn/conv2d/implementation/im2col.h"
+#include "sycldnn/conv2d/implementation/matmul.h"
 #include "sycldnn/conv2d/implementation/tiled.h"
 #include "sycldnn/conv2d/implementation/winograd.h"
 #include "sycldnn/conv2d/selector/selector.h"
@@ -105,6 +106,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
     case Algorithm::Winograd:
       return launch_winograd<T, ConvType>(input, filter, output, params,
                                           backend);
+    case Algorithm::Matmul:
+      return launch_matmul<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::NotSupported:
     default:
       SNNStatus not_supported_status;

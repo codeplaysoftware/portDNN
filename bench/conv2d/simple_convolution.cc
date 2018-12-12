@@ -15,6 +15,11 @@
  */
 #include "snn_fixture.h"
 
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
+
 namespace {
 
 struct Dense3x3Params {

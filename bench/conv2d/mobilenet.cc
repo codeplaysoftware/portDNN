@@ -16,6 +16,12 @@
 #include "mobilenet_param_set.h"
 #include "snn_fixture.h"
 
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/matmul_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
+
 #define BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo,     \
                                     Dir)                                       \
   CONVOLUTION_BENCHMARK(                                                       \
@@ -30,11 +36,12 @@
   BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo,          \
                               FilterBackprop)
 
-#define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat)   \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Direct) \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Tiled)  \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Im2col) \
-  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Winograd)
+#define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat)     \
+  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Direct)   \
+  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Tiled)    \
+  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Im2col)   \
+  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Winograd) \
+  BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Matmul)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat) \

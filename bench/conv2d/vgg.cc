@@ -16,6 +16,11 @@
 #include "snn_fixture.h"
 #include "vgg_param_set.h"
 
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
+
 #define VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, Dir)          \
   CONVOLUTION_BENCHMARK("VGG", Algo##_##Dir##_##N##_##C##_##W##_##H##_##F, \
                         ParameterSet<N, C, W, H, F>,                       \

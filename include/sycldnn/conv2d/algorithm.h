@@ -38,6 +38,8 @@ enum class Algorithm {
   Im2col,
   /** Winograd implementation with temporary buffer. */
   Winograd,
+  /** Use a matmul for 1x1 NHWC convolutions. */
+  Matmul,
 };
 }  // namespace conv2d
 }  // namespace sycldnn
