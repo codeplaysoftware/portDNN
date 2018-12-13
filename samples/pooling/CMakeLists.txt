@@ -22,3 +22,7 @@ snn_executable(
     sycl_dnn_static
     Eigen::Eigen
 )
+install(
+  TARGET maxpooling
+  RUNTIME DESTINATION ${runtime_dest}
+)

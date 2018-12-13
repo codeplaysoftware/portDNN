@@ -22,6 +22,10 @@ snn_executable(
     sycl_dnn_static
     Eigen::Eigen
 )
+install(
+  TARGET conv2d
+  RUNTIME DESTINATION ${runtime_dest}
+)
 
 # The onchip memory sample relies on the codeplay extension onchip_memory
 # buffer property available in ComputeCpp 1.0.3 and onwards.
@@ -36,4 +40,8 @@ if (ComputeCpp_FOUND AND ${ComputeCpp_VERSION} VERSION_GREATER 1.0.2)
       sycl_dnn_static
       Eigen::Eigen
   )
+install(
+  TARGET on_chip_memory
+  RUNTIME DESTINATION ${runtime_dest}
+)
 endif()
