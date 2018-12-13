@@ -23,7 +23,7 @@ snn_executable(
     Eigen::Eigen
 )
 install(
-  TARGET conv2d
+  TARGETS conv2d
   RUNTIME DESTINATION ${runtime_dest}
 )
 
@@ -41,7 +41,7 @@ if (ComputeCpp_FOUND AND ${ComputeCpp_VERSION} VERSION_GREATER 1.0.2)
       Eigen::Eigen
   )
 install(
-  TARGET on_chip_memory
+  TARGETS on_chip_memory
   RUNTIME DESTINATION ${runtime_dest}
 )
 endif()

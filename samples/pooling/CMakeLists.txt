@@ -23,6 +23,6 @@ snn_executable(
     Eigen::Eigen
 )
 install(
-  TARGET maxpooling
+  TARGETS maxpooling
   RUNTIME DESTINATION ${runtime_dest}
 )
