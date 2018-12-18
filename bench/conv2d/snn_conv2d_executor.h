@@ -51,12 +51,21 @@ struct SNNConv2DExecutor : public BaseExecutor {
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::conv2d::launch<float, ConvType>(
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
-      status.event.wait_and_throw();
 
       if (sycldnn::StatusCode::OK != status.status) {
         state.SkipWithError(
             "Invalid or unsupported benchmark configuration. "
             "This may be expected behaviour and does not indicate a problem.");
+        return;
+      }
+
+      try {
+        status.event.wait_and_throw();
+      } catch (cl::sycl::exception const& e) {
+        auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
+                     ". This is definitely not expected behaviour and "
+                     "indicates a problem.";
+        state.SkipWithError(error.c_str());
         return;
       }
     }
@@ -66,7 +75,16 @@ struct SNNConv2DExecutor : public BaseExecutor {
       auto status = sycldnn::conv2d::launch<float, ConvType>(
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
 
-      status.event.wait_and_throw();
+      try {
+        status.event.wait_and_throw();
+      } catch (cl::sycl::exception const& e) {
+        auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
+                     "This is definitely not expected behaviour and indicates "
+                     "a problem.";
+        state.SkipWithError(error.c_str());
+        return;
+      }
+
       this->end_timing();
       this->set_iteration_time(state);
     }
