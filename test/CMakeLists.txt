@@ -18,6 +18,12 @@ project(snn_tests)
 include(HandleGTest)
 include(SNNHelpers)
 
+include(HandleEigen)
+
+if(SNN_TEST_SYCLBLAS_MATMULS)
+  include(HandleSyclBLAS)
+endif()
+
 snn_test(
   WITH_SYCL
   TARGET

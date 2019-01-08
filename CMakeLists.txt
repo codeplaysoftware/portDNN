@@ -59,6 +59,7 @@ option(SNN_TEST_EIGEN_MATMULS
   "Enable testing using Eigen matmul in addition to internal matmul" OFF)
 option(SNN_TEST_SYCLBLAS_MATMULS
   "Enable testing using SYCL-BLAS matmul in addition to internal matmul" OFF)
+
 option(SNN_EIGEN_LOCAL_MEM
   "Only compile the local memory versions of Eigen kernels" ON)
 option(SNN_EIGEN_NO_LOCAL_MEM
@@ -117,9 +118,6 @@ else()
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-mad-enable")
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-no-signed-zeros")
 endif()
-
-include(HandleEigen)
-include(HandleSyclBLAS)
 
 set(CMAKE_DEBUG_POSTFIX "-debug")
 set(include_dest "include")

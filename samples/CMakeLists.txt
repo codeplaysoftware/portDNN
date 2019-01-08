@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+include(HandleEigen)
+
 add_subdirectory(conv2d)
 add_subdirectory(pooling)
 

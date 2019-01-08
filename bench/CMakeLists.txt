@@ -18,6 +18,8 @@ project(snn_bench)
 include(HandleBenchmark)
 include(SNNHelpers)
 
+include(HandleEigen)
+
 # Creates a git-config.tmp file containing the commit hash and date. A custom
 # target ensures that this command is always executed.
 add_custom_target(generate_git_config

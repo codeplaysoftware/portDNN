@@ -29,18 +29,26 @@ find_path(SyclBLAS_INCLUDE_DIR
   HINTS ${CMAKE_BINARY_DIR}/sycl-blas-src
   DOC "The SyclBLAS include directory"
 )
+
 find_path(SyclBLAS_VPTR_INCLUDE_DIR
   NAMES vptr/virtual_ptr.hpp
   PATH_SUFFIXES external/computecpp-sdk/include
   HINTS ${CMAKE_BINARY_DIR}/sycl-blas-src
-  DOC "The SyclBLAS include directory"
+  DOC "The SyclBLAS virtual pointer include directory"
 )
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SyclBLAS
   FOUND_VAR SyclBLAS_FOUND
   REQUIRED_VARS SyclBLAS_INCLUDE_DIR SyclBLAS_VPTR_INCLUDE_DIR
 )
-mark_as_advanced(SyclBLAS_FOUND SyclBLAS_INCLUDE_DIRS)
+
+mark_as_advanced(SyclBLAS_FOUND
+                 SyclBLAS_INCLUDE_DIRS
+                 SyclBLAS_VPTR_INCLUDE_DIR
+                 SyclBLAS_INCLUDE_DIR
+)
+
 if(SyclBLAS_FOUND)
   set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
 endif()
