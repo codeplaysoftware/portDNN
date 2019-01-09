@@ -93,6 +93,11 @@ option(SNN_CONV2D_DIRECT_STATIC_KERNELS
 if(SNN_CONV2D_DIRECT_STATIC_KERNELS)
   add_definitions(-DSNN_CONV2D_STATIC_DIRECT=1)
 endif()
+option(SNN_REGISTER_TILE_SPECIALISATIONS
+  "Add specialisations to register tiles to help hoist to registers" OFF)
+if(SNN_REGISTER_TILE_SPECIALISATIONS)
+  add_definitions(-DSNN_REGISTER_TILE_SPECIALISATIONS=1)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")

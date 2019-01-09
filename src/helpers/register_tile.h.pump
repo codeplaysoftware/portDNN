@@ -1,0 +1,193 @@
+$var max_tile_size = 16
+/*
+ * Copyright 2018 Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef SYCLDNN_SRC_HELPERS_REGISTER_TILE_H_
+#define SYCLDNN_SRC_HELPERS_REGISTER_TILE_H_
+
+namespace sycldnn {
+namespace helpers {
+/**
+ * 3D tile of size X x Y x Z of data type T.
+ */
+template <typename T, int X, int Y, int Z>
+struct RegisterTile3D {
+  SNN_ALWAYS_INLINE T& data(int x, int y, int z) { return data_[x][y][z]; }
+  SNN_ALWAYS_INLINE T const& data(int x, int y, int z) const {
+    return data_[x][y][z];
+  }
+
+ private:
+  T data_[X][Y][Z];
+};
+/**
+ * 2D tile of size X x Y of data type T.
+ */
+template <typename T, int X, int Y>
+struct RegisterTile2D {
+  SNN_ALWAYS_INLINE T& data(int x, int y) { return data_[x][y]; }
+  SNN_ALWAYS_INLINE T const& data(int x, int y) const { return data_[x][y]; }
+
+ private:
+  T data_[X][Y];
+};
+/**
+ * 1D tile of size X of data type T.
+ */
+template <typename T, int X>
+struct RegisterTile1D {
+  SNN_ALWAYS_INLINE T& data(int x) { return data_[x]; }
+  SNN_ALWAYS_INLINE T const& data(int x) const { return data_[x]; }
+
+ private:
+  T data_[X];
+};
+
+#ifdef SNN_REGISTER_TILE_SPECIALISATIONS
+
+$range tile_size 1..max_tile_size
+$for tile_size [[
+template <typename T>
+struct RegisterTile1D<T, $tile_size> {
+  SNN_ALWAYS_INLINE T& data(int x) {
+    switch (x) {
+
+$range case_var 0..tile_size-1
+$for case_var [[
+      case [[$case_var]]:
+        return data_[[$case_var]]_;
+
+]]
+      default:
+        SNN_UNREACHABLE;
+        return data_0_;
+    }
+  }
+  SNN_ALWAYS_INLINE T const& data(int x) const {
+    switch (x) {
+
+$range case_var 0..tile_size-1
+$for case_var [[
+      case [[$case_var]]:
+        return data_[[$case_var]]_;
+
+]]
+      default:
+        SNN_UNREACHABLE;
+        return data_0_;
+    }
+  }
+
+ private:
+
+$range def_var 0..tile_size-1
+$for def_var [[
+  T data_[[$def_var]]_;
+
+]]
+};
+
+]]
+$range tile_size 1..max_tile_size
+$for tile_size [[
+template <typename T, int Y>
+struct RegisterTile2D<T, $tile_size, Y> {
+  SNN_ALWAYS_INLINE T& data(int x, int y) {
+    switch (x) {
+
+$range case_var 0..tile_size-1
+$for case_var [[
+      case [[$case_var]]:
+        return data_[[$case_var]]_.data(y);
+
+]]
+      default:
+        SNN_UNREACHABLE;
+        return data_0_.data(y);
+    }
+  }
+  SNN_ALWAYS_INLINE T const& data(int x, int y) const {
+    switch (x) {
+
+$range case_var 0..tile_size-1
+$for case_var [[
+      case [[$case_var]]:
+        return data_[[$case_var]]_.data(y);
+
+]]
+      default:
+        SNN_UNREACHABLE;
+        return data_0_.data(y);
+    }
+  }
+
+ private:
+
+$range def_var 0..tile_size-1
+$for def_var [[
+  RegisterTile1D<T, Y> data_[[$def_var]]_;
+
+]]
+};
+
+]]
+$range tile_size 1..max_tile_size
+$for tile_size [[
+template <typename T, int Y, int Z>
+struct RegisterTile3D<T, $tile_size, Y, Z> {
+  SNN_ALWAYS_INLINE T& data(int x, int y, int z) {
+    switch (x) {
+
+$range case_var 0..tile_size-1
+$for case_var [[
+      case [[$case_var]]:
+        return data_[[$case_var]]_.data(y, z);
+
+]]
+      default:
+        SNN_UNREACHABLE;
+        return data_0_.data(y, z);
+    }
+  }
+  SNN_ALWAYS_INLINE T const& data(int x, int y, int z) const {
+    switch (x) {
+
+$range case_var 0..tile_size-1
+$for case_var [[
+      case [[$case_var]]:
+        return data_[[$case_var]]_.data(y, z);
+
+]]
+      default:
+        SNN_UNREACHABLE;
+        return data_0_.data(y, z);
+    }
+  }
+
+ private:
+
+$range def_var 0..tile_size-1
+$for def_var [[
+  RegisterTile2D<T, Y, Z> data_[[$def_var]]_;
+
+]]
+};
+
+]]
+#endif  // SNN_REGISTER_TILE_SPECIALISATIONS
+
+}  // namespace helpers
+}  // namespace sycldnn
+#endif  // SYCLDNN_SRC_HELPERS_REGISTER_TILE_H_
