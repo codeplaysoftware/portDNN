@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_INCLUDE_POOLING_PARAMS_H_
 #define SYCLDNN_INCLUDE_POOLING_PARAMS_H_
 
+#include "sycldnn/data_format.h"
+
 /**
  * \file
  * Defines the \ref sycldnn::pooling::PoolingParams struct,
@@ -65,6 +67,9 @@ struct PoolingParams {
 
   /** The padding to be applied to each tensor column. */
   Index pad_cols;
+
+  /** The input data format used in the input and output tensors. */
+  sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 };
 
 }  // namespace pooling

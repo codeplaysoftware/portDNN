@@ -94,6 +94,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                      "Currently SYCL-DNN only supports dilation 1.");
   SNN_VALIDATE_PARAM(params.dilation_cols == 1,
                      "Currently SYCL-DNN only supports dilation 1.");
+  SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
+                     "Currently SYCL-DNN only supports the NHWC data format.");
 
   Algorithm algo_tag = selector.select(params);
   switch (algo_tag) {

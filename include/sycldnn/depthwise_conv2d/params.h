@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_INCLUDE_DEPTHWISE_CONV2D_PARAMS_H_
 #define SYCLDNN_INCLUDE_DEPTHWISE_CONV2D_PARAMS_H_
 
+#include "sycldnn/data_format.h"
+
 /**
  * \file
  * Contains the declaration of the
@@ -82,6 +84,9 @@ struct DepthwiseConv2DParams {
    * The number of columns to zero-pad the input images by.
    */
   Index pad_cols;
+
+  /** The input data format used in the input and output tensors. */
+  sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 };
 
 }  // namespace depthwise_conv2d

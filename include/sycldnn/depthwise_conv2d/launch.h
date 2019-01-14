@@ -81,6 +81,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   SNN_VALIDATE_PARAM(
       params.pad_cols >= 0,
       "The padding in the column direction must be non-negative.");
+  SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
+                     "Currently SYCL-DNN only supports the NHWC data format.");
 
   auto conv_sizes = get_sizes<ConvType>(params);
 

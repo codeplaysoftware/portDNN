@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
 #define SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
 
+#include "sycldnn/data_format.h"
+
 /**
  * \file
  * Contains the declaration of the \ref sycldnn::conv2d::Conv2DParams structure,
@@ -90,6 +92,9 @@ struct Conv2DParams {
    * Vertical stride between elements sampled in the input image.
    */
   Index dilation_cols;
+
+  /** The data format used in the input and output tensors. */
+  sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 };
 }  // namespace conv2d
 }  // namespace sycldnn
