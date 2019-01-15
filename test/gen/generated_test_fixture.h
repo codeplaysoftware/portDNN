@@ -27,9 +27,10 @@
 
 #include "test/backend/backend_test_fixture.h"
 
-template <typename DataType, typename Backend>
+template <typename T, typename Backend>
 struct GeneratedTestFixture : public BackendTest<Backend> {
  protected:
+  using DataType = T;
   /** Allocate memory on the device and initialise it with the provided data. */
   DataType* get_initialised_device_memory(size_t size,
                                           std::vector<DataType> const& data) {
@@ -55,10 +56,11 @@ struct GeneratedTestFixture : public BackendTest<Backend> {
 };
 
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
-template <typename DataType>
-struct GeneratedTestFixture<DataType, sycldnn::backend::SyclBLASBackend>
+template <typename T>
+struct GeneratedTestFixture<T, sycldnn::backend::SyclBLASBackend>
     : public BackendTest<sycldnn::backend::SyclBLASBackend> {
  protected:
+  using DataType = T;
   /** Allocate memory on the device and initialise it with the provided data. */
   DataType* get_initialised_device_memory(size_t size,
                                           std::vector<DataType> const& data) {

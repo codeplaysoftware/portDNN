@@ -1,0 +1,35 @@
+/*
+ * Copyright 2019 Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// clang-format off
+#define SNN_DATA_TYPE  ${DATA_TYPE}
+#define SNN_INDEX_TYPE ${INDEX_TYPE}
+#define SNN_DIM        ${N_DIM}
+// clang-format on
+
+#include "src/transpose/queue_kernel_impl.h"
+
+namespace sycldnn {
+namespace transpose {
+namespace internal {
+
+template SNNStatus queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_DIM>(
+    ReadAccessor<SNN_DATA_TYPE const> input,
+    WriteAccessor<SNN_DATA_TYPE> output, std::vector<int> const& dimensions,
+    std::vector<int> const& permutation, cl::sycl::queue& queue);
+
+}  // namespace internal
+}  // namespace transpose
+}  // namespace sycldnn
