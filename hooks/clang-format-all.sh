@@ -6,4 +6,4 @@ IFS=$'\n\t'
 VERSION=${VERSION:-""}
 
 git ls-files | grep -E "*\.h$|*\.hpp$|*\.cc$|*\.cpp$" | \
-  xargs --max-procs=`nproc` clang-format$VERSION -style=file -i
+  xargs --max-procs=`nproc` --max-args=1 clang-format$VERSION -style=file -i
