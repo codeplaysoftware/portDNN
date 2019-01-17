@@ -235,8 +235,8 @@ struct SyclBLASBackend final {
     auto ldb = TransposeLHS ? trans_n : k;
     cl::sycl::event e = blas::_gemm(
         executor_, TransposeRHS ? 't' : 'n', TransposeLHS ? 't' : 'n', trans_m,
-        trans_n, k, 1.0f, const_cast<T*>(rhs), lda, const_cast<T*>(lhs), ldb,
-        beta, output, ldc);
+        trans_n, k, static_cast<T>(1), const_cast<T*>(rhs), lda,
+        const_cast<T*>(lhs), ldb, beta, output, ldc);
     return e;
   }
 
