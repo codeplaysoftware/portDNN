@@ -72,7 +72,7 @@ struct TransformedFilterTile<T, 2, 2, 3, 3> final
    * Apply the Winograd transform to the filter tile.
    */
   template <typename ConvType>
-  SNN_ALWAYS_INLINE TransformedFilterTile(
+  SNN_ALWAYS_INLINE explicit TransformedFilterTile(
       FilterTile<T, 2, 2, 3, 3, ConvType> const& filter)
       : BaseTransformedFilterTile<T, 2, 2, 3, 3>{} {
     data[0][0] = filter.data[0][0];
@@ -124,7 +124,8 @@ struct TransformedInputTile<T, 2, 2, 3, 3> final
   /**
    * Apply the Winograd transform to the filter tile.
    */
-  SNN_ALWAYS_INLINE TransformedInputTile(InputTile<T, 2, 2, 3, 3> const& inp)
+  SNN_ALWAYS_INLINE explicit TransformedInputTile(
+      InputTile<T, 2, 2, 3, 3> const& inp)
       : BaseTransformedInputTile<T, 2, 2, 3, 3>{} {
     data[0][0] =
         inp.data[0][0] + inp.data[2][2] - inp.data[0][2] - inp.data[2][0];
@@ -171,7 +172,8 @@ struct OutputTile<T, 2, 2, 3, 3> final : public BaseOutputTile<T, 2, 2, 3, 3> {
    * Apply the Winograd transform to the intermediate tile to give the final
    * output tile.
    */
-  SNN_ALWAYS_INLINE OutputTile(IntermediateTile<T, 2, 2, 3, 3> const& tile)
+  SNN_ALWAYS_INLINE explicit OutputTile(
+      IntermediateTile<T, 2, 2, 3, 3> const& tile)
       : BaseOutputTile<T, 2, 2, 3, 3>{} {
     data[0][0] = tile.data[0][0] + tile.data[0][1] + tile.data[0][2] +
                  tile.data[1][0] + tile.data[1][1] + tile.data[1][2] +
@@ -194,7 +196,7 @@ struct TransformedFilterTile<T, 2, 1, 3, 1> final
   using BaseTransformedFilterTile<T, 2, 1, 3, 1>::data;
 
   template <typename ConvType>
-  SNN_ALWAYS_INLINE TransformedFilterTile(
+  SNN_ALWAYS_INLINE explicit TransformedFilterTile(
       FilterTile<T, 2, 1, 3, 1, ConvType> const& filter)
       : BaseTransformedFilterTile<T, 2, 1, 3, 1>{} {
     data[0][0] = filter.data[0][0];
@@ -211,7 +213,8 @@ struct TransformedInputTile<T, 2, 1, 3, 1> final
     : public BaseTransformedInputTile<T, 2, 1, 3, 1> {
   using BaseTransformedInputTile<T, 2, 1, 3, 1>::data;
 
-  SNN_ALWAYS_INLINE TransformedInputTile(InputTile<T, 2, 1, 3, 1> const& inp)
+  SNN_ALWAYS_INLINE explicit TransformedInputTile(
+      InputTile<T, 2, 1, 3, 1> const& inp)
       : BaseTransformedInputTile<T, 2, 1, 3, 1>{} {
     data[0][0] = inp.data[0][0] - inp.data[2][0];
     data[1][0] = inp.data[1][0] + inp.data[2][0];
@@ -223,7 +226,8 @@ struct TransformedInputTile<T, 2, 1, 3, 1> final
 template <typename T>
 struct OutputTile<T, 2, 1, 3, 1> final : public BaseOutputTile<T, 2, 1, 3, 1> {
   using BaseOutputTile<T, 2, 1, 3, 1>::data;
-  SNN_ALWAYS_INLINE OutputTile(IntermediateTile<T, 2, 1, 3, 1> const& tile)
+  SNN_ALWAYS_INLINE explicit OutputTile(
+      IntermediateTile<T, 2, 1, 3, 1> const& tile)
       : BaseOutputTile<T, 2, 1, 3, 1>{} {
     data[0][0] = tile.data[0][0] + tile.data[1][0] + tile.data[2][0];
     data[1][0] = tile.data[1][0] - tile.data[2][0] + tile.data[3][0];
@@ -236,7 +240,7 @@ struct TransformedFilterTile<T, 1, 2, 1, 3> final
   using BaseTransformedFilterTile<T, 1, 2, 1, 3>::data;
 
   template <typename ConvType>
-  SNN_ALWAYS_INLINE TransformedFilterTile(
+  SNN_ALWAYS_INLINE explicit TransformedFilterTile(
       FilterTile<T, 1, 2, 1, 3, ConvType> const& filter)
       : BaseTransformedFilterTile<T, 1, 2, 1, 3>{} {
     data[0][0] = filter.data[0][0];
@@ -253,7 +257,8 @@ struct TransformedInputTile<T, 1, 2, 1, 3> final
     : public BaseTransformedInputTile<T, 1, 2, 1, 3> {
   using BaseTransformedInputTile<T, 1, 2, 1, 3>::data;
 
-  SNN_ALWAYS_INLINE TransformedInputTile(InputTile<T, 1, 2, 1, 3> const& inp)
+  SNN_ALWAYS_INLINE explicit TransformedInputTile(
+      InputTile<T, 1, 2, 1, 3> const& inp)
       : BaseTransformedInputTile<T, 1, 2, 1, 3>{} {
     data[0][0] = inp.data[0][0] - inp.data[0][2];
     data[0][1] = inp.data[0][1] + inp.data[0][2];
@@ -265,7 +270,8 @@ struct TransformedInputTile<T, 1, 2, 1, 3> final
 template <typename T>
 struct OutputTile<T, 1, 2, 1, 3> final : public BaseOutputTile<T, 1, 2, 1, 3> {
   using BaseOutputTile<T, 1, 2, 1, 3>::data;
-  SNN_ALWAYS_INLINE OutputTile(IntermediateTile<T, 1, 2, 1, 3> const& tile)
+  SNN_ALWAYS_INLINE explicit OutputTile(
+      IntermediateTile<T, 1, 2, 1, 3> const& tile)
       : BaseOutputTile<T, 1, 2, 1, 3>{} {
     data[0][0] = tile.data[0][0] + tile.data[0][1] + tile.data[0][2];
     data[0][1] = tile.data[0][1] - tile.data[0][2] + tile.data[0][3];
@@ -278,7 +284,7 @@ struct TransformedFilterTile<T, 3, 1, 2, 1> final
   using BaseTransformedFilterTile<T, 3, 1, 2, 1>::data;
 
   template <typename ConvType>
-  SNN_ALWAYS_INLINE TransformedFilterTile(
+  SNN_ALWAYS_INLINE explicit TransformedFilterTile(
       FilterTile<T, 3, 1, 2, 1, ConvType> const& filter)
       : BaseTransformedFilterTile<T, 3, 1, 2, 1>{} {
     data[0][0] = filter.data[0][0];
@@ -293,7 +299,8 @@ struct TransformedInputTile<T, 3, 1, 2, 1> final
     : public BaseTransformedInputTile<T, 3, 1, 2, 1> {
   using BaseTransformedInputTile<T, 3, 1, 2, 1>::data;
 
-  SNN_ALWAYS_INLINE TransformedInputTile(InputTile<T, 3, 1, 2, 1> const& inp)
+  SNN_ALWAYS_INLINE explicit TransformedInputTile(
+      InputTile<T, 3, 1, 2, 1> const& inp)
       : BaseTransformedInputTile<T, 3, 1, 2, 1>{} {
     data[0][0] = inp.data[0][0] - inp.data[2][0];
     data[1][0] = inp.data[1][0] + inp.data[2][0];
@@ -305,7 +312,8 @@ struct TransformedInputTile<T, 3, 1, 2, 1> final
 template <typename T>
 struct OutputTile<T, 3, 1, 2, 1> final : public BaseOutputTile<T, 3, 1, 2, 1> {
   using BaseOutputTile<T, 3, 1, 2, 1>::data;
-  SNN_ALWAYS_INLINE OutputTile(IntermediateTile<T, 3, 1, 2, 1> const& tile)
+  SNN_ALWAYS_INLINE explicit OutputTile(
+      IntermediateTile<T, 3, 1, 2, 1> const& tile)
       : BaseOutputTile<T, 3, 1, 2, 1>{} {
     data[0][0] = tile.data[0][0] + tile.data[1][0] + tile.data[2][0];
     data[1][0] = tile.data[1][0] - tile.data[2][0];
@@ -319,7 +327,7 @@ struct TransformedFilterTile<T, 1, 3, 1, 2> final
   using BaseTransformedFilterTile<T, 1, 3, 1, 2>::data;
 
   template <typename ConvType>
-  SNN_ALWAYS_INLINE TransformedFilterTile(
+  SNN_ALWAYS_INLINE explicit TransformedFilterTile(
       FilterTile<T, 1, 3, 1, 2, ConvType> const& filter)
       : BaseTransformedFilterTile<T, 1, 3, 1, 2>{} {
     data[0][0] = filter.data[0][0];
@@ -334,7 +342,8 @@ struct TransformedInputTile<T, 1, 3, 1, 2> final
     : public BaseTransformedInputTile<T, 1, 3, 1, 2> {
   using BaseTransformedInputTile<T, 1, 3, 1, 2>::data;
 
-  SNN_ALWAYS_INLINE TransformedInputTile(InputTile<T, 1, 3, 1, 2> const& inp)
+  SNN_ALWAYS_INLINE explicit TransformedInputTile(
+      InputTile<T, 1, 3, 1, 2> const& inp)
       : BaseTransformedInputTile<T, 1, 3, 1, 2>{} {
     data[0][0] = inp.data[0][0] - inp.data[0][2];
     data[0][1] = inp.data[0][1] + inp.data[0][2];
@@ -346,7 +355,8 @@ struct TransformedInputTile<T, 1, 3, 1, 2> final
 template <typename T>
 struct OutputTile<T, 1, 3, 1, 2> final : public BaseOutputTile<T, 1, 3, 1, 2> {
   using BaseOutputTile<T, 1, 3, 1, 2>::data;
-  SNN_ALWAYS_INLINE OutputTile(IntermediateTile<T, 1, 3, 1, 2> const& tile)
+  SNN_ALWAYS_INLINE explicit OutputTile(
+      IntermediateTile<T, 1, 3, 1, 2> const& tile)
       : BaseOutputTile<T, 1, 3, 1, 2>{} {
     data[0][0] = tile.data[0][0] + tile.data[0][1] + tile.data[0][2];
     data[0][1] = tile.data[0][1] - tile.data[0][2];
@@ -360,7 +370,7 @@ struct TransformedFilterTile<T, 3, 3, 2, 2> final
   using BaseTransformedFilterTile<T, 3, 3, 2, 2>::data;
 
   template <typename ConvType>
-  SNN_ALWAYS_INLINE TransformedFilterTile(
+  SNN_ALWAYS_INLINE explicit TransformedFilterTile(
       FilterTile<T, 3, 3, 2, 2, ConvType> const& filter)
       : BaseTransformedFilterTile<T, 3, 3, 2, 2>{} {
     data[0][0] = filter.data[0][0];
@@ -398,7 +408,8 @@ struct TransformedInputTile<T, 3, 3, 2, 2> final
     : public BaseTransformedInputTile<T, 3, 3, 2, 2> {
   using BaseTransformedInputTile<T, 3, 3, 2, 2>::data;
 
-  SNN_ALWAYS_INLINE TransformedInputTile(InputTile<T, 3, 3, 2, 2> const& inp)
+  SNN_ALWAYS_INLINE explicit TransformedInputTile(
+      InputTile<T, 3, 3, 2, 2> const& inp)
       : BaseTransformedInputTile<T, 3, 3, 2, 2>{} {
     data[0][0] =
         inp.data[0][0] - inp.data[0][2] - inp.data[2][0] + inp.data[2][2];
@@ -441,7 +452,8 @@ struct TransformedInputTile<T, 3, 3, 2, 2> final
 template <typename T>
 struct OutputTile<T, 3, 3, 2, 2> final : public BaseOutputTile<T, 3, 3, 2, 2> {
   using BaseOutputTile<T, 3, 3, 2, 2>::data;
-  SNN_ALWAYS_INLINE OutputTile(IntermediateTile<T, 3, 3, 2, 2> const& tile)
+  SNN_ALWAYS_INLINE explicit OutputTile(
+      IntermediateTile<T, 3, 3, 2, 2> const& tile)
       : BaseOutputTile<T, 3, 3, 2, 2>{} {
     data[0][0] = tile.data[0][0] + tile.data[0][1] + tile.data[0][2] +
                  tile.data[1][0] + tile.data[1][1] + tile.data[1][2] +

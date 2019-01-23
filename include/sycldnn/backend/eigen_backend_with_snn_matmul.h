@@ -79,7 +79,8 @@ struct EigenBackendSNNMatmul final
    * instance of Eigen's SyclDevice.
    * \param device The Eigen::SyclDevice to construct the backend from.
    */
-  EigenBackendSNNMatmul(Eigen::SyclDevice const& device) : device_{device} {}
+  explicit EigenBackendSNNMatmul(Eigen::SyclDevice const& device)
+      : device_{device} {}
 
   /**
    * Gets a descriptive name for this backend.

@@ -93,7 +93,7 @@ struct FastDiv {
    * a trivial computation, this should only be used on the host and then the
    * values computed on the host can be passed as parameters to the SYCL kernel.
    */
-  FastDiv(Index const divisor) {
+  explicit FastDiv(Index const divisor) {
     SNN_ASSERT(divisor > 1,
                "FastDiv requires the divisor to be greater than 1");
 

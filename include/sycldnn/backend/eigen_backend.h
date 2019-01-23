@@ -76,7 +76,7 @@ struct EigenBackend final : public EigenExternalHandler<EigenBackend>,
    * instance of Eigen's SyclDevice.
    * \param device The Eigen::SyclDevice to construct the backend from.
    */
-  EigenBackend(Eigen::SyclDevice const& device) : device_{device} {}
+  explicit EigenBackend(Eigen::SyclDevice const& device) : device_{device} {}
 
   /**
    * Gets a descriptive name for this backend.

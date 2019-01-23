@@ -60,7 +60,8 @@ struct SNNMatmulProvider {
      *
      * \param backend Underlying backend which provides access to buffers.
      */
-    MatmulBackend(Backend backend) : underlying_backend{std::move(backend)} {}
+    explicit MatmulBackend(Backend backend)
+        : underlying_backend{std::move(backend)} {}
 
     /**
      * Get the buffer corresponding to the provided buffer of the specified

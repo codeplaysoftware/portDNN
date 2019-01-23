@@ -23,7 +23,7 @@ struct SetBuffer {
   static constexpr auto global_access = cl::sycl::access::target::global_buffer;
   using write_accessor = cl::sycl::accessor<T, 1, write_mode, global_access>;
 
-  SetBuffer(write_accessor out) : output(std::move(out)) {}
+  explicit SetBuffer(write_accessor out) : output(std::move(out)) {}
 
   void operator()(cl::sycl::item<1> item) {
     const auto id = item.get_id(0);
