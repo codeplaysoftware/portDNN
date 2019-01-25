@@ -22,11 +22,12 @@
  * asynchronously dispatches the SYCL kernels required to perform a 2D
  * convolution.
  */
+#include "sycldnn/accessor_types.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/depthwise_conv2d/params.h"
 
-#include "sycldnn/helpers/macros.h"
+#include <CL/sycl.hpp>
 
 namespace sycldnn {
 namespace depthwise_conv2d {

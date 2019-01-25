@@ -53,12 +53,11 @@ INCLUDES = r"""
 
 #include "sycldnn/padding_mode.h"
 
-#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
-
 #include "test/depthwise_conv2d/window_stride_fixture.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 #include <CL/sycl.hpp>
@@ -67,8 +66,7 @@ INCLUDES = r"""
 #include <vector>"""
 DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends =
-    sycldnn::types::TypeList<sycldnn::backend::EigenBackendSNNMatmul>;
+using Backends = sycldnn::types::DefaultBackendTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;

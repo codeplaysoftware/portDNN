@@ -24,22 +24,13 @@
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
-
-#ifdef SNN_TEST_EIGEN_MATMULS
-#include "sycldnn/backend/eigen_backend.h"
-#endif
-
-#ifdef SNN_TEST_SYCLBLAS_MATMULS
-#include "sycldnn/backend/sycl_blas_backend.h"
-#endif
-
 #include "test/conv2d/selector_list.h"
 #include "test/conv2d/window_stride_fixture.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 #include <CL/sycl.hpp>
@@ -48,15 +39,7 @@
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
-
-using Backends = sycldnn::types::TypeList<
-#ifdef SNN_TEST_EIGEN_MATMULS
-    sycldnn::backend::EigenBackend,
-#endif
-#ifdef SNN_TEST_SYCLBLAS_MATMULS
-    sycldnn::backend::SyclBLASBackend,
-#endif
-    sycldnn::backend::EigenBackendSNNMatmul>;
+using Backends = sycldnn::types::AllBackendTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
