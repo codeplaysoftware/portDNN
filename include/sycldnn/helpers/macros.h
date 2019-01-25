@@ -166,4 +166,27 @@
   type(type&&) = default;      \
   type& operator=(type&&) = default
 
+/**
+ * Internal macro for formatting error messages used in reporting failures.
+ *
+ * \param impl Unquoted string indicating where the error came from
+ * \param err A variable that is the error returned from the function
+ * \param file Should always be __FILE__
+ * \param line Should always be __LINE__
+ */
+#define SNN_ERROR_MSG_IMPL(impl, err, file, line)                \
+  std::string{#impl " error happened: "} + std::to_string(err) + \
+      "\nat " #file #line
+
+/**
+ * Formats error messages used in reporting failures.
+ *
+ * \param impl Unquoted string indicating where the error came from
+ * \param err A variable that is the error returned from the function
+ * \param file Should always be __FILE__
+ * \param line Should always be __LINE__
+ */
+#define SNN_ERROR_MSG(impl, err, file, line) \
+  SNN_ERROR_MSG_IMPL(impl, err, file, line)
+
 #endif  // SYCLDNN_INCLUDE_HELPER_MACROS_H_
