@@ -19,12 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
 #include "sycldnn/padding_mode.h"
-
-#include "sycldnn/backend/eigen_backend.h"
 
 #include "sycldnn/helpers/padding.h"
 
@@ -38,11 +33,10 @@
 
 #include <vector>
 
-template <typename DType, template <typename T> class Op, typename Direction,
-          bool = sycldnn::pooling::internal::IsMaxGradient<DType, Op,
-                                                           Direction>::value>
-struct PoolingFixture
-    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+template <typename DType, typename Backend, template <typename T> class Op,
+          typename Direction, bool = sycldnn::pooling::internal::IsMaxGradient<
+                                  DType, Op, Direction>::value>
+struct PoolingFixture : public GeneratedTestFixture<DType, Backend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,
@@ -80,9 +74,10 @@ struct PoolingFixture
 
 // Need a specific fixture for maxpooling gradient, as this operation requires
 // both the original pooling values and the backprop values.
-template <typename DType, template <typename> class Op, typename Direction>
-struct PoolingFixture<DType, Op, Direction, true>
-    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+template <typename DType, typename Backend, template <typename> class Op,
+          typename Direction>
+struct PoolingFixture<DType, Backend, Op, Direction, true>
+    : public GeneratedTestFixture<DType, Backend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,

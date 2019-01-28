@@ -47,18 +47,14 @@ TEST_TYPES = ["forward", "input_backprop", "filter_backprop"]
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
 #include "sycldnn/padding_mode.h"
-
-#include "test/depthwise_conv2d/window_stride_fixture.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
+
+#include "test/depthwise_conv2d/window_stride_fixture.h"
 
 #include <CL/sycl.hpp>
 

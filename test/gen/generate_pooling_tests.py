@@ -52,17 +52,29 @@ INCLUDES = r"""
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 
-#include "test/pooling/pooling_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+
+#include "test/pooling/pooling_fixture.h"
 
 #include <CL/sycl.hpp>
 
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn;
-template <typename DataType>
-using {test_case} = PoolingFixture<DataType, {operation}, {direction}>;
-TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes;
+
+using SNNTypePairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+
+template <typename Pair>
+using {test_case} =
+    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
+                   {operation}, {direction}>;
+TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
                             ['test_type', 'direction', 'window', 'stride'])

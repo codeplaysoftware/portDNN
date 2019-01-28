@@ -24,18 +24,29 @@
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 
-#include "test/pooling/pooling_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+
+#include "test/pooling/pooling_fixture.h"
 
 #include <CL/sycl.hpp>
 
 #include <vector>
 
 using namespace sycldnn;
-template <typename DataType>
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes;
+
+using SNNTypePairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+
+template <typename Pair>
 using AvgWindow1Stride1Grad =
-    PoolingFixture<DataType, pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow1Stride1Grad, types::GTestKernelDataTypes);
+    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
+                   pooling::Average, pooling::Backpropagate>;
+TYPED_TEST_CASE(AvgWindow1Stride1Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow1Stride1Grad, SAME1x2x2x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.};

@@ -20,18 +20,14 @@
 
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
-#include "test/conv2d/selector_list.h"
-#include "test/conv2d/window_stride_fixture.h"
-
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
+
+#include "test/conv2d/selector_list.h"
+#include "test/conv2d/window_stride_fixture.h"
 
 #include <CL/sycl.hpp>
 
