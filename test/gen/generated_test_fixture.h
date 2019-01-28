@@ -36,7 +36,7 @@ struct GeneratedTestFixture : public BackendTest<Backend> {
                                           std::vector<DataType> const& data) {
     auto device = this->get_eigen_device();
     size_t n_bytes = size * sizeof(DataType);
-    DataType* gpu_ptr = static_cast<DataType*>(device.allocate(n_bytes));
+    auto* gpu_ptr = static_cast<DataType*>(device.allocate(n_bytes));
     device.memcpyHostToDevice(gpu_ptr, data.data(), n_bytes);
     return gpu_ptr;
   }

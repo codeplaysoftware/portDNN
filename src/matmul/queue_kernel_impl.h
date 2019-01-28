@@ -43,7 +43,7 @@ SNNStatus queue_kernel(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
       helpers::round_up_to_nearest_multiple(output_size_row, pow_two_multiple);
   size_t const n_col_threads =
       helpers::round_up_to_nearest_multiple(output_size_col, pow_two_multiple);
-  size_t const n_batch_threads = static_cast<size_t>(batches);
+  auto const n_batch_threads = static_cast<size_t>(batches);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.require(lhs);

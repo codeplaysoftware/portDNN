@@ -63,7 +63,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK14xN14) {
   const int m = 14;
   const int k = 14;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -101,7 +101,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK14xN15) {
   const int m = 14;
   const int k = 14;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -140,7 +140,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK14xN16) {
   const int m = 14;
   const int k = 14;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -176,7 +176,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK15xN14) {
   const int m = 14;
   const int k = 15;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -214,7 +214,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK15xN15) {
   const int m = 14;
   const int k = 15;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -253,7 +253,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK15xN16) {
   const int m = 14;
   const int k = 15;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -289,7 +289,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK16xN14) {
   const int m = 14;
   const int k = 16;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -327,7 +327,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK16xN15) {
   const int m = 14;
   const int k = 16;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -366,7 +366,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M14xK16xN16) {
   const int m = 14;
   const int k = 16;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -404,7 +404,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK14xN14) {
   const int m = 15;
   const int k = 14;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -444,7 +444,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK14xN15) {
   const int m = 15;
   const int k = 14;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -485,7 +485,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK14xN16) {
   const int m = 15;
   const int k = 14;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -523,7 +523,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK15xN14) {
   const int m = 15;
   const int k = 15;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -563,7 +563,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK15xN15) {
   const int m = 15;
   const int k = 15;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -604,7 +604,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK15xN16) {
   const int m = 15;
   const int k = 15;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -642,7 +642,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK16xN14) {
   const int m = 15;
   const int k = 16;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -682,7 +682,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK16xN15) {
   const int m = 15;
   const int k = 16;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -723,7 +723,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M15xK16xN16) {
   const int m = 15;
   const int k = 16;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -762,7 +762,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK14xN14) {
   const int m = 16;
   const int k = 14;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -803,7 +803,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK14xN15) {
   const int m = 16;
   const int k = 14;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -846,7 +846,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK14xN16) {
   const int m = 16;
   const int k = 14;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -885,7 +885,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK15xN14) {
   const int m = 16;
   const int k = 15;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -926,7 +926,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK15xN15) {
   const int m = 16;
   const int k = 15;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -969,7 +969,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK15xN16) {
   const int m = 16;
   const int k = 15;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -1008,7 +1008,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK16xN14) {
   const int m = 16;
   const int k = 16;
   const int n = 14;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -1049,7 +1049,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK16xN15) {
   const int m = 16;
   const int k = 16;
   const int n = 15;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
@@ -1092,7 +1092,7 @@ TYPED_TEST(MatmulBatch1Beta1FalseTrue, M16xK16xN16) {
   const int m = 16;
   const int k = 16;
   const int n = 16;
-  const DataType beta = static_cast<DataType>(1);
+  const auto beta = static_cast<DataType>(1);
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }

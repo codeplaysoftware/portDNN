@@ -136,8 +136,8 @@ workgroup_reduce(DataType value, cl::sycl::nd_item<Dimensions> item,
   using Store = helpers::io::Store<DataType>;
   using Load = helpers::io::Load<DataType>;
 
-  Index reduction_idx = internal::get_flattened_local_range<Index>(item);
-  Index local_idx = internal::get_flattened_local_id<Index>(item);
+  auto reduction_idx = internal::get_flattened_local_range<Index>(item);
+  auto local_idx = internal::get_flattened_local_id<Index>(item);
   bool written = false;
 
   while (reduction_idx > 1) {

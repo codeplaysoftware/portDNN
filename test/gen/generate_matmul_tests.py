@@ -129,7 +129,7 @@ def get_test_lines(batch, m, k, n, beta, trans_lhs, trans_rhs):
         "  const int m = {};".format(m),
         "  const int k = {};".format(k),
         "  const int n = {};".format(n),
-        "  const DataType beta = static_cast<DataType>({});".format(beta),
+        "  const auto beta = static_cast<DataType>({});".format(beta),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);",
         "}"

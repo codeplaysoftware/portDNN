@@ -100,7 +100,7 @@ struct FastDiv {
     int constexpr index_bit_length = std::numeric_limits<Index>::digits;
     Unsigned constexpr two_pow = static_cast<Unsigned>(1) << index_bit_length;
 
-    Unsigned const unsigned_d = static_cast<Unsigned>(divisor);
+    auto const unsigned_d = static_cast<Unsigned>(divisor);
     Unsigned const nc = two_pow - 1 - (two_pow % unsigned_d);
 
     int power = index_bit_length;
@@ -139,7 +139,7 @@ struct FastDiv {
    */
   SNN_ALWAYS_INLINE Index divide(Index value) {
     SNN_ASSERT(value >= 0, "FastDiv requires nonnegative values");
-    Unsigned unsigned_value = static_cast<Unsigned>(value);
+    auto unsigned_value = static_cast<Unsigned>(value);
     Unsigned unsigned_ans = cl::sycl::mul_hi(unsigned_value, multiple) >> shift;
     return static_cast<Index>(unsigned_ans);
   }

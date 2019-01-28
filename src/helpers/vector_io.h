@@ -81,7 +81,7 @@ struct Load<cl::sycl::vec<T, N>> {
                   "Type U must be convertible to type T.");
     static constexpr auto address_space =
         cl::sycl::access::address_space::global_space;
-    U* non_const_ptr = const_cast<U*>(ptr);
+    auto* non_const_ptr = const_cast<U*>(ptr);
     cl::sycl::multi_ptr<T, address_space> mptr(non_const_ptr);
     return operator()(mptr, offset);
   }

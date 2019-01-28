@@ -123,7 +123,7 @@ struct SNNMatmulProvider {
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
                          Index const m, Index const k, Index const n) {
-    Backend& underlying_backend = static_cast<Backend&>(*this);
+    auto& underlying_backend = static_cast<Backend&>(*this);
     MatmulBackend matmul_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
         lhs, rhs, output, 1, m, k, n, beta, matmul_backend);
@@ -161,7 +161,7 @@ struct SNNMatmulProvider {
                                internal_pointer_type<T> const output,
                                Index const n_batches, Index const m,
                                Index const k, Index const n) {
-    Backend& underlying_backend = static_cast<Backend&>(*this);
+    auto& underlying_backend = static_cast<Backend&>(*this);
     MatmulBackend matmul_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
         lhs, rhs, output, n_batches, m, k, n, T{0}, matmul_backend);
