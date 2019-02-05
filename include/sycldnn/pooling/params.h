@@ -68,7 +68,7 @@ struct PoolingParams {
   /** The padding to be applied to each tensor column. */
   Index pad_cols;
 
-  /** The input data format used in the input and output tensors. */
+  /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 };
 

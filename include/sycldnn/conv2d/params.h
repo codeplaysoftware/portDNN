@@ -17,6 +17,7 @@
 #define SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
 
 #include "sycldnn/data_format.h"
+#include "sycldnn/filter_format.h"
 
 /**
  * \file
@@ -95,6 +96,9 @@ struct Conv2DParams {
 
   /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
+
+  /** The data format used in the filter tensor. */
+  sycldnn::FilterFormat filter_format = sycldnn::FilterFormat::HWCF;
 };
 }  // namespace conv2d
 }  // namespace sycldnn

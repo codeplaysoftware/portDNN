@@ -17,6 +17,7 @@
 #define SYCLDNN_INCLUDE_DEPTHWISE_CONV2D_PARAMS_H_
 
 #include "sycldnn/data_format.h"
+#include "sycldnn/filter_format.h"
 
 /**
  * \file
@@ -85,8 +86,11 @@ struct DepthwiseConv2DParams {
    */
   Index pad_cols;
 
-  /** The input data format used in the input and output tensors. */
+  /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
+
+  /** The data format used in the filter tensor. */
+  sycldnn::FilterFormat filter_format = sycldnn::FilterFormat::HWCF;
 };
 
 }  // namespace depthwise_conv2d
