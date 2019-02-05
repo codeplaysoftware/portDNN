@@ -25,6 +25,18 @@
 namespace sycldnn {
 namespace bench {
 
+/** Helper function that checks if SYCL-DNN can wait on events directly, or
+ * has to wait on the queue. This is because Eigen cannot return us the events
+ * corresponding to the kernel launch directly. */
+/* TODO: SD-404 Remove queue::wait_and_throw workaround when Eigen removed */
+inline void wait_for_event(cl::sycl::event& ev, cl::sycl::queue q) {
+  if (ev.is_host()) {
+    q.wait_and_throw();
+  } else {
+    ev.wait_and_throw();
+  }
+}
+
 /** Executor to perform the Conv2d benchmark using SYCL-DNN.  */
 template <typename Benchmark, typename ConvType>
 struct SNNConv2DExecutor : public BaseExecutor {
@@ -60,7 +72,7 @@ struct SNNConv2DExecutor : public BaseExecutor {
       }
 
       try {
-        status.event.wait_and_throw();
+        wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
         auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
                      ". This is definitely not expected behaviour and "
@@ -76,7 +88,7 @@ struct SNNConv2DExecutor : public BaseExecutor {
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
 
       try {
-        status.event.wait_and_throw();
+        wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
         auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
                      "This is definitely not expected behaviour and indicates "
