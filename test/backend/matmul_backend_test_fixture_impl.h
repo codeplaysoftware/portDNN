@@ -18,39 +18,6 @@
 #include "test/backend/matmul_backend_test_fixture.h"
 
 template <typename Backend>
-template <typename T>
-void BackendMatmul<Backend>::copy_to_device(T* src, T* dst, size_t nelems) {
-  auto& device = this->backend_.get_eigen_device();
-  device.memcpyHostToDevice(dst, src, nelems * sizeof(T));
-}
-
-template <typename Backend>
-template <typename T>
-void BackendMatmul<Backend>::copy_to_host(T* src, T* dst, size_t nelems) {
-  auto& device = this->backend_.get_eigen_device();
-  device.memcpyDeviceToHost(dst, src, nelems * sizeof(T));
-}
-
-#ifdef SNN_TEST_SYCLBLAS_MATMULS
-template <>
-template <typename T>
-void BackendMatmul<sycldnn::backend::SyclBLASBackend>::copy_to_device(
-    T* src, T* dst, size_t nelems) {
-  auto complete =
-      this->backend_.get_executor().copy_to_device(src, dst, nelems);
-  complete.wait_and_throw();
-}
-
-template <>
-template <typename T>
-void BackendMatmul<sycldnn::backend::SyclBLASBackend>::copy_to_host(
-    T* src, T* dst, size_t nelems) {
-  auto complete = this->backend_.get_executor().copy_to_host(src, dst, nelems);
-  complete.wait_and_throw();
-}
-#endif  // SNN_TEST_SYCLBLAS_MATMULS
-
-template <typename Backend>
 template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
 void BackendMatmul<Backend>::test_square_matmul(std::vector<T>& lhs,
                                                 std::vector<T>& rhs,
@@ -66,24 +33,26 @@ void BackendMatmul<Backend>::test_nonsquare_matmul(std::vector<T>& lhs,
                                                    std::vector<T>& rhs,
                                                    std::vector<T>& expected,
                                                    Index m, Index n, Index k) {
-  const auto lhs_size = m * k * sizeof(T);
-  const auto rhs_size = k * n * sizeof(T);
-  const auto out_size = m * n * sizeof(T);
-  T* lhs_ptr = this->backend_.template allocate<T>(lhs_size);
-  T* rhs_ptr = this->backend_.template allocate<T>(rhs_size);
-  T* out_ptr = this->backend_.template allocate<T>(out_size);
+  const auto lhs_size = m * k;
+  const auto rhs_size = k * n;
+  const auto out_size = m * n;
 
-  this->copy_to_device(lhs.data(), lhs_ptr, m * k);
-  this->copy_to_device(rhs.data(), rhs_ptr, k * n);
+  std::vector<T> output(out_size, static_cast<T>(0));
 
-  this->backend_.template matmul<TransposeLHS, TransposeRHS>(
+  auto provider = this->provider_;
+  auto backend = provider.get_backend();
+
+  T* lhs_ptr = provider.get_initialised_device_memory(lhs_size, lhs);
+  T* rhs_ptr = provider.get_initialised_device_memory(rhs_size, rhs);
+  T* out_ptr = provider.get_initialised_device_memory(out_size, output);
+
+  backend.template matmul<TransposeLHS, TransposeRHS>(
       lhs_ptr, rhs_ptr, out_ptr, static_cast<T>(0), m, k, n);
 
-  std::vector<T> out(m * n);
-  this->copy_to_host(out_ptr, out.data(), m * n);
+  provider.copy_device_data_to_host(out_size, out_ptr, output);
 
   for (int i = 0; i < m * n; ++i) {
-    EXPECT_EQ(expected[i], out[i]);
+    EXPECT_EQ(expected[i], output[i]);
   }
 }
 
@@ -93,21 +62,24 @@ void BackendMatmul<Backend>::test_square_batch_matmul(std::vector<T>& lhs,
                                                       std::vector<T>& rhs,
                                                       std::vector<T>& expected,
                                                       Index batch, Index dim) {
-  const auto size = batch * dim * dim * sizeof(T);
-  T* lhs_ptr = this->backend_.template allocate<T>(size);
-  T* rhs_ptr = this->backend_.template allocate<T>(size);
-  T* out_ptr = this->backend_.template allocate<T>(size);
+  const auto size = batch * dim * dim;
 
-  this->copy_to_device(lhs.data(), lhs_ptr, batch * dim * dim);
-  this->copy_to_device(rhs.data(), rhs_ptr, batch * dim * dim);
+  std::vector<T> output(size, static_cast<T>(0));
 
-  this->backend_.template batch_matmul<TransposeLHS, TransposeRHS>(
+  auto provider = this->provider_;
+  auto backend = provider.get_backend();
+
+  T* lhs_ptr = provider.get_initialised_device_memory(size, lhs);
+  T* rhs_ptr = provider.get_initialised_device_memory(size, rhs);
+  T* out_ptr = provider.get_initialised_device_memory(size, output);
+
+  backend.template batch_matmul<TransposeLHS, TransposeRHS>(
       lhs_ptr, rhs_ptr, out_ptr, batch, dim, dim, dim);
 
-  std::vector<T> out(batch * dim * dim);
-  this->copy_to_host(out_ptr, out.data(), batch * dim * dim);
-  for (int i = 0; i < batch * dim * dim; ++i) {
-    EXPECT_EQ(expected[i], out[i]);
+  provider.copy_device_data_to_host(size, out_ptr, output);
+
+  for (int i = 0; i < size; ++i) {
+    EXPECT_EQ(expected[i], output[i]);
   }
 }
 #endif  // SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_

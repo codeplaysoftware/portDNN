@@ -15,6 +15,10 @@
  */
 #include <gtest/gtest.h>
 
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
 #include <CL/sycl.hpp>
 
 #include <iterator>
@@ -27,7 +31,7 @@
 #include "sycldnn/status.h"
 #include "sycldnn/transpose/launch.h"
 
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include "test/types/kernel_data_types.h"
@@ -36,12 +40,16 @@
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
-template <typename DataType>
-using TranposeConversion =
-    GeneratedTestFixture<DataType, sycldnn::backend::EigenBackend>;
-TYPED_TEST_CASE(TranposeConversion, GTestTypeList);
+template <typename T>
+struct TransposeConversion
+    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
+ public:
+  using DataType = T;
+};
 
-TYPED_TEST(TranposeConversion, NHWCToNCHW) {
+TYPED_TEST_CASE(TransposeConversion, GTestTypeList);
+
+TYPED_TEST(TransposeConversion, NHWCToNCHW) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp = {
       1.,  6.,  11., 16., 21., 26., 31., 36.,  41.,  46.,  51.,  56.,
@@ -64,13 +72,17 @@ TYPED_TEST(TranposeConversion, NHWCToNCHW) {
   std::vector<DataType> in_data = iota_initialised_data(tensor_size, max_val);
   std::vector<DataType> out_data = iota_initialised_data(tensor_size, max_val);
 
+  auto provider = this->provider_;
+  auto backend = provider.get_backend();
+
   {
-    auto in_gpu = this->get_initialised_device_memory(tensor_size, in_data);
-    auto out_gpu = this->get_initialised_device_memory(tensor_size, out_data);
+    auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
+    auto out_gpu =
+        provider.get_initialised_device_memory(tensor_size, out_data);
 
     try {
       auto status = sycldnn::transpose::convert_nhwc_to_nchw<DataType>(
-          in_gpu, out_gpu, sizes, this->backend_);
+          in_gpu, out_gpu, sizes, backend);
 
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
       status.event.wait_and_throw();
@@ -78,9 +90,9 @@ TYPED_TEST(TranposeConversion, NHWCToNCHW) {
       throw std::runtime_error(e.what());
     }
 
-    this->copy_device_data_to_host(tensor_size, out_gpu, out_data);
-    this->deallocate_ptr(in_gpu);
-    this->deallocate_ptr(out_gpu);
+    provider.copy_device_data_to_host(tensor_size, out_gpu, out_data);
+    provider.deallocate_ptr(in_gpu);
+    provider.deallocate_ptr(out_gpu);
   }
 
   for (size_t i = 0; i < exp.size(); ++i) {
@@ -93,7 +105,7 @@ TYPED_TEST(TranposeConversion, NHWCToNCHW) {
   }
 }
 
-TYPED_TEST(TranposeConversion, NCHWToNHWC) {
+TYPED_TEST(TransposeConversion, NCHWToNHWC) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp = {
       1.,  21., 41.,  2.,  22., 42.,  3.,  23., 43.,  4.,  24.,  44.,
@@ -117,13 +129,17 @@ TYPED_TEST(TranposeConversion, NCHWToNHWC) {
   std::vector<DataType> in_data = iota_initialised_data(tensor_size, max_val);
   std::vector<DataType> out_data = iota_initialised_data(tensor_size, max_val);
 
+  auto provider = this->provider_;
+  auto backend = provider.get_backend();
+
   {
-    auto in_gpu = this->get_initialised_device_memory(tensor_size, in_data);
-    auto out_gpu = this->get_initialised_device_memory(tensor_size, out_data);
+    auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
+    auto out_gpu =
+        provider.get_initialised_device_memory(tensor_size, out_data);
 
     try {
       auto status = sycldnn::transpose::convert_nchw_to_nhwc<DataType>(
-          in_gpu, out_gpu, sizes, this->backend_);
+          in_gpu, out_gpu, sizes, backend);
 
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
       status.event.wait_and_throw();
@@ -131,9 +147,9 @@ TYPED_TEST(TranposeConversion, NCHWToNHWC) {
       throw std::runtime_error(e.what());
     }
 
-    this->copy_device_data_to_host(tensor_size, out_gpu, out_data);
-    this->deallocate_ptr(in_gpu);
-    this->deallocate_ptr(out_gpu);
+    provider.copy_device_data_to_host(tensor_size, out_gpu, out_data);
+    provider.deallocate_ptr(in_gpu);
+    provider.deallocate_ptr(out_gpu);
   }
 
   for (size_t i = 0; i < exp.size(); ++i) {

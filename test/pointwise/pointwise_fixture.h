@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
@@ -28,14 +29,14 @@
 #include "sycldnn/pointwise/launch.h"
 #include "sycldnn/pointwise/operators.h"
 
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include <vector>
 
 template <typename DType, template <typename> class Op, typename Direction>
 struct PointwiseFixture
-    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {
@@ -44,18 +45,21 @@ struct PointwiseFixture
     std::vector<DataType> input = iota_initialised_signed_data<DataType>(size);
     std::vector<DataType> output(size);
 
-    auto inp_gpu = this->get_initialised_device_memory(size, input);
-    auto out_gpu = this->get_initialised_device_memory(size, output);
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
+    auto inp_gpu = provider.get_initialised_device_memory(size, input);
+    auto out_gpu = provider.get_initialised_device_memory(size, output);
 
     auto status = sycldnn::pointwise::launch<DataType, Op, Direction>(
-        inp_gpu, out_gpu, size, this->backend_);
+        inp_gpu, out_gpu, size, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(size, out_gpu, output);
-    this->deallocate_ptr(inp_gpu);
-    this->deallocate_ptr(out_gpu);
+    provider.copy_device_data_to_host(size, out_gpu, output);
+    provider.deallocate_ptr(inp_gpu);
+    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -70,7 +74,7 @@ struct PointwiseFixture
 
 template <typename DType, template <typename T> class Op>
 struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
-    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {
@@ -85,32 +89,37 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
         iota_initialised_signed_data<DataType>(size);
     std::vector<DataType> output_backprop(size);
 
-    auto inp_fwd_gpu = this->get_initialised_device_memory(size, input_forward);
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
+    auto inp_fwd_gpu =
+        provider.get_initialised_device_memory(size, input_forward);
     auto out_fwd_gpu =
-        this->get_initialised_device_memory(size, output_forward);
+        provider.get_initialised_device_memory(size, output_forward);
 
     auto fwd_status =
         sycldnn::pointwise::launch<DataType, Op, sycldnn::pointwise::Forward>(
-            inp_fwd_gpu, out_fwd_gpu, size, this->backend_);
+            inp_fwd_gpu, out_fwd_gpu, size, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, fwd_status.status);
 
-    auto inp_bk_gpu = this->get_initialised_device_memory(size, input_backprop);
+    auto inp_bk_gpu =
+        provider.get_initialised_device_memory(size, input_backprop);
     auto out_bk_gpu =
-        this->get_initialised_device_memory(size, output_backprop);
+        provider.get_initialised_device_memory(size, output_backprop);
 
     auto bk_status =
         sycldnn::pointwise::launch<DataType, Op, sycldnn::pointwise::Gradient>(
-            out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, this->backend_);
+            out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, bk_status.status);
 
     fwd_status.event.wait_and_throw();
     bk_status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(size, out_bk_gpu, output_backprop);
-    this->deallocate_ptr(inp_fwd_gpu);
-    this->deallocate_ptr(out_fwd_gpu);
-    this->deallocate_ptr(inp_bk_gpu);
-    this->deallocate_ptr(out_bk_gpu);
+    provider.copy_device_data_to_host(size, out_bk_gpu, output_backprop);
+    provider.deallocate_ptr(inp_fwd_gpu);
+    provider.deallocate_ptr(out_fwd_gpu);
+    provider.deallocate_ptr(inp_bk_gpu);
+    provider.deallocate_ptr(out_bk_gpu);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

@@ -32,12 +32,12 @@
 
 #include "sycldnn/transpose/launch.h"
 
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 template <typename T>
 struct TransposeFixture
-    : public GeneratedTestFixture<T, sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
   using DataType = T;
 
  protected:
@@ -53,14 +53,17 @@ struct TransposeFixture
     std::vector<DataType> in_data = iota_initialised_data(in_size, max_val);
     std::vector<DataType> out_data = iota_initialised_data(out_size, max_val);
 
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
     {
-      auto in_gpu = this->get_initialised_device_memory(in_size, in_data);
-      auto out_gpu = this->get_initialised_device_memory(out_size, out_data);
+      auto in_gpu = provider.get_initialised_device_memory(in_size, in_data);
+      auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
 
       try {
         auto status = sycldnn::transpose::launch<DataType>(
             in_gpu + in_offset, out_gpu + out_offset, sizes, permutation,
-            this->backend_);
+            backend);
 
         ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
         status.event.wait_and_throw();
@@ -68,9 +71,9 @@ struct TransposeFixture
         throw std::runtime_error(e.what());
       }
 
-      this->copy_device_data_to_host(out_size, out_gpu, out_data);
-      this->deallocate_ptr(in_gpu);
-      this->deallocate_ptr(out_gpu);
+      provider.copy_device_data_to_host(out_size, out_gpu, out_data);
+      provider.deallocate_ptr(in_gpu);
+      provider.deallocate_ptr(out_gpu);
     }
 
     for (size_t i = 0; i < exp.size(); ++i) {

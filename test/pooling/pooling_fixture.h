@@ -28,7 +28,7 @@
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
 
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include <vector>
@@ -36,7 +36,7 @@
 template <typename DType, typename Backend, template <typename T> class Op,
           typename Direction, bool = sycldnn::pooling::internal::IsMaxGradient<
                                   DType, Op, Direction>::value>
-struct PoolingFixture : public GeneratedTestFixture<DType, Backend> {
+struct PoolingFixture : public BackendTestFixture<Backend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,
@@ -48,18 +48,21 @@ struct PoolingFixture : public GeneratedTestFixture<DType, Backend> {
     std::vector<DataType> input = iota_initialised_data(in_size, max_val);
     std::vector<DataType> output(out_size);
 
-    auto inp_gpu = this->get_initialised_device_memory(in_size, input);
-    auto out_gpu = this->get_initialised_device_memory(out_size, output);
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
+    auto inp_gpu = provider.get_initialised_device_memory(in_size, input);
+    auto out_gpu = provider.get_initialised_device_memory(out_size, output);
 
     auto status = sycldnn::pooling::launch<DataType, Op, Direction>(
-        inp_gpu, out_gpu, params, this->backend_);
+        inp_gpu, out_gpu, params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(out_size, out_gpu, output);
-    this->deallocate_ptr(inp_gpu);
-    this->deallocate_ptr(out_gpu);
+    provider.copy_device_data_to_host(out_size, out_gpu, output);
+    provider.deallocate_ptr(inp_gpu);
+    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -77,7 +80,7 @@ struct PoolingFixture : public GeneratedTestFixture<DType, Backend> {
 template <typename DType, typename Backend, template <typename> class Op,
           typename Direction>
 struct PoolingFixture<DType, Backend, Op, Direction, true>
-    : public GeneratedTestFixture<DType, Backend> {
+    : public BackendTestFixture<Backend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,
@@ -94,36 +97,40 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
         iota_initialised_data(out_size, max_val);
     std::vector<DataType> output_backprop(in_size);
 
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
     auto inp_data_gpu =
-        this->get_initialised_device_memory(in_size, input_data);
+        provider.get_initialised_device_memory(in_size, input_data);
     auto out_data_gpu =
-        this->get_initialised_device_memory(out_size, output_data);
+        provider.get_initialised_device_memory(out_size, output_data);
 
     auto fwd_status = sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
                                                sycldnn::pooling::Forward>(
-        inp_data_gpu, out_data_gpu, params, this->backend_);
+        inp_data_gpu, out_data_gpu, params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, fwd_status.status);
 
     auto inp_backprop_gpu =
-        this->get_initialised_device_memory(out_size, input_backprop);
+        provider.get_initialised_device_memory(out_size, input_backprop);
     auto out_backprop_gpu =
-        this->get_initialised_device_memory(in_size, output_backprop);
+        provider.get_initialised_device_memory(in_size, output_backprop);
 
     auto back_status =
         sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
                                  sycldnn::pooling::Backpropagate>(
             inp_data_gpu, out_data_gpu, inp_backprop_gpu, out_backprop_gpu,
-            params, this->backend_);
+            params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
 
     fwd_status.event.wait_and_throw();
     back_status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(in_size, out_backprop_gpu, output_backprop);
-    this->deallocate_ptr(inp_data_gpu);
-    this->deallocate_ptr(out_data_gpu);
-    this->deallocate_ptr(inp_backprop_gpu);
-    this->deallocate_ptr(out_backprop_gpu);
+    provider.copy_device_data_to_host(in_size, out_backprop_gpu,
+                                      output_backprop);
+    provider.deallocate_ptr(inp_data_gpu);
+    provider.deallocate_ptr(out_data_gpu);
+    provider.deallocate_ptr(inp_backprop_gpu);
+    provider.deallocate_ptr(out_backprop_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

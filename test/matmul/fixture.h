@@ -25,12 +25,12 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 #include "sycldnn/matmul/launch.h"
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 template <typename T, bool TransposeLhs, bool TransposeRhs>
 struct MatmulFixture
-    : public GeneratedTestFixture<T, sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
   using DataType = T;
 
  protected:
@@ -46,23 +46,26 @@ struct MatmulFixture
     std::vector<DataType> rhs_data = iota_initialised_data(rhs_size, max_val);
     std::vector<DataType> out_data = iota_initialised_data(out_size, max_val);
 
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
     {
-      auto lhs_gpu = this->get_initialised_device_memory(lhs_size, lhs_data);
-      auto rhs_gpu = this->get_initialised_device_memory(rhs_size, rhs_data);
-      auto out_gpu = this->get_initialised_device_memory(out_size, out_data);
+      auto lhs_gpu = provider.get_initialised_device_memory(lhs_size, lhs_data);
+      auto rhs_gpu = provider.get_initialised_device_memory(rhs_size, rhs_data);
+      auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
 
       auto status =
           sycldnn::matmul::launch<DataType, TransposeLhs, TransposeRhs>(
               lhs_gpu + lhs_offset, rhs_gpu + rhs_offset, out_gpu + out_offset,
-              batches, m, k, n, beta, this->backend_);
+              batches, m, k, n, beta, backend);
 
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
       status.event.wait_and_throw();
 
-      this->copy_device_data_to_host(out_size, out_gpu, out_data);
-      this->deallocate_ptr(lhs_gpu);
-      this->deallocate_ptr(rhs_gpu);
-      this->deallocate_ptr(out_gpu);
+      provider.copy_device_data_to_host(out_size, out_gpu, out_data);
+      provider.deallocate_ptr(lhs_gpu);
+      provider.deallocate_ptr(rhs_gpu);
+      provider.deallocate_ptr(out_gpu);
     }
 
     for (size_t i = 0; i < exp.size(); ++i) {

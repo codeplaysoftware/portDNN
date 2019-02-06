@@ -19,7 +19,7 @@
 #include "test/backend/backend_test_fixture.h"
 
 template <typename Backend>
-struct BackendMatmul : public BackendTest<Backend> {
+struct BackendMatmul : public BackendTestFixture<Backend> {
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
   void test_nonsquare_matmul(std::vector<T>& lhs, std::vector<T>& rhs,
                              std::vector<T>& expected, Index m, Index n,
@@ -31,10 +31,6 @@ struct BackendMatmul : public BackendTest<Backend> {
   void test_square_batch_matmul(std::vector<T>& lhs, std::vector<T>& rhs,
                                 std::vector<T>& expected, Index batch,
                                 Index dim);
-  template <typename T>
-  void copy_to_device(T* src, T* dst, size_t nelems);
-  template <typename T>
-  void copy_to_host(T* src, T* dst, size_t nelems);
 };
 
 #endif  // SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_

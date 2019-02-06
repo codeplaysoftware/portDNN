@@ -23,7 +23,7 @@
 #include "sycldnn/depthwise_conv2d/params.h"
 #include "sycldnn/depthwise_conv2d/sizes.h"
 
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 namespace sycldnn {
@@ -31,8 +31,7 @@ namespace depthwise_conv2d {
 
 template <typename Pair>
 struct DepthwiseConv2DFixture
-    : public GeneratedTestFixture<typename Pair::FirstType,
-                                  typename Pair::SecondType> {
+    : public BackendTestFixture<typename Pair::SecondType> {
   using DataType = typename Pair::FirstType;
   using Backend = typename Pair::SecondType;
 
@@ -52,15 +51,18 @@ struct DepthwiseConv2DFixture
     std::vector<DataType> output(conv_sizes.output_size,
                                  static_cast<DataType>(0));
 
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
     auto inp_gpu =
-        this->get_initialised_device_memory(conv_sizes.input_size, input);
+        provider.get_initialised_device_memory(conv_sizes.input_size, input);
     auto fil_gpu =
-        this->get_initialised_device_memory(conv_sizes.filter_size, filter);
+        provider.get_initialised_device_memory(conv_sizes.filter_size, filter);
     auto out_gpu =
-        this->get_initialised_device_memory(conv_sizes.output_size, output);
+        provider.get_initialised_device_memory(conv_sizes.output_size, output);
 
     auto status = sycldnn::depthwise_conv2d::launch<DataType, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, this->backend_);
+        inp_gpu, fil_gpu, out_gpu, params, backend);
 
     if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
       // Do not check results if the implementation is not supported.
@@ -69,10 +71,10 @@ struct DepthwiseConv2DFixture
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
-    this->deallocate_ptr(inp_gpu);
-    this->deallocate_ptr(fil_gpu);
-    this->deallocate_ptr(out_gpu);
+    provider.copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
+    provider.deallocate_ptr(inp_gpu);
+    provider.deallocate_ptr(fil_gpu);
+    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

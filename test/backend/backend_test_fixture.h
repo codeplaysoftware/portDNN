@@ -23,60 +23,48 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 
+#include "src/backend/eigen_backend_provider.h"
+#include "src/backend/eigen_backend_snn_matmul_provider.h"
+
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
+#include "src/backend/syclblas_backend_provider.h"
 #include "sycldnn/backend/sycl_blas_backend.h"
 #endif  // SNN_TEST_SYCLBLAS_MATMULS
 
 template <typename Backend>
-struct BackendTest;
+struct BackendTestFixture;
 
 template <typename Backend>
-struct BackendTest : public ::testing::Test {
-  BackendTest() : backend_{get_eigen_device()} {}
+struct BackendTestFixture : public ::testing::Test {
+ public:
+  BackendTestFixture() : provider_{} {}
+  /** TearDown() method called upon termination of test fixture. */
+  void TearDown() override {}
 
  protected:
-  virtual void TearDown() {
-    auto& device = get_eigen_device();
-    device.sycl_queue().wait_and_throw();
-    device.deallocate_all();
-  }
-
-  Eigen::SyclDevice& get_eigen_device() {
-    // By making the Eigen device static any compiled kernels will be cached,
-    // and so do not need to be recompiled for each test.
-    static Eigen::QueueInterface queue_interface{cl::sycl::default_selector{}};
-    static Eigen::SyclDevice device{&queue_interface};
-    return device;
-  }
-  Backend backend_;
+  sycldnn::backend::BackendProvider<Backend> provider_;
 };
+
+template <>
+inline void BackendTestFixture<sycldnn::backend::EigenBackend>::TearDown() {
+  auto& device = provider_.get_eigen_device();
+  device.sycl_queue().wait_and_throw();
+  device.deallocate_all();
+}
+
+template <>
+inline void
+BackendTestFixture<sycldnn::backend::EigenBackendSNNMatmul>::TearDown() {
+  auto& device = provider_.get_eigen_device();
+  device.sycl_queue().wait_and_throw();
+  device.deallocate_all();
+}
 
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
 template <>
-struct BackendTest<sycldnn::backend::SyclBLASBackend> : public ::testing::Test {
-  BackendTest() : backend_{get_default_queue()} {}
-
- protected:
-  virtual void TearDown() { get_default_queue().wait_and_throw(); }
-
-  cl::sycl::queue get_default_queue() {
-    auto exception_handler = [](cl::sycl::exception_list exceptions) {
-      for (std::exception_ptr const& e : exceptions) {
-        try {
-          std::rethrow_exception(e);
-        } catch (cl::sycl::exception const& e) {
-          std::cerr << "Caught asynchronous SYCL exception:\n"
-                    << e.what() << std::endl;
-          throw;
-        }
-      }
-    };
-    static cl::sycl::queue queue{cl::sycl::default_selector(),
-                                 exception_handler};
-    return queue;
-  }
-
-  sycldnn::backend::SyclBLASBackend backend_;
-};
+inline void BackendTestFixture<sycldnn::backend::SyclBLASBackend>::TearDown() {
+  provider_.get_default_queue().wait_and_throw();
+}
 #endif  // SNN_TEST_SYCLBLAS_MATMULS
+
 #endif  // SYCLDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_

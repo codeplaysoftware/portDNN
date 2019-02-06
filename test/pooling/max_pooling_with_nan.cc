@@ -15,6 +15,10 @@
  */
 #include <gtest/gtest.h>
 
+// TODO(jwlawson): remove cassert when no longer needed before Eigen include
+#include <cassert>
+#include <unsupported/Eigen/CXX11/Tensor>
+
 #include "sycldnn/padding_mode.h"
 
 #include "sycldnn/pooling/launch.h"
@@ -33,7 +37,7 @@
 
 template <typename DType>
 struct MaxPoolingWithNan
-    : public GeneratedTestFixture<DType, sycldnn::backend::EigenBackend> {
+    : public BackendTestFixture<sycldnn::backend::EigenBackend> {
   using DataType = DType;
 
   template <template <typename> class Op>
@@ -44,18 +48,21 @@ struct MaxPoolingWithNan
     auto out_size = exp.size();
     std::vector<DataType> output(out_size);
 
-    auto inp_gpu = this->get_initialised_device_memory(in_size, input);
-    auto out_gpu = this->get_initialised_device_memory(out_size, output);
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
+    auto inp_gpu = provider.get_initialised_device_memory(in_size, input);
+    auto out_gpu = provider.get_initialised_device_memory(out_size, output);
 
     auto status = sycldnn::pooling::launch<DataType, Op, Direction>(
-        inp_gpu, out_gpu, params, this->backend_);
+        inp_gpu, out_gpu, params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(out_size, out_gpu, output);
-    this->deallocate_ptr(inp_gpu);
-    this->deallocate_ptr(out_gpu);
+    provider.copy_device_data_to_host(out_size, out_gpu, output);
+    provider.deallocate_ptr(inp_gpu);
+    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -84,35 +91,39 @@ struct MaxPoolingWithNan
     ASSERT_EQ(in_size, input_data.size());
     ASSERT_EQ(out_size, input_backprop.size());
 
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
     auto inp_data_gpu =
-        this->get_initialised_device_memory(in_size, input_data);
+        provider.get_initialised_device_memory(in_size, input_data);
     auto out_data_gpu =
-        this->get_initialised_device_memory(out_size, output_data);
+        provider.get_initialised_device_memory(out_size, output_data);
 
     auto fwd_status =
         sycldnn::pooling::launch<DataType, Op, sycldnn::pooling::Forward>(
-            inp_data_gpu, out_data_gpu, params, this->backend_);
+            inp_data_gpu, out_data_gpu, params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, fwd_status.status);
 
     auto inp_backprop_gpu =
-        this->get_initialised_device_memory(out_size, input_backprop);
+        provider.get_initialised_device_memory(out_size, input_backprop);
     auto out_backprop_gpu =
-        this->get_initialised_device_memory(in_size, output_backprop);
+        provider.get_initialised_device_memory(in_size, output_backprop);
 
     auto back_status =
         sycldnn::pooling::launch<DataType, Op, sycldnn::pooling::Backpropagate>(
             inp_data_gpu, out_data_gpu, inp_backprop_gpu, out_backprop_gpu,
-            params, this->backend_);
+            params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
 
     fwd_status.event.wait_and_throw();
     back_status.event.wait_and_throw();
 
-    this->copy_device_data_to_host(in_size, out_backprop_gpu, output_backprop);
-    this->deallocate_ptr(inp_data_gpu);
-    this->deallocate_ptr(out_data_gpu);
-    this->deallocate_ptr(inp_backprop_gpu);
-    this->deallocate_ptr(out_backprop_gpu);
+    provider.copy_device_data_to_host(in_size, out_backprop_gpu,
+                                      output_backprop);
+    provider.deallocate_ptr(inp_data_gpu);
+    provider.deallocate_ptr(out_data_gpu);
+    provider.deallocate_ptr(inp_backprop_gpu);
+    provider.deallocate_ptr(out_backprop_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

@@ -23,23 +23,27 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 
-using EigenInternalHandlerTest = BackendTest<sycldnn::backend::EigenBackend>;
+using EigenInternalHandlerTest =
+    BackendTestFixture<sycldnn::backend::EigenBackend>;
 
 TEST_F(EigenInternalHandlerTest, AllocateInternalCheckSizes) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr = backend_.allocate<float>(buffer_size);
-  auto backend_buffer = backend_.get_buffer_internal(ptr, n_elems);
+  auto backend = this->provider_.get_backend();
+  float* ptr = backend.allocate<float>(buffer_size);
+  auto backend_buffer = backend.get_buffer_internal(ptr, n_elems);
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
 TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
-  auto device = get_eigen_device();
+  auto provider = this->provider_;
+  auto device = provider.get_eigen_device();
   size_t n_floats = 16;
   size_t buffer_size = n_floats * sizeof(float);
-  float* ptr = backend_.allocate<float>(buffer_size);
+  auto backend = provider.get_backend();
+  float* ptr = backend.allocate<float>(buffer_size);
 
   Tensor tensor{ptr, n_floats};
   tensor.device(device) = tensor.constant(static_cast<float>(4));
@@ -59,7 +63,7 @@ TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   }
   // Now check that the buffer returned by the Eigen backend has the correct
   // contents.
-  auto backend_buffer = backend_.get_buffer_internal(ptr, n_floats);
+  auto backend_buffer = backend.get_buffer_internal(ptr, n_floats);
   auto snn_host_access =
       backend_buffer.get_access<cl::sycl::access::mode::read>();
   for (size_t i = 0; i < n_floats; ++i) {
@@ -67,24 +71,27 @@ TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   }
 }
 TEST_F(EigenInternalHandlerTest, InternalPointerConversion) {
-  auto device = get_eigen_device();
+  auto provider = this->provider_;
+  auto backend = provider.get_backend();
+  auto device = provider.get_eigen_device();
   size_t size = 1024;
   float* ptr1 = static_cast<float*>(device.allocate(size));
   float* iptr1 = ptr1;
-  EXPECT_EQ(iptr1, backend_.to_internal_pointer(ptr1));
+  EXPECT_EQ(iptr1, backend.to_internal_pointer(ptr1));
 
   float* ptr2 = static_cast<float*>(device.allocate(size));
   EXPECT_NE(ptr1, ptr2);
   float* iptr2 = ptr2;
-  EXPECT_EQ(iptr2, backend_.to_internal_pointer(ptr2));
+  EXPECT_EQ(iptr2, backend.to_internal_pointer(ptr2));
 }
 TEST_F(EigenInternalHandlerTest, InternalPointerOffset) {
   size_t size = 1024;
-  int* ptr1 = backend_.allocate<int>(size);
+  auto backend = this->provider_.get_backend();
+  int* ptr1 = backend.allocate<int>(size);
   int* ptr2 = ptr1 + 1;
   size_t exp1 = 1;
-  EXPECT_EQ(exp1, backend_.get_offset_internal(ptr2));
+  EXPECT_EQ(exp1, backend.get_offset_internal(ptr2));
   int* ptr3 = ptr2 + 10;
   size_t exp2 = 11;
-  EXPECT_EQ(exp2, backend_.get_offset_internal(ptr3));
+  EXPECT_EQ(exp2, backend.get_offset_internal(ptr3));
 }

@@ -22,13 +22,12 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
-#include "test/gen/generated_test_fixture.h"
+#include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
 template <typename Triple>
 struct ConvolutionFixture
-    : public GeneratedTestFixture<typename Triple::SecondType,
-                                  typename Triple::ThirdType> {
+    : public BackendTestFixture<typename Triple::ThirdType> {
   using SelectorType = typename Triple::FirstType;
   using DataType = typename Triple::SecondType;
   using Backend = typename Triple::ThirdType;
@@ -49,12 +48,15 @@ struct ConvolutionFixture
     std::vector<DataType> output(conv_sizes.output_size,
                                  static_cast<DataType>(0));
 
+    auto provider = this->provider_;
+    auto backend = provider.get_backend();
+
     auto inp_gpu =
-        this->get_initialised_device_memory(conv_sizes.input_size, input);
+        provider.get_initialised_device_memory(conv_sizes.input_size, input);
     auto fil_gpu =
-        this->get_initialised_device_memory(conv_sizes.filter_size, filter);
+        provider.get_initialised_device_memory(conv_sizes.filter_size, filter);
     auto out_gpu =
-        this->get_initialised_device_memory(conv_sizes.output_size, output);
+        provider.get_initialised_device_memory(conv_sizes.output_size, output);
 
     SelectorType selector{};
     if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
@@ -63,7 +65,7 @@ struct ConvolutionFixture
     }
     try {
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, this->backend_);
+          inp_gpu, fil_gpu, out_gpu, params, selector, backend);
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
         // Do not check results if the implementation is not supported.
@@ -75,10 +77,11 @@ struct ConvolutionFixture
       std::cerr << "Caught SYCL exception:\n" << e.what() << std::endl;
       throw;
     }
-    this->copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
-    this->deallocate_ptr(inp_gpu);
-    this->deallocate_ptr(fil_gpu);
-    this->deallocate_ptr(out_gpu);
+
+    provider.copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
+    provider.deallocate_ptr(inp_gpu);
+    provider.deallocate_ptr(fil_gpu);
+    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

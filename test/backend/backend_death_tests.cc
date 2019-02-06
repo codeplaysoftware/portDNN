@@ -20,9 +20,11 @@
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
+#include "src/backend/syclblas_backend_provider.h"
 #include "sycldnn/backend/sycl_blas_backend.h"
 #endif
 
+#include "src/backend/eigen_backend_provider.h"
 #include "sycldnn/backend/eigen_backend.h"
 #include "test/backend/backend_test_fixture.h"
 
@@ -34,14 +36,14 @@
 
 using Backends = ::testing::Types<
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
-    sycldnn::backend::SyclBLASBackend
+    sycldnn::backend::SyclBLASBackend,
 #endif
-        sycldnn::backend::EigenBackend>;
+    sycldnn::backend::EigenBackend>;
 
-template <typename T>
-using ExternalDeathTest = BackendTest<T>;
-template <typename T>
-using InternalDeathTest = BackendTest<T>;
+template <typename Backend>
+using ExternalDeathTest = BackendTestFixture<Backend>;
+template <typename Backend>
+using InternalDeathTest = BackendTestFixture<Backend>;
 TYPED_TEST_CASE(ExternalDeathTest, Backends);
 TYPED_TEST_CASE(InternalDeathTest, Backends);
 
@@ -49,49 +51,52 @@ TYPED_TEST(ExternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr1 = this->backend_.template allocate<float>(buffer_size);
+  auto backend = this->provider_.get_backend();
+  float* ptr1 = backend.template allocate<float>(n_elems);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
-  MAYBE_DEATH(this->backend_.get_buffer(ptr2, n_elems),
-              "Cannot access null pointer");
+  MAYBE_DEATH(backend.get_buffer(ptr2, n_elems), "Cannot access null pointer");
 }
 TYPED_TEST(ExternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
-  MAYBE_DEATH(this->backend_.get_buffer(ptr, 0),
+  MAYBE_DEATH(this->provider_.get_backend().get_buffer(ptr, 0),
               "There are no pointers allocated");
 }
 TYPED_TEST(ExternalDeathTest, FetchAfterDeallocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr = this->backend_.template allocate<float>(buffer_size);
-  this->backend_.deallocate(ptr);
-  MAYBE_DEATH(this->backend_.get_buffer(ptr, n_elems),
+  auto backend = this->provider_.get_backend();
+  float* ptr = backend.template allocate<float>(n_elems);
+  backend.deallocate(ptr);
+  MAYBE_DEATH(backend.get_buffer(ptr, n_elems),
               "There are no pointers allocated");
 }
 TYPED_TEST(InternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr1 = this->backend_.template allocate<float>(buffer_size);
+  auto backend = this->provider_.get_backend();
+  float* ptr1 = backend.template allocate<float>(buffer_size);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
-  MAYBE_DEATH(this->backend_.get_buffer_internal(ptr2, n_elems),
+  MAYBE_DEATH(backend.get_buffer_internal(ptr2, n_elems),
               "Cannot access null pointer");
 }
 TYPED_TEST(InternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
-  MAYBE_DEATH(this->backend_.get_buffer_internal(ptr, 0),
+  MAYBE_DEATH(this->provider_.get_backend().get_buffer_internal(ptr, 0),
               "There are no pointers allocated");
 }
 TYPED_TEST(InternalDeathTest, FetchAfterDeallocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr = this->backend_.template allocate<float>(buffer_size);
-  this->backend_.deallocate(ptr);
-  MAYBE_DEATH(this->backend_.get_buffer_internal(ptr, n_elems),
+  auto backend = this->provider_.get_backend();
+  float* ptr = backend.template allocate<float>(n_elems);
+  backend.deallocate(ptr);
+  MAYBE_DEATH(backend.get_buffer_internal(ptr, n_elems),
               "There are no pointers allocated");
 }
