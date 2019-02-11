@@ -39,20 +39,22 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
       "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
     )
   endif()
-  ExternalProject_Add(SyclBLAS
-    GIT_REPOSITORY    ${SyclBLAS_REPO}
-    GIT_TAG           ${SyclBLAS_GIT_TAG}
-    SOURCE_DIR        ${SyclBLAS_SOURCE_DIR}
-    BINARY_DIR        ${SyclBLAS_BINARY_DIR}
-    CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                      -DBUILD_SHARED_LIBS=OFF
-                      ${cmake_toolchain}
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND     ""
-    INSTALL_COMMAND   ""
-    TEST_COMMAND      ""
-    BUILD_BYPRODUCTS ${SyclBLAS_BYPRODUCTS}
-  )
+  if(NOT TARGET SyclBLAS)
+    ExternalProject_Add(SyclBLAS
+      GIT_REPOSITORY    ${SyclBLAS_REPO}
+      GIT_TAG           ${SyclBLAS_GIT_TAG}
+      SOURCE_DIR        ${SyclBLAS_SOURCE_DIR}
+      BINARY_DIR        ${SyclBLAS_BINARY_DIR}
+      CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                        -DBUILD_SHARED_LIBS=OFF
+                        ${cmake_toolchain}
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND     ""
+      INSTALL_COMMAND   ""
+      TEST_COMMAND      ""
+      BUILD_BYPRODUCTS ${SyclBLAS_BYPRODUCTS}
+    )
+  endif()
   set(SyclBLAS_INCLUDE_DIR ${SyclBLAS_SOURCE_DIR}/include)
   set(SyclBLAS_VPTR_INCLUDE_DIR ${SyclBLAS_SOURCE_DIR}/external/computecpp-sdk/include)
   set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
