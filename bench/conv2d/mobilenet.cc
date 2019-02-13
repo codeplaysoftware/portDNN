@@ -16,6 +16,19 @@
 #include "mobilenet_param_set.h"
 #include "snn_fixture.h"
 
+#ifdef SNN_BENCH_EIGEN
+#include "src/backend/eigen_backend_provider.h"
+
+#include "sycldnn/backend/eigen_backend.h"
+#endif  // SNN_BENCH_EIGEN
+
+#ifdef SNN_BENCH_SYCLBLAS
+#include "src/backend/syclblas_backend_provider.h"
+#include "sycldnn/backend/sycl_blas_backend.h"
+#endif  // SNN_BENCH_SYCLBLAS
+
+#include "sycldnn/conv2d/conv_type.h"
+
 #include "sycldnn/conv2d/selector/direct_selector.h"
 #include "sycldnn/conv2d/selector/im2col_selector.h"
 #include "sycldnn/conv2d/selector/matmul_selector.h"

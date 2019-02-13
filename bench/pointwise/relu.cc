@@ -15,6 +15,13 @@
  */
 #include "snn_fixture.h"
 
+#include "src/backend/eigen_backend_provider.h"
+
+#include "sycldnn/backend/eigen_backend.h"
+
+#include "sycldnn/pointwise/direction.h"
+#include "sycldnn/pointwise/operators.h"
+
 #define RELU_BM_WITH_DIRECTION(N, DIRECTION)                           \
   POINTWISE_BENCHMARK("Relu", OP##_##DIRECTION##_##N##_##EigenBackend, \
                       sycldnn::backend::EigenBackend, N,               \

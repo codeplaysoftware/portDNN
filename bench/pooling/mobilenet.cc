@@ -16,6 +16,12 @@
 #include "mobilenet_param_set.h"
 #include "snn_fixture.h"
 
+#include "src/backend/eigen_backend_provider.h"
+
+#include "sycldnn/backend/eigen_backend.h"
+
+#include "sycldnn/pooling/operators.h"
+
 #define MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)        \
   POOLING_BENCHMARK(                                                         \
       "MobileNet",                                                           \

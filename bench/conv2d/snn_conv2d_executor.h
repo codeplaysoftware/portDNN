@@ -56,9 +56,16 @@ struct SNNConv2DExecutor : public BaseExecutor {
 
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
 
-    auto inp_gpu = benchmark.template allocate<float>(conv_sizes.input_size);
-    auto fil_gpu = benchmark.template allocate<float>(conv_sizes.filter_size);
-    auto out_gpu = benchmark.template allocate<float>(conv_sizes.output_size);
+    std::vector<float> inp_vec(conv_sizes.input_size);
+    std::vector<float> fil_vec(conv_sizes.filter_size);
+    std::vector<float> out_vec(conv_sizes.output_size);
+
+    auto inp_gpu =
+        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
+    auto fil_gpu =
+        benchmark.get_initialised_device_memory(fil_vec.size(), fil_vec);
+    auto out_gpu =
+        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::conv2d::launch<float, ConvType>(
@@ -101,9 +108,9 @@ struct SNNConv2DExecutor : public BaseExecutor {
       this->set_iteration_time(state);
     }
 
-    benchmark.deallocate(out_gpu);
-    benchmark.deallocate(fil_gpu);
-    benchmark.deallocate(inp_gpu);
+    benchmark.deallocate_ptr(out_gpu);
+    benchmark.deallocate_ptr(fil_gpu);
+    benchmark.deallocate_ptr(inp_gpu);
 
     // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
     backend.get_queue().wait_and_throw();

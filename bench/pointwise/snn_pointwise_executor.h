@@ -48,8 +48,13 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
     auto& benchmark = underlying_benchmark();
     auto backend = benchmark.get_backend();
 
-    auto inp_gpu = benchmark.template allocate<float>(n_items);
-    auto out_gpu = benchmark.template allocate<float>(n_items);
+    std::vector<float> inp_vec(n_items);
+    std::vector<float> out_vec(n_items);
+
+    auto inp_gpu =
+        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
+    auto out_gpu =
+        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pointwise::launch<float, Operator, Forward>(
@@ -93,8 +98,8 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
       this->set_iteration_time(state);
     }
 
-    benchmark.deallocate(out_gpu);
-    benchmark.deallocate(inp_gpu);
+    benchmark.deallocate_ptr(out_gpu);
+    benchmark.deallocate_ptr(inp_gpu);
 
     benchmark.template set_bytes_processed<float>(state, n_items);
     benchmark.add_param_counters(state, n_items);
@@ -128,9 +133,16 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Gradient, Operator>
     auto& benchmark = underlying_benchmark();
     auto backend = benchmark.get_backend();
 
-    auto inp_gpu = benchmark.template allocate<float>(n_items);
-    auto out_gpu = benchmark.template allocate<float>(n_items);
-    auto out_back_gpu = benchmark.template allocate<float>(n_items);
+    std::vector<float> inp_vec(n_items);
+    std::vector<float> out_vec(n_items);
+    std::vector<float> out_back_vec(n_items);
+
+    auto inp_gpu =
+        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
+    auto out_gpu =
+        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
+    auto out_back_gpu = benchmark.get_initialised_device_memory(
+        out_back_vec.size(), out_back_vec);
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pointwise::launch<float, Operator, Gradient>(
@@ -154,9 +166,9 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Gradient, Operator>
       this->set_iteration_time(state);
     }
 
-    benchmark.deallocate(out_back_gpu);
-    benchmark.deallocate(out_gpu);
-    benchmark.deallocate(inp_gpu);
+    benchmark.deallocate_ptr(out_back_gpu);
+    benchmark.deallocate_ptr(out_gpu);
+    benchmark.deallocate_ptr(inp_gpu);
 
     benchmark.template set_bytes_processed<float>(state, n_items);
     benchmark.add_param_counters(state, n_items);

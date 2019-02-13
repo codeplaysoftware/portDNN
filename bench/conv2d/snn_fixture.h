@@ -19,8 +19,9 @@
 #include "base_convolution_fixture.h"
 #include "snn_conv2d_executor.h"
 
+#include "src/backend/backend_provider.h"
+
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/backend_provider.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
@@ -31,7 +32,7 @@ class SNNConvolutionBenchmark
     : public sycldnn::bench::SNNConv2DExecutor<
           SNNConvolutionBenchmark<Backend, ParamGen, ConvType, Selector>,
           ConvType>,
-      public sycldnn::bench::BackendProvider<Backend>,
+      public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BaseConvolutionBenchmark {
  private:

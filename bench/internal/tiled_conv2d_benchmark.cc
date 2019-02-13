@@ -28,10 +28,11 @@
 
 #include "bench/conv2d/base_convolution_fixture.h"
 
+#include "src/backend/backend_provider.h"
+#include "src/backend/eigen_backend_provider.h"
+
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/backend_provider.h"
 #include "bench/fixture/base_executor.h"
-#include "bench/fixture/eigen_backend_provider.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 
@@ -74,7 +75,7 @@ template <typename Backend, typename ParamGen, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
 class TiledConvolutionBenchmark
-    : public sycldnn::bench::BackendProvider<Backend>,
+    : public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public sycldnn::bench::BaseExecutor,
       public BaseConvolutionBenchmark {
@@ -115,9 +116,13 @@ void TiledConvolutionBenchmark<
 
   auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
 
-  auto inp_gpu = this->template allocate<float>(conv_sizes.input_size);
-  auto fil_gpu = this->template allocate<float>(conv_sizes.filter_size);
-  auto out_gpu = this->template allocate<float>(conv_sizes.output_size);
+  std::vector<float> inp_vec(conv_sizes.input_size);
+  std::vector<float> fil_vec(conv_sizes.filter_size);
+  std::vector<float> out_vec(conv_sizes.output_size);
+
+  auto inp_gpu = this->get_initialised_device_memory(inp_vec.size(), inp_vec);
+  auto fil_gpu = this->get_initialised_device_memory(fil_vec.size(), fil_vec);
+  auto out_gpu = this->get_initialised_device_memory(out_vec.size(), out_vec);
 
   {  // Ensure the kernel is built before benchmarking
     auto status = launch_kernel<float, int, ConvType, TileRows, TileCols,
@@ -146,9 +151,9 @@ void TiledConvolutionBenchmark<
     this->set_iteration_time(state);
   }
 
-  this->deallocate(out_gpu);
-  this->deallocate(fil_gpu);
-  this->deallocate(inp_gpu);
+  this->deallocate_ptr(out_gpu);
+  this->deallocate_ptr(fil_gpu);
+  this->deallocate_ptr(inp_gpu);
 
   // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
   backend.get_queue().wait_and_throw();

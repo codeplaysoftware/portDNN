@@ -19,8 +19,9 @@
 #include "base_pooling_fixture.h"
 #include "snn_pooling_executor.h"
 
+#include "src/backend/backend_provider.h"
+
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/backend_provider.h"
 #include "bench/fixture/operator_typenames.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
@@ -32,7 +33,7 @@ class SNNPoolingBenchmark
     : public sycldnn::bench::SNNPoolingExecutor<
           SNNPoolingBenchmark<Backend, ParamGen, Direction, Operator>,
           Direction, Operator>,
-      public sycldnn::bench::BackendProvider<Backend>,
+      public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BasePoolingBenchmark {
  private:

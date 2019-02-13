@@ -46,8 +46,13 @@ struct SNNPoolingExecutor : public BaseExecutor {
 
     auto pool_sizes = sycldnn::pooling::get_sizes<Direction>(params);
 
-    auto inp_gpu = benchmark.template allocate<float>(pool_sizes.input_size);
-    auto out_gpu = benchmark.template allocate<float>(pool_sizes.output_size);
+    std::vector<float> inp_vec(pool_sizes.input_size);
+    std::vector<float> out_vec(pool_sizes.output_size);
+
+    auto inp_gpu =
+        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
+    auto out_gpu =
+        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pooling::launch<float, Operator, Direction>(
@@ -91,8 +96,8 @@ struct SNNPoolingExecutor : public BaseExecutor {
       this->set_iteration_time(state);
     }
 
-    benchmark.deallocate(out_gpu);
-    benchmark.deallocate(inp_gpu);
+    benchmark.deallocate_ptr(out_gpu);
+    benchmark.deallocate_ptr(inp_gpu);
 
     // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
     backend.get_queue().wait_and_throw();
@@ -134,12 +139,19 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
     auto back_sizes =
         sycldnn::pooling::get_sizes<sycldnn::pooling::Backpropagate>(params);
 
-    auto inp_gpu = benchmark.template allocate<float>(fwd_sizes.input_size);
-    auto out_gpu = benchmark.template allocate<float>(fwd_sizes.output_size);
-    auto inp_back_gpu =
-        benchmark.template allocate<float>(back_sizes.input_size);
-    auto out_back_gpu =
-        benchmark.template allocate<float>(back_sizes.output_size);
+    std::vector<float> inp_vec(fwd_sizes.input_size);
+    std::vector<float> inp_back_vec(back_sizes.input_size);
+    std::vector<float> out_vec(back_sizes.output_size);
+    std::vector<float> out_back_vec(back_sizes.output_size);
+
+    auto inp_gpu =
+        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
+    auto out_gpu =
+        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
+    auto inp_back_gpu = benchmark.get_initialised_device_memory(
+        inp_back_vec.size(), inp_back_vec);
+    auto out_back_gpu = benchmark.get_initialised_device_memory(
+        out_back_vec.size(), out_back_vec);
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
@@ -165,10 +177,10 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
       this->set_iteration_time(state);
     }
 
-    benchmark.deallocate(out_back_gpu);
-    benchmark.deallocate(inp_back_gpu);
-    benchmark.deallocate(out_gpu);
-    benchmark.deallocate(inp_gpu);
+    benchmark.deallocate_ptr(out_back_gpu);
+    benchmark.deallocate_ptr(inp_back_gpu);
+    benchmark.deallocate_ptr(out_gpu);
+    benchmark.deallocate_ptr(inp_gpu);
 
     // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
     backend.get_queue().wait_and_throw();
