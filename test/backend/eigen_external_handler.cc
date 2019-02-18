@@ -27,16 +27,16 @@ using EigenExternalHandlerTest =
     BackendTestFixture<sycldnn::backend::EigenBackend>;
 
 TEST_F(EigenExternalHandlerTest, CheckQueue) {
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
   auto d_queue = provider.get_eigen_device().sycl_queue();
   auto b_queue = backend.get_queue();
   ASSERT_EQ(d_queue, b_queue);
 }
 TEST_F(EigenExternalHandlerTest, GetBufferExternalCheckSizes) {
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
-  auto device = provider.get_eigen_device();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
+  auto& device = provider.get_eigen_device();
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   float* ptr = static_cast<float*>(device.allocate(buffer_size));
@@ -47,9 +47,9 @@ TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
-  auto provider = this->provider_;
-  auto device = provider.get_eigen_device();
-  auto backend = provider.get_backend();
+  auto& provider = this->provider_;
+  auto& device = provider.get_eigen_device();
+  auto& backend = provider.get_backend();
   size_t n_floats = 16;
   size_t buffer_size = n_floats * sizeof(float);
   float* ptr = static_cast<float*>(device.allocate(buffer_size));
@@ -80,9 +80,9 @@ TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
   }
 }
 TEST_F(EigenExternalHandlerTest, ExternalPointerOffset) {
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
-  auto device = provider.get_eigen_device();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
+  auto& device = provider.get_eigen_device();
   size_t size = 1024;
   int* ptr1 = static_cast<int*>(device.allocate(size));
   int* ptr2 = ptr1 + 1;

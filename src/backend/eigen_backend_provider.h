@@ -18,9 +18,10 @@
 
 // TODO(jwlawson): remove cassert when no longer needed before Eigen include
 #include <cassert>
-
 #include <unsupported/Eigen/CXX11/Tensor>
+
 #include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -37,6 +38,7 @@ template <>
 struct BackendProvider<EigenBackend> {
  public:
   BackendProvider() : backend_{get_eigen_device()} {}
+  SNN_DISABLE_COPY(BackendProvider);
 
   template <typename T>
   using Pointer = EigenBackend::pointer_type<T>;

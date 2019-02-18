@@ -53,8 +53,8 @@ struct TransposeFixture
     std::vector<DataType> in_data = iota_initialised_data(in_size, max_val);
     std::vector<DataType> out_data = iota_initialised_data(out_size, max_val);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     {
       auto in_gpu = provider.get_initialised_device_memory(in_size, in_data);

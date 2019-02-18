@@ -48,8 +48,8 @@ struct ConvolutionFixture
     std::vector<DataType> output(conv_sizes.output_size,
                                  static_cast<DataType>(0));
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_gpu =
         provider.get_initialised_device_memory(conv_sizes.input_size, input);

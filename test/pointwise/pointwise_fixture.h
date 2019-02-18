@@ -45,8 +45,8 @@ struct PointwiseFixture
     std::vector<DataType> input = iota_initialised_signed_data<DataType>(size);
     std::vector<DataType> output(size);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_gpu = provider.get_initialised_device_memory(size, input);
     auto out_gpu = provider.get_initialised_device_memory(size, output);
@@ -89,8 +89,8 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
         iota_initialised_signed_data<DataType>(size);
     std::vector<DataType> output_backprop(size);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_fwd_gpu =
         provider.get_initialised_device_memory(size, input_forward);

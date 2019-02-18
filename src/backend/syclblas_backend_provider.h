@@ -17,6 +17,7 @@
 #define SYCLDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_
 
 #include "sycldnn/backend/sycl_blas_backend.h"
+#include "sycldnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -31,6 +32,7 @@ namespace backend {
 template <>
 struct BackendProvider<SyclBLASBackend> {
   BackendProvider() : backend_{get_default_queue()} {}
+  SNN_DISABLE_COPY(BackendProvider);
 
   template <typename T>
   using Pointer = SyclBLASBackend::pointer_type<T>;

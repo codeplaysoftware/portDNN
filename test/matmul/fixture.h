@@ -46,8 +46,8 @@ struct MatmulFixture
     std::vector<DataType> rhs_data = iota_initialised_data(rhs_size, max_val);
     std::vector<DataType> out_data = iota_initialised_data(out_size, max_val);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     {
       auto lhs_gpu = provider.get_initialised_device_memory(lhs_size, lhs_data);

@@ -48,8 +48,8 @@ struct MaxPoolingWithNan
     auto out_size = exp.size();
     std::vector<DataType> output(out_size);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_gpu = provider.get_initialised_device_memory(in_size, input);
     auto out_gpu = provider.get_initialised_device_memory(out_size, output);
@@ -91,8 +91,8 @@ struct MaxPoolingWithNan
     ASSERT_EQ(in_size, input_data.size());
     ASSERT_EQ(out_size, input_backprop.size());
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_data_gpu =
         provider.get_initialised_device_memory(in_size, input_data);

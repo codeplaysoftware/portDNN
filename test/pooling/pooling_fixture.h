@@ -48,8 +48,8 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
     std::vector<DataType> input = iota_initialised_data(in_size, max_val);
     std::vector<DataType> output(out_size);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_gpu = provider.get_initialised_device_memory(in_size, input);
     auto out_gpu = provider.get_initialised_device_memory(out_size, output);
@@ -97,8 +97,8 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
         iota_initialised_data(out_size, max_val);
     std::vector<DataType> output_backprop(in_size);
 
-    auto provider = this->provider_;
-    auto backend = provider.get_backend();
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
 
     auto inp_data_gpu =
         provider.get_initialised_device_memory(in_size, input_data);

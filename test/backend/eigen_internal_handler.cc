@@ -29,7 +29,7 @@ using EigenInternalHandlerTest =
 TEST_F(EigenInternalHandlerTest, AllocateInternalCheckSizes) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  auto backend = this->provider_.get_backend();
+  auto& backend = this->provider_.get_backend();
   float* ptr = backend.allocate<float>(buffer_size);
   auto backend_buffer = backend.get_buffer_internal(ptr, n_elems);
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
@@ -38,11 +38,11 @@ TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   using TensorType = Eigen::Tensor<float, 1>;
   using Tensor = Eigen::TensorMap<TensorType>;
 
-  auto provider = this->provider_;
-  auto device = provider.get_eigen_device();
+  auto& provider = this->provider_;
+  auto& device = provider.get_eigen_device();
   size_t n_floats = 16;
   size_t buffer_size = n_floats * sizeof(float);
-  auto backend = provider.get_backend();
+  auto& backend = provider.get_backend();
   float* ptr = backend.allocate<float>(buffer_size);
 
   Tensor tensor{ptr, n_floats};
@@ -71,9 +71,9 @@ TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   }
 }
 TEST_F(EigenInternalHandlerTest, InternalPointerConversion) {
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
-  auto device = provider.get_eigen_device();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
+  auto& device = provider.get_eigen_device();
   size_t size = 1024;
   float* ptr1 = static_cast<float*>(device.allocate(size));
   float* iptr1 = ptr1;
@@ -86,7 +86,7 @@ TEST_F(EigenInternalHandlerTest, InternalPointerConversion) {
 }
 TEST_F(EigenInternalHandlerTest, InternalPointerOffset) {
   size_t size = 1024;
-  auto backend = this->provider_.get_backend();
+  auto& backend = this->provider_.get_backend();
   int* ptr1 = backend.allocate<int>(size);
   int* ptr2 = ptr1 + 1;
   size_t exp1 = 1;

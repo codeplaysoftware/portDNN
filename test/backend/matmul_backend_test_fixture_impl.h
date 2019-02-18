@@ -39,8 +39,8 @@ void BackendMatmul<Backend>::test_nonsquare_matmul(std::vector<T>& lhs,
 
   std::vector<T> output(out_size, static_cast<T>(0));
 
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
 
   T* lhs_ptr = provider.get_initialised_device_memory(lhs_size, lhs);
   T* rhs_ptr = provider.get_initialised_device_memory(rhs_size, rhs);
@@ -66,8 +66,8 @@ void BackendMatmul<Backend>::test_square_batch_matmul(std::vector<T>& lhs,
 
   std::vector<T> output(size, static_cast<T>(0));
 
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
 
   T* lhs_ptr = provider.get_initialised_device_memory(size, lhs);
   T* rhs_ptr = provider.get_initialised_device_memory(size, rhs);

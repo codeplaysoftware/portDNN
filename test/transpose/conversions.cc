@@ -72,8 +72,8 @@ TYPED_TEST(TransposeConversion, NHWCToNCHW) {
   std::vector<DataType> in_data = iota_initialised_data(tensor_size, max_val);
   std::vector<DataType> out_data = iota_initialised_data(tensor_size, max_val);
 
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
 
   {
     auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
@@ -129,8 +129,8 @@ TYPED_TEST(TransposeConversion, NCHWToNHWC) {
   std::vector<DataType> in_data = iota_initialised_data(tensor_size, max_val);
   std::vector<DataType> out_data = iota_initialised_data(tensor_size, max_val);
 
-  auto provider = this->provider_;
-  auto backend = provider.get_backend();
+  auto& provider = this->provider_;
+  auto& backend = provider.get_backend();
 
   {
     auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
