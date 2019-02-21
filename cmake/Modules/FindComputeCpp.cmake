@@ -171,7 +171,7 @@ if(NOT ComputeCpp_FOUND)
 endif()
 
 # Add optimisation and bitcode options to device compiler flags
-list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS ${CMAKE_CXX_FLAGS_RELEASE})
+list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS -O3 -DNDEBUG)
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-mllvm -inline-threshold=1000")
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-sycl -sycl-target ${COMPUTECPP_BITCODE}")
 
