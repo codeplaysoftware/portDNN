@@ -61,7 +61,7 @@ class SNNPointwiseBenchmark
     this->add_to_label("short_name", "Pointwise");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
-  };
+  }
 };
 
 #define POINTWISE_BENCHMARK(activation, name, ...)                      \

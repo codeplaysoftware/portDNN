@@ -183,7 +183,6 @@ snn_bench(
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-
 snn_bench(
   WITH_SYCL
   TARGET
@@ -198,7 +197,6 @@ snn_bench(
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-
 snn_bench(
   WITH_SYCL
   TARGET
@@ -207,6 +205,20 @@ snn_bench(
     pointwise/tanh.cc
   OBJECTS
     $<TARGET_OBJECTS:pointwise>
+  PUBLIC_LIBRARIES
+    bench_main
+    ${_BACKENDS}
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+snn_bench(
+  WITH_SYCL
+  TARGET
+    mobilenet_depthwise_convolution
+  KERNEL_SOURCES
+    depthwise_conv2d/mobilenet.cc
+  OBJECTS
+    $<TARGET_OBJECTS:depthwise_conv2d>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}

@@ -61,7 +61,7 @@ class SNNConvolutionBenchmark
     this->add_to_label("short_name", "Convolution");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
-  };
+  }
 
   void set_model(const char* model_name) {
     this->add_to_label("@model_name", model_name);

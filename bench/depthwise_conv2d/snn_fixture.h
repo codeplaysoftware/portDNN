@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright 2019 Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
-#define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
+#define SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
 
-#include "base_pooling_fixture.h"
-#include "snn_pooling_executor.h"
+#include "base_depthwise_convolution_fixture.h"
+#include "snn_depthwise_conv2d_executor.h"
 
 #include "src/backend/backend_provider.h"
 
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/operator_typenames.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename ParamGen, typename Direction,
-          template <typename> class Operator>
-class SNNPoolingBenchmark
-    : public sycldnn::bench::SNNPoolingExecutor<
-          SNNPoolingBenchmark<Backend, ParamGen, Direction, Operator>,
-          Direction, Operator>,
+template <typename Backend, typename ParamGen, typename ConvType>
+class SNNDepthwiseConvolutionBenchmark
+    : public sycldnn::bench::SNNDepthwiseConv2DExecutor<
+          SNNDepthwiseConvolutionBenchmark<Backend, ParamGen, ConvType>,
+          ConvType>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
-      public BasePoolingBenchmark {
+      public BaseDepthwiseConvolutionBenchmark {
  private:
   using State = benchmark::State;
 
@@ -55,11 +53,9 @@ class SNNPoolingBenchmark
     auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 
-    this->add_to_label("@operator",
-                       sycldnn::bench::OperatorTypeName<Operator>::name);
-    this->add_to_label("@direction", sycldnn::bench::TypeName<Direction>::name);
+    this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
     this->add_to_label("@backend", backend.name());
-    this->add_to_label("short_name", "Pooling");
+    this->add_to_label("short_name", "Depthwise Convolution");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);
   }
@@ -69,14 +65,15 @@ class SNNPoolingBenchmark
   }
 };
 
-#define POOLING_BENCHMARK(model, name, ...)                           \
-  BENCHMARK_TEMPLATE_DEFINE_F(SNNPoolingBenchmark, name, __VA_ARGS__) \
+#define DEPTHWISE_CONVOLUTION_BENCHMARK(model, name, ...)             \
+  BENCHMARK_TEMPLATE_DEFINE_F(SNNDepthwiseConvolutionBenchmark, name, \
+                              __VA_ARGS__)                            \
   (benchmark::State & state) {                                        \
     this->set_model(model);                                           \
     this->run(state);                                                 \
   }                                                                   \
-  BENCHMARK_REGISTER_F(SNNPoolingBenchmark, name)                     \
+  BENCHMARK_REGISTER_F(SNNDepthwiseConvolutionBenchmark, name)        \
       ->UseManualTime()                                               \
       ->Unit(benchmark::kNanosecond);
 
-#endif  // define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
+#endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_

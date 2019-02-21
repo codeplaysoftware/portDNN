@@ -33,7 +33,7 @@ namespace sycldnn {
  *    used on the input.
  *
  *  - PaddingMode::SAME will provide an output sized to match the input if the
- *    stride is 1, with padding added to endure that the output will be that
+ *    stride is 1, with padding added to ensure that the output will be that
  *    size. If the stride is larger than 1 then the padding will be the same as
  *    for stride 1 and the output size will be decreased to match the stride.
  */

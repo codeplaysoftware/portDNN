@@ -14,7 +14,7 @@
 #
 cmake_minimum_required(VERSION 3.2.2)
 
-project(sycldnn LANGUAGES C CXX VERSION 0.1.0)
+project(sycldnn LANGUAGES C CXX VERSION 0.5.0)
 
 # Configuration options controlling automatic downloading of dependencies.
 option(SNN_DOWNLOAD_GTEST

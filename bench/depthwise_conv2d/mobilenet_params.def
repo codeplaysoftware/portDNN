@@ -1,0 +1,57 @@
+/*
+ * Copyright 2019 Codeplay Software Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * \file
+ * X-Macro definiton file for MobileNet depthwise convolution sizes.
+ *
+ * Contains a number of calls to the MOBILENET_PARAMS function macro defining
+ * the following depthwise convolution parameters, as used in the MobileNet 
+ * network.
+ *
+ * The ordering of the arguments is:
+ * \code
+ *   MOBILENET_PARAMS(Window, Stride, Rows, Cols, Channels)
+ * \endcode
+ * The padding is the Tensorflow 'SAME' padding, which is 1 for 3x3
+ * convolutions. The output size is then equal to the input size.
+ * Note that the channel_multiplier is always 1.
+ *
+ * Window | Stride | Rows | Cols | Channels |
+ * -------|--------|------|------|----------|
+ *      3 |      1 |  112 |  112 |       32 |
+ *      3 |      2 |  112 |  112 |       64 |
+ *      3 |      1 |   56 |   56 |      128 |
+ *      3 |      2 |   56 |   56 |      128 |
+ *      3 |      1 |   28 |   28 |      256 |
+ *      3 |      2 |   28 |   28 |      256 |
+ *      3 |      1 |   14 |   14 |      512 |
+ *      3 |      2 |   14 |   14 |      512 |
+ *      3 |      1 |    7 |    7 |     1024 |
+ */
+#ifndef MOBILENET_PARAMS
+#error This file expects the MOBILENET_PARAMS macro to be defined.
+#endif
+
+MOBILENET_PARAMS(3, 1, 112, 112, 32)
+MOBILENET_PARAMS(3, 2, 112, 112, 64)
+MOBILENET_PARAMS(3, 1, 56, 56, 128)
+MOBILENET_PARAMS(3, 2, 56, 56, 128)
+MOBILENET_PARAMS(3, 1, 28, 28, 256)
+MOBILENET_PARAMS(3, 2, 28, 28, 256)
+MOBILENET_PARAMS(3, 1, 14, 14, 512)
+MOBILENET_PARAMS(3, 2, 14, 14, 512)
+MOBILENET_PARAMS(3, 1, 7, 7, 1024)

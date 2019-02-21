@@ -124,11 +124,6 @@
 #undef MOBILENET_PARAMS
 
 #define MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat) \
-  MOBILENET_BENCHMARK(32, Win, Str, Row, Col, Ch, Feat);
-#include "bench/conv2d/mobilenet_params.def"
-#undef MOBILENET_PARAMS
-
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat) \
   MOBILENET_BENCHMARK(64, Win, Str, Row, Col, Ch, Feat);
 #include "bench/conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
