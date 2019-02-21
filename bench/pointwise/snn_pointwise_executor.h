@@ -46,7 +46,7 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
   /** Execute the pointwise benchmark for the given parameters. */
   void execute(State& state, size_t const n_items) {
     auto& benchmark = underlying_benchmark();
-    auto backend = benchmark.get_backend();
+    auto& backend = benchmark.get_backend();
 
     std::vector<float> inp_vec(n_items);
     std::vector<float> out_vec(n_items);
@@ -131,7 +131,7 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Gradient, Operator>
   /** Execute the pointwise benchmark for the given parameters. */
   void execute(State& state, size_t n_items) {
     auto& benchmark = underlying_benchmark();
-    auto backend = benchmark.get_backend();
+    auto& backend = benchmark.get_backend();
 
     std::vector<float> inp_vec(n_items);
     std::vector<float> out_vec(n_items);

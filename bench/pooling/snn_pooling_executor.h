@@ -42,7 +42,7 @@ struct SNNPoolingExecutor : public BaseExecutor {
   /** Execute the pooling benchmark for the given parameters. */
   void execute(State& state, PoolingParams const& params) {
     auto& benchmark = underlying_benchmark();
-    auto backend = benchmark.get_backend();
+    auto& backend = benchmark.get_backend();
 
     auto pool_sizes = sycldnn::pooling::get_sizes<Direction>(params);
 
@@ -132,7 +132,7 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
   /** Execute the pooling benchmark for the given parameters. */
   void execute(State& state, PoolingParams const& params) {
     auto& benchmark = underlying_benchmark();
-    auto backend = benchmark.get_backend();
+    auto& backend = benchmark.get_backend();
 
     auto fwd_sizes =
         sycldnn::pooling::get_sizes<sycldnn::pooling::Forward>(params);

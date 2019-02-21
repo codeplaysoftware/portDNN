@@ -51,7 +51,7 @@ class SNNPoolingBenchmark
     this->execute(state, params);
 
     // Get the SYCL device, and add device and driver info to the benchmark.
-    auto backend = this->get_backend();
+    auto& backend = this->get_backend();
     auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
 

@@ -112,7 +112,7 @@ void TiledConvolutionBenchmark<
     FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols,
     Stride>::execute(benchmark::State& state,
                      sycldnn::conv2d::Conv2DParams const& params) {
-  auto backend = this->get_backend();
+  auto& backend = this->get_backend();
 
   auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
 

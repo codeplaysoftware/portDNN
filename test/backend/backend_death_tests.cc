@@ -51,7 +51,7 @@ TYPED_TEST(ExternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  auto backend = this->provider_.get_backend();
+  auto& backend = this->provider_.get_backend();
   float* ptr1 = backend.template allocate<float>(n_elems);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
@@ -67,7 +67,7 @@ TYPED_TEST(ExternalDeathTest, FetchAfterDeallocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  auto backend = this->provider_.get_backend();
+  auto& backend = this->provider_.get_backend();
   float* ptr = backend.template allocate<float>(n_elems);
   backend.deallocate(ptr);
   MAYBE_DEATH(backend.get_buffer(ptr, n_elems),
@@ -77,7 +77,7 @@ TYPED_TEST(InternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  auto backend = this->provider_.get_backend();
+  auto& backend = this->provider_.get_backend();
   float* ptr1 = backend.template allocate<float>(buffer_size);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
@@ -94,7 +94,7 @@ TYPED_TEST(InternalDeathTest, FetchAfterDeallocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  auto backend = this->provider_.get_backend();
+  auto& backend = this->provider_.get_backend();
   float* ptr = backend.template allocate<float>(n_elems);
   backend.deallocate(ptr);
   MAYBE_DEATH(backend.get_buffer_internal(ptr, n_elems),

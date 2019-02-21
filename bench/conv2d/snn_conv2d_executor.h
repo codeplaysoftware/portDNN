@@ -52,7 +52,7 @@ struct SNNConv2DExecutor : public BaseExecutor {
   /** Execute a conv2d benchmark with the given parameters and selector. */
   void execute(State& state, Conv2DParams const& params, Selector& selector) {
     auto& benchmark = underlying_benchmark();
-    auto backend = benchmark.get_backend();
+    auto& backend = benchmark.get_backend();
 
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
 

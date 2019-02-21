@@ -82,6 +82,15 @@ struct SyclBLASBackend final {
   SyclBLASBackend(const cl::sycl::queue& queue) : executor_{queue} {}
 
   /**
+   * Deleted copy constructor.
+   */
+  SNN_DISABLE_COPY(SyclBLASBackend);
+  /**
+   * Deleted move constructor.
+   */
+  SNN_DISABLE_MOVE(SyclBLASBackend);
+
+  /**
    * Gets a descriptive name for this backend.
    * \return a descriptive name for this backend.
    */
