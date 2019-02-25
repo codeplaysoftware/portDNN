@@ -42,12 +42,18 @@ SNNStatus launch_output_transform(ReadAccessor<T const> intermediate,
       cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                         \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, 4, 4, 3, 3, false)        \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, 3, 3, 3, 3, false)        \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, 2, 2, 3, 3, false)        \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, 1, 2, 1, 3, false)        \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, 2, 1, 3, 1, false)        \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop, 4, 4, 3, 3, false)  \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop, 3, 3, 3, 3, false)  \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop, 2, 2, 3, 3, false)  \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop, 1, 2, 1, 3, false)  \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop, 2, 1, 3, 1, false)  \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop, 3, 3, 3, 3, true)  \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop, 3, 3, 3, 3, false) \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop, 3, 3, 2, 2, true)  \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop, 3, 3, 2, 2, false) \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop, 3, 1, 2, 1, true)  \

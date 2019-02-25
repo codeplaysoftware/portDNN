@@ -59,6 +59,36 @@ inline SNN_ALWAYS_INLINE T dot(cl::sycl::vec<T, Width> a,
   return dot(a.hi(), b.hi()) + dot(a.lo(), b.lo());
 }
 
+template <
+    typename T, typename U,
+    typename std::enable_if<!std::is_floating_point<T>::value, int>::type = 0>
+inline SNN_ALWAYS_INLINE T ratio(T a, U b) {
+  return a / b;
+}
+
+template <
+    typename T, int Width, typename U,
+    typename std::enable_if<!std::is_floating_point<T>::value, int>::type = 0>
+inline SNN_ALWAYS_INLINE cl::sycl::vec<T, Width> ratio(
+    cl::sycl::vec<T, Width> a, U b) {
+  return a / b;
+}
+
+template <
+    typename T, typename U,
+    typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
+inline SNN_ALWAYS_INLINE T ratio(T a, U b) {
+  return a * (T{1} / b);
+}
+
+template <
+    typename T, int Width, typename U,
+    typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
+inline SNN_ALWAYS_INLINE cl::sycl::vec<T, Width> ratio(
+    cl::sycl::vec<T, Width> a, U b) {
+  return a * (T{1} / b);
+}
+
 }  // namespace math
 }  // namespace helpers
 }  // namespace sycldnn
