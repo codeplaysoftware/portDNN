@@ -22,6 +22,9 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
+
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
@@ -57,6 +60,11 @@ struct ConvolutionFixture
         provider.get_initialised_device_memory(conv_sizes.filter_size, filter);
     auto out_gpu =
         provider.get_initialised_device_memory(conv_sizes.output_size, output);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(fil_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
 
     SelectorType selector{};
     if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
@@ -79,9 +87,6 @@ struct ConvolutionFixture
     }
 
     provider.copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
-    provider.deallocate_ptr(inp_gpu);
-    provider.deallocate_ptr(fil_gpu);
-    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

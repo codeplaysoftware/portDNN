@@ -28,6 +28,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/status.h"
 #include "sycldnn/transpose/launch.h"
 
@@ -79,6 +80,10 @@ TYPED_TEST(TransposeConversion, NHWCToNCHW) {
     auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
     auto out_gpu =
         provider.get_initialised_device_memory(tensor_size, out_data);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(in_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
 
     try {
       auto status = sycldnn::transpose::convert_nhwc_to_nchw<DataType>(
@@ -91,8 +96,6 @@ TYPED_TEST(TransposeConversion, NHWCToNCHW) {
     }
 
     provider.copy_device_data_to_host(tensor_size, out_gpu, out_data);
-    provider.deallocate_ptr(in_gpu);
-    provider.deallocate_ptr(out_gpu);
   }
 
   for (size_t i = 0; i < exp.size(); ++i) {
@@ -136,6 +139,10 @@ TYPED_TEST(TransposeConversion, NCHWToNHWC) {
     auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
     auto out_gpu =
         provider.get_initialised_device_memory(tensor_size, out_data);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(in_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
 
     try {
       auto status = sycldnn::transpose::convert_nchw_to_nhwc<DataType>(
@@ -148,8 +155,6 @@ TYPED_TEST(TransposeConversion, NCHWToNHWC) {
     }
 
     provider.copy_device_data_to_host(tensor_size, out_gpu, out_data);
-    provider.deallocate_ptr(in_gpu);
-    provider.deallocate_ptr(out_gpu);
   }
 
   for (size_t i = 0; i < exp.size(); ++i) {

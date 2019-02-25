@@ -23,6 +23,8 @@
 #include "sycldnn/depthwise_conv2d/params.h"
 #include "sycldnn/depthwise_conv2d/sizes.h"
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
@@ -60,6 +62,11 @@ struct DepthwiseConv2DFixture
         provider.get_initialised_device_memory(conv_sizes.filter_size, filter);
     auto out_gpu =
         provider.get_initialised_device_memory(conv_sizes.output_size, output);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(fil_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
 
     auto status = sycldnn::depthwise_conv2d::launch<DataType, ConvType>(
         inp_gpu, fil_gpu, out_gpu, params, backend);
@@ -72,9 +79,6 @@ struct DepthwiseConv2DFixture
     status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
-    provider.deallocate_ptr(inp_gpu);
-    provider.deallocate_ptr(fil_gpu);
-    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

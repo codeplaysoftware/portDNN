@@ -17,6 +17,8 @@
 #define SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_
 #include "test/backend/matmul_backend_test_fixture.h"
 
+#include "sycldnn/helpers/scope_exit.h"
+
 template <typename Backend>
 template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
 void BackendMatmul<Backend>::test_square_matmul(std::vector<T>& lhs,
@@ -72,6 +74,11 @@ void BackendMatmul<Backend>::test_square_batch_matmul(std::vector<T>& lhs,
   T* lhs_ptr = provider.get_initialised_device_memory(size, lhs);
   T* rhs_ptr = provider.get_initialised_device_memory(size, rhs);
   T* out_ptr = provider.get_initialised_device_memory(size, output);
+  SNN_ON_SCOPE_EXIT {
+    provider.deallocate_ptr(out_ptr);
+    provider.deallocate_ptr(rhs_ptr);
+    provider.deallocate_ptr(lhs_ptr);
+  };
 
   backend.template batch_matmul<TransposeLHS, TransposeRHS>(
       lhs_ptr, rhs_ptr, out_ptr, batch, dim, dim, dim);

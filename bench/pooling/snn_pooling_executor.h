@@ -18,6 +18,8 @@
 
 #include <benchmark/benchmark.h>
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "sycldnn/pooling/launch.h"
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
@@ -53,6 +55,11 @@ struct SNNPoolingExecutor : public BaseExecutor {
         benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
     auto out_gpu =
         benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
+
+    SNN_ON_SCOPE_EXIT {
+      benchmark.deallocate_ptr(out_gpu);
+      benchmark.deallocate_ptr(inp_gpu);
+    };
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pooling::launch<float, Operator, Direction>(
@@ -95,9 +102,6 @@ struct SNNPoolingExecutor : public BaseExecutor {
 
       this->set_iteration_time(state);
     }
-
-    benchmark.deallocate_ptr(out_gpu);
-    benchmark.deallocate_ptr(inp_gpu);
 
     // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
     backend.get_queue().wait_and_throw();
@@ -153,6 +157,13 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
     auto out_back_gpu = benchmark.get_initialised_device_memory(
         out_back_vec.size(), out_back_vec);
 
+    SNN_ON_SCOPE_EXIT {
+      benchmark.deallocate_ptr(out_back_gpu);
+      benchmark.deallocate_ptr(inp_back_gpu);
+      benchmark.deallocate_ptr(out_gpu);
+      benchmark.deallocate_ptr(inp_gpu);
+    };
+
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
                                              sycldnn::pooling::Backpropagate>(
@@ -176,11 +187,6 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
       this->end_timing();
       this->set_iteration_time(state);
     }
-
-    benchmark.deallocate_ptr(out_back_gpu);
-    benchmark.deallocate_ptr(inp_back_gpu);
-    benchmark.deallocate_ptr(out_gpu);
-    benchmark.deallocate_ptr(inp_gpu);
 
     // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
     backend.get_queue().wait_and_throw();

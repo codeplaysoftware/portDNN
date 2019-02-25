@@ -30,6 +30,8 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "sycldnn/transpose/launch.h"
 
 #include "test/backend/backend_test_fixture.h"
@@ -59,6 +61,10 @@ struct TransposeFixture
     {
       auto in_gpu = provider.get_initialised_device_memory(in_size, in_data);
       auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
+      SNN_ON_SCOPE_EXIT {
+        provider.deallocate_ptr(in_gpu);
+        provider.deallocate_ptr(out_gpu);
+      };
 
       try {
         auto status = sycldnn::transpose::launch<DataType>(
@@ -72,8 +78,6 @@ struct TransposeFixture
       }
 
       provider.copy_device_data_to_host(out_size, out_gpu, out_data);
-      provider.deallocate_ptr(in_gpu);
-      provider.deallocate_ptr(out_gpu);
     }
 
     for (size_t i = 0; i < exp.size(); ++i) {

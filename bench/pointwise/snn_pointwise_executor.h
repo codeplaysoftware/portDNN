@@ -18,6 +18,8 @@
 
 #include <benchmark/benchmark.h>
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pointwise/launch.h"
 #include "sycldnn/pointwise/operators.h"
@@ -55,6 +57,11 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
         benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
     auto out_gpu =
         benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
+
+    SNN_ON_SCOPE_EXIT {
+      benchmark.deallocate_ptr(out_gpu);
+      benchmark.deallocate_ptr(inp_gpu);
+    };
 
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::pointwise::launch<float, Operator, Forward>(
@@ -97,9 +104,6 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
 
       this->set_iteration_time(state);
     }
-
-    benchmark.deallocate_ptr(out_gpu);
-    benchmark.deallocate_ptr(inp_gpu);
 
     benchmark.template set_bytes_processed<float>(state, n_items);
     benchmark.add_param_counters(state, n_items);

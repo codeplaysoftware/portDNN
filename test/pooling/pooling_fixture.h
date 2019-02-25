@@ -22,6 +22,7 @@
 #include "sycldnn/padding_mode.h"
 
 #include "sycldnn/helpers/padding.h"
+#include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/pooling/launch.h"
 #include "sycldnn/pooling/operators.h"
@@ -53,6 +54,10 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
     auto inp_gpu = provider.get_initialised_device_memory(in_size, input);
     auto out_gpu = provider.get_initialised_device_memory(out_size, output);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
 
     auto status = sycldnn::pooling::launch<DataType, Op, Direction>(
         inp_gpu, out_gpu, params, backend);
@@ -61,8 +66,6 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
     status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(out_size, out_gpu, output);
-    provider.deallocate_ptr(inp_gpu);
-    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -104,6 +107,10 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
         provider.get_initialised_device_memory(in_size, input_data);
     auto out_data_gpu =
         provider.get_initialised_device_memory(out_size, output_data);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_data_gpu);
+      provider.deallocate_ptr(out_data_gpu);
+    };
 
     auto fwd_status = sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
                                                sycldnn::pooling::Forward>(
@@ -114,6 +121,10 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
         provider.get_initialised_device_memory(out_size, input_backprop);
     auto out_backprop_gpu =
         provider.get_initialised_device_memory(in_size, output_backprop);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_backprop_gpu);
+      provider.deallocate_ptr(out_backprop_gpu);
+    };
 
     auto back_status =
         sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
@@ -127,10 +138,6 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
 
     provider.copy_device_data_to_host(in_size, out_backprop_gpu,
                                       output_backprop);
-    provider.deallocate_ptr(inp_data_gpu);
-    provider.deallocate_ptr(out_data_gpu);
-    provider.deallocate_ptr(inp_backprop_gpu);
-    provider.deallocate_ptr(out_backprop_gpu);
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

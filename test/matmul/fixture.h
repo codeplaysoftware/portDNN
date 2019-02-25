@@ -24,6 +24,7 @@
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/matmul/launch.h"
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -53,6 +54,11 @@ struct MatmulFixture
       auto lhs_gpu = provider.get_initialised_device_memory(lhs_size, lhs_data);
       auto rhs_gpu = provider.get_initialised_device_memory(rhs_size, rhs_data);
       auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
+      SNN_ON_SCOPE_EXIT {
+        provider.deallocate_ptr(lhs_gpu);
+        provider.deallocate_ptr(rhs_gpu);
+        provider.deallocate_ptr(out_gpu);
+      };
 
       auto status =
           sycldnn::matmul::launch<DataType, TransposeLhs, TransposeRhs>(
@@ -63,9 +69,6 @@ struct MatmulFixture
       status.event.wait_and_throw();
 
       provider.copy_device_data_to_host(out_size, out_gpu, out_data);
-      provider.deallocate_ptr(lhs_gpu);
-      provider.deallocate_ptr(rhs_gpu);
-      provider.deallocate_ptr(out_gpu);
     }
 
     for (size_t i = 0; i < exp.size(); ++i) {

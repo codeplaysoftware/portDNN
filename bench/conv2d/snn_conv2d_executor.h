@@ -20,6 +20,8 @@
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
@@ -67,6 +69,12 @@ struct SNNConv2DExecutor : public BaseExecutor {
     auto out_gpu =
         benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
 
+    SNN_ON_SCOPE_EXIT {
+      benchmark.deallocate_ptr(out_gpu);
+      benchmark.deallocate_ptr(fil_gpu);
+      benchmark.deallocate_ptr(inp_gpu);
+    };
+
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::conv2d::launch<float, ConvType>(
           inp_gpu, fil_gpu, out_gpu, params, selector, backend);
@@ -107,10 +115,6 @@ struct SNNConv2DExecutor : public BaseExecutor {
       this->end_timing();
       this->set_iteration_time(state);
     }
-
-    benchmark.deallocate_ptr(out_gpu);
-    benchmark.deallocate_ptr(fil_gpu);
-    benchmark.deallocate_ptr(inp_gpu);
 
     // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
     backend.get_queue().wait_and_throw();

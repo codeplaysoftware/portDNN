@@ -25,6 +25,8 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pointwise/launch.h"
 #include "sycldnn/pointwise/operators.h"
@@ -50,6 +52,10 @@ struct PointwiseFixture
 
     auto inp_gpu = provider.get_initialised_device_memory(size, input);
     auto out_gpu = provider.get_initialised_device_memory(size, output);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
 
     auto status = sycldnn::pointwise::launch<DataType, Op, Direction>(
         inp_gpu, out_gpu, size, backend);
@@ -58,8 +64,6 @@ struct PointwiseFixture
     status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(size, out_gpu, output);
-    provider.deallocate_ptr(inp_gpu);
-    provider.deallocate_ptr(out_gpu);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -96,6 +100,10 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
         provider.get_initialised_device_memory(size, input_forward);
     auto out_fwd_gpu =
         provider.get_initialised_device_memory(size, output_forward);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_fwd_gpu);
+      provider.deallocate_ptr(out_fwd_gpu);
+    };
 
     auto fwd_status =
         sycldnn::pointwise::launch<DataType, Op, sycldnn::pointwise::Forward>(
@@ -106,6 +114,10 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
         provider.get_initialised_device_memory(size, input_backprop);
     auto out_bk_gpu =
         provider.get_initialised_device_memory(size, output_backprop);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_bk_gpu);
+      provider.deallocate_ptr(out_bk_gpu);
+    };
 
     auto bk_status =
         sycldnn::pointwise::launch<DataType, Op, sycldnn::pointwise::Gradient>(
@@ -116,10 +128,6 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
     bk_status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(size, out_bk_gpu, output_backprop);
-    provider.deallocate_ptr(inp_fwd_gpu);
-    provider.deallocate_ptr(out_fwd_gpu);
-    provider.deallocate_ptr(inp_bk_gpu);
-    provider.deallocate_ptr(out_bk_gpu);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

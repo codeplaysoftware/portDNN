@@ -22,6 +22,8 @@
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
 
+#include "sycldnn/helpers/scope_exit.h"
+
 #include "src/conv2d/tiled/kernel_params.h"
 #include "src/conv2d/tiled/queue_tiled_kernel_impl.h"
 #include "src/conv2d/tiled/tile_info.h"
@@ -123,6 +125,11 @@ void TiledConvolutionBenchmark<
   auto inp_gpu = this->get_initialised_device_memory(inp_vec.size(), inp_vec);
   auto fil_gpu = this->get_initialised_device_memory(fil_vec.size(), fil_vec);
   auto out_gpu = this->get_initialised_device_memory(out_vec.size(), out_vec);
+  SNN_ON_SCOPE_EXIT {
+    this->deallocate_ptr(out_gpu);
+    this->deallocate_ptr(fil_gpu);
+    this->deallocate_ptr(inp_gpu);
+  };
 
   {  // Ensure the kernel is built before benchmarking
     auto status = launch_kernel<float, int, ConvType, TileRows, TileCols,
@@ -150,10 +157,6 @@ void TiledConvolutionBenchmark<
     this->end_timing();
     this->set_iteration_time(state);
   }
-
-  this->deallocate_ptr(out_gpu);
-  this->deallocate_ptr(fil_gpu);
-  this->deallocate_ptr(inp_gpu);
 
   // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
   backend.get_queue().wait_and_throw();
