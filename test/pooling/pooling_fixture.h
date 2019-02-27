@@ -31,6 +31,7 @@
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
+#include "test/helpers/float_comparison.h"
 
 #include <vector>
 
@@ -69,11 +70,7 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      if (std::is_same<DataType, double>::value) {
-        EXPECT_DOUBLE_EQ(exp[i], output[i]);
-      } else {
-        EXPECT_FLOAT_EQ(exp[i], output[i]);
-      }
+      SNN_ALMOST_EQUAL(exp[i], output[i], 10u);
     }
   }
 };
@@ -141,11 +138,7 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      if (std::is_same<DataType, double>::value) {
-        EXPECT_DOUBLE_EQ(exp[i], output_backprop[i]);
-      } else {
-        EXPECT_FLOAT_EQ(exp[i], output_backprop[i]);
-      }
+      SNN_ALMOST_EQUAL(exp[i], output_backprop[i], 10u);
     }
   }
 };

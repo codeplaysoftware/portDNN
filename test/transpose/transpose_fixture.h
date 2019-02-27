@@ -36,6 +36,7 @@
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
+#include "test/helpers/float_comparison.h"
 
 template <typename T>
 struct TransposeFixture
@@ -82,11 +83,7 @@ struct TransposeFixture
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      if (std::is_same<DataType, double>::value) {
-        EXPECT_DOUBLE_EQ(exp[i], out_data[i]);
-      } else {
-        EXPECT_FLOAT_EQ(exp[i], out_data[i]);
-      }
+      SNN_ALMOST_EQUAL(exp[i], out_data[i], 10u);
     }
   }
 };

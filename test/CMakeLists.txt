@@ -32,6 +32,12 @@ snn_test(
     basic_sycl_test.cc
 )
 snn_test(
+  TARGET
+    float_comparison
+  SOURCES
+    helpers/float_comparison.cc
+)
+snn_test(
   WITH_SYCL
   TARGET
     fast_divison
