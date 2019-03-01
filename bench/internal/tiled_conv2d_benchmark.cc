@@ -195,8 +195,8 @@ struct ParamGenerator {
     params.stride_cols = Stride;
     params.out_rows = 27;
     params.out_cols = 27;
-    params.pad_rows = 0;
-    params.pad_cols = 0;
+    params.pad_rows = 1;
+    params.pad_cols = 1;
     params.dilation_rows = 1;
     params.dilation_cols = 1;
     return params;
@@ -236,28 +236,56 @@ struct ParamGenerator {
                   window_row, window_col, stride)                       \
   PARAM_BENCHMARK(name, direction, tile_row, tile_col, 2, 4, fast_div,  \
                   window_row, window_col, stride)                       \
+  PARAM_BENCHMARK(name, direction, tile_row, tile_col, 2, 8, fast_div,  \
+                  window_row, window_col, stride)                       \
   PARAM_BENCHMARK(name, direction, tile_row, tile_col, 4, 1, fast_div,  \
                   window_row, window_col, stride)                       \
   PARAM_BENCHMARK(name, direction, tile_row, tile_col, 4, 2, fast_div,  \
                   window_row, window_col, stride)                       \
   PARAM_BENCHMARK(name, direction, tile_row, tile_col, 4, 4, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK(name, direction, tile_row, tile_col, 4, 8, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK(name, direction, tile_row, tile_col, 8, 1, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK(name, direction, tile_row, tile_col, 8, 2, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK(name, direction, tile_row, tile_col, 8, 4, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK(name, direction, tile_row, tile_col, 8, 8, fast_div,  \
                   window_row, window_col, stride)
 
 #define BENCH_WITH_FAST_DIV(name, direction, fast_div, window_row, window_col, \
                             stride)                                            \
+  BENCH_WITH_TILES(name, direction, 1, 1, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 1, 2, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 1, 3, fast_div, window_row, window_col,    \
+                   stride)                                                     \
   BENCH_WITH_TILES(name, direction, 1, 4, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 1, 5, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 2, 1, fast_div, window_row, window_col,    \
                    stride)                                                     \
   BENCH_WITH_TILES(name, direction, 2, 2, fast_div, window_row, window_col,    \
                    stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 2, 3, fast_div, window_row, window_col,    \
+                   stride)                                                     \
   BENCH_WITH_TILES(name, direction, 2, 4, fast_div, window_row, window_col,    \
                    stride)                                                     \
-  BENCH_WITH_TILES(name, direction, 2, 3, fast_div, window_row, window_col,    \
+  BENCH_WITH_TILES(name, direction, 2, 5, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 3, 1, fast_div, window_row, window_col,    \
                    stride)                                                     \
   BENCH_WITH_TILES(name, direction, 3, 2, fast_div, window_row, window_col,    \
                    stride)                                                     \
   BENCH_WITH_TILES(name, direction, 3, 3, fast_div, window_row, window_col,    \
                    stride)                                                     \
   BENCH_WITH_TILES(name, direction, 3, 4, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 3, 5, fast_div, window_row, window_col,    \
                    stride)                                                     \
   BENCH_WITH_TILES(name, direction, 4, 1, fast_div, window_row, window_col,    \
                    stride)                                                     \
@@ -266,6 +294,18 @@ struct ParamGenerator {
   BENCH_WITH_TILES(name, direction, 4, 3, fast_div, window_row, window_col,    \
                    stride)                                                     \
   BENCH_WITH_TILES(name, direction, 4, 4, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 4, 5, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 5, 1, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 5, 2, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 5, 3, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 5, 4, fast_div, window_row, window_col,    \
+                   stride)                                                     \
+  BENCH_WITH_TILES(name, direction, 5, 5, fast_div, window_row, window_col,    \
                    stride)
 
 #define BENCH_BASE(name, direction, window_row, window_col, stride)           \

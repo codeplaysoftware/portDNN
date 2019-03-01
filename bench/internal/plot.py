@@ -33,8 +33,14 @@ import matplotlib.pyplot as plt
 
 def load_benchmark(filename):
     """ Load benchmark data from file. """
-    x = pd.read_csv(filename, skiprows=2)
-    return x
+    header_line = 0
+    with open(filename) as inp:
+        for line in inp:
+            if line[0:4] == 'name':
+                break
+            header_line += 1
+    data = pd.read_csv(filename, header=header_line)
+    return data
 
 
 def clean_benchmark_data(x):
@@ -179,12 +185,19 @@ def plot_grid(data):
     vmin = data['items_per_second'].min()
     vmax = data['items_per_second'].max()
     div, fmt, prefix = get_readable_float_fmt_string(vmin, vmax)
+    tile_row_order = sorted(data['tile_rows'].unique(), reverse=True)
+    tile_col_order = data['tile_cols'].unique().sort()
     scaled_data = data.copy()
     scaled_data['items_per_second'] = scaled_data['items_per_second'] / div
     scaled_vmin = vmin / div
     scaled_vmax = vmax / div
     fg = sns.FacetGrid(
-        scaled_data, row='tile_rows', col='tile_cols', margin_titles=True)
+        scaled_data,
+        row='tile_rows',
+        col='tile_cols',
+        row_order=tile_row_order,
+        col_order=tile_col_order,
+        margin_titles=True)
     fg.map_dataframe(
         _draw_heatmap,
         annot=True,

@@ -15,6 +15,7 @@
 
 cmake_minimum_required(VERSION 3.2.2)
 project(snn_bench_internal)
+include(HandleEigen)
 
 snn_bench(
   WITH_SYCL
