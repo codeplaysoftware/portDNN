@@ -78,14 +78,11 @@ struct ExtractInputTiles {
       Index const batch = tile_tensor_idx.s0;
 
       Index const cstart = col_idx * N - n_pad_cols_;
-      Index const firstc = cstart < 0 ? -cstart : 0;
-
       Index const rstart = row_idx * M - n_pad_rows_;
-      Index const firstr = rstart < 0 ? -rstart : 0;
 
       InputTile<VecType, M, N, R, S> inp(input_data, batch, rstart, n_in_rows_,
                                          cstart, n_in_cols_, channel_idx,
-                                         n_channels_, firstr, firstc);
+                                         n_channels_);
 
       OutputData<VecType, M, N, R, S>::write_transformed_input(
           output_data, tile_idx, channel_idx, n_tiles_, n_channels_,
@@ -154,14 +151,11 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
       Index const batch = tile_tensor_idx.s0;
 
       Index const cstart = col_idx * S - n_pad_cols_;
-      Index const firstc = cstart < 0 ? -cstart : 0;
-
       Index const rstart = row_idx * R - n_pad_rows_;
-      Index const firstr = rstart < 0 ? -rstart : 0;
 
       InputTile<VecType, M, N, R, S> inp(input_data, batch, rstart, n_in_rows_,
                                          cstart, n_in_cols_, channel_idx,
-                                         n_channels_, firstr, firstc);
+                                         n_channels_);
       TransformedInputTile<VecType, M, N, R, S> trans{inp};
 
       OutputData<VecType, M, N, R, S>::write_transformed_input(

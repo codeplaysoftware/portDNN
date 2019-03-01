@@ -18,6 +18,7 @@
 
 #include "sycldnn/conv2d/conv_type.h"
 
+#include "src/helpers/register_tile.h"
 #include "src/helpers/vector_io.h"
 
 namespace sycldnn {
@@ -33,9 +34,12 @@ struct SYCLOutputWindow {
 };
 
 template <typename T, int M, int N, int R, int S>
-struct InputTile {
+struct InputTile final
+    : public helpers::RegisterTile2D<T, M + R - 1, N + S - 1> {
   static constexpr int A = M + R - 1;
   static constexpr int B = N + S - 1;
+  using helpers::RegisterTile2D<T, A, B>::data;
+
   /**
    * Read the input data from the provided input array. The pointer is assumed
    * to be at the first value that should be read into the input tile.
@@ -50,30 +54,31 @@ struct InputTile {
   SNN_ALWAYS_INLINE InputTile(_T* input, Index const batch, Index const rstart,
                               Index const n_rows, Index const cstart,
                               Index const n_cols, Index const channel,
-                              Index const n_channels, Index const firstr,
-                              Index const firstc) {
+                              Index const n_channels)
+      : helpers::RegisterTile2D<T, A, B>{} {
     Index const offset =
         ((batch * n_rows + rstart) * n_cols + cstart) * n_channels + channel;
     input += offset;
+    Index row_idx = 0;
     SNN_PRAGMA_UNROLL
     for (int r = 0; r < A; ++r) {
-      SNN_PRAGMA_UNROLL
-      for (int c = 0; c < B; ++c) {
-        data[r][c] =
-            (r < firstr || c < firstc || r + rstart >= n_rows ||
-             c + cstart >= n_cols)
-                ? static_cast<T>(0)
-                : helpers::io::Load<T>()(input, (r * n_cols + c) * n_channels);
+      if (r >= -rstart && r < n_rows - rstart) {
+        Index idx = row_idx;
+        SNN_PRAGMA_UNROLL
+        for (int c = 0; c < B; ++c) {
+          if (c >= -cstart && c < n_cols - cstart) {
+            data(r, c) = helpers::io::Load<T>()(input, idx);
+          }
+          idx += n_channels;
+        }
       }
+      row_idx += n_cols * n_channels;
     }
   }
-  T data[A][B];
 };
 
 template <typename T, int M, int N, int R, int S>
-struct BaseFilterTile {
-  T data[R][S];
-};
+using BaseFilterTile = helpers::RegisterTile2D<T, R, S>;
 
 template <typename T, int M, int N, int R, int S, typename ConvType>
 struct FilterTile;
@@ -104,7 +109,7 @@ struct FilterTile<T, M, N, R, S, conv_type::Forward> final
       SNN_PRAGMA_UNROLL
       for (int c = 0; c < S; ++c) {
         Index idx = (r * S + c) * n_channels * n_features;
-        data[r][c] = input[idx];
+        data(r, c) = input[idx];
       }
     }
   }
@@ -138,7 +143,7 @@ struct FilterTile<T, M, N, R, S, conv_type::InputBackprop> final
         // data. Note that the channel and feature dims were switched in the
         // kernel params.
         Index idx = (r * S + c) * n_channels * n_features;
-        data[R - 1 - r][S - 1 - c] = input[idx];
+        data(R - 1 - r, S - 1 - c) = input[idx];
       }
     }
   }
@@ -165,7 +170,7 @@ struct FilterTile<T, M, N, R, S, conv_type::FilterBackprop> final
     for (int r = 0; r < R; ++r) {
       for (int c = 0; c < S; ++c) {
         Index idx = (r * n_cols + c) * n_features;
-        data[r][c] =
+        data(r, c) =
             (r >= w.rsize || c >= w.csize) ? static_cast<_T>(0) : input[idx];
       }
     }
@@ -176,12 +181,8 @@ struct FilterTile<T, M, N, R, S, conv_type::FilterBackprop> final
  * Base class for the output tile which provides a correctly sized data array.
  */
 template <typename T, int M, int N, int R, int S>
-struct BaseTransformedFilterTile {
-  static constexpr int A = M + R - 1;
-  static constexpr int B = N + S - 1;
-  T data[A][B];
-};
-
+using BaseTransformedFilterTile =
+    helpers::RegisterTile2D<T, M + R - 1, N + S - 1>;
 /**
  * Tile which transforms the intermediate layer into the output layer. Should be
  * specialised for each Winograd transform.
@@ -205,11 +206,8 @@ struct TransformedFilterTile;
  * Base class for the output tile which provides a correctly sized data array.
  */
 template <typename T, int M, int N, int R, int S>
-struct BaseTransformedInputTile {
-  static constexpr int A = M + R - 1;
-  static constexpr int B = N + S - 1;
-  T data[A][B];
-};
+using BaseTransformedInputTile =
+    helpers::RegisterTile2D<T, M + R - 1, N + S - 1>;
 
 /**
  * Tile which transforms the intermediate layer into the output layer. Should be
@@ -234,9 +232,11 @@ struct TransformedInputTile;
  * increment the tile with provided transformed inputs and filters.
  */
 template <typename T, int M, int N, int R, int S>
-struct IntermediateTile {
+struct IntermediateTile final
+    : public helpers::RegisterTile2D<T, M + R - 1, N + S - 1> {
   static constexpr int A = M + R - 1;
   static constexpr int B = N + S - 1;
+  using helpers::RegisterTile2D<T, A, B>::data;
   /**
    * Read the intermediate tile from a temporary buffer. The input shape is
    * expected to be
@@ -250,20 +250,17 @@ struct IntermediateTile {
     for (int r = 0; r < A; ++r) {
       for (int c = 0; c < B; ++c) {
         Index idx = (r * B + c) * n_features * n_tiles;
-        data[r][c] = input[idx];
+        data(r, c) = input[idx];
       }
     }
   }
-  T data[A][B];
 };
 
 /**
  * Base class for the output tile which provides a correctly sized data array.
  */
 template <typename T, int M, int N, int R, int S>
-struct BaseOutputTile {
-  T data[M][N];
-};
+using BaseOutputTile = helpers::RegisterTile2D<T, M, N>;
 
 /**
  * Tile which transforms the intermediate layer into the output layer. Should be
@@ -306,10 +303,11 @@ struct OutputData {
       Index const n_tiles, Index const n_channels,
       TransformedInputTile<T, M, N, R, S> const& tile) {
     output += tile_idx * n_channels + channel;
+    Index idx = 0;
     for (int r = 0; r < A; ++r) {
       for (int c = 0; c < B; ++c) {
-        Index idx = (r * B + c) * n_tiles * n_channels;
-        helpers::io::Store<T>()(output, idx, tile.data[r][c]);
+        helpers::io::Store<T>()(output, idx, tile.data(r, c));
+        idx += n_tiles * n_channels;
       }
     }
   }
@@ -335,7 +333,7 @@ struct OutputData {
     for (int r = 0; r < A; ++r) {
       for (int c = 0; c < B; ++c) {
         Index idx = (r * B + c) * n_features * n_channels;
-        output[idx] = tile.data[r][c];
+        output[idx] = tile.data(r, c);
       }
     }
   }
@@ -356,7 +354,7 @@ struct OutputData {
     for (int r = 0; r < M && r < window.rsize; ++r) {
       for (int c = 0; c < N && c < window.csize; ++c) {
         Index idx = (r * n_cols + c) * n_channels;
-        output[idx] = tile.data[r][c];
+        output[idx] = tile.data(r, c);
       }
     }
   }
@@ -382,9 +380,9 @@ struct OutputData {
       for (int c = 0; c < N; ++c) {
         Index idx = (r * N + c) * n_channels * n_features;
         if (accumulate_output) {
-          output[idx] += tile.data[r][c];
+          output[idx] += tile.data(r, c);
         } else {
-          output[idx] = tile.data[r][c];
+          output[idx] = tile.data(r, c);
         }
       }
     }
