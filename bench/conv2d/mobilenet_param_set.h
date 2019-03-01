@@ -16,7 +16,11 @@
 #ifndef SYCLDNN_BENCH_CONV2D_MOBILENET_PARAM_SET_H_
 #define SYCLDNN_BENCH_CONV2D_MOBILENET_PARAM_SET_H_
 
+#include "sycldnn/padding_mode.h"
+
 #include "sycldnn/conv2d/params.h"
+
+#include "sycldnn/helpers/padding.h"
 
 /**
  * Function object which returns a conv2d parameter struct required for the
@@ -44,13 +48,9 @@ struct ParameterSet {
     params.window_cols = Window;
     params.stride_rows = Stride;
     params.stride_cols = Stride;
-    params.out_rows = Rows / Stride;
-    params.out_cols = Cols / Stride;
-    params.pad_rows = Window / Stride;
-    params.pad_cols = Window / Stride;
     params.dilation_rows = 1;
     params.dilation_cols = 1;
-    return params;
+    return sycldnn::helpers::add_padding_to(params, sycldnn::PaddingMode::SAME);
   }
 };
 

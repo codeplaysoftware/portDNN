@@ -16,7 +16,11 @@
 #ifndef SYCLDNN_BENCH_CONV2D_VGG_PARAM_SET_H_
 #define SYCLDNN_BENCH_CONV2D_VGG_PARAM_SET_H_
 
+#include "sycldnn/padding_mode.h"
+
 #include "sycldnn/conv2d/params.h"
+
+#include "sycldnn/helpers/padding.h"
 
 /**
  * Function object which returns a conv2d parameter struct required for the VGG
@@ -42,13 +46,9 @@ struct ParameterSet {
     params.window_cols = 3;
     params.stride_rows = 1;
     params.stride_cols = 1;
-    params.out_rows = H;
-    params.out_cols = W;
-    params.pad_rows = 1;
-    params.pad_cols = 1;
     params.dilation_rows = 1;
     params.dilation_cols = 1;
-    return params;
+    return sycldnn::helpers::add_padding_to(params, sycldnn::PaddingMode::SAME);
   }
 };
 

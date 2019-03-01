@@ -80,11 +80,12 @@
   MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, Algo, \
                                         FilterBackprop)
 
-#define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat)             \
-  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Direct) \
-  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Tiled)  \
-  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Im2col) \
-  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Winograd)
+#define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat)               \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Direct)   \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Tiled)    \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Im2col)   \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Winograd) \
+  MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Matmul)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat) \
