@@ -144,6 +144,23 @@ snn_bench(
 snn_bench(
   WITH_SYCL
   TARGET
+    ssd_mobilenet_convolution
+  KERNEL_SOURCES
+    conv2d/ssd_mobilenet.cc
+  OBJECTS
+    $<TARGET_OBJECTS:direct_conv2d>
+    $<TARGET_OBJECTS:tiled_conv2d>
+    $<TARGET_OBJECTS:im2col_conv2d>
+    $<TARGET_OBJECTS:winograd_conv2d>
+  PUBLIC_LIBRARIES
+    bench_main
+    ${_BACKENDS}
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+snn_bench(
+  WITH_SYCL
+  TARGET
     resnet_pooling
   SOURCES
     pooling/resnet.cc
