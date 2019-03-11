@@ -24,9 +24,7 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
 
-#include <executors/executor_sycl.hpp>
-#include <interface/blas3_interface.hpp>
-#include <interface/blas_interface_sycl.hpp>
+#include <sycl_blas.hpp>
 
 namespace sycldnn {
 namespace backend {
@@ -62,7 +60,7 @@ struct BackendTraits<SyclBLASBackend> {
  */
 struct SyclBLASBackend final {
  private:
-  blas::Executor<SYCL> executor_;
+  blas::Executor<blas::Policy_Handler<blas::BLAS_SYCL_Policy>> executor_;
 
  public:
   /** The pointer type used in interface of the SyclBLASBackend. */
@@ -100,19 +98,26 @@ struct SyclBLASBackend final {
    * Gets the SYCL queue that the backend is bound to.
    * \return Returns the SYCL queue that the backend is bound to.
    */
-  cl::sycl::queue get_queue() { return executor_.get_queue(); }
+  cl::sycl::queue get_queue() {
+    return executor_.get_policy_handler().get_queue();
+  }
 
   /**
    * Get a const reference to the SyclBLAS executor used in this backend.
-   * \return A const reference to the SyclBLAS SyclDevice.
+   * \return A const reference to the SyclBLAS executor.
    */
-  blas::Executor<SYCL> const& get_executor() const { return executor_; }
+  blas::Executor<blas::Policy_Handler<blas::BLAS_SYCL_Policy>> const&
+  get_executor() const {
+    return executor_;
+  }
 
   /**
-   * Get a reference to the SyclBLAS SyclDevice used in this backend.
-   * \return A reference to the SyclBLAS SyclDevice.
+   * Get a reference to the SyclBLAS executor used in this backend.
+   * \return A reference to the SyclBLAS executor.
    */
-  blas::Executor<SYCL>& get_executor() { return executor_; }
+  blas::Executor<blas::Policy_Handler<blas::BLAS_SYCL_Policy>>& get_executor() {
+    return executor_;
+  }
 
   /**
    * Maps from external to internal pointer representations. This is a no-op
@@ -146,10 +151,10 @@ struct SyclBLASBackend final {
    * \return Returns a SYCL buffer corresponding to ptr.
    */
   template <typename T>
-  auto get_buffer(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(this->executor_.get_buffer(ptr)) {
+  auto get_buffer(pointer_type<T> ptr, size_t n_elems) -> decltype(
+      this->executor_.get_policy_handler().get_buffer(ptr).get_buffer()) {
     SNN_UNUSED_VAR(n_elems);
-    return executor_.get_buffer(ptr);
+    return executor_.get_policy_handler().get_buffer(ptr).get_buffer();
   }
 
   /**
@@ -160,9 +165,10 @@ struct SyclBLASBackend final {
    */
   template <typename T>
   auto get_buffer_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(this->executor_.get_buffer(ptr)) {
+      -> decltype(
+          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer()) {
     SNN_UNUSED_VAR(n_elems);
-    return executor_.get_buffer(ptr);
+    return executor_.get_policy_handler().get_buffer(ptr).get_buffer();
   }
 
   /**
@@ -184,7 +190,7 @@ struct SyclBLASBackend final {
    */
   template <typename T>
   size_t get_offset_internal(internal_pointer_type<T> ptr) {
-    return executor_.get_offset(ptr);
+    return executor_.get_policy_handler().get_offset(ptr);
   }
 
   /**
@@ -194,7 +200,7 @@ struct SyclBLASBackend final {
    */
   template <typename T>
   internal_pointer_type<T> allocate(size_t n_bytes) {
-    return executor_.allocate<T>(n_bytes / sizeof(T));
+    return executor_.get_policy_handler().allocate<T>(n_bytes / sizeof(T));
   }
 
   /**
@@ -203,7 +209,7 @@ struct SyclBLASBackend final {
    */
   template <typename T>
   void deallocate(internal_pointer_type<T> ptr) {
-    executor_.deallocate(ptr);
+    executor_.get_policy_handler().deallocate(ptr);
   }
 
   /**
@@ -242,10 +248,12 @@ struct SyclBLASBackend final {
     auto ldc = trans_m;
     auto lda = TransposeRHS ? k : trans_m;
     auto ldb = TransposeLHS ? trans_n : k;
-    cl::sycl::event e = blas::_gemm(
-        executor_, TransposeRHS ? 't' : 'n', TransposeLHS ? 't' : 'n', trans_m,
-        trans_n, k, static_cast<T>(1), const_cast<T*>(rhs), lda,
-        const_cast<T*>(lhs), ldb, beta, output, ldc);
+    cl::sycl::event e =
+        blas::_gemm(executor_, TransposeRHS ? 't' : 'n',
+                    TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
+                    static_cast<T>(1), const_cast<T*>(rhs), lda,
+                    const_cast<T*>(lhs), ldb, beta, output, ldc)
+            .back();
     return e;
   }
 
@@ -277,20 +285,19 @@ struct SyclBLASBackend final {
                                internal_pointer_type<T> const output,
                                Index const n_batches, Index const m,
                                Index const k, Index const n) {
-    Index const lhs_size = m * k;
-    Index const rhs_size = k * n;
-    Index const out_size = m * n;
+    auto trans_m = n;
+    auto trans_n = m;
 
-    cl::sycl::event event;
-    for (int i = 0; i < n_batches; ++i) {
-      Index const lhs_offset = lhs_size * i;
-      Index const rhs_offset = rhs_size * i;
-      Index const out_offset = out_size * i;
-      event = matmul<TransposeLHS, TransposeRHS>(
-          lhs + lhs_offset, rhs + rhs_offset, output + out_offset,
-          static_cast<T>(0), m, k, n);
-    }
-    return event;
+    auto ldc = trans_m;
+    auto lda = TransposeRHS ? k : trans_m;
+    auto ldb = TransposeLHS ? trans_n : k;
+    cl::sycl::event e =
+        blas::_gemm_batched(
+            executor_, TransposeRHS ? 't' : 'n', TransposeLHS ? 't' : 'n',
+            trans_m, trans_n, k, static_cast<T>(1), const_cast<T*>(rhs), lda,
+            const_cast<T*>(lhs), ldb, static_cast<T>(0), output, ldc, n_batches)
+            .back();
+    return e;
   }
 };
 

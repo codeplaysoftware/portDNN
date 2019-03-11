@@ -26,7 +26,7 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
   set(SyclBLAS_REPO "https://github.com/codeplaysoftware/sycl-blas.git" CACHE STRING
     "SyclBLAS git repository to clone"
   )
-  set(SyclBLAS_GIT_TAG "15335a5" CACHE STRING
+  set(SyclBLAS_GIT_TAG "4ff78f4" CACHE STRING
     "Git tag, branch or commit to use for the SyclBLAS library"
   )
   set(SyclBLAS_SOURCE_DIR ${sycldnn_BINARY_DIR}/SyclBLAS-src)
@@ -56,12 +56,14 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
     )
   endif()
   set(SyclBLAS_INCLUDE_DIR ${SyclBLAS_SOURCE_DIR}/include)
+  set(SyclBLAS_SRC_DIR ${SyclBLAS_SOURCE_DIR}/src)
   set(SyclBLAS_VPTR_INCLUDE_DIR ${SyclBLAS_SOURCE_DIR}/external/computecpp-sdk/include)
-  set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
+  set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_SRC_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
   # Have to explicitly make the include directories to add it to the library
   # target. This will be filled with the headers at build time when the
   # library is downloaded.
   file(MAKE_DIRECTORY ${SyclBLAS_INCLUDE_DIR})
+  file(MAKE_DIRECTORY ${SyclBLAS_SRC_DIR})
   file(MAKE_DIRECTORY ${SyclBLAS_VPTR_INCLUDE_DIR})
 
   include(FindPackageHandleStandardArgs)
