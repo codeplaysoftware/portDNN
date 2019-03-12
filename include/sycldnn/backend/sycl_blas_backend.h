@@ -60,7 +60,9 @@ struct BackendTraits<SyclBLASBackend> {
  */
 struct SyclBLASBackend final {
  private:
-  blas::Executor<blas::Policy_Handler<blas::BLAS_SYCL_Policy>> executor_;
+  /** Alias for the SYCL-BLAS executor type. */
+  using Executor = blas::Executor<blas::PolicyHandler<blas::codeplay_policy>>;
+  Executor executor_;
 
  public:
   /** The pointer type used in interface of the SyclBLASBackend. */
@@ -106,18 +108,13 @@ struct SyclBLASBackend final {
    * Get a const reference to the SyclBLAS executor used in this backend.
    * \return A const reference to the SyclBLAS executor.
    */
-  blas::Executor<blas::Policy_Handler<blas::BLAS_SYCL_Policy>> const&
-  get_executor() const {
-    return executor_;
-  }
+  Executor const& get_executor() const { return executor_; }
 
   /**
    * Get a reference to the SyclBLAS executor used in this backend.
    * \return A reference to the SyclBLAS executor.
    */
-  blas::Executor<blas::Policy_Handler<blas::BLAS_SYCL_Policy>>& get_executor() {
-    return executor_;
-  }
+  Executor& get_executor() { return executor_; }
 
   /**
    * Maps from external to internal pointer representations. This is a no-op
