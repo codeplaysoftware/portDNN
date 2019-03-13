@@ -274,4 +274,16 @@ if(SNN_ARM_COMPUTE_ENABLED)
     PUBLIC_COMPILE_DEFINITIONS
       ${_BENCHMARK_DEFINITIONS}
   )
+  snn_bench(
+    TARGET
+      arm_mobilenet_convolution
+    SOURCES
+      conv2d/arm_mobilenet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
 endif()
