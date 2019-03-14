@@ -86,7 +86,7 @@ snn_bench(
     $<TARGET_OBJECTS:winograd_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS} 
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -103,7 +103,7 @@ snn_bench(
     $<TARGET_OBJECTS:winograd_conv2d>
   PUBLIC_LIBRARIES
     bench_main
-    ${_BACKENDS} 
+    ${_BACKENDS}
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
@@ -252,7 +252,7 @@ if(SNN_ARM_COMPUTE_ENABLED)
 
   snn_bench(
     TARGET
-      arm_resnet_convolution
+      arm_opencl_resnet_convolution
     SOURCES
       conv2d/arm_resnet.cc
     PUBLIC_LIBRARIES
@@ -264,7 +264,20 @@ if(SNN_ARM_COMPUTE_ENABLED)
   )
   snn_bench(
     TARGET
-      arm_vgg_convolution
+      arm_neon_resnet_convolution
+    SOURCES
+      conv2d/arm_resnet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ACL_NEON
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_opencl_vgg_convolution
     SOURCES
       conv2d/arm_vgg.cc
     PUBLIC_LIBRARIES
@@ -276,7 +289,19 @@ if(SNN_ARM_COMPUTE_ENABLED)
   )
   snn_bench(
     TARGET
-      arm_mobilenet_convolution
+      arm_neon_vgg_convolution
+    SOURCES
+      conv2d/arm_vgg.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_opencl_mobilenet_convolution
     SOURCES
       conv2d/arm_mobilenet.cc
     PUBLIC_LIBRARIES
@@ -284,6 +309,19 @@ if(SNN_ARM_COMPUTE_ENABLED)
       ARMCompute::ARMCompute
       ARMCompute::Core
     PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_neon_mobilenet_convolution
+    SOURCES
+      conv2d/arm_mobilenet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ACL_NEON
       ${_BENCHMARK_DEFINITIONS}
   )
 endif()

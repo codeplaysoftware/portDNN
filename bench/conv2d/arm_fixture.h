@@ -19,29 +19,17 @@
 #include "arm_conv2d_executor.h"
 #include "base_convolution_fixture.h"
 
-#include "bench/fixture/add_arm_opencl_device_info.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-// The OpenCL C++ wrapper, used by ARM Compute Library, generates warnings
-// about deprecated functions. This silences those warnings.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#include <arm_compute/runtime/CL/CLFunctions.h>
-#include <arm_compute/runtime/CL/CLScheduler.h>
-#include <arm_compute/runtime/CL/CLTensor.h>
-#pragma GCC diagnostic pop
-
 extern const char* commit_date;
 extern const char* commit_hash;
 
-namespace arm = arm_compute;
-
-template <typename ParamGen, typename ConvType>
+template <typename ParamGen, typename ACLExecutor>
 class ARMConvolutionBenchmark
     : public sycldnn::bench::ARMConv2DExecutor<
-          ARMConvolutionBenchmark<ParamGen, ConvType>, ConvType>,
+          ARMConvolutionBenchmark<ParamGen, ACLExecutor>, ACLExecutor>,
       public sycldnn::bench::StringReporter,
       public BaseConvolutionBenchmark {
  private:
@@ -58,11 +46,7 @@ class ARMConvolutionBenchmark
         new sycldnn::bench::StdDevStatistic{}});
     this->execute(state, params);
 
-    // Get the SYCL device, and add device and driver info to the benchmark.
-    auto device = cl::Device::getDefault();
-    sycldnn::bench::device_info::add_opencl_device_info(device, *this);
-
-    this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
+    this->add_to_label("@conv_type", "Forward");
     this->add_to_label("@selector", "ARMCompute");
     this->add_to_label("short_name", "Convolution");
     this->add_to_label("git_hash", commit_hash);

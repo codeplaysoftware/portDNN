@@ -16,11 +16,16 @@
 #include "arm_fixture.h"
 #include "mobilenet_param_set.h"
 
+#ifdef ACL_NEON
+#define EXEC sycldnn::bench::ACLNeonExecutor
+#else
+#define EXEC sycldnn::bench::ACLOpenCLExecutor
+#endif
+
 #define MOBILENET_BENCHMARK(N, WIN, STR, C, W, H, F)                       \
   CONVOLUTION_BENCHMARK("MobileNet",                                       \
                         ARM_Forward_##N##_##C##_##W##_##H##_##WIN##_##STR, \
-                        ParameterSet<N, WIN, STR, C, W, H, F>,             \
-                        sycldnn::conv2d::conv_type::Forward)
+                        ParameterSet<N, WIN, STR, C, W, H, F>, EXEC)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(WIN, STR, C, W, H, F) \

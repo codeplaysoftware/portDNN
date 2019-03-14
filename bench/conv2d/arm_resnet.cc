@@ -16,11 +16,16 @@
 #include "arm_fixture.h"
 #include "resnet_param_set.h"
 
+#ifdef ACL_NEON
+#define EXEC sycldnn::bench::ACLNeonExecutor
+#else
+#define EXEC sycldnn::bench::ACLOpenCLExecutor
+#endif
+
 #define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)                        \
   CONVOLUTION_BENCHMARK(                                                 \
       "ResNet", ARM_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
-      ParameterSet<N, C, W, H, Flt, S, Ftr>,                             \
-      sycldnn::conv2d::conv_type::Forward)
+      ParameterSet<N, C, W, H, Flt, S, Ftr>, EXEC)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define RESNET_PARAMS(channels, width, height, filter, stride, features) \
