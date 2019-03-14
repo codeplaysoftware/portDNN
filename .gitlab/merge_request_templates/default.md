@@ -8,6 +8,7 @@
 * [ ] Every file has a copyright declaration
 * [ ] Code adheres to naming conventions
 * [ ] Tests added for new features
+* [ ] Make branch mergeable by other users (enables rebase + automerge)
 
 ##### CMake checks:
 
