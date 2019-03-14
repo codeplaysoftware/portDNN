@@ -172,9 +172,12 @@ inline SNNStatus launch_tiled(ReadAccessor<T const> input,
   }
 
 // clang-format off
-#ifdef SNN_ARM
-  LAUNCH_IF_MATCH(params, 3, 1, 1, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 3, 2, 2, 4, 1, 4)
+#ifdef ARM_GPU
+  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+  LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 4, 2)
+  LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 4)
+  LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 4, 1)
+  LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 1, 1)
 #endif
   if(std::is_same<ConvType, conv_type::Forward>::value) {
     LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
@@ -203,49 +206,31 @@ inline SNNStatus launch_tiled(ReadAccessor<T const> input,
   invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
   return invalid_algorithm_status;
 }
-template SNNStatus launch_tiled<float, conv_type::Forward>(
-    ReadAccessor<float const> input, ReadAccessor<float const> filter,
-    WriteAccessor<float> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_tiled<float, conv_type::InputBackprop>(
-    ReadAccessor<float const> input, ReadAccessor<float const> filter,
-    WriteAccessor<float> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_tiled<float, conv_type::FilterBackprop>(
-    ReadAccessor<float const> input, ReadAccessor<float const> filter,
-    WriteAccessor<float> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
+
+#define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                 \
+  template SNNStatus launch_tiled<DTYPE, DIR>(                           \
+      ReadAccessor<DTYPE const> input, ReadAccessor<DTYPE const> filter, \
+      WriteAccessor<DTYPE> output, Conv2DParams const& params,           \
+      cl::sycl::queue& queue)
+
+#define INSTANTIATE_FOR_TYPE(DTYPE)                      \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward);       \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop); \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop)
+
+INSTANTIATE_FOR_TYPE(float);
+
 #ifdef SNN_USE_DOUBLE
-template SNNStatus launch_tiled<double, conv_type::Forward>(
-    ReadAccessor<double const> input, ReadAccessor<double const> filter,
-    WriteAccessor<double> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_tiled<double, conv_type::InputBackprop>(
-    ReadAccessor<double const> input, ReadAccessor<double const> filter,
-    WriteAccessor<double> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_tiled<double, conv_type::FilterBackprop>(
-    ReadAccessor<double const> input, ReadAccessor<double const> filter,
-    WriteAccessor<double> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
+INSTANTIATE_FOR_TYPE(double);
 #endif  // SNN_USE_DOUBLE
+
 #ifdef SNN_USE_HALF
-template SNNStatus launch_tiled<cl::sycl::half, conv_type::Forward>(
-    ReadAccessor<cl::sycl::half const> input,
-    ReadAccessor<cl::sycl::half const> filter,
-    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_tiled<cl::sycl::half, conv_type::InputBackprop>(
-    ReadAccessor<cl::sycl::half const> input,
-    ReadAccessor<cl::sycl::half const> filter,
-    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_tiled<cl::sycl::half, conv_type::FilterBackprop>(
-    ReadAccessor<cl::sycl::half const> input,
-    ReadAccessor<cl::sycl::half const> filter,
-    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
+INSTANTIATE_FOR_TYPE(cl::sycl::half);
 #endif  // SNN_USE_HALF
+
+#undef INSTANTIATE_FOR_TYPE
+#undef INSTANTIATE_LAUNCHER
+
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
