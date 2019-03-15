@@ -32,6 +32,19 @@ neural network algorithms, written using the SYCL API.
     - All tests are bundled in this folder and are the mark of correctness
       when doing pre-merge tests.
 
+## Supported Operations
+
+SYCL-DNN is still in development, but at the moment we support the following
+operations:
+
+* 2D convolutions
+* 2D depthwise convolutions
+* 2D max & average pooling
+* Relu and tanh activations
+
+The convolution operations have several implementations, including tiled and
+Winograd kernels. The supported data format is NHWC.
+
 ## Requirements
 
 * SYCL-DNN is primarily tested on Ubuntu 16.04 LTS, with the corresponding
