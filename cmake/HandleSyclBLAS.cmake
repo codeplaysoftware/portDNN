@@ -39,8 +39,8 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
       "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
     )
   endif()
-  if(NOT TARGET SyclBLAS)
-    ExternalProject_Add(SyclBLAS
+  if(NOT TARGET SyclBLAS_download)
+    ExternalProject_Add(SyclBLAS_download
       GIT_REPOSITORY    ${SyclBLAS_REPO}
       GIT_TAG           ${SyclBLAS_GIT_TAG}
       SOURCE_DIR        ${SyclBLAS_SOURCE_DIR}
@@ -66,26 +66,9 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
   file(MAKE_DIRECTORY ${SyclBLAS_SRC_DIR})
   file(MAKE_DIRECTORY ${SyclBLAS_VPTR_INCLUDE_DIR})
 
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(SyclBLAS
-    FOUND_VAR SyclBLAS_FOUND
-    REQUIRED_VARS SyclBLAS_INCLUDE_DIR SyclBLAS_VPTR_INCLUDE_DIR
-  )
-
-  add_library(SyclBLAS::SyclBLAS INTERFACE IMPORTED)
-  add_dependencies(SyclBLAS::SyclBLAS SyclBLAS)
-  set_target_properties(SyclBLAS::SyclBLAS PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${SyclBLAS_INCLUDE_DIRS}"
-    INTERFACE_COMPUTECPP_FLAGS "-DSYCL_BLAS_ALWAYS_INLINE=1"
-  )
-
-  mark_as_advanced(SyclBLAS_FOUND
-                   SyclBLAS_INCLUDE_DIRS
-                   SyclBLAS_VPTR_INCLUDE_DIR
-                   SyclBLAS_INCLUDE_DIR
-                   SyclBLAS_REPO
-                   SyclBLAS_GIT_TAG
-  )
+  find_package(SyclBLAS)
+  add_dependencies(SyclBLAS::SyclBLAS SyclBLAS_download)
+  mark_as_advanced(SyclBLAS_REPO SyclBLAS_GIT_TAG)
 endif()
 
 if(NOT SyclBLAS_FOUND)

@@ -24,38 +24,52 @@
 #   SyclBLAS_INCLUDE_DIRS - the SyclBLAS include directory
 
 find_path(SyclBLAS_INCLUDE_DIR
-  NAMES interface/blas3_interface.hpp
+  NAMES sycl_blas.h
   PATH_SUFFIXES include
-  HINTS ${CMAKE_BINARY_DIR}/sycl-blas-src
+  HINTS ${SyclBLAS_DIR}
   DOC "The SyclBLAS include directory"
+)
+
+find_path(SyclBLAS_SRC_DIR
+  NAMES sycl_blas.hpp
+  PATH_SUFFIXES src
+  HINTS ${SyclBLAS_DIR}
+  DOC "The SyclBLAS source directory"
 )
 
 find_path(SyclBLAS_VPTR_INCLUDE_DIR
   NAMES vptr/virtual_ptr.hpp
   PATH_SUFFIXES external/computecpp-sdk/include
-  HINTS ${CMAKE_BINARY_DIR}/sycl-blas-src
+  HINTS ${SyclBLAS_DIR}
   DOC "The SyclBLAS virtual pointer include directory"
 )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SyclBLAS
   FOUND_VAR SyclBLAS_FOUND
-  REQUIRED_VARS SyclBLAS_INCLUDE_DIR SyclBLAS_VPTR_INCLUDE_DIR
+  REQUIRED_VARS SyclBLAS_INCLUDE_DIR
+                SyclBLAS_SRC_DIR
+                SyclBLAS_VPTR_INCLUDE_DIR
 )
 
 mark_as_advanced(SyclBLAS_FOUND
-                 SyclBLAS_INCLUDE_DIRS
+                 SyclBLAS_SRC_DIR
                  SyclBLAS_VPTR_INCLUDE_DIR
                  SyclBLAS_INCLUDE_DIR
 )
 
 if(SyclBLAS_FOUND)
-  set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
+  set(SyclBLAS_INCLUDE_DIRS
+    ${SyclBLAS_INCLUDE_DIR}
+    ${SyclBLAS_SRC_DIR}
+    ${SyclBLAS_VPTR_INCLUDE_DIR}
+  )
 endif()
 
 if(SyclBLAS_FOUND AND NOT TARGET SyclBLAS::SyclBLAS)
   add_library(SyclBLAS::SyclBLAS INTERFACE IMPORTED)
   set_target_properties(SyclBLAS::SyclBLAS PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${SyclBLAS_INCLUDE_DIRS}"
+    INTERFACE_COMPUTECPP_FLAGS "-DSYCL_BLAS_ALWAYS_INLINE=1"
   )
 endif()
