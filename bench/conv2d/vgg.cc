@@ -71,11 +71,12 @@
   VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, InputBackprop) \
   VGG_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, F, Algo, FilterBackprop)
 
-#define VGG_BENCHMARK(N, C, W, H, F)             \
-  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Direct) \
-  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Tiled)  \
-  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Im2col) \
-  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Winograd)
+#define VGG_BENCHMARK(N, C, W, H, F)               \
+  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Direct)   \
+  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Tiled)    \
+  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Im2col)   \
+  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, Winograd) \
+  VGG_BENCHMARK_WITH_ALGO(N, C, W, H, F, WinogradLarge)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define VGG_PARAMS(channels, width, height, features) \

@@ -65,6 +65,36 @@ class WinogradSelector final : public Selector {
   char const* name() const override { return "WinogradSelector"; }
 };
 
+/** A selector which returns the WinogradLarge algorithm if supported. */
+class WinogradLargeSelector final : public Selector {
+ public:
+  /**
+   * Selects the WinogradLarge algorithm when supported for the provided
+   * convolution parameters, otherwise NotSupported.
+   *
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::WinogradLarge when the Winograd algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select(Conv2DParams const& params) override {
+    if (params.stride_rows != 1 && params.stride_cols != 1) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 3 && params.window_cols == 3) {
+      return Algorithm::WinogradLarge;
+    }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * Gets the name of the selector.
+   * \return Returns a character string containing the descriptive name of the
+   * selector.
+   */
+  char const* name() const override { return "WinogradLargeSelector"; }
+};
+
 }  // namespace conv2d
 }  // namespace sycldnn
 

@@ -90,6 +90,8 @@
   SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
                                     Winograd)                             \
   SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
+                                    WinogradLarge)                        \
+  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
                                     Matmul)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32

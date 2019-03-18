@@ -111,6 +111,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
     case Algorithm::Winograd:
       return launch_winograd<T, ConvType>(input, filter, output, params,
                                           backend);
+    case Algorithm::WinogradLarge:
+      return launch_winograd_large<T, ConvType>(input, filter, output, params,
+                                                backend);
     case Algorithm::Matmul:
       return launch_matmul<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::NotSupported:

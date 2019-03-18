@@ -46,6 +46,20 @@ inline SNNStatus launch_winograd(
   return internal::winograd::launch<T, ConvType>(input, filter, output, params,
                                                  backend);
 }
+/**
+ * Special launcher to use larger tile sizes for Winograd.
+ *
+ * \copydoc launch_winograd
+ */
+template <typename T, typename ConvType, typename Backend>
+inline SNNStatus launch_winograd_large(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> filter,
+    typename Backend::template pointer_type<T> output,
+    Conv2DParams const& params, Backend& backend) {
+  return internal::winograd::launch_large<T, ConvType>(input, filter, output,
+                                                       params, backend);
+}
 
 }  // namespace conv2d
 }  // namespace sycldnn

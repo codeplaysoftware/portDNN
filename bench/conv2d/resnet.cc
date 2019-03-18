@@ -74,11 +74,12 @@
   RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, C, W, H, Flt, S, Ftr, Algo,          \
                                      FilterBackprop)
 
-#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)               \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Direct)   \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Tiled)    \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Im2col)   \
-  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Winograd) \
+#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)                    \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Direct)        \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Tiled)         \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Im2col)        \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Winograd)      \
+  RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, WinogradLarge) \
   RESNET_BENCHMARK_WITH_ALGO(N, C, W, H, Flt, S, Ftr, Matmul)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32

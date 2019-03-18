@@ -288,6 +288,38 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return SNNStatus{{}, StatusCode::InvalidAlgorithm};
 }
 
+/** \copydoc sycldnn::conv2d::internal::winograd::launch() */
+template <typename T, typename ConvType, typename Backend,
+          typename std::enable_if<
+              !std::is_same<ConvType, conv_type::FilterBackprop>::value,
+              int>::type = 0>
+SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
+                       typename Backend::template pointer_type<T const> filter,
+                       typename Backend::template pointer_type<T> output,
+                       Conv2DParams const& params, Backend& backend) {
+  if (params.window_rows == 3 && params.window_cols == 3) {
+    return launch_with_tiles<T, ConvType, 4, 4, 3, 3>(input, filter, output,
+                                                      params, backend);
+  }
+  return SNNStatus{{}, StatusCode::InvalidAlgorithm};
+}
+
+/** \copydoc sycldnn::conv2d::internal::winograd::launch() */
+template <typename T, typename ConvType, typename Backend,
+          typename std::enable_if<
+              std::is_same<ConvType, conv_type::FilterBackprop>::value,
+              int>::type = 0>
+SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
+                       typename Backend::template pointer_type<T const> filter,
+                       typename Backend::template pointer_type<T> output,
+                       Conv2DParams const& params, Backend& backend) {
+  if (params.window_rows == 3 && params.window_cols == 3) {
+    return launch_with_tiles<T, ConvType, 3, 3, 3, 3>(input, filter, output,
+                                                      params, backend);
+  }
+  return SNNStatus{{}, StatusCode::InvalidAlgorithm};
+}
+
 }  // namespace winograd
 }  // namespace internal
 }  // namespace conv2d

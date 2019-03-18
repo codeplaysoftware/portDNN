@@ -38,6 +38,8 @@ enum class Algorithm {
   Im2col,
   /** Winograd implementation with temporary buffer. */
   Winograd,
+  /** Winograd implementation with larger tile sizes. */
+  WinogradLarge,
   /** Use a matmul for 1x1 NHWC convolutions. */
   Matmul,
 };
