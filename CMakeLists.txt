@@ -38,7 +38,7 @@ option(SNN_BUILD_LARGE_BATCH_BENCHMARKS
 option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)
 option(SNN_BUILD_DOCUMENTATION "Whether or not to build documentation" ON)
 
-# Configuration options controlling the installation of test and benchmark 
+# Configuration options controlling the installation of test and benchmark
 # executables.
 option(SNN_INSTALL_TESTS
   "Whether or not to include unit tests when installing" OFF)
@@ -73,6 +73,7 @@ option(SNN_BENCH_EIGEN "Benchmark implementation using Eigen" ON)
 
 # SYCLBLAS configuration options.
 option(SNN_BENCH_SYCLBLAS "Benchmark implementation using SYCLBLAS" OFF)
+option(SNN_BENCH_MKLDNN "Whether or not to build MKL-DNN benchmarks" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_INDEX_TYPES int32_t)

@@ -13,19 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(ARM_COMPUTE)
 #include "arm_fixture.h"
-#include "vgg_param_set.h"
-
+// For ARM Compute Library, need to provide the executor to specify whether
+// running on NEON or OpenCL.
 #ifdef ACL_NEON
 #define EXEC sycldnn::bench::ACLNeonExecutor
 #else
 #define EXEC sycldnn::bench::ACLOpenCLExecutor
+#endif  // ACL_NEON
+
+#elif defined(MKL_DNN)
+#include "mkldnn_conv2d_executor.h"
+// For MKL-DNN, there is currently only one Executor which uses the CPU, so for
+// now pass in a dummy value.
+struct Executor {};
+#define EXEC Executor
+
+#else
+#error Cannot compile without either ARM_COMPUTE or MKL_DNN defined
 #endif
 
-#define VGG_BENCHMARK(N, C, W, H, F)                                  \
-  CONVOLUTION_BENCHMARK(                                              \
-      "VGG", ARM_Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
-      ParameterSet<N, C, W, H, F>, EXEC)
+#include "vgg_param_set.h"
+
+#define VGG_BENCHMARK(N, C, W, H, F)                                \
+  CONVOLUTION_BENCHMARK("VGG", Forward_##N##_##C##_##W##_##H##_##F, \
+                        ParameterSet<N, C, W, H, F>, EXEC)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define VGG_PARAMS(channels, width, height, features) \
