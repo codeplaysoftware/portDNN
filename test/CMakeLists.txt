@@ -135,6 +135,12 @@ snn_test(
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:selector_conv2d>
 )
+snn_test(
+  TARGET
+    conv2d_workspace_size
+  SOURCES
+    conv2d/workspace_size.cc
+)
 if(SNN_TEST_EIGEN)
   list(APPEND _matmul_backends EigenBackendSNNMatmul)
   list(APPEND _matmul_providers Eigen::Eigen)

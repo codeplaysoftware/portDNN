@@ -43,6 +43,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
                                                          Index const div) {
   static_assert(std::is_integral<Index>::value,
                 "round_ratio_up_above_zero is only valid for integral types");
+  SNN_ASSERT(div != 0, "Cannot divide by zero");
   return num < 0 ? 0 : (num % div != 0 ? num / div + 1 : num / div);
 }
 
@@ -55,6 +56,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
                                                          Index const div) {
   static_assert(std::is_integral<Index>::value,
                 "round_ratio_up_above_zero is only valid for integral types");
+  SNN_ASSERT(div != 0, "Cannot divide by zero");
   return num % div != 0 ? num / div + 1 : num / div;
 }
 
@@ -69,6 +71,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up(Index const num,
                                               Index const div) {
   static_assert(std::is_integral<Index>::value,
                 "round_ratio_up is only valid for integral types");
+  SNN_ASSERT(div != 0, "Cannot divide by zero");
   Index quotient = num / div;
   Index additive = num % div == 0 ? 0 : 1;
   return num < 0 ? quotient : quotient + additive;

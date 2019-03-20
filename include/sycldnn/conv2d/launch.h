@@ -53,6 +53,10 @@ namespace conv2d {
  *                 for a specific target platform or problem size.
  * \param backend The backend implementation, used to provide optimized matrix
  *                multiplies and to map between pointer represntations.
+ * \param workspace Optional pointer to a workspace buffer for use whenever
+ *                  temporary memory is required.
+ * \param workspace_size The number of elements available in the workspace
+ *                       buffer.
  * \return Returns an SNNStatus containing the SYCL event tied to the kernel
  * launches and a StatusCode enum showing if the launch was OK or whether it
  * encountered some problem.
@@ -62,7 +66,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T const> filter,
                  typename Backend::template pointer_type<T> output,
                  Conv2DParams const& params, Selector& selector,
-                 Backend& backend) {
+                 Backend& backend,
+                 typename Backend::template pointer_type<T> workspace = {},
+                 size_t workspace_size = 0) {
   SNN_VALIDATE_PARAM(params.batch > 0,
                      "The number of batches must be positive.");
   SNN_VALIDATE_PARAM(params.channels > 0,
@@ -107,13 +113,14 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
     case Algorithm::Tiled:
       return launch_tiled<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::Im2col:
-      return launch_im2col<T, ConvType>(input, filter, output, params, backend);
+      return launch_im2col<T, ConvType>(input, filter, output, workspace,
+                                        params, workspace_size, backend);
     case Algorithm::Winograd:
-      return launch_winograd<T, ConvType>(input, filter, output, params,
-                                          backend);
+      return launch_winograd<T, ConvType>(input, filter, output, workspace,
+                                          params, workspace_size, backend);
     case Algorithm::WinogradLarge:
-      return launch_winograd_large<T, ConvType>(input, filter, output, params,
-                                                backend);
+      return launch_winograd_large<T, ConvType>(
+          input, filter, output, workspace, params, workspace_size, backend);
     case Algorithm::Matmul:
       return launch_matmul<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::NotSupported:

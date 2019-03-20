@@ -34,6 +34,23 @@ if(SNN_TEST_EIGEN)
     PUBLIC_LIBRARIES
       ${_matmul_providers}
   )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      workspace_comparative
+    SIZE
+      moderate
+    SOURCES
+      workspace_comparative_test.cc
+    OBJECTS
+      $<TARGET_OBJECTS:direct_conv2d>
+      $<TARGET_OBJECTS:tiled_conv2d>
+      $<TARGET_OBJECTS:im2col_conv2d>
+      $<TARGET_OBJECTS:winograd_conv2d>
+      $<TARGET_OBJECTS:matmul>
+    PUBLIC_LIBRARIES
+      ${_matmul_providers}
+  )
   set(_windows 1 1 3 3 5 5 7 7 11 11)
   set(_strides 1 2 1 2 1 2 1 4 1 4)
   list(LENGTH _windows _list_len_raw)

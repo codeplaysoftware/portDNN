@@ -19,6 +19,7 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
 #include "sycldnn/helpers/scope_exit.h"
 
@@ -75,9 +76,18 @@ struct SNNConv2DExecutor : public BaseExecutor {
       benchmark.deallocate_ptr(inp_gpu);
     };
 
+    auto workspace_size_struct =
+        sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
+    auto workspace_size = workspace_size_struct.recommended_size;
+    std::vector<float> workspace_vals(workspace_size);
+    auto workspace =
+        benchmark.get_initialised_device_memory(workspace_size, workspace_vals);
+    SNN_ON_SCOPE_EXIT { benchmark.deallocate_ptr(workspace); };
+
     {  // Ensure the kernel is built before benchmarking
       auto status = sycldnn::conv2d::launch<float, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, backend);
+          inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace,
+          workspace_size);
 
       if (sycldnn::StatusCode::OK != status.status) {
         state.SkipWithError(
@@ -100,7 +110,8 @@ struct SNNConv2DExecutor : public BaseExecutor {
     for (auto _ : state) {
       this->start_timing();
       auto status = sycldnn::conv2d::launch<float, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, backend);
+          inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace,
+          workspace_size);
 
       try {
         wait_for_event(status.event, backend.get_queue());

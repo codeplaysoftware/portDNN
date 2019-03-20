@@ -87,12 +87,12 @@ struct Conv2DParams {
    * w[0] * x[0] + w[1] * x[1] + w[2] * x[2]. By contrast, a dilated convolution
    * might compute: w[0] * x[0] + w[1] * x[2] + w[2] * x[4].
    */
-  Index dilation_rows;
+  Index dilation_rows = 1;
 
   /**
    * Vertical stride between elements sampled in the input image.
    */
-  Index dilation_cols;
+  Index dilation_cols = 1;
 
   /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;

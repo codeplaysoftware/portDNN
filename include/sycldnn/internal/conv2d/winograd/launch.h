@@ -207,7 +207,7 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> pointers,
  */
 template <typename T, typename ConvType, int M, int N, int R, int S,
           typename Backend>
-SNNStatus launch_with_tiles(
+SNNStatus allocate_and_launch_with_tiles(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
@@ -225,6 +225,89 @@ SNNStatus launch_with_tiles(
   return launch_with_transforms<T, M, N, R, S, ConvType>(
       allocated_pointers.to_full_pointer_set(), kernel_params, tile_info,
       batch_info, backend);
+}
+
+/**
+ * Convert the user provided pointers into internal pointers, allocate any
+ * required temporary buffers, compute the Winograd tile sizes and then launch
+ * the convolution with launch_with_transforms().
+ *
+ * \param input          User provided input pointer
+ * \param filter         User provided filter pointer
+ * \param output         User provided output pointer
+ * \param workspace      Pointer to user provided workspace buffer
+ * \param params         User provided convolution parameters
+ * \param workspace_size Number of elements available in the workspace buffer
+ * \param backend        User provided backend to handle allocations and matrix
+ *                       multiplies
+ * \return An SNNStatus object containing a SYCL event corresponding to the last
+ * kernel launched.
+ */
+template <typename T, typename ConvType, int M, int N, int R, int S,
+          typename Backend>
+SNNStatus split_workspace_and_launch_with_tiles(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> filter,
+    typename Backend::template pointer_type<T> output,
+    typename Backend::template pointer_type<T> workspace,
+    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+  using InternalPointer =
+      ::sycldnn::internal::helpers::InternalPointer<T, Backend>;
+  constexpr int A = M + R - 1;
+  constexpr int B = N + S - 1;
+  auto kernel_params = get_params<ConvType>(params);
+  InternalPointerSet<T, Backend> input_pointers{input, filter, output, backend};
+  auto const tile_info = get_tile_info<ConvType, M, N, R, S>(kernel_params);
+
+  size_t const filter_transform_size =
+      A * B * kernel_params.channels * kernel_params.features;
+  size_t const input_transform_size =
+      A * B * tile_info.number * kernel_params.channels;
+  size_t const inter_transform_size =
+      A * B * tile_info.number * kernel_params.features;
+  size_t const workspace_minus_filter = workspace_size - filter_transform_size;
+
+  size_t const minibatch_size =
+      workspace_minus_filter / (input_transform_size + inter_transform_size);
+  size_t const mb_input_transform_size = input_transform_size * minibatch_size;
+
+  InternalPointer filter_transform_ptr{workspace, backend};
+  InternalPointer input_transform_ptr{workspace + filter_transform_size,
+                                      backend};
+  InternalPointer inter_transform_ptr{
+      workspace + filter_transform_size + mb_input_transform_size, backend};
+
+  auto all_pointers = FullPointerSet<T, Backend>{
+      input_pointers.input.get(),  input_pointers.filter.get(),
+      input_pointers.output.get(), input_transform_ptr.get(),
+      filter_transform_ptr.get(),  inter_transform_ptr.get()};
+
+  auto batch_info = get_batch_info(minibatch_size, params.batch);
+  return launch_with_transforms<T, M, N, R, S, ConvType>(
+      all_pointers, kernel_params, tile_info, batch_info, backend);
+}
+
+/**
+ * Check whether the user provided a workspace buffer. If so then split up the
+ * workspace to use as temporary transform buffers, otherwise allocate temporary
+ * buffers to use in the computation.
+ */
+template <typename T, typename ConvType, int M, int N, int R, int S,
+          typename Backend>
+SNNStatus launch_with_tiles(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> filter,
+    typename Backend::template pointer_type<T> output,
+    typename Backend::template pointer_type<T> workspace,
+    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+  if (workspace_size == 0) {
+    return allocate_and_launch_with_tiles<T, ConvType, M, N, R, S, Backend>(
+        input, filter, output, params, backend);
+  } else {
+    return split_workspace_and_launch_with_tiles<T, ConvType, M, N, R, S,
+                                                 Backend>(
+        input, filter, output, workspace, params, workspace_size, backend);
+  }
 }
 
 /**
@@ -248,18 +331,20 @@ template <typename T, typename ConvType, typename Backend,
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T const> filter,
                  typename Backend::template pointer_type<T> output,
-                 Conv2DParams const& params, Backend& backend) {
+                 typename Backend::template pointer_type<T> workspace,
+                 Conv2DParams const& params, size_t workspace_size,
+                 Backend& backend) {
   if (params.window_rows == 3 && params.window_cols == 3) {
-    return launch_with_tiles<T, ConvType, 2, 2, 3, 3>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 2, 2, 3, 3>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   if (params.window_rows == 3 && params.window_cols == 1) {
-    return launch_with_tiles<T, ConvType, 2, 1, 3, 1>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 2, 1, 3, 1>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   if (params.window_rows == 1 && params.window_cols == 3) {
-    return launch_with_tiles<T, ConvType, 1, 2, 1, 3>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 1, 2, 1, 3>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   return SNNStatus{{}, StatusCode::InvalidAlgorithm};
 }
@@ -272,18 +357,20 @@ template <typename T, typename ConvType, typename Backend,
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T const> filter,
                  typename Backend::template pointer_type<T> output,
-                 Conv2DParams const& params, Backend& backend) {
+                 typename Backend::template pointer_type<T> workspace,
+                 Conv2DParams const& params, size_t workspace_size,
+                 Backend& backend) {
   if (params.window_rows == 3 && params.window_cols == 3) {
-    return launch_with_tiles<T, ConvType, 3, 3, 2, 2>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 3, 3, 2, 2>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   if (params.window_rows == 3 && params.window_cols == 1) {
-    return launch_with_tiles<T, ConvType, 3, 1, 2, 1>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 3, 1, 2, 1>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   if (params.window_rows == 1 && params.window_cols == 3) {
-    return launch_with_tiles<T, ConvType, 1, 3, 1, 2>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 1, 3, 1, 2>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   return SNNStatus{{}, StatusCode::InvalidAlgorithm};
 }
@@ -296,10 +383,12 @@ template <typename T, typename ConvType, typename Backend,
 SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
                        typename Backend::template pointer_type<T const> filter,
                        typename Backend::template pointer_type<T> output,
-                       Conv2DParams const& params, Backend& backend) {
+                       typename Backend::template pointer_type<T> workspace,
+                       Conv2DParams const& params, size_t workspace_size,
+                       Backend& backend) {
   if (params.window_rows == 3 && params.window_cols == 3) {
-    return launch_with_tiles<T, ConvType, 4, 4, 3, 3>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 4, 4, 3, 3>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   return SNNStatus{{}, StatusCode::InvalidAlgorithm};
 }
@@ -312,10 +401,12 @@ template <typename T, typename ConvType, typename Backend,
 SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
                        typename Backend::template pointer_type<T const> filter,
                        typename Backend::template pointer_type<T> output,
-                       Conv2DParams const& params, Backend& backend) {
+                       typename Backend::template pointer_type<T> workspace,
+                       Conv2DParams const& params, size_t workspace_size,
+                       Backend& backend) {
   if (params.window_rows == 3 && params.window_cols == 3) {
-    return launch_with_tiles<T, ConvType, 3, 3, 3, 3>(input, filter, output,
-                                                      params, backend);
+    return launch_with_tiles<T, ConvType, 3, 3, 3, 3>(
+        input, filter, output, workspace, params, workspace_size, backend);
   }
   return SNNStatus{{}, StatusCode::InvalidAlgorithm};
 }

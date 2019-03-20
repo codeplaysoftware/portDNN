@@ -32,6 +32,7 @@
 #include "sycldnn/internal/conv2d/im2col/launch_input_transform.h"
 #include "sycldnn/internal/conv2d/im2col/offsets.h"
 #include "sycldnn/internal/conv2d/im2col/tile_info.h"
+#include "sycldnn/internal/conv2d/im2col/workspace_pointer_set.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -136,23 +137,17 @@ static SNNStatus launch_im2col_for_all_minibatches(
   return SNNStatus{event, StatusCode::OK};
 }
 
-}  // namespace im2col
-
 /**
- * The internal im2col convolution launcher.
- *
- * Splits the input tensor into minibatches to ensure that the temporary
- * transform buffer can be safely allocated.
- *
- * Will then use im2col to compute the convolution for each minibatch, by
- * filling the transform buffer, then computing a matrix multiply with the
- * filter to give the output.
+ * Split the input tensor into minibatches to ensure that the temporary
+ * transform buffer can be safely allocated and create SYCL buffers using the
+ * Backend. Then use im2col to compute the convolution for each minibatch.
  */
 template <typename T, typename ConvType, typename Backend>
-SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
-                        typename Backend::template pointer_type<T const> filter,
-                        typename Backend::template pointer_type<T> output,
-                        Conv2DParams const& params, Backend& backend) {
+SNNStatus allocate_and_launch_im2col(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> filter,
+    typename Backend::template pointer_type<T> output,
+    Conv2DParams const& params, Backend& backend) {
   InternalPointerSet<T, Backend> pointers{input, filter, output, backend};
 
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
@@ -166,6 +161,58 @@ SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
   return im2col::launch_im2col_for_all_minibatches(
       all_pointers.to_full_pointer_set(), tile_info, batch_info, params,
       backend);
+}
+
+/**
+ * Use the provided workspace for the transform data. As the user may provide a
+ * smaller workspace than is ideal, check the maximum size of the minibatch to
+ * use, and split up the workspace as required. Then use im2col to compute the
+ * convolution for each minibatch.
+ */
+template <typename T, typename ConvType, typename Backend>
+SNNStatus launch_im2col_with_workspace(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> filter,
+    typename Backend::template pointer_type<T> output,
+    typename Backend::template pointer_type<T> workspace,
+    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+  InternalPointerSet<T, Backend> pointers{input, filter, output, backend};
+
+  auto const tile_info = im2col::get_tile_info<ConvType>(params);
+  size_t const size_per_image = tile_info.number * tile_info.size;
+  im2col::WorkspacePointerSet<T, Backend, ConvType> all_pointers{
+      pointers, workspace, size_per_image, params, workspace_size, backend};
+
+  auto const batch_info =
+      get_batch_info(all_pointers.minibatch_size, params.batch);
+
+  return im2col::launch_im2col_for_all_minibatches(
+      all_pointers.to_full_pointer_set(), tile_info, batch_info, params,
+      backend);
+}
+
+}  // namespace im2col
+
+/**
+ * The internal im2col convolution launcher.
+ *
+ * Use im2col to compute a convolution, by transforming the input data then
+ * computing a matrix multiply with the filter to give the output.
+ */
+template <typename T, typename ConvType, typename Backend>
+SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
+                        typename Backend::template pointer_type<T const> filter,
+                        typename Backend::template pointer_type<T> output,
+                        typename Backend::template pointer_type<T> workspace,
+                        Conv2DParams const& params, size_t workspace_size,
+                        Backend& backend) {
+  if (workspace_size == 0) {
+    return im2col::allocate_and_launch_im2col<T, ConvType>(
+        input, filter, output, params, backend);
+  } else {
+    return im2col::launch_im2col_with_workspace<T, ConvType>(
+        input, filter, output, workspace, params, workspace_size, backend);
+  }
 }
 
 }  // namespace internal
