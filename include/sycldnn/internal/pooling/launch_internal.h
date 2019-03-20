@@ -28,6 +28,17 @@ namespace pooling {
 namespace internal {
 
 template <typename T, template <typename> class PoolType>
+struct IsAverage {
+  static constexpr bool value = std::is_same<PoolType<T>, Average<T>>::value;
+};
+
+template <typename T, template <typename> class PoolType, typename Direction>
+struct IsAverageGradient {
+  static constexpr bool value = IsAverage<T, PoolType>::value &&
+                                std::is_same<Direction, Backpropagate>::value;
+};
+
+template <typename T, template <typename> class PoolType>
 struct IsMax {
   static constexpr bool value = std::is_same<PoolType<T>, Max<T>>::value ||
                                 std::is_same<PoolType<T>, MaxWithNan<T>>::value;

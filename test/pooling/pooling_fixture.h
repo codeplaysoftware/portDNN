@@ -33,6 +33,7 @@
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
 
+#include <string>
 #include <vector>
 
 template <typename DType, typename Backend, template <typename T> class Op,
@@ -68,9 +69,27 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
     provider.copy_device_data_to_host(out_size, out_gpu, output);
 
+    auto platform = backend.get_queue().get_device().get_platform();
+    auto plat_profile =
+        platform.template get_info<cl::sycl::info::platform::profile>();
+    size_t tolerance = 0u;
+
+    // Taking the average pooling gradient can result in significantly higher
+    // error in the results than for other pooling ops. Allow for a greater
+    // margin of error when doing average gradient.
+    bool is_avg_grad =
+        sycldnn::pooling::internal::IsAverageGradient<DataType, Op,
+                                                      Direction>::value;
+
+    if (plat_profile.find("FULL_PROFILE") != std::string::npos) {
+      tolerance = is_avg_grad ? 8u : 4u;
+    } else if (plat_profile.find("EMBEDDED_PROFILE") != std::string::npos) {
+      tolerance = is_avg_grad ? 48u : 4u;
+    }
+
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output[i], 10u);
+      SNN_ALMOST_EQUAL(exp[i], output[i], tolerance);
     }
   }
 };
@@ -138,7 +157,7 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output_backprop[i], 10u);
+      SNN_ALMOST_EQUAL(exp[i], output_backprop[i], 0u);
     }
   }
 };
