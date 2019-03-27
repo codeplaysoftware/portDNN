@@ -301,6 +301,7 @@ if(SNN_ARM_COMPUTE_ENABLED)
       ARMCompute::Core
     PUBLIC_COMPILE_DEFINITIONS
       ARM_COMPUTE
+      ACL_NEON
       ${_BENCHMARK_DEFINITIONS}
   )
   snn_bench(
