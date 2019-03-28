@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "param_set.h"
 #include "snn_fixture.h"
-#include "ssd_mobilenet_param_set.h"
 
 #ifdef SNN_BENCH_EIGEN
 #include "src/backend/eigen_backend_provider.h"
@@ -35,103 +35,88 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
-#define SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(                \
-    N, Win, Str, Row, Col, Ch, Feat, Pad, Algo, Dir, Back)                 \
-  CONVOLUTION_BENCHMARK(                                                   \
-      "SSD + MobileNet",                                                   \
-      Algo##_##Dir##_##N##_##Win##_##Row##_##Col##_##Ch##_##Feat##_##Back, \
-      sycldnn::backend::Back,                                              \
-      ParameterSet<N, Win, Str, Row, Col, Ch, Feat, Pad>,                  \
+#define SSD_MOBILENET_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, \
+                                                 Algo, Dir, Back)              \
+  CONVOLUTION_BENCHMARK(                                                       \
+      "SSD + MobileNet",                                                       \
+      Algo##_##Dir##_##N##_##WIN##_##H##_##W##_##C##_##F##_##Back,             \
+      sycldnn::backend::Back, ParameterSet<N, WIN, STR, H, W, C, F, MOD>,      \
       sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
 
 #ifdef SNN_BENCH_EIGEN
-#define SSD_MOBILENET_BENCHMARK_WITH_EIGEN(N, Win, Str, Row, Col, Ch, Feat, \
-                                           Pad, Algo, Dir)                  \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(                       \
-      N, Win, Str, Row, Col, Ch, Feat, Pad, Algo, Dir, EigenBackend)
+#define SSD_MOBILENET_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)      \
+  SSD_MOBILENET_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, \
+                                           Dir, EigenBackend)
 #else
-#define SSD_MOBILENET_BENCHMARK_WITH_EIGEN(N, Win, Str, Row, Col, Ch, Feat, \
-                                           Pad, Algo, Dir)
+#define SSD_MOBILENET_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 #endif
 
 #ifdef SNN_BENCH_SYCLBLAS
-#define SSD_MOBILENET_BENCHMARK_WITH_SYCLBLAS(N, Win, Str, Row, Col, Ch, Feat, \
-                                              Pad, Algo, Dir)                  \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(                          \
-      N, Win, Str, Row, Col, Ch, Feat, Pad, Algo, Dir, SyclBLASBackend)
+#define SSD_MOBILENET_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)   \
+  SSD_MOBILENET_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, \
+                                           Dir, SyclBLASBackend)
 #else
-#define SSD_MOBILENET_BENCHMARK_WITH_SYCLBLAS(N, Win, Str, Row, Col, Ch, Feat, \
-                                              Pad, Algo, Dir)
+#define SSD_MOBILENET_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 #endif
 
-#define SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch,  \
-                                                  Feat, Pad, Algo, Dir)       \
-  SSD_MOBILENET_BENCHMARK_WITH_EIGEN(N, Win, Str, Row, Col, Ch, Feat, Pad,    \
-                                     Algo, Dir)                               \
-  SSD_MOBILENET_BENCHMARK_WITH_SYCLBLAS(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                        Algo, Dir)
+#define SSD_MOBILENET_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo, \
+                                        Dir)                                \
+  SSD_MOBILENET_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)         \
+  SSD_MOBILENET_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 
-#define SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat,   \
-                                          Pad, Algo)                         \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, \
-                                            Pad, Algo, Forward)              \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, \
-                                            Pad, Algo, InputBackprop)        \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO_AND_DIR(N, Win, Str, Row, Col, Ch, Feat, \
-                                            Pad, Algo, FilterBackprop)
+#define SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Algo)            \
+  SSD_MOBILENET_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo, Forward) \
+  SSD_MOBILENET_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo,          \
+                                  InputBackprop)                               \
+  SSD_MOBILENET_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo,          \
+                                  FilterBackprop)
 
-#define SSD_MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch, Feat, Pad)     \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                    Direct)                               \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                    Tiled)                                \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                    Im2col)                               \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                    Winograd)                             \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                    WinogradLarge)                        \
-  SSD_MOBILENET_BENCHMARK_WITH_ALGO(N, Win, Str, Row, Col, Ch, Feat, Pad, \
-                                    Matmul)
+#define SSD_MOBILENET_BENCHMARK(N, WIN, STR, H, W, C, F, MOD)          \
+  SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Direct)        \
+  SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Tiled)         \
+  SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Im2col)        \
+  SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Winograd)      \
+  SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, WinogradLarge) \
+  SSD_MOBILENET_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Matmul)
 
-// Standard benchmark sizes (batch size: 1, 4, optionally 32
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(1, Win, Str, Row, Col, Ch, Feat, Pad);
+// Standard benchmark sizes (batch size: 1, 4, optionally 32)
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(1, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(4, Win, Str, Row, Col, Ch, Feat, Pad);
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(4, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(32, Win, Str, Row, Col, Ch, Feat, Pad);
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(32, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(2, Win, Str, Row, Col, Ch, Feat, Pad);
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(2, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(8, Win, Str, Row, Col, Ch, Feat, Pad);
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(8, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(16, Win, Str, Row, Col, Ch, Feat, Pad);
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(16, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 
-#define SSD_MOBILENET_PARAMS(Win, Str, Row, Col, Ch, Feat, Pad) \
-  SSD_MOBILENET_BENCHMARK(64, Win, Str, Row, Col, Ch, Feat, Pad);
+#define SSD_MOBILENET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  SSD_MOBILENET_BENCHMARK(64, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/ssd_mobilenet_params.def"
 #undef SSD_MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS

@@ -34,51 +34,51 @@ struct Executor {};
 #error Cannot compile without either ARM_COMPUTE or MKL_DNN defined
 #endif
 
-#include "resnet_param_set.h"
+#include "param_set.h"
 
-#define RESNET_BENCHMARK(N, C, W, H, Flt, S, Ftr)                            \
+#define RESNET_BENCHMARK(N, WIN, STR, H, W, C, F, MOD)                       \
   CONVOLUTION_BENCHMARK("ResNet",                                            \
-                        Forward_##N##_##C##_##W##_##H##_##Flt##_##S##_##Ftr, \
-                        ParameterSet<N, C, W, H, Flt, S, Ftr>, EXEC)
+                        Forward_##N##_##C##_##W##_##H##_##WIN##_##STR##_##F, \
+                        ParameterSet<N, WIN, STR, W, H, C, F, MOD>, EXEC)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(1, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(1, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(4, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(4, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(32, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(32, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(2, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(2, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(8, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(8, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(16, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(16, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
-#define RESNET_PARAMS(channels, width, height, filter, stride, features) \
-  RESNET_BENCHMARK(64, channels, width, height, filter, stride, features);
+#define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK(64, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS

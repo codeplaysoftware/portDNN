@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_CONV2D_RESNET_PARAM_SET_H_
-#define SYCLDNN_BENCH_CONV2D_RESNET_PARAM_SET_H_
+#ifndef SYCLDNN_BENCH_CONV2D_PARAM_SET_H_
+#define SYCLDNN_BENCH_CONV2D_PARAM_SET_H_
 
 #include "sycldnn/padding_mode.h"
 
@@ -24,33 +24,34 @@
 
 /**
  * Function object which returns a conv2d parameter struct required for the
- * Resnet model.
+ * MobileNet model.
  *
- * \tparam N Number of batches
- * \tparam C Number of channels
- * \tparam W Width of the input
- * \tparam H Height of the input
- * \tparam Flt Size of the filter
- * \tparam S Size of the stride
- * \tparam F Number of features
+ * \tparam Batches Number of batches
+ * \tparam Window Size of convolution window
+ * \tparam Stride Stride of the convolution
+ * \tparam Rows Number of rows in the input
+ * \tparam Cols Number of columns in the input
+ * \tparam Channels Number of channels
+ * \tparam Features Number of features
  */
-template <int N, int C, int W, int H, int Flt, int S, int Ftr>
+template <int Batches, int Window, int Stride, int Rows, int Cols, int Channels,
+          int Features, sycldnn::PaddingMode Mode>
 struct ParameterSet {
   sycldnn::conv2d::Conv2DParams operator()() {
     sycldnn::conv2d::Conv2DParams params;
-    params.channels = C;
-    params.features = Ftr;
-    params.batch = N;
-    params.in_rows = H;
-    params.in_cols = W;
-    params.window_rows = Flt;
-    params.window_cols = Flt;
-    params.stride_rows = S;
-    params.stride_cols = S;
+    params.channels = Channels;
+    params.features = Features;
+    params.batch = Batches;
+    params.in_rows = Rows;
+    params.in_cols = Cols;
+    params.window_rows = Window;
+    params.window_cols = Window;
+    params.stride_rows = Stride;
+    params.stride_cols = Stride;
     params.dilation_rows = 1;
     params.dilation_cols = 1;
-    return sycldnn::helpers::add_padding_to(params, sycldnn::PaddingMode::SAME);
+    return sycldnn::helpers::add_padding_to(params, Mode);
   }
 };
 
-#endif  // SYCLDNN_BENCH_CONV2D_RESNET_PARAM_SET_H_
+#endif  // SYCLDNN_BENCH_CONV2D_PARAM_SET_H_

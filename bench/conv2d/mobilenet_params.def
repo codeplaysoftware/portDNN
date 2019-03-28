@@ -23,7 +23,7 @@
  *
  * The ordering of the arguments is:
  * \code
- *   MOBILENET_PARAMS(Window, Stride, Rows, Cols, Channels, Features)
+ *   MOBILENET_PARAMS(Window, Stride, Rows, Cols, Channels, Features, Padding)
  * \endcode
  * The padding is the Tensorflow 'SAME' padding, which is 0 for 1x1
  * convolutions and 1 for 3x3 convolutions. The output size is computed as
@@ -46,13 +46,13 @@
 #error This file expects the MOBILENET_PARAMS macro to be defined.
 #endif
 
-MOBILENET_PARAMS(3, 2, 224, 224,    3,   32)
-MOBILENET_PARAMS(1, 1, 112, 112,   32,   64)
-MOBILENET_PARAMS(1, 1,  56,  56,   64,  128)
-MOBILENET_PARAMS(1, 1,  56,  56,  128,  128)
-MOBILENET_PARAMS(1, 1,  28,  28,  128,  256)
-MOBILENET_PARAMS(1, 1,  28,  28,  256,  256)
-MOBILENET_PARAMS(1, 1,  14,  14,  256,  512)
-MOBILENET_PARAMS(1, 1,  14,  14,  512,  512)
-MOBILENET_PARAMS(1, 1,   7,   7,  512, 1024)
-MOBILENET_PARAMS(1, 1,   7,   7, 1024, 1024)
+MOBILENET_PARAMS(3, 2, 224, 224,    3,   32, sycldnn::PaddingMode::VALID)
+MOBILENET_PARAMS(1, 1, 112, 112,   32,   64, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,  56,  56,   64,  128, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,  56,  56,  128,  128, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,  28,  28,  128,  256, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,  28,  28,  256,  256, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,  14,  14,  256,  512, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,  14,  14,  512,  512, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,   7,   7,  512, 1024, sycldnn::PaddingMode::SAME)
+MOBILENET_PARAMS(1, 1,   7,   7, 1024, 1024, sycldnn::PaddingMode::SAME)

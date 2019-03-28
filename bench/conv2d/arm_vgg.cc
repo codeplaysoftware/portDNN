@@ -34,50 +34,50 @@ struct Executor {};
 #error Cannot compile without either ARM_COMPUTE or MKL_DNN defined
 #endif
 
-#include "vgg_param_set.h"
+#include "param_set.h"
 
-#define VGG_BENCHMARK(N, C, W, H, F)                                \
+#define VGG_BENCHMARK(N, WIN, STR, H, W, C, F, MOD)                 \
   CONVOLUTION_BENCHMARK("VGG", Forward_##N##_##C##_##W##_##H##_##F, \
-                        ParameterSet<N, C, W, H, F>, EXEC)
+                        ParameterSet<N, WIN, STR, H, W, C, F, MOD>, EXEC)
 
-// Standard benchmark sizes (batch size: 1, 4, optionally 32
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(1, channels, width, height, features);
+// Standard benchmark sizes (batch size: 1, 4, optionally 32)
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(1, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(4, channels, width, height, features);
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(4, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(32, channels, width, height, features);
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(32, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(2, channels, width, height, features);
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(2, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(8, channels, width, height, features);
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(8, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(16, channels, width, height, features);
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(16, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 
-#define VGG_PARAMS(channels, width, height, features) \
-  VGG_BENCHMARK(64, channels, width, height, features);
+#define VGG_PARAMS(WIN, STR, H, W, C, F, MOD) \
+  VGG_BENCHMARK(64, WIN, STR, H, W, C, F, MOD);
 #include "bench/conv2d/vgg_params.def"
 #undef VGG_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS

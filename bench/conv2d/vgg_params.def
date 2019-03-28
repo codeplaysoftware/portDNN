@@ -23,32 +23,32 @@
  *
  * The ordering of the arguments is:
  * \code
- *   VGG_PARAMS(Channels, Width, Height, Features)
+ *   VGG_PARAMS(Filter, Stride, Height, Width, Channels, Features, Padding)
  * \endcode
  * The convolutions filters are all 3x3, and the strides are all 1.
  *
- * Channels | Width | Height | Filter | Stride | Features
- * ---------|-------|--------|--------|--------|---------
- *        3 |   224 |    224 |      3 |      1 |       64
- *       64 |   224 |    224 |      3 |      1 |       64
- *       64 |   112 |    112 |      3 |      1 |      128
- *      128 |   112 |    112 |      3 |      1 |      128
- *      128 |    56 |     56 |      3 |      1 |      256
- *      256 |    56 |     56 |      3 |      1 |      256
- *      256 |    28 |     28 |      3 |      1 |      512
- *      512 |    28 |     28 |      3 |      1 |      512
- *      512 |    14 |     14 |      3 |      1 |      512
+ *  Filter | Stride | Height | Width | Channels | Features
+ * --------|--------|--------|-------|----------|---------
+ *       3 |      1 |    224 |   224 |        3 |       64
+ *       3 |      1 |    224 |   224 |       64 |       64
+ *       3 |      1 |    112 |   112 |       64 |      128
+ *       3 |      1 |    112 |   112 |      128 |      128
+ *       3 |      1 |     56 |    56 |      128 |      256
+ *       3 |      1 |     56 |    56 |      256 |      256
+ *       3 |      1 |     28 |    28 |      256 |      512
+ *       3 |      1 |     28 |    28 |      512 |      512
+ *       3 |      1 |     14 |    14 |      512 |      512
  */
 #ifndef VGG_PARAMS
 #error This file expects the VGG_PARAMS macro to be defined.
 #endif
 
-VGG_PARAMS(3, 224, 224, 64)
-VGG_PARAMS(64, 224, 224, 64)
-VGG_PARAMS(64, 112, 112, 128)
-VGG_PARAMS(128, 112, 112, 128)
-VGG_PARAMS(128, 56, 56, 256)
-VGG_PARAMS(256, 56, 56, 256)
-VGG_PARAMS(256, 28, 28, 512)
-VGG_PARAMS(512, 28, 28, 512)
-VGG_PARAMS(512, 14, 14, 512)
+VGG_PARAMS(3, 1, 224, 224,   3,  64, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1, 224, 224,  64,  64, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1, 112, 112,  64, 128, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1, 112, 112, 128, 128, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1,  56,  56, 128, 256, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1,  56,  56, 256, 256, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1,  28,  28, 256, 512, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1,  28,  28, 512, 512, sycldnn::PaddingMode::SAME)
+VGG_PARAMS(3, 1,  14,  14, 512, 512, sycldnn::PaddingMode::SAME)
