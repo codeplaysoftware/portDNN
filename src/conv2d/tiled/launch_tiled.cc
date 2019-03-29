@@ -198,6 +198,14 @@ inline SNNStatus launch_tiled(ReadAccessor<T const> input,
   LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 8)
   LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 1)
 #endif
+#ifdef INTEL_CPU
+  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 16)
+  LAUNCH_IF_MATCH(params, 3, 1, 4, 4, 1, 8)
+  LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 1, 1)
+  LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 16)
+  LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 8)
+  LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
+#endif
   if(std::is_same<ConvType, conv_type::Forward>::value) {
     LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
     LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)

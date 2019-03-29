@@ -126,11 +126,13 @@ function(instantiate_tiled_conv)
         # required in sycldnn::conv2d::launch_tiled() function defined in
         # src/conv2d/tiled/launch_tiled.cc
         if(NOT CONV_TYPE STREQUAL "conv_type::FilterBackprop")
+          # ARM GPU
           instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
           instantiate_tiled_conv_impl(_sources 1 1 2 4 4 2)
           instantiate_tiled_conv_impl(_sources 1 1 2 3 1 4)
           instantiate_tiled_conv_impl(_sources 1 1 3 4 4 1)
           instantiate_tiled_conv_impl(_sources 1 1 2 4 1 1)
+          # AMD GPU
           instantiate_tiled_conv_impl(_sources 3 1 4 5 4 2)
           instantiate_tiled_conv_impl(_sources 3 1 4 5 2 2)
           instantiate_tiled_conv_impl(_sources 3 1 5 5 4 1)
@@ -141,11 +143,20 @@ function(instantiate_tiled_conv)
           instantiate_tiled_conv_impl(_sources 1 1 2 5 1 8)
           instantiate_tiled_conv_impl(_sources 1 1 3 4 8 1)
           instantiate_tiled_conv_impl(_sources 1 1 2 3 1 1)
+          # Intel GPU
           instantiate_tiled_conv_impl(_sources 3 1 3 3 1 4)
           instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
           instantiate_tiled_conv_impl(_sources 1 1 4 2 4 8)
           instantiate_tiled_conv_impl(_sources 1 1 3 4 1 8)
           instantiate_tiled_conv_impl(_sources 1 1 3 4 1 1)
+          #Intel CPU
+          instantiate_tiled_conv_impl(_sources 3 1 5 4 1 16)
+          instantiate_tiled_conv_impl(_sources 3 1 4 4 1 8)
+          instantiate_tiled_conv_impl(_sources 3 1 4 5 1 1)
+          instantiate_tiled_conv_impl(_sources 1 1 1 4 1 16)
+          instantiate_tiled_conv_impl(_sources 1 1 1 4 1 8)
+          instantiate_tiled_conv_impl(_sources 1 1 1 4 1 1)
+
           if(CONV_TYPE STREQUAL "conv_type::Forward")
             instantiate_tiled_conv_impl(_sources 1 2 1 2 1 4)
             instantiate_tiled_conv_impl(_sources 1 2 1 2 1 1)
