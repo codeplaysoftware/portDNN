@@ -34,10 +34,16 @@ SNNStatus launch_input_transform(ReadAccessor<T const> input,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
                                  cl::sycl::queue& queue) {
-  if (can_use_vector(params, 4)) {
+  // The larger input tiles when M is 4 use too many registers if vectorisation
+  // is used, which causes performance of the transform kernel to be around half
+  // what it is without vectorisation. As we don't currently have a better way
+  // of choosing vector sizes for different tile sizes, we just skip
+  // vectorisation in this case.
+  // TODO(jwlawson): Provide better vector size customisation
+  if (M != 4 && can_use_vector(params, 4)) {
     return queue_input_transform<T, int, ConvType, M, N, R, S, 4>(
         input, transform, params, tile_info, queue);
-  } else if (can_use_vector(params, 2)) {
+  } else if (M != 4 && can_use_vector(params, 2)) {
     return queue_input_transform<T, int, ConvType, M, N, R, S, 2>(
         input, transform, params, tile_info, queue);
   } else {
