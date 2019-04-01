@@ -26,51 +26,126 @@
  *   RESNET_PARAMS(Filter, Stride, Height, Width, Channels, Features, Padding)
  * \endcode
  *
- *  Filter | Stride | Height | Width | Channels | Features
- * --------|--------|--------|-------|----------|---------
- *       7 |      2 |    230 |   230 |        3 |       64
- *       1 |      1 |     56 |    56 |       64 |      256
- *       1 |      1 |     56 |    56 |       64 |       64
- *       3 |      1 |     56 |    56 |       64 |       64
- *       1 |      1 |     56 |    56 |      256 |       64
- *       1 |      2 |     56 |    56 |      256 |      512
- *       1 |      2 |     56 |    56 |      256 |      128
- *       3 |      1 |     28 |    28 |      128 |      128
- *       1 |      1 |     28 |    28 |      128 |      512
- *       1 |      1 |     28 |    28 |      512 |      128
- *       1 |      1 |     28 |    28 |      512 |      128
- *       1 |      2 |     28 |    28 |      512 |     1024
- *       1 |      2 |     28 |    28 |      512 |      256
- *       3 |      1 |     14 |    14 |      256 |      256
- *       1 |      1 |     14 |    14 |      256 |     1024
- *       1 |      1 |     14 |    14 |     1024 |      256
- *       1 |      2 |     14 |    14 |     1024 |     2048
- *       1 |      2 |     14 |    14 |     1024 |      512
- *       3 |      1 |      7 |     7 |      512 |      512
- *       1 |      1 |      7 |     7 |      512 |     2048
- *       1 |      1 |      7 |     7 |     2048 |      512
+ *
+ * ResNet is made up of a number of blocks, which typically does not change the
+ * size of the input tensor. These blocks consist of 3 convolutions, which get
+ * combined with the original input tensor.
+ *
+ * \code
+ *   Input
+ *     |
+ *     +-------------+
+ *     |             |
+ *     |        1x1,depth conv
+ *     |             |
+ * Shortcut     3x3,depth conv
+ *     |             |
+ *     |        1x1,out_depth conv
+ *     |             |
+ *    Add------------+
+ *     |
+ *   Output
+ * \endcode
+ *
+ * The block makes use of a 'bottleneck', where the `depth` is typically a
+ * quarter of the number of input channels, which makes the first 1x1 and the 3x3
+ * convolutions less computationally expensive.
+ *
+ * Often the `out_depth` is the same as the number of input channels, in which
+ * the shortcut is just an identity function, but when the number of channels
+ * changes the shortcut must count for this, and in these cases the shortcut is
+ * a 1x1 convolution to convert from the input channels to the outut channels.
+ *
+ * If the resnet block is strided, then the stride is applied to the 3x3
+ * convolution. In this case the shortcut must also resize the input so that
+ * the shortcut tensor has the same size as the output from the convolutions.
+ * This could be done with a strided 1x1 convolution, but if this is not needed
+ * to convert the number of channels it is more efficient just to use a
+ * sampling layer instead.
+ *
+ *  Filter | Stride | Height | Width | Channels | Features | Output
+ * --------|--------|--------|-------|----------|--------- |
+ *       7 |      2 |    230 |   230 |        3 |       64 | 112x112 -> maxpool -> 56x56
+ *
+ *       1 |      1 |     56 |    56 |       64 |      256 | Shortcut 64->256
+ *       1 |      1 |     56 |    56 |       64 |       64 |
+ *       3 |      1 |     56 |    56 |       64 |       64 |
+ *       1 |      1 |     56 |    56 |       64 |      256 |
+ *
+ *       1 |      1 |     56 |    56 |      256 |       64 |
+ *       3 |      1 |     56 |    56 |       64 |       64 |
+ *       1 |      1 |     56 |    56 |       64 |      256 |
+ *
+ *       1 |      1 |     56 |    56 |      256 |       64 |
+ *       3 |      2 |     56 |    56 |       64 |       64 | 28x28
+ *       1 |      1 |     28 |    28 |       64 |      256 |
+ *
+ *       1 |      1 |     28 |    28 |      256 |      512 | Shortcut 256->512
+ *       1 |      1 |     28 |    28 |      256 |      128 |
+ *       3 |      1 |     28 |    28 |      128 |      128 |
+ *       1 |      1 |     28 |    28 |      128 |      512 |
+ *
+ *       1 |      1 |     28 |    28 |      512 |      128 |
+ *       3 |      1 |     28 |    28 |      128 |      128 |
+ *       1 |      1 |     28 |    28 |      128 |      512 |
+ *
+ *       1 |      1 |     28 |    28 |      512 |      128 |
+ *       3 |      2 |     28 |    28 |      128 |      128 | 14x14
+ *       1 |      1 |     14 |    14 |      128 |      512 |
+ *
+ *       1 |      1 |     14 |    14 |      512 |     1024 | Shortcut 512->1024
+ *       1 |      1 |     14 |    14 |      512 |      256 |
+ *       3 |      1 |     14 |    14 |      256 |      256 |
+ *       1 |      1 |     14 |    14 |      256 |     1024 |
+ *
+ *       1 |      1 |     14 |    14 |     1024 |      256 |
+ *       3 |      1 |     14 |    14 |      256 |      256 |
+ *       1 |      1 |     14 |    14 |      256 |     1024 |
+ *
+ *       1 |      1 |     14 |    14 |     1024 |      256 |
+ *       3 |      2 |     14 |    14 |      256 |      256 | 7x7
+ *       1 |      1 |      7 |     7 |      256 |     1024 |
+ *
+ *       1 |      1 |      7 |     7 |     1024 |     2048 | Shortcut 1024->2048
+ *       1 |      1 |      7 |     7 |     1024 |      512 |
+ *       3 |      1 |      7 |     7 |      512 |      512 |
+ *       1 |      1 |      7 |     7 |      512 |     2048 |
+ *
+ *       1 |      1 |      7 |     7 |     2048 |      512 |
+ *       3 |      1 |      7 |     7 |      512 |      512 |
+ *       1 |      1 |      7 |     7 |      512 |     2048 |
  */
 #ifndef RESNET_PARAMS
 #error This file expects the RESNET_PARAMS macro to be defined.
 #endif
 
 RESNET_PARAMS(7, 2, 230, 230,    3,   64, sycldnn::PaddingMode::VALID)
+
 RESNET_PARAMS(1, 1,  56,  56,   64,  256, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,  56,  56,   64,   64, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(3, 1,  56,  56,   64,   64, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,  56,  56,  256,   64, sycldnn::PaddingMode::SAME)
-RESNET_PARAMS(1, 2,  56,  56,  256,  512, sycldnn::PaddingMode::SAME)
-RESNET_PARAMS(1, 2,  56,  56,  256,  128, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(3, 2,  56,  56,   64,   64, sycldnn::PaddingMode::SAME)
+
+RESNET_PARAMS(1, 1,  28,  28,   64,  256, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(1, 1,  28,  28,  256,  512, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(1, 1,  28,  28,  256,  128, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(3, 1,  28,  28,  128,  128, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,  28,  28,  128,  512, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,  28,  28,  512,  128, sycldnn::PaddingMode::SAME)
-RESNET_PARAMS(1, 2,  28,  28,  512, 1024, sycldnn::PaddingMode::SAME)
-RESNET_PARAMS(1, 2,  28,  28,  512,  256, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(3, 2,  28,  28,  128,  128, sycldnn::PaddingMode::SAME)
+
+RESNET_PARAMS(1, 1,  14,  14,  128,  512, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(1, 1,  14,  14,  512, 1024, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(1, 1,  14,  14,  512,  256, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(3, 1,  14,  14,  256,  256, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,  14,  14,  256, 1024, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,  14,  14, 1024,  256, sycldnn::PaddingMode::SAME)
-RESNET_PARAMS(1, 2,  14,  14, 1024, 2048, sycldnn::PaddingMode::SAME)
-RESNET_PARAMS(1, 2,  14,  14, 1024,  512, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(3, 2,  14,  14,  256,  256, sycldnn::PaddingMode::SAME)
+
+RESNET_PARAMS(1, 1,   7,   7,  256, 1024, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(1, 1,   7,   7, 1024, 2048, sycldnn::PaddingMode::SAME)
+RESNET_PARAMS(1, 1,   7,   7, 1024,  512, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(3, 1,   7,   7,  512,  512, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,   7,   7,  512, 2048, sycldnn::PaddingMode::SAME)
 RESNET_PARAMS(1, 1,   7,   7, 2048,  512, sycldnn::PaddingMode::SAME)
