@@ -40,7 +40,48 @@ add_custom_command(OUTPUT git_config.h
   WORKING_DIRECTORY
     ${CMAKE_CURRENT_BINARY_DIR}
 )
-add_library(bench_main STATIC bench_main.cc git_config.h)
+
+# Assume ComputeCpp not available by default.
+set(ComputeCpp_INFO_AVAILABLE false)
+set(ComputeCpp_VERSION_NUMBER "N/A")
+set(ComputeCpp_EDITION "N/A")
+set(ComputeCpp_CLANG_BUILD "N/A")
+set(ComputeCpp_LLVM_BUILD "N/A")
+
+if(ComputeCpp_FOUND)
+  execute_process(COMMAND ${ComputeCpp_DEVICE_COMPILER_EXECUTABLE} "--version"
+    OUTPUT_VARIABLE ComputeCpp_DEVICE_COMPILER_VERSION
+    RESULT_VARIABLE ComputeCpp_DEVICE_COMPILER_EXECUTABLE_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT ComputeCpp_DEVICE_COMPILER_EXECUTABLE_RESULT EQUAL "0")
+    message(WARNING "Compute++ not found - Error obtaining device compiler and ComputeCpp version!")
+  else()
+    # Store information about ComputeCpp/compiler for benchmarking.
+    set(ComputeCpp_INFO_AVAILABLE true)
+    string(REGEX MATCH
+      "(CE|PE|RC)" ComputeCpp_EDITION ${ComputeCpp_DEVICE_COMPILER_VERSION})
+    if(${ComputeCpp_EDITION} STREQUAL "RC")
+      set(ComputeCpp_EDITION "Internal")
+    endif()
+    string(REGEX MATCH
+      "([0-9]+\.[0-9]+\.[0-9]+)" ComputeCpp_VERSION_NUMBER ${ComputeCpp_DEVICE_COMPILER_VERSION})
+    string(REGEX MATCH
+      "clang\.git ([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f])"
+      ComputeCpp_CLANG_BUILD ${ComputeCpp_DEVICE_COMPILER_VERSION})
+    string(REGEX MATCH
+      "llvm\.git ([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f])"
+      ComputeCpp_LLVM_BUILD ${ComputeCpp_DEVICE_COMPILER_VERSION})
+
+    set(CLANG_HASH_OFFSET 10)
+    string(SUBSTRING ${ComputeCpp_CLANG_BUILD} ${CLANG_HASH_OFFSET} -1 ComputeCpp_CLANG_BUILD)
+    set(LLVM_HASH_OFFSET 9)
+    string(SUBSTRING ${ComputeCpp_LLVM_BUILD} ${LLVM_HASH_OFFSET} -1 ComputeCpp_LLVM_BUILD)
+  endif()
+endif()
+
+configure_file(computecpp_version_config.h.in computecpp_version_config.h @ONLY)
+
+add_library(bench_main STATIC bench_main.cc git_config.h computecpp_version_config.h)
 target_link_libraries(bench_main benchmark::benchmark)
 target_include_directories(bench_main PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 

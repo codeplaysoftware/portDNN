@@ -35,6 +35,7 @@
 #include "src/backend/backend_provider.h"
 #include "src/backend/snn_backend_provider.h"
 
+#include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/base_executor.h"
 #include "bench/fixture/statistic.h"
@@ -175,6 +176,7 @@ void TiledConvolutionBenchmark<
 
   add_to_label("selector", "TiledSelector");
   add_to_label("git_hash", commit_hash);
+  sycldnn::bench::computecpp_info::add_computecpp_version(*this);
   set_label(state);
   this->finish_benchmark(state);
 }

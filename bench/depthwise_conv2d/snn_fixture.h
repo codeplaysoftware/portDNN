@@ -21,6 +21,7 @@
 
 #include "src/backend/backend_provider.h"
 
+#include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
@@ -52,6 +53,7 @@ class SNNDepthwiseConvolutionBenchmark
     auto& backend = this->get_backend();
     auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
+    sycldnn::bench::computecpp_info::add_computecpp_version(*this);
 
     this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
     this->add_to_label("@backend", backend.name());

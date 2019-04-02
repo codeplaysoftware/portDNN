@@ -21,6 +21,7 @@
 
 #include "src/backend/backend_provider.h"
 
+#include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/operator_typenames.h"
 #include "bench/fixture/statistic.h"
@@ -54,6 +55,7 @@ class SNNPoolingBenchmark
     auto& backend = this->get_backend();
     auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
+    sycldnn::bench::computecpp_info::add_computecpp_version(*this);
 
     this->add_to_label("@operator",
                        sycldnn::bench::OperatorTypeName<Operator>::name);
