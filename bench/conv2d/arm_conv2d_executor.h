@@ -108,8 +108,18 @@ struct ARMConv2DExecutor : public BaseExecutor {
         arm::TensorInfo(arm::TensorShape(params.features), arm::Format::F32));
 
     // Construct a convolution layer.
+    const int s_pad_end_rows = (params.out_rows - 1) * params.stride_rows +
+                               params.window_rows - params.in_rows -
+                               params.pad_rows;
+    const unsigned pad_end_rows = std::max(s_pad_end_rows, 0);
+    const int s_pad_end_cols = (params.out_cols - 1) * params.stride_cols +
+                               params.window_cols - params.in_cols -
+                               params.pad_cols;
+    const unsigned pad_end_cols = std::max(s_pad_end_cols, 0);
+
     arm::PadStrideInfo psi(params.stride_cols, params.stride_rows,
-                           params.pad_cols, params.pad_rows);
+                           params.pad_cols, pad_end_cols, params.pad_rows,
+                           pad_end_rows, arm::DimensionRoundingType::FLOOR);
     ex.conv1.configure(&ex.input, &ex.filter, &ex.bias, &ex.output, psi);
 
     // Validate the configuration.

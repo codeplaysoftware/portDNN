@@ -62,7 +62,15 @@ struct MKLConv2DExecutor : public BaseExecutor {
                                       params.out_rows, params.out_cols};
     mkldnn::memory::dims stride = {params.stride_rows, params.stride_cols};
     mkldnn::memory::dims padding_before = {params.pad_rows, params.pad_cols};
-    mkldnn::memory::dims padding_after = {params.pad_rows, params.pad_cols};
+    const int s_pad_end_rows = (params.out_rows - 1) * params.stride_rows +
+                               params.window_rows - params.in_rows -
+                               params.pad_rows;
+    const unsigned pad_end_rows = std::max(s_pad_end_rows, 0);
+    const int s_pad_end_cols = (params.out_cols - 1) * params.stride_cols +
+                               params.window_cols - params.in_cols -
+                               params.pad_cols;
+    const unsigned pad_end_cols = std::max(s_pad_end_cols, 0);
+    mkldnn::memory::dims padding_after = {pad_end_rows, pad_end_cols};
 
     auto product = [](mkldnn::memory::dims const& dims) {
       return std::accumulate(begin(dims), end(dims), 1,
