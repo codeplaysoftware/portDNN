@@ -103,9 +103,6 @@ struct SNNPoolingExecutor : public BaseExecutor {
       this->set_iteration_time(state);
     }
 
-    // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
-    backend.get_queue().wait_and_throw();
-
     benchmark.template set_items_processed<Direction>(state, params);
     benchmark.add_param_counters(state, params);
     benchmark.template add_bandwidth_counters<float>(state, pool_sizes);
@@ -187,9 +184,6 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
       this->end_timing();
       this->set_iteration_time(state);
     }
-
-    // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
-    backend.get_queue().wait_and_throw();
 
     benchmark.template set_items_processed<sycldnn::pooling::Backpropagate>(
         state, params);

@@ -102,9 +102,6 @@ struct SNNDepthwiseConv2DExecutor : public BaseExecutor {
       this->set_iteration_time(state);
     }
 
-    // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
-    backend.get_queue().wait_and_throw();
-
     benchmark.template set_items_processed<ConvType>(state, params);
     benchmark.add_param_counters(state, params);
     benchmark.template add_bandwidth_counters<float>(state, conv_sizes);

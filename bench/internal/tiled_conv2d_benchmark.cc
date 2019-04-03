@@ -158,9 +158,6 @@ void TiledConvolutionBenchmark<
     this->set_iteration_time(state);
   }
 
-  // TODO: This wait shouldn't be required once ComputeCpp resolves SYCLE-213.
-  backend.get_queue().wait_and_throw();
-
   // Get the SYCL device, and add device and driver info to the key-value map.
   auto dev = backend.get_queue().get_device();
   sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
