@@ -76,9 +76,8 @@ struct SNNConv2DExecutor : public BaseExecutor {
       benchmark.deallocate_ptr(inp_gpu);
     };
 
-    auto workspace_size_struct =
-        sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
-    auto workspace_size = workspace_size_struct.recommended_size;
+    auto workspace_size = compute_workspace_size(
+        params, backend.get_queue().get_device(), selector);
     std::vector<float> workspace_vals(workspace_size);
     auto workspace =
         benchmark.get_initialised_device_memory(workspace_size, workspace_vals);
@@ -132,6 +131,41 @@ struct SNNConv2DExecutor : public BaseExecutor {
     benchmark.template add_bandwidth_counters<float>(state, conv_sizes);
 
     this->finish_benchmark(state);
+  }
+
+  /**
+   * Get the required size for the workspace buffer.
+   *
+   * Query the required workspace size and the available allocation size on the
+   * device, then choose a size based on this. The size is chosen to be as large
+   * as it can be while still fitting in memory. If the smallest size is still
+   * too large to be allocated then 0 is returned and fall back to using
+   * separate temporary buffers.
+   */
+  size_t compute_workspace_size(Conv2DParams const& params,
+                                cl::sycl::device device, Selector& selector) {
+    auto workspace_size_struct =
+        sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
+    // Query the max allocation size on the device. As the input, output and
+    // filter tensors also need to be allocated we conservatively divide the
+    // alloc size by 4.
+    auto max_alloc_size =
+        device.get_info<cl::sycl::info::device::max_mem_alloc_size>() / 4;
+
+    if (workspace_size_struct.recommended_size < max_alloc_size) {
+      return workspace_size_struct.recommended_size;
+    } else {
+      if (workspace_size_struct.required_size < max_alloc_size) {
+        // If the recommended size is too large but the required size is small
+        // enough to be allocated then choose a size in between.
+        auto n_multiples = max_alloc_size / workspace_size_struct.required_size;
+        return workspace_size_struct.required_size * n_multiples;
+      } else {
+        // If even the required size is too large then we cannot use a
+        // workspace.
+        return 0u;
+      }
+    }
   }
 };
 
