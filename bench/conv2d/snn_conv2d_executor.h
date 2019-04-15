@@ -79,8 +79,18 @@ struct SNNConv2DExecutor : public BaseExecutor {
     auto workspace_size = compute_workspace_size(
         params, backend.get_queue().get_device(), selector);
     std::vector<float> workspace_vals(workspace_size);
-    auto workspace =
-        benchmark.get_initialised_device_memory(workspace_size, workspace_vals);
+
+    typename Benchmark::template Pointer<float> workspace;
+    try {
+      workspace = benchmark.get_initialised_device_memory(workspace_size,
+                                                          workspace_vals);
+    } catch (...) {
+      benchmark.deallocate_ptr(workspace);
+      state.SkipWithError(
+          "Error in allocating workspace buffer. The buffer size is likely "
+          "to be larger than available device memory.");
+      return;
+    }
     SNN_ON_SCOPE_EXIT { benchmark.deallocate_ptr(workspace); };
 
     {  // Ensure the kernel is built before benchmarking

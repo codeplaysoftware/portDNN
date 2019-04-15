@@ -73,9 +73,20 @@ struct BackendProvider<sycldnn::backend::EigenBackendSNNMatmul> {
   }
   /** Returns the selected device that Eigen executes on. */
   Eigen::SyclDevice& get_eigen_device() {
+    // Rethrow any SYCL exceptions as std::exceptions.
+    auto exception_handler = [](cl::sycl::exception_list exceptions) {
+      for (std::exception_ptr const& e : exceptions) {
+        try {
+          std::rethrow_exception(e);
+        } catch (cl::sycl::exception const& e) {
+          throw std::runtime_error(e.what());
+        }
+      }
+    };
     // By making the Eigen device static any compiled kernels will be cached,
     // and so do not need to be recompiled for each test.
-    static Eigen::QueueInterface queue_interface{cl::sycl::default_selector{}};
+    static Eigen::QueueInterface queue_interface{cl::sycl::default_selector{},
+                                                 exception_handler};
     static Eigen::SyclDevice device{&queue_interface};
     return device;
   }
