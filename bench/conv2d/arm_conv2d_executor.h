@@ -49,8 +49,10 @@ struct ACLNeonExecutor {
 
   /** Add NEON description to benchmark label. */
   void add_device_info(sycldnn::bench::StringReporter& reporter) {
-    // TODO(jwlawson): Add more info about CPU?
+    reporter.add_to_label("vendor_name", "ARM");
     reporter.add_to_label("device_name", "NEON");
+    reporter.add_to_label("device_version", "N/A");
+    reporter.add_to_label("driver_version", "N/A");
   }
 
   arm::Tensor filter, input, output, bias;
