@@ -62,7 +62,7 @@ INCLUDES = r"""
 
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
-using namespace sycldnn;
+using namespace sycldnn; // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 

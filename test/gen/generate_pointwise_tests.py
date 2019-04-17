@@ -47,16 +47,16 @@ INCLUDES = r"""
 #include "sycldnn/pointwise/operators.h"
 #include "sycldnn/pointwise/direction.h"
 
-#include "test/pointwise/pointwise_fixture.h" 
+#include "test/pointwise/pointwise_fixture.h"
 #include "test/types/kernel_data_types.h"
 
 #include <CL/sycl.hpp>
 
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
-using namespace sycldnn;
+using namespace sycldnn; // NOLINT(google-build-using-namespace)
 template <typename DataType>
-using {test_case} = PointwiseFixture<DataType, {operation}, {direction}>; 
+using {test_case} = PointwiseFixture<DataType, {operation}, {direction}>;
 TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
 TestCaseParams = namedtuple("TestCaseParams",
@@ -75,7 +75,7 @@ def get_grad_results(max_val, pointwise_op, in_size):
 
     Will create an input tensor of the required size filled with values -n, -n+1,
     ..., 0, 1, ..., n-1, n and use these to compute the pointwise op.
-    Then, create another tensor with the same values to use as the errors 
+    Then, create another tensor with the same values to use as the errors
     for back-propagation.
     Returns the computed values in a numpy array.
     """
@@ -108,7 +108,7 @@ def get_forward_results(max_val, pointwise_op, in_size):
     """
     Construct and run a Tensorflow graph to compute a forward pointwise op.
 
-    Will create an input tensor of the required size filled with values -n, -n+1, 
+    Will create an input tensor of the required size filled with values -n, -n+1,
     ..., 0, 1, ..., n-1, n and use these to compute the pointwise op.
     Returns the computed values in a numpy array.
     """

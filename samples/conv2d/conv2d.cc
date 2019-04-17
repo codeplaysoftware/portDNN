@@ -31,7 +31,7 @@
 #include <sycldnn/conv2d/selector/winograd_selector.h>
 #include <sycldnn/conv2d/sizes.h>
 
-int main(int, char**) {
+int main() {
   // A SYCL device selector is a C++ class responsible for selecting what OpenCL
   // device to bind a dispatch queue to, and consequently execute OpenCL kernels
   // on.

@@ -29,7 +29,7 @@ TEST(BasicSycl, host_set_float) {
   constexpr auto write_mode = cl::sycl::access::mode::write;
   cl::sycl::host_selector selector;
   cl::sycl::queue queue{selector};
-  std::array<float, num_elems> base_mem;
+  std::array<float, num_elems> base_mem{};
   {
     cl::sycl::buffer<float, 1> bufA{base_mem.data(),
                                     cl::sycl::range<1>{num_elems}};
@@ -52,7 +52,7 @@ TEST(BasicSycl, device_set_float) {
   constexpr auto write_mode = cl::sycl::access::mode::write;
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
-  std::array<float, num_elems> base_mem;
+  std::array<float, num_elems> base_mem{};
   {
     cl::sycl::buffer<float, 1> bufA{base_mem.data(),
                                     cl::sycl::range<1>{num_elems}};

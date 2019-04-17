@@ -75,13 +75,13 @@ TEST_F(EigenInternalHandlerTest, InternalPointerConversion) {
   auto& backend = provider.get_backend();
   auto& device = provider.get_eigen_device();
   size_t size = 1024;
-  float* ptr1 = static_cast<float*>(device.allocate(size));
-  float* iptr1 = ptr1;
+  auto ptr1 = static_cast<float*>(device.allocate(size));
+  auto iptr1 = ptr1;
   EXPECT_EQ(iptr1, backend.to_internal_pointer(ptr1));
 
-  float* ptr2 = static_cast<float*>(device.allocate(size));
+  auto ptr2 = static_cast<float*>(device.allocate(size));
   EXPECT_NE(ptr1, ptr2);
-  float* iptr2 = ptr2;
+  auto iptr2 = ptr2;
   EXPECT_EQ(iptr2, backend.to_internal_pointer(ptr2));
 }
 TEST_F(EigenInternalHandlerTest, InternalPointerOffset) {

@@ -39,7 +39,7 @@ TEST_F(EigenExternalHandlerTest, GetBufferExternalCheckSizes) {
   auto& device = provider.get_eigen_device();
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
-  float* ptr = static_cast<float*>(device.allocate(buffer_size));
+  auto ptr = static_cast<float*>(device.allocate(buffer_size));
   auto backend_buffer = backend.get_buffer(ptr, n_elems);
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
@@ -52,7 +52,7 @@ TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
   auto& backend = provider.get_backend();
   size_t n_floats = 16;
   size_t buffer_size = n_floats * sizeof(float);
-  float* ptr = static_cast<float*>(device.allocate(buffer_size));
+  auto ptr = static_cast<float*>(device.allocate(buffer_size));
 
   Tensor tensor{ptr, n_floats};
   tensor.device(device) = tensor.constant(static_cast<float>(4));
@@ -84,11 +84,11 @@ TEST_F(EigenExternalHandlerTest, ExternalPointerOffset) {
   auto& backend = provider.get_backend();
   auto& device = provider.get_eigen_device();
   size_t size = 1024;
-  int* ptr1 = static_cast<int*>(device.allocate(size));
-  int* ptr2 = ptr1 + 1;
+  auto ptr1 = static_cast<int*>(device.allocate(size));
+  auto ptr2 = ptr1 + 1;
   size_t exp1 = 1;
   EXPECT_EQ(exp1, backend.get_offset(ptr2));
-  int* ptr3 = ptr2 + 10;
+  auto ptr3 = ptr2 + 10;
   size_t exp2 = 11;
   EXPECT_EQ(exp2, backend.get_offset(ptr3));
 }

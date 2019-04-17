@@ -34,7 +34,7 @@
 
 #include <vector>
 
-using namespace sycldnn;
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 

@@ -269,6 +269,7 @@ TYPED_TEST(VectorElementTest, Vector8DType) {
   EXPECT_EQ(b6, vec.s6());
   EXPECT_EQ(b7, vec.s7());
 }
+// NOLINTNEXTLINE(google-readability-function-size)
 TYPED_TEST(VectorElementTest, Vector16DType) {
   using Vec = cl::sycl::vec<TypeParam, 16>;
   TypeParam a0 = 0;

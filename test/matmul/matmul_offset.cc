@@ -39,7 +39,7 @@ TYPED_TEST(MatmulOffset, M4xK4xN4) {
   const int m = 4;
   const int k = 4;
   const int n = 4;
-  const DataType beta = static_cast<DataType>(0);
+  const auto beta = static_cast<DataType>(0);
   const int lhs_offset = 16;
   const int rhs_offset = 8;
   const int out_offset = 16;
@@ -57,7 +57,7 @@ TYPED_TEST(MatmulOffset, M4xK2xN4) {
   const int m = 4;
   const int k = 2;
   const int n = 4;
-  const DataType beta = static_cast<DataType>(0);
+  const auto beta = static_cast<DataType>(0);
   const int lhs_offset = 4;
   const int rhs_offset = 8;
   const int out_offset = 8;

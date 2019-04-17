@@ -35,7 +35,7 @@ namespace internal {
 template <typename T>
 SNNStatus launch(ReadAccessor<T const> input, WriteAccessor<T> output,
                  std::vector<int> dimensions, std::vector<int> permutation,
-                 cl::sycl::queue& backend);
+                 cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace transpose
