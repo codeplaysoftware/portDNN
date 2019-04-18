@@ -119,7 +119,7 @@ struct WorkspaceComparativeConv2D
                                       exp_output);
 
     SelectorType selector{};
-    ASSERT_NE(selector.select(params),
+    ASSERT_NE(selector.template select<ConvType>(params),
               sycldnn::conv2d::Algorithm::NotSupported);
     try {
       auto workspace_size_struct =

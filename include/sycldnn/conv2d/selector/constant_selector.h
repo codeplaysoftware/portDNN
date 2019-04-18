@@ -45,7 +45,33 @@ class ConstantSelector final : public Selector {
    * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
    *         the optimal choice of convolution of algorithm.
    */
-  Algorithm select(Conv2DParams const& params) override {
+  Algorithm select_forward(Conv2DParams const& params) override {
+    SNN_UNUSED_VAR(params)
+    return Algo;
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   *               and strides used by the convolution).
+   * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
+   *         the optimal choice of convolution of algorithm.
+   */
+  Algorithm select_input_backprop(Conv2DParams const& params) override {
+    SNN_UNUSED_VAR(params)
+    return Algo;
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   *               and strides used by the convolution).
+   * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
+   *         the optimal choice of convolution of algorithm.
+   */
+  Algorithm select_filter_backprop(Conv2DParams const& params) override {
     SNN_UNUSED_VAR(params)
     return Algo;
   }

@@ -106,7 +106,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       params.filter_format == sycldnn::FilterFormat::HWCF,
       "Currently SYCL-DNN only supports the HWCF filter format.");
 
-  Algorithm algo_tag = selector.select(params);
+  Algorithm algo_tag = selector.select<ConvType>(params);
   switch (algo_tag) {
     case Algorithm::Direct:
       return launch_direct<T, ConvType>(input, filter, output, params, backend);

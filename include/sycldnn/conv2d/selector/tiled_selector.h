@@ -27,6 +27,8 @@
 
 #include "sycldnn/conv2d/selector/selector.h"
 
+#include "sycldnn/helpers/macros.h"
+
 namespace sycldnn {
 namespace conv2d {
 /** A selector which will returns the tiled algorithm if supported. */
@@ -34,13 +36,13 @@ class TiledSelector final : public Selector {
  public:
   /**
    * Selects an appropriate convolution algorithm for the target platform, given
-   * a set of convolution parameters.
+   * a set of convolution parameters, for forward convolutions.
    * \param params The convolution parameters (i.e. the shapes of the tensors,
    * and strides used by the convolution).
    * \return Returns Algorithm::Tiled where tiled algorithms are supported,
    * or Algorithm::NotSupported otherwise.
    */
-  Algorithm select(Conv2DParams const& params) override {
+  Algorithm select_forward(Conv2DParams const& params) override {
     if (params.window_rows != params.window_cols ||
         params.stride_rows != params.stride_cols) {
       return Algorithm::NotSupported;
@@ -60,6 +62,48 @@ class TiledSelector final : public Selector {
     if (params.window_rows == 5 && params.stride_rows == 1) {
       return Algorithm::Tiled;
     }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters, for input backprop convolutions.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::Tiled where tiled algorithms are supported,
+   * or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_input_backprop(Conv2DParams const& params) override {
+    if (params.window_rows != params.window_cols ||
+        params.stride_rows != params.stride_cols) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 1 && params.stride_rows == 2) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 1 && params.stride_rows == 1) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 3 && params.stride_rows == 2) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 3 && params.stride_rows == 1) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 5 && params.stride_rows == 1) {
+      return Algorithm::Tiled;
+    }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * The tiled implementation does not support filter backprop.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::NotSupported.
+   */
+  Algorithm select_filter_backprop(Conv2DParams const& params) override {
+    SNN_UNUSED_VAR(params);
     return Algorithm::NotSupported;
   }
 

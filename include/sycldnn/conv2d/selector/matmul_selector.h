@@ -35,19 +35,64 @@ class MatmulSelector final : public Selector {
  public:
   /**
    * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters, for forward convolutions.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::Matmul when the matmul algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_forward(Conv2DParams const& params) override {
+    bool right_stride = (params.stride_rows == 1 && params.stride_cols == 1);
+    bool right_window = (params.window_rows == 1 && params.window_cols == 1);
+    bool right_pad = (params.pad_rows == 0 && params.pad_cols == 0);
+    bool right_format = (params.input_format == DataFormat::NHWC &&
+                         params.filter_format == FilterFormat::HWCF);
+
+    if (right_stride && right_window && right_pad && right_format) {
+      return Algorithm::Matmul;
+    } else {
+      return Algorithm::NotSupported;
+    }
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters, for input backprop convolutions.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::Matmul when the matmul algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_input_backprop(Conv2DParams const& params) override {
+    bool right_stride = (params.stride_rows == 1 && params.stride_cols == 1);
+    bool right_window = (params.window_rows == 1 && params.window_cols == 1);
+    bool right_pad = (params.pad_rows == 0 && params.pad_cols == 0);
+    bool right_format = (params.input_format == DataFormat::NHWC &&
+                         params.filter_format == FilterFormat::HWCF);
+
+    if (right_stride && right_window && right_pad && right_format) {
+      return Algorithm::Matmul;
+    } else {
+      return Algorithm::NotSupported;
+    }
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
    * a set of convolution parameters.
    * \param params The convolution parameters (i.e. the shapes of the tensors,
    * and strides used by the convolution).
    * \return Returns Algorithm::Matmul when the matmul algorithm is
    * supported, or Algorithm::NotSupported otherwise.
    */
-  Algorithm select(Conv2DParams const& params) override {
-    // TODO(jwlawson): Ensure the data format is NHWC
+  Algorithm select_filter_backprop(Conv2DParams const& params) override {
     bool right_stride = (params.stride_rows == 1 && params.stride_cols == 1);
     bool right_window = (params.window_rows == 1 && params.window_cols == 1);
     bool right_pad = (params.pad_rows == 0 && params.pad_cols == 0);
+    bool right_format = (params.input_format == DataFormat::NHWC &&
+                         params.filter_format == FilterFormat::HWCF);
 
-    if (right_stride && right_window && right_pad) {
+    if (right_stride && right_window && right_pad && right_format) {
       return Algorithm::Matmul;
     } else {
       return Algorithm::NotSupported;

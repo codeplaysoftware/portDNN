@@ -147,8 +147,8 @@ WorkspaceSize query_workspace_size(Conv2DParams const& params,
 template <typename ConvType>
 WorkspaceSize query_workspace_size(Conv2DParams const& params,
                                    Selector& selector) {
-  return internal::query_workspace_size<ConvType>(params,
-                                                  selector.select(params));
+  return internal::query_workspace_size<ConvType>(
+      params, selector.select<ConvType>(params));
 }
 
 }  // namespace conv2d

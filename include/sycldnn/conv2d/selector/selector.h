@@ -23,7 +23,8 @@
  * SYCL-DNN to select the most appropriate convolution algorithm for a specific
  * target platform or scenario.
  */
-#include <sycldnn/conv2d/algorithm.h>
+#include "sycldnn/conv2d/algorithm.h"
+#include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
 
 namespace sycldnn {
@@ -43,7 +44,33 @@ class Selector {
    * \return Returns an instance of \ref sycldnn::conv2d::Algorithm, indicating
    *  the optimal choice of convolution of algorithm.
    */
-  virtual Algorithm select(Conv2DParams const& params) = 0;
+  template <typename ConvType>
+  Algorithm select(Conv2DParams const& params);
+
+  /**
+   * Overrideable function that selects algorithms for forward convolutions.
+   * \param params The convolution parameters.
+   * \return Returns a \ref sycldnn::conv2d::Algorithm.
+   */
+  virtual Algorithm select_forward(Conv2DParams const& params) = 0;
+
+  /**
+   * Overrideable function that selects algorithms for input backprop
+   * convolutions.
+   * \param params The convolution parameters.
+   * \return Returns a
+   * \ref sycldnn::conv2d::Algorithm.
+   */
+  virtual Algorithm select_input_backprop(Conv2DParams const& params) = 0;
+
+  /**
+   * Overrideable function that selects algorithms for filter backprop
+   * convolutions.
+   * \param params The convolution parameters.
+   * \return Returns a
+   * \ref sycldnn::conv2d::Algorithm.
+   */
+  virtual Algorithm select_filter_backprop(Conv2DParams const& params) = 0;
 
   /**
    * Gets the name of the selector.
@@ -58,6 +85,27 @@ class Selector {
    */
   virtual ~Selector() = default;
 };
+
+/** \copydoc Selector::select() */
+template <>
+inline Algorithm Selector::select<conv_type::Forward>(
+    Conv2DParams const& params) {
+  return this->select_forward(params);
+}
+
+/** \copydoc Selector::select() */
+template <>
+inline Algorithm Selector::select<conv_type::InputBackprop>(
+    Conv2DParams const& params) {
+  return this->select_input_backprop(params);
+}
+
+/** \copydoc Selector::select() */
+template <>
+inline Algorithm Selector::select<conv_type::FilterBackprop>(
+    Conv2DParams const& params) {
+  return this->select_filter_backprop(params);
+}
 }  // namespace conv2d
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_CONV2D_SELECTOR_H_

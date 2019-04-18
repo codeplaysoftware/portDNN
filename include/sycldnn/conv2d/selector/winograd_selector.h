@@ -35,13 +35,61 @@ class WinogradSelector final : public Selector {
  public:
   /**
    * Selects an appropriate convolution algorithm for the target platform, given
-   * a set of convolution parameters.
+   * a set of convolution parameters for forward convolutions.
    * \param params The convolution parameters (i.e. the shapes of the tensors,
    * and strides used by the convolution).
    * \return Returns Algorithm::Winograd when the Winograd algorithm is
    * supported, or Algorithm::NotSupported otherwise.
    */
-  Algorithm select(Conv2DParams const& params) override {
+  Algorithm select_forward(Conv2DParams const& params) override {
+    if (params.stride_rows != 1 && params.stride_cols != 1) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 1 && params.window_cols == 3) {
+      return Algorithm::Winograd;
+    }
+    if (params.window_rows == 3 && params.window_cols == 1) {
+      return Algorithm::Winograd;
+    }
+    if (params.window_rows == 3 && params.window_cols == 3) {
+      return Algorithm::Winograd;
+    }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters for input backprop convolutions.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::Winograd when the Winograd algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_input_backprop(Conv2DParams const& params) override {
+    if (params.stride_rows != 1 && params.stride_cols != 1) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 1 && params.window_cols == 3) {
+      return Algorithm::Winograd;
+    }
+    if (params.window_rows == 3 && params.window_cols == 1) {
+      return Algorithm::Winograd;
+    }
+    if (params.window_rows == 3 && params.window_cols == 3) {
+      return Algorithm::Winograd;
+    }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * Selects an appropriate convolution algorithm for the target platform, given
+   * a set of convolution parameters for filter backprop convolutions.
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::Winograd when the Winograd algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_filter_backprop(Conv2DParams const& params) override {
     if (params.stride_rows != 1 && params.stride_cols != 1) {
       return Algorithm::NotSupported;
     }
@@ -77,7 +125,45 @@ class WinogradLargeSelector final : public Selector {
    * \return Returns Algorithm::WinogradLarge when the Winograd algorithm is
    * supported, or Algorithm::NotSupported otherwise.
    */
-  Algorithm select(Conv2DParams const& params) override {
+  Algorithm select_forward(Conv2DParams const& params) override {
+    if (params.stride_rows != 1 && params.stride_cols != 1) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 3 && params.window_cols == 3) {
+      return Algorithm::WinogradLarge;
+    }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * Selects the WinogradLarge algorithm when supported for the provided
+   * convolution parameters, otherwise NotSupported.
+   *
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::WinogradLarge when the Winograd algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_input_backprop(Conv2DParams const& params) override {
+    if (params.stride_rows != 1 && params.stride_cols != 1) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 3 && params.window_cols == 3) {
+      return Algorithm::WinogradLarge;
+    }
+    return Algorithm::NotSupported;
+  }
+
+  /**
+   * Selects the WinogradLarge algorithm when supported for the provided
+   * convolution parameters, otherwise NotSupported.
+   *
+   * \param params The convolution parameters (i.e. the shapes of the tensors,
+   * and strides used by the convolution).
+   * \return Returns Algorithm::WinogradLarge when the Winograd algorithm is
+   * supported, or Algorithm::NotSupported otherwise.
+   */
+  Algorithm select_filter_backprop(Conv2DParams const& params) override {
     if (params.stride_rows != 1 && params.stride_cols != 1) {
       return Algorithm::NotSupported;
     }

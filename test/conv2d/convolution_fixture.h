@@ -68,7 +68,8 @@ struct ConvolutionFixture
     };
 
     SelectorType selector{};
-    if (selector.select(params) == sycldnn::conv2d::Algorithm::NotSupported) {
+    if (selector.template select<ConvType>(params) ==
+        sycldnn::conv2d::Algorithm::NotSupported) {
       // Do not run the test if the implementation is not supported.
       return;
     }
