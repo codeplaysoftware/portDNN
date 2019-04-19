@@ -52,7 +52,12 @@ struct BackendProvider<EigenBackend> {
     auto device = get_eigen_device();
     size_t n_bytes = size * sizeof(T);
     auto* gpu_ptr = static_cast<T*>(device.allocate(n_bytes));
-    device.memcpyHostToDevice(gpu_ptr, data.data(), n_bytes);
+    try {
+      device.memcpyHostToDevice(gpu_ptr, data.data(), n_bytes);
+    } catch (...) {
+      device.deallocate(gpu_ptr);
+      throw;
+    }
     return gpu_ptr;
   }
   /** Copy the device memory into the provided host vector. */

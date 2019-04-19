@@ -46,9 +46,14 @@ struct BackendProvider<SyclBLASBackend> {
     auto executor = backend_.get_executor().get_policy_handler();
     auto gpu_ptr = executor.template allocate<T>(size);
     if (size != 0u) {
-      auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
-      for (auto& event : event_list) {
-        event.wait_and_throw();
+      try {
+        auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
+        for (auto& event : event_list) {
+          event.wait_and_throw();
+        }
+      } catch (...) {
+        executor.deallocate(gpu_ptr);
+        throw;
       }
     }
     return gpu_ptr;
