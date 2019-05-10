@@ -44,8 +44,10 @@ SNNStatus queue_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.require(input);
     cgh.require(output);
+    Index input_offset = input.get_offset()[0];
+    Index output_offset = output.get_offset()[0];
     PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv> pool(
-        input, output, pp);
+        input, output, input_offset, output_offset, pp);
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);
   });

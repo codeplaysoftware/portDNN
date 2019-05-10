@@ -44,17 +44,19 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
   void test_pool(std::vector<DataType> exp,
                  sycldnn::pooling::PoolingParams const& params,
-                 DataType max_val = DataType{0}) {
+                 DataType max_val = DataType{0}, size_t in_offset = 0u,
+                 size_t out_offset = 0u) {
     auto pooling_size = sycldnn::pooling::get_sizes<Direction>(params);
     auto in_size = pooling_size.input_size;
-    auto out_size = pooling_size.output_size;
+    auto out_size = pooling_size.output_size + out_offset;
     std::vector<DataType> input = iota_initialised_data(in_size, max_val);
+    input.insert(input.begin(), in_offset, 0);
     std::vector<DataType> output(out_size);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
 
-    auto inp_gpu = provider.get_initialised_device_memory(in_size, input);
+    auto inp_gpu = provider.get_initialised_device_memory(input.size(), input);
     auto out_gpu = provider.get_initialised_device_memory(out_size, output);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
@@ -62,7 +64,7 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
     };
 
     auto status = sycldnn::pooling::launch<DataType, Op, Direction>(
-        inp_gpu, out_gpu, params, backend);
+        inp_gpu + in_offset, out_gpu + out_offset, params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
@@ -87,9 +89,13 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
       tolerance = is_avg_grad ? 48u : 4u;
     }
 
+    for (size_t i = 0; i < out_offset; ++i) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      EXPECT_EQ(DataType{0}, output[i]);
+    }
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output[i], tolerance);
+      SNN_ALMOST_EQUAL(exp[i], output[i + out_offset], tolerance);
     }
   }
 };
@@ -104,25 +110,29 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
 
   void test_pool(std::vector<DataType> exp,
                  sycldnn::pooling::PoolingParams const& params,
-                 DataType max_val = DataType{0}) {
+                 DataType max_val = DataType{0}, size_t in_offset = 0u,
+                 size_t out_offset = 0u, size_t in_back_offset = 0u,
+                 size_t out_back_offset = 0u) {
     auto pooling_size =
         sycldnn::pooling::get_sizes<sycldnn::pooling::Forward>(params);
     auto in_size = pooling_size.input_size;
     auto out_size = pooling_size.output_size;
 
     std::vector<DataType> input_data = iota_initialised_data(in_size, max_val);
-    std::vector<DataType> output_data(out_size);
+    input_data.insert(input_data.begin(), in_offset, 0u);
+    std::vector<DataType> output_data(out_size + out_offset);
     std::vector<DataType> input_backprop =
         iota_initialised_data(out_size, max_val);
-    std::vector<DataType> output_backprop(in_size);
+    input_backprop.insert(input_backprop.begin(), in_back_offset, 0u);
+    std::vector<DataType> output_backprop(in_size + out_back_offset);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
 
     auto inp_data_gpu =
-        provider.get_initialised_device_memory(in_size, input_data);
-    auto out_data_gpu =
-        provider.get_initialised_device_memory(out_size, output_data);
+        provider.get_initialised_device_memory(input_data.size(), input_data);
+    auto out_data_gpu = provider.get_initialised_device_memory(
+        out_size + out_offset, output_data);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_data_gpu);
       provider.deallocate_ptr(out_data_gpu);
@@ -130,13 +140,13 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
 
     auto fwd_status = sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
                                                sycldnn::pooling::Forward>(
-        inp_data_gpu, out_data_gpu, params, backend);
+        inp_data_gpu + in_offset, out_data_gpu + out_offset, params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, fwd_status.status);
 
-    auto inp_backprop_gpu =
-        provider.get_initialised_device_memory(out_size, input_backprop);
-    auto out_backprop_gpu =
-        provider.get_initialised_device_memory(in_size, output_backprop);
+    auto inp_backprop_gpu = provider.get_initialised_device_memory(
+        input_backprop.size(), input_backprop);
+    auto out_backprop_gpu = provider.get_initialised_device_memory(
+        in_size + out_back_offset, output_backprop);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_backprop_gpu);
       provider.deallocate_ptr(out_backprop_gpu);
@@ -145,19 +155,24 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
     auto back_status =
         sycldnn::pooling::launch<DataType, sycldnn::pooling::Max,
                                  sycldnn::pooling::Backpropagate>(
-            inp_data_gpu, out_data_gpu, inp_backprop_gpu, out_backprop_gpu,
-            params, backend);
+            inp_data_gpu + in_offset, out_data_gpu + out_offset,
+            inp_backprop_gpu + in_back_offset,
+            out_backprop_gpu + out_back_offset, params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
 
     fwd_status.event.wait_and_throw();
     back_status.event.wait_and_throw();
 
-    provider.copy_device_data_to_host(in_size, out_backprop_gpu,
-                                      output_backprop);
+    provider.copy_device_data_to_host(in_size + out_back_offset,
+                                      out_backprop_gpu, output_backprop);
 
+    for (size_t i = 0; i < out_back_offset; ++i) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      EXPECT_EQ(DataType{0}, output_backprop[i]);
+    }
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output_backprop[i], 0u);
+      EXPECT_EQ(exp[i], output_backprop[i + out_back_offset]);
     }
   }
 };

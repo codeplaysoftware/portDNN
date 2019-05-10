@@ -43,8 +43,15 @@ SNNStatus queue_pooling(ReadAccessor<T const> input_data,
     cgh.require(output_data);
     cgh.require(input_backprop);
     cgh.require(output_backprop);
+    Index input_data_offset = input_data.get_offset()[0];
+    Index output_data_offset = output_data.get_offset()[0];
+    Index input_backprop_offset = input_backprop.get_offset()[0];
+    Index output_backprop_offset = output_backprop.get_offset()[0];
+
     PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv> pool(
-        input_data, output_data, input_backprop, output_backprop, pp);
+        input_data, output_data, input_backprop, output_backprop,
+        input_data_offset, output_data_offset, input_backprop_offset,
+        output_backprop_offset, pp);
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);
   });

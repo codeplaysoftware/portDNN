@@ -47,3 +47,9 @@ snn_test(
   SOURCES max_pooling_with_nan.cc
   OBJECTS $<TARGET_OBJECTS:pooling>
 )
+snn_test(
+  WITH_SYCL
+  TARGET pooling_with_offsets
+  SOURCES pooling_offset.cc
+  OBJECTS $<TARGET_OBJECTS:pooling>
+)
