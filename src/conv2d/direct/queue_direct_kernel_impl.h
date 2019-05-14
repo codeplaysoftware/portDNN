@@ -56,7 +56,12 @@ SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
     cgh.require(input);
     cgh.require(filter);
     cgh.require(output);
-    Functor conv(kernel_params, input, filter, output);
+
+    Index input_offset = input.get_offset().get(0);
+    Index filter_offset = filter.get_offset().get(0);
+    Index output_offset = output.get_offset().get(0);
+    Functor conv(kernel_params, input, input_offset, filter, filter_offset,
+                 output, output_offset);
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, conv);
   });

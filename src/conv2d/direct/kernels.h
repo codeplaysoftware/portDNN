@@ -52,8 +52,13 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
   using StoreData = helpers::io::Store<DataType>;
 
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
-               const ReadAccessor<const T> filter, WriteAccessor<T> output)
-      : n_elems_{params.batch * params.out_rows * params.out_cols *
+               Index input_offset, const ReadAccessor<const T> filter,
+               Index filter_offset, WriteAccessor<T> output,
+               Index output_offset)
+      : input_offset_{input_offset},
+        filter_offset_{filter_offset},
+        output_offset_{output_offset},
+        n_elems_{params.batch * params.out_rows * params.out_cols *
                  params.features / VectorWidth},
         div_features_{params.features / VectorWidth},
         div_out_cols_{params.out_cols},
@@ -80,9 +85,9 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const auto input_data = input_accessor_.get_pointer();
-      const auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      const auto input_data = input_accessor_.get_pointer() + input_offset_;
+      const auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
+      auto output_data = output_accessor_.get_pointer() + output_offset_;
 
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -156,6 +161,10 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
   constexpr Index static_stride_param(Index stride) const {
     return (StaticStride > 0 ? StaticStride : stride);
   }
+
+  const Index input_offset_;
+  const Index filter_offset_;
+  const Index output_offset_;
   const Index n_elems_;
   const IndexDivType div_features_;
   const IndexDivType div_out_cols_;
@@ -192,8 +201,13 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
   using StoreData = helpers::io::Store<DataType>;
 
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
-               const ReadAccessor<const T> filter, WriteAccessor<T> output)
-      : n_elems_{params.batch * params.in_rows * params.in_cols *
+               Index input_offset, const ReadAccessor<const T> filter,
+               Index filter_offset, WriteAccessor<T> output,
+               Index output_offset)
+      : input_offset_{input_offset},
+        filter_offset_{filter_offset},
+        output_offset_{output_offset},
+        n_elems_{params.batch * params.in_rows * params.in_cols *
                  params.features},
         div_features_{params.features},
         div_in_cols_{params.in_cols},
@@ -222,9 +236,9 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const auto input_data = input_accessor_.get_pointer();
-      const auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      const auto input_data = input_accessor_.get_pointer() + input_offset_;
+      const auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
+      auto output_data = output_accessor_.get_pointer() + output_offset_;
 
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -298,6 +312,10 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
   constexpr Index static_stride_param(Index stride) const {
     return (StaticStride > 0 ? StaticStride : stride);
   }
+
+  const Index input_offset_;
+  const Index filter_offset_;
+  const Index output_offset_;
   const Index n_elems_;
   const IndexDivType div_features_;
   const IndexDivType div_in_cols_;
@@ -343,8 +361,13 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
   using StoreData = helpers::io::Store<DataType>;
 
   DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
-               const ReadAccessor<const T> filter, WriteAccessor<T> output)
-      : n_elems_{params.out_rows * params.out_cols * params.channels *
+               Index input_offset, const ReadAccessor<const T> filter,
+               Index filter_offset, WriteAccessor<T> output,
+               Index output_offset)
+      : input_offset_{input_offset},
+        filter_offset_{filter_offset},
+        output_offset_{output_offset},
+        n_elems_{params.out_rows * params.out_cols * params.channels *
                  params.features / VectorWidth},
         div_features_{params.features / VectorWidth},
         div_channels_{params.channels},
@@ -371,9 +394,9 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const auto input_data = input_accessor_.get_pointer();
-      const auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      const auto input_data = input_accessor_.get_pointer() + input_offset_;
+      const auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
+      auto output_data = output_accessor_.get_pointer() + output_offset_;
 
       const Index col_out = static_out_param(out_cols_);
       const auto tensor_idx =
@@ -440,6 +463,9 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
     return (StaticStride > 0 ? StaticStride : stride);
   }
 
+  const Index input_offset_;
+  const Index filter_offset_;
+  const Index output_offset_;
   const Index n_elems_;
   const IndexDivType div_features_;
   const IndexDivType div_channels_;

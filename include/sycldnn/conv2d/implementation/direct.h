@@ -42,9 +42,20 @@ inline SNNStatus launch_direct(
   auto inp_buff = backend.get_buffer(input, conv_sizes.input_size);
   auto fil_buff = backend.get_buffer(filter, conv_sizes.filter_size);
   auto out_buff = backend.get_buffer(output, conv_sizes.output_size);
-  ReadAccessor<T const> inp_access{inp_buff};
-  ReadAccessor<T const> fil_access{fil_buff};
-  WriteAccessor<T> out_access{out_buff};
+
+  auto const inp_offset = backend.get_offset(input);
+  auto const fil_offset = backend.get_offset(filter);
+  auto const out_offset = backend.get_offset(output);
+
+  ReadAccessor<T const> inp_access{inp_buff,
+                                   cl::sycl::range<1>{conv_sizes.input_size},
+                                   cl::sycl::id<1>{inp_offset}};
+  ReadAccessor<T const> fil_access{fil_buff,
+                                   cl::sycl::range<1>{conv_sizes.filter_size},
+                                   cl::sycl::id<1>{fil_offset}};
+  WriteAccessor<T> out_access{out_buff,
+                              cl::sycl::range<1>{conv_sizes.output_size},
+                              cl::sycl::id<1>{out_offset}};
   cl::sycl::queue queue = backend.get_queue();
   return internal::launch_direct<T, ConvType>(inp_access, fil_access,
                                               out_access, params, queue);
