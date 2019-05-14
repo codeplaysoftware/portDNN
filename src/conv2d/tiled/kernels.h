@@ -41,13 +41,7 @@ namespace tiled {
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride = 0>
-struct TiledConv2D {
-  TiledConv2D(Conv2DParams const& /*params*/,
-              ReadAccessor<T const> const /*input*/,
-              ReadAccessor<T const> const /*kernel*/,
-              WriteAccessor<T> /*output*/) {}
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> /*item*/) {}
-};
+struct TiledConv2D;
 
 /**
  * Forward convolution using a tiled direct computation technique.
@@ -77,10 +71,14 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   using OutVecType = typename Output::VecType;
 
  public:
-  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> kernel,
-              WriteAccessor<T> output, Conv2DParams const& params,
-              TileInfo const& tile_info)
-      : n_tile_cols_{tile_info.n_cols},
+  TiledConv2D(ReadAccessor<T const> input, Index input_offset,
+              ReadAccessor<T const> filter, Index filter_offset,
+              WriteAccessor<T> output, Index output_offset,
+              Conv2DParams const& params, TileInfo const& tile_info)
+      : input_offset_{input_offset},
+        filter_offset_{filter_offset},
+        output_offset_{output_offset},
+        n_tile_cols_{tile_info.n_cols},
         n_tile_rows_{tile_info.n_rows},
         n_feature_vectors_{tile_info.output_vectors},
         div_feature_vectors_{n_feature_vectors_},
@@ -98,16 +96,16 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
         pad_rows_{params.pad_rows},
         pad_cols_{params.pad_cols},
         input_accessor_{std::move(input)},
-        filter_accessor_{std::move(kernel)},
+        filter_accessor_{std::move(filter)},
         output_accessor_{std::move(output)} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_accessor_.get_pointer() + input_offset_;
+      auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
+      auto output_data = output_accessor_.get_pointer() + output_offset_;
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -193,6 +191,9 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
     return value;
   }
 
+  const Index input_offset_;
+  const Index filter_offset_;
+  const Index output_offset_;
   const Index n_tile_cols_;
   const Index n_tile_rows_;
   const Index n_feature_vectors_;
@@ -231,10 +232,14 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   using OutVecType = typename Output::VecType;
 
  public:
-  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> kernel,
-              WriteAccessor<T> output, Conv2DParams const& params,
-              TileInfo const& tile_info)
-      : n_tile_cols_{tile_info.n_cols},
+  TiledConv2D(ReadAccessor<T const> input, Index input_offset,
+              ReadAccessor<T const> filter, Index filter_offset,
+              WriteAccessor<T> output, Index output_offset,
+              Conv2DParams const& params, TileInfo const& tile_info)
+      : input_offset_{input_offset},
+        filter_offset_{filter_offset},
+        output_offset_{output_offset},
+        n_tile_cols_{tile_info.n_cols},
         n_tile_rows_{tile_info.n_rows},
         n_channel_vectors_{tile_info.output_vectors},
         div_channels_{n_channel_vectors_},
@@ -252,16 +257,16 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
         pad_rows_{params.pad_rows},
         pad_cols_{params.pad_cols},
         input_accessor_{std::move(input)},
-        filter_accessor_{std::move(kernel)},
+        filter_accessor_{std::move(filter)},
         output_accessor_{std::move(output)} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_accessor_.get_pointer() + input_offset_;
+      auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
+      auto output_data = output_accessor_.get_pointer() + output_offset_;
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -377,6 +382,9 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
     return output;
   }
 
+  const Index input_offset_;
+  const Index filter_offset_;
+  const Index output_offset_;
   const Index n_tile_cols_;
   const Index n_tile_rows_;
   const Index n_channel_vectors_;
