@@ -25,10 +25,11 @@
 
 #include "src/pointwise/kernels.h"
 
-#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP, DIRECTION)         \
-  template SNNStatus launch_pointwise<DTYPE, OP, DIRECTION>(                  \
-      ReadAccessor<DTYPE const> inp_access, WriteAccessor<DTYPE> outp_access, \
-      size_t const n_items, cl::sycl::queue& queue);
+#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP, DIRECTION) \
+  template SNNStatus launch_pointwise<DTYPE, OP, DIRECTION>(          \
+      BaseMemObject<DTYPE const> & inp_access,                        \
+      BaseMemObject<DTYPE> & outp_access, size_t const n_items,       \
+      cl::sycl::queue& queue);
 
 namespace sycldnn {
 namespace pointwise {
@@ -40,17 +41,19 @@ namespace internal {
  */
 template <typename T, typename Index, template <typename> class PointwiseType,
           typename Direction, int VectorWidth>
-SNNStatus queue_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
-                          size_t const n_items, Index const input_offset,
-                          Index const output_offset, cl::sycl::queue& queue) {
+SNNStatus queue_pointwise(BaseMemObject<T const>& in_mem,
+                          BaseMemObject<T>& out_mem, size_t const n_items,
+                          cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(output);
+    auto input = in_mem.read_accessor(cgh);
+    auto output = out_mem.write_accessor(cgh);
+    auto const input_offset = input.get_offset().get(0);
+    auto const output_offset = output.get_offset().get(0);
     Index const n_vecs = n_items / VectorWidth;
     // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
     size_t const n_threads = n_vecs;
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
-        input, output, n_vecs, input_offset, output_offset};
+    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op(
+        input, output, n_vecs, input_offset, output_offset);
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
   });
@@ -60,20 +63,18 @@ SNNStatus queue_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
 
 template <typename T, typename Index, template <typename> class PointwiseType,
           typename Direction>
-SNNStatus launch_vector_pointwise(ReadAccessor<T const> input,
-                                  WriteAccessor<T> output, Index const n_items,
-                                  Index const input_offset,
-                                  Index const output_offset,
+SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input,
+                                  BaseMemObject<T>& output, Index const n_items,
                                   cl::sycl::queue& queue) {
   if (n_items % 4 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
-        input, output, n_items, input_offset, output_offset, queue);
+        input, output, n_items, queue);
   } else if (n_items % 2 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
-        input, output, n_items, input_offset, output_offset, queue);
+        input, output, n_items, queue);
   } else {
     return queue_pointwise<T, Index, PointwiseType, Direction, 1>(
-        input, output, n_items, input_offset, output_offset, queue);
+        input, output, n_items, queue);
   }
 }
 
@@ -83,10 +84,9 @@ SNNStatus launch_vector_pointwise(ReadAccessor<T const> input,
  */
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename EnableIf>
-SNNStatus launch_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
-                           size_t const n_items, cl::sycl::queue& queue) {
-  auto const input_offset = input.get_offset().get(0);
-  auto const output_offset = output.get_offset().get(0);
+SNNStatus launch_pointwise(BaseMemObject<T const>& input,
+                           BaseMemObject<T>& output, size_t const n_items,
+                           cl::sycl::queue& queue) {
   if (n_items > std::numeric_limits<int64_t>::max()) {
     SNNStatus index_too_large;
     index_too_large.status = StatusCode::IndexExceeded;
@@ -94,8 +94,7 @@ SNNStatus launch_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
   } else if (n_items > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
     return launch_vector_pointwise<T, int64_t, PointwiseType, Direction>(
-        input, output, n_items, static_cast<int64_t>(input_offset),
-        static_cast<int64_t>(output_offset), queue);
+        input, output, n_items, queue);
 #else
     SNNStatus index_too_large;
     index_too_large.status = StatusCode::IndexExceeded;
@@ -103,8 +102,7 @@ SNNStatus launch_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
 #endif  // SNN_USE_INT64
   } else {
     return launch_vector_pointwise<T, int32_t, PointwiseType, Direction>(
-        input, output, n_items, static_cast<int32_t>(input_offset),
-        static_cast<int32_t>(output_offset), queue);
+        input, output, n_items, queue);
   }
 }
 

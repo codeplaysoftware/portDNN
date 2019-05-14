@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_H_
 #define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -30,7 +30,7 @@ namespace im2col {
 
 /** Zero out the im2col transform temporary buffer. */
 template <typename T, int VectorWidth>
-SNNStatus queue_zero_out_transform(WriteAccessor<T> output, size_t n_tiles,
+SNNStatus queue_zero_out_transform(BaseMemObject<T>& output, size_t n_tiles,
                                    size_t tile_size, cl::sycl::queue& queue);
 
 }  // namespace im2col

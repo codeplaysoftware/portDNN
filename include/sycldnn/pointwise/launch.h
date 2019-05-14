@@ -23,7 +23,7 @@
  * asynchronously dispatches the SYCL kernels to compute a pointwise operation.
  */
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/macros.h"
@@ -71,10 +71,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const inp_offset = backend.get_offset(input);
   auto const outp_offset = backend.get_offset(output);
 
-  ReadAccessor<T const> inp_access{inp_buf, cl::sycl::range<1>{n_items},
-                                   cl::sycl::id<1>{inp_offset}};
-  WriteAccessor<T> outp_access{outp_buf, cl::sycl::range<1>{n_items},
-                               cl::sycl::id<1>{outp_offset}};
+  auto inp_access = make_mem_object(inp_buf, n_items, inp_offset);
+  auto outp_access = make_mem_object(outp_buf, n_items, outp_offset);
 
   auto queue = backend.get_queue();
   return internal::launch_pointwise<T, PointwiseType, Direction>(
@@ -121,12 +119,9 @@ SNNStatus launch(
   auto const inp_bk_offset = backend.get_offset(input_backprop);
   auto const out_bk_offset = backend.get_offset(output_backprop);
 
-  ReadAccessor<T const> inp_fwd_access{inp_fwd_buf, cl::sycl::range<1>{n_items},
-                                       cl::sycl::id<1>{inp_fwd_offset}};
-  ReadAccessor<T const> inp_bk_access{inp_bk_buf, cl::sycl::range<1>{n_items},
-                                      cl::sycl::id<1>{inp_bk_offset}};
-  WriteAccessor<T> out_bk_access{out_bk_buf, cl::sycl::range<1>{n_items},
-                                 cl::sycl::id<1>{out_bk_offset}};
+  auto inp_fwd_access = make_mem_object(inp_fwd_buf, n_items, inp_fwd_offset);
+  auto inp_bk_access = make_mem_object(inp_bk_buf, n_items, inp_bk_offset);
+  auto out_bk_access = make_mem_object(out_bk_buf, n_items, out_bk_offset);
 
   auto queue = backend.get_queue();
   return internal::launch_pointwise<T, PointwiseType, Direction>(

@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
 #define SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/ratio.h"
@@ -29,14 +29,15 @@ namespace transpose {
 namespace internal {
 
 template <typename T, typename Index, int ND>
-SNNStatus queue_kernel(ReadAccessor<T const> input, WriteAccessor<T> output,
+SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
+                       BaseMemObject<T>& output_mem,
                        std::vector<int> const& dimensions,
                        std::vector<int> const& permutation,
                        cl::sycl::queue& queue) {
   using Functor = TransposeKernel<T, Index, ND>;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(output);
+    auto input = input_mem.read_accessor(cgh);
+    auto output = output_mem.write_accessor(cgh);
 
     Index const in_offset = input.get_offset().get(0);
     Index const out_offset = output.get_offset().get(0);

@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_WINOGRAD_LAUNCH_INPUT_TRANSFORM_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_WINOGRAD_LAUNCH_INPUT_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -53,8 +53,8 @@ namespace winograd {
  * kernel launched.
  */
 template <typename T, typename ConvType, int M, int N, int R, int S>
-SNNStatus launch_input_transform(ReadAccessor<T const> input,
-                                 WriteAccessor<T> transform,
+SNNStatus launch_input_transform(BaseMemObject<T const>& input,
+                                 BaseMemObject<T>& transform,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
                                  cl::sycl::queue& queue);
@@ -84,17 +84,15 @@ SNNStatus launch_input_transform(
       params.batch * params.in_rows * params.in_cols * params.channels;
   auto input_buffer = backend.get_buffer_internal(input, input_size);
   size_t const input_offset = backend.get_offset_internal(input);
-  ReadAccessor<T const> input_acc{input_buffer, cl::sycl::range<1>{input_size},
-                                  cl::sycl::id<1>{input_offset}};
+  auto input_acc = make_mem_object(input_buffer, input_size, input_offset);
 
   size_t const transform_size =
       A * B * params.batch * tile_info.number * params.channels;
   auto transform_buffer =
       backend.get_buffer_internal(transform, transform_size);
   size_t const transform_offset = backend.get_offset_internal(transform);
-  WriteAccessor<T> transform_acc{transform_buffer,
-                                 cl::sycl::range<1>{transform_size},
-                                 cl::sycl::id<1>{transform_offset}};
+  auto transform_acc =
+      make_mem_object(transform_buffer, transform_size, transform_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_input_transform<T, ConvType, M, N, R, S>(

@@ -15,10 +15,11 @@
  */
 #include "sycldnn/internal/conv2d/direct.h"
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/conv_type.h"
+
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
 
@@ -84,9 +85,9 @@ inline bool can_use_vector_width(Conv2DParams const& params, int const width) {
  */
 template <typename T, typename Index, typename ConvType, int Window, int Stride,
           int VectorWidth>
-SNNStatus launch_with_vector(ReadAccessor<T const> input,
-                             ReadAccessor<T const> filter,
-                             WriteAccessor<T> output,
+SNNStatus launch_with_vector(BaseMemObject<T const>& input,
+                             BaseMemObject<T const>& filter,
+                             BaseMemObject<T>& output,
                              Conv2DParams const& params, Index output_size,
                              cl::sycl::queue& queue) {
   auto kernel_params = direct::get_kernel_params<ConvType>(params);
@@ -106,10 +107,11 @@ SNNStatus launch_with_vector(ReadAccessor<T const> input,
  * the convolution kernel to do the computation.
  */
 template <typename T, typename Index, typename ConvType, int Window, int Stride>
-SNNStatus launch_with_index(ReadAccessor<T const> input,
-                            ReadAccessor<T const> filter,
-                            WriteAccessor<T> output, Conv2DParams const& params,
-                            Index output_size, cl::sycl::queue& queue) {
+SNNStatus launch_with_index(BaseMemObject<T const>& input,
+                            BaseMemObject<T const>& filter,
+                            BaseMemObject<T>& output,
+                            Conv2DParams const& params, Index output_size,
+                            cl::sycl::queue& queue) {
   if (can_use_vector_width<ConvType>(params, 4)) {
     return launch_with_vector<T, Index, ConvType, Window, Stride, 4>(
         input, filter, output, params, output_size, queue);
@@ -127,9 +129,9 @@ SNNStatus launch_with_index(ReadAccessor<T const> input,
  * required kernel.
  */
 template <typename T, typename ConvType, int Window, int Stride>
-SNNStatus launch_with_static_sizes(ReadAccessor<T const> input,
-                                   ReadAccessor<T const> filter,
-                                   WriteAccessor<T> output,
+SNNStatus launch_with_static_sizes(BaseMemObject<T const>& input,
+                                   BaseMemObject<T const>& filter,
+                                   BaseMemObject<T>& output,
                                    Conv2DParams const& params,
                                    cl::sycl::queue& queue) {
   auto conv_sizes = get_sizes<ConvType>(params);
@@ -157,9 +159,10 @@ SNNStatus launch_with_static_sizes(ReadAccessor<T const> input,
  * the static window and stride sizes to better optimise when possible.
  */
 template <typename T, typename ConvType>
-SNNStatus launch_direct(ReadAccessor<T const> input,
-                        ReadAccessor<T const> filter, WriteAccessor<T> output,
-                        Conv2DParams const& params, cl::sycl::queue& queue) {
+SNNStatus launch_direct(BaseMemObject<T const>& input,
+                        BaseMemObject<T const>& filter,
+                        BaseMemObject<T>& output, Conv2DParams const& params,
+                        cl::sycl::queue& queue) {
 #ifdef SNN_CONV2D_STATIC_DIRECT
   if (can_use_static_conv<ConvType>(params, 1, 1)) {
     return launch_with_static_sizes<T, ConvType, 1, 1>(input, filter, output,
@@ -183,49 +186,31 @@ SNNStatus launch_direct(ReadAccessor<T const> input,
                                                        params, queue);
   }
 }
-template SNNStatus launch_direct<float, conv_type::Forward>(
-    ReadAccessor<float const> input, ReadAccessor<float const> filter,
-    WriteAccessor<float> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_direct<float, conv_type::InputBackprop>(
-    ReadAccessor<float const> input, ReadAccessor<float const> filter,
-    WriteAccessor<float> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_direct<float, conv_type::FilterBackprop>(
-    ReadAccessor<float const> input, ReadAccessor<float const> filter,
-    WriteAccessor<float> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
+
+#define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                       \
+  template SNNStatus launch_direct<DTYPE, DIR>(                                \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
+      BaseMemObject<DTYPE> & output, Conv2DParams const& params,               \
+      cl::sycl::queue& queue)
+
+#define INSTANTIATE_FOR_TYPE(DTYPE)                      \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward);       \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop); \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop)
+
+INSTANTIATE_FOR_TYPE(float);
+
 #ifdef SNN_USE_DOUBLE
-template SNNStatus launch_direct<double, conv_type::Forward>(
-    ReadAccessor<double const> input, ReadAccessor<double const> filter,
-    WriteAccessor<double> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_direct<double, conv_type::InputBackprop>(
-    ReadAccessor<double const> input, ReadAccessor<double const> filter,
-    WriteAccessor<double> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_direct<double, conv_type::FilterBackprop>(
-    ReadAccessor<double const> input, ReadAccessor<double const> filter,
-    WriteAccessor<double> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
+INSTANTIATE_FOR_TYPE(double);
 #endif  // SNN_USE_DOUBLE
+
 #ifdef SNN_USE_HALF
-template SNNStatus launch_direct<cl::sycl::half, conv_type::Forward>(
-    ReadAccessor<cl::sycl::half const> input,
-    ReadAccessor<cl::sycl::half const> filter,
-    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_direct<cl::sycl::half, conv_type::InputBackprop>(
-    ReadAccessor<cl::sycl::half const> input,
-    ReadAccessor<cl::sycl::half const> filter,
-    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
-template SNNStatus launch_direct<cl::sycl::half, conv_type::FilterBackprop>(
-    ReadAccessor<cl::sycl::half const> input,
-    ReadAccessor<cl::sycl::half const> filter,
-    WriteAccessor<cl::sycl::half> output, Conv2DParams const& params,
-    cl::sycl::queue& queue);
+INSTANTIATE_FOR_TYPE(cl::sycl::half);
 #endif  // SNN_USE_HALF
+
+#undef INSTANTIATE_FOR_TYPE
+#undef INSTANTIATE_LAUNCHER
+
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

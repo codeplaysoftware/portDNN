@@ -15,7 +15,7 @@
  */
 #include "sycldnn/internal/conv2d/tiled.h"
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/conv_type.h"
@@ -105,9 +105,9 @@ inline bool can_use_sizes<conv_type::FilterBackprop>(
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           int Window, int Stride>
-SNNStatus launch_with_index_type(ReadAccessor<T const> input,
-                                 ReadAccessor<T const> filter,
-                                 WriteAccessor<T> output,
+SNNStatus launch_with_index_type(BaseMemObject<T const>& input,
+                                 BaseMemObject<T const>& filter,
+                                 BaseMemObject<T>& output,
                                  Conv2DParams const& params,
                                  tiled::TileInfo const& tile_info,
                                  cl::sycl::queue& queue) {
@@ -132,9 +132,10 @@ SNNStatus launch_with_index_type(ReadAccessor<T const> input,
 template <typename T, typename ConvType, int TileRows, int TileCols,
           int ChannelVectorWidth, int FeatureVectorWidth, int Window,
           int Stride>
-SNNStatus launch_with_sizes(ReadAccessor<T const> input,
-                            ReadAccessor<T const> filter,
-                            WriteAccessor<T> output, Conv2DParams const& params,
+SNNStatus launch_with_sizes(BaseMemObject<T const>& input,
+                            BaseMemObject<T const>& filter,
+                            BaseMemObject<T>& output,
+                            Conv2DParams const& params,
                             cl::sycl::queue& queue) {
   auto const tile_info = tiled::get_tile_info<ConvType>(
       params, TileRows, TileCols, ChannelVectorWidth, FeatureVectorWidth);
@@ -165,9 +166,9 @@ SNNStatus launch_with_sizes(ReadAccessor<T const> input,
  * the static window and stride sizes to better optimise when possible.
  */
 template <typename T, typename ConvType>
-inline SNNStatus launch_tiled(ReadAccessor<T const> input,
-                              ReadAccessor<T const> filter,
-                              WriteAccessor<T> output,
+inline SNNStatus launch_tiled(BaseMemObject<T const>& input,
+                              BaseMemObject<T const>& filter,
+                              BaseMemObject<T>& output,
                               Conv2DParams const& params,
                               cl::sycl::queue& queue) {
   if (std::is_same<ConvType, conv_type::FilterBackprop>::value) {
@@ -247,10 +248,10 @@ inline SNNStatus launch_tiled(ReadAccessor<T const> input,
   return invalid_algorithm_status;
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                 \
-  template SNNStatus launch_tiled<DTYPE, DIR>(                           \
-      ReadAccessor<DTYPE const> input, ReadAccessor<DTYPE const> filter, \
-      WriteAccessor<DTYPE> output, Conv2DParams const& params,           \
+#define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                       \
+  template SNNStatus launch_tiled<DTYPE, DIR>(                                 \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
+      BaseMemObject<DTYPE> & output, Conv2DParams const& params,               \
       cl::sycl::queue& queue)
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                      \

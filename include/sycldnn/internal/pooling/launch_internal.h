@@ -17,7 +17,7 @@
 #ifndef SYCLDNN_INCLUDE_POOLING_LAUNCH_INTERNAL_H_
 #define SYCLDNN_INCLUDE_POOLING_LAUNCH_INTERNAL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/pooling/operators.h"
@@ -62,15 +62,16 @@ using EnableIfMaxGradient =
 
 template <typename T, template <typename> class PoolType, typename Direction,
           DisableIfMaxGradient<T, PoolType, Direction> = 0>
-SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
-                         const PoolingParams& pp, cl::sycl::queue& queue);
+SNNStatus launch_pooling(BaseMemObject<T const>& input,
+                         BaseMemObject<T>& output, const PoolingParams& pp,
+                         cl::sycl::queue& queue);
 
 template <typename T, template <typename> class PoolType, typename Direction,
           EnableIfMaxGradient<T, PoolType, Direction> = 0>
-SNNStatus launch_pooling(ReadAccessor<T const> inp_data,
-                         ReadAccessor<T const> outp_data,
-                         ReadAccessor<T const> inp_backprop,
-                         WriteAccessor<T> outp_backprop,
+SNNStatus launch_pooling(BaseMemObject<T const>& inp_data,
+                         BaseMemObject<T const>& outp_data,
+                         BaseMemObject<T const>& inp_backprop,
+                         BaseMemObject<T>& outp_backprop,
                          const PoolingParams& pp, cl::sycl::queue& queue);
 
 }  // namespace internal

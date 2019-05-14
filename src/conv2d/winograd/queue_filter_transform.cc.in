@@ -32,8 +32,8 @@ namespace winograd {
 
 template SNNStatus queue_filter_transform<
     SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_M, SNN_N, SNN_R, SNN_S>(
-    ReadAccessor<SNN_DATA_TYPE const> input,
-    WriteAccessor<SNN_DATA_TYPE> in_transform,
+    BaseMemObject<SNN_DATA_TYPE const>& input,
+    BaseMemObject<SNN_DATA_TYPE>& in_transform,
     Conv2DParams const& kernel_params, TileInfo const& tile_info,
     cl::sycl::queue& queue);
 

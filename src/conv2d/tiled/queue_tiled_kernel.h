@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
 #define SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -32,9 +32,9 @@ namespace internal {
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
-SNNStatus queue_tiled_kernel(ReadAccessor<T const> input,
-                             ReadAccessor<T const> filter,
-                             WriteAccessor<T> output,
+SNNStatus queue_tiled_kernel(BaseMemObject<T const>& input,
+                             BaseMemObject<T const>& filter,
+                             BaseMemObject<T>& output,
                              Conv2DParams const& kernel_params,
                              tiled::TileInfo const& tile_info,
                              cl::sycl::queue& queue);

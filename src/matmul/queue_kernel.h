@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
 #define SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 namespace sycldnn {
@@ -28,8 +28,8 @@ namespace internal {
  */
 template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
           int RowTile, int AccTile, int ColTile>
-SNNStatus queue_kernel(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                       ReadWriteAccessor<T> output, int batches, int m, int k,
+SNNStatus queue_kernel(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
+                       BaseMemObject<T>& output, int batches, int m, int k,
                        int n, T beta, cl::sycl::queue& queue);
 
 }  // namespace internal

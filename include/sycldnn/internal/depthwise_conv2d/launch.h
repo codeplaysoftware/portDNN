@@ -22,7 +22,7 @@
  * asynchronously dispatches the SYCL kernels required to perform a 2D
  * convolution.
  */
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/depthwise_conv2d/params.h"
@@ -49,8 +49,8 @@ namespace internal {
  * encountered some problem.
  */
 template <typename ConvType, typename T>
-SNNStatus launch(ReadAccessor<T const> input, ReadAccessor<T const> filter,
-                 WriteAccessor<T> output, DepthwiseConv2DParams const& params,
+SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
+                 BaseMemObject<T>& output, DepthwiseConv2DParams const& params,
                  cl::sycl::queue& queue);
 
 }  // namespace internal

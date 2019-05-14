@@ -17,6 +17,7 @@
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_WINOGRAD_LAUNCH_OUTPUT_TRANSFORM_H_
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/conv_type.h"
@@ -55,8 +56,8 @@ namespace winograd {
  */
 template <typename T, typename ConvType, int M, int N, int R, int S,
           bool Accumulate = false>
-SNNStatus launch_output_transform(ReadAccessor<T const> intermediate,
-                                  WriteAccessor<T> output,
+SNNStatus launch_output_transform(BaseMemObject<T const>& intermediate,
+                                  BaseMemObject<T>& output,
                                   Conv2DParams const& params,
                                   TileInfo const& tile_info,
                                   cl::sycl::queue& queue);
@@ -86,15 +87,13 @@ SNNStatus launch_output_transform(
       A * B * params.batch * tile_info.number * params.features;
   auto inter_buffer = backend.get_buffer_internal(inter, inter_size);
   size_t const inter_offset = backend.get_offset_internal(inter);
-  ReadAccessor<T const> inter_acc{inter_buffer, cl::sycl::range<1>{inter_size},
-                                  cl::sycl::id<1>{inter_offset}};
+  auto inter_acc = make_mem_object(inter_buffer, inter_size, inter_offset);
 
   size_t const output_size =
       params.batch * params.out_rows * params.out_cols * params.features;
   auto output_buffer = backend.get_buffer_internal(output, output_size);
   size_t const output_offset = backend.get_offset_internal(output);
-  WriteAccessor<T> output_acc{output_buffer, cl::sycl::range<1>{output_size},
-                              cl::sycl::id<1>{output_offset}};
+  auto output_acc = make_mem_object(output_buffer, output_size, output_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_output_transform<T, ConvType, M, N, R, S>(
@@ -127,14 +126,12 @@ SNNStatus launch_output_transform_filter_backprop(
       A * B * params.batch * tile_info.number * params.features;
   auto inter_buffer = backend.get_buffer_internal(inter, inter_size);
   size_t const inter_offset = backend.get_offset_internal(inter);
-  ReadAccessor<T const> inter_acc{inter_buffer, cl::sycl::range<1>{inter_size},
-                                  cl::sycl::id<1>{inter_offset}};
+  auto inter_acc = make_mem_object(inter_buffer, inter_size, inter_offset);
 
   size_t const output_size = M * N * params.channels * params.features;
   auto output_buffer = backend.get_buffer_internal(output, output_size);
   size_t const output_offset = backend.get_offset_internal(output);
-  WriteAccessor<T> output_acc{output_buffer, cl::sycl::range<1>{output_size},
-                              cl::sycl::id<1>{output_offset}};
+  auto output_acc = make_mem_object(output_buffer, output_size, output_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_output_transform<T, ConvType, M, N, R, S, Accumulate>(

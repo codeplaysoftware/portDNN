@@ -25,8 +25,8 @@ namespace internal {
 namespace winograd {
 
 template <typename T, typename ConvType, int M, int N, int R, int S>
-SNNStatus launch_filter_transform(ReadAccessor<T const> input,
-                                  WriteAccessor<T> transform,
+SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
+                                  BaseMemObject<T>& transform,
                                   Conv2DParams const& params,
                                   TileInfo const& tile_info,
                                   cl::sycl::queue& queue) {
@@ -34,10 +34,10 @@ SNNStatus launch_filter_transform(ReadAccessor<T const> input,
       input, transform, params, tile_info, queue);
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, M, N, R, S)                  \
-  template SNNStatus launch_filter_transform<DTYPE, CTYPE, M, N, R, S>( \
-      ReadAccessor<DTYPE const> input, WriteAccessor<DTYPE> transform,  \
-      Conv2DParams const& params, TileInfo const& tile_info,            \
+#define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, M, N, R, S)                      \
+  template SNNStatus launch_filter_transform<DTYPE, CTYPE, M, N, R, S>(     \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & transform, \
+      Conv2DParams const& params, TileInfo const& tile_info,                \
       cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                  \

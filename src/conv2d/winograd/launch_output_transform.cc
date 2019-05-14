@@ -26,8 +26,8 @@ namespace winograd {
 
 template <typename T, typename ConvType, int M, int N, int R, int S,
           bool Accumulate>
-SNNStatus launch_output_transform(ReadAccessor<T const> intermediate,
-                                  WriteAccessor<T> output,
+SNNStatus launch_output_transform(BaseMemObject<T const>& intermediate,
+                                  BaseMemObject<T>& output,
                                   Conv2DParams const& params,
                                   TileInfo const& tile_info,
                                   cl::sycl::queue& queue) {
@@ -37,9 +37,9 @@ SNNStatus launch_output_transform(ReadAccessor<T const> intermediate,
 
 #define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, M, N, R, S, ACC)                  \
   template SNNStatus launch_output_transform<DTYPE, CTYPE, M, N, R, S, ACC>( \
-      ReadAccessor<DTYPE const> intermediate, WriteAccessor<DTYPE> output,   \
-      Conv2DParams const& params, TileInfo const& tile_info,                 \
-      cl::sycl::queue& queue);
+      BaseMemObject<DTYPE const> & intermediate,                             \
+      BaseMemObject<DTYPE> & output, Conv2DParams const& params,             \
+      TileInfo const& tile_info, cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                         \
   INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, 4, 4, 3, 3, false)        \

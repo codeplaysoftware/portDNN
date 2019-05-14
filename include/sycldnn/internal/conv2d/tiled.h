@@ -16,8 +16,8 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_TILED_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_TILED_H_
 
-#include "sycldnn/accessor_types.h"
 #include "sycldnn/conv2d/params.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 namespace sycldnn {
@@ -29,8 +29,8 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T, typename ConvType>
-SNNStatus launch_tiled(ReadAccessor<T const> input,
-                       ReadAccessor<T const> filter, WriteAccessor<T> output,
+SNNStatus launch_tiled(BaseMemObject<T const>& input,
+                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
                        Conv2DParams const& params, cl::sycl::queue& queue);
 }  // namespace internal
 }  // namespace conv2d

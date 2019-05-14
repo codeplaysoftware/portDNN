@@ -15,9 +15,12 @@
  */
 #include "sycldnn/internal/transpose/launch.h"
 
+#include "sycldnn/mem_object.h"
+
 #include "src/transpose/queue_kernel.h"
 
 #include <iterator>
+#include <vector>
 
 namespace sycldnn {
 namespace transpose {
@@ -27,8 +30,8 @@ namespace {
 
 template <typename T, typename Index, int N>
 struct Transposer {
-  static SNNStatus transpose(ReadAccessor<T const> input,
-                             WriteAccessor<T> output,
+  static SNNStatus transpose(BaseMemObject<T const>& input,
+                             BaseMemObject<T>& output,
                              std::vector<int> const& dimensions,
                              std::vector<int> const& permutation,
                              cl::sycl::queue& queue) {
@@ -41,14 +44,14 @@ template <typename T, typename Index>
 struct Transposer<T, Index, 1> {
   // A 1D transpose can only possibly be an identity operation, so just copy
   // from the input to the output.
-  static SNNStatus transpose(ReadAccessor<T const> input,
-                             WriteAccessor<T> output,
+  static SNNStatus transpose(BaseMemObject<T const>& input_mem,
+                             BaseMemObject<T>& output_mem,
                              std::vector<int> const& /*dimensions*/,
                              std::vector<int> const& /*permutation*/,
                              cl::sycl::queue& queue) {
-    auto event = queue.submit([=](cl::sycl::handler& cgh) {
-      cgh.require(input);
-      cgh.require(output);
+    auto event = queue.submit([&](cl::sycl::handler& cgh) {
+      auto input = input_mem.read_accessor(cgh);
+      auto output = output_mem.write_accessor(cgh);
       cgh.copy(input, output);
     });
     return {event, StatusCode::OK};
@@ -98,7 +101,7 @@ void simplify_transpose(std::vector<int>& dimensions,
 }  // namespace
 
 template <typename T>
-SNNStatus launch(ReadAccessor<T const> input, WriteAccessor<T> output,
+SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
                  std::vector<int> dimensions, std::vector<int> permutation,
                  cl::sycl::queue& queue) {
   simplify_transpose(dimensions, permutation);
@@ -125,10 +128,10 @@ SNNStatus launch(ReadAccessor<T const> input, WriteAccessor<T> output,
   return {{}, StatusCode::InvalidAlgorithm};
 }
 
-#define INSTANTIATE_FOR_TYPE(DTYPE)                                 \
-  template SNNStatus launch(                                        \
-      ReadAccessor<DTYPE const> input, WriteAccessor<DTYPE> output, \
-      std::vector<int> dimensions, std::vector<int> permutation,    \
+#define INSTANTIATE_FOR_TYPE(DTYPE)                                    \
+  template SNNStatus launch(                                           \
+      BaseMemObject<DTYPE const>& input, BaseMemObject<DTYPE>& output, \
+      std::vector<int> dimensions, std::vector<int> permutation,       \
       cl::sycl::queue& backend)
 
 INSTANTIATE_FOR_TYPE(float);

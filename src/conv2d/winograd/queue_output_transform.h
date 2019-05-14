@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_OUTPUT_TRANSFORM_H_
 #define SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_OUTPUT_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -31,8 +31,8 @@ namespace winograd {
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
           int S, bool Accumulate>
-SNNStatus queue_output_transform(ReadAccessor<T const> intermediate,
-                                 WriteAccessor<T> output,
+SNNStatus queue_output_transform(BaseMemObject<T const>& intermediate,
+                                 BaseMemObject<T>& output,
                                  Conv2DParams const& kernel_params,
                                  TileInfo const& tile_info,
                                  cl::sycl::queue& queue);

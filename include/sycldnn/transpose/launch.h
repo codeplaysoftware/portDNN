@@ -22,7 +22,7 @@
  * asynchronously dispatches a SYCL kernel to transpose an N-Dimensional
  * tensor.
  */
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/macros.h"
@@ -93,10 +93,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   size_t in_offset = backend.get_offset(input);
   size_t out_offset = backend.get_offset(output);
 
-  auto in_acc = ReadAccessor<T const>{in_buff, cl::sycl::range<1>{tensor_size},
-                                      cl::sycl::id<1>{in_offset}};
-  auto out_acc = WriteAccessor<T>{out_buff, cl::sycl::range<1>{tensor_size},
-                                  cl::sycl::id<1>{out_offset}};
+  auto in_acc = make_mem_object(in_buff, tensor_size, in_offset);
+  auto out_acc = make_mem_object(out_buff, tensor_size, out_offset);
 
   auto sycl_queue = backend.get_queue();
 

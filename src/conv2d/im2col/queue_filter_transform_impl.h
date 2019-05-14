@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -34,8 +34,8 @@ namespace internal {
 namespace im2col {
 
 template <typename T, typename Index>
-SNNStatus queue_filter_transform(ReadAccessor<T const> input,
-                                 WriteAccessor<T> output,
+SNNStatus queue_filter_transform(BaseMemObject<T const>& input_mem,
+                                 BaseMemObject<T>& output_mem,
                                  Conv2DParams const& params, Index thread_size,
                                  cl::sycl::queue& queue) {
   using Functor = ExtractFilterTiles<T, Index>;
@@ -46,8 +46,8 @@ SNNStatus queue_filter_transform(ReadAccessor<T const> input,
       helpers::round_up_to_nearest_multiple(thread_size, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(output);
+    auto input = input_mem.read_accessor(cgh);
+    auto output = output_mem.write_accessor(cgh);
     auto in_offset = input.get_offset().get(0);
     auto out_offset = output.get_offset().get(0);
     Functor conv(in_offset, out_offset, params, input, output);

@@ -16,9 +16,9 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_DIRECT_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_DIRECT_H_
 
-#include "sycldnn/accessor_types.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/helpers/macros.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 namespace sycldnn {
@@ -30,9 +30,10 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T, typename ConvType>
-SNNStatus launch_direct(ReadAccessor<T const> input,
-                        ReadAccessor<T const> filter, WriteAccessor<T> output,
-                        Conv2DParams const& params, cl::sycl::queue& queue);
+SNNStatus launch_direct(BaseMemObject<T const>& input,
+                        BaseMemObject<T const>& filter,
+                        BaseMemObject<T>& output, Conv2DParams const& params,
+                        cl::sycl::queue& queue);
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

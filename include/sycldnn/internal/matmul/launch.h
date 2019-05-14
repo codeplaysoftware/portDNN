@@ -18,7 +18,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 namespace sycldnn {
@@ -31,8 +31,8 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T, bool TransposeLHS, bool TransposeRHS>
-SNNStatus launch(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                 ReadWriteAccessor<T> output, int batches, int m, int k, int n,
+SNNStatus launch(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
+                 BaseMemObject<T>& output, int batches, int m, int k, int n,
                  T beta, cl::sycl::queue& queue);
 
 }  // namespace internal

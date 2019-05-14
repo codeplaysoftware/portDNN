@@ -25,7 +25,7 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 template SNNStatus queue_zero_out_transform<SNN_DATA_TYPE, SNN_VECTOR_WIDTH>(
-    WriteAccessor<SNN_DATA_TYPE> output, size_t n_tiles, size_t tile_size,
+    BaseMemObject<SNN_DATA_TYPE>& output, size_t n_tiles, size_t tile_size,
     cl::sycl::queue& queue);
 }  // namespace im2col
 }  // namespace internal

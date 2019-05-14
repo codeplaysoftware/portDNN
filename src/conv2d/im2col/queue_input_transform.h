@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_H_
 #define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -29,8 +29,8 @@ namespace internal {
 namespace im2col {
 
 template <typename T, typename Index, int VectorWidth, typename ConvType>
-SNNStatus queue_input_transform(ReadAccessor<T const> input,
-                                WriteAccessor<T> output,
+SNNStatus queue_input_transform(BaseMemObject<T const>& input,
+                                BaseMemObject<T>& output,
                                 Conv2DParams const& params, int tile_size,
                                 cl::sycl::queue& queue);
 

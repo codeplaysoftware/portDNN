@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_FILTER_TRANSFORM_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_FILTER_TRANSFORM_IMPL_H_
 
+#include "sycldnn/mem_object.h"
+
 #include "src/conv2d/winograd/queue_filter_transform.h"
 
 #include "src/conv2d/winograd/kernels/extract_filter_transform.h"
@@ -56,16 +58,16 @@ inline cl::sycl::range<1> get_thread_range<conv_type::FilterBackprop>(
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
           int S>
-SNNStatus queue_filter_transform(ReadAccessor<T const> filter,
-                                 WriteAccessor<T> transform,
+SNNStatus queue_filter_transform(BaseMemObject<T const>& filter_mem,
+                                 BaseMemObject<T>& transform_mem,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
                                  cl::sycl::queue& queue) {
   using Functor = ExtractFilterTiles<T, Index, M, N, R, S, ConvType>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(filter);
-    cgh.require(transform);
+    auto filter = filter_mem.read_accessor(cgh);
+    auto transform = transform_mem.write_accessor(cgh);
     auto in_offset = filter.get_offset().get(0);
     auto out_offset = transform.get_offset().get(0);
     auto range = get_thread_range<ConvType>(params, tile_info);

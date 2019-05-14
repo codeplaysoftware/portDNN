@@ -21,7 +21,7 @@
  * Implements the \ref sycldnn::matmul::launch() function, which asynchronously
  * dispatches the SYCL kernels required to perform a matrix multiply.
  */
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/macros.h"
@@ -77,12 +77,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
   size_t rhs_offset = backend.get_offset(rhs);
   size_t out_offset = backend.get_offset(output);
 
-  auto lhs_acc = ReadAccessor<T const>{lhs_buff, cl::sycl::range<1>{lhs_size},
-                                       cl::sycl::id<1>{lhs_offset}};
-  auto rhs_acc = ReadAccessor<T const>{rhs_buff, cl::sycl::range<1>{rhs_size},
-                                       cl::sycl::id<1>{rhs_offset}};
-  auto out_acc = ReadWriteAccessor<T>{out_buff, cl::sycl::range<1>{out_size},
-                                      cl::sycl::id<1>{out_offset}};
+  auto lhs_acc = make_mem_object(lhs_buff, lhs_size, lhs_offset);
+  auto rhs_acc = make_mem_object(rhs_buff, rhs_size, rhs_offset);
+  auto out_acc = make_mem_object(out_buff, out_size, out_offset);
 
   auto sycl_queue = backend.get_queue();
 

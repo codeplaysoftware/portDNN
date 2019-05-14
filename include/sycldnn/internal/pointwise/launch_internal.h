@@ -17,7 +17,7 @@
 #ifndef SYCLDNN_INCLUDE_POINTWISE_LAUNCH_INTERNAL_H_
 #define SYCLDNN_INCLUDE_POINTWISE_LAUNCH_INTERNAL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/pointwise/direction.h"
@@ -43,15 +43,16 @@ using DisableIfGradient =
 // The internal pointwise operation launcher for the forward pass.
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename = DisableIfGradient<Direction>>
-SNNStatus launch_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
-                           size_t const n_items, cl::sycl::queue& queue);
+SNNStatus launch_pointwise(BaseMemObject<T const>& input,
+                           BaseMemObject<T>& output, size_t const n_items,
+                           cl::sycl::queue& queue);
 
 // The internal pointwise operation launcher for the backward pass.
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename = EnableIfGradient<Direction>>
-SNNStatus launch_pointwise(ReadAccessor<T const> input_forward,
-                           ReadAccessor<T const> input_backprop,
-                           WriteAccessor<T> output, size_t const n_items,
+SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
+                           BaseMemObject<T const>& input_backprop,
+                           BaseMemObject<T>& output, size_t const n_items,
                            cl::sycl::queue& queue);
 
 }  // namespace internal

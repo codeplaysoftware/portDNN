@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_IMPL_H_
 
+#include "sycldnn/mem_object.h"
+
 #include "src/conv2d/winograd/queue_input_transform.h"
 
 #include "src/conv2d/winograd/kernels/extract_input_transform.h"
@@ -46,8 +48,8 @@ inline cl::sycl::range<1> get_thread_range(Conv2DParams const& params,
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
           int S, int ChannelVector>
-SNNStatus queue_input_transform(ReadAccessor<T const> input,
-                                WriteAccessor<T> transform,
+SNNStatus queue_input_transform(BaseMemObject<T const>& input_mem,
+                                BaseMemObject<T>& transform_mem,
                                 Conv2DParams const& params,
                                 TileInfo const& tile_info,
                                 cl::sycl::queue& queue) {
@@ -55,8 +57,8 @@ SNNStatus queue_input_transform(ReadAccessor<T const> input,
       ExtractInputTiles<T, Index, ChannelVector, M, N, R, S, ConvType>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(transform);
+    auto input = input_mem.read_accessor(cgh);
+    auto transform = transform_mem.write_accessor(cgh);
     auto in_offset = input.get_offset().get(0);
     auto out_offset = transform.get_offset().get(0);
     auto range = get_thread_range(params, tile_info, ChannelVector);

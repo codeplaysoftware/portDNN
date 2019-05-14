@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -33,17 +33,18 @@ namespace im2col {
 namespace {
 
 template <typename T, typename Index>
-SNNStatus launch_with_index(ReadAccessor<T const> input,
-                            WriteAccessor<T> output, Conv2DParams const& params,
-                            size_t thread_size, cl::sycl::queue& queue) {
+SNNStatus launch_with_index(BaseMemObject<T const>& input,
+                            BaseMemObject<T>& output,
+                            Conv2DParams const& params, size_t thread_size,
+                            cl::sycl::queue& queue) {
   return queue_filter_transform<T, Index>(input, output, params, thread_size,
                                           queue);
 }
 }  // namespace
 
 template <typename T>
-SNNStatus launch_filter_transform(ReadAccessor<T const> input,
-                                  WriteAccessor<T> output,
+SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
+                                  BaseMemObject<T>& output,
                                   Conv2DParams const& params,
                                   cl::sycl::queue& queue) {
   size_t thread_size = params.window_rows * params.window_cols *
@@ -61,9 +62,9 @@ SNNStatus launch_filter_transform(ReadAccessor<T const> input,
   }
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE)                                 \
-  template SNNStatus launch_filter_transform<DTYPE>(                \
-      ReadAccessor<DTYPE const> input, WriteAccessor<DTYPE> output, \
+#define INSTANTIATE_LAUNCHER(DTYPE)                                      \
+  template SNNStatus launch_filter_transform<DTYPE>(                     \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
       Conv2DParams const& params, cl::sycl::queue& queue);
 
 INSTANTIATE_LAUNCHER(float)

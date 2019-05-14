@@ -15,6 +15,8 @@
  */
 #include "sycldnn/internal/matmul/launch.h"
 
+#include "sycldnn/mem_object.h"
+
 #include "src/matmul/queue_kernel.h"
 
 namespace sycldnn {
@@ -25,10 +27,10 @@ namespace {
 // Launch the kernel specified by the template parameters.
 template <typename T, bool TransposeLHS, bool TransposeRHS, int RowTile,
           int AccTile, int ColTile>
-SNNStatus launch_with_tiles(ReadAccessor<T const> lhs,
-                            ReadAccessor<T const> rhs,
-                            ReadWriteAccessor<T> output, int batches, int m,
-                            int k, int n, T beta, cl::sycl::queue& queue) {
+SNNStatus launch_with_tiles(BaseMemObject<T const>& lhs,
+                            BaseMemObject<T const>& rhs,
+                            BaseMemObject<T>& output, int batches, int m, int k,
+                            int n, T beta, cl::sycl::queue& queue) {
   return queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile, AccTile,
                       ColTile>(lhs, rhs, output, batches, m, k, n, beta, queue);
 }
@@ -37,17 +39,17 @@ SNNStatus launch_with_tiles(ReadAccessor<T const> lhs,
 
 // Launch the matrix multiply kernel for the passed parameters.
 template <typename T, bool TransposeLHS, bool TransposeRHS>
-SNNStatus launch(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                 ReadWriteAccessor<T> output, int batches, int m, int k, int n,
+SNNStatus launch(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
+                 BaseMemObject<T>& output, int batches, int m, int k, int n,
                  T beta, cl::sycl::queue& queue) {
   return launch_with_tiles<T, TransposeLHS, TransposeRHS, 4, 4, 4>(
       lhs, rhs, output, batches, m, k, n, beta, queue);
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, TLHS, TRHS)                          \
-  template SNNStatus launch<DTYPE, TLHS, TRHS>(                          \
-      ReadAccessor<DTYPE const> input, ReadAccessor<DTYPE const> filter, \
-      ReadWriteAccessor<DTYPE> output, int batches, int m, int k, int n, \
+#define INSTANTIATE_LAUNCHER(DTYPE, TLHS, TRHS)                                \
+  template SNNStatus launch<DTYPE, TLHS, TRHS>(                                \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
+      BaseMemObject<DTYPE> & output, int batches, int m, int k, int n,         \
       DTYPE beta, cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)        \

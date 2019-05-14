@@ -24,23 +24,21 @@
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
-/** Read only placeholder SYCL accessor for a 1D buffer of type T. */
+/** Read only SYCL accessor for a 1D buffer of type T. */
 template <typename T>
-using ReadAccessor = cl::sycl::accessor<T, 1, cl::sycl::access::mode::read,
-                                        cl::sycl::access::target::global_buffer,
-                                        cl::sycl::access::placeholder::true_t>;
-/** Write only placeholder SYCL accessor for a 1D buffer of type T. */
+using ReadAccessor =
+    cl::sycl::accessor<T, 1, cl::sycl::access::mode::read,
+                       cl::sycl::access::target::global_buffer>;
+/** Write only SYCL accessor for a 1D buffer of type T. */
 template <typename T>
 using WriteAccessor =
     cl::sycl::accessor<T, 1, cl::sycl::access::mode::discard_write,
-                       cl::sycl::access::target::global_buffer,
-                       cl::sycl::access::placeholder::true_t>;
-/** Read-write placeholder SYCL accessor for a 1D buffer of type T. */
+                       cl::sycl::access::target::global_buffer>;
+/** Read-write SYCL accessor for a 1D buffer of type T. */
 template <typename T>
 using ReadWriteAccessor =
     cl::sycl::accessor<T, 1, cl::sycl::access::mode::read_write,
-                       cl::sycl::access::target::global_buffer,
-                       cl::sycl::access::placeholder::true_t>;
+                       cl::sycl::access::target::global_buffer>;
 
 /** Local memory accessor for a given dimension of type T. */
 template <typename T, int Dimension = 1>

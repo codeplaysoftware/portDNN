@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -34,7 +34,7 @@ namespace internal {
 namespace im2col {
 
 template <typename T, int VectorWidth>
-SNNStatus queue_zero_out_transform(WriteAccessor<T> output, size_t n_tiles,
+SNNStatus queue_zero_out_transform(BaseMemObject<T>& output_mem, size_t n_tiles,
                                    size_t tile_size, cl::sycl::queue& queue) {
   using Functor = ZeroFunctor<T, VectorWidth>;
   cl::sycl::device device = queue.get_device();
@@ -46,7 +46,7 @@ SNNStatus queue_zero_out_transform(WriteAccessor<T> output, size_t n_tiles,
       transform_size / VectorWidth, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(output);
+    auto output = output_mem.write_accessor(cgh);
     size_t offset = output.get_offset().get(0);
     Functor functor{transform_size, offset, output};
     cgh.parallel_for(cl::sycl::range<1>{zero_threads}, functor);

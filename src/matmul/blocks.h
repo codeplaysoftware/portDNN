@@ -16,8 +16,6 @@
 #ifndef SYCLDNN_SRC_MATMUL_BLOCKS_H_
 #define SYCLDNN_SRC_MATMUL_BLOCKS_H_
 
-#include "sycldnn/accessor_types.h"
-
 #include "src/helpers/math.h"
 #include "src/helpers/register_tile.h"
 #include "src/helpers/vector_element.h"

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/conv_type.h"
@@ -36,8 +36,9 @@ namespace internal {
 
 template <typename ConvType, typename T, typename Index>
 struct Launcher {
-  static SNNStatus launch(ReadAccessor<T const> input,
-                          ReadAccessor<T const> filter, WriteAccessor<T> output,
+  static SNNStatus launch(BaseMemObject<T const>& input,
+                          BaseMemObject<T const>& filter,
+                          BaseMemObject<T>& output,
                           DepthwiseConv2DParams const& params,
                           Index output_size, cl::sycl::queue& queue) {
     return queue_kernel<ConvType>(input, filter, output, params, output_size,
@@ -47,8 +48,9 @@ struct Launcher {
 
 template <typename T, typename Index>
 struct Launcher<conv2d::conv_type::FilterBackprop, T, Index> {
-  static SNNStatus launch(ReadAccessor<T const> input,
-                          ReadAccessor<T const> filter, WriteAccessor<T> output,
+  static SNNStatus launch(BaseMemObject<T const>& input,
+                          BaseMemObject<T const>& filter,
+                          BaseMemObject<T>& output,
                           DepthwiseConv2DParams const& params,
                           Index output_size, cl::sycl::queue& queue) {
     return queue_kernel_fil_bk(input, filter, output, params, output_size,
@@ -57,8 +59,8 @@ struct Launcher<conv2d::conv_type::FilterBackprop, T, Index> {
 };
 
 template <typename ConvType, typename T>
-SNNStatus launch(ReadAccessor<T const> input, ReadAccessor<T const> filter,
-                 WriteAccessor<T> output, DepthwiseConv2DParams const& params,
+SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
+                 BaseMemObject<T>& output, DepthwiseConv2DParams const& params,
                  cl::sycl::queue& queue) {
   size_t output_size = get_output_size<ConvType>(params);
   auto kernel_params = get_kernel_params<ConvType>(params);
@@ -79,10 +81,10 @@ SNNStatus launch(ReadAccessor<T const> input, ReadAccessor<T const> filter,
   }
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, DIRECTION)                           \
-  template SNNStatus launch<DIRECTION, DTYPE>(                           \
-      ReadAccessor<DTYPE const> input, ReadAccessor<DTYPE const> filter, \
-      WriteAccessor<DTYPE> output, DepthwiseConv2DParams const& params,  \
+#define INSTANTIATE_LAUNCHER(DTYPE, DIRECTION)                                 \
+  template SNNStatus launch<DIRECTION, DTYPE>(                                 \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
+      BaseMemObject<DTYPE> & output, DepthwiseConv2DParams const& params,      \
       cl::sycl::queue& queue)
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                              \

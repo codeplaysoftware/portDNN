@@ -18,7 +18,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include <vector>
@@ -33,7 +33,7 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T>
-SNNStatus launch(ReadAccessor<T const> input, WriteAccessor<T> output,
+SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
                  std::vector<int> dimensions, std::vector<int> permutation,
                  cl::sycl::queue& queue);
 

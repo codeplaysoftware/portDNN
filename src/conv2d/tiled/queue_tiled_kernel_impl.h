@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/ratio.h"
@@ -57,9 +57,9 @@ cl::sycl::range<1> get_thread_range(Conv2DParams const& params,
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
-SNNStatus queue_tiled_kernel(ReadAccessor<T const> input,
-                             ReadAccessor<T const> filter,
-                             WriteAccessor<T> output,
+SNNStatus queue_tiled_kernel(BaseMemObject<T const>& in_mem,
+                             BaseMemObject<T const>& fil_mem,
+                             BaseMemObject<T>& out_mem,
                              Conv2DParams const& kernel_params,
                              tiled::TileInfo const& tile_info,
                              cl::sycl::queue& queue) {
@@ -69,9 +69,9 @@ SNNStatus queue_tiled_kernel(ReadAccessor<T const> input,
                          WindowRows, WindowCols, Stride>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(filter);
-    cgh.require(output);
+    auto input = in_mem.read_accessor(cgh);
+    auto filter = fil_mem.read_accessor(cgh);
+    auto output = out_mem.write_accessor(cgh);
 
     Index input_offset = input.get_offset().get(0);
     Index filter_offset = filter.get_offset().get(0);

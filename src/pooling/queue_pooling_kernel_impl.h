@@ -17,6 +17,8 @@
 #ifndef SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
 #define SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
 
+#include "sycldnn/mem_object.h"
+
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
@@ -27,10 +29,11 @@
 #include "src/pooling/can_vectorize.h"
 #include "src/pooling/kernels.h"
 
-#define SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(DTYPE, OP, DIRECTION)           \
-  template SNNStatus launch_pooling<DTYPE, OP, DIRECTION>(                    \
-      ReadAccessor<DTYPE const> inp_access, WriteAccessor<DTYPE> outp_access, \
-      const PoolingParams& pp, cl::sycl::queue& queue);
+#define SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(DTYPE, OP, DIRECTION) \
+  template SNNStatus launch_pooling<DTYPE, OP, DIRECTION>(          \
+      BaseMemObject<DTYPE const> & inp_access,                      \
+      BaseMemObject<DTYPE> & outp_access, const PoolingParams& pp,  \
+      cl::sycl::queue& queue);
 
 namespace sycldnn {
 namespace pooling {
@@ -38,12 +41,12 @@ namespace internal {
 
 template <typename T, typename Index, template <typename> class PoolType,
           typename Direction, int VectorWidth, bool UseFastDiv>
-SNNStatus queue_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
-                        const PoolingParams& pp, size_t threads,
-                        cl::sycl::queue& queue) {
+SNNStatus queue_pooling(BaseMemObject<T const>& in_mem,
+                        BaseMemObject<T>& out_mem, const PoolingParams& pp,
+                        size_t threads, cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(output);
+    auto input = in_mem.read_accessor(cgh);
+    auto output = out_mem.write_accessor(cgh);
     Index input_offset = input.get_offset()[0];
     Index output_offset = output.get_offset()[0];
     PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv> pool(
@@ -57,8 +60,8 @@ SNNStatus queue_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
 
 template <typename T, typename Index, template <typename> class PoolType,
           typename Direction, int VectorWidth>
-SNNStatus launch_with_vector_size(ReadAccessor<T const> input,
-                                  WriteAccessor<T> output,
+SNNStatus launch_with_vector_size(BaseMemObject<T const>& input,
+                                  BaseMemObject<T>& output,
                                   const PoolingParams& pp, size_t threads,
                                   cl::sycl::queue& queue) {
   threads /= VectorWidth;
@@ -73,8 +76,8 @@ SNNStatus launch_with_vector_size(ReadAccessor<T const> input,
 
 template <typename T, typename Index, template <typename> class PoolType,
           typename Direction>
-SNNStatus launch_with_index(ReadAccessor<T const> input,
-                            WriteAccessor<T> output, const PoolingParams& pp,
+SNNStatus launch_with_index(BaseMemObject<T const>& input,
+                            BaseMemObject<T>& output, const PoolingParams& pp,
                             size_t threads, cl::sycl::queue& queue) {
   if (can_vectorize<Direction, PoolType>(pp, 4)) {
     return launch_with_vector_size<T, Index, PoolType, Direction, 4>(
@@ -90,8 +93,9 @@ SNNStatus launch_with_index(ReadAccessor<T const> input,
 
 template <typename T, template <typename> class PoolType, typename Direction,
           DisableIfMaxGradient<T, PoolType, Direction>>
-SNNStatus launch_pooling(ReadAccessor<T const> input, WriteAccessor<T> output,
-                         const PoolingParams& pp, cl::sycl::queue& queue) {
+SNNStatus launch_pooling(BaseMemObject<T const>& input,
+                         BaseMemObject<T>& output, const PoolingParams& pp,
+                         cl::sycl::queue& queue) {
   auto sizes = get_sizes<Direction>(pp);
   size_t threads = sizes.output_size;
   if (threads > std::numeric_limits<int32_t>::max()) {

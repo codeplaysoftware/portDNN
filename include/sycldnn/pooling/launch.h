@@ -23,7 +23,7 @@
  * dispatches the SYCL kernels to compute a 2D pooling operation.
  */
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/macros.h"
@@ -120,15 +120,12 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const inp_offset = backend.get_offset(input);
   auto const outp_offset = backend.get_offset(output);
 
-  ReadAccessor<T const> inp_access{inp_buf,
-                                   cl::sycl::range<1>{sizes.input_size},
-                                   cl::sycl::id<1>{inp_offset}};
-  WriteAccessor<T> outp_access{outp_buf, cl::sycl::range<1>{sizes.output_size},
-                               cl::sycl::id<1>{outp_offset}};
+  auto inp_mem = make_mem_object(inp_buf, sizes.input_size, inp_offset);
+  auto outp_mem = make_mem_object(outp_buf, sizes.output_size, outp_offset);
 
   auto queue = backend.get_queue();
-  return internal::launch_pooling<T, PoolType, Direction>(
-      inp_access, outp_access, pp, queue);
+  return internal::launch_pooling<T, PoolType, Direction>(inp_mem, outp_mem, pp,
+                                                          queue);
 }
 
 /**
@@ -181,18 +178,14 @@ SNNStatus launch(
   auto const inp_backprop_offset = backend.get_offset(input_backprop);
   auto const outp_backprop_offset = backend.get_offset(output);
 
-  ReadAccessor<T const> inp_data_access{
-      inp_data_buf, cl::sycl::range<1>{fwd_sizes.input_size},
-      cl::sycl::id<1>{inp_data_offset}};
-  ReadAccessor<T const> outp_data_access{
-      outp_data_buf, cl::sycl::range<1>{fwd_sizes.output_size},
-      cl::sycl::id<1>{outp_data_offset}};
-  ReadAccessor<T const> inp_backprop_access{
-      inp_backprop_buf, cl::sycl::range<1>{back_sizes.input_size},
-      cl::sycl::id<1>{inp_backprop_offset}};
-  WriteAccessor<T> outp_backprop_access{
-      outp_backprop_buf, cl::sycl::range<1>{back_sizes.output_size},
-      cl::sycl::id<1>{outp_backprop_offset}};
+  auto inp_data_access =
+      make_mem_object(inp_data_buf, fwd_sizes.input_size, inp_data_offset);
+  auto outp_data_access =
+      make_mem_object(outp_data_buf, fwd_sizes.output_size, outp_data_offset);
+  auto inp_backprop_access = make_mem_object(
+      inp_backprop_buf, back_sizes.input_size, inp_backprop_offset);
+  auto outp_backprop_access = make_mem_object(
+      outp_backprop_buf, back_sizes.output_size, outp_backprop_offset);
 
   auto queue = backend.get_queue();
   return internal::launch_pooling<T, PoolType, Direction>(

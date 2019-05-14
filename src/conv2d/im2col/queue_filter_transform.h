@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
 #define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -28,8 +28,8 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 template <typename T, typename Index>
-SNNStatus queue_filter_transform(ReadAccessor<T const> input,
-                                 WriteAccessor<T> output,
+SNNStatus queue_filter_transform(BaseMemObject<T const>& input,
+                                 BaseMemObject<T>& output,
                                  Conv2DParams const& params, Index thread_size,
                                  cl::sycl::queue& queue);
 }  // namespace im2col

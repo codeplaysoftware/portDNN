@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_IMPL_H_
 #define SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_IMPL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/helpers/ratio.h"
@@ -30,8 +30,9 @@ namespace internal {
 
 template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
           int RowTile, int AccTile, int ColTile>
-SNNStatus queue_kernel(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                       ReadWriteAccessor<T> output, int batches, int m, int k,
+SNNStatus queue_kernel(BaseMemObject<T const>& lhs_mem,
+                       BaseMemObject<T const>& rhs_mem,
+                       BaseMemObject<T>& output_mem, int batches, int m, int k,
                        int n, T beta, cl::sycl::queue& queue) {
   using Functor = MatmulKernel<T, Index, TransposeLHS, TransposeRHS, RowTile,
                                AccTile, ColTile>;
@@ -46,9 +47,9 @@ SNNStatus queue_kernel(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
   auto const n_batch_threads = static_cast<size_t>(batches);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(lhs);
-    cgh.require(rhs);
-    cgh.require(output);
+    auto lhs = lhs_mem.read_accessor(cgh);
+    auto rhs = rhs_mem.read_accessor(cgh);
+    auto output = output_mem.read_write_accessor(cgh);
 
     Index const lhs_offset = lhs.get_offset().get(0);
     Index const rhs_offset = rhs.get_offset().get(0);

@@ -17,7 +17,7 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_INPUT_TRANSFORM_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_INPUT_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -45,8 +45,8 @@ namespace im2col {
  * \return An SNNStatus with event linked to the kernel launch or an error code.
  */
 template <typename T, typename ConvType>
-SNNStatus launch_input_transform(ReadAccessor<T const> input,
-                                 WriteAccessor<T> output,
+SNNStatus launch_input_transform(BaseMemObject<T const>& input,
+                                 BaseMemObject<T>& output,
                                  Conv2DParams const& params, int n_tiles,
                                  int tile_size, cl::sycl::queue& queue);
 
@@ -60,8 +60,7 @@ static SNNStatus launch_input_transform(
   auto input_buffer = backend.get_buffer_internal(pointers.input, input_size);
   size_t const total_in_offset =
       in_offset + backend.get_offset_internal(pointers.input);
-  ReadAccessor<T const> input_acc{input_buffer, cl::sycl::range<1>{input_size},
-                                  cl::sycl::id<1>{total_in_offset}};
+  auto input_acc = make_mem_object(input_buffer, input_size, total_in_offset);
 
   int n_tiles;
   int tile_size;
@@ -77,9 +76,8 @@ static SNNStatus launch_input_transform(
       backend.get_buffer_internal(pointers.transform, transform_size);
   size_t const transform_offset =
       backend.get_offset_internal(pointers.transform);
-  WriteAccessor<T> transform_acc{transform_buffer,
-                                 cl::sycl::range<1>{transform_size},
-                                 cl::sycl::id<1>{transform_offset}};
+  auto transform_acc =
+      make_mem_object(transform_buffer, transform_size, transform_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_input_transform<T, ConvType>(input_acc, transform_acc, params,

@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
 #define SYCLDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/depthwise_conv2d/params.h"
@@ -28,15 +28,15 @@ namespace depthwise_conv2d {
 namespace internal {
 
 template <typename ConvType, typename T, typename Index>
-SNNStatus queue_kernel(ReadAccessor<T const> input,
-                       ReadAccessor<T const> filter, WriteAccessor<T> output,
+SNNStatus queue_kernel(BaseMemObject<T const>& input,
+                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
                        DepthwiseConv2DParams const& kernel_params,
                        Index output_size, cl::sycl::queue& queue);
 
 template <typename T, typename Index>
-SNNStatus queue_kernel_fil_bk(ReadAccessor<T const> input,
-                              ReadAccessor<T const> filter,
-                              WriteAccessor<T> output,
+SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input,
+                              BaseMemObject<T const>& filter,
+                              BaseMemObject<T>& output,
                               DepthwiseConv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue);
 

@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
 #define SYCLDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
 
+#include "sycldnn/mem_object.h"
+
 #include "sycldnn/helpers/minmax.h"
 #include "sycldnn/helpers/ratio.h"
 
@@ -37,9 +39,9 @@ Index calculate_required_threads(Index output_size) {
 
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
           int Window, int Stride, int VectorWidth>
-SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
-                              ReadAccessor<T const> filter,
-                              WriteAccessor<T> output,
+SNNStatus queue_direct_kernel(BaseMemObject<T const>& in_mem,
+                              BaseMemObject<T const>& fil_mem,
+                              BaseMemObject<T>& out_mem,
                               Conv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue) {
   using Functor = direct::DirectConv2D<T, Index, ConvType, UseFastDiv, Window,
@@ -53,9 +55,9 @@ SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
       helpers::round_up_to_nearest_multiple(required_threads, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(input);
-    cgh.require(filter);
-    cgh.require(output);
+    auto input = in_mem.read_accessor(cgh);
+    auto filter = fil_mem.read_accessor(cgh);
+    auto output = out_mem.write_accessor(cgh);
 
     Index input_offset = input.get_offset().get(0);
     Index filter_offset = filter.get_offset().get(0);

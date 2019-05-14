@@ -26,8 +26,8 @@ namespace transpose {
 namespace internal {
 
 template SNNStatus queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_DIM>(
-    ReadAccessor<SNN_DATA_TYPE const> input,
-    WriteAccessor<SNN_DATA_TYPE> output, std::vector<int> const& dimensions,
+    BaseMemObject<SNN_DATA_TYPE const>& input,
+    BaseMemObject<SNN_DATA_TYPE>& output, std::vector<int> const& dimensions,
     std::vector<int> const& permutation, cl::sycl::queue& queue);
 
 }  // namespace internal

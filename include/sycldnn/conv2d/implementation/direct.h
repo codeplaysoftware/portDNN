@@ -47,15 +47,12 @@ inline SNNStatus launch_direct(
   auto const fil_offset = backend.get_offset(filter);
   auto const out_offset = backend.get_offset(output);
 
-  ReadAccessor<T const> inp_access{inp_buff,
-                                   cl::sycl::range<1>{conv_sizes.input_size},
-                                   cl::sycl::id<1>{inp_offset}};
-  ReadAccessor<T const> fil_access{fil_buff,
-                                   cl::sycl::range<1>{conv_sizes.filter_size},
-                                   cl::sycl::id<1>{fil_offset}};
-  WriteAccessor<T> out_access{out_buff,
-                              cl::sycl::range<1>{conv_sizes.output_size},
-                              cl::sycl::id<1>{out_offset}};
+  auto inp_access =
+      make_mem_object(inp_buff, conv_sizes.input_size, inp_offset);
+  auto fil_access =
+      make_mem_object(fil_buff, conv_sizes.filter_size, fil_offset);
+  auto out_access =
+      make_mem_object(out_buff, conv_sizes.output_size, out_offset);
   cl::sycl::queue queue = backend.get_queue();
   return internal::launch_direct<T, ConvType>(inp_access, fil_access,
                                               out_access, params, queue);

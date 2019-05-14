@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_FILTER_TRANSFORM_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_FILTER_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -41,8 +41,8 @@ namespace im2col {
  * \return An SNNStatus with event linked to the kernel launch or an error code.
  */
 template <typename T>
-SNNStatus launch_filter_transform(ReadAccessor<T const> input,
-                                  WriteAccessor<T> output,
+SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
+                                  BaseMemObject<T>& output,
                                   Conv2DParams const& params,
                                   cl::sycl::queue& queue);
 
@@ -77,16 +77,13 @@ static SNNStatus launch_filter_transform(
   auto filter_buff =
       backend.get_buffer_internal(pointers.original_filter, filter_size);
   auto filter_offset = backend.get_offset_internal(pointers.original_filter);
-  ReadAccessor<T const> filter_access{filter_buff,
-                                      cl::sycl::range<1>{filter_size},
-                                      cl::sycl::id<1>{filter_offset}};
+  auto filter_access = make_mem_object(filter_buff, filter_size, filter_offset);
 
   auto transform_buffer =
       backend.get_buffer_internal(pointers.filter, filter_size);
   auto transform_offset = backend.get_offset_internal(pointers.filter);
-  WriteAccessor<T> transform_access{transform_buffer,
-                                    cl::sycl::range<1>{filter_size},
-                                    cl::sycl::id<1>{transform_offset}};
+  auto transform_access =
+      make_mem_object(transform_buffer, filter_size, transform_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform(filter_access, transform_access, params,

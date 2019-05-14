@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_OUTPUT_TRANSFORM_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_OUTPUT_TRANSFORM_IMPL_H_
 
+#include "sycldnn/mem_object.h"
+
 #include "src/conv2d/winograd/queue_output_transform.h"
 
 #include "src/conv2d/winograd/kernels/extract_output_transform.h"
@@ -58,8 +60,8 @@ inline cl::sycl::range<1> get_thread_range<conv_type::FilterBackprop>(
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
           int S, bool Accumulate>
-SNNStatus queue_output_transform(ReadAccessor<T const> intermediate,
-                                 WriteAccessor<T> output,
+SNNStatus queue_output_transform(BaseMemObject<T const>& intermediate_mem,
+                                 BaseMemObject<T>& output_mem,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
                                  cl::sycl::queue& queue) {
@@ -67,8 +69,8 @@ SNNStatus queue_output_transform(ReadAccessor<T const> intermediate,
       ExtractOutputTiles<T, Index, M, N, R, S, ConvType, Accumulate>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    cgh.require(intermediate);
-    cgh.require(output);
+    auto intermediate = intermediate_mem.read_accessor(cgh);
+    auto output = output_mem.write_accessor(cgh);
     auto in_offset = intermediate.get_offset().get(0);
     auto out_offset = output.get_offset().get(0);
     auto range = get_thread_range<ConvType>(params, tile_info);

@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_SRC_CONV2D_DIRECT_LAUNCH_DIRECT_IMPL_H_
 #define SYCLDNN_SRC_CONV2D_DIRECT_LAUNCH_DIRECT_IMPL_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/params.h"
@@ -29,9 +29,9 @@ namespace internal {
  */
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
           int Window, int Stride, int VectorWidth>
-SNNStatus queue_direct_kernel(ReadAccessor<T const> input,
-                              ReadAccessor<T const> filter,
-                              WriteAccessor<T> output,
+SNNStatus queue_direct_kernel(BaseMemObject<T const>& input,
+                              BaseMemObject<T const>& filter,
+                              BaseMemObject<T>& output,
                               Conv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue);
 }  // namespace internal

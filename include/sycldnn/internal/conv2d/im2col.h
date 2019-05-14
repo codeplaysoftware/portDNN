@@ -16,7 +16,6 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_H_
 
-#include "sycldnn/accessor_types.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/helpers/macros.h"
 #include "sycldnn/status.h"

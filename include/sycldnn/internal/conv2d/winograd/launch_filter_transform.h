@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_WINOGRAD_LAUNCH_FILTER_TRANSFORM_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_WINOGRAD_LAUNCH_FILTER_TRANSFORM_H_
 
-#include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/conv2d/conv_type.h"
@@ -55,8 +55,8 @@ namespace winograd {
  * kernel launched.
  */
 template <typename T, typename ConvType, int M, int N, int R, int S>
-SNNStatus launch_filter_transform(ReadAccessor<T const> input,
-                                  WriteAccessor<T> transform,
+SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
+                                  BaseMemObject<T>& transform,
                                   Conv2DParams const& params,
                                   TileInfo const& tile_info,
                                   cl::sycl::queue& queue);
@@ -85,17 +85,14 @@ SNNStatus launch_filter_transform(
   size_t const filter_size = R * S * params.channels * params.features;
   auto filter_buffer = backend.get_buffer_internal(filter, filter_size);
   size_t const filter_offset = backend.get_offset_internal(filter);
-  ReadAccessor<T const> filter_acc{filter_buffer,
-                                   cl::sycl::range<1>{filter_size},
-                                   cl::sycl::id<1>{filter_offset}};
+  auto filter_acc = make_mem_object(filter_buffer, filter_size, filter_offset);
 
   size_t const transform_size = A * B * params.channels * params.features;
   auto transform_buffer =
       backend.get_buffer_internal(transform, transform_size);
   size_t const transform_offset = backend.get_offset_internal(transform);
-  WriteAccessor<T> transform_acc{transform_buffer,
-                                 cl::sycl::range<1>{transform_size},
-                                 cl::sycl::id<1>{transform_offset}};
+  auto transform_acc =
+      make_mem_object(transform_buffer, transform_size, transform_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform<T, ConvType, M, N, R, S>(
@@ -127,18 +124,15 @@ SNNStatus launch_filter_transform_filter_backprop(
       params.batch * params.window_rows * params.window_cols * params.features;
   auto filter_buffer = backend.get_buffer_internal(filter, filter_size);
   size_t const filter_offset = backend.get_offset_internal(filter);
-  ReadAccessor<T const> filter_acc{filter_buffer,
-                                   cl::sycl::range<1>{filter_size},
-                                   cl::sycl::id<1>{filter_offset}};
+  auto filter_acc = make_mem_object(filter_buffer, filter_size, filter_offset);
 
   size_t const transform_size =
       A * B * params.batch * tile_info.number * params.features;
   auto transform_buffer =
       backend.get_buffer_internal(transform, transform_size);
   size_t const transform_offset = backend.get_offset_internal(transform);
-  WriteAccessor<T> transform_acc{transform_buffer,
-                                 cl::sycl::range<1>{transform_size},
-                                 cl::sycl::id<1>{transform_offset}};
+  auto transform_acc =
+      make_mem_object(transform_buffer, transform_size, transform_offset);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform<T, ConvType, M, N, R, S>(

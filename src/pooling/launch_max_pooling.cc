@@ -34,13 +34,13 @@ SNN_INSTANTIATE_FORWARD_MAX_POOL(cl::sycl::half);
 SNN_INSTANTIATE_FORWARD_MAX_POOL(double);
 #endif  // SNN_USE_DOUBLE
 
-#define SNN_INSTANTIATE_GRAD_POOLING_KERNEL(DTYPE, OP)             \
-  template SNNStatus                                               \
-  launch_pooling<DTYPE, OP, sycldnn::pooling::Backpropagate>(      \
-      ReadAccessor<DTYPE const> input_data,                        \
-      ReadAccessor<DTYPE const> output_data,                       \
-      ReadAccessor<DTYPE const> input_backprop,                    \
-      WriteAccessor<DTYPE> outp_backprop, const PoolingParams& pp, \
+#define SNN_INSTANTIATE_GRAD_POOLING_KERNEL(DTYPE, OP)               \
+  template SNNStatus                                                 \
+  launch_pooling<DTYPE, OP, sycldnn::pooling::Backpropagate>(        \
+      BaseMemObject<DTYPE const> & input_data,                       \
+      BaseMemObject<DTYPE const> & output_data,                      \
+      BaseMemObject<DTYPE const> & input_backprop,                   \
+      BaseMemObject<DTYPE> & outp_backprop, const PoolingParams& pp, \
       cl::sycl::queue& queue)
 
 #define SNN_INSTANTIATE_LAUNCH_MAX_GRAD_POOLING_KERNEL(DTYPE)        \
