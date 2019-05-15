@@ -41,26 +41,29 @@ struct ConvolutionFixture
   template <typename ConvType>
   void test_conv(std::vector<DataType> const& exp,
                  sycldnn::conv2d::Conv2DParams const& params,
-                 DataType max_val = static_cast<DataType>(0)) {
+                 DataType max_val = static_cast<DataType>(0),
+                 size_t input_offset = 0u, size_t filter_offset = 0u,
+                 size_t output_offset = 0u) {
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
     ASSERT_EQ(conv_sizes.output_size, exp.size());
 
     std::vector<DataType> input =
         iota_initialised_data(conv_sizes.input_size, max_val);
+    input.insert(input.begin(), input_offset, 0);
     std::vector<DataType> filter =
         iota_initialised_data(conv_sizes.filter_size, max_val);
-    std::vector<DataType> output(conv_sizes.output_size,
+    filter.insert(filter.begin(), filter_offset, 0);
+    std::vector<DataType> output(conv_sizes.output_size + output_offset,
                                  static_cast<DataType>(0));
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
 
-    auto inp_gpu =
-        provider.get_initialised_device_memory(conv_sizes.input_size, input);
+    auto inp_gpu = provider.get_initialised_device_memory(input.size(), input);
     auto fil_gpu =
-        provider.get_initialised_device_memory(conv_sizes.filter_size, filter);
+        provider.get_initialised_device_memory(filter.size(), filter);
     auto out_gpu =
-        provider.get_initialised_device_memory(conv_sizes.output_size, output);
+        provider.get_initialised_device_memory(output.size(), output);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(fil_gpu);
@@ -75,7 +78,8 @@ struct ConvolutionFixture
     }
     try {
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, backend);
+          inp_gpu + input_offset, fil_gpu + filter_offset,
+          out_gpu + output_offset, params, selector, backend);
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
         // Do not check results if the implementation is not supported.
@@ -88,11 +92,15 @@ struct ConvolutionFixture
       throw;
     }
 
-    provider.copy_device_data_to_host(conv_sizes.output_size, out_gpu, output);
+    provider.copy_device_data_to_host(output.size(), out_gpu, output);
 
+    for (size_t i = 0; i < output_offset; ++i) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      EXPECT_EQ(DataType{0}, output[i]);
+    }
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output[i], 10u);
+      SNN_ALMOST_EQUAL(exp[i], output[i + output_offset], 10u);
     }
   }
 };
