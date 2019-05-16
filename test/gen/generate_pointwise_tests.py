@@ -190,7 +190,7 @@ def get_test_lines(test_params):
 
 def test_params_for_test_case(test_case):
     "Test params generator for all different tests in a given test case."
-    in_sizes = [8, 9, 10]
+    in_sizes = [1, 8, 9, 10]
     for size in in_sizes:
         yield TestParams(
             test_type=test_case.test_type,

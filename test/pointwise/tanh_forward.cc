@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright 2019 Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -31,11 +31,16 @@
 
 #include <vector>
 
-using namespace sycldnn;
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 template <typename DataType>
 using TanhForward =
     PointwiseFixture<DataType, pointwise::Tanh, pointwise::Forward>;
 TYPED_TEST_CASE(TanhForward, types::GTestKernelDataTypes);
+TYPED_TEST(TanhForward, Shape_1x1) {
+  using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> exp_out = {-0.7615941559557649};
+  this->test_pointwise(exp_out);
+}
 TYPED_TEST(TanhForward, Shape_8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {-0.999329299739067,

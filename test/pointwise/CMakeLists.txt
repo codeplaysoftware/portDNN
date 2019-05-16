@@ -23,7 +23,7 @@ foreach(_type IN ITEMS "relu" "tanh")
       TARGET
         pointwise_${_type}_${_direction}
       SIZE
-        moderate
+        short
       SOURCES
         ${_type}_${_direction}.cc
       OBJECTS

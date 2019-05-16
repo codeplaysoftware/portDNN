@@ -27,6 +27,21 @@ snn_test(
   OBJECTS
     $<TARGET_OBJECTS:depthwise_conv2d>
 )
+
+foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+  snn_test(
+    WITH_SYCL
+    TARGET
+      depthwise_conv2d_${_type}_1x1
+    SIZE
+      short
+    SOURCES
+      ${_type}_1x1.cc
+    OBJECTS
+      $<TARGET_OBJECTS:depthwise_conv2d>
+  )
+endforeach()
+
 set(_windows 1 1 3 3 5 5 7 7 11 11)
 set(_strides 1 2 1 2 1 2 1 4 1 4)
 list(LENGTH _windows _list_len_raw)

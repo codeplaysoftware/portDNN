@@ -16,6 +16,20 @@ cmake_minimum_required(VERSION 3.2.2)
 include(HandleGTest)
 include(SNNHelpers)
 
+foreach(_type IN ITEMS "max" "avg")
+  snn_test(
+    WITH_SYCL
+    TARGET
+      pooling_${_type}_1x1
+    SIZE
+      short
+    SOURCES
+      ${_type}_pooling_1x1s.cc
+    OBJECTS
+      $<TARGET_OBJECTS:pooling>
+  )
+endforeach()
+
 # windows/strides are different to conv2d here - Tensorflow doesn't allow
 # stride > window
 set(pooling_windows 1 3 3 5 5 7 7 11 11)

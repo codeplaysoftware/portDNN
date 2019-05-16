@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright 2019 Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -146,6 +146,18 @@ struct MaxPoolingWithNan
 
 TYPED_TEST_CASE(MaxPoolingWithNan, sycldnn::types::GTestKernelDataTypes);
 
+TYPED_TEST(MaxPoolingWithNan, ForwardNan1x1) {
+  using DataType = typename TestFixture::DataType;
+  const DataType nan = std::numeric_limits<DataType>::quiet_NaN();
+  const std::vector<DataType> input = {nan};
+  const std::vector<DataType> exp_out = {nan};
+  const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
+  const auto padding = sycldnn::PaddingMode::VALID;
+  const auto params = getPoolingParams<1, 1>(in_shape, padding);
+  this->template test_forward<sycldnn::pooling::MaxWithNan>(input, exp_out,
+                                                            params);
+}
+
 TYPED_TEST(MaxPoolingWithNan, ForwardNan2x2) {
   using DataType = typename TestFixture::DataType;
   const DataType nan = std::numeric_limits<DataType>::quiet_NaN();
@@ -167,6 +179,19 @@ TYPED_TEST(MaxPoolingWithNan, ForwardNoNan2x2) {
   const auto padding = sycldnn::PaddingMode::VALID;
   const auto params = getPoolingParams<2, 1>(in_shape, padding);
   this->template test_forward<sycldnn::pooling::Max>(input, exp_out, params);
+}
+
+TYPED_TEST(MaxPoolingWithNan, BackpropNan1x1) {
+  using DataType = typename TestFixture::DataType;
+  const DataType nan = std::numeric_limits<DataType>::quiet_NaN();
+  const std::vector<DataType> input_data = {nan};
+  const std::vector<DataType> input_errors = {1.};
+  const std::vector<DataType> exp_out = {1.};
+  const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
+  const auto padding = sycldnn::PaddingMode::VALID;
+  const auto params = getPoolingParams<1, 1>(in_shape, padding);
+  this->template test_backprop<sycldnn::pooling::MaxWithNan>(
+      input_data, input_errors, exp_out, params);
 }
 
 TYPED_TEST(MaxPoolingWithNan, BackpropNan2x2) {

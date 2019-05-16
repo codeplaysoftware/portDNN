@@ -31,6 +31,25 @@ snn_test(
     $<TARGET_OBJECTS:winograd_conv2d>
     $<TARGET_OBJECTS:matmul>
 )
+
+foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
+  snn_test(
+    WITH_SYCL
+    TARGET
+      conv2d_${_type}_1x1
+    SIZE
+      short
+    SOURCES
+      ${_type}_1x1.cc
+    OBJECTS
+      $<TARGET_OBJECTS:direct_conv2d>
+      $<TARGET_OBJECTS:tiled_conv2d>
+      $<TARGET_OBJECTS:im2col_conv2d>
+      $<TARGET_OBJECTS:winograd_conv2d>
+      $<TARGET_OBJECTS:matmul>
+  )
+endforeach()
+
 snn_test(
   WITH_SYCL
   TARGET
