@@ -122,31 +122,32 @@ get_filename_component(computecpp_canonical_root_dir
 set(ComputeCpp_ROOT_DIR "${computecpp_canonical_root_dir}" CACHE PATH
     "The root of the ComputeCpp install")
 
-execute_process(COMMAND ${ComputeCpp_INFO_EXECUTABLE} "--dump-version"
-  OUTPUT_VARIABLE ComputeCpp_VERSION
-  RESULT_VARIABLE ComputeCpp_INFO_EXECUTABLE_RESULT
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-# The ComputeCpp_VERSION is set as something like "CE 1.0.3", so we first
-# need to extract the version number from the string.
-string(REGEX MATCH "([0-9]+\.[0-9]+\.[0-9]+)"
-  ComputeCpp_VERSION ${ComputeCpp_VERSION})
-if(NOT ComputeCpp_INFO_EXECUTABLE_RESULT EQUAL "0")
-  message(FATAL_ERROR "Package version - Error obtaining version!")
-endif()
-
-execute_process(COMMAND ${ComputeCpp_INFO_EXECUTABLE} "--dump-is-supported"
-  OUTPUT_VARIABLE ComputeCpp_PLATFORM_IS_SUPPORTED
-  RESULT_VARIABLE ComputeCpp_INFO_EXECUTABLE_RESULT
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(NOT ComputeCpp_INFO_EXECUTABLE_RESULT EQUAL "0")
-  message(FATAL_ERROR "platform - Error checking platform support!")
+if(NOT ComputeCpp_INFO_EXECUTABLE)
+  message(WARNING "computecpp - Cannot find computecpp_info, check ComputeCpp_DIR")
 else()
-  if (ComputeCpp_PLATFORM_IS_SUPPORTED)
-    message(STATUS "platform - your system can support ComputeCpp")
-  else()
-    message(WARNING "platform - your system CANNOT support ComputeCpp")
+  execute_process(COMMAND ${ComputeCpp_INFO_EXECUTABLE} "--dump-version"
+    OUTPUT_VARIABLE ComputeCpp_VERSION
+    RESULT_VARIABLE ComputeCpp_INFO_EXECUTABLE_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT ComputeCpp_INFO_EXECUTABLE_RESULT EQUAL "0")
+    message(WARNING "computecpp - Error when obtaining version")
+  endif()
+  # The ComputeCpp_VERSION is set as something like "CE 1.0.3", so we first
+  # need to extract the version number from the string.
+  string(REGEX MATCH "([0-9]+\.[0-9]+\.[0-9]+)"
+    ComputeCpp_VERSION ${ComputeCpp_VERSION})
+
+  execute_process(COMMAND ${ComputeCpp_INFO_EXECUTABLE} "--dump-is-supported"
+    OUTPUT_VARIABLE ComputeCpp_PLATFORM_IS_SUPPORTED
+    RESULT_VARIABLE ComputeCpp_INFO_EXECUTABLE_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT ComputeCpp_INFO_EXECUTABLE_RESULT EQUAL "0")
+    message(WARNING "computecpp - Error when checking platform support")
+  elseif(NOT ComputeCpp_PLATFORM_IS_SUPPORTED)
+    message(WARNING "computecpp - Your system might not support ComputeCpp")
   endif()
 endif()
+
 
 find_package_handle_standard_args(ComputeCpp
   FOUND_VAR ComputeCpp_FOUND
@@ -334,7 +335,9 @@ function(__build_ir)
   set(ir_dependencies ${SNN_BUILD_IR_SOURCE})
   if(target_libraries)
     foreach(library ${target_libraries})
-      list(APPEND ir_dependencies ${library})
+      if(TARGET ${library})
+        list(APPEND ir_dependencies ${library})
+      endif()
     endforeach()
   endif()
 
