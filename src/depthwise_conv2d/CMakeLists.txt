@@ -1,7 +1,7 @@
-# Copyright 2018 Codeplay Software Ltd.
+# Copyright 2019 Codeplay Software Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use these files except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
@@ -15,10 +15,9 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
-add_subdirectory(conv2d)
-add_subdirectory(depthwise_conv2d)
-add_subdirectory(matmul)
-add_subdirectory(pointwise)
-add_subdirectory(pooling)
-add_subdirectory(transpose)
+snn_object_library(
+  WITH_SYCL
+  TARGET depthwise_conv2d
+  KERNEL_SOURCES launch.cc
+)
 
