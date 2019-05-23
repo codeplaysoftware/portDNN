@@ -20,7 +20,7 @@
 
 #include "src/depthwise_conv2d/kernel_params.h"
 #include "src/depthwise_conv2d/output_size.h"
-#include "src/depthwise_conv2d/queue_depthwise_conv2d_impl.h"
+#include "src/depthwise_conv2d/queue_depthwise_conv2d.h"
 
 #include <CL/sycl.hpp>
 
