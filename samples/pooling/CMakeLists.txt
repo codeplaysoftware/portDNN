@@ -19,7 +19,7 @@ snn_executable(
   SOURCES
     maxpooling.cc
   PRIVATE_LIBRARIES
-    sycl_dnn_static
+    sycl_dnn
     Eigen::Eigen
 )
 install(

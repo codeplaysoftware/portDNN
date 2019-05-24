@@ -19,7 +19,7 @@ snn_executable(
   KERNEL_SOURCES
     conv2d.cc
   PRIVATE_LIBRARIES
-    sycl_dnn_static
+    sycl_dnn
     Eigen::Eigen
 )
 install(
@@ -37,7 +37,7 @@ if (ComputeCpp_FOUND AND ${ComputeCpp_VERSION} VERSION_GREATER 1.0.2)
     SOURCES
       on_chip_memory.cc
     PRIVATE_LIBRARIES
-      sycl_dnn_static
+      sycl_dnn
       Eigen::Eigen
   )
 install(
