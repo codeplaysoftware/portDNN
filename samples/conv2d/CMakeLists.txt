@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+if(SNN_INSTALL_SAMPLES)
+  set(_install INSTALL)
+else()
+  set(_install)
+endif()
+
 snn_executable(
   WITH_SYCL
   TARGET
@@ -21,10 +28,7 @@ snn_executable(
   PRIVATE_LIBRARIES
     sycl_dnn
     Eigen::Eigen
-)
-install(
-  TARGETS conv2d
-  RUNTIME DESTINATION ${runtime_dest}
+  ${_install}
 )
 
 # The onchip memory sample relies on the codeplay extension onchip_memory
@@ -39,9 +43,6 @@ if (ComputeCpp_FOUND AND ${ComputeCpp_VERSION} VERSION_GREATER 1.0.2)
     PRIVATE_LIBRARIES
       sycl_dnn
       Eigen::Eigen
+    ${_install}
   )
-install(
-  TARGETS on_chip_memory
-  RUNTIME DESTINATION ${runtime_dest}
-)
 endif()

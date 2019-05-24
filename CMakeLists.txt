@@ -44,6 +44,8 @@ option(SNN_INSTALL_TESTS
   "Whether or not to include unit tests when installing" OFF)
 option(SNN_INSTALL_BENCHMARKS
   "Whether or not to include benchmarks when installing" OFF)
+option(SNN_INSTALL_SAMPLES
+  "Whether or not to include samples when installing" OFF)
 
 option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD

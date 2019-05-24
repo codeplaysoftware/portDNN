@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(SNN_INSTALL_SAMPLES)
+  set(_install INSTALL)
+else()
+  set(_install)
+endif()
+
 snn_executable(
   WITH_SYCL
   TARGET
@@ -21,8 +27,5 @@ snn_executable(
   PRIVATE_LIBRARIES
     sycl_dnn
     Eigen::Eigen
-)
-install(
-  TARGETS maxpooling
-  RUNTIME DESTINATION ${runtime_dest}
+  ${_install}
 )
