@@ -15,8 +15,8 @@
  */
 #include "test/backend/matmul_backend_test_fixture_impl.h"
 
-#include "sycldnn/backend/eigen_backend.h"                                      
-#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"                      
+#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
 
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
 #include "sycldnn/backend/sycl_blas_backend.h"
