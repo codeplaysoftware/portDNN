@@ -31,7 +31,7 @@ namespace im2col {
 template <typename T, typename Index, int VectorWidth, typename ConvType>
 SNNStatus queue_input_transform(ReadAccessor<T const> input,
                                 WriteAccessor<T> output,
-                                Conv2DParams const& params, size_t tile_size,
+                                Conv2DParams const& params, int tile_size,
                                 cl::sycl::queue& queue);
 
 }  // namespace im2col

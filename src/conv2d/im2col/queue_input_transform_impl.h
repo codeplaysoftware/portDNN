@@ -67,7 +67,7 @@ cl::sycl::range<3> get_thread_range(Conv2DParams const& params) {
 template <typename T, typename Index, int VectorWidth, typename ConvType>
 SNNStatus queue_input_transform(ReadAccessor<T const> input,
                                 WriteAccessor<T> output,
-                                Conv2DParams const& params, size_t tile_size,
+                                Conv2DParams const& params, int tile_size,
                                 cl::sycl::queue& queue) {
   using Functor = ExtractInputTiles<T, Index, VectorWidth, ConvType>;
 

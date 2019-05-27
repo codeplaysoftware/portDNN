@@ -67,7 +67,7 @@ bool can_use_vector<conv_type::FilterBackprop>(Conv2DParams const& /*params*/,
 template <typename T, typename Index, int VectorWidth, typename ConvType>
 SNNStatus launch_with_index(ReadAccessor<T const> input,
                             WriteAccessor<T> output, Conv2DParams const& params,
-                            size_t n_tiles, size_t tile_size,
+                            int n_tiles, int tile_size,
                             cl::sycl::queue& queue) {
   auto status = queue_zero_out_transform<T, VectorWidth>(output, n_tiles,
                                                          tile_size, queue);
@@ -82,8 +82,8 @@ SNNStatus launch_with_index(ReadAccessor<T const> input,
 template <typename T, int VectorWidth, typename ConvType>
 SNNStatus launch_with_vector(ReadAccessor<T const> input,
                              WriteAccessor<T> output,
-                             Conv2DParams const& params, size_t n_tiles,
-                             size_t tile_size, cl::sycl::queue& queue) {
+                             Conv2DParams const& params, int n_tiles,
+                             int tile_size, cl::sycl::queue& queue) {
   size_t thread_size = get_thread_size<ConvType>(params, VectorWidth);
   if (thread_size > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
@@ -102,8 +102,8 @@ SNNStatus launch_with_vector(ReadAccessor<T const> input,
 template <typename T, typename ConvType>
 SNNStatus launch_input_transform(ReadAccessor<T const> input,
                                  WriteAccessor<T> output,
-                                 Conv2DParams const& params, size_t n_tiles,
-                                 size_t tile_size, cl::sycl::queue& queue) {
+                                 Conv2DParams const& params, int n_tiles,
+                                 int tile_size, cl::sycl::queue& queue) {
   if (can_use_vector<ConvType>(params, 4)) {
     return launch_with_vector<T, 4, ConvType>(input, output, params, n_tiles,
                                               tile_size, queue);
@@ -119,7 +119,7 @@ SNNStatus launch_input_transform(ReadAccessor<T const> input,
 #define INSTANTIATE_LAUNCHER(DTYPE, CTYPE)                          \
   template SNNStatus launch_input_transform<DTYPE, CTYPE>(          \
       ReadAccessor<DTYPE const> input, WriteAccessor<DTYPE> output, \
-      Conv2DParams const& params, size_t n_tiles, size_t tile_size, \
+      Conv2DParams const& params, int n_tiles, int tile_size,       \
       cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                     \

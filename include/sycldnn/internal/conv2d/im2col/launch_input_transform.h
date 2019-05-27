@@ -47,8 +47,8 @@ namespace im2col {
 template <typename T, typename ConvType>
 SNNStatus launch_input_transform(ReadAccessor<T const> input,
                                  WriteAccessor<T> output,
-                                 Conv2DParams const& params, size_t n_tiles,
-                                 size_t tile_size, cl::sycl::queue& queue);
+                                 Conv2DParams const& params, int n_tiles,
+                                 int tile_size, cl::sycl::queue& queue);
 
 /** Extract the buffers from the backend and call the kernel launcher. */
 template <typename T, typename ConvType, typename Backend>
