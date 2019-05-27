@@ -50,16 +50,18 @@ SNNStatus queue_pointwise(ReadAccessor<T const> input_forward,
                           Index const input_bk_offset,
                           Index const output_bk_offset,
                           cl::sycl::queue& queue) {
-  size_t const threads = n_items;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.require(input_forward);
     cgh.require(input_backprop);
     cgh.require(output_backprop);
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op(
-        input_forward, input_backprop, output_backprop, n_items,
-        input_fwd_offset, input_bk_offset, output_bk_offset);
+    Index const n_vecs = n_items / VectorWidth;
+    // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
+    size_t const n_threads = n_vecs;
+    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
+        input_forward,    input_backprop,  output_backprop, n_vecs,
+        input_fwd_offset, input_bk_offset, output_bk_offset};
 
-    cgh.parallel_for(cl::sycl::range<1>{threads}, pointwise_op);
+    cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
   });
 
   return {event, StatusCode::OK};
@@ -74,11 +76,11 @@ SNNStatus launch_vector_pointwise(
     Index const output_bk_offset, cl::sycl::queue& queue) {
   if (n_items % 4 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
-        input_forward, input_backprop, output_backprop, n_items / 4,
+        input_forward, input_backprop, output_backprop, n_items,
         input_fwd_offset, input_bk_offset, output_bk_offset, queue);
   } else if (n_items % 2 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
-        input_forward, input_backprop, output_backprop, n_items / 2,
+        input_forward, input_backprop, output_backprop, n_items,
         input_fwd_offset, input_bk_offset, output_bk_offset, queue);
   } else {
     return queue_pointwise<T, Index, PointwiseType, Direction, 1>(

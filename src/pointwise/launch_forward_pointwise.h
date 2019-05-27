@@ -46,10 +46,13 @@ SNNStatus queue_pointwise(ReadAccessor<T const> input, WriteAccessor<T> output,
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.require(input);
     cgh.require(output);
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op(
-        input, output, n_items, input_offset, output_offset);
+    Index const n_vecs = n_items / VectorWidth;
+    // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
+    size_t const n_threads = n_vecs;
+    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
+        input, output, n_vecs, input_offset, output_offset};
 
-    cgh.parallel_for(cl::sycl::range<1>{n_items}, pointwise_op);
+    cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
   });
 
   return {event, StatusCode::OK};
@@ -64,10 +67,10 @@ SNNStatus launch_vector_pointwise(ReadAccessor<T const> input,
                                   cl::sycl::queue& queue) {
   if (n_items % 4 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
-        input, output, n_items / 4, input_offset, output_offset, queue);
+        input, output, n_items, input_offset, output_offset, queue);
   } else if (n_items % 2 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
-        input, output, n_items / 2, input_offset, output_offset, queue);
+        input, output, n_items, input_offset, output_offset, queue);
   } else {
     return queue_pointwise<T, Index, PointwiseType, Direction, 1>(
         input, output, n_items, input_offset, output_offset, queue);
