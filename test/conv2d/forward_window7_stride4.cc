@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright 2019 Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -20,6 +20,8 @@
 
 #include <gtest/gtest.h>
 
+#include "sycldnn/padding_mode.h"
+
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
@@ -29,8 +31,7 @@
 #include "test/conv2d/selector_list.h"
 #include "test/conv2d/window_stride_fixture.h"
 
-#include <CL/sycl.hpp>
-
+#include <array>
 #include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;

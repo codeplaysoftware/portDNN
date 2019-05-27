@@ -16,7 +16,10 @@
 #include <gtest/gtest.h>
 
 #include "sycldnn/helpers/padding.h"
+#include "sycldnn/padding_mode.h"
 
+#include <stddef.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 

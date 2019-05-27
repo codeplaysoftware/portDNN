@@ -28,6 +28,8 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
+#include <stddef.h>
+
 sycldnn::conv2d::Conv2DParams get_params(int window, int stride, int size,
                                          int channels, int features, int batch,
                                          sycldnn::PaddingMode padding) {

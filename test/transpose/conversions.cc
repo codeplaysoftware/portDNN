@@ -17,11 +17,13 @@
 
 #include <CL/sycl.hpp>
 
+#include <stddef.h>
 #include <iterator>
 #include <numeric>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "sycldnn/backend/snn_backend.h"

@@ -15,14 +15,10 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/backend/snn_backend.h"
 
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/im2col_selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-#include "sycldnn/conv2d/selector/winograd_selector.h"
+#include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/params.h"
 
 #include "test/conv2d/convolution_fixture.h"
 #include "test/conv2d/selector_list.h"
@@ -30,12 +26,9 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
-#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
+#include "test/types/type_list.h"
 
-#include <CL/sycl.hpp>
-
-#include <algorithm>
 #include <vector>
 
 template <typename Pair>

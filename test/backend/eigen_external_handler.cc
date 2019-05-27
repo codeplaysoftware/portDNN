@@ -23,6 +23,12 @@
 
 #include "sycldnn/backend/eigen_backend.h"
 
+#include "src/backend/eigen_backend_provider.h"
+
+#include <stddef.h>
+
+#include <CL/sycl.hpp>
+
 using EigenExternalHandlerTest =
     BackendTestFixture<sycldnn::backend::EigenBackend>;
 

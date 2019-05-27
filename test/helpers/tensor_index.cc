@@ -15,7 +15,13 @@
  */
 #include <gtest/gtest.h>
 
+#include "src/helpers/fast_div.h"
 #include "src/helpers/tensor_index.h"
+
+#include <stddef.h>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 template <typename T>
 struct TensorIndexTest : public ::testing::Test {

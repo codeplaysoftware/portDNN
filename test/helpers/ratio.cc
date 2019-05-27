@@ -17,6 +17,10 @@
 
 #include "sycldnn/helpers/ratio.h"
 
+#include <stddef.h>
+#include <cstdint>
+#include <vector>
+
 template <typename T>
 struct RatioHelpers : public ::testing::Test {
   void check_ratio_above_zero(T const divisor, std::vector<T> const& values,

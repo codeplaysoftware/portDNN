@@ -17,7 +17,11 @@
 
 #include "src/helpers/fast_div.h"
 
+#include <stddef.h>
+#include <cstdint>
 #include <numeric>
+#include <string>
+#include <vector>
 
 template <typename T>
 struct FastDivTest : public ::testing::Test {

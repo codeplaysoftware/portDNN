@@ -15,10 +15,6 @@
  */
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
-#include <unsupported/Eigen/CXX11/Tensor>
-
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
 #include "src/backend/syclblas_backend_provider.h"
 #include "sycldnn/backend/sycl_blas_backend.h"
@@ -27,6 +23,9 @@
 #include "src/backend/eigen_backend_provider.h"
 #include "sycldnn/backend/eigen_backend.h"
 #include "test/backend/backend_test_fixture.h"
+
+#include <stddef.h>
+#include <string>
 
 #ifdef EIGEN_EXCEPTIONS
 #define MAYBE_DEATH(a, b) ASSERT_ANY_THROW(a)

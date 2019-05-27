@@ -17,6 +17,10 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <cstdint>
+#include <vector>
+
 template <typename T>
 struct IndexHelpersOutWindow : public ::testing::Test {
   void check_output_window(T const stride, T const pad,

@@ -15,11 +15,24 @@
  */
 #include "sycldnn/internal/conv2d/tiled.h"
 
-#include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/accessor_types.h"
+#include "sycldnn/status.h"
+
+#include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/params.h"
+
 #include "sycldnn/helpers/ratio.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
 #include "src/conv2d/tiled/queue_tiled_kernel.h"
+#include "src/conv2d/tiled/tile_info.h"
+
+#include <stddef.h>
+#include <cstdint>
+#include <limits>
+#include <type_traits>
+
+#include <CL/sycl.hpp>
 
 namespace sycldnn {
 namespace conv2d {

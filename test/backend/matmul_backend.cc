@@ -32,6 +32,10 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/concatenate.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/to_gtest_types.h"
+#include "test/types/type_list.h"
+
+#include <vector>
 
 template <typename TypePair>
 using Matmul = BackendMatmul<typename TypePair::FirstType>;

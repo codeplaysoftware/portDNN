@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright 2019 Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -20,18 +20,18 @@
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/pooling/launch.h"
+#include "sycldnn/padding_mode.h"
+
 #include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include "test/pooling/pooling_fixture.h"
 
-#include <CL/sycl.hpp>
-
+#include <array>
 #include <vector>
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)

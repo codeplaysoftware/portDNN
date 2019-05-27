@@ -23,6 +23,12 @@
 #include "src/conv2d/im2col/queue_input_transform.h"
 #include "src/conv2d/im2col/queue_zero_out_transform.h"
 
+#include <stddef.h>
+#include <cstdint>
+#include <limits>
+
+#include <CL/sycl.hpp>
+
 namespace sycldnn {
 namespace conv2d {
 namespace internal {

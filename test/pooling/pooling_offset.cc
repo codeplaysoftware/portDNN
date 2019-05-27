@@ -15,13 +15,19 @@
  */
 
 #include <gtest/gtest.h>
-#include <vector>
+
+#include "sycldnn/padding_mode.h"
+
+#include "sycldnn/pooling/operators.h"
 
 #include "test/pooling/pooling_fixture.h"
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
+
+#include <array>
+#include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;

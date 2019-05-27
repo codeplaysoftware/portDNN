@@ -15,6 +15,10 @@
  */
 #include "sycldnn/internal/conv2d/direct.h"
 
+#include "sycldnn/accessor_types.h"
+#include "sycldnn/status.h"
+
+#include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
 
@@ -23,6 +27,8 @@
 
 #include <CL/sycl.hpp>
 
+#include <stddef.h>
+#include <cstdint>
 #include <limits>
 
 namespace sycldnn {

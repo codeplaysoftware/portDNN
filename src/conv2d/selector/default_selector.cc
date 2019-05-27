@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <string>
-
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/params.h"
 
@@ -23,8 +21,13 @@
 
 #include "sycldnn/conv2d/selector/selector.h"
 
+#include <memory>
+#include <string>
+
+#include <CL/sycl.hpp>
+
 /**
- * Implemented selectors for convolution algorithms on various devices,
+ * \file Implemented selectors for convolution algorithms on various devices,
  * selecting the fastest algorithm for the given device and convolution
  * parameters.
  */

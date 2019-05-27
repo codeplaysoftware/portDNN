@@ -40,10 +40,20 @@
  *      from on chip memory.
  */
 
+#include <stddef.h>
+#include <chrono>
+#include <cstdint>
+#include <exception>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <numeric>
+#include <ratio>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 // This sample makes use of the Eigen backend, and so we need to include the
 // relevant Eigen header. Dependent on the build settings, Eigen also requires
@@ -52,15 +62,20 @@
 #include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include <sycldnn/backend/eigen_backend.h>
-#include <sycldnn/conv2d/launch.h>
-#include <sycldnn/conv2d/params.h>
-#include <sycldnn/conv2d/selector/direct_selector.h>
-#include <sycldnn/conv2d/selector/tiled_selector.h>
-#include <sycldnn/conv2d/sizes.h>
+#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/launch.h"
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/status.h"
 
 // Include the codeplay specific onchip_memory buffer property
 #include <SYCL/codeplay.hpp>
+
+#include <CL/sycl.hpp>
 
 /**
  * Run and time the convolution specified by the `params` on the given input

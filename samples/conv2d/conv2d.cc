@@ -19,17 +19,25 @@
 // assert() to be declared, and doesn't pull in the required header itself, so
 // we do that as well.
 #include <cassert>
-#include <memory>
-#include <numeric>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include <sycldnn/backend/eigen_backend.h>
-#include <sycldnn/conv2d/launch.h>
-#include <sycldnn/conv2d/params.h>
-#include <sycldnn/conv2d/selector/direct_selector.h>
-#include <sycldnn/conv2d/selector/im2col_selector.h>
-#include <sycldnn/conv2d/selector/winograd_selector.h>
-#include <sycldnn/conv2d/sizes.h>
+#include "sycldnn/backend/eigen_backend.h"
+
+#include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/launch.h"
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
+#include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/status.h"
+
+#include <iterator>
+#include <memory>
+#include <numeric>
+#include <vector>
+
+#include <CL/sycl.hpp>
 
 int main() {
   // A SYCL device selector is a C++ class responsible for selecting what OpenCL

@@ -15,8 +15,6 @@
  */
 #include "sycldnn/internal/matmul/launch.h"
 
-#include "sycldnn/helpers/macros.h"
-
 #include "src/matmul/queue_kernel.h"
 
 namespace sycldnn {

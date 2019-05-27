@@ -19,7 +19,6 @@
 #include "sycldnn/padding_mode.h"
 
 #include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
 
 #include "test/pooling/pooling_fixture.h"
 
@@ -28,12 +27,9 @@
 #include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
-#include "test/types/type_triple.h"
-
-#include <CL/sycl.hpp>
+#include "test/types/type_list.h"
 
 #include <array>
-#include <cmath>
 #include <vector>
 
 template <typename Triple>

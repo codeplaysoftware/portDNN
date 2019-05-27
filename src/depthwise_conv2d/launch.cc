@@ -16,11 +16,17 @@
 #include "sycldnn/accessor_types.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/conv2d/conv_type.h"
+
 #include "sycldnn/depthwise_conv2d/params.h"
 
 #include "src/depthwise_conv2d/kernel_params.h"
 #include "src/depthwise_conv2d/output_size.h"
 #include "src/depthwise_conv2d/queue_depthwise_conv2d.h"
+
+#include <stddef.h>
+#include <cstdint>
+#include <limits>
 
 #include <CL/sycl.hpp>
 

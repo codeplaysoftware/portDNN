@@ -15,6 +15,10 @@
  */
 #include <benchmark/benchmark.h>
 
+#include <stddef.h>
+#include <utility>
+#include <vector>
+
 #include <CL/sycl.hpp>
 
 template <typename T>

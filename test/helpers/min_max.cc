@@ -17,6 +17,9 @@
 
 #include "sycldnn/helpers/minmax.h"
 
+#include <stddef.h>
+#include <vector>
+
 template <typename T>
 struct MinMaxTest : public ::testing::Test {
   void check_max_values(std::vector<T> const& a, std::vector<T> const& b,

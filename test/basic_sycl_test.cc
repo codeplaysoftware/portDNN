@@ -15,6 +15,8 @@
  */
 #include <gtest/gtest.h>
 
+#include <array>
+
 #include <CL/sycl.hpp>
 
 class HostSet;

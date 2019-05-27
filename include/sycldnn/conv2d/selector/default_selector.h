@@ -22,13 +22,13 @@
  * \ref sycldnn::conv2d::get_default_selector(const cl::sycl::device &)
  * function.
  */
+#include "sycldnn/conv2d/selector/selector.h"
+
 #include <CL/sycl.hpp>
 #include <memory>
 
 namespace sycldnn {
 namespace conv2d {
-
-class Selector;
 
 /**
  * Gets a suitable default algorithm selector for a particular SYCL device.

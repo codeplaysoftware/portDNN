@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright 2019 Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -28,8 +28,6 @@
 #include "test/types/to_gtest_types.h"
 
 #include "test/depthwise_conv2d/window_stride_fixture.h"
-
-#include <CL/sycl.hpp>
 
 #include <array>
 #include <vector>

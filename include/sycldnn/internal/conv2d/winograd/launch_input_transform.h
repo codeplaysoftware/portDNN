@@ -22,6 +22,8 @@
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/internal/conv2d/winograd/tile_info.h"
 
+#include <stddef.h>
+
 #include <CL/sycl.hpp>
 
 /**

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-#include <vector>
 
 #include "sycldnn/padding_mode.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/backend/snn_backend.h"
 
+#include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
@@ -41,9 +41,18 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
-#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 #include "test/types/type_list.h"
+
+#include <stddef.h>
+#include <algorithm>
+#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <CL/sycl.hpp>
 
 namespace {
 

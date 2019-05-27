@@ -16,7 +16,10 @@
 #include <gtest/gtest.h>
 
 #include "sycldnn/conv2d/selector/default_selector.h"
-#include "sycldnn/conv2d/selector/selector.h"
+
+#include <memory>
+
+#include <CL/sycl.hpp>
 
 TEST(DefaultSelectorTest, GetReturnsNonNull) {
   // Construct a SYCL queue with the default selector.

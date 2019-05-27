@@ -45,14 +45,12 @@
 #define SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
 
 #include <climits>
-#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <limits>
-#include <numeric>
 #include <type_traits>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 template <int num_bytes>
 struct TypeWithSize;

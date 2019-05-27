@@ -24,15 +24,21 @@
 #include "sycldnn/pooling/launch.h"
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
+#include "sycldnn/pooling/sizes.h"
 
+#include "sycldnn/status.h"
+
+#include "test/backend/backend_test_fixture.h"
 #include "test/pooling/pooling_fixture.h"
 #include "test/types/kernel_data_types.h"
 
-#include <CL/sycl.hpp>
-
+#include <stddef.h>
 #include <array>
 #include <cmath>
 #include <limits>
+#include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 template <typename DType>

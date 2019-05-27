@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "src/pooling/queue_pooling_kernel_impl.h"
+#include "sycldnn/internal/pooling/launch_internal.h"
 
 #include <CL/sycl.hpp>
-
-#include "src/pooling/queue_pooling_kernel_impl.h"
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/internal/pooling/launch_internal.h"
-#include "sycldnn/pooling/params.h"
-#include "sycldnn/status.h"
 
 namespace sycldnn {
 namespace pooling {

@@ -50,6 +50,8 @@ struct FullPointerSet {
   using ConstPointer =
       typename Backend::template internal_pointer_type<T const>;
 
+  FullPointerSet() = delete;
+
   /** The user provided input pointer. */
   ConstPointer input;
   /** The user provided filter pointer. */

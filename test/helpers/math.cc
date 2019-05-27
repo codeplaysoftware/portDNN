@@ -18,6 +18,7 @@
 #include "src/helpers/math.h"
 #include "src/helpers/vector_element.h"
 
+#include <stddef.h>
 #include <string>
 #include <vector>
 

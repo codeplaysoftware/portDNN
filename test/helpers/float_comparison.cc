@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <gtest/gtest.h>
 
 #include "test/helpers/float_comparison.h"
 
-#include "gtest/gtest.h"
-
+#include <algorithm>
+#include <cmath>
 #include <limits>
+#include <numeric>
+#include <vector>
 
 template <typename DataType>
 ::testing::AssertionResult expect_not_equal(

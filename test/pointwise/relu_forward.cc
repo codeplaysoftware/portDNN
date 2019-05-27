@@ -21,13 +21,10 @@
 #include <gtest/gtest.h>
 
 #include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/launch.h"
 #include "sycldnn/pointwise/operators.h"
 
 #include "test/pointwise/pointwise_fixture.h"
 #include "test/types/kernel_data_types.h"
-
-#include <CL/sycl.hpp>
 
 #include <vector>
 

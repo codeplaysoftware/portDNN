@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <CL/sycl.hpp>
-
 #include "src/pointwise/launch_forward_pointwise.h"
 #include "src/pointwise/launch_grad_pointwise.h"
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/internal/pointwise/launch_internal.h"
-#include "sycldnn/status.h"
+
+#include <CL/sycl.hpp>
 
 namespace sycldnn {
 namespace pointwise {

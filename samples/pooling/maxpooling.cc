@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <random>
+#include <vector>
 
 #include <CL/sycl.hpp>
 
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include <sycldnn/backend/eigen_backend.h>
-#include <sycldnn/pooling/launch.h>
-#include <sycldnn/pooling/operators.h>
-#include <sycldnn/pooling/params.h>
+#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/pooling/launch.h"
+#include "sycldnn/pooling/operators.h"
+#include "sycldnn/pooling/params.h"
+#include "sycldnn/status.h"
 
 int main() {
   /* Default selectors behave in an implementation-defined manner, but will

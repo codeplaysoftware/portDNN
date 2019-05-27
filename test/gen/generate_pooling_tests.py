@@ -48,18 +48,18 @@ DIRECTIONS = ['forward', 'grad']
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
-#include "sycldnn/pooling/launch.h"
+#include "sycldnn/padding_mode.h"
+
 #include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include "test/pooling/pooling_fixture.h"
 
-#include <CL/sycl.hpp>
-
+#include <array>
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)

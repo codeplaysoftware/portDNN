@@ -20,6 +20,10 @@
 
 #include "src/conv2d/im2col/queue_filter_transform.h"
 
+#include <stddef.h>
+#include <cstdint>
+#include <limits>
+
 #include <CL/sycl.hpp>
 
 namespace sycldnn {

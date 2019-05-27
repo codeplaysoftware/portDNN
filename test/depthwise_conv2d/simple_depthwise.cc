@@ -15,6 +15,8 @@
  */
 #include <gtest/gtest.h>
 
+#include "sycldnn/conv2d/conv_type.h"
+
 #include "sycldnn/backend/snn_backend.h"
 
 #include "sycldnn/depthwise_conv2d/params.h"
@@ -24,8 +26,7 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/to_gtest_types.h"
-
-#include <CL/sycl.hpp>
+#include "test/types/type_list.h"
 
 #include <vector>
 

@@ -47,6 +47,8 @@ TEST_TYPES = ["forward", "input_backprop", "filter_backprop"]
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
+#include "sycldnn/padding_mode.h"
+
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
@@ -56,8 +58,7 @@ INCLUDES = r"""
 #include "test/conv2d/selector_list.h"
 #include "test/conv2d/window_stride_fixture.h"
 
-#include <CL/sycl.hpp>
-
+#include <array>
 #include <vector>"""
 DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;

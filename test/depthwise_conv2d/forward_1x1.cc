@@ -16,17 +16,16 @@
 
 #include <gtest/gtest.h>
 
+#include "sycldnn/conv2d/conv_type.h"
+
 #include "sycldnn/depthwise_conv2d/params.h"
 
 #include "test/depthwise_conv2d/depthwise_conv2d_fixture.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
-#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
-
-#include <CL/sycl.hpp>
 
 #include <vector>
 

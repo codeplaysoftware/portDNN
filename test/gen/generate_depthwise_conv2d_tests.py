@@ -56,8 +56,6 @@ INCLUDES = r"""
 
 #include "test/depthwise_conv2d/window_stride_fixture.h"
 
-#include <CL/sycl.hpp>
-
 #include <array>
 #include <vector>"""
 DATA_TYPES = r"""

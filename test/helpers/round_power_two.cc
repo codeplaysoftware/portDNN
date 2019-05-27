@@ -18,6 +18,8 @@
 
 #include "src/helpers/round_power_two.h"
 
+#include <stddef.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
