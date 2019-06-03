@@ -16,6 +16,7 @@
 #include <benchmark/benchmark.h>
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/padding_mode.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/backend/snn_backend.h"
@@ -24,6 +25,7 @@
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/selector/selector.h"
 
+#include "sycldnn/helpers/padding.h"
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
@@ -194,13 +196,9 @@ struct ParamGenerator {
     params.window_cols = WindowRows;
     params.stride_rows = Stride;
     params.stride_cols = Stride;
-    params.out_rows = 27;
-    params.out_cols = 27;
-    params.pad_rows = 1;
-    params.pad_cols = 1;
     params.dilation_rows = 1;
     params.dilation_cols = 1;
-    return params;
+    return sycldnn::helpers::add_padding_to(params, sycldnn::PaddingMode::SAME);
   }
 };
 
