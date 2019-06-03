@@ -38,212 +38,171 @@ namespace {
  * A selector which makes no assumption about the underlying device.
  * This is chosen as a fall-back when the available device is not recognised.
  */
-class DefaultSelector final : public sycldnn::conv2d::Selector {
+class DefaultSelector : public sycldnn::conv2d::Selector {
  public:
   /**
-   * Selects a suitable convolution algorithm for the target platform, given
-   * the convolution parameters.
+   * Provide a reasonable default selection for all devices.
+   * \copydoc Selector::select_forward
    */
   sycldnn::conv2d::Algorithm select_forward(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    SNN_UNUSED_VAR(params)
-    return sycldnn::conv2d::Algorithm::Direct;
+    // For 1x1s1 the convolution is equivalent to a matrix multiply.
+    if (params.stride_rows == 1 && params.stride_cols == 1 &&
+        params.window_rows == 1 && params.window_cols == 1) {
+      return sycldnn::conv2d::Algorithm::Matmul;
+    }
+    // Winograd is supported for 1x3s1, 3x1s1, 3x3s1.
+    if (params.stride_rows == 1 && params.stride_cols == 1) {
+      if (params.window_rows == 3 && params.window_cols == 3) {
+        return sycldnn::conv2d::Algorithm::WinogradLarge;
+      } else if ((params.window_rows == 1 && params.window_cols == 3) ||
+                 (params.window_rows == 3 && params.window_cols == 1)) {
+        return sycldnn::conv2d::Algorithm::Winograd;
+      }
+    }
+    // Tiled is supported for 1x1s1, 1x1s2, 3x3s1, 3x3s2, 5x5s1, 5x5s2.
+    if (params.stride_rows == params.stride_cols &&
+        params.window_rows == params.window_cols) {
+      if ((params.window_rows == 1 || params.window_rows == 3 ||
+           params.window_rows == 5) &&
+          (params.stride_rows == 1 || params.stride_rows == 2)) {
+        return sycldnn::conv2d::Algorithm::Tiled;
+      }
+    }
+    // Fallback to use Im2col for anything else.
+    return sycldnn::conv2d::Algorithm::Im2col;
   }
 
+  /**
+   * Provide a reasonable default selection for all devices.
+   * \copydoc Selector::select_input_backprop
+   */
   sycldnn::conv2d::Algorithm select_input_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    SNN_UNUSED_VAR(params)
-    return sycldnn::conv2d::Algorithm::Direct;
+    // For 1x1s1 the convolution is equivalent to a matrix multiply.
+    if (params.stride_rows == 1 && params.stride_cols == 1 &&
+        params.window_rows == 1 && params.window_cols == 1) {
+      return sycldnn::conv2d::Algorithm::Matmul;
+    }
+    // Winograd is supported for 1x3s1, 3x1s1, 3x3s1.
+    if (params.stride_rows == 1 && params.stride_cols == 1) {
+      if (params.window_rows == 3 && params.window_cols == 3) {
+        return sycldnn::conv2d::Algorithm::WinogradLarge;
+      } else if ((params.window_rows == 1 && params.window_cols == 3) ||
+                 (params.window_rows == 3 && params.window_cols == 1)) {
+        return sycldnn::conv2d::Algorithm::Winograd;
+      }
+    }
+    // Fallback to use Im2col for anything else.
+    return sycldnn::conv2d::Algorithm::Im2col;
   }
 
+  /**
+   * Provide a reasonable default selection for all devices.
+   * \copydoc Selector::select_filter_backprop
+   */
   sycldnn::conv2d::Algorithm select_filter_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    SNN_UNUSED_VAR(params)
-    return sycldnn::conv2d::Algorithm::Direct;
+    // For 1x1s1 the convolution is equivalent to a matrix multiply.
+    if (params.stride_rows == 1 && params.stride_cols == 1 &&
+        params.window_rows == 1 && params.window_cols == 1) {
+      return sycldnn::conv2d::Algorithm::Matmul;
+    }
+    // Winograd is supported for 1x3s1, 3x1s1, 3x3s1.
+    if (params.stride_rows == 1 && params.stride_cols == 1) {
+      if (params.window_rows == 3 && params.window_cols == 3) {
+        return sycldnn::conv2d::Algorithm::WinogradLarge;
+      } else if ((params.window_rows == 1 && params.window_cols == 3) ||
+                 (params.window_rows == 3 && params.window_cols == 1)) {
+        return sycldnn::conv2d::Algorithm::Winograd;
+      }
+    }
+    // Fallback to use Im2col for anything else.
+    return sycldnn::conv2d::Algorithm::Im2col;
   }
 
-  char const* name() const override { return "Default"; }
+  char const* name() const override { return "DefaultSelector"; }
 };
 
 /** A selector which assumes the underlying device to run on is an Intel CPU. */
-class IntelCPUSelector final : public sycldnn::conv2d::Selector {
+class IntelCPUSelector final : public DefaultSelector {
  public:
-  /**
-   * Selects a suitable convolution algorithm given the convolution parameters.
-   */
   sycldnn::conv2d::Algorithm select_forward(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if (params.stride_rows != 1 && params.stride_cols != 1 &&
-        params.stride_rows == params.stride_cols &&
-        params.window_rows == params.window_cols) {
-      return sycldnn::conv2d::Algorithm::Tiled;
-    } else if ((params.window_rows == 3 && params.window_cols == 3) ||
-               (params.window_rows == 1 && params.window_cols == 3) ||
-               (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_forward(params);
   }
 
   sycldnn::conv2d::Algorithm select_input_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_input_backprop(params);
   }
 
   sycldnn::conv2d::Algorithm select_filter_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_filter_backprop(params);
   }
 
   char const* name() const override { return "IntelCPUSelector"; }
 };
 
 /** A selector which assumes the underlying device to run on is an Intel GPU. */
-class IntelGPUSelector final : public sycldnn::conv2d::Selector {
+class IntelGPUSelector final : public DefaultSelector {
  public:
-  /**
-   * Selects a suitable convolution algorithm given the convolution parameters.
-   */
   sycldnn::conv2d::Algorithm select_forward(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if (params.stride_rows != 1 && params.stride_cols != 1 &&
-        params.stride_rows == params.stride_cols &&
-        params.window_rows == params.window_cols) {
-      return sycldnn::conv2d::Algorithm::Tiled;
-    } else if ((params.window_rows == 3 && params.window_cols == 3) ||
-               (params.window_rows == 1 && params.window_cols == 3) ||
-               (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_forward(params);
   }
 
   sycldnn::conv2d::Algorithm select_input_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_input_backprop(params);
   }
 
   sycldnn::conv2d::Algorithm select_filter_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_filter_backprop(params);
   }
 
   char const* name() const override { return "IntelGPUSelector"; }
 };
 
 /** A selector which assumes the underlying device to run on is an ARM GPU. */
-class ARMGPUSelector final : public sycldnn::conv2d::Selector {
+class ARMGPUSelector final : public DefaultSelector {
  public:
-  /**
-   * Selects a suitable convolution algorithm given the convolution parameters.
-   */
   sycldnn::conv2d::Algorithm select_forward(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if (params.stride_rows != 1 && params.stride_cols != 1 &&
-        params.stride_rows == params.stride_cols &&
-        params.window_rows == params.window_cols) {
-      return sycldnn::conv2d::Algorithm::Tiled;
-    } else if ((params.window_rows == 3 && params.window_cols == 3) ||
-               (params.window_rows == 1 && params.window_cols == 3) ||
-               (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_forward(params);
   }
 
   sycldnn::conv2d::Algorithm select_input_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_input_backprop(params);
   }
 
   sycldnn::conv2d::Algorithm select_filter_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_filter_backprop(params);
   }
 
   char const* name() const override { return "ARMGPUSelector"; }
 };
 
 /** A selector which assumes the underlying device to run on is an AMD GPU. */
-class AMDGPUSelector final : public sycldnn::conv2d::Selector {
+class AMDGPUSelector final : public DefaultSelector {
  public:
-  /**
-   * Selects a suitable convolution algorithm given the convolution parameters.
-   */
   sycldnn::conv2d::Algorithm select_forward(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if (params.stride_rows != 1 && params.stride_cols != 1 &&
-        params.stride_rows == params.stride_cols &&
-        params.window_rows == params.window_cols) {
-      return sycldnn::conv2d::Algorithm::Tiled;
-    } else if ((params.window_rows == 3 && params.window_cols == 3) ||
-               (params.window_rows == 1 && params.window_cols == 3) ||
-               (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_forward(params);
   }
 
   sycldnn::conv2d::Algorithm select_input_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_input_backprop(params);
   }
 
   sycldnn::conv2d::Algorithm select_filter_backprop(
       sycldnn::conv2d::Conv2DParams const& params) override {
-    if ((params.window_rows == 3 && params.window_cols == 3) ||
-        (params.window_rows == 1 && params.window_cols == 3) ||
-        (params.window_rows == 3 && params.window_cols == 1)) {
-      return sycldnn::conv2d::Algorithm::Winograd;
-    } else {
-      return sycldnn::conv2d::Algorithm::Direct;
-    }
+    return this->DefaultSelector::select_filter_backprop(params);
   }
 
   char const* name() const override { return "AMDGPUSelector"; }
@@ -264,7 +223,7 @@ std::unique_ptr<Selector> get_default_selector(const cl::sycl::device& device) {
   bool is_cpu = device.is_cpu();
   bool is_gpu = device.is_gpu();
 
-  std::unique_ptr<Selector> selector{new DefaultSelector{}};
+  std::unique_ptr<Selector> selector{};
 
   if (is_intel && is_cpu) {
     selector.reset(new IntelCPUSelector{});
@@ -274,6 +233,8 @@ std::unique_ptr<Selector> get_default_selector(const cl::sycl::device& device) {
     selector.reset(new AMDGPUSelector{});
   } else if (is_arm && is_gpu) {
     selector.reset(new ARMGPUSelector{});
+  } else {
+    selector.reset(new DefaultSelector{});
   }
 
   return selector;
