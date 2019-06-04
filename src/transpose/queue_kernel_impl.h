@@ -39,15 +39,11 @@ SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
     auto input = input_mem.read_accessor(cgh);
     auto output = output_mem.write_accessor(cgh);
 
-    Index const in_offset = input.get_offset().get(0);
-    Index const out_offset = output.get_offset().get(0);
-
     size_t const n_threads = std::accumulate(
         begin(dimensions), end(dimensions), static_cast<size_t>(1),
         [](size_t a, int b) { return a * b; });
 
-    Functor functor{input,       output,    dimensions,
-                    permutation, in_offset, out_offset};
+    Functor functor{input, output, dimensions, permutation};
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, functor);
   });

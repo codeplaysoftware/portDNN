@@ -131,8 +131,6 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
 
   ReadAccessor<T const> in_data_;
   WriteAccessor<T> out_data_;
-  const Index input_offset_;
-  const Index output_offset_;
   const Index n_items_;
   PoolingParams params_;
   const IndexDivType div_out_rows_;
@@ -142,10 +140,12 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
  public:
   SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
     Index index = item.get_id(0);
+
     if (index < n_items_) {
       Op<DataT> op;
-      const auto in_data = in_data_.get_pointer() + input_offset_;
-      const auto out_data = out_data_.get_pointer() + output_offset_;
+      const auto in_data = in_data_.get_pointer();
+      const auto out_data = out_data_.get_pointer();
+
       const auto tensor_id =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
               index, div_out_rows_, params_.out_rows, div_out_cols_,
@@ -179,11 +179,9 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
   }
 
   PoolingOp(ReadAccessor<T const> in_data, WriteAccessor<T> out_data,
-            Index input_offset, Index output_offset, PoolingParams const& pp)
-      : in_data_(in_data),
-        out_data_(out_data),
-        input_offset_(input_offset),
-        output_offset_(output_offset),
+            PoolingParams const& pp)
+      : in_data_(std::move(in_data)),
+        out_data_(std::move(out_data)),
         n_items_(pp.batch * pp.out_rows * pp.out_cols * pp.channels /
                  VectorWidth),
         params_(pp),
@@ -209,17 +207,11 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
   PoolingOp(ReadAccessor<T const> const& in_data,
             ReadAccessor<T const> const& out_data,
             ReadAccessor<T const> const& in_backprop,
-            WriteAccessor<T> const& out_backprop, Index in_data_offset,
-            Index out_data_offset, Index in_backprop_offset,
-            Index out_backprop_offset, PoolingParams const& pp)
+            WriteAccessor<T> const& out_backprop, PoolingParams const& pp)
       : in_data_{in_data},
         out_data_{out_data},
         in_backprop_{in_backprop},
         out_backprop_{out_backprop},
-        in_data_offset_{in_data_offset},
-        out_data_offset_{out_data_offset},
-        in_backprop_offset_{in_backprop_offset},
-        out_backprop_offset_{out_backprop_offset},
         n_items_{pp.batch * pp.in_rows * pp.in_cols * pp.channels},
         params_{pp},
         div_in_rows_{pp.in_rows},
@@ -228,11 +220,12 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index index = item.get_id(0);
+
     if (index < n_items_) {
-      auto in_data = in_data_.get_pointer() + in_data_offset_;
-      auto out_data = out_data_.get_pointer() + out_data_offset_;
-      auto in_backprop = in_backprop_.get_pointer() + in_backprop_offset_;
-      auto out_backprop = out_backprop_.get_pointer() + out_backprop_offset_;
+      auto in_data = in_data_.get_pointer();
+      auto out_data = out_data_.get_pointer();
+      auto in_backprop = in_backprop_.get_pointer();
+      auto out_backprop = out_backprop_.get_pointer();
 
       const auto tensor_id =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -361,10 +354,6 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
   ReadAccessor<T const> out_data_;
   ReadAccessor<T const> in_backprop_;
   WriteAccessor<T> out_backprop_;
-  Index in_data_offset_;
-  Index out_data_offset_;
-  Index in_backprop_offset_;
-  Index out_backprop_offset_;
   Index n_items_;
   PoolingParams params_;
   const IndexDivType div_in_rows_;
@@ -386,12 +375,9 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
 
  public:
   PoolingOp(ReadAccessor<T const> const& in_data,
-            WriteAccessor<T> const& out_data, Index in_backprop_offset,
-            Index out_backprop_offset, PoolingParams const& pp)
+            WriteAccessor<T> const& out_data, PoolingParams const& pp)
       : in_backprop_{in_data},
         out_backprop_{out_data},
-        in_backprop_offset_{in_backprop_offset},
-        out_backprop_offset_{out_backprop_offset},
         n_items_{pp.batch * pp.in_rows * pp.in_cols * pp.channels /
                  VectorWidth},
         params_{pp},
@@ -401,9 +387,11 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index index = item.get_id(0);
+
     if (index < n_items_) {
-      auto input_backprop = in_backprop_.get_pointer() + in_backprop_offset_;
-      auto output_backprop = out_backprop_.get_pointer() + out_backprop_offset_;
+      auto input_backprop = in_backprop_.get_pointer();
+      auto output_backprop = out_backprop_.get_pointer();
+
       const auto tensor_id =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
               index, div_in_rows_, params_.in_rows, div_in_cols_,
@@ -493,8 +481,6 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
 
   ReadAccessor<T const> in_backprop_;
   WriteAccessor<T> out_backprop_;
-  Index in_backprop_offset_;
-  Index out_backprop_offset_;
   Index n_items_;
   PoolingParams params_;
   const IndexDivType div_in_rows_;

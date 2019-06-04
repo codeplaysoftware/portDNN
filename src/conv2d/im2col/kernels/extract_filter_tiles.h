@@ -32,14 +32,11 @@ namespace im2col {
 
 template <typename T, typename Index>
 struct ExtractFilterTiles {
-  ExtractFilterTiles(Index in_offset, Index out_offset,
-                     Conv2DParams const& params,
+  ExtractFilterTiles(Conv2DParams const& params,
                      ReadAccessor<T const> const& input,
                      WriteAccessor<T> const& output)
       : n_items_{params.window_rows * params.window_cols * params.channels *
                  params.features},
-        in_offset_{in_offset},
-        out_offset_{out_offset},
         n_window_rows_{params.window_rows},
         n_window_cols_{params.window_cols},
         n_channels_{params.channels},
@@ -49,9 +46,10 @@ struct ExtractFilterTiles {
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index index = item.get_id(0);
+
     if (index < n_items_) {
-      T const* input_data = input_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* input_data = input_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       T in_val = input_data[index];
 
@@ -76,8 +74,6 @@ struct ExtractFilterTiles {
 
  private:
   Index const n_items_;
-  Index const in_offset_;
-  Index const out_offset_;
   Index const n_window_rows_;
   Index const n_window_cols_;
   Index const n_channels_;

@@ -45,13 +45,10 @@ template <typename T, typename Index, int VectorWidth>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
 
-  ExtractInputTiles(Index in_offset, Index out_offset, Index tile_size,
-                    Conv2DParams const& params,
+  ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadAccessor<T const> const& input,
                     WriteAccessor<T> const& output)
-      : in_offset_{in_offset},
-        out_offset_{out_offset},
-        tile_size_{tile_size},
+      : tile_size_{tile_size},
         channels_{params.channels},
         features_{params.features},
         batch_{params.batch},
@@ -86,8 +83,8 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
 
     if (channel < channels_ && col_idx < in_cols_ && row_idx < in_rows_ &&
         batch < batch_) {
-      T const* input_data = input_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* input_data = input_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       Index const in_idx =
           ((batch * in_rows_ + row_idx) * in_cols_ + col_idx) * channels_ +
@@ -124,8 +121,6 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const tile_size_;
   Index const channels_;
   Index const features_;
@@ -148,13 +143,10 @@ template <typename T, typename Index, int VectorWidth>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
 
-  ExtractInputTiles(Index in_offset, Index out_offset, Index tile_size,
-                    Conv2DParams const& params,
+  ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadAccessor<T const> const& input,
                     WriteAccessor<T> const& output)
-      : in_offset_{in_offset},
-        out_offset_{out_offset},
-        tile_size_{tile_size},
+      : tile_size_{tile_size},
         channels_{params.channels},
         features_{params.features},
         batch_{params.batch},
@@ -188,8 +180,8 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
     }
     if (feature < features_ && col_idx < out_cols_ && row_idx < out_rows_ &&
         batch < batch_) {
-      T const* input_data = input_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* input_data = input_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       Index const in_idx =
           ((batch * out_rows_ + row_idx) * out_cols_ + col_idx) * features_ +
@@ -218,8 +210,6 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const tile_size_;
   Index const channels_;
   Index const features_;
@@ -240,13 +230,10 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
 
 template <typename T, typename Index, int VectorWidth>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
-  ExtractInputTiles(Index in_offset, Index out_offset, Index tile_size,
-                    Conv2DParams const& params,
+  ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadAccessor<T const> const& input,
                     WriteAccessor<T> const& output)
-      : in_offset_{in_offset},
-        out_offset_{out_offset},
-        tile_size_{tile_size},
+      : tile_size_{tile_size},
         channels_{params.channels},
         features_{params.features},
         batch_{params.batch},
@@ -283,8 +270,8 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
 
     if (channel < channels_ && col_idx < in_cols_ && row_idx < in_rows_ &&
         batch < batch_) {
-      T const* input_data = input_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* input_data = input_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       Index const in_idx =
           ((batch * in_rows_ + row_idx) * in_cols_ + col_idx) * channels_ +
@@ -342,8 +329,6 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const tile_size_;
   Index const channels_;
   Index const features_;

@@ -47,8 +47,7 @@ SNNStatus queue_zero_out_transform(BaseMemObject<T>& output_mem, size_t n_tiles,
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto output = output_mem.write_accessor(cgh);
-    size_t offset = output.get_offset().get(0);
-    Functor functor{transform_size, offset, output};
+    Functor functor{transform_size, output};
     cgh.parallel_for(cl::sycl::range<1>{zero_threads}, functor);
   });
   return SNNStatus{event, StatusCode::OK};

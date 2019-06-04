@@ -24,27 +24,91 @@
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
-/** Read only SYCL accessor for a 1D buffer of type T. */
-template <typename T>
-using ReadAccessor =
-    cl::sycl::accessor<T, 1, cl::sycl::access::mode::read,
-                       cl::sycl::access::target::global_buffer>;
-/** Write only SYCL accessor for a 1D buffer of type T. */
-template <typename T>
-using WriteAccessor =
-    cl::sycl::accessor<T, 1, cl::sycl::access::mode::discard_write,
-                       cl::sycl::access::target::global_buffer>;
-/** Read-write SYCL accessor for a 1D buffer of type T. */
-template <typename T>
-using ReadWriteAccessor =
-    cl::sycl::accessor<T, 1, cl::sycl::access::mode::read_write,
-                       cl::sycl::access::target::global_buffer>;
-
 /** Local memory accessor for a given dimension of type T. */
 template <typename T, int Dimension = 1>
 using LocalAccessor =
     cl::sycl::accessor<T, Dimension, cl::sycl::access::mode::read_write,
                        cl::sycl::access::target::local>;
+
+/**
+ * SYCL Accessor wrapper.
+ *
+ * Provides a simple constructor for accessors, and a unified way of ensuring
+ * that offsets into buffers are included in kernels.
+ */
+template <typename T, cl::sycl::access::mode Mode>
+struct BaseAccessor {
+ private:
+  static auto constexpr GlobalTarget = cl::sycl::access::target::global_buffer;
+  static auto constexpr GlobalSpace =
+      cl::sycl::access::address_space::global_space;
+
+  /** Alias for a global SYCL pointer. */
+  using MultiPtr = cl::sycl::multi_ptr<T, GlobalSpace>;
+  /** Alias for a SYCL command group handler. */
+  using Handler = cl::sycl::handler;
+  /** Alias for a SYCL buffer matching the accessor type. */
+  template <typename Alloc>
+  using Buffer = cl::sycl::buffer<T, 1, Alloc>;
+  /** The underlying SYCL accessor type. */
+  using Accessor = cl::sycl::accessor<T, 1, Mode, GlobalTarget>;
+
+ public:
+  /**
+   * Contruct a BaseAccessor from a SYCL buffer and command group handler.
+   * \param buf The SYCL buffer to construct an accessor from.
+   * \param cgh The SYCL command group handler to bind the accessor to.
+   * \param extent The number of elements in the buffer to provide access to.
+   * \param offset The offset from the start of the buffer.
+   */
+  template <typename Alloc>
+  BaseAccessor(Buffer<Alloc>& buf, Handler& cgh, size_t extent, size_t offset)
+      : acc_{buf, cgh, cl::sycl::range<1>{extent}, cl::sycl::id<1>{offset}},
+        offset_{offset} {}
+
+  /**
+   * Get the underlying pointer from the accessor.
+   * \return A global pointer to the underlying memory.
+   */
+  MultiPtr get_pointer() const { return acc_.get_pointer() + offset_; }
+
+  /**
+   * Get a reference to the underlying SYCL accessor.
+   * \return A reference to the underlying SYCL accessor.
+   */
+  Accessor& get_accessor() { return acc_; }
+
+  /**
+   * Get a const reference to the underlying SYCL accessor.
+   * \return A const reference to the underlying SYCL accessor.
+   */
+  Accessor const& get_accessor() const { return acc_; }
+
+ private:
+  /** The SYCL accessor. */
+  Accessor acc_;
+  /**
+   * The offset from the start of the SYCL buffer in elements.
+   *
+   * NB. The accessor stores these offsets itself, but it might store all
+   * dimensions which means that when used in a kernel more registers are
+   * needed than are actually required. By storing the offset separately we can
+   * ensure that only a single offset value is used in the kernel.
+   */
+  size_t offset_;
+};
+
+/** Read only accessor for a 1D buffer of type T. */
+template <typename T>
+using ReadAccessor = BaseAccessor<T, cl::sycl::access::mode::read>;
+
+/** Write only accessor for a 1D buffer of type T. */
+template <typename T>
+using WriteAccessor = BaseAccessor<T, cl::sycl::access::mode::discard_write>;
+
+/** Read-write accessor for a 1D buffer of type T. */
+template <typename T>
+using ReadWriteAccessor = BaseAccessor<T, cl::sycl::access::mode::read_write>;
 
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_ACCESSOR_TYPES_H_

@@ -50,8 +50,8 @@ struct Transposer<T, Index, 1> {
                              std::vector<int> const& /*permutation*/,
                              cl::sycl::queue& queue) {
     auto event = queue.submit([&](cl::sycl::handler& cgh) {
-      auto input = input_mem.read_accessor(cgh);
-      auto output = output_mem.write_accessor(cgh);
+      auto input = input_mem.read_accessor(cgh).get_accessor();
+      auto output = output_mem.write_accessor(cgh).get_accessor();
       cgh.copy(input, output);
     });
     return {event, StatusCode::OK};

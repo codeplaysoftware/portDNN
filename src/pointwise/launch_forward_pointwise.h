@@ -42,18 +42,16 @@ namespace internal {
 template <typename T, typename Index, template <typename> class PointwiseType,
           typename Direction, int VectorWidth>
 SNNStatus queue_pointwise(BaseMemObject<T const>& in_mem,
-                          BaseMemObject<T>& out_mem, size_t const n_items,
+                          BaseMemObject<T>& out_mem, Index const n_items,
                           cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = in_mem.read_accessor(cgh);
     auto output = out_mem.write_accessor(cgh);
-    auto const input_offset = input.get_offset().get(0);
-    auto const output_offset = output.get_offset().get(0);
     Index const n_vecs = n_items / VectorWidth;
     // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
     size_t const n_threads = n_vecs;
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op(
-        input, output, n_vecs, input_offset, output_offset);
+    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
+        input, output, n_vecs};
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
   });

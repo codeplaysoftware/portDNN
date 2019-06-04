@@ -29,8 +29,7 @@ struct MatmulKernel {
   MatmulKernel(ReadAccessor<T const> const& lhs,
                ReadAccessor<T const> const& rhs,
                ReadWriteAccessor<T> const& output, Index batches, Index m,
-               Index k, Index n, T beta, Index lhs_offset, Index rhs_offset,
-               Index out_offset)
+               Index k, Index n, T beta)
       : lhs_{lhs},
         rhs_{rhs},
         output_{output},
@@ -38,10 +37,7 @@ struct MatmulKernel {
         m_{m},
         k_{k},
         n_{n},
-        beta_{beta},
-        lhs_offset_{lhs_offset},
-        rhs_offset_{rhs_offset},
-        out_offset_{out_offset} {};
+        beta_{beta} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) {
     Index row = item.get_id(0) * RowTile;
@@ -49,9 +45,9 @@ struct MatmulKernel {
     Index batch = item.get_id(2);
 
     if (row < m_ && col < n_) {
-      auto lhs_ptr = lhs_.get_pointer() + batch * m_ * k_ + lhs_offset_;
-      auto rhs_ptr = rhs_.get_pointer() + batch * k_ * n_ + rhs_offset_;
-      auto out_ptr = output_.get_pointer() + batch * m_ * n_ + out_offset_;
+      auto lhs_ptr = lhs_.get_pointer() + batch * m_ * k_;
+      auto rhs_ptr = rhs_.get_pointer() + batch * k_ * n_;
+      auto out_ptr = output_.get_pointer() + batch * m_ * n_;
 
       auto out_block = VectorBlock<T, RowTile, ColTile>{};
       if (beta_ != static_cast<T>(0)) {
@@ -85,9 +81,6 @@ struct MatmulKernel {
   Index const k_;
   Index const n_;
   T const beta_;
-  Index const lhs_offset_;
-  Index const rhs_offset_;
-  Index const out_offset_;
 };
 
 }  // namespace matmul

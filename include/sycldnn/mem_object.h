@@ -98,14 +98,6 @@ struct MemObject final : public BaseMemObject<T> {
   /** \copydoc BaseMemObject<T>::Handler */
   using typename BaseMemObject<DataType>::Handler;
 
- private:
-  /** SYCL accessor read mode. */
-  static constexpr auto ReadMode = cl::sycl::access::mode::read;
-  /** SYCL accessor read-write mode. */
-  static constexpr auto ReadWriteMode = cl::sycl::access::mode::read_write;
-  /** SYCL accessor write mode. */
-  static constexpr auto WriteMode = cl::sycl::access::mode::discard_write;
-
  public:
   /**
    * Construct a MemObject wrapper around the given SYCL buffer.
@@ -122,20 +114,17 @@ struct MemObject final : public BaseMemObject<T> {
 
   /** \copydoc BaseMemObject<T>::read_accessor */
   ReadAccessor<DataType> read_accessor(Handler& cgh) override {
-    return buffer_.template get_access<ReadMode>(
-        cgh, cl::sycl::range<1>{extent_}, cl::sycl::id<1>{offset_});
+    return {buffer_, cgh, extent_, offset_};
   }
 
   /** \copydoc BaseMemObject<T>::read_write_accessor */
   ReadWriteAccessor<DataType> read_write_accessor(Handler& cgh) override {
-    return buffer_.template get_access<ReadWriteMode>(
-        cgh, cl::sycl::range<1>{extent_}, cl::sycl::id<1>{offset_});
+    return {buffer_, cgh, extent_, offset_};
   }
 
   /** \copydoc BaseMemObject<T>::write_accessor */
   WriteAccessor<DataType> write_accessor(Handler& cgh) override {
-    return buffer_.template get_access<WriteMode>(
-        cgh, cl::sycl::range<1>{extent_}, cl::sycl::id<1>{offset_});
+    return {buffer_, cgh, extent_, offset_};
   }
 
  private:
@@ -164,14 +153,6 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
   /** \copydoc BaseMemObject<T const>::Handler */
   using typename BaseMemObject<DataType>::Handler;
 
- private:
-  /** SYCL accessor read mode. */
-  static constexpr auto ReadMode = cl::sycl::access::mode::read;
-  /** SYCL accessor read-write mode. */
-  static constexpr auto ReadWriteMode = cl::sycl::access::mode::read_write;
-  /** SYCL accessor write mode. */
-  static constexpr auto WriteMode = cl::sycl::access::mode::discard_write;
-
  public:
   /**
    * Construct a MemObject wrapper around the given SYCL buffer.
@@ -188,8 +169,7 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
 
   /** \copydoc BaseMemObject<T>::read_accessor */
   ReadAccessor<DataType> read_accessor(Handler& cgh) override {
-    return buffer_.template get_access<ReadMode>(
-        cgh, cl::sycl::range<1>{extent_}, cl::sycl::id<1>{offset_});
+    return {buffer_, cgh, extent_, offset_};
   }
 
  private:

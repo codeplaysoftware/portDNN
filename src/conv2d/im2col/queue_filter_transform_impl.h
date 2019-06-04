@@ -48,9 +48,7 @@ SNNStatus queue_filter_transform(BaseMemObject<T const>& input_mem,
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = input_mem.read_accessor(cgh);
     auto output = output_mem.write_accessor(cgh);
-    auto in_offset = input.get_offset().get(0);
-    auto out_offset = output.get_offset().get(0);
-    Functor conv(in_offset, out_offset, params, input, output);
+    Functor conv{params, input, output};
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, conv);
   });

@@ -59,10 +59,8 @@ SNNStatus queue_input_transform(BaseMemObject<T const>& input_mem,
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = input_mem.read_accessor(cgh);
     auto transform = transform_mem.write_accessor(cgh);
-    auto in_offset = input.get_offset().get(0);
-    auto out_offset = transform.get_offset().get(0);
     auto range = get_thread_range(params, tile_info, ChannelVector);
-    Functor conv(in_offset, out_offset, params, tile_info, input, transform);
+    Functor conv{params, tile_info, input, transform};
 
     cgh.parallel_for(range, conv);
   });

@@ -33,14 +33,14 @@ template <typename T, int VectorWidth>
 struct ZeroFunctor {
   using StoreType = typename helpers::VectorType<T, VectorWidth>::type;
 
-  ZeroFunctor(size_t output_size, size_t offset, WriteAccessor<T> const& output)
-      : output_size_{output_size}, offset_{offset}, output_{output} {}
+  ZeroFunctor(size_t output_size, WriteAccessor<T> const& output)
+      : output_size_{output_size}, output_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     size_t const id = item.get_id(0) * VectorWidth;
     if (id < output_size_) {
       StoreType zeros{0};
-      T* output_ptr = output_.get_pointer().get() + offset_;
+      auto output_ptr = output_.get_pointer();
       helpers::io::Store<StoreType>()(output_ptr, id, zeros);
     }
   }
@@ -48,8 +48,6 @@ struct ZeroFunctor {
  private:
   /** Number of elements in the output buffer to set to zero. */
   size_t output_size_;
-  /** Offset from the start of the buffer to write to. */
-  size_t offset_;
   /** Accessor to the output buffer. */
   WriteAccessor<T> output_;
 };

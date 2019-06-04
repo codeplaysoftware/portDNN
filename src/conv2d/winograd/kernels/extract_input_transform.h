@@ -39,13 +39,10 @@ template <typename T, typename Index, int ChannelVector, int M, int N, int R,
 struct ExtractInputTiles {
   using VecType = typename helpers::VectorType<T, ChannelVector>::type;
 
-  ExtractInputTiles(Index in_offset, Index out_offset,
-                    Conv2DParams const& params, TileInfo const& tile_info,
+  ExtractInputTiles(Conv2DParams const& params, TileInfo const& tile_info,
                     ReadAccessor<T const> const& input,
                     WriteAccessor<T> const& output)
-      : in_offset_{in_offset},
-        out_offset_{out_offset},
-        n_elems_{params.batch * tile_info.rows * tile_info.cols *
+      : n_elems_{params.batch * tile_info.rows * tile_info.cols *
                  params.channels / ChannelVector},
         n_tiles_{tile_info.number * params.batch},
         n_tile_rows_{tile_info.rows},
@@ -61,8 +58,8 @@ struct ExtractInputTiles {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_elems_) {
-      T const* input_data = input_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* input_data = input_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       auto const tile_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -91,8 +88,6 @@ struct ExtractInputTiles {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const n_elems_;
   Index const n_tiles_;
   Index const n_tile_rows_;
@@ -112,13 +107,10 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
                          conv_type::FilterBackprop> {
   using VecType = typename helpers::VectorType<T, ChannelVector>::type;
 
-  ExtractInputTiles(Index in_offset, Index out_offset,
-                    Conv2DParams const& params, TileInfo const& tile_info,
+  ExtractInputTiles(Conv2DParams const& params, TileInfo const& tile_info,
                     ReadAccessor<T const> const& input,
                     WriteAccessor<T> const& output)
-      : in_offset_{in_offset},
-        out_offset_{out_offset},
-        n_elems_{params.batch * tile_info.rows * tile_info.cols *
+      : n_elems_{params.batch * tile_info.rows * tile_info.cols *
                  params.channels / ChannelVector},
         n_tiles_{tile_info.number * params.batch},
         n_tile_rows_{tile_info.rows},
@@ -134,8 +126,8 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_elems_) {
-      T const* input_data = input_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* input_data = input_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       auto const tile_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -164,8 +156,6 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const n_elems_;
   Index const n_tiles_;
   Index const n_tile_rows_;

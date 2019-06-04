@@ -71,11 +71,8 @@ SNNStatus queue_output_transform(BaseMemObject<T const>& intermediate_mem,
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto intermediate = intermediate_mem.read_accessor(cgh);
     auto output = output_mem.write_accessor(cgh);
-    auto in_offset = intermediate.get_offset().get(0);
-    auto out_offset = output.get_offset().get(0);
     auto range = get_thread_range<ConvType>(params, tile_info);
-    Functor conv(in_offset, out_offset, params, tile_info, intermediate,
-                 output);
+    Functor conv{params, tile_info, intermediate, output};
 
     cgh.parallel_for(range, conv);
   });

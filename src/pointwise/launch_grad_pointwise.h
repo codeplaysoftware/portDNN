@@ -51,15 +51,11 @@ SNNStatus queue_pointwise(BaseMemObject<T const>& input_forward_mem,
     auto input_forward = input_forward_mem.read_accessor(cgh);
     auto input_backprop = input_backprop_mem.read_accessor(cgh);
     auto output_backprop = output_backprop_mem.write_accessor(cgh);
-    auto const input_fwd_offset = input_forward.get_offset().get(0);
-    auto const input_bk_offset = input_backprop.get_offset().get(0);
-    auto const output_bk_offset = output_backprop.get_offset().get(0);
     Index const n_vecs = n_items / VectorWidth;
     // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
     size_t const n_threads = n_vecs;
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op(
-        input_forward, input_backprop, output_backprop, n_vecs,
-        input_fwd_offset, input_bk_offset, output_bk_offset);
+    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
+        input_forward, input_backprop, output_backprop, n_vecs};
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
   });

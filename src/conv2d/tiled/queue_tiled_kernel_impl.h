@@ -73,11 +73,7 @@ SNNStatus queue_tiled_kernel(BaseMemObject<T const>& in_mem,
     auto filter = fil_mem.read_accessor(cgh);
     auto output = out_mem.write_accessor(cgh);
 
-    Index input_offset = input.get_offset().get(0);
-    Index filter_offset = filter.get_offset().get(0);
-    Index output_offset = output.get_offset().get(0);
-    Functor conv(input, input_offset, filter, filter_offset, output,
-                 output_offset, kernel_params, tile_info);
+    Functor conv{input, filter, output, kernel_params, tile_info};
     auto threads = get_thread_range(kernel_params, tile_info, queue);
 
     cgh.parallel_for(threads, conv);

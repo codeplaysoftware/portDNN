@@ -71,14 +71,10 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   using OutVecType = typename Output::VecType;
 
  public:
-  TiledConv2D(ReadAccessor<T const> input, Index input_offset,
-              ReadAccessor<T const> filter, Index filter_offset,
-              WriteAccessor<T> output, Index output_offset,
-              Conv2DParams const& params, TileInfo const& tile_info)
-      : input_offset_{input_offset},
-        filter_offset_{filter_offset},
-        output_offset_{output_offset},
-        n_tile_cols_{tile_info.n_cols},
+  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> filter,
+              WriteAccessor<T> output, Conv2DParams const& params,
+              TileInfo const& tile_info)
+      : n_tile_cols_{tile_info.n_cols},
         n_tile_rows_{tile_info.n_rows},
         n_feature_vectors_{tile_info.output_vectors},
         div_feature_vectors_{n_feature_vectors_},
@@ -103,9 +99,9 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer() + input_offset_;
-      auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
-      auto output_data = output_accessor_.get_pointer() + output_offset_;
+      auto input_data = input_accessor_.get_pointer();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -191,9 +187,6 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
     return value;
   }
 
-  const Index input_offset_;
-  const Index filter_offset_;
-  const Index output_offset_;
   const Index n_tile_cols_;
   const Index n_tile_rows_;
   const Index n_feature_vectors_;
@@ -232,14 +225,10 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   using OutVecType = typename Output::VecType;
 
  public:
-  TiledConv2D(ReadAccessor<T const> input, Index input_offset,
-              ReadAccessor<T const> filter, Index filter_offset,
-              WriteAccessor<T> output, Index output_offset,
-              Conv2DParams const& params, TileInfo const& tile_info)
-      : input_offset_{input_offset},
-        filter_offset_{filter_offset},
-        output_offset_{output_offset},
-        n_tile_cols_{tile_info.n_cols},
+  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> filter,
+              WriteAccessor<T> output, Conv2DParams const& params,
+              TileInfo const& tile_info)
+      : n_tile_cols_{tile_info.n_cols},
         n_tile_rows_{tile_info.n_rows},
         n_channel_vectors_{tile_info.output_vectors},
         div_channels_{n_channel_vectors_},
@@ -264,9 +253,9 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer() + input_offset_;
-      auto filter_data = filter_accessor_.get_pointer() + filter_offset_;
-      auto output_data = output_accessor_.get_pointer() + output_offset_;
+      auto input_data = input_accessor_.get_pointer();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -382,9 +371,6 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
     return output;
   }
 
-  const Index input_offset_;
-  const Index filter_offset_;
-  const Index output_offset_;
   const Index n_tile_cols_;
   const Index n_tile_rows_;
   const Index n_channel_vectors_;

@@ -33,13 +33,10 @@ namespace winograd {
 template <typename T, typename Index, int M, int N, int R, int S,
           typename ConvType>
 struct ExtractFilterTiles {
-  ExtractFilterTiles(Index fil_offset, Index out_offset,
-                     Conv2DParams const& params, TileInfo const& /*unused*/,
+  ExtractFilterTiles(Conv2DParams const& params, TileInfo const& /*unused*/,
                      ReadAccessor<T const> const& filter,
                      WriteAccessor<T> const& output)
-      : in_offset_{fil_offset},
-        out_offset_{out_offset},
-        n_tiles_{params.channels * params.features},
+      : n_tiles_{params.channels * params.features},
         n_channels_{params.channels},
         n_features_{params.features},
         filter_accessor_{filter},
@@ -48,8 +45,8 @@ struct ExtractFilterTiles {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
-      T const* filter_data = filter_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* filter_data = filter_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       auto const channel_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -68,8 +65,6 @@ struct ExtractFilterTiles {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const n_tiles_;
   Index const n_channels_;
   Index const n_features_;
@@ -87,13 +82,10 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
    * to be n_features_ in the filter. We switch these back in the constructor
    * so they are as expected.
    */
-  ExtractFilterTiles(Index fil_offset, Index out_offset,
-                     Conv2DParams const& params, TileInfo const& /*unused*/,
+  ExtractFilterTiles(Conv2DParams const& params, TileInfo const& /*unused*/,
                      ReadAccessor<T const> const& filter,
                      WriteAccessor<T> const& output)
-      : in_offset_{fil_offset},
-        out_offset_{out_offset},
-        n_tiles_{params.channels * params.features},
+      : n_tiles_{params.channels * params.features},
         n_features_{params.channels},
         n_channels_{params.features},
         filter_accessor_{filter},
@@ -102,8 +94,8 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
-      T const* filter_data = filter_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* filter_data = filter_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       auto const feature_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -122,8 +114,6 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const n_tiles_;
   Index const n_features_;
   Index const n_channels_;
@@ -135,13 +125,10 @@ template <typename T, typename Index, int M, int N, int R, int S>
 struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
   using ConvType = conv_type::FilterBackprop;
 
-  ExtractFilterTiles(Index fil_offset, Index out_offset,
-                     Conv2DParams const& params, TileInfo const& tile_info,
+  ExtractFilterTiles(Conv2DParams const& params, TileInfo const& tile_info,
                      ReadAccessor<T const> const& filter,
                      WriteAccessor<T> const& output)
-      : in_offset_{fil_offset},
-        out_offset_{out_offset},
-        n_threads_{params.batch * tile_info.rows * tile_info.cols *
+      : n_threads_{params.batch * tile_info.rows * tile_info.cols *
                    params.features},
         n_tiles_{tile_info.number * params.batch},
         n_tile_rows_{tile_info.rows},
@@ -155,8 +142,8 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_threads_) {
-      T const* filter_data = filter_accessor_.get_pointer().get() + in_offset_;
-      T* output_data = output_accessor_.get_pointer().get() + out_offset_;
+      T const* filter_data = filter_accessor_.get_pointer().get();
+      T* output_data = output_accessor_.get_pointer().get();
 
       auto const tile_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -193,8 +180,6 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
   }
 
  private:
-  Index const in_offset_;
-  Index const out_offset_;
   Index const n_threads_;
   Index const n_tiles_;
   Index const n_tile_rows_;

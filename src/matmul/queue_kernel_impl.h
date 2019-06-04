@@ -51,12 +51,7 @@ SNNStatus queue_kernel(BaseMemObject<T const>& lhs_mem,
     auto rhs = rhs_mem.read_accessor(cgh);
     auto output = output_mem.read_write_accessor(cgh);
 
-    Index const lhs_offset = lhs.get_offset().get(0);
-    Index const rhs_offset = rhs.get_offset().get(0);
-    Index const out_offset = output.get_offset().get(0);
-
-    Functor functor{lhs, rhs,  output,     batches,    m,         k,
-                    n,   beta, lhs_offset, rhs_offset, out_offset};
+    Functor functor{lhs, rhs, output, batches, m, k, n, beta};
 
     cgh.parallel_for(
         cl::sycl::range<3>{n_row_threads, n_col_threads, n_batch_threads},

@@ -36,15 +36,12 @@ struct TransposeKernel {
   TransposeKernel(ReadAccessor<T const> const& input,
                   WriteAccessor<T> const& output,
                   std::vector<int> const& dimensions,
-                  std::vector<int> const& permutation, Index in_offset,
-                  Index out_offset)
+                  std::vector<int> const& permutation)
       : input_{input},
         output_{output},
         tensor_size_{std::accumulate(begin(dimensions), end(dimensions),
                                      static_cast<Index>(1),
-                                     [](Index a, int b) { return a * b; })},
-        in_offset_{in_offset},
-        out_offset_{out_offset} {
+                                     [](Index a, int b) { return a * b; })} {
     std::copy_n(begin(dimensions), ND, begin(in_dims_));
     std::copy_n(begin(permutation), ND, begin(permutation_));
     for (int i = 0; i < ND; ++i) {
@@ -55,8 +52,8 @@ struct TransposeKernel {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index flat_in_id = item.get_id(0);
     if (flat_in_id < tensor_size_) {
-      auto in_ptr = input_.get_pointer() + in_offset_;
-      auto out_ptr = output_.get_pointer() + out_offset_;
+      auto in_ptr = input_.get_pointer();
+      auto out_ptr = output_.get_pointer();
 
       auto in_val = LoadData()(in_ptr, flat_in_id);
 
@@ -85,8 +82,6 @@ struct TransposeKernel {
   ReadAccessor<T const> input_;
   WriteAccessor<T> output_;
   Index tensor_size_;
-  Index in_offset_;
-  Index out_offset_;
   std::array<int, ND> in_dims_;
   std::array<int, ND> out_dims_;
   std::array<int, ND> permutation_;

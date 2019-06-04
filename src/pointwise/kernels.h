@@ -96,33 +96,25 @@ class PointwiseOp<T, Index, Op, Forward, VectorWidth> {
   ReadAccessor<T const> input_;
   WriteAccessor<T> output_;
   Index const n_items_;
-  Index const in_offset_;
-  Index const out_offset_;
 
  public:
   PointwiseOp(ReadAccessor<T const> const& input,
-              WriteAccessor<T> const& output, Index const num_items,
-              Index const input_offset, Index const output_offset)
-      : input_{input},
-        output_{output},
-        n_items_{num_items},
-        in_offset_{input_offset},
-        out_offset_{output_offset} {}
+              WriteAccessor<T> const& output, Index const num_items)
+      : input_{input}, output_{output}, n_items_{num_items} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const idx = item.get_id(0);
+
     if (idx < n_items_) {
       Op<Forward> op;
       auto vec_idx = idx * VectorWidth;
 
       auto in_ptr = input_.get_pointer();
-      auto in_offset_idx = in_offset_ + vec_idx;
       auto out_ptr = output_.get_pointer();
-      auto out_offset_idx = out_offset_ + vec_idx;
 
-      auto in_value = LoadData()(in_ptr, in_offset_idx);
+      auto in_value = LoadData()(in_ptr, vec_idx);
       auto out_value = op.apply(in_value);
-      StoreData()(out_ptr, out_offset_idx, out_value);
+      StoreData()(out_ptr, vec_idx, out_value);
     }
   }
 };
@@ -138,46 +130,33 @@ class PointwiseOp<T, Index, Op, Gradient, VectorWidth> {
   ReadAccessor<T const> input_backprop_;
   WriteAccessor<T> output_backprop_;
   Index const n_items_;
-  Index const out_fwd_offset_;
-  Index const in_bk_offset_;
-  Index const out_bk_offset_;
 
  public:
   PointwiseOp(ReadAccessor<T const> const& output_forward,
               ReadAccessor<T const> const& input_backprop,
-              WriteAccessor<T> const& output_backprop, Index const num_items,
-              Index const output_forward_offset,
-              Index const input_backprop_offset,
-              Index const output_backprop_offset)
+              WriteAccessor<T> const& output_backprop, Index const num_items)
       : output_forward_{output_forward},
         input_backprop_{input_backprop},
         output_backprop_{output_backprop},
-        n_items_{num_items},
-        out_fwd_offset_{output_forward_offset},
-        in_bk_offset_{input_backprop_offset},
-        out_bk_offset_{output_backprop_offset} {}
+        n_items_{num_items} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const idx = item.get_id(0);
+
     if (idx < n_items_) {
       Op<Gradient> op;
       auto vec_idx = idx * VectorWidth;
 
       auto out_fwd_ptr = output_forward_.get_pointer();
-      auto out_fwd_offset_idx = out_fwd_offset_ + vec_idx;
-
       auto in_bk_ptr = input_backprop_.get_pointer();
-      auto in_bk_offset_idx = in_bk_offset_ + vec_idx;
-
       auto out_bk_ptr = output_backprop_.get_pointer();
-      auto out_bk_offset_idx = out_bk_offset_ + vec_idx;
 
-      auto out_fwd_value = LoadData()(out_fwd_ptr, out_fwd_offset_idx);
-      auto in_bk_value = LoadData()(in_bk_ptr, in_bk_offset_idx);
+      auto out_fwd_value = LoadData()(out_fwd_ptr, vec_idx);
+      auto in_bk_value = LoadData()(in_bk_ptr, vec_idx);
 
       auto out_bk_value = op.apply(out_fwd_value, in_bk_value);
 
-      StoreData()(out_bk_ptr, out_bk_offset_idx, out_bk_value);
+      StoreData()(out_bk_ptr, vec_idx, out_bk_value);
     }
   }
 };
