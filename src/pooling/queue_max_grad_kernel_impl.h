@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd
+ * Copyright 2019 Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
-#define SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
+#ifndef SYCLDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
+#define SYCLDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
 
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
@@ -23,7 +22,6 @@
 #include "sycldnn/pooling/params.h"
 
 #include "src/pooling/kernels.h"
-#include "src/pooling/queue_pooling_kernel.h"
 
 #include <CL/sycl.hpp>
 
@@ -31,16 +29,22 @@ namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-template <typename T, typename Index, template <typename> class PoolType,
+template <typename T, typename Index, template <typename U> class PoolType,
           typename Direction, int VectorWidth, bool UseFastDiv>
-SNNStatus queue_pooling(BaseMemObject<T const>& in_mem,
-                        BaseMemObject<T>& out_mem, PoolingParams const& pp,
-                        size_t threads, cl::sycl::queue& queue) {
+SNNStatus queue_max_grad_pooling(BaseMemObject<T const>& input_mem,
+                                 BaseMemObject<T const>& output_mem,
+                                 BaseMemObject<T const>& input_backprop_mem,
+                                 BaseMemObject<T>& output_backprop_mem,
+                                 const PoolingParams& pp, size_t threads,
+                                 cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
+    auto input_data = input_mem.read_accessor(cgh);
+    auto output_data = output_mem.read_accessor(cgh);
+    auto input_backprop = input_backprop_mem.read_accessor(cgh);
+    auto output_backprop = output_backprop_mem.write_accessor(cgh);
+
     PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv> pool{
-        input, output, pp};
+        input_data, output_data, input_backprop, output_backprop, pp};
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);
   });
@@ -52,4 +56,4 @@ SNNStatus queue_pooling(BaseMemObject<T const>& in_mem,
 }  // namespace pooling
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POOLING_QUEUE_IMPL_H_
+#endif  // SYCLDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_

@@ -15,10 +15,61 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
+macro(generate_kernel out_var template op dir)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(_filename "${INST_POOL_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${op}")
+  set(_filename "${_filename}_${dir}_${VECTOR_WIDTH}_${USE_FASTDIV}.cc")
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/pooling/${_filename})
+  set(OPERATOR ${op})
+  set(DIRECTION ${dir})
+  configure_file(${template} ${_gen_file} @ONLY)
+  list(APPEND ${out_var} ${_gen_file})
+endmacro()
+
+function(generate_pooling)
+  set(options)
+  set(one_value_args
+    OUTPUT_VAR
+    FILENAME
+  )
+  set(multi_value_args)
+  cmake_parse_arguments(INST_POOL
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  set(_general_template queue_pooling_kernel_impl.cc.in)
+  set(_max_grad_template queue_max_grad_kernel_impl.cc.in)
+  set(_sources "")
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
+      foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
+        foreach(USE_FASTDIV IN ITEMS true false)
+          generate_kernel(_sources ${_general_template} Average Forward)
+          generate_kernel(_sources ${_general_template} Average Backpropagate)
+          generate_kernel(_sources ${_general_template} Max Forward)
+          generate_kernel(_sources ${_general_template} MaxWithNan Forward)
+          generate_kernel(_sources ${_max_grad_template} Max Backpropagate)
+          generate_kernel(_sources ${_max_grad_template} MaxWithNan Backpropagate)
+        endforeach()
+      endforeach()
+    endforeach()
+  endforeach()
+  set(${INST_POOL_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+endfunction()
+
+generate_pooling(
+  OUTPUT_VAR pooling_kernels
+  FILENAME   pool
+)
+
 snn_object_library(
   WITH_SYCL
   TARGET pooling
   KERNEL_SOURCES
-    launch_max_pooling.cc
-    launch_avg_pooling.cc
+    ${pooling_kernels}
+  SOURCES
+    launch_pooling.cc
+    launch_max_grad_pooling.cc
 )

@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "src/pooling/queue_pooling_kernel_impl.h"
-#include "sycldnn/internal/pooling/launch_internal.h"
 
-#include <CL/sycl.hpp>
+#ifndef SYCLDNN_SRC_POOLING_QUEUE_H_
+#define SYCLDNN_SRC_POOLING_QUEUE_H_
+
+#include "sycldnn/mem_object.h"
+
+#include "sycldnn/pooling/params.h"
 
 namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(float, Average, Forward)
-#ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Average, Forward)
-#endif  // SNN_USE_HALF
-#ifdef SNN_USE_DOUBLE
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(double, Average, Forward)
-#endif  // SNN_USE_DOUBLE
-
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(float, Average, Backpropagate)
-#ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(cl::sycl::half, Average, Backpropagate)
-#endif  // SNN_USE_HALF
-#ifdef SNN_USE_DOUBLE
-SNN_INSTANTIATE_LAUNCH_POOLING_KERNEL(double, Average, Backpropagate)
-#endif  // SNN_USE_DOUBLE
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth, bool UseFastDiv>
+SNNStatus queue_pooling(BaseMemObject<T const>& in_mem,
+                        BaseMemObject<T>& out_mem, const PoolingParams& pp,
+                        size_t threads, cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace pooling
 }  // namespace sycldnn
+
+#endif  // SYCLDNN_SRC_POOLING_QUEUE_H_
