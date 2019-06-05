@@ -26,6 +26,7 @@ snn_test(
     basic_sycl_test.cc
 )
 snn_test(
+  WITH_SYCL
   TARGET
     float_comparison
   SOURCES

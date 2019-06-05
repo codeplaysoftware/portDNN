@@ -44,6 +44,10 @@
 #ifndef SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
 #define SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
 
+#ifdef SNN_USE_HALF
+#include <CL/sycl.hpp>
+#endif  // SNN_USE_HALF
+
 #include <climits>
 #include <cstdint>
 #include <cstring>
@@ -79,6 +83,13 @@ struct NumFractionBits {
   static constexpr size_t value = std::numeric_limits<DataType>::digits - 1;
 };
 
+#ifdef SNN_USE_HALF
+template <>
+struct NumFractionBits<cl::sycl::half> {
+  static constexpr size_t value = 10;
+};
+#endif  // SNN_USE_HALF
+
 /**
  * Struct for handling exponent/fraction sizes for different types like
  * float/double. General pattern of an IEEE floating-point type is:
@@ -99,15 +110,19 @@ struct FloatingPointConfig {
   static constexpr size_t num_exponent_bits_ =
       num_bits_ - num_fraction_bits_ - 1;
 
-  /** Shifts a 1 to the leftmost bit, leaving all other bits 0. */
+  /** A variable with 1 for the leftmost bit, and all other bits 0. */
   static constexpr RawBits sign_mask_ = static_cast<RawBits>(1u)
                                         << (num_bits_ - 1);
-  /** Shifts all 1s off to the right by the number of bits in the exponent and
-   * sign. */
-  static constexpr RawBits fraction_mask_ = ~static_cast<RawBits>(0) >>
+  /** A variable with all bits set to 1s. */
+  static constexpr RawBits all_bits_set = ~static_cast<RawBits>(0);
+  /** A variable with all 1s shifted off to the right by the number of bits in
+   * the exponent and sign. */
+  static constexpr RawBits fraction_mask_ = all_bits_set >>
                                             (num_exponent_bits_ + 1);
-  /** All bits that are neither in the sign nor fraction are in the exponent. */
-  static constexpr RawBits exponent_mask_ = ~(sign_mask_ | fraction_mask_);
+  /** A variable with all bits that are neither in the sign, nor fraction, set
+   * to 1s. */
+  static constexpr RawBits exponent_mask_ =
+      static_cast<RawBits>(~(sign_mask_ | fraction_mask_));
 };
 
 /**
