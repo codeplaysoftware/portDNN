@@ -67,3 +67,10 @@ snn_test(
   SOURCES pooling_offset.cc
   OBJECTS $<TARGET_OBJECTS:pooling>
 )
+snn_test(
+  WITH_SYCL
+  SIZE moderate
+  TARGET pooling_with_fastdiv
+  SOURCES pooling_fastdiv.cc
+  OBJECTS $<TARGET_OBJECTS:pooling>
+)

@@ -76,8 +76,9 @@ using {test_case} =
                    {operation}, {direction}>;
 TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
-TestCaseParams = namedtuple('TestCaseParams',
-                            ['test_type', 'direction', 'window', 'stride'])
+TestCaseParams = namedtuple(
+    'TestCaseParams',
+    ['test_type', 'direction', 'window', 'stride', 'param_gen'])
 TestParams = namedtuple('TestParams', ['in_shape', 'padding'])
 
 TF_OPERATOR_MAP = {
@@ -270,7 +271,6 @@ def output_for_test_case(test_case):
     case. The output contains headers, includes, setup and all the tests for
     the test case.
     """
-    scriptname = os.path.basename(__file__)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
     test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
                                           window=test_case.window,
@@ -278,20 +278,27 @@ def output_for_test_case(test_case):
                                           direction=helpers.to_camel_case(
                                               test_case.direction))
     output = [
+        TYPED_TEST_CASE_DECL_TPL.format(
+            test_case=test_case_name,
+            operation=OPERATOR_MAP[test_case.test_type],
+            direction=DIRECTION_MAP[test_case.direction])
+    ]
+
+    for test_params in test_case.param_gen(test_case):
+        output.extend(get_test_lines(test_case, test_params))
+    output.append("\n")
+    return output
+
+
+def get_initial_boilerplate():
+    """ Get the boilerplate for the top of the test file. """
+    scriptname = os.path.basename(__file__)
+    return [
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
         DATA_TYPES,
-        TYPED_TEST_CASE_DECL_TPL.format(
-            test_case=test_case_name,
-            operation=OPERATOR_MAP[test_case.test_type],
-            direction=DIRECTION_MAP[test_case.direction]),
     ]
-
-    for test_params in test_params_for_test_case(test_case):
-        output.extend(get_test_lines(test_case, test_params))
-    output.append("\n")
-    return output
 
 
 FILENAME_TPL = "pooling/{test_type}_window{window}_stride{stride}_{direction}.cc"
@@ -305,27 +312,53 @@ def get_test_case_filename(test_case):
                                direction=test_case.direction)
 
 
-def test_cases():
+def test_cases(param_gen):
     "Test case generator giving all possible test cases."
     for window, stride in zip(WINDOW_LIST, STRIDE_LIST):
         for test_type, direction in itertools.product(TEST_TYPES, DIRECTIONS):
             yield TestCaseParams(test_type=test_type,
                                  window=window,
                                  stride=stride,
-                                 direction=direction)
+                                 direction=direction,
+                                 param_gen=param_gen)
 
 
 def generate_pooling_tests():
     np.set_printoptions(suppress=True, threshold=1000000, linewidth=1000000)
     test_dir = helpers.get_test_directory()
     os.chdir(test_dir)
-    for test_case in test_cases():
+    for test_case in test_cases(test_params_for_test_case):
         filename = get_test_case_filename(test_case)
-        output = output_for_test_case(test_case)
+        output = get_initial_boilerplate()
+        output.extend(output_for_test_case(test_case))
         with open(filename, 'w') as f:
             f.write('\n'.join(output))
         print("File '{}' written".format(filename))
 
 
+def small_fastdiv_test_params(test_case):
+    """ Parameter generator to force the use of fast div kernels. """
+    batches = [1]
+    in_sizes = [test_case.window + test_case.stride + 2]
+    channels = [5, 6, 8]
+    for in_shape in itertools.product(batches, in_sizes, in_sizes, channels):
+        for padding in PADDING_VALUES:
+            yield TestParams(in_shape=in_shape, padding=padding)
+
+
+def generate_fastdiv_tests():
+    np.set_printoptions(suppress=True, threshold=1000000, linewidth=1000000)
+    test_dir = helpers.get_test_directory()
+    os.chdir(test_dir)
+    filename = 'pooling/pooling_fastdiv.cc'
+    output = get_initial_boilerplate()
+    for test_case in test_cases(small_fastdiv_test_params):
+        output.extend(output_for_test_case(test_case))
+    with open(filename, 'w') as f:
+        f.write('\n'.join(output))
+    print("File '{}' written".format(filename))
+
+
 if __name__ == "__main__":
     generate_pooling_tests()
+    generate_fastdiv_tests()
