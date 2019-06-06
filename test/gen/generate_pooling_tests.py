@@ -78,8 +78,7 @@ TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
                             ['test_type', 'direction', 'window', 'stride'])
-TestParams = namedtuple('TestParams',
-                        TestCaseParams._fields + ('in_shape', 'padding'))
+TestParams = namedtuple('TestParams', ['in_shape', 'padding'])
 
 TF_OPERATOR_MAP = {
     'maxwithnan': 'MAX',
@@ -163,27 +162,27 @@ def get_pool_results(max_val, pool_op, input_shape, window_shape, stride_shape,
             return sess.run(output)
 
 
-def get_result_function(test_params):
+def get_result_function(test_case):
     """
     Get the function which will compute the expected values for the given test case.
     """
-    if (test_params.direction == 'grad'):
+    if (test_case.direction == 'grad'):
         return get_grad_results
     else:
         return get_pool_results
 
 
-def get_result_and_size(test_params):
+def get_result_and_size(test_case, test_params):
     """
     Get the result of the specified convolution and max input value.
 
     Ensures that the resulting values are less than the REQUIRED_MAX, and if
     not will adjust the maximum value to allow in the input tensors.
     """
-    window_shape = [test_params.window, test_params.window]
-    stride_shape = [test_params.stride, test_params.stride]
-    return helpers.get_result_and_size(get_result_function(test_params),
-                                       pool_op=test_params.test_type,
+    window_shape = [test_case.window, test_case.window]
+    stride_shape = [test_case.stride, test_case.stride]
+    return helpers.get_result_and_size(get_result_function(test_case),
+                                       pool_op=test_case.test_type,
                                        input_shape=test_params.in_shape,
                                        window_shape=window_shape,
                                        stride_shape=stride_shape,
@@ -206,32 +205,32 @@ DIRECTION_MAP = {
 }
 
 
-def get_test_lines(test_params):
+def get_test_lines(test_case, test_params):
     """
     Create a list of strings corresponding to the lines in a single test case.
 
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    output, max_input_val = get_result_and_size(test_params)
-    camel_case_type = helpers.to_camel_case(test_params.test_type)
-    test_case = TEST_CASE_TPL.format(test_type=camel_case_type,
-                                     window=test_params.window,
-                                     stride=test_params.stride,
-                                     direction=helpers.to_camel_case(
-                                         test_params.direction))
+    output, max_input_val = get_result_and_size(test_case, test_params)
+    camel_case_type = helpers.to_camel_case(test_case.test_type)
+    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                          window=test_case.window,
+                                          stride=test_case.stride,
+                                          direction=helpers.to_camel_case(
+                                              test_case.direction))
     test_name = TEST_NAME_TPL.format(padding=test_params.padding,
                                      in_s=test_params.in_shape)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     test_lines = [
-        "TYPED_TEST({}, {}) {{".format(test_case, test_name),
+        "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
         "  using DataType = typename TestFixture::DataType;",
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
         "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
         "  const auto padding = PaddingMode::{};".format(test_params.padding),
         "  const auto params = getPoolingParams<{}, {}>(in_shape, padding);".
-        format(test_params.window, test_params.stride),
+        format(test_case.window, test_case.stride),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->test_pool(exp_out, params, max_input_val);",
         "}",
@@ -262,12 +261,7 @@ def test_params_for_test_case(test_case):
     in_sizes = get_input_sizes(test_case)
     for in_shape in itertools.product(BATCHES, in_sizes, in_sizes, CHANNELS):
         for padding in PADDING_VALUES:
-            yield TestParams(test_type=test_case.test_type,
-                             window=test_case.window,
-                             stride=test_case.stride,
-                             direction=test_case.direction,
-                             in_shape=in_shape,
-                             padding=padding)
+            yield TestParams(in_shape=in_shape, padding=padding)
 
 
 def output_for_test_case(test_case):
@@ -295,7 +289,7 @@ def output_for_test_case(test_case):
     ]
 
     for test_params in test_params_for_test_case(test_case):
-        output.extend(get_test_lines(test_params))
+        output.extend(get_test_lines(test_case, test_params))
     output.append("\n")
     return output
 

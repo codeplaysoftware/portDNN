@@ -80,8 +80,7 @@ TYPED_TEST_CASE({test_case}, GTestTypeTriples);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
                             ['test_type', 'window', 'stride'])
-TestParams = namedtuple(
-    'TestParams', TestCaseParams._fields + ('in_shape', 'features', 'padding'))
+TestParams = namedtuple('TestParams', ['in_shape', 'features', 'padding'])
 
 
 def get_forward_conv_results(max_val, input_shape, filter_shape, stride_shape,
@@ -223,19 +222,19 @@ def get_conv_fn(test_type):
         raise ValueError("Unknown test type requested.")
 
 
-def get_result_and_size(test_params):
+def get_result_and_size(test_case, test_params):
     """
     Get the result of the specified convolution and max input value.
 
     Ensures that the resulting values are less than the REQUIRED_MAX, and if
     not will adjust the maximum value to allow in the input tensors.
     """
-    conv_fn = get_conv_fn(test_params.test_type)
+    conv_fn = get_conv_fn(test_case.test_type)
     filter_shape = [
-        test_params.window, test_params.window, test_params.in_shape[-1],
+        test_case.window, test_case.window, test_params.in_shape[-1],
         test_params.features
     ]
-    stride_shape = [1, test_params.stride, test_params.stride, 1]
+    stride_shape = [1, test_case.stride, test_case.stride, 1]
     return helpers.get_result_and_size(conv_fn,
                                        input_shape=test_params.in_shape,
                                        filter_shape=filter_shape,
@@ -248,24 +247,24 @@ TEST_NAME_TPL = "{padding}{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}x{features}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
 
 
-def get_test_lines(test_params):
+def get_test_lines(test_case, test_params):
     """
     Create a list of strings corresponding to the lines in a single test case.
 
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    output, max_input_val = get_result_and_size(test_params)
-    camel_case_type = helpers.to_camel_case(test_params.test_type)
-    test_case = TEST_CASE_TPL.format(test_type=camel_case_type,
-                                     window=test_params.window,
-                                     stride=test_params.stride)
+    output, max_input_val = get_result_and_size(test_case, test_params)
+    camel_case_type = helpers.to_camel_case(test_case.test_type)
+    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                          window=test_case.window,
+                                          stride=test_case.stride)
     test_name = TEST_NAME_TPL.format(padding=test_params.padding,
                                      in_s=test_params.in_shape,
                                      features=test_params.features)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     test_lines = [
-        "TYPED_TEST({}, {}) {{".format(test_case, test_name),
+        "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
         "  using DataType = typename TestFixture::DataType;",
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
@@ -275,7 +274,7 @@ def get_test_lines(test_params):
             test_params.padding),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->run_{}_test(exp_out, in_shape, features, padding, max_input_val);"
-        .format(test_params.test_type),
+        .format(test_case.test_type),
         "}",
     ]
     return test_lines
@@ -304,10 +303,7 @@ def test_params_for_test_case(test_case):
     in_sizes = get_input_sizes(test_case)
     for in_shape in itertools.product(BATCHES, in_sizes, in_sizes, CHANNELS):
         for feature, padding in itertools.product(FEATURES, PADDING_VALUES):
-            yield TestParams(test_type=test_case.test_type,
-                             window=test_case.window,
-                             stride=test_case.stride,
-                             in_shape=in_shape,
+            yield TestParams(in_shape=in_shape,
                              features=feature,
                              padding=padding)
 
@@ -332,7 +328,7 @@ def output_for_test_case(test_case):
                                         stride=test_case.stride)
     ]
     for test_params in test_params_for_test_case(test_case):
-        output.extend(get_test_lines(test_params))
+        output.extend(get_test_lines(test_case, test_params))
     return output
 
 

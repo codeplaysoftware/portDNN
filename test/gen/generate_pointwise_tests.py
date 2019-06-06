@@ -57,7 +57,7 @@ using {test_case} = PointwiseFixture<DataType, {operation}, {direction}>;
 TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
 TestCaseParams = namedtuple("TestCaseParams", ["test_type", "direction"])
-TestParams = namedtuple("TestParams", TestCaseParams._fields + ("in_size", ))
+TestParams = namedtuple("TestParams", ["in_size"])
 
 TENSORFLOW_OPS_MAP = {
     "relu": tf.nn.relu,
@@ -127,13 +127,13 @@ def get_forward_results(max_val, pointwise_op, in_size):
             return sess.run(output)
 
 
-def get_result_function(test_params):
+def get_result_function(test_case):
     """
     Get the function which will compute the expected values for the given test case.
     """
-    if (test_params.direction == 'grad'):
+    if (test_case.direction == 'grad'):
         return get_grad_results
-    elif (test_params.direction == 'forward'):
+    elif (test_case.direction == 'forward'):
         return get_forward_results
     else:
         raise Exception("Direction provided not recognised")
@@ -153,31 +153,31 @@ DIRECTION_MAP = {
 }
 
 
-def get_result(test_params):
+def get_result(test_case, test_params):
     output, _ = helpers.get_result_and_size(
-        get_result_function(test_params),
+        get_result_function(test_case),
         max_input_val=test_params.in_size,
         floor_div=True,
-        pointwise_op=TENSORFLOW_OPS_MAP[test_params.test_type],
+        pointwise_op=TENSORFLOW_OPS_MAP[test_case.test_type],
         in_size=test_params.in_size)
     return output
 
 
-def get_test_lines(test_params):
+def get_test_lines(test_case, test_params):
     """
     Create a list of strings corresponding to the lines in a single test case.
 
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    output = get_result(test_params)
-    camel_case_type = helpers.to_camel_case(test_params.test_type)
-    test_case = TEST_CASE_TPL.format(test_type=camel_case_type,
-                                     direction=helpers.to_camel_case(
-                                         test_params.direction))
+    output = get_result(test_case, test_params)
+    camel_case_type = helpers.to_camel_case(test_case.test_type)
+    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                          direction=helpers.to_camel_case(
+                                              test_case.direction))
     test_name = TEST_NAME_TPL.format(in_s=test_params.in_size)
     test_lines = [
-        "TYPED_TEST({}, {}) {{".format(test_case, test_name),
+        "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
         "  using DataType = typename TestFixture::DataType;",
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
@@ -191,9 +191,7 @@ def test_params_for_test_case(test_case):
     "Test params generator for all different tests in a given test case."
     in_sizes = [1, 8, 9, 10]
     for size in in_sizes:
-        yield TestParams(test_type=test_case.test_type,
-                         direction=test_case.direction,
-                         in_size=size)
+        yield TestParams(in_size=size)
 
 
 def output_for_test_case(test_case):
@@ -218,7 +216,7 @@ def output_for_test_case(test_case):
     ]
 
     for test_params in test_params_for_test_case(test_case):
-        output.extend(get_test_lines(test_params))
+        output.extend(get_test_lines(test_case, test_params))
     output.append("\n")
     return output
 
