@@ -61,15 +61,15 @@ INCLUDES = r"""
 
 #include <array>
 #include <vector>"""
-TYPED_TEST_CASE_DECL_TPL = r"""
+DATA_TYPES = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
-
+using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;"""
+TYPED_TEST_CASE_DECL_TPL = r"""
 template <typename Pair>
 using {test_case} =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
@@ -101,17 +101,17 @@ def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
     with tf.Graph().as_default():
         total_inp_size = np.product(input_shape)
         input_vals = helpers.get_tensor_data(total_inp_size, max_val)
-        inp_tensor = tf.constant(
-            input_vals, shape=input_shape, dtype=np.float64)
+        inp_tensor = tf.constant(input_vals,
+                                 shape=input_shape,
+                                 dtype=np.float64)
 
-        pool_output = tf.nn.pool(
-            inp_tensor,
-            window_shape=window_shape,
-            pooling_type=TF_OPERATOR_MAP[pool_op],
-            strides=stride_shape,
-            padding=padding,
-            name='pool',
-            data_format="NHWC")
+        pool_output = tf.nn.pool(inp_tensor,
+                                 window_shape=window_shape,
+                                 pooling_type=TF_OPERATOR_MAP[pool_op],
+                                 strides=stride_shape,
+                                 padding=padding,
+                                 name='pool',
+                                 data_format="NHWC")
 
         tf_op = tf.get_default_graph().get_operation_by_name('pool')
         grad_fn = get_gradient_function(tf_op)
@@ -119,8 +119,9 @@ def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
 
         total_out_size = np.product(output_shape)
         error_vals = helpers.get_tensor_data(total_out_size, max_val)
-        error_tensor = tf.constant(
-            error_vals, shape=output_shape, dtype=np.float64)
+        error_tensor = tf.constant(error_vals,
+                                   shape=output_shape,
+                                   dtype=np.float64)
 
         output = grad_fn(tf_op, error_tensor)
 
@@ -145,15 +146,15 @@ def get_pool_results(max_val, pool_op, input_shape, window_shape, stride_shape,
 
         input_vals = helpers.get_tensor_data(total_inp_size, max_val)
 
-        inp_tensor = tf.constant(
-            input_vals, shape=input_shape, dtype=np.float64)
-        output = tf.nn.pool(
-            inp_tensor,
-            window_shape=window_shape,
-            pooling_type=TF_OPERATOR_MAP[pool_op],
-            strides=stride_shape,
-            padding=padding,
-            data_format="NHWC")
+        inp_tensor = tf.constant(input_vals,
+                                 shape=input_shape,
+                                 dtype=np.float64)
+        output = tf.nn.pool(inp_tensor,
+                            window_shape=window_shape,
+                            pooling_type=TF_OPERATOR_MAP[pool_op],
+                            strides=stride_shape,
+                            padding=padding,
+                            data_format="NHWC")
 
         with tf.Session() as sess:
             init = tf.global_variables_initializer()
@@ -181,13 +182,12 @@ def get_result_and_size(test_params):
     """
     window_shape = [test_params.window, test_params.window]
     stride_shape = [test_params.stride, test_params.stride]
-    return helpers.get_result_and_size(
-        get_result_function(test_params),
-        pool_op=test_params.test_type,
-        input_shape=test_params.in_shape,
-        window_shape=window_shape,
-        stride_shape=stride_shape,
-        padding=test_params.padding)
+    return helpers.get_result_and_size(get_result_function(test_params),
+                                       pool_op=test_params.test_type,
+                                       input_shape=test_params.in_shape,
+                                       window_shape=window_shape,
+                                       stride_shape=stride_shape,
+                                       padding=test_params.padding)
 
 
 TEST_CASE_TPL = "{test_type}Window{window}Stride{stride}{direction}"
@@ -215,13 +215,13 @@ def get_test_lines(test_params):
     """
     output, max_input_val = get_result_and_size(test_params)
     camel_case_type = helpers.to_camel_case(test_params.test_type)
-    test_case = TEST_CASE_TPL.format(
-        test_type=camel_case_type,
-        window=test_params.window,
-        stride=test_params.stride,
-        direction=helpers.to_camel_case(test_params.direction))
-    test_name = TEST_NAME_TPL.format(
-        padding=test_params.padding, in_s=test_params.in_shape)
+    test_case = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                     window=test_params.window,
+                                     stride=test_params.stride,
+                                     direction=helpers.to_camel_case(
+                                         test_params.direction))
+    test_name = TEST_NAME_TPL.format(padding=test_params.padding,
+                                     in_s=test_params.in_shape)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     test_lines = [
         "TYPED_TEST({}, {}) {{".format(test_case, test_name),
@@ -230,11 +230,11 @@ def get_test_lines(test_params):
             helpers.format_tensor(output)),
         "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
         "  const auto padding = PaddingMode::{};".format(test_params.padding),
-        "  const auto params = getPoolingParams<{}, {}>(in_shape, padding);".format(
-            test_params.window, test_params.stride),
+        "  const auto params = getPoolingParams<{}, {}>(in_shape, padding);".
+        format(test_params.window, test_params.stride),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->test_pool(exp_out, params, max_input_val);",
-        "}"
+        "}",
     ]
     return test_lines
 
@@ -262,13 +262,12 @@ def test_params_for_test_case(test_case):
     in_sizes = get_input_sizes(test_case)
     for in_shape in itertools.product(BATCHES, in_sizes, in_sizes, CHANNELS):
         for padding in PADDING_VALUES:
-            yield TestParams(
-                test_type=test_case.test_type,
-                window=test_case.window,
-                stride=test_case.stride,
-                direction=test_case.direction,
-                in_shape=in_shape,
-                padding=padding)
+            yield TestParams(test_type=test_case.test_type,
+                             window=test_case.window,
+                             stride=test_case.stride,
+                             direction=test_case.direction,
+                             in_shape=in_shape,
+                             padding=padding)
 
 
 def output_for_test_case(test_case):
@@ -279,17 +278,21 @@ def output_for_test_case(test_case):
     """
     scriptname = os.path.basename(__file__)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
-    test_case_name = TEST_CASE_TPL.format(
-        test_type=camel_case_type,
-        window=test_case.window,
-        stride=test_case.stride,
-        direction=helpers.to_camel_case(test_case.direction))
-    output = [helpers.get_license(),
-              helpers.get_dont_modify_comment(scriptname=scriptname),
-              INCLUDES,
-              TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name,
-                                              operation=OPERATOR_MAP[test_case.test_type],
-                                              direction=DIRECTION_MAP[test_case.direction])]
+    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                          window=test_case.window,
+                                          stride=test_case.stride,
+                                          direction=helpers.to_camel_case(
+                                              test_case.direction))
+    output = [
+        helpers.get_license(),
+        helpers.get_dont_modify_comment(scriptname=scriptname),
+        INCLUDES,
+        DATA_TYPES,
+        TYPED_TEST_CASE_DECL_TPL.format(
+            test_case=test_case_name,
+            operation=OPERATOR_MAP[test_case.test_type],
+            direction=DIRECTION_MAP[test_case.direction]),
+    ]
 
     for test_params in test_params_for_test_case(test_case):
         output.extend(get_test_lines(test_params))
@@ -302,22 +305,20 @@ FILENAME_TPL = "pooling/{test_type}_window{window}_stride{stride}_{direction}.cc
 
 def get_test_case_filename(test_case):
     "Get filename for test case."
-    return FILENAME_TPL.format(
-        test_type=test_case.test_type,
-        window=test_case.window,
-        stride=test_case.stride,
-        direction=test_case.direction)
+    return FILENAME_TPL.format(test_type=test_case.test_type,
+                               window=test_case.window,
+                               stride=test_case.stride,
+                               direction=test_case.direction)
 
 
 def test_cases():
     "Test case generator giving all possible test cases."
     for window, stride in zip(WINDOW_LIST, STRIDE_LIST):
         for test_type, direction in itertools.product(TEST_TYPES, DIRECTIONS):
-            yield TestCaseParams(
-                test_type=test_type,
-                window=window,
-                stride=stride,
-                direction=direction)
+            yield TestCaseParams(test_type=test_type,
+                                 window=window,
+                                 stride=stride,
+                                 direction=direction)
 
 
 def generate_pooling_tests():

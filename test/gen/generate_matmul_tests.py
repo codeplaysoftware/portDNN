@@ -46,7 +46,6 @@ TYPED_TEST_CASE({test_case}, GTestTypeList);"""
 TEST_CASE_TPL = r"MatmulBatch{batch}Beta{beta}{trans_lhs}{trans_rhs}"
 TEST_NAME_TPL = r"M{m}xK{k}xN{n}"
 
-
 BOOL_LIST = [True, False]
 BATCH_LIST = [1, 3]
 BETA_LIST = [0, 1]
@@ -108,17 +107,18 @@ def get_test_lines(batch, m, k, n, beta, trans_lhs, trans_rhs):
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    output, max_input_val = helpers.get_result_and_size(
-        get_matmul_result,
-        batch=batch,
-        m=m,
-        k=k,
-        n=n,
-        beta=beta,
-        trans_lhs=trans_lhs,
-        trans_rhs=trans_rhs)
-    test_case = TEST_CASE_TPL.format(
-        batch=batch, beta=beta, trans_lhs=trans_lhs, trans_rhs=trans_rhs)
+    output, max_input_val = helpers.get_result_and_size(get_matmul_result,
+                                                        batch=batch,
+                                                        m=m,
+                                                        k=k,
+                                                        n=n,
+                                                        beta=beta,
+                                                        trans_lhs=trans_lhs,
+                                                        trans_rhs=trans_rhs)
+    test_case = TEST_CASE_TPL.format(batch=batch,
+                                     beta=beta,
+                                     trans_lhs=trans_lhs,
+                                     trans_rhs=trans_rhs)
     test_name = TEST_NAME_TPL.format(m=m, k=k, n=n)
     test_lines = [
         "TYPED_TEST({}, {}) {{".format(test_case, test_name),
@@ -132,7 +132,7 @@ def get_test_lines(batch, m, k, n, beta, trans_lhs, trans_rhs):
         "  const auto beta = static_cast<DataType>({});".format(beta),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);",
-        "}"
+        "}",
     ]
     return test_lines
 
@@ -144,8 +144,10 @@ def test_case_for_transposes(batch, beta, trans_lhs, trans_rhs):
     the test case.
     """
     scriptname = os.path.basename(__file__)
-    test_case = TEST_CASE_TPL.format(
-        batch=batch, beta=beta, trans_lhs=trans_lhs, trans_rhs=trans_rhs)
+    test_case = TEST_CASE_TPL.format(batch=batch,
+                                     beta=beta,
+                                     trans_lhs=trans_lhs,
+                                     trans_rhs=trans_rhs)
     output = [
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
@@ -168,11 +170,10 @@ FILENAME_TPL = "matmul/matmul_batch{batch}_beta{beta}_{trans_lhs}_{trans_rhs}.cc
 
 def get_test_case_filename(batch, beta, trans_lhs, trans_rhs):
     "Get filename for test case."
-    return FILENAME_TPL.format(
-        batch=batch,
-        beta=beta,
-        trans_lhs=helpers.to_lower_case_str(trans_lhs),
-        trans_rhs=helpers.to_lower_case_str(trans_rhs))
+    return FILENAME_TPL.format(batch=batch,
+                               beta=beta,
+                               trans_lhs=helpers.to_lower_case_str(trans_lhs),
+                               trans_rhs=helpers.to_lower_case_str(trans_rhs))
 
 
 def generate_matmul_tests():

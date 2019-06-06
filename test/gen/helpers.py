@@ -66,7 +66,7 @@ def get_result_and_size(func, max_input_val=2**12, floor_div=False, **kwargs):
     """
     Compute the result of func called with passed keyword arguments, ensuring
     that the resulting values are less than the REQUIRED_MAX, and if not adjust
-    the maximum values in the input tensors, with those values being set by 
+    the maximum values in the input tensors, with those values being set by
     max_input_val.
 
     floor_div is used in the case of max_input_val taking a value other than
@@ -97,7 +97,7 @@ def get_signed_tensor_data(size, min_val, max_val):
     As with get_tensor_data(), but enables negative-valued data
     as well.
     """
-    assert(min_val < max_val)
+    assert (min_val < max_val)
     res = []
 
     while len(res) < size:
@@ -111,8 +111,9 @@ SPACE_REGEX = re.compile(r'([0-9]\.?)\s+')
 
 def format_tensor(tensor):
     "Convert a numpy tensor into an initializer list."
-    t_str = np.array2string(
-        tensor.flatten(), floatmode='unique', separator=', ')
+    t_str = np.array2string(tensor.flatten(),
+                            floatmode='unique',
+                            separator=', ')
     t_braced = '{' + t_str[1:-1] + '}'
     return t_braced
 

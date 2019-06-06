@@ -56,15 +56,14 @@ template <typename DataType>
 using {test_case} = PointwiseFixture<DataType, {operation}, {direction}>;
 TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
-TestCaseParams = namedtuple("TestCaseParams",
-                            ["test_type", "direction"])
-TestParams = namedtuple("TestParams",
-                        TestCaseParams._fields + ("in_size",))
+TestCaseParams = namedtuple("TestCaseParams", ["test_type", "direction"])
+TestParams = namedtuple("TestParams", TestCaseParams._fields + ("in_size", ))
 
 TENSORFLOW_OPS_MAP = {
-    "relu" : tf.nn.relu,
-    "tanh" : tf.nn.tanh,
+    "relu": tf.nn.relu,
+    "tanh": tf.nn.tanh,
 }
+
 
 def get_grad_results(max_val, pointwise_op, in_size):
     """
@@ -77,8 +76,9 @@ def get_grad_results(max_val, pointwise_op, in_size):
     Returns the computed values in a numpy array.
     """
     with tf.Graph().as_default():
-        min_val = -max_val if in_size % 2 == 0 else -max_val-1
-        input_vals = helpers.get_signed_tensor_data(in_size, max_val=max_val,
+        min_val = -max_val if in_size % 2 == 0 else -max_val - 1
+        input_vals = helpers.get_signed_tensor_data(in_size,
+                                                    max_val=max_val,
                                                     min_val=min_val)
         inp_tensor = tf.constant(input_vals, dtype=np.float64)
 
@@ -88,7 +88,8 @@ def get_grad_results(max_val, pointwise_op, in_size):
         grad_fn = get_gradient_function(tf_op)
 
         output_size = in_size
-        error_vals = helpers.get_signed_tensor_data(output_size, max_val=max_val,
+        error_vals = helpers.get_signed_tensor_data(output_size,
+                                                    max_val=max_val,
                                                     min_val=min_val)
         error_tensor = tf.constant(error_vals, dtype=np.float64)
 
@@ -110,8 +111,9 @@ def get_forward_results(max_val, pointwise_op, in_size):
     Returns the computed values in a numpy array.
     """
     with tf.Graph().as_default():
-        min_val = -max_val if in_size % 2 == 0 else -max_val-1
-        input_vals = helpers.get_signed_tensor_data(in_size, max_val=max_val,
+        min_val = -max_val if in_size % 2 == 0 else -max_val - 1
+        input_vals = helpers.get_signed_tensor_data(in_size,
+                                                    max_val=max_val,
                                                     min_val=min_val)
 
         inp_tensor = tf.constant(input_vals, dtype=np.float64)
@@ -153,11 +155,11 @@ DIRECTION_MAP = {
 
 def get_result(test_params):
     output, _ = helpers.get_result_and_size(
-            get_result_function(test_params),
-            max_input_val=test_params.in_size,
-            floor_div=True,
-            pointwise_op=TENSORFLOW_OPS_MAP[test_params.test_type],
-            in_size=test_params.in_size)
+        get_result_function(test_params),
+        max_input_val=test_params.in_size,
+        floor_div=True,
+        pointwise_op=TENSORFLOW_OPS_MAP[test_params.test_type],
+        in_size=test_params.in_size)
     return output
 
 
@@ -170,9 +172,9 @@ def get_test_lines(test_params):
     """
     output = get_result(test_params)
     camel_case_type = helpers.to_camel_case(test_params.test_type)
-    test_case = TEST_CASE_TPL.format(
-        test_type=camel_case_type,
-        direction=helpers.to_camel_case(test_params.direction))
+    test_case = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                     direction=helpers.to_camel_case(
+                                         test_params.direction))
     test_name = TEST_NAME_TPL.format(in_s=test_params.in_size)
     test_lines = [
         "TYPED_TEST({}, {}) {{".format(test_case, test_name),
@@ -180,7 +182,7 @@ def get_test_lines(test_params):
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
         "  this->test_pointwise(exp_out);",
-        "}"
+        "}",
     ]
     return test_lines
 
@@ -189,10 +191,9 @@ def test_params_for_test_case(test_case):
     "Test params generator for all different tests in a given test case."
     in_sizes = [1, 8, 9, 10]
     for size in in_sizes:
-        yield TestParams(
-            test_type=test_case.test_type,
-            direction=test_case.direction,
-            in_size=size)
+        yield TestParams(test_type=test_case.test_type,
+                         direction=test_case.direction,
+                         in_size=size)
 
 
 def output_for_test_case(test_case):
@@ -203,15 +204,18 @@ def output_for_test_case(test_case):
     """
     scriptname = os.path.basename(__file__)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
-    test_case_name = TEST_CASE_TPL.format(
-        test_type=camel_case_type,
-        direction=helpers.to_camel_case(test_case.direction))
-    output = [helpers.get_license(),
-              helpers.get_dont_modify_comment(scriptname=scriptname),
-              INCLUDES,
-              TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name,
-                                              operation=OPERATOR_MAP[test_case.test_type],
-                                              direction=DIRECTION_MAP[test_case.direction])]
+    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                          direction=helpers.to_camel_case(
+                                              test_case.direction))
+    output = [
+        helpers.get_license(),
+        helpers.get_dont_modify_comment(scriptname=scriptname),
+        INCLUDES,
+        TYPED_TEST_CASE_DECL_TPL.format(
+            test_case=test_case_name,
+            operation=OPERATOR_MAP[test_case.test_type],
+            direction=DIRECTION_MAP[test_case.direction]),
+    ]
 
     for test_params in test_params_for_test_case(test_case):
         output.extend(get_test_lines(test_params))
@@ -224,17 +228,14 @@ FILENAME_TPL = "pointwise/{test_type}_{direction}.cc"
 
 def get_test_case_filename(test_case):
     "Get filename for test case."
-    return FILENAME_TPL.format(
-        test_type=test_case.test_type,
-        direction=test_case.direction)
+    return FILENAME_TPL.format(test_type=test_case.test_type,
+                               direction=test_case.direction)
 
 
 def test_cases():
     "Test case generator giving all possible test cases."
     for test_type, direction in itertools.product(TEST_TYPES, DIRECTIONS):
-        yield TestCaseParams(
-            test_type=test_type,
-            direction=direction)
+        yield TestCaseParams(test_type=test_type, direction=direction)
 
 
 def generate_pointwise_tests():

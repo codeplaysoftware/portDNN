@@ -74,8 +74,9 @@ TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
                             ['test_type', 'window', 'stride'])
-TestParams = namedtuple('TestParams', TestCaseParams._fields +
-                        ('in_shape', 'multiplier', 'padding'))
+TestParams = namedtuple(
+    'TestParams',
+    TestCaseParams._fields + ('in_shape', 'multiplier', 'padding'))
 
 
 def get_forward_conv_results(max_val, input_shape, filter_shape, stride_shape,
@@ -94,16 +95,17 @@ def get_forward_conv_results(max_val, input_shape, filter_shape, stride_shape,
         input_vals = helpers.get_tensor_data(total_inp_size, max_val)
         filter_vals = helpers.get_tensor_data(total_fil_size, max_val)
 
-        inp_tensor = tf.constant(
-            input_vals, shape=input_shape, dtype=np.float64)
-        fil_tensor = tf.constant(
-            filter_vals, shape=filter_shape, dtype=np.float64)
-        output = tf.nn.depthwise_conv2d_native(
-            inp_tensor,
-            fil_tensor,
-            strides=stride_shape,
-            padding=padding,
-            data_format="NHWC")
+        inp_tensor = tf.constant(input_vals,
+                                 shape=input_shape,
+                                 dtype=np.float64)
+        fil_tensor = tf.constant(filter_vals,
+                                 shape=filter_shape,
+                                 dtype=np.float64)
+        output = tf.nn.depthwise_conv2d_native(inp_tensor,
+                                               fil_tensor,
+                                               strides=stride_shape,
+                                               padding=padding,
+                                               data_format="NHWC")
 
         with tf.Session() as sess:
             init = tf.global_variables_initializer()
@@ -126,20 +128,21 @@ def get_input_backprop_conv_results(max_val, input_shape, filter_shape,
         filter_vals = helpers.get_tensor_data(total_fil_size, max_val)
 
         inp_tensor = tf.constant(0, shape=input_shape, dtype=np.float64)
-        fil_tensor = tf.constant(
-            filter_vals, shape=filter_shape, dtype=np.float64)
-        output = tf.nn.depthwise_conv2d_native(
-            inp_tensor,
-            fil_tensor,
-            strides=stride_shape,
-            padding=padding,
-            data_format="NHWC")
+        fil_tensor = tf.constant(filter_vals,
+                                 shape=filter_shape,
+                                 dtype=np.float64)
+        output = tf.nn.depthwise_conv2d_native(inp_tensor,
+                                               fil_tensor,
+                                               strides=stride_shape,
+                                               padding=padding,
+                                               data_format="NHWC")
 
         output_shape = output.shape
         total_out_size = np.product(output_shape)
         output_vals = helpers.get_tensor_data(total_out_size, max_val)
-        out_tensor = tf.constant(
-            output_vals, shape=output_shape, dtype=np.float64)
+        out_tensor = tf.constant(output_vals,
+                                 shape=output_shape,
+                                 dtype=np.float64)
 
         inp_size_tensor = tf.constant(input_shape, shape=[len(input_shape)])
         input_backprop = tf.nn.depthwise_conv2d_native_backprop_input(
@@ -170,21 +173,22 @@ def get_filter_backprop_conv_results(max_val, input_shape, filter_shape,
         total_inp_size = np.product(input_shape)
         input_vals = helpers.get_tensor_data(total_inp_size, max_val)
 
-        inp_tensor = tf.constant(
-            input_vals, shape=input_shape, dtype=np.float64)
+        inp_tensor = tf.constant(input_vals,
+                                 shape=input_shape,
+                                 dtype=np.float64)
         fil_tensor = tf.constant(0, shape=filter_shape, dtype=np.float64)
-        output = tf.nn.depthwise_conv2d_native(
-            inp_tensor,
-            fil_tensor,
-            strides=stride_shape,
-            padding=padding,
-            data_format="NHWC")
+        output = tf.nn.depthwise_conv2d_native(inp_tensor,
+                                               fil_tensor,
+                                               strides=stride_shape,
+                                               padding=padding,
+                                               data_format="NHWC")
 
         output_shape = output.shape
         total_out_size = np.product(output_shape)
         output_vals = helpers.get_tensor_data(total_out_size, max_val)
-        out_tensor = tf.constant(
-            output_vals, shape=output_shape, dtype=np.float64)
+        out_tensor = tf.constant(output_vals,
+                                 shape=output_shape,
+                                 dtype=np.float64)
 
         fil_size_tensor = tf.constant(filter_shape, shape=[len(filter_shape)])
         filter_backprop = tf.nn.depthwise_conv2d_native_backprop_filter(
@@ -229,12 +233,11 @@ def get_result_and_size(test_params):
         test_params.multiplier
     ]
     stride_shape = [1, test_params.stride, test_params.stride, 1]
-    return helpers.get_result_and_size(
-        conv_fn,
-        input_shape=test_params.in_shape,
-        filter_shape=filter_shape,
-        stride_shape=stride_shape,
-        padding=test_params.padding)
+    return helpers.get_result_and_size(conv_fn,
+                                       input_shape=test_params.in_shape,
+                                       filter_shape=filter_shape,
+                                       stride_shape=stride_shape,
+                                       padding=test_params.padding)
 
 
 TEST_CASE_TPL = "{test_type}Window{window}Stride{stride}"
@@ -251,14 +254,12 @@ def get_test_lines(test_params):
     """
     output, max_input_val = get_result_and_size(test_params)
     camel_case_type = helpers.to_camel_case(test_params.test_type)
-    test_case = TEST_CASE_TPL.format(
-        test_type=camel_case_type,
-        window=test_params.window,
-        stride=test_params.stride)
-    test_name = TEST_NAME_TPL.format(
-        padding=test_params.padding,
-        in_s=test_params.in_shape,
-        multiplier=test_params.multiplier)
+    test_case = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                     window=test_params.window,
+                                     stride=test_params.stride)
+    test_name = TEST_NAME_TPL.format(padding=test_params.padding,
+                                     in_s=test_params.in_shape,
+                                     multiplier=test_params.multiplier)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     test_lines = [
         "TYPED_TEST({}, {}) {{".format(test_case, test_name),
@@ -270,9 +271,9 @@ def get_test_lines(test_params):
         "  const auto padding = sycldnn::PaddingMode::{};".format(
             test_params.padding),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
-        "  this->run_{}_test(exp_out, in_shape, multiplier, padding, max_input_val);".
-        format(test_params.test_type),
-        "}"
+        "  this->run_{}_test(exp_out, in_shape, multiplier, padding, max_input_val);"
+        .format(test_params.test_type),
+        "}",
     ]
     return test_lines
 
@@ -299,15 +300,14 @@ def test_params_for_test_case(test_case):
     "Test params generator for all different tests in a given test case."
     in_sizes = get_input_sizes(test_case)
     for in_shape in itertools.product(BATCHES, in_sizes, in_sizes, CHANNELS):
-        for multiplier, padding in itertools.product(
-                MULTIPLIERS, PADDING_VALUES):
-            yield TestParams(
-                test_type=test_case.test_type,
-                window=test_case.window,
-                stride=test_case.stride,
-                in_shape=in_shape,
-                multiplier=multiplier,
-                padding=padding)
+        for multiplier, padding in itertools.product(MULTIPLIERS,
+                                                     PADDING_VALUES):
+            yield TestParams(test_type=test_case.test_type,
+                             window=test_case.window,
+                             stride=test_case.stride,
+                             in_shape=in_shape,
+                             multiplier=multiplier,
+                             padding=padding)
 
 
 def output_for_test_case(test_case):
@@ -318,19 +318,16 @@ def output_for_test_case(test_case):
     """
     scriptname = os.path.basename(__file__)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
-    test_case_name = TEST_CASE_TPL.format(
-        test_type=camel_case_type,
-        window=test_case.window,
-        stride=test_case.stride)
+    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
+                                          window=test_case.window,
+                                          stride=test_case.stride)
     output = [
         helpers.get_license(),
-        helpers.get_dont_modify_comment(scriptname=scriptname),
-        INCLUDES,
+        helpers.get_dont_modify_comment(scriptname=scriptname), INCLUDES,
         DATA_TYPES,
-        TYPED_TEST_CASE_DECL_TPL.format(
-            test_case=test_case_name,
-            window=test_case.window,
-            stride=test_case.stride)
+        TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name,
+                                        window=test_case.window,
+                                        stride=test_case.stride)
     ]
     for test_params in test_params_for_test_case(test_case):
         output.extend(get_test_lines(test_params))
@@ -342,23 +339,25 @@ FILENAME_TPL = "depthwise_conv2d/{test_type}_window{window}_stride{stride}.cc"
 
 def get_test_case_filename(test_case):
     "Get filename for test case."
-    return FILENAME_TPL.format(
-        test_type=test_case.test_type,
-        window=test_case.window,
-        stride=test_case.stride)
+    return FILENAME_TPL.format(test_type=test_case.test_type,
+                               window=test_case.window,
+                               stride=test_case.stride)
 
 
 def test_cases():
     "Test case generator giving all possible test cases."
     for window, stride in zip(WINDOW_LIST, STRIDE_LIST):
         for test_type in TEST_TYPES:
-            yield TestCaseParams(
-                test_type=test_type, window=window, stride=stride)
+            yield TestCaseParams(test_type=test_type,
+                                 window=window,
+                                 stride=stride)
 
 
 def generate_depthwise_conv2d_tests():
-    np.set_printoptions(
-        suppress=True, precision=10, threshold=1000000, linewidth=1000000)
+    np.set_printoptions(suppress=True,
+                        precision=10,
+                        threshold=1000000,
+                        linewidth=1000000)
     test_dir = helpers.get_test_directory()
     os.chdir(test_dir)
     for test_case in test_cases():
