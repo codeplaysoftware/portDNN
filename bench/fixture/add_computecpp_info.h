@@ -25,9 +25,6 @@ extern bool const computecpp_available;
 extern char const* const computecpp_version;
 extern char const* const computecpp_edition;
 
-extern char const* const clang_git_hash;
-extern char const* const llvm_git_hash;
-
 namespace sycldnn {
 namespace bench {
 namespace computecpp_info {
@@ -47,8 +44,6 @@ inline void add_computecpp_version(StringReporter& reporter) {
   if (computecpp_available) {
     reporter.add_to_label("@computecpp-version", computecpp_version);
     reporter.add_to_label("@computecpp-edition", computecpp_edition);
-    reporter.add_to_label("@clang", clang_git_hash);
-    reporter.add_to_label("@llvm", llvm_git_hash);
   }
 }
 

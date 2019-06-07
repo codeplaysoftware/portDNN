@@ -45,8 +45,6 @@ add_custom_command(OUTPUT git_config.h
 set(ComputeCpp_INFO_AVAILABLE false)
 set(ComputeCpp_VERSION_NUMBER "N/A")
 set(ComputeCpp_EDITION "N/A")
-set(ComputeCpp_CLANG_BUILD "N/A")
-set(ComputeCpp_LLVM_BUILD "N/A")
 
 if(ComputeCpp_FOUND)
   execute_process(COMMAND ${ComputeCpp_DEVICE_COMPILER_EXECUTABLE} "--version"
@@ -63,19 +61,8 @@ if(ComputeCpp_FOUND)
     if(${ComputeCpp_EDITION} STREQUAL "RC")
       set(ComputeCpp_EDITION "Internal")
     endif()
-    string(REGEX MATCH
-      "([0-9]+\.[0-9]+\.[0-9]+)" ComputeCpp_VERSION_NUMBER ${ComputeCpp_DEVICE_COMPILER_VERSION})
-    string(REGEX MATCH
-      "clang\.git ([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f])"
-      ComputeCpp_CLANG_BUILD ${ComputeCpp_DEVICE_COMPILER_VERSION})
-    string(REGEX MATCH
-      "llvm\.git ([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f])"
-      ComputeCpp_LLVM_BUILD ${ComputeCpp_DEVICE_COMPILER_VERSION})
-
-    set(CLANG_HASH_OFFSET 10)
-    string(SUBSTRING ${ComputeCpp_CLANG_BUILD} ${CLANG_HASH_OFFSET} -1 ComputeCpp_CLANG_BUILD)
-    set(LLVM_HASH_OFFSET 9)
-    string(SUBSTRING ${ComputeCpp_LLVM_BUILD} ${LLVM_HASH_OFFSET} -1 ComputeCpp_LLVM_BUILD)
+    string(REGEX MATCH "([0-9]+\.[0-9]+\.[0-9]+)"
+      ComputeCpp_VERSION_NUMBER ${ComputeCpp_DEVICE_COMPILER_VERSION})
   endif()
 endif()
 

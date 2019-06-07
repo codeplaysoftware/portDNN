@@ -22,7 +22,4 @@ extern bool const computecpp_available = @ComputeCpp_INFO_AVAILABLE@;
 extern char const* const computecpp_version = "@ComputeCpp_VERSION_NUMBER@";
 extern char const* const computecpp_edition = "@ComputeCpp_EDITION@";
 
-extern char const* const clang_git_hash = "@ComputeCpp_CLANG_BUILD@";
-extern char const* const llvm_git_hash = "@ComputeCpp_LLVM_BUILD@";
-
 #endif  // COMPUTECPP_VERSION_CONFIG_H_ 
