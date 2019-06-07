@@ -75,8 +75,10 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
   using DataType = DType;
 
   void test_pointwise(const std::vector<DataType>& exp) {
-    constexpr DataType tolerance = 0.00001;
-
+    /* While ULP-based errors are generally better, the expected values
+     * in this test are close to 0, which can result in large ULP errors
+     * even though the answer is "close" to the expected. */
+    const DataType tolerance = 0.00001;
     const auto size = exp.size();
 
     std::vector<DataType> input_forward =

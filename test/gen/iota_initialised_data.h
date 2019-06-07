@@ -90,7 +90,9 @@ template <typename DataType>
 std::vector<DataType> iota_initialised_signed_data(size_t size) {
   std::vector<DataType> data;
   DataType difference = (size % 2 == 0) ? (size / 2) : ((size + 1) / 2);
-  internal::iota_n_modulo(data, size, -difference, size - 1 - difference);
+  DataType min = -difference;
+  DataType max = size - 1 - difference;
+  internal::iota_n_modulo(data, size, min, max);
   return data;
 }
 
