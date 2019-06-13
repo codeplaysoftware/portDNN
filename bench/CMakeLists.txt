@@ -269,7 +269,7 @@ if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)
 endif()
 
-if(SNN_ARM_COMPUTE_ENABLED)
+if(SNN_BENCH_ARM_COMPUTE)
   find_package(ARMCompute REQUIRED)
 
   snn_bench(
@@ -344,6 +344,33 @@ if(SNN_ARM_COMPUTE_ENABLED)
       arm_neon_mobilenet_convolution
     SOURCES
       conv2d/arm_mobilenet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_COMPUTE
+      ACL_NEON
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_opencl_mobilenet_depthwise_convolution
+    SOURCES
+      depthwise_conv2d/arm_mobilenet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_COMPUTE
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_neon_mobilenet_depthwise_convolution
+    SOURCES
+      depthwise_conv2d/arm_mobilenet.cc
     PUBLIC_LIBRARIES
       bench_main
       ARMCompute::ARMCompute
