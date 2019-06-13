@@ -35,13 +35,19 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
+#define SSD_MOBILENET_WITH_ALGO_AND_DIR_AND_BACK_AND_DTYPE(        \
+    N, WIN, STR, H, W, C, F, MOD, Algo, Dir, Back, DType)          \
+  CONVOLUTION_BENCHMARK(                                           \
+      "SSD + MobileNet",                                           \
+      Algo##_##Dir##_##N##_##WIN##_##H##_##W##_##C##_##F##_##Back, \
+      sycldnn::backend::Back, DType,                               \
+      ParameterSet<N, WIN, STR, H, W, C, F, MOD>,                  \
+      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
+
 #define SSD_MOBILENET_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, \
                                                  Algo, Dir, Back)              \
-  CONVOLUTION_BENCHMARK(                                                       \
-      "SSD + MobileNet",                                                       \
-      Algo##_##Dir##_##N##_##WIN##_##H##_##W##_##C##_##F##_##Back,             \
-      sycldnn::backend::Back, ParameterSet<N, WIN, STR, H, W, C, F, MOD>,      \
-      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
+  SSD_MOBILENET_WITH_ALGO_AND_DIR_AND_BACK_AND_DTYPE(                          \
+      N, WIN, STR, H, W, C, F, MOD, Algo, Dir, Back, float)
 
 #ifdef SNN_BENCH_EIGEN
 #define SSD_MOBILENET_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)      \

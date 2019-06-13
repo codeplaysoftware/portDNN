@@ -24,6 +24,7 @@
 
 #include "base_convolution_fixture.h"
 
+#include "bench/fixture/add_datatype_info.h"
 #include "bench/fixture/base_executor.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
@@ -150,10 +151,10 @@ struct MKLConv2DExecutor : public BaseExecutor {
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename ParamGen, typename Executor>
+template <typename DataType, typename ParamGen, typename Executor>
 class MKLConvolutionBenchmark
     : public sycldnn::bench::MKLConv2DExecutor<
-          MKLConvolutionBenchmark<ParamGen, Executor>>,
+          MKLConvolutionBenchmark<DataType, ParamGen, Executor>>,
       public sycldnn::bench::StringReporter,
       public BaseConvolutionBenchmark {
  private:
@@ -169,6 +170,8 @@ class MKLConvolutionBenchmark
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::StdDevStatistic{}});
     this->execute(state, params);
+
+    sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
     this->add_to_label("@conv_type", "Forward");
     this->add_to_label("@selector", "MKL-DNN");

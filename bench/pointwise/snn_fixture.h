@@ -22,18 +22,19 @@
 #include "src/backend/backend_provider.h"
 
 #include "bench/fixture/add_computecpp_info.h"
+#include "bench/fixture/add_datatype_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/operator_typenames.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, size_t N, typename Direction,
+template <typename Backend, typename DataType, size_t N, typename Direction,
           template <typename> class Operator>
 class SNNPointwiseBenchmark
     : public sycldnn::bench::SNNPointwiseExecutor<
-          SNNPointwiseBenchmark<Backend, N, Direction, Operator>, Direction,
-          Operator>,
+          SNNPointwiseBenchmark<Backend, DataType, N, Direction, Operator>,
+          Direction, Operator>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BasePointwiseBenchmark {
@@ -55,6 +56,7 @@ class SNNPointwiseBenchmark
     auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
+    sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
     this->add_to_label("@operator",
                        sycldnn::bench::OperatorTypeName<Operator>::name);

@@ -39,27 +39,33 @@
 #error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
 #endif
 
-#define RESNET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, \
-                                                    MOD, Algo, Dir, Back)    \
-  CONVOLUTION_BENCHMARK(                                                     \
-      "ResNet",                                                              \
-      Algo##_##Dir##_##N##_##C##_##W##_##H##_##WIN##_##STR##_##F##_##Back,   \
-      sycldnn::backend::Back, ParameterSet<N, WIN, STR, H, W, C, F, MOD>,    \
+#define RESNET_BENCHMARK_WITH_ALGO_DIR_BACK_DTYPE(N, WIN, STR, H, W, C, F,     \
+                                                  MOD, Algo, Dir, Back, DType) \
+  CONVOLUTION_BENCHMARK(                                                       \
+      "ResNet",                                                                \
+      Algo##_##Dir##_##N##_##C##_##W##_##H##_##WIN##_##STR##_##F##_##Back,     \
+      sycldnn::backend::Back, DType,                                           \
+      ParameterSet<N, WIN, STR, H, W, C, F, MOD>,                              \
       sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
 
+#define RESNET_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, \
+                                            Algo, Dir, Back)              \
+  RESNET_BENCHMARK_WITH_ALGO_DIR_BACK_DTYPE(N, WIN, STR, H, W, C, F, MOD, \
+                                            Algo, Dir, Back, float)
+
 #ifdef SNN_BENCH_EIGEN
-#define RESNET_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir) \
-  RESNET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD,  \
-                                              Algo, Dir, EigenBackend)
+#define RESNET_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)   \
+  RESNET_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, Dir, \
+                                      EigenBackend)
 #else
 #define RESNET_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 #endif
 
 #ifdef SNN_BENCH_SYCLBLAS
-#define RESNET_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo,  \
-                                       Dir)                                 \
-  RESNET_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, \
-                                              Algo, Dir, SyclBLASBackend)
+#define RESNET_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo,     \
+                                       Dir)                                    \
+  RESNET_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, Dir, \
+                                      SyclBLASBackend)
 #else
 #define RESNET_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 #endif

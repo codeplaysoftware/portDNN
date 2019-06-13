@@ -85,15 +85,18 @@ struct Stride2_3x3Params {
 #error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
 #endif
 
-#define BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(Algo, Dir, Back)          \
-  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Back,          \
-                        sycldnn::backend::Back, Dense3x3Params,        \
-                        sycldnn::conv2d::conv_type::Dir,               \
-                        sycldnn::conv2d::Algo##Selector);              \
-  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Stride2##Back, \
-                        sycldnn::backend::Back, Stride2_3x3Params,     \
-                        sycldnn::conv2d::conv_type::Dir,               \
+#define BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK_AND_DTYPE(Algo, Dir, Back, DType) \
+  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Back,                  \
+                        sycldnn::backend::Back, DType, Dense3x3Params,         \
+                        sycldnn::conv2d::conv_type::Dir,                       \
+                        sycldnn::conv2d::Algo##Selector);                      \
+  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Stride2##Back,         \
+                        sycldnn::backend::Back, DType, Stride2_3x3Params,      \
+                        sycldnn::conv2d::conv_type::Dir,                       \
                         sycldnn::conv2d::Algo##Selector)
+
+#define BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(Algo, Dir, Back) \
+  BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK_AND_DTYPE(Algo, Dir, Back, float)
 
 #ifdef SNN_BENCH_EIGEN
 #define BENCHMARK_WITH_EIGEN(Algo, Dir) \

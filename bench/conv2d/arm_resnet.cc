@@ -36,10 +36,13 @@ struct Executor {};
 
 #include "param_set.h"
 
-#define RESNET_BENCHMARK(N, WIN, STR, H, W, C, F, MOD)                       \
-  CONVOLUTION_BENCHMARK("ResNet",                                            \
-                        Forward_##N##_##C##_##W##_##H##_##WIN##_##STR##_##F, \
-                        ParameterSet<N, WIN, STR, W, H, C, F, MOD>, EXEC)
+#define RESNET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, F, MOD, DTYPE)    \
+  CONVOLUTION_BENCHMARK(                                                    \
+      "ResNet", Forward_##N##_##C##_##W##_##H##_##WIN##_##STR##_##F, DTYPE, \
+      ParameterSet<N, WIN, STR, W, H, C, F, MOD>, EXEC)
+
+#define RESNET_BENCHMARK(N, WIN, STR, H, W, C, F, MOD) \
+  RESNET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, F, MOD, float)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \

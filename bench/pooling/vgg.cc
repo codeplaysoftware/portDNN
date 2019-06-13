@@ -22,15 +22,18 @@
 
 #include "sycldnn/pooling/operators.h"
 
-#define VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, OP)                 \
+#define VGG_BM_WITH_DIR_OP_DTYPE(N, C, W, H, DIRECTION, OP, DTYPE)        \
   POOLING_BENCHMARK(                                                      \
       "VGG", OP##_##DIRECTION##_##N##_##C##_##W##_##H##_2##_##SNNBackend, \
-      sycldnn::backend::SNNBackend, ParameterSet<N, C, W, H, 2>,          \
+      sycldnn::backend::SNNBackend, DTYPE, ParameterSet<N, C, W, H, 2>,   \
       sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
+#define VGG_BM_WITH_DIR_OP(N, C, W, H, DIRECTION, OP) \
+  VGG_BM_WITH_DIR_OP_DTYPE(N, C, W, H, DIRECTION, OP, float)
+
 #define VGG_BM_WITH_DIRECTION(N, C, W, H, DIRECTION) \
-  VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, Max) \
-  VGG_BM_WITH_DIR_AND_OP(N, C, W, H, DIRECTION, Average)
+  VGG_BM_WITH_DIR_OP(N, C, W, H, DIRECTION, Max)     \
+  VGG_BM_WITH_DIR_OP(N, C, W, H, DIRECTION, Average)
 
 #define VGG_BENCHMARK(N, C, W, H)            \
   VGG_BM_WITH_DIRECTION(N, C, W, H, Forward) \

@@ -22,11 +22,16 @@
 
 #include "sycldnn/conv2d/conv_type.h"
 
-#define MOBILENET_BENCHMARK_WITH_DIR(N, Win, Str, Row, Col, Ch, Dir)         \
-  DEPTHWISE_CONVOLUTION_BENCHMARK(                                           \
-      "MobileNet", Dir##_##N##_##Win##_##Str##_##Row##_##Col##_##Ch,         \
-      sycldnn::backend::SNNBackend, ParameterSet<N, Win, Str, Row, Col, Ch>, \
+#define MOBILENET_BENCHMARK_WITH_DIR_DTYPE(N, Win, Str, Row, Col, Ch, Dir, \
+                                           DType)                          \
+  DEPTHWISE_CONVOLUTION_BENCHMARK(                                         \
+      "MobileNet", Dir##_##N##_##Win##_##Str##_##Row##_##Col##_##Ch,       \
+      sycldnn::backend::SNNBackend, DType,                                 \
+      ParameterSet<N, Win, Str, Row, Col, Ch>,                             \
       sycldnn::conv2d::conv_type::Dir)
+
+#define MOBILENET_BENCHMARK_WITH_DIR(N, Win, Str, Row, Col, Ch, Dir) \
+  MOBILENET_BENCHMARK_WITH_DIR_DTYPE(N, Win, Str, Row, Col, Ch, Dir, float)
 
 #define MOBILENET_BENCHMARK(N, Win, Str, Row, Col, Ch)                   \
   MOBILENET_BENCHMARK_WITH_DIR(N, Win, Str, Row, Col, Ch, Forward)       \

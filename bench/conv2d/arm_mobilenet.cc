@@ -36,10 +36,13 @@ struct Executor {};
 
 #include "param_set.h"
 
-#define MOBILENET_BENCHMARK(N, WIN, STR, C, H, W, F, MOD)              \
-  CONVOLUTION_BENCHMARK("MobileNet",                                   \
-                        Forward_##N##_##C##_##W##_##H##_##WIN##_##STR, \
+#define MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, C, H, W, F, MOD, DTYPE)   \
+  CONVOLUTION_BENCHMARK("MobileNet",                                          \
+                        Forward_##N##_##C##_##W##_##H##_##WIN##_##STR, DTYPE, \
                         ParameterSet<N, WIN, STR, C, H, W, F, MOD>, EXEC)
+
+#define MOBILENET_BENCHMARK(N, WIN, STR, C, H, W, F, MOD) \
+  MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, C, H, W, F, MOD, float)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(WIN, STR, C, H, W, F, MOD) \

@@ -22,16 +22,19 @@
 
 #include "sycldnn/pooling/operators.h"
 
-#define RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)         \
-  POOLING_BENCHMARK(                                                       \
-      "ResNet",                                                            \
-      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##SNNBackend, \
-      sycldnn::backend::SNNBackend, ParameterSet<N, C, W, H, K, S>,        \
+#define RESNET_BM_WITH_DIR_OP_DTYPE(N, C, W, H, K, S, DIRECTION, OP, DTYPE) \
+  POOLING_BENCHMARK(                                                        \
+      "ResNet",                                                             \
+      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##SNNBackend,  \
+      sycldnn::backend::SNNBackend, DTYPE, ParameterSet<N, C, W, H, K, S>,  \
       sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
+#define RESNET_BM_WITH_DIR_OP(N, C, W, H, K, S, DIRECTION, OP) \
+  RESNET_BM_WITH_DIR_OP_DTYPE(N, C, W, H, K, S, DIRECTION, OP, float)
+
 #define RESNET_BM_WITH_DIRECTION(N, C, W, H, K, S, DIRECTION) \
-  RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Max) \
-  RESNET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Average)
+  RESNET_BM_WITH_DIR_OP(N, C, W, H, K, S, DIRECTION, Max)     \
+  RESNET_BM_WITH_DIR_OP(N, C, W, H, K, S, DIRECTION, Average)
 
 #define RESNET_BENCHMARK(N, C, W, H, K, S)            \
   RESNET_BM_WITH_DIRECTION(N, C, W, H, K, S, Forward) \

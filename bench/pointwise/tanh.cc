@@ -22,10 +22,13 @@
 #include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pointwise/operators.h"
 
-#define TANH_BM_WITH_DIRECTION(N, DIRECTION)                         \
+#define TANH_BM_WITH_DIRECTION_AND_DTYPE(N, DIRECTION, DTYPE)        \
   POINTWISE_BENCHMARK("Tanh", OP##_##DIRECTION##_##N##_##SNNBackend, \
-                      sycldnn::backend::SNNBackend, N,               \
+                      sycldnn::backend::SNNBackend, DTYPE, N,        \
                       sycldnn::pointwise::DIRECTION, sycldnn::pointwise::Tanh)
+
+#define TANH_BM_WITH_DIRECTION(N, DIRECTION) \
+  TANH_BM_WITH_DIRECTION_AND_DTYPE(N, DIRECTION, float)
 
 #define TANH_BENCHMARK(N)            \
   TANH_BM_WITH_DIRECTION(N, Forward) \

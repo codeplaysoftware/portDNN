@@ -22,15 +22,18 @@
 #include "src/backend/backend_provider.h"
 
 #include "bench/fixture/add_computecpp_info.h"
+#include "bench/fixture/add_datatype_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename ParamGen, typename ConvType>
+template <typename Backend, typename DataType, typename ParamGen,
+          typename ConvType>
 class SNNDepthwiseConvolutionBenchmark
     : public sycldnn::bench::SNNDepthwiseConv2DExecutor<
-          SNNDepthwiseConvolutionBenchmark<Backend, ParamGen, ConvType>,
+          SNNDepthwiseConvolutionBenchmark<Backend, DataType, ParamGen,
+                                           ConvType>,
           ConvType>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
@@ -54,6 +57,7 @@ class SNNDepthwiseConvolutionBenchmark
     auto dev = backend.get_queue().get_device();
     sycldnn::bench::device_info::add_opencl_device_info(dev, *this);
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
+    sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
     this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
     this->add_to_label("@backend", backend.name());

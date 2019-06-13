@@ -29,10 +29,13 @@
 
 #include "mobilenet_param_set.h"
 
-#define MOBILENET_BENCHMARK(N, WIN, STR, H, W, C)                 \
-  DEPTHWISE_CONVOLUTION_BENCHMARK(                                \
-      "MobileNet", Forward_##N##_##C##_##W##_##H##_##WIN##_##STR, \
+#define MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, DTYPE)      \
+  DEPTHWISE_CONVOLUTION_BENCHMARK(                                       \
+      "MobileNet", Forward_##N##_##C##_##W##_##H##_##WIN##_##STR, DTYPE, \
       ParameterSet<N, WIN, STR, H, W, C>, EXEC)
+
+#define MOBILENET_BENCHMARK(N, WIN, STR, H, W, C) \
+  MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, float)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \

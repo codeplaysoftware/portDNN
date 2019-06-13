@@ -39,25 +39,31 @@
 #error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
 #endif
 
-#define VGG_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, \
-                                                 Algo, Dir, Back)              \
-  CONVOLUTION_BENCHMARK(                                                       \
-      "VGG", Algo##_##Dir##_##N##_##C##_##W##_##H##_##F##_##Back,              \
-      sycldnn::backend::Back, ParameterSet<N, WIN, STR, H, W, C, F, MOD>,      \
+#define VGG_BENCHMARK_WITH_ALGO_DIR_BACK_DTYPE(N, WIN, STR, H, W, C, F, MOD, \
+                                               Algo, Dir, Back, DType)       \
+  CONVOLUTION_BENCHMARK(                                                     \
+      "VGG", Algo##_##Dir##_##N##_##C##_##W##_##H##_##F##_##Back,            \
+      sycldnn::backend::Back, DType,                                         \
+      ParameterSet<N, WIN, STR, H, W, C, F, MOD>,                            \
       sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
 
+#define VGG_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, \
+                                         Dir, Back)                          \
+  VGG_BENCHMARK_WITH_ALGO_DIR_BACK_DTYPE(N, WIN, STR, H, W, C, F, MOD, Algo, \
+                                         Dir, Back, float)
+
 #ifdef SNN_BENCH_EIGEN
-#define VGG_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)      \
-  VGG_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, \
-                                           Dir, EigenBackend)
+#define VGG_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)   \
+  VGG_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, Dir, \
+                                   EigenBackend)
 #else
 #define VGG_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 #endif
 
 #ifdef SNN_BENCH_SYCLBLAS
-#define VGG_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)   \
-  VGG_BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, \
-                                           Dir, SyclBLASBackend)
+#define VGG_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir) \
+  VGG_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, Dir,  \
+                                   SyclBLASBackend)
 #else
 #define VGG_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
 #endif

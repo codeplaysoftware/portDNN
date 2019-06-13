@@ -19,6 +19,8 @@
 #include "arm_conv2d_executor.h"
 #include "base_convolution_fixture.h"
 
+#include "bench/fixture/add_datatype_info.h"
+
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
@@ -26,10 +28,11 @@
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename ParamGen, typename ACLExecutor>
+template <typename DataType, typename ParamGen, typename ACLExecutor>
 class ARMConvolutionBenchmark
     : public sycldnn::bench::ARMConv2DExecutor<
-          ARMConvolutionBenchmark<ParamGen, ACLExecutor>, ACLExecutor>,
+          ARMConvolutionBenchmark<DataType, ParamGen, ACLExecutor>,
+          ACLExecutor>,
       public sycldnn::bench::StringReporter,
       public BaseConvolutionBenchmark {
  private:
@@ -45,6 +48,8 @@ class ARMConvolutionBenchmark
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::StdDevStatistic{}});
     this->execute(state, params);
+
+    sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
     this->add_to_label("@conv_type", "Forward");
     this->add_to_label("@selector", "ARMCompute");

@@ -22,16 +22,19 @@
 
 #include "sycldnn/pooling/operators.h"
 
-#define MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, OP)      \
-  POOLING_BENCHMARK(                                                       \
-      "MobileNet",                                                         \
-      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##SNNBackend, \
-      sycldnn::backend::SNNBackend, ParameterSet<N, C, W, H, K, S>,        \
+#define MOBILENET_BM_WITH_DIR_OP_DTYPE(N, C, W, H, K, S, DIRECTION, OP, DTYPE) \
+  POOLING_BENCHMARK(                                                           \
+      "MobileNet",                                                             \
+      OP##_##DIRECTION##_##N##_##C##_##W##_##H##_##K##_##S##_##SNNBackend,     \
+      sycldnn::backend::SNNBackend, DTYPE, ParameterSet<N, C, W, H, K, S>,     \
       sycldnn::pooling::DIRECTION, sycldnn::pooling::OP)
 
+#define MOBILENET_BM_WITH_DIR_OP(N, C, W, H, K, S, DIRECTION, OP) \
+  MOBILENET_BM_WITH_DIR_OP_DTYPE(N, C, W, H, K, S, DIRECTION, OP, float)
+
 #define MOBILENET_BM_WITH_DIRECTION(N, C, W, H, K, S, DIRECTION) \
-  MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Max) \
-  MOBILENET_BM_WITH_DIR_AND_OP(N, C, W, H, K, S, DIRECTION, Average)
+  MOBILENET_BM_WITH_DIR_OP(N, C, W, H, K, S, DIRECTION, Max)     \
+  MOBILENET_BM_WITH_DIR_OP(N, C, W, H, K, S, DIRECTION, Average)
 
 #define MOBILENET_BENCHMARK(N, C, W, H, K, S)            \
   MOBILENET_BM_WITH_DIRECTION(N, C, W, H, K, S, Forward) \
