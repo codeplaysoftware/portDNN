@@ -16,6 +16,7 @@
 #include <benchmark/benchmark.h>
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/mem_object.h"
 #include "sycldnn/padding_mode.h"
 #include "sycldnn/status.h"
 
@@ -56,13 +57,13 @@ sycldnn::SNNStatus launch_kernel(
     sycldnn::conv2d::Conv2DParams const& params,
     sycldnn::conv2d::ConvSizes const& sizes, Backend& backend) {
   auto in_buff = backend.template get_buffer(input, sizes.input_size);
-  sycldnn::ReadAccessor<const T> in_acc{in_buff};
+  auto in_acc = sycldnn::make_mem_object(in_buff, sizes.input_size, 0);
 
   auto fil_buff = backend.template get_buffer(filter, sizes.filter_size);
-  sycldnn::ReadAccessor<const T> fil_acc{fil_buff};
+  auto fil_acc = sycldnn::make_mem_object(fil_buff, sizes.filter_size, 0);
 
   auto out_buff = backend.template get_buffer(output, sizes.output_size);
-  sycldnn::WriteAccessor<T> out_acc{out_buff};
+  auto out_acc = sycldnn::make_mem_object(out_buff, sizes.output_size, 0);
 
   auto queue = backend.get_queue();
   auto tile_info = sycldnn::conv2d::internal::tiled::get_tile_info<ConvType>(
@@ -189,7 +190,7 @@ struct ParamGenerator {
     sycldnn::conv2d::Conv2DParams params;
     params.channels = 196;
     params.features = 384;
-    params.batch = 16;
+    params.batch = 4;
     params.in_rows = 27;
     params.in_cols = 27;
     params.window_rows = WindowCols;
@@ -307,9 +308,7 @@ struct ParamGenerator {
   BENCH_WITH_TILES(name, direction, 5, 5, fast_div, window_row, window_col,    \
                    stride)
 
-#define BENCH_BASE(name, direction, window_row, window_col, stride)           \
-  BENCH_WITH_FAST_DIV(name, direction, false, window_row, window_col, stride) \
+#define BENCH_BASE(name, direction, window_row, window_col, stride) \
   BENCH_WITH_FAST_DIV(name, direction, true, window_row, window_col, stride)
 
 BENCH_BASE(Forward, sycldnn::conv2d::conv_type::Forward, 3, 3, 1);
-BENCH_BASE(InputBackprop, sycldnn::conv2d::conv_type::InputBackprop, 3, 3, 1);
