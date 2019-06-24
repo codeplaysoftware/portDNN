@@ -63,7 +63,7 @@ Option                     | Type     | Default | Description
 `SNN_EIGEN_NO_LOCAL_MEM`   | `BOOL`   | `OFF`   | Only compile Eigen kernels without local memory support
 `SNN_EIGEN_COMPRESS_NAMES` | `BOOL`   | `OFF`   | Turns kernel names into hashes to avoid OpenCL driver bugs
 `SNN_EIGEN_NO_BARRIER`     | `BOOL`   | `OFF`   | Use barrier-free matmul. Implies `NO_LOCAL_MEM`.
-`SNN_ENABLE_EXCEPTIONS`    | `BOOL`   | `ON`    | Enable exception support in Eigen
+`SNN_EIGEN_EXCEPTIONS`     | `BOOL`   | `ON`    | Enable exception support in Eigen
 
 ## ComputeCpp options
 

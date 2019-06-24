@@ -69,7 +69,7 @@ if(Eigen_FOUND)
       list(APPEND eigen_definitions NO_LOCAL_MEM=1)
     endif()
   endif()
-  if(SNN_ENABLE_EXCEPTIONS)
+  if(SNN_EIGEN_EXCEPTIONS)
     list(APPEND eigen_definitions EIGEN_EXCEPTIONS)
   endif()
   set_target_properties(Eigen::Eigen PROPERTIES
