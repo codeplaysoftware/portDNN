@@ -45,28 +45,28 @@ if(Eigen_FOUND AND NOT TARGET Eigen::Eigen)
   )
 endif()
 if(Eigen_FOUND)
-  set(eigen_definitions DISABLE_SKINNY=1
-                        DISABLE_RANK1=1
-                        DISABLE_GEMV=1
-                        DISABLE_SCALAR=1
+  set(eigen_definitions EIGEN_SYCL_DISABLE_SKINNY=1
+                        EIGEN_SYCL_DISABLE_RANK1=1
+                        EIGEN_SYCL_DISABLE_GEMV=1
+                        EIGEN_SYCL_DISABLE_SCALAR=1
                         EIGEN_HAS_CXX11_MATH=1
                         EIGEN_USE_SYCL)
   find_package(Threads)
   if(Threads_FOUND)
-    list(APPEND eigen_definitions ASYNC_EXECUTION=1)
+    list(APPEND eigen_definitions EIGEN_SYCL_ASYNC_EXECUTION=1)
     set_property(TARGET Eigen::Eigen
       APPEND PROPERTY INTERFACE_LINK_LIBRARIES Threads::Threads
     )
   endif()
   if(SNN_EIGEN_NO_BARRIER)
-    list(APPEND eigen_definitions DISABLE_ARM_GPU_CACHE_OPTIMISATION=1
-                                  NO_LOCAL_MEM=1)
+    list(APPEND eigen_definitions EIGEN_SYCL_DISABLE_ARM_GPU_CACHE_OPTIMISATION=1
+                                  EIGEN_SYCL_NO_LOCAL_MEM=1)
   else()
     if(SNN_EIGEN_LOCAL_MEM)
-      list(APPEND eigen_definitions LOCAL_MEM=1)
+      list(APPEND eigen_definitions EIGEN_SYCL_LOCAL_MEM=1)
     endif()
     if(SNN_EIGEN_NO_LOCAL_MEM)
-      list(APPEND eigen_definitions NO_LOCAL_MEM=1)
+      list(APPEND eigen_definitions EIGEN_SYCL_NO_LOCAL_MEM=1)
     endif()
   endif()
   if(SNN_EIGEN_EXCEPTIONS)
