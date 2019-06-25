@@ -1,0 +1,41 @@
+/*
+ * Copyright 2019 Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// clang-format off
+#define SNN_DATA_TYPE  @DATA_TYPE@
+#define SNN_INDEX_TYPE @INDEX_TYPE@
+#define SNN_OP_TYPE    @OP_TYPE@
+#define SNN_DIRECTION  @DIRECTION@
+#define SNN_WIDTH      @VECTOR_WIDTH@
+// clang-format on
+
+#include "sycldnn/pointwise/direction.h"
+#include "sycldnn/pointwise/operators.h"
+
+#include "src/pointwise/queue_pointwise_grad_impl.h"
+
+namespace sycldnn {
+namespace pointwise {
+namespace internal {
+
+template SNNStatus queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE,
+                                   SNN_DIRECTION, SNN_WIDTH>(
+    BaseMemObject<SNN_DATA_TYPE const>& in_forward_mem,
+    BaseMemObject<SNN_DATA_TYPE const>& in_backprop_mem,
+    BaseMemObject<SNN_DATA_TYPE>& out_backprop_mem,
+    SNN_INDEX_TYPE const n_items, cl::sycl::queue& queue);
+}  // namespace internal
+}  // namespace pointwise
+}  // namespace sycldnn

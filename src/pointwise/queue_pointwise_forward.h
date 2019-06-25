@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd
+ * Copyright 2019 Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "src/pointwise/launch_forward_pointwise.h"
-#include "src/pointwise/launch_grad_pointwise.h"
+
+#ifndef SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#define SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
 #include <CL/sycl.hpp>
 
@@ -22,22 +26,16 @@ namespace sycldnn {
 namespace pointwise {
 namespace internal {
 
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Tanh, Forward)
-#ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Tanh, Forward)
-#endif  // SNN_USE_HALF
-#ifdef SNN_USE_DOUBLE
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Tanh, Forward)
-#endif  // SNN_USE_DOUBLE
-
-SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(float, Tanh)
-#ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(cl::sycl::half, Tanh)
-#endif  // SNN_USE_HALF
-#ifdef SNN_USE_DOUBLE
-SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(double, Tanh)
-#endif  // SNN_USE_DOUBLE
-
+/**
+ * Submit a pointwise transformation to a SYCL queue.
+ */
+template <typename T, typename Index, template <typename> class PointwiseType,
+          typename Direction, int VectorWidth>
+SNNStatus queue_pointwise(BaseMemObject<T const>& in_mem,
+                          BaseMemObject<T>& out_mem, Index const n_items,
+                          cl::sycl::queue& queue);
 }  // namespace internal
 }  // namespace pointwise
 }  // namespace sycldnn
+
+#endif  // SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FOWARD_H_

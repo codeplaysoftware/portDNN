@@ -14,68 +14,36 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POINTWISE_LAUNCH_FORWARD_POINTWISE_H_
-#define SYCLDNN_SRC_POINTWISE_LAUNCH_FORWARD_POINTWISE_H_
-
 #include "sycldnn/internal/pointwise/launch_internal.h"
 
 #include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pointwise/operators.h"
 
-#include "src/pointwise/kernels.h"
+#include "src/pointwise/queue_pointwise_grad.h"
 
 #include <CL/sycl.hpp>
 
 #include "sycldnn/export.h"
 
-#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP, DIRECTION)   \
-  template SNN_EXPORT SNNStatus launch_pointwise<DTYPE, OP, DIRECTION>( \
-      BaseMemObject<DTYPE const> & inp_access,                          \
-      BaseMemObject<DTYPE> & outp_access, size_t const n_items,         \
-      cl::sycl::queue& queue);
-
 namespace sycldnn {
 namespace pointwise {
 namespace internal {
 
-/**
- * Queue a pointwise operation with a number of threads equal to the number of
- * work items.
- */
-template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction, int VectorWidth>
-SNNStatus queue_pointwise(BaseMemObject<T const>& in_mem,
-                          BaseMemObject<T>& out_mem, Index const n_items,
-                          cl::sycl::queue& queue) {
-  auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
-    Index const n_vecs = n_items / VectorWidth;
-    // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
-    size_t const n_threads = n_vecs;
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
-        input, output, n_vecs};
-
-    cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
-  });
-
-  return {event, StatusCode::OK};
-}
-
 template <typename T, typename Index, template <typename> class PointwiseType,
           typename Direction>
-SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input,
-                                  BaseMemObject<T>& output, Index const n_items,
-                                  cl::sycl::queue& queue) {
+SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input_forward,
+                                  BaseMemObject<T const>& input_backprop,
+                                  BaseMemObject<T>& output_backprop,
+                                  Index const n_items, cl::sycl::queue& queue) {
   if (n_items % 4 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
-        input, output, n_items, queue);
+        input_forward, input_backprop, output_backprop, n_items, queue);
   } else if (n_items % 2 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
-        input, output, n_items, queue);
+        input_forward, input_backprop, output_backprop, n_items, queue);
   } else {
     return queue_pointwise<T, Index, PointwiseType, Direction, 1>(
-        input, output, n_items, queue);
+        input_forward, input_backprop, output_backprop, n_items, queue);
   }
 }
 
@@ -85,9 +53,10 @@ SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input,
  */
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename EnableIf>
-SNNStatus launch_pointwise(BaseMemObject<T const>& input,
-                           BaseMemObject<T>& output, size_t const n_items,
-                           cl::sycl::queue& queue) {
+SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
+                           BaseMemObject<T const>& input_backprop,
+                           BaseMemObject<T>& output_backprop,
+                           size_t const n_items, cl::sycl::queue& queue) {
   if (n_items > std::numeric_limits<int64_t>::max()) {
     SNNStatus index_too_large;
     index_too_large.status = StatusCode::IndexExceeded;
@@ -95,7 +64,7 @@ SNNStatus launch_pointwise(BaseMemObject<T const>& input,
   } else if (n_items > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
     return launch_vector_pointwise<T, int64_t, PointwiseType, Direction>(
-        input, output, n_items, queue);
+        input_forward, input_backprop, output_backprop, n_items, queue);
 #else
     SNNStatus index_too_large;
     index_too_large.status = StatusCode::IndexExceeded;
@@ -103,11 +72,28 @@ SNNStatus launch_pointwise(BaseMemObject<T const>& input,
 #endif  // SNN_USE_INT64
   } else {
     return launch_vector_pointwise<T, int32_t, PointwiseType, Direction>(
-        input, output, n_items, queue);
+        input_forward, input_backprop, output_backprop, n_items, queue);
   }
 }
+
+#define SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(DTYPE, OP)    \
+  template SNN_EXPORT SNNStatus launch_pointwise<DTYPE, OP, Gradient>( \
+      BaseMemObject<DTYPE const> & inp_fwd_access,                     \
+      BaseMemObject<DTYPE const> & inp_bk_access,                      \
+      BaseMemObject<DTYPE> & outp_access, size_t const n_items,        \
+      cl::sycl::queue& queue);
+
+SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(float, Relu)
+SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(float, Tanh)
+#ifdef SNN_USE_HALF
+SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(cl::sycl::half, Relu)
+SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(cl::sycl::half, Tanh)
+#endif  // SNN_USE_HALF
+#ifdef SNN_USE_DOUBLE
+SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(double, Relu)
+SNN_INSTANTIATE_LAUNCH_POINTWISE_GRADIENT_KERNEL(double, Tanh)
+#endif  // SNN_USE_DOUBLE
 
 }  // namespace internal
 }  // namespace pointwise
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_POINTWISE_LAUNCH_FORWARD_POINTWISE_H_
