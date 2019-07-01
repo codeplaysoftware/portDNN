@@ -23,10 +23,10 @@ endif()
 
 if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
   include(ExternalProject)
-  set(EIGEN_REPO "https://bitbucket.org/codeplaysoftware/eigen" CACHE STRING
+  set(EIGEN_REPO "https://bitbucket.org/codeplaysoftware/eigen-fork" CACHE STRING
     "Eigen repository to use"
   )
-  set(EIGEN_HG_TAG "a51187c" CACHE STRING
+  set(EIGEN_HG_TAG "b99e8c0" CACHE STRING
     "Hg tag, branch or commit to use for the Eigen library"
   )
   set(EIGEN_SOURCE_DIR ${sycldnn_BINARY_DIR}/Eigen-src)
