@@ -25,17 +25,12 @@
 
 #include "bench/fixture/base_executor.h"
 
-// The OpenCL C++ wrapper, used by ARM Compute Library, generates warnings
-// about deprecated functions. This silences those warnings.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <arm_compute/runtime/CL/CLFunctions.h>
 #include <arm_compute/runtime/CL/CLScheduler.h>
 #include <arm_compute/runtime/CL/CLTensor.h>
 
 #include <arm_compute/runtime/NEON/NEFunctions.h>
 #include <arm_compute/runtime/Tensor.h>
-#pragma GCC diagnostic pop
 
 namespace sycldnn {
 namespace bench {
