@@ -14,6 +14,8 @@
 
 cmake_minimum_required(VERSION 3.3)
 
+include(AddColourDiagnostics)
+
 # Helpers macro to ensure a file is only included once, to avoid creating
 # multiple identical targets or overriding variables
 macro(snn_include_guard NAME)
@@ -175,6 +177,7 @@ function(snn_target)
   if(SNN_TARGET_CXX_OPTS)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
+  snn_add_colour_diagnostics(${SNN_TARGET_TARGET})
   if(${SNN_TARGET_WITH_SYCL})
     set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
     add_sycl_to_target(
