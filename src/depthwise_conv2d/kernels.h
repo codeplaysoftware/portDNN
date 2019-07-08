@@ -33,12 +33,12 @@ namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
 
-template <typename T, typename Index, typename ConvType>
+template <typename T, typename Index, typename ConvType, int VectorWidth>
 struct DepthwiseConv2D;
 
-template <typename T, typename Index>
-struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward> {
-  using DataType = typename helpers::VectorType<T, 1>::type;
+template <typename T, typename Index, int VectorWidth>
+struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward, VectorWidth> {
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;
 
@@ -46,7 +46,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward> {
                   ReadAccessor<T const> const& input,
                   ReadAccessor<T const> const& filter,
                   WriteAccessor<T> const& output)
-      : n_elems_{n_elems},
+      : n_elems_{n_elems / VectorWidth},
         features_{params.channels * params.channel_multiplier},
         p_{params},
         input_accessor_{input},
@@ -63,8 +63,8 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward> {
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten4d(
               index, p_.out_rows, p_.out_rows, p_.out_cols, p_.out_cols,
-              features_, features_);
-      Index const feature = tensor_idx.s3;
+              features_ / VectorWidth, features_ / VectorWidth);
+      Index const feature = tensor_idx.s3 * VectorWidth;
       Index const col_idx = tensor_idx.s2;
       Index const row_idx = tensor_idx.s1;
       Index const batch_idx = tensor_idx.s0;
@@ -118,7 +118,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward> {
       }  // row loop
 
       auto output_data = output_accessor_.get_pointer();
-      Store()(output_data, index, out_val);
+      Store()(output_data, index * VectorWidth, out_val);
     }
   }
 
@@ -131,9 +131,10 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward> {
   WriteAccessor<T> output_accessor_;
 };
 
-template <typename T, typename Index>
-struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop> {
-  using DataType = typename helpers::VectorType<T, 1>::type;
+template <typename T, typename Index, int VectorWidth>
+struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop,
+                       VectorWidth> {
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;
 
@@ -141,7 +142,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop> {
                   ReadAccessor<T const> const& input,
                   ReadAccessor<T const> const& filter,
                   WriteAccessor<T> const& output)
-      : n_elems_{n_elems},
+      : n_elems_{n_elems / VectorWidth},
         features_{params.channels * params.channel_multiplier},
         p_{params},
         error_accessor_{input},
@@ -158,8 +159,8 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop> {
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten4d(
               index, p_.in_rows, p_.in_rows, p_.in_cols, p_.in_cols,
-              p_.channels, p_.channels);
-      Index const channel = tensor_idx.s3;
+              p_.channels / VectorWidth, p_.channels / VectorWidth);
+      Index const channel = tensor_idx.s3 * VectorWidth;
       Index const col_idx = tensor_idx.s2;
       Index const row_idx = tensor_idx.s1;
       Index const batch_idx = tensor_idx.s0;
@@ -217,7 +218,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop> {
       }  // row loop
 
       auto output_data = output_accessor_.get_pointer();
-      Store()(output_data, index, out_val);
+      Store()(output_data, index * VectorWidth, out_val);
     }
   }
 
@@ -230,8 +231,9 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop> {
   WriteAccessor<T> output_accessor_;
 };
 
-template <typename T, typename Index>
-struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop> {
+template <typename T, typename Index, int VectorWidth>
+struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
+                       VectorWidth> {
   using DataType = typename helpers::VectorType<T, 1>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;

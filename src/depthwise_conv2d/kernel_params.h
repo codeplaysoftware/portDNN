@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
 #define SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
 
+#include <algorithm>
+
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/depthwise_conv2d/params.h"
 

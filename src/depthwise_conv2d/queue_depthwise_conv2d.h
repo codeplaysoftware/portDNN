@@ -27,13 +27,13 @@ namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
 
-template <typename ConvType, typename T, typename Index>
+template <typename ConvType, int VectorWidth, typename T, typename Index>
 SNNStatus queue_kernel(BaseMemObject<T const>& input,
                        BaseMemObject<T const>& filter, BaseMemObject<T>& output,
                        DepthwiseConv2DParams const& kernel_params,
                        Index output_size, cl::sycl::queue& queue);
 
-template <typename T, typename Index>
+template <int VectorWidth, typename T, typename Index>
 SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input,
                               BaseMemObject<T const>& filter,
                               BaseMemObject<T>& output,

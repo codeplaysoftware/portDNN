@@ -16,6 +16,7 @@
 // clang-format off
 #define SNN_DATA_TYPE  ${DATA_TYPE}
 #define SNN_INDEX_TYPE ${INDEX_TYPE}
+#define SNN_VECTOR_WIDTH ${VECTOR_WIDTH}
 // clang-format on
 
 #include "sycldnn/mem_object.h"
@@ -33,8 +34,8 @@ namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
 
-template SNNStatus
-queue_kernel<conv2d::conv_type::Forward, SNN_DATA_TYPE, SNN_INDEX_TYPE>(
+template SNNStatus queue_kernel<conv2d::conv_type::Forward, SNN_VECTOR_WIDTH,
+                                SNN_DATA_TYPE, SNN_INDEX_TYPE>(
     BaseMemObject<SNN_DATA_TYPE const>& input,
     BaseMemObject<SNN_DATA_TYPE const>& filter,
     BaseMemObject<SNN_DATA_TYPE>& output,
@@ -42,14 +43,16 @@ queue_kernel<conv2d::conv_type::Forward, SNN_DATA_TYPE, SNN_INDEX_TYPE>(
     cl::sycl::queue& queue);
 
 template SNNStatus
-queue_kernel<conv2d::conv_type::InputBackprop, SNN_DATA_TYPE, SNN_INDEX_TYPE>(
-    BaseMemObject<SNN_DATA_TYPE const>& input,
-    BaseMemObject<SNN_DATA_TYPE const>& filter,
-    BaseMemObject<SNN_DATA_TYPE>& output,
-    DepthwiseConv2DParams const& kernel_params, SNN_INDEX_TYPE output_size,
-    cl::sycl::queue& queue);
+queue_kernel<conv2d::conv_type::InputBackprop, SNN_VECTOR_WIDTH, SNN_DATA_TYPE,
+             SNN_INDEX_TYPE>(BaseMemObject<SNN_DATA_TYPE const>& input,
+                             BaseMemObject<SNN_DATA_TYPE const>& filter,
+                             BaseMemObject<SNN_DATA_TYPE>& output,
+                             DepthwiseConv2DParams const& kernel_params,
+                             SNN_INDEX_TYPE output_size,
+                             cl::sycl::queue& queue);
 
-template SNNStatus queue_kernel_fil_bk<SNN_DATA_TYPE, SNN_INDEX_TYPE>(
+template SNNStatus
+queue_kernel_fil_bk<SNN_VECTOR_WIDTH, SNN_DATA_TYPE, SNN_INDEX_TYPE>(
     BaseMemObject<SNN_DATA_TYPE const>& input,
     BaseMemObject<SNN_DATA_TYPE const>& filter,
     BaseMemObject<SNN_DATA_TYPE>& output,

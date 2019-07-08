@@ -36,29 +36,67 @@ namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
 
-template <typename ConvType, typename T, typename Index>
+namespace {
+
+template <typename ConvType>
+bool can_vectorize(DepthwiseConv2DParams const& p, int vector_width) {
+  // TODO(dmcbain): depthwise convolutions do not support vectorisation
+  // for channel multipliers that are not 1
+  if (p.channel_multiplier != 1) {
+    return false;
+  }
+  return (p.channels * p.channel_multiplier) % vector_width == 0;
+}
+
+template <>
+bool can_vectorize<conv2d::conv_type::FilterBackprop>(
+    DepthwiseConv2DParams const&, int) {
+  return false;
+}
+
+template <typename ConvType, typename T, typename Index, int VectorWidth>
 struct Launcher {
   static SNNStatus launch(BaseMemObject<T const>& input,
                           BaseMemObject<T const>& filter,
                           BaseMemObject<T>& output,
                           DepthwiseConv2DParams const& params,
                           Index output_size, cl::sycl::queue& queue) {
-    return queue_kernel<ConvType>(input, filter, output, params, output_size,
-                                  queue);
+    return queue_kernel<ConvType, VectorWidth>(input, filter, output, params,
+                                               output_size, queue);
   }
 };
 
-template <typename T, typename Index>
-struct Launcher<conv2d::conv_type::FilterBackprop, T, Index> {
+template <typename T, typename Index, int VectorWidth>
+struct Launcher<conv2d::conv_type::FilterBackprop, T, Index, VectorWidth> {
   static SNNStatus launch(BaseMemObject<T const>& input,
                           BaseMemObject<T const>& filter,
                           BaseMemObject<T>& output,
                           DepthwiseConv2DParams const& params,
                           Index output_size, cl::sycl::queue& queue) {
-    return queue_kernel_fil_bk(input, filter, output, params, output_size,
-                               queue);
+    return queue_kernel_fil_bk<VectorWidth>(input, filter, output, params,
+                                            output_size, queue);
   }
 };
+
+template <typename ConvType, typename T, typename IndexType>
+SNNStatus launch_vectorised(BaseMemObject<T const>& input,
+                            BaseMemObject<T const>& filter,
+                            BaseMemObject<T>& output,
+                            DepthwiseConv2DParams const& params,
+                            IndexType output_size, cl::sycl::queue& queue) {
+  if (can_vectorize<ConvType>(params, 4)) {
+    return Launcher<ConvType, T, IndexType, 4>::launch(
+        input, filter, output, params, output_size, queue);
+  } else if (can_vectorize<ConvType>(params, 2)) {
+    return Launcher<ConvType, T, IndexType, 2>::launch(
+        input, filter, output, params, output_size, queue);
+  } else {
+    return Launcher<ConvType, T, IndexType, 1>::launch(
+        input, filter, output, params, output_size, queue);
+  }
+}
+
+}  // namespace
 
 template <typename ConvType, typename T>
 SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
@@ -68,7 +106,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
   auto kernel_params = get_kernel_params<ConvType>(params);
   if (output_size > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
-    return Launcher<ConvType, T, int64_t>::launch(
+    return launch_vectorised<ConvType, T, int64_t>(
         input, filter, output, kernel_params, static_cast<int64_t>(output_size),
         queue);
 #else
@@ -77,7 +115,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
     return tensor_too_large;
 #endif  // SNN_USE_INT64
   } else {
-    return Launcher<ConvType, T, int32_t>::launch(
+    return launch_vectorised<ConvType, T, int32_t>(
         input, filter, output, kernel_params, static_cast<int32_t>(output_size),
         queue);
   }

@@ -43,19 +43,19 @@ inline Index pow2_less_than(Index const val) {
 
 }  // namespace
 
-template <typename ConvType, typename T, typename Index>
+template <typename ConvType, int VectorWidth, typename T, typename Index>
 SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
                        BaseMemObject<T const>& filter_mem,
                        BaseMemObject<T>& output_mem,
                        DepthwiseConv2DParams const& kernel_params,
                        Index output_size, cl::sycl::queue& queue) {
-  using Functor = DepthwiseConv2D<T, Index, ConvType>;
+  using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth>;
 
   cl::sycl::device device = queue.get_device();
   size_t const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
   size_t const n_threads = helpers::round_up_to_nearest_multiple(
-      static_cast<size_t>(output_size), workgroup_size);
+      static_cast<size_t>(output_size / VectorWidth), workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = input_mem.read_accessor(cgh);
@@ -68,14 +68,14 @@ SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
   return {event, StatusCode::OK};
 }
 
-template <typename T, typename Index>
+template <int VectorWidth, typename T, typename Index>
 SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input_mem,
                               BaseMemObject<T const>& filter_mem,
                               BaseMemObject<T>& output_mem,
                               DepthwiseConv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue) {
   using ConvType = conv2d::conv_type::FilterBackprop;
-  using Functor = DepthwiseConv2D<T, Index, ConvType>;
+  using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth>;
 
   cl::sycl::device device = queue.get_device();
   const size_t max_wg_size =
