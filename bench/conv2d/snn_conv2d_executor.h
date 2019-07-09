@@ -21,6 +21,7 @@
 #include "sycldnn/conv2d/selector/selector.h"
 #include "sycldnn/conv2d/workspace_size.h"
 
+#include "sycldnn/helpers/handle_exception.h"
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "bench/fixture/base_executor.h"
@@ -85,49 +86,61 @@ struct SNNConv2DExecutor : public BaseExecutor {
       workspace = benchmark.get_initialised_device_memory(workspace_size,
                                                           workspace_vals);
     } catch (...) {
-      state.SkipWithError(
-          "Error in allocating workspace buffer. The buffer size is likely "
-          "to be larger than available device memory.");
+      state.SkipWithError(AllocationFailure);
       return;
     }
     SNN_ON_SCOPE_EXIT { benchmark.deallocate_ptr(workspace); };
 
     {  // Ensure the kernel is built before benchmarking
-      auto status = sycldnn::conv2d::launch<float, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace,
-          workspace_size);
+      SNNStatus status;
+      try {
+        status = sycldnn::conv2d::launch<float, ConvType>(
+            inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace,
+            workspace_size);
+      } catch (cl::sycl::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      }
 
       if (sycldnn::StatusCode::OK != status.status) {
-        state.SkipWithError(
-            "Invalid or unsupported benchmark configuration. "
-            "This may be expected behaviour and does not indicate a problem.");
+        state.SkipWithError(UnsupportedFailure);
         return;
       }
 
       try {
         wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
-        auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
-                     ". This is definitely not expected behaviour and "
-                     "indicates a problem.";
-        state.SkipWithError(error.c_str());
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      } catch (std::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
         return;
       }
     }
 
     for (auto _ : state) {
       this->start_timing();
-      auto status = sycldnn::conv2d::launch<float, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace,
-          workspace_size);
-
       try {
+        auto status = sycldnn::conv2d::launch<float, ConvType>(
+            inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace,
+            workspace_size);
+
         wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
-        auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
-                     "This is definitely not expected behaviour and indicates "
-                     "a problem.";
-        state.SkipWithError(error.c_str());
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      } catch (std::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
         return;
       }
 

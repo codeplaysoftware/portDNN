@@ -86,6 +86,16 @@ struct BaseExecutor {
     }
   }
 
+ protected:
+  static constexpr auto AllocationFailure =
+      "Error in allocating workspace buffer. The buffer size is likely to be "
+      "larger than available device memory.";
+  static constexpr auto UnsupportedFailure =
+      "Invalid or unsupported benchmark configuration. This may be expected "
+      "behaviour and does not indicate a problem.";
+  static constexpr auto UnexpectedFailure =
+      "This is definitely not expected behaviour and indicates a problem.";
+
  private:
   std::vector<std::unique_ptr<Statistic>> statistics_;
 

@@ -18,6 +18,7 @@
 
 #include <benchmark/benchmark.h>
 
+#include "sycldnn/helpers/handle_exception.h"
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/pointwise/direction.h"
@@ -64,39 +65,53 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
     };
 
     {  // Ensure the kernel is built before benchmarking
-      auto status = sycldnn::pointwise::launch<float, Operator, Forward>(
-          inp_gpu, out_gpu, n_items, backend);
+      SNNStatus status;
+      try {
+        status = sycldnn::pointwise::launch<float, Operator, Forward>(
+            inp_gpu, out_gpu, n_items, backend);
+      } catch (cl::sycl::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      }
 
       if (sycldnn::StatusCode::OK != status.status) {
-        state.SkipWithError(
-            "Invalid or unsupported benchmark configuration. "
-            "This may be expected behaviour and does not indicate a problem.");
+        state.SkipWithError(UnsupportedFailure);
         return;
       }
 
       try {
         status.event.wait_and_throw();
       } catch (cl::sycl::exception const& e) {
-        auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
-                     ". This is definitely not expected behaviour and "
-                     "indicates a problem.";
-        state.SkipWithError(error.c_str());
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      } catch (std::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
         return;
       }
     }
 
     for (auto _ : state) {
       this->start_timing();
-      auto status = sycldnn::pointwise::launch<float, Operator, Forward>(
-          inp_gpu, out_gpu, n_items, backend);
-
       try {
+        auto status = sycldnn::pointwise::launch<float, Operator, Forward>(
+            inp_gpu, out_gpu, n_items, backend);
+
         status.event.wait_and_throw();
       } catch (cl::sycl::exception const& e) {
-        auto error = std::string{"cl::sycl::exception caught: "} + e.what() +
-                     "This is definitely not expected behaviour and indicates "
-                     "a problem.";
-        state.SkipWithError(error.c_str());
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      } catch (std::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
         return;
       }
 
@@ -149,23 +164,53 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Gradient, Operator>
         out_back_vec.size(), out_back_vec);
 
     {  // Ensure the kernel is built before benchmarking
-      auto status = sycldnn::pointwise::launch<float, Operator, Gradient>(
-          inp_gpu, out_gpu, out_back_gpu, n_items, backend);
-      status.event.wait_and_throw();
+      SNNStatus status;
+      try {
+        status = sycldnn::pointwise::launch<float, Operator, Gradient>(
+            inp_gpu, out_gpu, out_back_gpu, n_items, backend);
+      } catch (cl::sycl::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      }
 
       if (sycldnn::StatusCode::OK != status.status) {
-        state.SkipWithError(
-            "Invalid or unsupported benchmark configuration. "
-            "This may be expected behaviour and does not indicate a problem.");
+        state.SkipWithError(UnsupportedFailure);
+        return;
+      }
+      try {
+        status.event.wait_and_throw();
+      } catch (cl::sycl::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      } catch (std::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
         return;
       }
     }
 
     for (auto _ : state) {
       this->start_timing();
-      auto status = sycldnn::pointwise::launch<float, Operator, Gradient>(
-          inp_gpu, out_gpu, out_back_gpu, n_items, backend);
-      status.event.wait_and_throw();
+      try {
+        auto status = sycldnn::pointwise::launch<float, Operator, Gradient>(
+            inp_gpu, out_gpu, out_back_gpu, n_items, backend);
+        status.event.wait_and_throw();
+      } catch (cl::sycl::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      } catch (std::exception const& e) {
+        helpers::handle_exception(e, [&](std::string& msg) {
+          state.SkipWithError((msg + UnexpectedFailure).c_str());
+        });
+        return;
+      }
       this->end_timing();
       this->set_iteration_time(state);
     }
