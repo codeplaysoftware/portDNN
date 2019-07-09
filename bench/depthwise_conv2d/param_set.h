@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_DEPTHWISE_CONV2D_MOBILENET_PARAM_SET_H_
-#define SYCLDNN_BENCH_DEPTHWISE_CONV2D_MOBILENET_PARAM_SET_H_
+#ifndef SYCLDNN_BENCH_DEPTHWISE_CONV2D_PARAM_SET_H_
+#define SYCLDNN_BENCH_DEPTHWISE_CONV2D_PARAM_SET_H_
 
 #include "sycldnn/padding_mode.h"
 
@@ -23,8 +23,8 @@
 #include "sycldnn/helpers/padding.h"
 
 /**
- * Function object which returns a depthwise conv2d parameter struct required
- * for the MobileNet model.
+ * Function object which returns a depthwise conv2d parameter struct with the
+ * given parameters.
  *
  * \tparam Batches Number of batches
  * \tparam Window Size of convolution window
@@ -32,13 +32,16 @@
  * \tparam Rows Number of rows in the input
  * \tparam Cols Number of columns in the input
  * \tparam Channels Number of channels
+ * \tparam ChannelMultiplier Number of features per channel in the input
+ * \tparam Mode Padding mode to apply
  */
-template <int Batches, int Window, int Stride, int Rows, int Cols, int Channels>
+template <int Batches, int Window, int Stride, int Rows, int Cols, int Channels,
+          int ChannelMultiplier, sycldnn::PaddingMode Mode>
 struct ParameterSet {
   sycldnn::depthwise_conv2d::DepthwiseConv2DParams operator()() {
     sycldnn::depthwise_conv2d::DepthwiseConv2DParams params;
     params.channels = Channels;
-    params.channel_multiplier = 1;
+    params.channel_multiplier = ChannelMultiplier;
     params.batch = Batches;
     params.in_rows = Rows;
     params.in_cols = Cols;
@@ -46,8 +49,8 @@ struct ParameterSet {
     params.window_cols = Window;
     params.stride_rows = Stride;
     params.stride_cols = Stride;
-    return sycldnn::helpers::add_padding_to(params, sycldnn::PaddingMode::SAME);
+    return sycldnn::helpers::add_padding_to(params, Mode);
   }
 };
 
-#endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_MOBILENET_PARAM_SET_H_
+#endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_PARAM_SET_H_

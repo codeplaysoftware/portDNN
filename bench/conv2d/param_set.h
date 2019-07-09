@@ -23,8 +23,8 @@
 #include "sycldnn/helpers/padding.h"
 
 /**
- * Function object which returns a conv2d parameter struct required for the
- * MobileNet model.
+ * Function object which returns a conv2d parameter struct with the given
+ * parameters.
  *
  * \tparam Batches Number of batches
  * \tparam Window Size of convolution window

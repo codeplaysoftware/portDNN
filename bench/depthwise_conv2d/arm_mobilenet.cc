@@ -27,54 +27,54 @@
 #error Cannot compile without ARM_COMPUTE defined
 #endif
 
-#include "mobilenet_param_set.h"
+#include "param_set.h"
 
-#define MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, DTYPE)      \
-  DEPTHWISE_CONVOLUTION_BENCHMARK(                                       \
-      "MobileNet", Forward_##N##_##C##_##W##_##H##_##WIN##_##STR, DTYPE, \
-      ParameterSet<N, WIN, STR, H, W, C>, EXEC)
+#define MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, MUL, PAD, DTYPE) \
+  DEPTHWISE_CONVOLUTION_BENCHMARK(                                            \
+      "MobileNet", Forward_##N##_##WIN##_##STR##_##H##_##W##_##C, DTYPE,      \
+      ParameterSet<N, WIN, STR, H, W, C, MUL, PAD>, EXEC)
 
-#define MOBILENET_BENCHMARK(N, WIN, STR, H, W, C) \
-  MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, float)
+#define MOBILENET_BENCHMARK(N, WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK_WITH_DTYPE(N, WIN, STR, H, W, C, MUL, PAD, float)
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(1, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(1, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(4, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(4, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(32, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(32, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(2, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(2, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(8, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(8, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(16, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(16, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
-#define MOBILENET_PARAMS(Win, Str, Row, Col, Ch) \
-  MOBILENET_BENCHMARK(64, Win, Str, Row, Col, Ch);
+#define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
+  MOBILENET_BENCHMARK(64, WIN, STR, H, W, C, MUL, PAD);
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
