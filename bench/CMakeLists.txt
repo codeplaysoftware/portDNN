@@ -188,6 +188,23 @@ snn_bench(
 snn_bench(
   WITH_SYCL
   TARGET
+    xception_convolution
+  KERNEL_SOURCES
+    conv2d/xception.cc
+  OBJECTS
+    $<TARGET_OBJECTS:direct_conv2d>
+    $<TARGET_OBJECTS:tiled_conv2d>
+    $<TARGET_OBJECTS:im2col_conv2d>
+    $<TARGET_OBJECTS:winograd_conv2d>
+  PUBLIC_LIBRARIES
+    bench_main
+    ${_BACKENDS}
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+snn_bench(
+  WITH_SYCL
+  TARGET
     resnet_pooling
   SOURCES
     pooling/resnet.cc
@@ -379,6 +396,33 @@ if(SNN_BENCH_ARM_COMPUTE)
       ACL_NEON
       ${_BENCHMARK_DEFINITIONS}
   )
+  snn_bench(
+    TARGET
+      arm_opencl_xception_convolution
+    SOURCES
+      conv2d/arm_xception.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_COMPUTE
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_neon_xception_convolution
+    SOURCES
+      conv2d/arm_xception.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_COMPUTE
+      ACL_NEON
+      ${_BENCHMARK_DEFINITIONS}
+  )
 endif()
 
 if(SNN_BENCH_MKLDNN)
@@ -412,6 +456,18 @@ if(SNN_BENCH_MKLDNN)
       mkl_mobilenet_convolution
     SOURCES
       conv2d/arm_mobilenet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      MKLDNN::mkldnn
+    PUBLIC_COMPILE_DEFINITIONS
+      MKL_DNN
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      mkl_xception_convolution
+    SOURCES
+      conv2d/arm_xception.cc
     PUBLIC_LIBRARIES
       bench_main
       MKLDNN::mkldnn

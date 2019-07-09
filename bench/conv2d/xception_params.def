@@ -1,0 +1,87 @@
+/*
+ * Copyright 2019 Codeplay Software Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * \file
+ * X-Macro definiton file for Xception convolution sizes.
+ *
+ * Contains a number of calls to the XCEPTION_PARAMS function macro defining
+ * the following convolution parameters, as used in the Xception network.
+ *
+ * The ordering of the arguments is:
+ * \code
+ *   XCEPTION_PARAMS(Filter, Stride, Height, Width, Channels, Features, Padding)
+ * \endcode
+ *
+ * Xception is an interpretation of the Inception family of neural network
+ * architectures. The primitive 'module' of an Inception network contains
+ * multiple sizes of convolutions which are independently applied to the input
+ * before being concatenated. The Xception variant is simpler and uses a
+ * relatively small number of convolutions throughout the network, with most
+ * of them taking place in the 'Entry Flow' block of the network. The 1x1 str2
+ * convolutions in that block as well as the one in the 'Exit Flow' block act as
+ * 'shortcuts' in an analogous manner to those found in ResNet, with the rest of
+ * the 1x1 convolutions supplementing the depthwise convolutions throughout the
+ * network.
+ *
+ *  Filter | Stride | Height | Width | Channels | Features
+ * --------|--------|--------|-------|----------|---------
+ *       3 |      2 |    299 |   299 |        3 |       32
+ *       3 |      1 |    149 |   149 |       32 |       64
+ *       1 |      1 |    147 |   147 |       64 |      128
+ *       1 |      1 |    147 |   147 |      128 |      128
+ *       1 |      2 |    147 |   147 |       64 |      128
+ *       1 |      1 |     74 |    74 |      128 |      256
+ *       1 |      1 |     74 |    74 |      256 |      256
+ *       1 |      2 |     74 |    74 |      128 |      256
+ *       1 |      1 |     37 |    37 |      256 |      728
+ *       1 |      1 |     37 |    37 |      728 |      728
+ *       1 |      2 |     37 |    37 |      256 |      728
+ *       1 |      1 |     19 |    19 |      728 |      728
+ *       1 |      1 |     19 |    19 |      728 |      728
+ *       1 |      1 |     19 |    19 |      728 |     1024
+ *       1 |      2 |     19 |    19 |      728 |     1024
+ *       1 |      1 |     10 |    10 |     1024 |     1536
+ *       1 |      1 |     10 |    10 |     1536 |     2048
+
+ *
+ */
+#ifndef XCEPTION_PARAMS
+#error This file expects the XCEPTION_PARAMS macro to be defined.
+#endif
+
+XCEPTION_PARAMS(3, 2, 299, 299,    3,   32, sycldnn::PaddingMode::VALID)
+XCEPTION_PARAMS(3, 1, 149, 149,   32,   64, sycldnn::PaddingMode::VALID)
+
+XCEPTION_PARAMS(1, 1, 147, 147,   64,  128, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 1, 147, 147,  128,  128, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 2, 147, 147,   64,  128, sycldnn::PaddingMode::SAME)
+
+XCEPTION_PARAMS(1, 1,  74,  74,  128,  256, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 1,  74,  74,  256,  256, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 2,  74,  74,  128,  256, sycldnn::PaddingMode::SAME)
+
+XCEPTION_PARAMS(1, 1,  37,  37,  256,  728, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 1,  37,  37,  728,  728, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 2,  37,  37,  256,  728, sycldnn::PaddingMode::SAME)
+
+XCEPTION_PARAMS(1, 1,  19,  19,  728,  728, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 1,  19,  19,  728, 1024, sycldnn::PaddingMode::SAME)
+XCEPTION_PARAMS(1, 2,  19,  19,  728, 1024, sycldnn::PaddingMode::SAME)
+
+XCEPTION_PARAMS(1, 1,  10,  10, 1024, 1536, sycldnn::PaddingMode::SAME)
+
+XCEPTION_PARAMS(1, 1,  10,  10, 1536, 2048, sycldnn::PaddingMode::SAME)
