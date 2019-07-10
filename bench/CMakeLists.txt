@@ -280,6 +280,19 @@ snn_bench(
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
+snn_bench(
+  WITH_SYCL
+  TARGET
+    xception_depthwise_convolution
+  KERNEL_SOURCES
+    depthwise_conv2d/xception.cc
+  OBJECTS
+    $<TARGET_OBJECTS:depthwise_conv2d>
+  PUBLIC_LIBRARIES
+    bench_main
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
 
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)
@@ -414,6 +427,33 @@ if(SNN_BENCH_ARM_COMPUTE)
       arm_neon_xception_convolution
     SOURCES
       conv2d/arm_xception.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_COMPUTE
+      ACL_NEON
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_opencl_xception_depthwise_convolution
+    SOURCES
+      depthwise_conv2d/arm_xception.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_COMPUTE
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      arm_neon_xception_depthwise_convolution
+    SOURCES
+      depthwise_conv2d/arm_xception.cc
     PUBLIC_LIBRARIES
       bench_main
       ARMCompute::ARMCompute
