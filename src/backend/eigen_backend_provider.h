@@ -16,8 +16,6 @@
 #ifndef SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
 #define SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "sycldnn/backend/eigen_backend.h"

@@ -15,8 +15,6 @@
  */
 #include <gtest/gtest.h>
 
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "test/backend/backend_test_fixture.h"

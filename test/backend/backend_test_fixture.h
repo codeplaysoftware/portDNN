@@ -20,8 +20,6 @@
 #include "src/backend/snn_backend_provider.h"
 
 #if defined(SNN_TEST_EIGEN) || defined(SNN_TEST_EIGEN_MATMULS)
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "sycldnn/backend/eigen_backend.h"

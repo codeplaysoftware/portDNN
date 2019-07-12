@@ -16,8 +16,6 @@
 #include <gtest/gtest.h>
 
 #ifdef SNN_TEST_EIGEN
-// TODO(jwlawson): remove cassert when no longer needed before Eigen include
-#include <cassert>
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "sycldnn/backend/eigen_backend.h"

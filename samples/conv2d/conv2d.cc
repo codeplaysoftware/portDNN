@@ -15,10 +15,7 @@
  */
 
 // This sample makes use of the Eigen backend, and so we need to include the
-// relevant Eigen header. Dependent on the build settings, Eigen also requires
-// assert() to be declared, and doesn't pull in the required header itself, so
-// we do that as well.
-#include <cassert>
+// relevant Eigen header.
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "sycldnn/backend/eigen_backend.h"
