@@ -45,8 +45,8 @@ struct ExtractFilterTiles {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
-      T const* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       auto const channel_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -94,8 +94,8 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
-      T const* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       auto const feature_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -142,8 +142,8 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
     Index const index = item.get_id(0);
     if (index < n_threads_) {
-      T const* filter_data = filter_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto filter_data = filter_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       auto const tile_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
