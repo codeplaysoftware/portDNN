@@ -24,19 +24,25 @@
 #   ARMCompute_FOUND - whether the system has ARMCompute
 #   ARMCompute_INCLUDE_DIRS - the ARMCompute include directory
 
+if(DEFINED ARM_COMPUTE_ROOT_DIR)
+  message(DEPRECATION
+    "ARM_COMPUTE_ROOT_DIR is deprecated, use ARMCompute_DIR instead.")
+  set(ARMCompute_DIR ${ARM_COMPUTE_ROOT_DIR})
+endif()
+
 find_path(ARMCompute_INCLUDE_DIR
   NAMES arm_compute/graph.h
-  PATHS ${ARM_COMPUTE_ROOT_DIR}
+  PATHS ${ARMCompute_DIR}
   DOC "ARM Compute Library public headers"
 )
 find_path(ARMCompute_DEPENDS_INCLUDE_DIR
   NAMES half/half.hpp
-  PATHS ${ARM_COMPUTE_ROOT_DIR}/include
+  PATHS ${ARMCompute_DIR}/include
   DOC "ARM Compute Library dependency headers"
 )
-find_library(ARMCompute_LIBRARY arm_compute ${ARM_COMPUTE_ROOT_DIR}/build)
-find_library(ARMComputeCore_LIBRARY arm_compute_core ${ARM_COMPUTE_ROOT_DIR}/build)
-find_library(ARMComputeGraph_LIBRARY arm_compute_graph ${ARM_COMPUTE_ROOT_DIR}/build)
+find_library(ARMCompute_LIBRARY arm_compute ${ARMCompute_DIR}/build)
+find_library(ARMComputeCore_LIBRARY arm_compute_core ${ARMCompute_DIR}/build)
+find_library(ARMComputeGraph_LIBRARY arm_compute_graph ${ARMCompute_DIR}/build)
 
 include(FindPackageHandleStandardArgs)
 
