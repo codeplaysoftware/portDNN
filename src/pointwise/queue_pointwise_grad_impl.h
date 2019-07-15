@@ -17,6 +17,7 @@
 #ifndef SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
 #define SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
 
+#include "sycldnn/helpers/ratio.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/pointwise/direction.h"
 #include "sycldnn/pointwise/operators.h"
@@ -46,8 +47,7 @@ SNNStatus queue_pointwise(BaseMemObject<T const>& in_forward_mem,
     auto input_backprop = in_backprop_mem.read_accessor(cgh);
     auto output_backprop = out_backprop_mem.write_accessor(cgh);
     Index const n_vecs = n_items / VectorWidth;
-    // TODO(jwlawson): Should this be rounded to a multiple of a power of 2?
-    size_t const n_threads = n_vecs;
+    size_t const n_threads = helpers::round_up_to_nearest_multiple(n_vecs, 64);
     PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
         input_forward, input_backprop, output_backprop, n_vecs};
 
