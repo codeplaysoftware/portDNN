@@ -34,8 +34,6 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
-namespace {
-
 struct Dense3x3Params {
   sycldnn::conv2d::Conv2DParams operator()() {
     sycldnn::conv2d::Conv2DParams params;
@@ -79,7 +77,6 @@ struct Stride2_3x3Params {
     return params;
   }
 };
-}  // namespace
 
 #if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
 #error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
