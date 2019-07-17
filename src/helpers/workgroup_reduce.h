@@ -117,15 +117,19 @@ struct Sum {
  * is needed by all items in a workgroup this must be broadcast across the group
  * separately.
  *
+ * This function can be used to reduce scalars or vectors across the workgroup.
+ * If a user wants to reduce vectors down to a scalar, then this should be done
+ * separately in each thread before calling this function.
+ *
  * Assumes that the workgroup range is a power of two.
  * Assumes that the workspace pointer has sufficient storage to hold
  * (workgroup_size / 2) DataType elements.
  */
-template <typename Op, typename Index, typename DataType, int Dimensions,
-          cl::sycl::access::address_space Space>
+template <typename Op, typename Index, typename DataType, typename PtrType,
+          int Dimensions, cl::sycl::access::address_space Space>
 inline SNN_ALWAYS_INLINE DataType
 workgroup_reduce(DataType value, cl::sycl::nd_item<Dimensions> item,
-                 cl::sycl::multi_ptr<DataType, Space> workspace) {
+                 cl::sycl::multi_ptr<PtrType, Space> workspace) {
   static_assert(Space != cl::sycl::access::address_space::constant_space,
                 "Cannot use constant memory as workspace in a reduction.");
   static_assert(Space != cl::sycl::access::address_space::private_space,
@@ -144,14 +148,15 @@ workgroup_reduce(DataType value, cl::sycl::nd_item<Dimensions> item,
     reduction_idx /= 2;
 
     if (local_idx >= reduction_idx && !written) {
-      Store()(workspace, local_idx, value);
+      Store()(workspace, helpers::io::as_vec_index(local_idx), value);
       written = true;
     }
 
     item.barrier(fence_space);
 
     if (local_idx < reduction_idx) {
-      DataType other_thread_val = Load()(workspace, local_idx + reduction_idx);
+      DataType other_thread_val = Load()(
+          workspace, helpers::io::as_vec_index(local_idx + reduction_idx));
       value = Op()(value, other_thread_val);
     }
   }

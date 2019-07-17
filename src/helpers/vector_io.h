@@ -23,6 +23,24 @@
 
 namespace sycldnn {
 namespace helpers {
+
+namespace internal {
+/**
+ * Internal type to signal that an index should be treated as a vector index,
+ * not a scalar index.
+ *
+ * This is implicitly convertible to an underlying Index, so can be passed to
+ * functions in the same way as any index.
+ */
+template <typename Index>
+struct AsVecIndex {
+  /** Convert this wrapper to the underlying Index type. */
+  operator Index() const { return value; }
+  /** The actual index value. */
+  Index value;
+};
+}  // namespace internal
+
 /**
  * Load and Store helper structs to load and store SYCL vectors and data types
  * to memory. When possible vload is used to load data into a vector and vstore
@@ -31,6 +49,23 @@ namespace helpers {
  * type.
  */
 namespace io {
+
+/**
+ * Identifier function to mark an index as a vector index, rather than a scalar
+ * index. When used in a Load or Store operation these will use strides of
+ * vector size, rather than strides of scalar size to compute offsets from the
+ * given pointer.
+ */
+template <typename Index>
+internal::AsVecIndex<Index> as_vec_index(Index val) {
+  return {val};
+}
+
+/**
+ * Load helper for general types.
+ *
+ * Provides an `operator()` to load a value from an offset to a pointer.
+ */
 template <typename T>
 struct Load {
   template <typename U, typename Index>
@@ -39,6 +74,7 @@ struct Load {
                   "Type U must be convertible to type T.");
     return ptr[offset];
   }
+
   template <typename U, typename Index, cl::sycl::access::address_space Space>
   T SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<U, Space> ptr,
                                  Index const offset) {
@@ -47,6 +83,8 @@ struct Load {
     return *(ptr + offset);
   }
 };
+
+/** Load specialisation for vector types. */
 template <typename T, int N>
 struct Load<cl::sycl::vec<T, N>> {
   static_assert(!std::is_const<T>::value,
@@ -58,6 +96,16 @@ struct Load<cl::sycl::vec<T, N>> {
     result.load(0, ptr + offset);
     return result;
   }
+
+  template <typename Index, cl::sycl::access::address_space Space>
+  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<T, Space> ptr,
+             internal::AsVecIndex<Index> const offset) {
+    cl::sycl::vec<T, N> result;
+    result.load(offset, ptr);
+    return result;
+  }
+
   template <typename U, typename Index, cl::sycl::access::address_space Space,
             typename DependentU = U,
             typename std::enable_if<std::is_same<U, DependentU>::value &&
@@ -74,6 +122,7 @@ struct Load<cl::sycl::vec<T, N>> {
     cl::sycl::multi_ptr<T, Space> multi_ptr(non_const_ptr);
     return operator()(multi_ptr, offset);
   }
+
   template <typename U, typename Index>
   cl::sycl::vec<T, N> SNN_ALWAYS_INLINE operator()(U const* const ptr,
                                                    Index const offset) {
@@ -86,6 +135,8 @@ struct Load<cl::sycl::vec<T, N>> {
     return operator()(mptr, offset);
   }
 };
+
+/** Load specialisation to treat one element vectors as scalars. */
 template <typename T>
 struct Load<cl::sycl::vec<T, 1>> {
   template <typename U, typename Index, cl::sycl::access::address_space Space>
@@ -96,6 +147,7 @@ struct Load<cl::sycl::vec<T, 1>> {
     cl::sycl::vec<T, 1> result(ptr[offset]);
     return result;
   }
+
   template <typename U, typename Index>
   cl::sycl::vec<T, 1> SNN_ALWAYS_INLINE operator()(U const* const ptr,
                                                    Index const offset) {
@@ -105,6 +157,12 @@ struct Load<cl::sycl::vec<T, 1>> {
     return result;
   }
 };
+
+/**
+ * Store operator for general types.
+ *
+ * Provides an `operator()` to store a value to an offset from a pointer.
+ */
 template <typename T>
 struct Store {
   template <typename Index, cl::sycl::access::address_space Space>
@@ -112,6 +170,7 @@ struct Store {
                                     Index const offset, T const val) {
     *(ptr + offset) = val;
   }
+
   template <typename U, typename Index>
   void SNN_ALWAYS_INLINE operator()(U* ptr, Index const offset, T const val) {
     static_assert(!std::is_const<U>::value,
@@ -119,6 +178,8 @@ struct Store {
     ptr[offset] = val;
   }
 };
+
+/** Store specialisation for SYCL vectors. */
 template <typename T, int N>
 struct Store<cl::sycl::vec<T, N>> {
   template <typename Index, cl::sycl::access::address_space Space>
@@ -127,6 +188,14 @@ struct Store<cl::sycl::vec<T, N>> {
                                     cl::sycl::vec<T, N> const val) {
     val.store(0, ptr + offset);
   }
+
+  template <typename Index, cl::sycl::access::address_space Space>
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
+                                    internal::AsVecIndex<Index> const offset,
+                                    cl::sycl::vec<T, N> const val) {
+    val.store(offset, ptr);
+  }
+
   template <typename U, typename Index>
   void SNN_ALWAYS_INLINE operator()(U* ptr, Index const offset,
                                     cl::sycl::vec<T, N> const val) {
@@ -138,6 +207,8 @@ struct Store<cl::sycl::vec<T, N>> {
     operator()(mptr, offset, val);
   }
 };
+
+/** Store specialisation to treat single element vectors as scalars. */
 template <typename T>
 struct Store<cl::sycl::vec<T, 1>> {
   template <typename Index, cl::sycl::access::address_space Space>
@@ -146,6 +217,7 @@ struct Store<cl::sycl::vec<T, 1>> {
                                     cl::sycl::vec<T, 1> const val) {
     *(ptr + offset) = val.s0();
   }
+
   template <typename U, typename Index>
   void SNN_ALWAYS_INLINE operator()(U* ptr, Index const offset,
                                     cl::sycl::vec<T, 1> val) {
@@ -154,6 +226,7 @@ struct Store<cl::sycl::vec<T, 1>> {
     ptr[offset] = val.s0();
   }
 };
+
 }  // namespace io
 }  // namespace helpers
 }  // namespace sycldnn
