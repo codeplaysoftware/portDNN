@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.3)
 
 if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
   set(_cxx_opts CXX_OPTS)
