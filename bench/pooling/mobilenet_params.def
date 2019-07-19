@@ -23,7 +23,7 @@
  *
  * The ordering of the arguments is:
  * \code
- *   MOBILENET_PARAMS(Channels, Rows, Cols, Window, Stride)
+ *   MOBILENET_PARAMS(Channels, Rows, Cols, Window, Stride, Padding)
  * \endcode
  *
  * Channels | Rows | Cols | Window | Stride |
@@ -34,4 +34,4 @@
 #error This file expects the MOBILENET_PARAMS macro to be defined.
 #endif
 
-MOBILENET_PARAMS(1024, 7, 7, 7, 1)
+MOBILENET_PARAMS(1024, 7, 7, 7, 1, sycldnn::PaddingMode::VALID)

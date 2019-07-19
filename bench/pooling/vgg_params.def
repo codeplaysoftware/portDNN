@@ -23,24 +23,23 @@
  *
  * The ordering of the arguments is:
  * \code
- *   VGG_PARAMS(Channels, Input Width, Input Height)
+ *   VGG_PARAMS(Channels, Rows, Cols, Window, Stride, Padding)
  * \endcode
- * The pooling neighbourhoods are all 2x2, and the strides are all 1.
  *
- * Channels | Width | Height | Window | Stride 
- * ---------|-------|--------|--------|-------
- *       64 |   224 |    224 |      2 |      1 
- *      128 |   112 |    112 |      2 |      1 
- *      256 |    56 |     56 |      2 |      1 
- *      512 |    28 |     28 |      2 |      1 
- *      512 |    14 |     14 |      2 |      1 
+ * Channels | Rows | Cols | Window | Stride |
+ * ---------|------|------|--------|--------|
+ *       64 |  224 |  224 |      2 |      2 |
+ *      128 |  112 |  112 |      2 |      2 |
+ *      256 |   56 |   56 |      2 |      2 |
+ *      512 |   28 |   28 |      2 |      2 |
+ *      512 |   14 |   14 |      2 |      2 |
  */
 #ifndef VGG_PARAMS
 #error This file expects the VGG_PARAMS macro to be defined.
 #endif
 
-VGG_PARAMS( 64, 224, 224)
-VGG_PARAMS(128, 112, 112)
-VGG_PARAMS(256,  56,  56)
-VGG_PARAMS(512,  28,  28)
-VGG_PARAMS(512,  14,  14)
+VGG_PARAMS( 64, 224, 224, 2, 2, sycldnn::PaddingMode::VALID)
+VGG_PARAMS(128, 112, 112, 2, 2, sycldnn::PaddingMode::VALID)
+VGG_PARAMS(256,  56,  56, 2, 2, sycldnn::PaddingMode::VALID)
+VGG_PARAMS(512,  28,  28, 2, 2, sycldnn::PaddingMode::VALID)
+VGG_PARAMS(512,  14,  14, 2, 2, sycldnn::PaddingMode::VALID)
