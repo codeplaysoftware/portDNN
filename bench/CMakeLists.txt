@@ -515,5 +515,29 @@ if(SNN_BENCH_MKLDNN)
       MKL_DNN
       ${_BENCHMARK_DEFINITIONS}
   )
+  snn_bench(
+    TARGET
+      mkl_xception_depthwise_convolution
+    SOURCES
+      depthwise_conv2d/arm_xception.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      MKLDNN::mkldnn
+    PUBLIC_COMPILE_DEFINITIONS
+      MKL_DNN
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_bench(
+    TARGET
+      mkl_mobilenet_depthwise_convolution
+    SOURCES
+      depthwise_conv2d/arm_mobilenet.cc
+    PUBLIC_LIBRARIES
+      bench_main
+      MKLDNN::mkldnn
+    PUBLIC_COMPILE_DEFINITIONS
+      MKL_DNN
+      ${_BENCHMARK_DEFINITIONS}
+  )
 endif()
 

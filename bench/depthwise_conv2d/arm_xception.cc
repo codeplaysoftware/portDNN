@@ -23,8 +23,15 @@
 #define EXEC sycldnn::bench::ACLOpenCLExecutor
 #endif  // ACL_NEON
 
+#elif defined(MKL_DNN)
+#include "mkldnn_depthwise_conv2d_executor.h"
+// For MKL-DNN, there is currently only one Executor which uses the CPU, so for
+// now pass in a dummy value.
+struct Executor {};
+#define EXEC Executor
+
 #else
-#error Cannot compile without ARM_COMPUTE defined
+#error Cannot compile without ARM_COMPUTE or MKL_DNN defined
 #endif
 
 #include "param_set.h"
