@@ -26,6 +26,8 @@
 #include "sycldnn/backend/sycl_blas_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
+#include "sycldnn/padding_mode.h"
+
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
 
@@ -34,63 +36,27 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
-struct Dense3x3Params {
-  sycldnn::conv2d::Conv2DParams operator()() {
-    sycldnn::conv2d::Conv2DParams params;
-    params.channels = 196;
-    params.features = 384;
-    params.batch = 16;
-    params.in_rows = 27;
-    params.in_cols = 27;
-    params.window_rows = 3;
-    params.window_cols = 3;
-    params.stride_rows = 1;
-    params.stride_cols = 1;
-    params.out_rows = 27;
-    params.out_cols = 27;
-    params.pad_rows = 1;
-    params.pad_cols = 1;
-    params.dilation_rows = 1;
-    params.dilation_cols = 1;
-    return params;
-  }
-};
-
-struct Stride2_3x3Params {
-  sycldnn::conv2d::Conv2DParams operator()() {
-    sycldnn::conv2d::Conv2DParams params;
-    params.channels = 196;
-    params.features = 384;
-    params.batch = 1;
-    params.in_rows = 27;
-    params.in_cols = 27;
-    params.window_rows = 3;
-    params.window_cols = 3;
-    params.stride_rows = 2;
-    params.stride_cols = 2;
-    params.out_rows = 13;
-    params.out_cols = 13;
-    params.pad_rows = 0;
-    params.pad_cols = 0;
-    params.dilation_rows = 1;
-    params.dilation_cols = 1;
-    return params;
-  }
-};
+#include <vector>
 
 #if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
 #error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
 #endif
 
+#define CONFIG(N, WIN, STR, H, W, C, F, MOD) \
+  benchmark_params::serialize(N, WIN, STR, H, W, C, F, MOD)
+
+std::vector<std::vector<int>> const& get_benchmark_configs() {
+  static std::vector<std::vector<int>> const configs = {
+      CONFIG(1, 3, 1, 27, 27, 196, 384, sycldnn::PaddingMode::SAME),
+      CONFIG(1, 3, 2, 27, 27, 196, 384, sycldnn::PaddingMode::SAME),
+  };
+  return configs;
+}
+
 #define BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK_AND_DTYPE(Algo, Dir, Back, DType) \
-  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Back,                  \
-                        sycldnn::backend::Back, DType, Dense3x3Params,         \
-                        sycldnn::conv2d::conv_type::Dir,                       \
-                        sycldnn::conv2d::Algo##Selector);                      \
-  CONVOLUTION_BENCHMARK("SimpleConvolution", Algo##Dir##Stride2##Back,         \
-                        sycldnn::backend::Back, DType, Stride2_3x3Params,      \
-                        sycldnn::conv2d::conv_type::Dir,                       \
-                        sycldnn::conv2d::Algo##Selector)
+  CONVOLUTION_BENCHMARK(                                                       \
+      "SimpleConvolution", Algo##Dir##Back, sycldnn::backend::Back, DType,     \
+      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
 
 #define BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK(Algo, Dir, Back) \
   BENCHMARK_WITH_ALGO_AND_DIR_AND_BACK_AND_DTYPE(Algo, Dir, Back, float)

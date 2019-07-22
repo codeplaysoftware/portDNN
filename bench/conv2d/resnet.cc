@@ -35,76 +35,68 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 
+#include <vector>
+
 #if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
 #error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
 #endif
 
-#define RESNET_BENCHMARK_WITH_ALGO_DIR_BACK_DTYPE(N, WIN, STR, H, W, C, F,     \
-                                                  MOD, Algo, Dir, Back, DType) \
-  CONVOLUTION_BENCHMARK(                                                       \
-      "ResNet",                                                                \
-      Algo##_##Dir##_##N##_##C##_##W##_##H##_##WIN##_##STR##_##F##_##Back,     \
-      sycldnn::backend::Back, DType,                                           \
-      ParameterSet<N, WIN, STR, H, W, C, F, MOD>,                              \
+#define BM_WITH_ALGO_DIR_BACK_DTYPE(Algo, Dir, Back, DType)           \
+  CONVOLUTION_BENCHMARK(                                              \
+      "ResNet", Algo##_##Dir##_##Back, sycldnn::backend::Back, DType, \
       sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
 
-#define RESNET_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, \
-                                            Algo, Dir, Back)              \
-  RESNET_BENCHMARK_WITH_ALGO_DIR_BACK_DTYPE(N, WIN, STR, H, W, C, F, MOD, \
-                                            Algo, Dir, Back, float)
+#define BM_WITH_ALGO_DIR_BACK(Algo, Dir, Back) \
+  BM_WITH_ALGO_DIR_BACK_DTYPE(Algo, Dir, Back, float)
 
 #ifdef SNN_BENCH_EIGEN
-#define RESNET_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)   \
-  RESNET_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, Dir, \
-                                      EigenBackend)
+#define BM_WITH_EIGEN(Algo, Dir) BM_WITH_ALGO_DIR_BACK(Algo, Dir, EigenBackend)
 #else
-#define RESNET_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
+#define BM_WITH_EIGEN(Algo, Dir)
 #endif
 
 #ifdef SNN_BENCH_SYCLBLAS
-#define RESNET_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo,     \
-                                       Dir)                                    \
-  RESNET_BENCHMARK_WITH_ALGO_DIR_BACK(N, WIN, STR, H, W, C, F, MOD, Algo, Dir, \
-                                      SyclBLASBackend)
+#define BM_WITH_SYCLBLAS(Algo, Dir) \
+  BM_WITH_ALGO_DIR_BACK(Algo, Dir, SyclBLASBackend)
 #else
-#define RESNET_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
+#define BM_WITH_SYCLBLAS(Algo, Dir)
 #endif
 
-#define RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo, \
-                                           Dir)                                \
-  RESNET_BENCHMARK_WITH_EIGEN(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)         \
-  RESNET_BENCHMARK_WITH_SYCLBLAS(N, WIN, STR, H, W, C, F, MOD, Algo, Dir)
+#define BM_WITH_ALGO_AND_DIR(Algo, Dir) \
+  BM_WITH_EIGEN(Algo, Dir)              \
+  BM_WITH_SYCLBLAS(Algo, Dir)
 
-#define RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Algo)   \
-  RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo, \
-                                     Forward)                            \
-  RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo, \
-                                     InputBackprop)                      \
-  RESNET_BENCHMARK_WITH_ALGO_AND_DIR(N, WIN, STR, H, W, C, F, MOD, Algo, \
-                                     FilterBackprop)
+#define BM_WITH_ALGO(Algo)                  \
+  BM_WITH_ALGO_AND_DIR(Algo, Forward)       \
+  BM_WITH_ALGO_AND_DIR(Algo, InputBackprop) \
+  BM_WITH_ALGO_AND_DIR(Algo, FilterBackprop)
 
-#define RESNET_BENCHMARK(N, WIN, STR, H, W, C, F, MOD)                    \
-  RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Direct)        \
-  RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Tiled)         \
-  RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Im2col)        \
-  RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Winograd)      \
-  RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, WinogradLarge) \
-  RESNET_BENCHMARK_WITH_ALGO(N, WIN, STR, H, W, C, F, MOD, Matmul)
+BM_WITH_ALGO(Direct);
+BM_WITH_ALGO(Tiled);
+BM_WITH_ALGO(Im2col);
+BM_WITH_ALGO(Winograd);
+BM_WITH_ALGO(WinogradLarge);
+BM_WITH_ALGO(Matmul);
 
+#define CONFIG(N, WIN, STR, H, W, C, F, MOD) \
+  benchmark_params::serialize(N, WIN, STR, H, W, C, F, MOD)
+
+std::vector<std::vector<int>> const& get_benchmark_configs() {
+  static std::vector<std::vector<int>> const configs = {
 // Standard benchmark sizes (batch size: 1, 4, optionally 32)
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(1, WIN, STR, H, W, C, F, MOD);
+  CONFIG(1, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(4, WIN, STR, H, W, C, F, MOD);
+  CONFIG(4, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(32, WIN, STR, H, W, C, F, MOD);
+  CONFIG(32, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
@@ -112,24 +104,27 @@
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(2, WIN, STR, H, W, C, F, MOD);
+  CONFIG(2, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(8, WIN, STR, H, W, C, F, MOD);
+  CONFIG(8, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(16, WIN, STR, H, W, C, F, MOD);
+  CONFIG(16, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 
 #define RESNET_PARAMS(WIN, STR, H, W, C, F, MOD) \
-  RESNET_BENCHMARK(64, WIN, STR, H, W, C, F, MOD);
+  CONFIG(64, WIN, STR, H, W, C, F, MOD),
 #include "bench/conv2d/resnet_params.def"
 #undef RESNET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 #endif  // SNN_EXTENDED_BENCHMARKS
+  };
+  return configs;
+}

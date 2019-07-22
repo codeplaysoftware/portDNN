@@ -17,6 +17,7 @@
 #define SYCLDNN_BENCH_CONV2D_SNN_FIXTURE_H_
 
 #include "base_convolution_fixture.h"
+#include "param_set.h"
 #include "snn_conv2d_executor.h"
 
 #include "src/backend/backend_provider.h"
@@ -28,12 +29,13 @@
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename DataType, typename ParamGen,
-          typename ConvType, typename Selector>
+#include <vector>
+
+template <typename Backend, typename DataType, typename ConvType,
+          typename Selector>
 class SNNConvolutionBenchmark
     : public sycldnn::bench::SNNConv2DExecutor<
-          SNNConvolutionBenchmark<Backend, DataType, ParamGen, ConvType,
-                                  Selector>,
+          SNNConvolutionBenchmark<Backend, DataType, ConvType, Selector>,
           ConvType>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
@@ -43,7 +45,7 @@ class SNNConvolutionBenchmark
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     auto selector = Selector();
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
@@ -73,6 +75,23 @@ class SNNConvolutionBenchmark
   }
 };
 
+/**
+ * Forward declaration of the benchmark config provider.
+ *
+ * The definition of this is provided by the specific benchmark models.
+ */
+std::vector<std::vector<int>> const& get_benchmark_configs();
+
+/**
+ * Function object to generate all benchmarks from config list, and pass to the
+ * benchmarks as runtime parameters.
+ */
+auto RunForAllParamSets = [](benchmark::internal::Benchmark* b) {
+  for (auto& config : get_benchmark_configs()) {
+    b->Args(config);
+  }
+};
+
 #define CONVOLUTION_BENCHMARK(model, name, ...)                           \
   BENCHMARK_TEMPLATE_DEFINE_F(SNNConvolutionBenchmark, name, __VA_ARGS__) \
   (benchmark::State & state) {                                            \
@@ -81,6 +100,7 @@ class SNNConvolutionBenchmark
   }                                                                       \
   BENCHMARK_REGISTER_F(SNNConvolutionBenchmark, name)                     \
       ->UseManualTime()                                                   \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                      \
+      ->Apply(RunForAllParamSets);
 
 #endif  // SYCLDNN_BENCH_CONV2D_SNN_FIXTURE_H_
