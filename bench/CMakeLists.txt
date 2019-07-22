@@ -100,17 +100,30 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_main
 )
+snn_object_library(
+  WITH_SYCL
+  TARGET
+    conv2d_benchmark_functions
+  KERNEL_SOURCES
+    conv2d/benchmark_functions.cc
+  PUBLIC_LIBRARIES
+    benchmark::benchmark
+    ${_BACKENDS}
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
 snn_bench(
   WITH_SYCL
   TARGET
     simple_convolution
-  KERNEL_SOURCES
+  SOURCES
     conv2d/simple_convolution.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
     $<TARGET_OBJECTS:im2col_conv2d>
     $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}
@@ -121,13 +134,14 @@ snn_bench(
   WITH_SYCL
   TARGET
     resnet_convolution
-  KERNEL_SOURCES
+  SOURCES
     conv2d/resnet.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
     $<TARGET_OBJECTS:im2col_conv2d>
     $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}
@@ -138,13 +152,14 @@ snn_bench(
   WITH_SYCL
   TARGET
     vgg_convolution
-  KERNEL_SOURCES
+  SOURCES
     conv2d/vgg.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
     $<TARGET_OBJECTS:im2col_conv2d>
     $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}
@@ -155,13 +170,14 @@ snn_bench(
   WITH_SYCL
   TARGET
     mobilenet_convolution
-  KERNEL_SOURCES
+  SOURCES
     conv2d/mobilenet.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
     $<TARGET_OBJECTS:im2col_conv2d>
     $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}
@@ -172,13 +188,14 @@ snn_bench(
   WITH_SYCL
   TARGET
     ssd_mobilenet_convolution
-  KERNEL_SOURCES
+  SOURCES
     conv2d/ssd_mobilenet.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
     $<TARGET_OBJECTS:im2col_conv2d>
     $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}
@@ -189,13 +206,14 @@ snn_bench(
   WITH_SYCL
   TARGET
     xception_convolution
-  KERNEL_SOURCES
+  SOURCES
     conv2d/xception.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
     $<TARGET_OBJECTS:tiled_conv2d>
     $<TARGET_OBJECTS:im2col_conv2d>
     $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
     bench_main
     ${_BACKENDS}

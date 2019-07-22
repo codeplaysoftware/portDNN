@@ -13,70 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "benchmark_config.h"
 #include "param_set.h"
-#include "snn_fixture.h"
-
-#ifdef SNN_BENCH_EIGEN
-#include "src/backend/eigen_backend_provider.h"
-
-#include "sycldnn/backend/eigen_backend.h"
-#endif  // SNN_BENCH_EIGEN
-
-#ifdef SNN_BENCH_SYCLBLAS
-#include "src/backend/syclblas_backend_provider.h"
-#include "sycldnn/backend/sycl_blas_backend.h"
-#endif  // SNN_BENCH_SYCLBLAS
-
-#include "sycldnn/conv2d/conv_type.h"
-
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/im2col_selector.h"
-#include "sycldnn/conv2d/selector/matmul_selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-#include "sycldnn/conv2d/selector/winograd_selector.h"
 
 #include <vector>
 
-#if !defined(SNN_BENCH_EIGEN) && !defined(SNN_BENCH_SYCLBLAS)
-#error At least one of SNN_BENCH_EIGEN or SNN_BENCH_SYCLBLAS must be set.
-#endif
-
-#define BM_WITH_ALGO_DIR_BACK_DTYPE(Algo, Dir, Back, DType)              \
-  CONVOLUTION_BENCHMARK(                                                 \
-      "MobileNet", Algo##_##Dir##_##Back, sycldnn::backend::Back, DType, \
-      sycldnn::conv2d::conv_type::Dir, sycldnn::conv2d::Algo##Selector)
-
-#define BM_WITH_ALGO_DIR_BACK(Algo, Dir, Back) \
-  BM_WITH_ALGO_DIR_BACK_DTYPE(Algo, Dir, Back, float)
-
-#ifdef SNN_BENCH_EIGEN
-#define BM_WITH_EIGEN(Algo, Dir) BM_WITH_ALGO_DIR_BACK(Algo, Dir, EigenBackend)
-#else
-#define BM_WITH_EIGEN(Algo, Dir)
-#endif
-
-#ifdef SNN_BENCH_SYCLBLAS
-#define BM_WITH_SYCLBLAS(Algo, Dir) \
-  BM_WITH_ALGO_DIR_BACK(Algo, Dir, SyclBLASBackend)
-#else
-#define BM_WITH_SYCLBLAS(Algo, Dir)
-#endif
-
-#define BM_WITH_ALGO_AND_DIR(Algo, Dir) \
-  BM_WITH_EIGEN(Algo, Dir)              \
-  BM_WITH_SYCLBLAS(Algo, Dir)
-
-#define BM_WITH_ALGO(Algo)                  \
-  BM_WITH_ALGO_AND_DIR(Algo, Forward)       \
-  BM_WITH_ALGO_AND_DIR(Algo, InputBackprop) \
-  BM_WITH_ALGO_AND_DIR(Algo, FilterBackprop)
-
-BM_WITH_ALGO(Direct);
-BM_WITH_ALGO(Tiled);
-BM_WITH_ALGO(Im2col);
-BM_WITH_ALGO(Winograd);
-BM_WITH_ALGO(WinogradLarge);
-BM_WITH_ALGO(Matmul);
+char const* get_benchmark_name() { return "MobileNet"; }
 
 #define CONFIG(N, WIN, STR, H, W, C, F, MOD) \
   benchmark_params::serialize(N, WIN, STR, H, W, C, F, MOD)

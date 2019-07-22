@@ -17,6 +17,7 @@
 #define SYCLDNN_BENCH_CONV2D_SNN_FIXTURE_H_
 
 #include "base_convolution_fixture.h"
+#include "benchmark_config.h"
 #include "param_set.h"
 #include "snn_conv2d_executor.h"
 
@@ -76,13 +77,6 @@ class SNNConvolutionBenchmark
 };
 
 /**
- * Forward declaration of the benchmark config provider.
- *
- * The definition of this is provided by the specific benchmark models.
- */
-std::vector<std::vector<int>> const& get_benchmark_configs();
-
-/**
  * Function object to generate all benchmarks from config list, and pass to the
  * benchmarks as runtime parameters.
  */
@@ -92,10 +86,10 @@ auto RunForAllParamSets = [](benchmark::internal::Benchmark* b) {
   }
 };
 
-#define CONVOLUTION_BENCHMARK(model, name, ...)                           \
+#define CONVOLUTION_BENCHMARK(name, ...)                                  \
   BENCHMARK_TEMPLATE_DEFINE_F(SNNConvolutionBenchmark, name, __VA_ARGS__) \
   (benchmark::State & state) {                                            \
-    this->set_model(model);                                               \
+    this->set_model(get_benchmark_name());                                \
     this->run(state);                                                     \
   }                                                                       \
   BENCHMARK_REGISTER_F(SNNConvolutionBenchmark, name)                     \
