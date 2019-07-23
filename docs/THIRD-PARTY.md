@@ -70,7 +70,7 @@ the full range of the options available.
 $ export MKLROOT=/path/to/intel/mkl # needed if in nonstandard location
 $ cmake -GNinja -DMKLDNN_BUILD_TESTS=OFF -DMKLDNN_BUILD_EXAMPLES=OFF
   -DMKLDNN_USE_MKL=FULL # or FULL:STATIC for static linking
-  -DMKLDNN_LIBRARY_TYPE=DYNAMIC # or STATIC, for a static lib
+  -DMKLDNN_LIBRARY_TYPE=SHARED # or STATIC, for a static lib
   -DCMAKE_BUILD_TYPE=Release # for optimisation
   -DCMAKE_BUILD_PREFIX=/path/of/your/choice # creates export CMake file
 $ ninja install # Installing generates the CMake export file
