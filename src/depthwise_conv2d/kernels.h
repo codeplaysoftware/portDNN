@@ -234,7 +234,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop,
 template <typename T, typename Index, int VectorWidth>
 struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
                        VectorWidth> {
-  using DataType = typename helpers::VectorType<T, 1>::type;
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;
 
@@ -243,7 +243,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
                   ReadAccessor<T const> const& input,
                   ReadAccessor<T const> const& filter,
                   LocalAccessor<T> const& local, WriteAccessor<T> const& output)
-      : n_filter_elems_{n_filter_elems},
+      : n_filter_elems_{n_filter_elems / VectorWidth},
         features_{params.channels * params.channel_multiplier},
         workgroup_batch_items_{n_b_items},
         workgroup_col_items_{n_k_items},
@@ -270,10 +270,11 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
 
       auto const filter_tensor_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten4d(
-              fil_idx, p_.out_cols, p_.out_cols, p_.channels, p_.channels,
-              p_.channel_multiplier, p_.channel_multiplier);
+              fil_idx, p_.out_cols, p_.out_cols, p_.channels / VectorWidth,
+              p_.channels / VectorWidth, p_.channel_multiplier,
+              p_.channel_multiplier);
       Index const multiple = filter_tensor_idx.s3;
-      Index const channel = filter_tensor_idx.s2;
+      Index const channel = filter_tensor_idx.s2 * VectorWidth;
       Index const col_idx = filter_tensor_idx.s1;
       Index const row_idx = filter_tensor_idx.s0;
 
@@ -344,7 +345,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
 
     if (local_idx == 0 && fil_idx < n_filter_elems_) {
       auto output_data = filter_output_.get_pointer();
-      Store()(output_data, fil_idx, out_val);
+      Store()(output_data, fil_idx * VectorWidth, out_val);
     }
   }
 

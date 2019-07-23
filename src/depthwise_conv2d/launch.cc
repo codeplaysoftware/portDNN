@@ -48,12 +48,6 @@ bool can_vectorize(DepthwiseConv2DParams const& p, int vector_width) {
   return (p.channels * p.channel_multiplier) % vector_width == 0;
 }
 
-template <>
-bool can_vectorize<conv2d::conv_type::FilterBackprop>(
-    DepthwiseConv2DParams const&, int) {
-  return false;
-}
-
 template <typename ConvType, typename T, typename Index, int VectorWidth>
 struct Launcher {
   static SNNStatus launch(BaseMemObject<T const>& input,

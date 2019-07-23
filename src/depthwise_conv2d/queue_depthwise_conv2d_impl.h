@@ -78,9 +78,9 @@ SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input_mem,
   using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth>;
 
   cl::sycl::device device = queue.get_device();
-  const size_t max_wg_size =
+  size_t const max_wg_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
-  const size_t pow2_max_wg_size = pow2_less_than(max_wg_size);
+  size_t const pow2_max_wg_size = pow2_less_than(max_wg_size);
 
   size_t pow2_batch = pow2_less_than(kernel_params.batch);
   size_t pow2_out_cols = pow2_less_than(kernel_params.out_cols);
@@ -95,23 +95,23 @@ SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input_mem,
       div_batch = pow2_batch > 2;
     }
   }
-  const size_t workgroup_size = pow2_batch * pow2_out_cols;
+  size_t const workgroup_size = pow2_batch * pow2_out_cols;
+  size_t const workspace_size = pow2_batch * pow2_out_cols * VectorWidth;
+  size_t const n_outputs = output_size / VectorWidth;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = input_mem.read_accessor(cgh);
     auto filter = filter_mem.read_accessor(cgh);
     auto output = output_mem.write_accessor(cgh);
 
-    LocalAccessor<T> local_access{cl::sycl::range<1>{workgroup_size}, cgh};
+    LocalAccessor<T> local_access{cl::sycl::range<1>{workspace_size}, cgh};
 
     Functor conv(output_size, pow2_batch, pow2_out_cols, kernel_params, input,
                  filter, local_access, output);
 
     cgh.parallel_for(
-        cl::sycl::nd_range<2>{
-            cl::sycl::range<2>{workgroup_size,
-                               static_cast<size_t>(output_size)},
-            cl::sycl::range<2>{workgroup_size, 1}},
+        cl::sycl::nd_range<2>{cl::sycl::range<2>{workgroup_size, n_outputs},
+                              cl::sycl::range<2>{workgroup_size, 1}},
         conv);
   });
   return {event, StatusCode::OK};
