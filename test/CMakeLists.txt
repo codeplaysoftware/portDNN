@@ -122,6 +122,13 @@ snn_test(
 snn_test(
   WITH_SYCL
   TARGET
+    workgroup_reduce
+  KERNEL_SOURCES
+    helpers/workgroup_reduce.cc
+)
+snn_test(
+  WITH_SYCL
+  TARGET
     selector
   SOURCES
     conv2d/default_selector.cc

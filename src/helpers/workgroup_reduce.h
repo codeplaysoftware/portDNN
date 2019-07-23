@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
 #define SYCLDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
 
+#include "src/helpers/flattened_id.h"
 #include "src/helpers/tensor_index.h"
 #include "src/helpers/vector_io.h"
 #include "src/helpers/vector_type.h"
@@ -33,57 +34,6 @@ namespace helpers {
 namespace reduce {
 
 namespace internal {
-
-template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-get_flattened_local_range(cl::sycl::nd_item<1> item) {
-  return item.get_local_range(0);
-}
-
-template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-get_flattened_local_range(cl::sycl::nd_item<2> item) {
-  Index range_0 = item.get_local_range(0);
-  Index range_1 = item.get_local_range(1);
-  return range_0 * range_1;
-}
-
-template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-get_flattened_local_range(cl::sycl::nd_item<3> item) {
-  Index range_0 = item.get_local_range(0);
-  Index range_1 = item.get_local_range(1);
-  Index range_2 = item.get_local_range(2);
-  return range_0 * range_1 * range_2;
-}
-
-template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-get_flattened_local_id(cl::sycl::nd_item<1> item) {
-  return item.get_local_id(0);
-}
-
-template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-get_flattened_local_id(cl::sycl::nd_item<2> item) {
-  Index id_0 = item.get_local_id(0);
-  Index id_1 = item.get_local_id(1);
-  Index range_0 = item.get_local_range(0);
-  return id_1 * range_0 + id_0;
-}
-
-template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-get_flattened_local_id(cl::sycl::nd_item<3> item) {
-  Index id_0 = item.get_local_id(0);
-  Index id_1 = item.get_local_id(1);
-  Index id_2 = item.get_local_id(2);
-
-  Index range_0 = item.get_local_range(0);
-  Index range_1 = item.get_local_range(1);
-
-  return (id_2 * range_1 + id_1) * range_0 + id_0;
-}
 
 /**
  * Conversion struct to change from a SYCL address space to a memory fence
@@ -140,8 +90,8 @@ workgroup_reduce(DataType value, cl::sycl::nd_item<Dimensions> item,
   using Store = helpers::io::Store<DataType>;
   using Load = helpers::io::Load<DataType>;
 
-  auto reduction_idx = internal::get_flattened_local_range<Index>(item);
-  auto local_idx = internal::get_flattened_local_id<Index>(item);
+  auto reduction_idx = get_flattened_local_range<Index>(item);
+  auto local_idx = get_flattened_local_id<Index>(item);
   bool written = false;
 
   while (reduction_idx > 1) {
