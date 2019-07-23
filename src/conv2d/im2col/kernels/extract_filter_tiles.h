@@ -24,6 +24,7 @@
 #include "sycldnn/helpers/macros.h"
 
 #include "src/helpers/tensor_index.h"
+#include "src/helpers/vector_io.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -32,6 +33,9 @@ namespace im2col {
 
 template <typename T, typename Index>
 struct ExtractFilterTiles {
+  using Load = helpers::io::Load<T>;
+  using Store = helpers::io::Store<T>;
+
   ExtractFilterTiles(Conv2DParams const& params,
                      ReadAccessor<T const> const& input,
                      WriteAccessor<T> const& output)
@@ -48,10 +52,10 @@ struct ExtractFilterTiles {
     Index index = item.get_id(0);
 
     if (index < n_items_) {
-      T const* input_data = input_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto input_data = input_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
-      T in_val = input_data[index];
+      T in_val = Load()(input_data, index);
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten4d(
@@ -68,7 +72,7 @@ struct ExtractFilterTiles {
           ((out_row * n_window_cols_ + out_col) * n_features_ + feature) *
               n_channels_ +
           channel;
-      output_data[out_idx] = in_val;
+      Store()(output_data, out_idx, in_val);
     }
   }
 

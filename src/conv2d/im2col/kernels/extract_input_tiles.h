@@ -44,6 +44,8 @@ struct ExtractInputTiles;
 template <typename T, typename Index, int VectorWidth>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
+  using Load = helpers::io::Load<VecType>;
+  using Store = helpers::io::Store<VecType>;
 
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadAccessor<T const> const& input,
@@ -83,13 +85,13 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
 
     if (channel < channels_ && col_idx < in_cols_ && row_idx < in_rows_ &&
         batch < batch_) {
-      T const* input_data = input_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto input_data = input_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       Index const in_idx =
           ((batch * in_rows_ + row_idx) * in_cols_ + col_idx) * channels_ +
           channel;
-      VecType in_val = helpers::io::Load<VecType>()(input_data, in_idx);
+      VecType in_val = Load()(input_data, in_idx);
 
       auto const col_window_struct =
           helpers::out_window_from_input(col_idx, stride_cols_, pad_cols_);
@@ -107,12 +109,12 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
           for (Index c = cstart, in_c = window_cols_ - 1 - firstc; in_c >= 0;
                ++c, in_c -= stride_cols_) {
             if (c >= 0 && c < out_cols_) {
-              T* tile_start =
+              auto tile_start =
                   output_data +
                   ((batch * out_rows_ + r) * out_cols_ + c) * tile_size_;
               Index tile_idx =
                   (in_r * window_cols_ + in_c) * channels_ + channel;
-              helpers::io::Store<VecType>()(tile_start, tile_idx, in_val);
+              Store()(tile_start, tile_idx, in_val);
             }
           }
         }
@@ -142,6 +144,8 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
 template <typename T, typename Index, int VectorWidth>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
+  using Load = helpers::io::Load<VecType>;
+  using Store = helpers::io::Store<VecType>;
 
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadAccessor<T const> const& input,
@@ -180,13 +184,13 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
     }
     if (feature < features_ && col_idx < out_cols_ && row_idx < out_rows_ &&
         batch < batch_) {
-      T const* input_data = input_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto input_data = input_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       Index const in_idx =
           ((batch * out_rows_ + row_idx) * out_cols_ + col_idx) * features_ +
           feature;
-      VecType in_val = helpers::io::Load<VecType>()(input_data, in_idx);
+      VecType in_val = Load()(input_data, in_idx);
 
       Index const cstart = col_idx * stride_cols_ - pad_cols_;
       Index const rstart = row_idx * stride_rows_ - pad_rows_;
@@ -196,12 +200,12 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
           for (Index c = cstart, in_c = window_cols_ - 1; in_c >= 0;
                ++c, --in_c) {
             if (c >= 0 && c < in_cols_) {
-              T* tile_start =
+              auto tile_start =
                   output_data +
                   ((batch * in_rows_ + r) * in_cols_ + c) * tile_size_;
               Index tile_idx =
                   (in_r * window_cols_ + in_c) * features_ + feature;
-              helpers::io::Store<VecType>()(tile_start, tile_idx, in_val);
+              Store()(tile_start, tile_idx, in_val);
             }
           }
         }
@@ -230,6 +234,10 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
 
 template <typename T, typename Index, int VectorWidth>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
+  using VecType = typename helpers::VectorType<T, 1>::type;
+  using Load = helpers::io::Load<VecType>;
+  using Store = helpers::io::Store<VecType>;
+
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadAccessor<T const> const& input,
                     WriteAccessor<T> const& output)
@@ -270,13 +278,13 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
 
     if (channel < channels_ && col_idx < in_cols_ && row_idx < in_rows_ &&
         batch < batch_) {
-      T const* input_data = input_accessor_.get_pointer().get();
-      T* output_data = output_accessor_.get_pointer().get();
+      auto input_data = input_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
 
       Index const in_idx =
           ((batch * in_rows_ + row_idx) * in_cols_ + col_idx) * channels_ +
           channel;
-      T in_val = input_data[in_idx];
+      VecType in_val = Load()(input_data, in_idx);
 
       // c is the index in the padded output tensor (ie with lots of extra
       // zeros), but without the first padding. first_padded_c adds this extra
@@ -317,12 +325,12 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
            r += dilation_rows_, in_r -= stride_rows_) {
         for (Index c = init_c, in_c = init_c_idx; c < cend;
              c += dilation_cols_, in_c -= stride_cols_) {
-          T* tile_start =
+          auto tile_start =
               output_data +
               ((r * out_cols_ + c) * channels_ + channel) * tile_size_;
           Index tile_idx =
               ((batch * window_rows_ + in_r) * window_cols_ + in_c);
-          tile_start[tile_idx] = in_val;
+          Store()(tile_start, tile_idx, in_val);
         }
       }
     }
