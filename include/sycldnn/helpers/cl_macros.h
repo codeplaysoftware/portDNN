@@ -35,7 +35,7 @@ namespace helpers {
  * \param error The OpenCL error to convert.
  * \return A string describing the given error.
  */
-char const* ocl_error_message(cl_int error) {
+inline char const* ocl_error_message(cl_int error) {
 /** Internal macro to handle OpenCL error case.  */
 #define SNN_INTERNAL_ERR_CASE(CL_ERROR) \
   case CL_ERROR:                        \
