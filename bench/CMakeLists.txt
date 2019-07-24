@@ -100,6 +100,7 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_main
 )
+
 snn_object_library(
   WITH_SYCL
   TARGET
@@ -112,114 +113,61 @@ snn_object_library(
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-snn_bench(
-  WITH_SYCL
+snn_object_library(
   TARGET
-    simple_convolution
+    simple_convolution_config
   SOURCES
     conv2d/simple_convolution.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:conv2d_benchmark_functions>
   PUBLIC_LIBRARIES
-    bench_main
-    ${_BACKENDS}
+    benchmark::benchmark
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-snn_bench(
-  WITH_SYCL
-  TARGET
-    resnet_convolution
-  SOURCES
-    conv2d/resnet.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:conv2d_benchmark_functions>
-  PUBLIC_LIBRARIES
-    bench_main
-    ${_BACKENDS}
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-snn_bench(
-  WITH_SYCL
-  TARGET
-    vgg_convolution
-  SOURCES
-    conv2d/vgg.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:conv2d_benchmark_functions>
-  PUBLIC_LIBRARIES
-    bench_main
-    ${_BACKENDS}
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-snn_bench(
-  WITH_SYCL
-  TARGET
-    mobilenet_convolution
-  SOURCES
-    conv2d/mobilenet.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:conv2d_benchmark_functions>
-  PUBLIC_LIBRARIES
-    bench_main
-    ${_BACKENDS}
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-snn_bench(
-  WITH_SYCL
-  TARGET
-    ssd_mobilenet_convolution
-  SOURCES
-    conv2d/ssd_mobilenet.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:conv2d_benchmark_functions>
-  PUBLIC_LIBRARIES
-    bench_main
-    ${_BACKENDS}
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-snn_bench(
-  WITH_SYCL
-  TARGET
-    xception_convolution
-  SOURCES
-    conv2d/xception.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:conv2d_benchmark_functions>
-  PUBLIC_LIBRARIES
-    bench_main
-    ${_BACKENDS}
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
+
+function(snn_conv2d_config_lib modelname)
+  snn_object_library(
+    TARGET
+      ${modelname}_convolution_config
+    SOURCES
+      conv2d/${modelname}.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+endfunction()
+
+snn_conv2d_config_lib(mobilenet)
+snn_conv2d_config_lib(ssd_mobilenet)
+snn_conv2d_config_lib(resnet)
+snn_conv2d_config_lib(vgg)
+snn_conv2d_config_lib(xception)
+
+function(snn_conv2d_bench modelname)
+  snn_bench(
+    WITH_SYCL
+    TARGET
+      ${modelname}_convolution
+    OBJECTS
+      $<TARGET_OBJECTS:direct_conv2d>
+      $<TARGET_OBJECTS:tiled_conv2d>
+      $<TARGET_OBJECTS:im2col_conv2d>
+      $<TARGET_OBJECTS:winograd_conv2d>
+      $<TARGET_OBJECTS:conv2d_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_convolution_config>
+    PUBLIC_LIBRARIES
+      bench_main
+      ${_BACKENDS}
+  )
+endfunction()
+
+snn_conv2d_bench(simple)
+snn_conv2d_bench(mobilenet)
+snn_conv2d_bench(ssd_mobilenet)
+snn_conv2d_bench(resnet)
+snn_conv2d_bench(vgg)
+snn_conv2d_bench(xception)
+
 snn_bench(
   WITH_SYCL
   TARGET
@@ -318,244 +266,92 @@ endif()
 
 if(SNN_BENCH_ARM_COMPUTE)
   find_package(ARMCompute REQUIRED)
+  snn_object_library(
+    TARGET
+      arm_opencl_conv2d_benchmark_functions
+    SOURCES
+      conv2d/arm_benchmark_functions.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_object_library(
+    TARGET
+      arm_neon_conv2d_benchmark_functions
+    SOURCES
+      conv2d/arm_benchmark_functions.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_NEON
+      ${_BENCHMARK_DEFINITIONS}
+  )
 
-  snn_bench(
-    TARGET
-      arm_opencl_resnet_convolution
-    SOURCES
-      conv2d/arm_resnet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_neon_resnet_convolution
-    SOURCES
-      conv2d/arm_resnet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ACL_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_opencl_vgg_convolution
-    SOURCES
-      conv2d/arm_vgg.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_neon_vgg_convolution
-    SOURCES
-      conv2d/arm_vgg.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ACL_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_opencl_mobilenet_convolution
-    SOURCES
-      conv2d/arm_mobilenet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_neon_mobilenet_convolution
-    SOURCES
-      conv2d/arm_mobilenet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ACL_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_opencl_mobilenet_depthwise_convolution
-    SOURCES
-      depthwise_conv2d/arm_mobilenet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_neon_mobilenet_depthwise_convolution
-    SOURCES
-      depthwise_conv2d/arm_mobilenet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ACL_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_opencl_xception_convolution
-    SOURCES
-      conv2d/arm_xception.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_neon_xception_convolution
-    SOURCES
-      conv2d/arm_xception.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ACL_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_opencl_xception_depthwise_convolution
-    SOURCES
-      depthwise_conv2d/arm_xception.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      arm_neon_xception_depthwise_convolution
-    SOURCES
-      depthwise_conv2d/arm_xception.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_COMPUTE
-      ACL_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
+  function(snn_arm_conv2d_bench modelname)
+    snn_bench(
+      TARGET
+        arm_opencl_${modelname}_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:arm_opencl_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_convolution_config>
+      PUBLIC_LIBRARIES
+        bench_main
+        ARMCompute::ARMCompute
+        ARMCompute::Core
+    )
+    snn_bench(
+      TARGET
+        arm_neon_${modelname}_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:arm_neon_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_convolution_config>
+      PUBLIC_LIBRARIES
+        bench_main
+        ARMCompute::ARMCompute
+        ARMCompute::Core
+    )
+  endfunction()
+  snn_arm_conv2d_bench(mobilenet)
+  snn_arm_conv2d_bench(resnet)
+  snn_arm_conv2d_bench(ssd_mobilenet)
+  snn_arm_conv2d_bench(vgg)
+  snn_arm_conv2d_bench(xception)
 endif()
 
 if(SNN_BENCH_MKLDNN)
   find_package(mkldnn REQUIRED)
-  snn_bench(
+  snn_object_library(
     TARGET
-      mkl_resnet_convolution
+      mkl_conv2d_benchmark_functions
     SOURCES
-      conv2d/arm_resnet.cc
+      conv2d/mkl_benchmark_functions.cc
     PUBLIC_LIBRARIES
-      bench_main
+      benchmark::benchmark
       MKLDNN::mkldnn
     PUBLIC_COMPILE_DEFINITIONS
-      MKL_DNN
       ${_BENCHMARK_DEFINITIONS}
   )
-  snn_bench(
-    TARGET
-      mkl_vgg_convolution
-    SOURCES
-      conv2d/arm_vgg.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
-      MKL_DNN
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      mkl_mobilenet_convolution
-    SOURCES
-      conv2d/arm_mobilenet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
-      MKL_DNN
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      mkl_xception_convolution
-    SOURCES
-      conv2d/arm_xception.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
-      MKL_DNN
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      mkl_xception_depthwise_convolution
-    SOURCES
-      depthwise_conv2d/arm_xception.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
-      MKL_DNN
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_bench(
-    TARGET
-      mkl_mobilenet_depthwise_convolution
-    SOURCES
-      depthwise_conv2d/arm_mobilenet.cc
-    PUBLIC_LIBRARIES
-      bench_main
-      MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
-      MKL_DNN
-      ${_BENCHMARK_DEFINITIONS}
-  )
+  function(snn_mkl_conv2d_bench modelname)
+    snn_bench(
+      TARGET
+        mkl_${modelname}_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:mkl_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_convolution_config>
+      PUBLIC_LIBRARIES
+        bench_main
+        MKLDNN::mkldnn
+    )
+  endfunction()
+  snn_mkl_conv2d_bench(mobilenet)
+  snn_mkl_conv2d_bench(resnet)
+  snn_mkl_conv2d_bench(ssd_mobilenet)
+  snn_mkl_conv2d_bench(vgg)
+  snn_mkl_conv2d_bench(xception)
 endif()
 

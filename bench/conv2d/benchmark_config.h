@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_BENCH_CONV2D_BENCHMARK_CONFIG_H_
 #define SYCLDNN_BENCH_CONV2D_BENCHMARK_CONFIG_H_
 
+#include <benchmark/benchmark.h>
+
 #include <vector>
 
 /**
@@ -36,5 +38,15 @@ std::vector<std::vector<int>> const& get_benchmark_configs();
  * The definition of this is provided by the specific benchmark models.
  */
 char const* get_benchmark_name();
+
+/**
+ * Function object to generate all benchmarks from config list, and pass to the
+ * benchmarks as runtime parameters.
+ */
+auto RunForAllParamSets = [](benchmark::internal::Benchmark* b) {
+  for (auto& config : get_benchmark_configs()) {
+    b->Args(config);
+  }
+};
 
 #endif  // SYCLDNN_BENCH_CONV2D_BENCHMARK_CONFIG_H_

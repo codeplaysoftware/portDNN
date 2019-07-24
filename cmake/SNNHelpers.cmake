@@ -248,7 +248,10 @@ function(snn_executable)
   )
   snn_warn_unparsed_args(SNN_EXEC)
   list(APPEND SNN_EXEC_SOURCES ${SNN_EXEC_KERNEL_SOURCES})
-  list(REMOVE_DUPLICATES SNN_EXEC_SOURCES)
+  if(NOT "${SNN_EXEC_SOURCES}" STREQUAL "")
+    # CMake cannot remove duplicates from an empty list
+    list(REMOVE_DUPLICATES SNN_EXEC_SOURCES)
+  endif()
   add_executable(${SNN_EXEC_TARGET}
     ${SNN_EXEC_SOURCES}
     ${SNN_EXEC_OBJECTS}
@@ -428,6 +431,7 @@ endfunction()
 # SOURCES: source files for the object library
 # KERNEL_SOURCES: source files containing SYCL kernels
 # PUBLIC_LIBRARIES: targets and flags for linking phase
+# PUBLIC_COMPILE_DEFINITIONS: definitions to add when compiling
 # CXX_OPTS: additional compile flags to add to the target
 function(snn_object_library)
   set(options
@@ -440,6 +444,7 @@ function(snn_object_library)
     SOURCES
     KERNEL_SOURCES
     PUBLIC_LIBRARIES
+    PUBLIC_COMPILE_DEFINITIONS
     CXX_OPTS
   )
   cmake_parse_arguments(SNN_OBJLIB
@@ -462,6 +467,7 @@ function(snn_object_library)
     TARGET               ${SNN_OBJLIB_TARGET}
     KERNEL_SOURCES       ${SNN_OBJLIB_KERNEL_SOURCES}
     PUBLIC_LIBRARIES     ${SNN_OBJLIB_PUBLIC_LIBRARIES}
+    PUBLIC_COMPILE_DEFINITIONS ${SNN_OBJLIB_PUBLIC_COMPILE_DEFINITIONS}
     CXX_OPTS             ${SNN_OBJLIB_CXX_OPTS}
   )
 endfunction()

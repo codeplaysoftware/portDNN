@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 #include "benchmark_config.h"
-#include "param_set.h"
+#include "benchmark_params.h"
+
+#include "sycldnn/padding_mode.h"
 
 #include <vector>
 

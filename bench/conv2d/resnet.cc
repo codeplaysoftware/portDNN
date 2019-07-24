@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "benchmark_config.h"
-#include "param_set.h"
+#include "benchmark_params.h"
 
 #include <vector>
 

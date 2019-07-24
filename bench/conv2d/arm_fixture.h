@@ -18,9 +18,10 @@
 
 #include "arm_conv2d_executor.h"
 #include "base_convolution_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 
 #include "bench/fixture/add_datatype_info.h"
-
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
@@ -28,11 +29,10 @@
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename DataType, typename ParamGen, typename ACLExecutor>
+template <typename DataType, typename ACLExecutor>
 class ARMConvolutionBenchmark
     : public sycldnn::bench::ARMConv2DExecutor<
-          ARMConvolutionBenchmark<DataType, ParamGen, ACLExecutor>,
-          ACLExecutor>,
+          ARMConvolutionBenchmark<DataType, ACLExecutor>, ACLExecutor>,
       public sycldnn::bench::StringReporter,
       public BaseConvolutionBenchmark {
  private:
@@ -40,7 +40,7 @@ class ARMConvolutionBenchmark
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -63,14 +63,15 @@ class ARMConvolutionBenchmark
   }
 };
 
-#define CONVOLUTION_BENCHMARK(model, name, ...)                           \
+#define CONVOLUTION_BENCHMARK(name, ...)                                  \
   BENCHMARK_TEMPLATE_DEFINE_F(ARMConvolutionBenchmark, name, __VA_ARGS__) \
   (benchmark::State & state) {                                            \
-    this->set_model(model);                                               \
+    this->set_model(get_benchmark_name());                                \
     this->run(state);                                                     \
   }                                                                       \
   BENCHMARK_REGISTER_F(ARMConvolutionBenchmark, name)                     \
       ->UseManualTime()                                                   \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                      \
+      ->Apply(RunForAllParamSets);
 
 #endif  // define SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_CONV2D_PARAM_SET_H_
-#define SYCLDNN_BENCH_CONV2D_PARAM_SET_H_
+#ifndef SYCLDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
+#define SYCLDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
 
 #include "sycldnn/padding_mode.h"
 
@@ -25,38 +25,6 @@
 #include <benchmark/benchmark.h>
 
 #include <vector>
-
-/**
- * Function object which returns a conv2d parameter struct with the given
- * parameters.
- *
- * \tparam Batches Number of batches
- * \tparam Window Size of convolution window
- * \tparam Stride Stride of the convolution
- * \tparam Rows Number of rows in the input
- * \tparam Cols Number of columns in the input
- * \tparam Channels Number of channels
- * \tparam Features Number of features
- */
-template <int Batches, int Window, int Stride, int Rows, int Cols, int Channels,
-          int Features, sycldnn::PaddingMode Mode>
-struct ParameterSet {
-  sycldnn::conv2d::Conv2DParams operator()() {
-    sycldnn::conv2d::Conv2DParams params;
-    params.channels = Channels;
-    params.features = Features;
-    params.batch = Batches;
-    params.in_rows = Rows;
-    params.in_cols = Cols;
-    params.window_rows = Window;
-    params.window_cols = Window;
-    params.stride_rows = Stride;
-    params.stride_cols = Stride;
-    params.dilation_rows = 1;
-    params.dilation_cols = 1;
-    return sycldnn::helpers::add_padding_to(params, Mode);
-  }
-};
 
 /**
  * Namespace containing convolution parameter serialization and deserialization
@@ -104,4 +72,4 @@ inline sycldnn::conv2d::Conv2DParams deserialize(
 
 }  // namespace benchmark_params
 
-#endif  // SYCLDNN_BENCH_CONV2D_PARAM_SET_H_
+#endif  // SYCLDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_

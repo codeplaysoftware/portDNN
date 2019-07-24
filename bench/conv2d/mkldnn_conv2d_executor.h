@@ -23,6 +23,8 @@
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "base_convolution_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 
 #include "bench/fixture/add_datatype_info.h"
 #include "bench/fixture/base_executor.h"
@@ -151,18 +153,17 @@ struct MKLConv2DExecutor : public BaseExecutor {
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename DataType, typename ParamGen, typename Executor>
-class MKLConvolutionBenchmark
-    : public sycldnn::bench::MKLConv2DExecutor<
-          MKLConvolutionBenchmark<DataType, ParamGen, Executor>>,
-      public sycldnn::bench::StringReporter,
-      public BaseConvolutionBenchmark {
+template <typename DataType>
+class MKLConvolutionBenchmark : public sycldnn::bench::MKLConv2DExecutor<
+                                    MKLConvolutionBenchmark<DataType>>,
+                                public sycldnn::bench::StringReporter,
+                                public BaseConvolutionBenchmark {
  private:
   using State = benchmark::State;
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -189,14 +190,15 @@ class MKLConvolutionBenchmark
   }
 };
 
-#define CONVOLUTION_BENCHMARK(model, name, ...)                           \
+#define CONVOLUTION_BENCHMARK(name, ...)                                  \
   BENCHMARK_TEMPLATE_DEFINE_F(MKLConvolutionBenchmark, name, __VA_ARGS__) \
   (benchmark::State & state) {                                            \
-    this->set_model(model);                                               \
+    this->set_model(get_benchmark_name());                                \
     this->run(state);                                                     \
   }                                                                       \
   BENCHMARK_REGISTER_F(MKLConvolutionBenchmark, name)                     \
       ->UseManualTime()                                                   \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                      \
+      ->Apply(RunForAllParamSets);
 
 #endif  // SYCLDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_

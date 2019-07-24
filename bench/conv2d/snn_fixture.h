@@ -18,7 +18,7 @@
 
 #include "base_convolution_fixture.h"
 #include "benchmark_config.h"
-#include "param_set.h"
+#include "benchmark_params.h"
 #include "snn_conv2d_executor.h"
 
 #include "src/backend/backend_provider.h"
@@ -73,16 +73,6 @@ class SNNConvolutionBenchmark
 
   void set_model(const char* model_name) {
     this->add_to_label("@model_name", model_name);
-  }
-};
-
-/**
- * Function object to generate all benchmarks from config list, and pass to the
- * benchmarks as runtime parameters.
- */
-auto RunForAllParamSets = [](benchmark::internal::Benchmark* b) {
-  for (auto& config : get_benchmark_configs()) {
-    b->Args(config);
   }
 };
 
