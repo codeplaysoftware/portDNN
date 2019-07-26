@@ -18,6 +18,8 @@
 
 #include "arm_depthwise_conv2d_executor.h"
 #include "base_depthwise_convolution_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 
 #include "bench/fixture/add_datatype_info.h"
 
@@ -40,7 +42,7 @@ class ARMDepthwiseConvolutionBenchmark
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -63,15 +65,16 @@ class ARMDepthwiseConvolutionBenchmark
   }
 };
 
-#define DEPTHWISE_CONVOLUTION_BENCHMARK(model, name, ...)             \
+#define DEPTHWISE_CONVOLUTION_BENCHMARK(name, ...)                    \
   BENCHMARK_TEMPLATE_DEFINE_F(ARMDepthwiseConvolutionBenchmark, name, \
                               __VA_ARGS__)                            \
   (benchmark::State & state) {                                        \
-    this->set_model(model);                                           \
+    this->set_model(get_benchmark_name());                            \
     this->run(state);                                                 \
   }                                                                   \
   BENCHMARK_REGISTER_F(ARMDepthwiseConvolutionBenchmark, name)        \
       ->UseManualTime()                                               \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                  \
+      ->Apply(RunForAllParamSets);
 
 #endif  // define SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_

@@ -17,6 +17,8 @@
 #define SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
 
 #include "base_depthwise_convolution_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 #include "snn_depthwise_conv2d_executor.h"
 
 #include "src/backend/backend_provider.h"
@@ -28,12 +30,10 @@
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename DataType, typename ParamGen,
-          typename ConvType>
+template <typename Backend, typename DataType, typename ConvType>
 class SNNDepthwiseConvolutionBenchmark
     : public sycldnn::bench::SNNDepthwiseConv2DExecutor<
-          SNNDepthwiseConvolutionBenchmark<Backend, DataType, ParamGen,
-                                           ConvType>,
+          SNNDepthwiseConvolutionBenchmark<Backend, DataType, ConvType>,
           ConvType>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
@@ -43,7 +43,7 @@ class SNNDepthwiseConvolutionBenchmark
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -71,15 +71,16 @@ class SNNDepthwiseConvolutionBenchmark
   }
 };
 
-#define DEPTHWISE_CONVOLUTION_BENCHMARK(model, name, ...)             \
+#define DEPTHWISE_CONVOLUTION_BENCHMARK(name, ...)                    \
   BENCHMARK_TEMPLATE_DEFINE_F(SNNDepthwiseConvolutionBenchmark, name, \
                               __VA_ARGS__)                            \
   (benchmark::State & state) {                                        \
-    this->set_model(model);                                           \
+    this->set_model(get_benchmark_name());                            \
     this->run(state);                                                 \
   }                                                                   \
   BENCHMARK_REGISTER_F(SNNDepthwiseConvolutionBenchmark, name)        \
       ->UseManualTime()                                               \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                  \
+      ->Apply(RunForAllParamSets);
 
 #endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_

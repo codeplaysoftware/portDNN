@@ -23,6 +23,8 @@
 #include "sycldnn/depthwise_conv2d/sizes.h"
 
 #include "base_depthwise_convolution_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 
 #include "bench/fixture/add_datatype_info.h"
 #include "bench/fixture/base_executor.h"
@@ -166,11 +168,10 @@ struct MKLDepthwiseConv2DExecutor : public BaseExecutor {
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename DataType, typename ParamGen, typename Executor>
+template <typename DataType>
 class MKLDepthwiseConvolutionBenchmark
     : public sycldnn::bench::MKLDepthwiseConv2DExecutor<
-          DataType,
-          MKLDepthwiseConvolutionBenchmark<DataType, ParamGen, Executor>>,
+          DataType, MKLDepthwiseConvolutionBenchmark<DataType>>,
       public sycldnn::bench::StringReporter,
       public BaseDepthwiseConvolutionBenchmark {
  private:
@@ -178,7 +179,7 @@ class MKLDepthwiseConvolutionBenchmark
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -205,15 +206,16 @@ class MKLDepthwiseConvolutionBenchmark
   }
 };
 
-#define DEPTHWISE_CONVOLUTION_BENCHMARK(model, name, ...)             \
+#define DEPTHWISE_CONVOLUTION_BENCHMARK(name, ...)                    \
   BENCHMARK_TEMPLATE_DEFINE_F(MKLDepthwiseConvolutionBenchmark, name, \
                               __VA_ARGS__)                            \
   (benchmark::State & state) {                                        \
-    this->set_model(model);                                           \
+    this->set_model(get_benchmark_name());                            \
     this->run(state);                                                 \
   }                                                                   \
   BENCHMARK_REGISTER_F(MKLDepthwiseConvolutionBenchmark, name)        \
       ->UseManualTime()                                               \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                  \
+      ->Apply(RunForAllParamSets);
 
 #endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_

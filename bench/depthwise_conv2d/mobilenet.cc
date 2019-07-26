@@ -13,45 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "param_set.h"
-#include "snn_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 
-#include "src/backend/snn_backend_provider.h"
+#include <vector>
 
-#include "sycldnn/backend/snn_backend.h"
+char const* get_benchmark_name() { return "MobileNet"; }
 
-#include "sycldnn/conv2d/conv_type.h"
+#define CONFIG(N, WIN, STR, H, W, C, MUL, PAD) \
+  benchmark_params::serialize(N, WIN, STR, H, W, C, MUL, PAD)
 
-#define MOBILENET_BENCHMARK_WITH_DIR_DTYPE(N, WIN, STR, H, W, C, MUL, PAD, \
-                                           Dir, DTYPE)                     \
-  DEPTHWISE_CONVOLUTION_BENCHMARK(                                         \
-      "MobileNet", Dir##_##N##_##WIN##_##STR##_##H##_##W##_##C,            \
-      sycldnn::backend::SNNBackend, DTYPE,                                 \
-      ParameterSet<N, WIN, STR, H, W, C, MUL, PAD>,                        \
-      sycldnn::conv2d::conv_type::Dir)
-
-#define MOBILENET_BENCHMARK_WITH_DIR(N, WIN, STR, H, W, C, MUL, PAD, Dir) \
-  MOBILENET_BENCHMARK_WITH_DIR_DTYPE(N, WIN, STR, H, W, C, MUL, PAD, Dir, float)
-
-#define MOBILENET_BENCHMARK(N, WIN, STR, H, W, C, MUL, PAD)                   \
-  MOBILENET_BENCHMARK_WITH_DIR(N, WIN, STR, H, W, C, MUL, PAD, Forward)       \
-  MOBILENET_BENCHMARK_WITH_DIR(N, WIN, STR, H, W, C, MUL, PAD, InputBackprop) \
-  MOBILENET_BENCHMARK_WITH_DIR(N, WIN, STR, H, W, C, MUL, PAD, FilterBackprop)
+std::vector<std::vector<int>> const& get_benchmark_configs() {
+  static std::vector<std::vector<int>> const configs = {
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(1, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(1, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(4, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(4, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(32, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(32, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
@@ -59,24 +47,28 @@
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(2, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(2, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(8, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(8, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(16, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(16, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #define MOBILENET_PARAMS(WIN, STR, H, W, C, MUL, PAD) \
-  MOBILENET_BENCHMARK(64, WIN, STR, H, W, C, MUL, PAD);
+  CONFIG(64, WIN, STR, H, W, C, MUL, PAD),
 #include "bench/depthwise_conv2d/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 #endif  // SNN_EXTENDED_BENCHMARKS
+
+  };
+  return configs;
+}

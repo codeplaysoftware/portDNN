@@ -241,32 +241,51 @@ snn_bench(
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-snn_bench(
+
+snn_object_library(
   WITH_SYCL
   TARGET
-    mobilenet_depthwise_convolution
+    depthwise_conv2d_benchmark_functions
   KERNEL_SOURCES
-    depthwise_conv2d/mobilenet.cc
-  OBJECTS
-    $<TARGET_OBJECTS:depthwise_conv2d>
+    depthwise_conv2d/benchmark_functions.cc
   PUBLIC_LIBRARIES
-    bench_main
+    benchmark::benchmark
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-snn_bench(
-  WITH_SYCL
-  TARGET
-    xception_depthwise_convolution
-  KERNEL_SOURCES
-    depthwise_conv2d/xception.cc
-  OBJECTS
-    $<TARGET_OBJECTS:depthwise_conv2d>
-  PUBLIC_LIBRARIES
-    bench_main
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
+
+function(snn_depthwise_conv2d_config_lib modelname)
+  snn_object_library(
+    TARGET
+      ${modelname}_depthwise_conv2d_config
+    SOURCES
+      depthwise_conv2d/${modelname}.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+endfunction()
+
+snn_depthwise_conv2d_config_lib(mobilenet)
+snn_depthwise_conv2d_config_lib(xception)
+
+function(snn_depthwise_conv2d_bench modelname)
+  snn_bench(
+    WITH_SYCL
+    TARGET
+      ${modelname}_depthwise_convolution
+    OBJECTS
+      $<TARGET_OBJECTS:depthwise_conv2d>
+      $<TARGET_OBJECTS:depthwise_conv2d_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+    PUBLIC_LIBRARIES
+      bench_main
+  )
+endfunction()
+
+snn_depthwise_conv2d_bench(mobilenet)
+snn_depthwise_conv2d_bench(xception)
 
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)
@@ -329,6 +348,59 @@ if(SNN_BENCH_ARM_COMPUTE)
   snn_arm_conv2d_bench(ssd_mobilenet)
   snn_arm_conv2d_bench(vgg)
   snn_arm_conv2d_bench(xception)
+
+  snn_object_library(
+    TARGET
+      arm_opencl_depthwise_conv2d_benchmark_functions
+    SOURCES
+      depthwise_conv2d/arm_benchmark_functions.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  snn_object_library(
+    TARGET
+      arm_neon_depthwise_conv2d_benchmark_functions
+    SOURCES
+      depthwise_conv2d/arm_benchmark_functions.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+    PUBLIC_COMPILE_DEFINITIONS
+      ARM_NEON
+      ${_BENCHMARK_DEFINITIONS}
+  )
+
+  function(snn_arm_depthwise_conv2d_bench modelname)
+    snn_bench(
+      TARGET
+        arm_opencl_${modelname}_depthwise_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:arm_opencl_depthwise_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+      PUBLIC_LIBRARIES
+        bench_main
+        ARMCompute::ARMCompute
+        ARMCompute::Core
+    )
+    snn_bench(
+      TARGET
+        arm_neon_${modelname}_depthwise_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:arm_neon_depthwise_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+      PUBLIC_LIBRARIES
+        bench_main
+        ARMCompute::ARMCompute
+        ARMCompute::Core
+    )
+  endfunction()
+  snn_arm_depthwise_conv2d_bench(mobilenet)
+  snn_arm_depthwise_conv2d_bench(xception)
 endif()
 
 if(SNN_BENCH_MKLDNN)
@@ -361,5 +433,31 @@ if(SNN_BENCH_MKLDNN)
   snn_mkl_conv2d_bench(ssd_mobilenet)
   snn_mkl_conv2d_bench(vgg)
   snn_mkl_conv2d_bench(xception)
+
+  snn_object_library(
+    TARGET
+      mkl_depthwise_conv2d_benchmark_functions
+    SOURCES
+      depthwise_conv2d/mkl_benchmark_functions.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+      MKLDNN::mkldnn
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  function(snn_mkl_depthwise_conv2d_bench modelname)
+    snn_bench(
+      TARGET
+        mkl_${modelname}_depthwise_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:mkl_depthwise_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+      PUBLIC_LIBRARIES
+        bench_main
+        MKLDNN::mkldnn
+    )
+  endfunction()
+  snn_mkl_depthwise_conv2d_bench(mobilenet)
+  snn_mkl_depthwise_conv2d_bench(xception)
 endif()
 
