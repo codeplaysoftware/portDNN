@@ -17,6 +17,8 @@
 #define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
 
 #include "base_pooling_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 #include "snn_pooling_executor.h"
 
 #include "src/backend/backend_provider.h"
@@ -29,11 +31,11 @@
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename DataType, typename ParamGen,
-          typename Direction, template <typename> class Operator>
+template <typename Backend, typename DataType, typename Direction,
+          template <typename> class Operator>
 class SNNPoolingBenchmark
     : public sycldnn::bench::SNNPoolingExecutor<
-          SNNPoolingBenchmark<Backend, DataType, ParamGen, Direction, Operator>,
+          SNNPoolingBenchmark<Backend, DataType, Direction, Operator>,
           Direction, Operator>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
@@ -43,7 +45,7 @@ class SNNPoolingBenchmark
 
  protected:
   void run(State& state) {
-    auto params = ParamGen()();
+    auto params = benchmark_params::deserialize(state);
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -73,14 +75,15 @@ class SNNPoolingBenchmark
   }
 };
 
-#define POOLING_BENCHMARK(model, name, ...)                           \
+#define POOLING_BENCHMARK(name, ...)                                  \
   BENCHMARK_TEMPLATE_DEFINE_F(SNNPoolingBenchmark, name, __VA_ARGS__) \
   (benchmark::State & state) {                                        \
-    this->set_model(model);                                           \
+    this->set_model(get_benchmark_name());                            \
     this->run(state);                                                 \
   }                                                                   \
   BENCHMARK_REGISTER_F(SNNPoolingBenchmark, name)                     \
       ->UseManualTime()                                               \
-      ->Unit(benchmark::kNanosecond);
+      ->Unit(benchmark::kNanosecond)                                  \
+      ->Apply(RunForAllParamSets);
 
 #endif  // define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_

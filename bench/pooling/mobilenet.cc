@@ -13,73 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "param_set.h"
-#include "snn_fixture.h"
+#include "benchmark_config.h"
+#include "benchmark_params.h"
 
-#include "src/backend/snn_backend_provider.h"
+#include <vector>
 
-#include "sycldnn/backend/snn_backend.h"
+char const* get_benchmark_name() { return "MobileNet"; }
 
-#include "sycldnn/pooling/operators.h"
+// Note that the config order does not match the expected order for
+// serialization.
+// TODO(jwlawson): Unify pooling param ordering
+#define CONFIG(N, C, H, W, WIN, STR, PAD) \
+  benchmark_params::serialize(N, WIN, STR, H, W, C, PAD)
 
-#define MOBILENET_BM_WITH_DIR_OP_DTYPE(N, C, H, W, K, S, PAD, DIR, OP, DTYPE) \
-  POOLING_BENCHMARK(                                                          \
-      "MobileNet",                                                            \
-      OP##_##DIR##_##N##_##C##_##H##_##W##_##K##_##S##_##SNNBackend,          \
-      sycldnn::backend::SNNBackend, DTYPE,                                    \
-      ParameterSet<N, C, H, W, K, S, PAD>, sycldnn::pooling::DIR,             \
-      sycldnn::pooling::OP)
-
-#define MOBILENET_BM_WITH_DIR_OP(N, C, H, W, K, S, PAD, DIR, OP) \
-  MOBILENET_BM_WITH_DIR_OP_DTYPE(N, C, H, W, K, S, PAD, DIR, OP, float)
-
-#define MOBILENET_BM_WITH_DIRECTION(N, C, H, W, K, S, PAD, DIR) \
-  MOBILENET_BM_WITH_DIR_OP(N, C, H, W, K, S, PAD, DIR, Max)     \
-  MOBILENET_BM_WITH_DIR_OP(N, C, H, W, K, S, PAD, DIR, Average)
-
-#define MOBILENET_BENCHMARK(N, C, H, W, K, S, PAD)            \
-  MOBILENET_BM_WITH_DIRECTION(N, C, H, W, K, S, PAD, Forward) \
-  MOBILENET_BM_WITH_DIRECTION(N, C, H, W, K, S, PAD, Backpropagate)
+std::vector<std::vector<int>> const& get_benchmark_configs() {
+  static std::vector<std::vector<int>> const configs = {
 
 // Standard benchmark sizes (batch size: 1, 4, optionally 32
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(1, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(1, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(4, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(4, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(32, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(32, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 
 // Extended benchmarks (batch size: 2, optionally 8, 16, 64)
 #ifdef SNN_EXTENDED_BENCHMARKS
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(2, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(2, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
 #ifdef SNN_LARGE_BATCH_BENCHMARKS
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(8, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(8, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(16, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(16, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 
-#define MOBILENET_PARAMS(C, H, W, K, S, PAD) \
-  MOBILENET_BENCHMARK(64, C, H, W, K, S, PAD);
+#define MOBILENET_PARAMS(C, H, W, K, S, PAD) CONFIG(64, C, H, W, K, S, PAD),
 #include "bench/pooling/mobilenet_params.def"
 #undef MOBILENET_PARAMS
 #endif  // SNN_LARGE_BATCH_BENCHMARKS
 #endif  // SNN_EXTENDED_BENCHMARKS
+
+  };
+  return configs;
+}

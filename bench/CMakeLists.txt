@@ -168,45 +168,53 @@ snn_conv2d_bench(resnet)
 snn_conv2d_bench(vgg)
 snn_conv2d_bench(xception)
 
-snn_bench(
+snn_object_library(
   WITH_SYCL
   TARGET
-    resnet_pooling
-  SOURCES
-    pooling/resnet.cc
-  OBJECTS
-    $<TARGET_OBJECTS:pooling>
+    pooling_benchmark_functions
+  KERNEL_SOURCES
+    pooling/benchmark_functions.cc
   PUBLIC_LIBRARIES
-    bench_main
+    benchmark::benchmark
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
-snn_bench(
-  WITH_SYCL
-  TARGET
-    vgg_pooling
-  SOURCES
-    pooling/vgg.cc
-  OBJECTS
-    $<TARGET_OBJECTS:pooling>
-  PUBLIC_LIBRARIES
-    bench_main
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-snn_bench(
-  WITH_SYCL
-  TARGET
-    mobilenet_pooling
-  SOURCES
-    pooling/mobilenet.cc
-  OBJECTS
-    $<TARGET_OBJECTS:pooling>
-  PUBLIC_LIBRARIES
-    bench_main
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
+
+function(snn_pooling_config_lib modelname)
+  snn_object_library(
+    TARGET
+      ${modelname}_pooling_config
+    SOURCES
+      pooling/${modelname}.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+endfunction()
+
+snn_pooling_config_lib(mobilenet)
+snn_pooling_config_lib(resnet)
+snn_pooling_config_lib(vgg)
+
+function(snn_pooling_bench modelname)
+  snn_bench(
+    WITH_SYCL
+    TARGET
+      ${modelname}_pooling
+    OBJECTS
+      $<TARGET_OBJECTS:pooling>
+      $<TARGET_OBJECTS:pooling_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_pooling_config>
+    PUBLIC_LIBRARIES
+      bench_main
+  )
+endfunction()
+
+snn_pooling_bench(mobilenet)
+snn_pooling_bench(resnet)
+snn_pooling_bench(vgg)
+
 snn_bench(
   WITH_SYCL
   TARGET
