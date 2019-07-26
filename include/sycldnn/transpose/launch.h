@@ -87,14 +87,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                                        [](size_t a, int b) { return a * b; });
   SNN_VALIDATE_PARAM(tensor_size > 0, "Tensor size must be positive.");
 
-  auto in_buff = backend.get_buffer(input, tensor_size);
-  auto out_buff = backend.get_buffer(output, tensor_size);
-
-  size_t in_offset = backend.get_offset(input);
-  size_t out_offset = backend.get_offset(output);
-
-  auto in_acc = make_mem_object(in_buff, tensor_size, in_offset);
-  auto out_acc = make_mem_object(out_buff, tensor_size, out_offset);
+  auto in_acc = backend.get_mem_object(input, tensor_size);
+  auto out_acc = backend.get_mem_object(output, tensor_size);
 
   auto sycl_queue = backend.get_queue();
 

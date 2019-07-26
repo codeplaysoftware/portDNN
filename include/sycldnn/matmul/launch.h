@@ -69,17 +69,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
   size_t rhs_size = batches * k * n;
   size_t out_size = batches * m * n;
 
-  auto lhs_buff = backend.get_buffer(lhs, lhs_size);
-  auto rhs_buff = backend.get_buffer(rhs, rhs_size);
-  auto out_buff = backend.get_buffer(output, out_size);
-
-  size_t lhs_offset = backend.get_offset(lhs);
-  size_t rhs_offset = backend.get_offset(rhs);
-  size_t out_offset = backend.get_offset(output);
-
-  auto lhs_acc = make_mem_object(lhs_buff, lhs_size, lhs_offset);
-  auto rhs_acc = make_mem_object(rhs_buff, rhs_size, rhs_offset);
-  auto out_acc = make_mem_object(out_buff, out_size, out_offset);
+  auto lhs_acc = backend.get_mem_object(lhs, lhs_size);
+  auto rhs_acc = backend.get_mem_object(rhs, rhs_size);
+  auto out_acc = backend.get_mem_object(output, out_size);
 
   auto sycl_queue = backend.get_queue();
 

@@ -73,40 +73,33 @@ struct EigenInternalHandler
   }
 
   /**
-   * Get a SYCL buffer from an internal pointer.
-   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
-   * \return Returns a SYCL buffer corresponding to ptr.
+   * Get a MemObject containing the buffer corresponding to a given pointer.
+   * \param ptr     A pointer referring to a SYCL buffer with some offset.
+   * \param n_elems The number of elements required within the MemObject.
+   * \return Returns a MemObject corresponding to the pointer.
    */
   template <typename T>
-  auto get_buffer_internal(internal_pointer_type<T> ptr, size_t /*n_elems*/)
-      -> decltype(
+  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
+      -> decltype(make_mem_object(
           std::declval<Eigen::SyclDevice>()
               .get_sycl_buffer(ptr)
-              .template reinterpret<T>(std::declval<cl::sycl::range<1>>())) {
-    // The deduced return type is required to ensure that the buffer type
-    // matches the allocator used in the Eigen device. We cannot assume that
-    // std::allocator is used.
+              .template reinterpret<T>(std::declval<cl::sycl::range<1>>()),
+          n_elems, 0u)) {
+    // This deduced return type is required to ensure that the allocator type
+    // in the returned MemObject matches the allocator used in the Eigen device.
+    // We cannot assume that std::allocator is used.
     auto eigen_device = this->underlying_backend().get_eigen_device();
     auto raw_buffer = eigen_device.get_sycl_buffer(ptr);
     auto buffer_size = raw_buffer.get_size();
     SNN_ASSERT(buffer_size % sizeof(T) == 0,
-               "Buffer size must be a multiple of sizeof(T)");
-    auto cast_size = cl::sycl::range<1>{buffer_size / sizeof(T)};
-    return raw_buffer.template reinterpret<T>(cast_size);
-  }
-
-  /**
-   * Get the offset from an internal pointer. An internal pointer may be an
-   * offset from some base address, where the base address corresponds to a
-   * SYCL buffer, and the offset refers to some address internal to the SYCL
-   * buffer. This function enables querying such an offset.
-   * \param ptr The internal pointer to query the offset for.
-   * \return Returns the offset from the buffer base address, in elements.
-   */
-  template <typename T>
-  size_t get_offset_internal(internal_pointer_type<T> ptr) {
-    auto eigen_device = this->underlying_backend().get_eigen_device();
-    return eigen_device.get_offset(ptr) / sizeof(T);
+               "Buffer size must exactly divide the size of its type.");
+    auto cast_size = buffer_size / sizeof(T);
+    SNN_ASSERT(cast_size >= n_elems,
+               "Buffer must contain at least n_elems elements.");
+    auto cast_range = cl::sycl::range<1>{cast_size};
+    auto typed_buffer = raw_buffer.template reinterpret<T>(cast_range);
+    auto offset = eigen_device.get_offset(ptr) / sizeof(T);
+    return make_mem_object(typed_buffer, n_elems, offset);
   }
 };
 }  // namespace backend

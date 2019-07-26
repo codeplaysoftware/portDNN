@@ -54,12 +54,13 @@ TYPED_TEST(ExternalDeathTest, FetchNonexistingBuffer) {
   float* ptr1 = backend.template allocate<float>(n_elems);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
-  MAYBE_DEATH(backend.get_buffer(ptr2, n_elems), "Cannot access null pointer");
+  MAYBE_DEATH(backend.get_mem_object(ptr2, n_elems),
+              "Cannot access null pointer");
 }
 TYPED_TEST(ExternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
-  MAYBE_DEATH(this->provider_.get_backend().get_buffer(ptr, 0),
+  MAYBE_DEATH(this->provider_.get_backend().get_mem_object(ptr, 0),
               "There are no pointers allocated");
 }
 TYPED_TEST(ExternalDeathTest, FetchAfterDeallocating) {
@@ -69,7 +70,7 @@ TYPED_TEST(ExternalDeathTest, FetchAfterDeallocating) {
   auto& backend = this->provider_.get_backend();
   float* ptr = backend.template allocate<float>(n_elems);
   backend.deallocate(ptr);
-  MAYBE_DEATH(backend.get_buffer(ptr, n_elems),
+  MAYBE_DEATH(backend.get_mem_object(ptr, n_elems),
               "There are no pointers allocated");
 }
 TYPED_TEST(InternalDeathTest, FetchNonexistingBuffer) {
@@ -80,13 +81,13 @@ TYPED_TEST(InternalDeathTest, FetchNonexistingBuffer) {
   float* ptr1 = backend.template allocate<float>(buffer_size);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
-  MAYBE_DEATH(backend.get_buffer_internal(ptr2, n_elems),
+  MAYBE_DEATH(backend.get_mem_object_internal(ptr2, n_elems),
               "Cannot access null pointer");
 }
 TYPED_TEST(InternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
-  MAYBE_DEATH(this->provider_.get_backend().get_buffer_internal(ptr, 0),
+  MAYBE_DEATH(this->provider_.get_backend().get_mem_object_internal(ptr, 0),
               "There are no pointers allocated");
 }
 TYPED_TEST(InternalDeathTest, FetchAfterDeallocating) {
@@ -96,6 +97,6 @@ TYPED_TEST(InternalDeathTest, FetchAfterDeallocating) {
   auto& backend = this->provider_.get_backend();
   float* ptr = backend.template allocate<float>(n_elems);
   backend.deallocate(ptr);
-  MAYBE_DEATH(backend.get_buffer_internal(ptr, n_elems),
+  MAYBE_DEATH(backend.get_mem_object_internal(ptr, n_elems),
               "There are no pointers allocated");
 }

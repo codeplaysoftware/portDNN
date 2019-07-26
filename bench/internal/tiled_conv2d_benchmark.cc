@@ -56,14 +56,9 @@ sycldnn::SNNStatus launch_kernel(
     typename Backend::template pointer_type<T> output,
     sycldnn::conv2d::Conv2DParams const& params,
     sycldnn::conv2d::ConvSizes const& sizes, Backend& backend) {
-  auto in_buff = backend.template get_buffer(input, sizes.input_size);
-  auto in_acc = sycldnn::make_mem_object(in_buff, sizes.input_size, 0);
-
-  auto fil_buff = backend.template get_buffer(filter, sizes.filter_size);
-  auto fil_acc = sycldnn::make_mem_object(fil_buff, sizes.filter_size, 0);
-
-  auto out_buff = backend.template get_buffer(output, sizes.output_size);
-  auto out_acc = sycldnn::make_mem_object(out_buff, sizes.output_size, 0);
+  auto in_acc = backend.get_mem_object(input, sizes.input_size);
+  auto fil_acc = backend.get_mem_object(filter, sizes.filter_size);
+  auto out_acc = backend.get_mem_object(output, sizes.output_size);
 
   auto queue = backend.get_queue();
   auto tile_info = sycldnn::conv2d::internal::tiled::get_tile_info<ConvType>(

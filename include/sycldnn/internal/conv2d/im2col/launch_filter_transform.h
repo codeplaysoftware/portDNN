@@ -76,16 +76,11 @@ static SNNStatus launch_filter_transform(
     Conv2DParams const& params, Backend& backend) {
   size_t const filter_size = params.window_rows * params.window_cols *
                              params.channels * params.features;
-  auto filter_buff =
-      backend.get_buffer_internal(pointers.original_filter, filter_size);
-  auto filter_offset = backend.get_offset_internal(pointers.original_filter);
-  auto filter_access = make_mem_object(filter_buff, filter_size, filter_offset);
+  auto filter_access =
+      backend.get_mem_object_internal(pointers.original_filter, filter_size);
 
-  auto transform_buffer =
-      backend.get_buffer_internal(pointers.filter, filter_size);
-  auto transform_offset = backend.get_offset_internal(pointers.filter);
   auto transform_access =
-      make_mem_object(transform_buffer, filter_size, transform_offset);
+      backend.get_mem_object_internal(pointers.filter, filter_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform(filter_access, transform_access, params,

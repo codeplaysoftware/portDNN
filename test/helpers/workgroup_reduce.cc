@@ -136,12 +136,8 @@ struct WorkspaceReductionTest
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(out_gpu);
     };
-    auto in_mem =
-        sycldnn::make_mem_object(backend.get_buffer(inp_gpu, in_size), in_size,
-                                 backend.get_offset(inp_gpu));
-    auto out_mem =
-        sycldnn::make_mem_object(backend.get_buffer(out_gpu, out_size),
-                                 out_size, backend.get_offset(out_gpu));
+    auto in_mem = backend.get_mem_object(inp_gpu, in_size);
+    auto out_mem = backend.get_mem_object(out_gpu, out_size);
 
     auto event = backend.get_queue().submit([&](cl::sycl::handler& cgh) {
       auto in_acc = in_mem.read_accessor(cgh);

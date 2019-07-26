@@ -35,7 +35,8 @@ TEST_F(EigenInternalHandlerTest, AllocateInternalCheckSizes) {
   size_t n_elems = buffer_size / sizeof(float);
   auto& backend = this->provider_.get_backend();
   float* ptr = backend.allocate<float>(buffer_size);
-  auto backend_buffer = backend.get_buffer_internal(ptr, n_elems);
+  auto mem_object = backend.get_mem_object_internal(ptr, n_elems);
+  auto backend_buffer = mem_object.get_buffer();
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
 TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
@@ -67,7 +68,8 @@ TEST_F(EigenInternalHandlerTest, FillInternalBufferThenCheck) {
   }
   // Now check that the buffer returned by the Eigen backend has the correct
   // contents.
-  auto backend_buffer = backend.get_buffer_internal(ptr, n_floats);
+  auto mem_object = backend.get_mem_object_internal(ptr, n_floats);
+  auto backend_buffer = mem_object.get_buffer();
   auto snn_host_access =
       backend_buffer.get_access<cl::sycl::access::mode::read>();
   for (size_t i = 0; i < n_floats; ++i) {
@@ -94,8 +96,10 @@ TEST_F(EigenInternalHandlerTest, InternalPointerOffset) {
   int* ptr1 = backend.allocate<int>(size);
   int* ptr2 = ptr1 + 1;
   size_t exp1 = 1;
-  EXPECT_EQ(exp1, backend.get_offset_internal(ptr2));
+  auto mem_object_2 = backend.get_mem_object_internal(ptr2, 1);
+  EXPECT_EQ(exp1, mem_object_2.get_offset());
   int* ptr3 = ptr2 + 10;
   size_t exp2 = 11;
-  EXPECT_EQ(exp2, backend.get_offset_internal(ptr3));
+  auto mem_object_3 = backend.get_mem_object_internal(ptr3, 1);
+  EXPECT_EQ(exp2, mem_object_3.get_offset());
 }

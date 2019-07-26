@@ -72,21 +72,9 @@ struct SNNMatmulProvider {
      * \return Buffer corresponding to the provided pointer.
      */
     template <typename T>
-    auto get_buffer(pointer_type<T> ptr, size_t n_elems)
-        -> decltype(std::declval<Backend>().get_buffer_internal(ptr, n_elems)) {
-      return underlying_backend.get_buffer_internal(ptr, n_elems);
-    }
-
-    /**
-     * Get the offset into the buffer coresponding to the provided pointer.
-     *
-     * \param [in] ptr Pointer into a SYCL buffer
-     * \return The offset between the start of the buffer and the provided
-     *         pointer.
-     */
-    template <typename T>
-    size_t get_offset(pointer_type<T> ptr) {
-      return underlying_backend.get_offset_internal(ptr);
+    auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
+        -> decltype(std::declval<Backend>().get_mem_object(ptr, n_elems)) {
+      return underlying_backend.get_mem_object(ptr, n_elems);
     }
 
     cl::sycl::queue get_queue() { return underlying_backend.get_queue(); }

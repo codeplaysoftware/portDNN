@@ -142,52 +142,30 @@ struct SyclBLASBackend final {
   }
 
   /**
-   * Get a SYCL buffer from an external pointer.
-   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
-   * \param n_elems The number of elements in the buffer. Unused in this case.
-   * \return Returns a SYCL buffer corresponding to ptr.
+   * Get a MemObject containing the buffer corresponding to a given pointer.
+   * \param ptr     A pointer referring to a SYCL buffer with some offset.
+   * \param n_elems The number of elements required within the MemObject.
+   * \return Returns a MemObject corresponding to the pointer.
    */
   template <typename T>
-  auto get_buffer(pointer_type<T> ptr, size_t n_elems) -> decltype(
-      this->executor_.get_policy_handler().get_buffer(ptr).get_buffer()) {
-    SNN_UNUSED_VAR(n_elems);
-    return executor_.get_policy_handler().get_buffer(ptr).get_buffer();
+  auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
+      -> decltype(make_mem_object(
+          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
+          n_elems, 0u)) {
+    return make_mem_object(
+        this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
+        n_elems, executor_.get_policy_handler().get_offset(ptr));
   }
 
-  /**
-   * Get a SYCL buffer from an internal pointer.
-   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
-   * \param n_elems The number of elements in the buffer. Unused in this case.
-   * \return Returns a SYCL buffer corresponding to ptr.
-   */
+  /** \copydoc get_mem_object */
   template <typename T>
-  auto get_buffer_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(
-          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer()) {
-    SNN_UNUSED_VAR(n_elems);
-    return executor_.get_policy_handler().get_buffer(ptr).get_buffer();
-  }
-
-  /**
-   * Return the offset from the start of the buffer.
-   * \param ptr The pointer for which to retrieve the offset from the base of
-   *            the corresponding SYCL buffer.
-   * \return Returns the offset from the base of the SYCL buffer.
-   */
-  template <typename T>
-  size_t get_offset(pointer_type<T> ptr) {
-    return get_offset_internal(to_internal_pointer<T>(ptr));
-  }
-
-  /**
-   * Return the offset from the start of the buffer.
-   * \param ptr The pointer for which to retrieve the offset from the base of
-   *            the corresponding SYCL buffer.
-   * \return Returns the offset from the base of the SYCL buffer.
-   */
-  template <typename T>
-  size_t get_offset_internal(internal_pointer_type<T> ptr) {
-    return executor_.get_policy_handler().get_offset(ptr);
+  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
+      -> decltype(make_mem_object(
+          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
+          n_elems, 0u)) {
+    return make_mem_object(
+        this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
+        n_elems, executor_.get_policy_handler().get_offset(ptr));
   }
 
   /**

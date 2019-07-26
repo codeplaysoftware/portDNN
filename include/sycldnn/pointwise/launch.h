@@ -65,14 +65,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  size_t const n_items, Backend& backend) {
   SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
 
-  auto inp_buf = backend.get_buffer(input, n_items);
-  auto outp_buf = backend.get_buffer(output, n_items);
-
-  auto const inp_offset = backend.get_offset(input);
-  auto const outp_offset = backend.get_offset(output);
-
-  auto inp_access = make_mem_object(inp_buf, n_items, inp_offset);
-  auto outp_access = make_mem_object(outp_buf, n_items, outp_offset);
+  auto inp_access = backend.get_mem_object(input, n_items);
+  auto outp_access = backend.get_mem_object(output, n_items);
 
   auto queue = backend.get_queue();
   return internal::launch_pointwise<T, PointwiseType, Direction>(
@@ -111,17 +105,9 @@ SNNStatus launch(
     size_t const n_items, Backend& backend) {
   SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
 
-  auto inp_fwd_buf = backend.get_buffer(input_forward, n_items);
-  auto inp_bk_buf = backend.get_buffer(input_backprop, n_items);
-  auto out_bk_buf = backend.get_buffer(output_backprop, n_items);
-
-  auto const inp_fwd_offset = backend.get_offset(input_forward);
-  auto const inp_bk_offset = backend.get_offset(input_backprop);
-  auto const out_bk_offset = backend.get_offset(output_backprop);
-
-  auto inp_fwd_access = make_mem_object(inp_fwd_buf, n_items, inp_fwd_offset);
-  auto inp_bk_access = make_mem_object(inp_bk_buf, n_items, inp_bk_offset);
-  auto out_bk_access = make_mem_object(out_bk_buf, n_items, out_bk_offset);
+  auto inp_fwd_access = backend.get_mem_object(input_forward, n_items);
+  auto inp_bk_access = backend.get_mem_object(input_backprop, n_items);
+  auto out_bk_access = backend.get_mem_object(output_backprop, n_items);
 
   auto queue = backend.get_queue();
   return internal::launch_pointwise<T, PointwiseType, Direction>(

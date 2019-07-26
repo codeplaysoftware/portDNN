@@ -39,20 +39,11 @@ inline SNNStatus launch_tiled(
     typename Backend::template pointer_type<T> output,
     Conv2DParams const& params, Backend& backend) {
   auto conv_sizes = get_sizes<ConvType>(params);
-  auto inp_buff = backend.get_buffer(input, conv_sizes.input_size);
-  auto fil_buff = backend.get_buffer(filter, conv_sizes.filter_size);
-  auto out_buff = backend.get_buffer(output, conv_sizes.output_size);
 
-  auto const inp_offset = backend.get_offset(input);
-  auto const fil_offset = backend.get_offset(filter);
-  auto const out_offset = backend.get_offset(output);
+  auto inp_access = backend.get_mem_object(input, conv_sizes.input_size);
+  auto fil_access = backend.get_mem_object(filter, conv_sizes.filter_size);
+  auto out_access = backend.get_mem_object(output, conv_sizes.output_size);
 
-  auto inp_access =
-      make_mem_object(inp_buff, conv_sizes.input_size, inp_offset);
-  auto fil_access =
-      make_mem_object(fil_buff, conv_sizes.filter_size, fil_offset);
-  auto out_access =
-      make_mem_object(out_buff, conv_sizes.output_size, out_offset);
   cl::sycl::queue queue = backend.get_queue();
   return internal::launch_tiled<T, ConvType>(inp_access, fil_access, out_access,
                                              params, queue);

@@ -24,6 +24,8 @@
 
 #include <utility>
 
+#include "sycldnn/mem_object.h"
+
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/backend/crtp_backend.h"
 
@@ -46,19 +48,21 @@ struct EigenExternalHandler
 
  public:
   /**
-   * Get a SYCL buffer from an external pointer.
-   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
-   * \param n_elems The number of elements in the buffer.
-   * \return Returns a SYCL buffer corresponding to ptr.
+   * Get a MemObject containing the buffer corresponding to a given pointer.
+   * \param ptr     A pointer referring to a SYCL buffer with some offset.
+   * \param n_elems The number of elements required within the MemObject.
+   * \return Returns a MemObject corresponding to the pointer.
    */
   template <typename T>
-  auto get_buffer(pointer_type<T> ptr, size_t n_elems) -> decltype(
-      std::declval<Eigen::SyclDevice>()
-          .get_sycl_buffer(ptr)
-          .template reinterpret<T>(std::declval<cl::sycl::range<1>>())) {
-    // This deduced return type is required to ensure that the buffer type
-    // matches the allocator used in the Eigen device. We cannot assume that
-    // std::allocator is used.
+  auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
+      -> decltype(make_mem_object(
+          std::declval<Eigen::SyclDevice>()
+              .get_sycl_buffer(ptr)
+              .template reinterpret<T>(std::declval<cl::sycl::range<1>>()),
+          n_elems, 0u)) {
+    // This deduced return type is required to ensure that the allocator type
+    // in the returned MemObject matches the allocator used in the Eigen device.
+    // We cannot assume that std::allocator is used.
     auto eigen_device = this->underlying_backend().get_eigen_device();
     auto raw_buffer = eigen_device.get_sycl_buffer(ptr);
     auto buffer_size = raw_buffer.get_size();
@@ -67,24 +71,10 @@ struct EigenExternalHandler
     auto cast_size = buffer_size / sizeof(T);
     SNN_ASSERT(cast_size >= n_elems,
                "Buffer must contain at least n_elems elements.");
-    // n_elems is used for the debug assert, but otherwise unused.
-    SNN_UNUSED_VAR(n_elems);
     auto cast_range = cl::sycl::range<1>{cast_size};
-    return raw_buffer.template reinterpret<T>(cast_range);
-  }
-
-  /**
-   * Get the offset from an external pointer. An external pointer may be an
-   * offset from some base address, where the base address corresponds to a
-   * SYCL buffer, and the offset refers to some address internal to the SYCL
-   * buffer. This function enables querying such an offset.
-   * \param ptr The external pointer to query the offset for.
-   * \return Returns the offset from the buffer base address, in elements.
-   */
-  template <typename T>
-  size_t get_offset(pointer_type<T> ptr) {
-    auto eigen_device = this->underlying_backend().get_eigen_device();
-    return eigen_device.get_offset(ptr) / sizeof(T);
+    auto typed_buffer = raw_buffer.template reinterpret<T>(cast_range);
+    auto offset = eigen_device.get_offset(ptr) / sizeof(T);
+    return make_mem_object(typed_buffer, n_elems, offset);
   }
 };
 }  // namespace backend

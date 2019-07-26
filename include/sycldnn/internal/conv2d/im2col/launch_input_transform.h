@@ -60,10 +60,8 @@ static SNNStatus launch_input_transform(
     TileInfo const& tile_info, Conv2DParams const& params, Backend& backend) {
   auto const conv_sizes = get_sizes<ConvType>(params);
   size_t const input_size = conv_sizes.input_size;
-  auto input_buffer = backend.get_buffer_internal(pointers.input, input_size);
-  size_t const total_in_offset =
-      in_offset + backend.get_offset_internal(pointers.input);
-  auto input_acc = make_mem_object(input_buffer, input_size, total_in_offset);
+  auto input_acc =
+      backend.get_mem_object_internal(pointers.input + in_offset, input_size);
 
   int n_tiles;
   int tile_size;
@@ -75,12 +73,8 @@ static SNNStatus launch_input_transform(
     tile_size = tile_info.size;
   }
   size_t const transform_size = n_tiles * tile_size;
-  auto transform_buffer =
-      backend.get_buffer_internal(pointers.transform, transform_size);
-  size_t const transform_offset =
-      backend.get_offset_internal(pointers.transform);
   auto transform_acc =
-      make_mem_object(transform_buffer, transform_size, transform_offset);
+      backend.get_mem_object_internal(pointers.transform, transform_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_input_transform<T, ConvType>(input_acc, transform_acc, params,

@@ -92,55 +92,24 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
   }
 
   /**
-   * Get a SYCL buffer from an external pointer.
-   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
-   * \param n_elems The number of elements in the buffer.
-   * \return Returns a SYCL buffer corresponding to ptr.
+   * Get a MemObject containing the buffer corresponding to a given pointer.
+   * \param ptr     A pointer referring to a SYCL buffer with some offset.
+   * \param n_elems The number of elements required within the MemObject.
+   * \return Returns a MemObject corresponding to the pointer.
    */
   template <typename T>
-  auto get_buffer(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(ptr.get_buffer()) {
-    SNN_UNUSED_VAR(n_elems);
-    return ptr.get_buffer();
+  auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
+      -> decltype(make_mem_object(ptr.get_buffer(), n_elems,
+                                  ptr.get_offset())) {
+    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
   }
 
-  /**
-   * Get a SYCL buffer from an internal pointer.
-   * \param ptr The pointer for which to retrieve the corresponding SYCL buffer.
-   * \param n_elems The number of elements in the buffer.
-   * \return Returns a SYCL buffer corresponding to ptr.
-   */
+  /** \copydoc get_mem_object */
   template <typename T>
-  auto get_buffer_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(ptr.get_buffer()) {
-    SNN_UNUSED_VAR(n_elems);
-    return ptr.get_buffer();
-  }
-
-  /**
-   * Get the offset from an external pointer. An external pointer may be an
-   * offset from some base address, where the base address corresponds to a
-   * SYCL buffer, and the offset refers to some address internal to the SYCL
-   * buffer. This function enables querying such an offset.
-   * \param ptr The external pointer to query the offset for.
-   * \return Returns the offset from the buffer base address, in elements.
-   */
-  template <typename T>
-  size_t get_offset(pointer_type<T> ptr) {
-    return ptr.get_offset();
-  }
-
-  /**
-   * Get the offset from an internal pointer. An internal pointer may be an
-   * offset from some base address, where the base address corresponds to a
-   * SYCL buffer, and the offset refers to some address internal to the SYCL
-   * buffer. This function enables querying such an offset.
-   * \param ptr The internal pointer to query the offset for.
-   * \return Returns the offset from the buffer base address, in elements.
-   */
-  template <typename T>
-  size_t get_offset_internal(internal_pointer_type<T> ptr) {
-    return ptr.get_offset();
+  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
+      -> decltype(make_mem_object(ptr.get_buffer(), n_elems,
+                                  ptr.get_offset())) {
+    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
   }
 
   /**

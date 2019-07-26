@@ -44,7 +44,8 @@ TEST_F(EigenExternalHandlerTest, GetBufferExternalCheckSizes) {
   size_t buffer_size = 1024;
   size_t n_elems = buffer_size / sizeof(float);
   auto ptr = static_cast<float*>(device.allocate(buffer_size));
-  auto backend_buffer = backend.get_buffer(ptr, n_elems);
+  auto mem_object = backend.get_mem_object(ptr, n_elems);
+  auto backend_buffer = mem_object.get_buffer();
   EXPECT_EQ(buffer_size, backend_buffer.get_size());
 }
 TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
@@ -76,7 +77,8 @@ TEST_F(EigenExternalHandlerTest, FillExternalBufferThenCheck) {
   }
   // Now check that the buffer returned by the Eigen backend has the correct
   // contents.
-  auto backend_buffer = backend.get_buffer(ptr, n_floats);
+  auto mem_object = backend.get_mem_object(ptr, n_floats);
+  auto backend_buffer = mem_object.get_buffer();
   auto snn_host_access =
       backend_buffer.get_access<cl::sycl::access::mode::read>();
   for (size_t i = 0; i < n_floats; ++i) {
@@ -91,8 +93,10 @@ TEST_F(EigenExternalHandlerTest, ExternalPointerOffset) {
   auto ptr1 = static_cast<int*>(device.allocate(size));
   auto ptr2 = ptr1 + 1;
   size_t exp1 = 1;
-  EXPECT_EQ(exp1, backend.get_offset(ptr2));
+  auto mem_object_2 = backend.get_mem_object(ptr2, 1);
+  EXPECT_EQ(exp1, mem_object_2.get_offset());
   auto ptr3 = ptr2 + 10;
   size_t exp2 = 11;
-  EXPECT_EQ(exp2, backend.get_offset(ptr3));
+  auto mem_object_3 = backend.get_mem_object(ptr3, 1);
+  EXPECT_EQ(exp2, mem_object_3.get_offset());
 }

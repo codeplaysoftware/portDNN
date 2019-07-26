@@ -44,15 +44,12 @@ struct ExternalHandler {
   template <typename T>
   using pointer_type = /* implementation defined */;
   /**
-   * Return the buffer corresponding to the provided pointer.
-   * NOTE: that the buffer type returned here does not need to exactly match
-   * this type signature, as the allocator is included in the buffer type.
+   * Return a MemObject containing the buffer corresponding to a given pointer.
+   * NOTE: that the actual type returned here does not need to exactly match
+   * this type signature, as the allocator is included in the MemObject type.
    */
   template <typename T>
-  cl::sycl::buffer<T, 1> get_buffer(pointer_type<T> p, size_t n_elems);
-  /** Return the offset from the start of the buffer. */
-  template <typename T>
-  size_t get_offset(pointer_type<T> p);
+  MemObject<T, Alloc> get_mem_object(pointer_type<T> p, size_t n_elems);
   /** Return the SYCL queue used by this backend. */
   cl::sycl::queue get_queue();
 };
@@ -73,16 +70,13 @@ struct InternalHandler {
   template <typename T>
   void deallocate(internal_pointer_type<T> p);
   /**
-   * Return the buffer corresponding to the provided pointer.
-   * NOTE: that the buffer type returned here does not need to exactly match
-   * this type signature, as the allocator is included in the buffer type.
+   * Return a MemObject containing the buffer corresponding to a given pointer.
+   * NOTE: that the actual type returned here does not need to exactly match
+   * this type signature, as the allocator is included in the MemObject type.
    */
   template <typename T>
-  cl::sycl::buffer<T, 1> get_buffer_internal(internal_pointer_type<T> p,
-                                             size_t n_elems);
-  /** Return the offset from the start of the buffer. */
-  template <typename T>
-  size_t get_offset_internal(internal_pointer_type<T> p);
+  MemObject<T, Alloc> get_mem_object_internal(internal_pointer_type<T> p,
+                                              size_t n_elems);
   /**
    * A wrapper around a call to GEMM.
    *
