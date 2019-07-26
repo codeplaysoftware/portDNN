@@ -30,11 +30,10 @@
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename DataType, typename ParamGen, typename ACLExecutor>
+template <typename DataType, typename ACLExecutor>
 class ARMDepthwiseConvolutionBenchmark
     : public sycldnn::bench::ARMDepthwiseConv2DExecutor<
-          ARMDepthwiseConvolutionBenchmark<DataType, ParamGen, ACLExecutor>,
-          ACLExecutor>,
+          ARMDepthwiseConvolutionBenchmark<DataType, ACLExecutor>, ACLExecutor>,
       public sycldnn::bench::StringReporter,
       public BaseDepthwiseConvolutionBenchmark {
  private:
