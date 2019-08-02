@@ -24,6 +24,8 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
 
+#include "sycldnn/mem_object.h"
+
 #include <sycl_blas.hpp>
 
 namespace sycldnn {
