@@ -54,6 +54,7 @@ class ARMDepthwiseConvolutionBenchmark
 
     this->add_to_label("@conv_type", "Forward");
     this->add_to_label("@selector", "ARMCompute");
+    this->add_to_label("@library", "ARMComputeLibrary");
     this->add_to_label("short_name", "Depthwise Convolution");
     this->add_to_label("git_hash", commit_hash);
     this->set_label(state);

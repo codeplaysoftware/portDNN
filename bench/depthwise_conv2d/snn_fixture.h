@@ -60,6 +60,7 @@ class SNNDepthwiseConvolutionBenchmark
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
     this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
+    this->add_to_label("@library", "SYCL-DNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Depthwise Convolution");
     this->add_to_label("git_hash", commit_hash);

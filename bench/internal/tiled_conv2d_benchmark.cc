@@ -172,7 +172,8 @@ void TiledConvolutionBenchmark<
   state.counters["fast_div"] = UseFastDiv;
   add_bandwidth_counters<float>(state, conv_sizes);
 
-  add_to_label("selector", "TiledSelector");
+  add_to_label("@selector", "TiledSelector");
+  add_to_label("@library", "SYCL-DNN");
   add_to_label("git_hash", commit_hash);
   sycldnn::bench::computecpp_info::add_computecpp_version(*this);
   set_label(state);

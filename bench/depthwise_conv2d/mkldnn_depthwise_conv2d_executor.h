@@ -192,6 +192,7 @@ class MKLDepthwiseConvolutionBenchmark
 
     this->add_to_label("@conv_type", "Forward");
     this->add_to_label("@selector", "MKL-DNN");
+    this->add_to_label("@library", "MKL-DNN");
     this->add_to_label("short_name", "Depthwise Convolution");
     this->add_to_label("git_hash", commit_hash);
     this->add_to_label("vendor_name", "Intel");
