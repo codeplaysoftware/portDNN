@@ -71,26 +71,6 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
   snn_test(
     WITH_SYCL
     TARGET
-      eigen_external_handler
-    KERNEL_SOURCES
-      eigen_external_handler.cc
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-    ${_cxx_opts}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
-      eigen_internal_handler
-    KERNEL_SOURCES
-      eigen_internal_handler.cc
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-    ${_cxx_opts}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
       matmul_backend
     SIZE
       long
@@ -103,5 +83,26 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
       backend_matmul
     ${_cxx_opts}
   )
+  if(SNN_TEST_EIGEN)
+    snn_test(
+      WITH_SYCL
+      TARGET
+        eigen_external_handler
+      KERNEL_SOURCES
+        eigen_external_handler.cc
+      PUBLIC_LIBRARIES
+        ${_matmul_providers}
+      ${_cxx_opts}
+    )
+    snn_test(
+      WITH_SYCL
+      TARGET
+        eigen_internal_handler
+      KERNEL_SOURCES
+        eigen_internal_handler.cc
+      PUBLIC_LIBRARIES
+        ${_matmul_providers}
+      ${_cxx_opts}
+    )
+  endif()
 endif()
-
