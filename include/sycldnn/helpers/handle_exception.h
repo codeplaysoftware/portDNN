@@ -73,7 +73,7 @@ struct ExceptionName<cl::sycl::exception> {
 template <typename Ex, typename Func>
 inline void handle_exception(Ex const& e, Func&& f) {
   auto message =
-      std::string{ExceptionName<Ex>::value} + " caught: " + e.what() + "\n";
+      std::string{ExceptionName<Ex>::value} + " caught: " + e.what() + ". ";
   f(message);
 }
 
