@@ -50,6 +50,7 @@ if(Eigen_FOUND)
                         EIGEN_SYCL_DISABLE_GEMV=1
                         EIGEN_SYCL_DISABLE_SCALAR=1
                         EIGEN_HAS_CXX11_MATH=1
+                        EIGEN_EXCEPTIONS
                         EIGEN_USE_SYCL)
   find_package(Threads)
   if(Threads_FOUND)
@@ -68,9 +69,6 @@ if(Eigen_FOUND)
     if(SNN_EIGEN_NO_LOCAL_MEM)
       list(APPEND eigen_definitions EIGEN_SYCL_NO_LOCAL_MEM=1)
     endif()
-  endif()
-  if(SNN_EIGEN_EXCEPTIONS)
-    list(APPEND eigen_definitions EIGEN_EXCEPTIONS)
   endif()
   set_target_properties(Eigen::Eigen PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS "${eigen_definitions}"

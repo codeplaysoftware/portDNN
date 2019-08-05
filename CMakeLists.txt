@@ -68,8 +68,6 @@ option(SNN_EIGEN_COMPRESS_NAMES
   "Compress Eigen SYCL kernel names" OFF)
 option(SNN_EIGEN_NO_BARRIER
   "Use Eigen matmul which does not use barriers (implies NO_LOCAL_MEM)" OFF)
-option(SNN_EIGEN_EXCEPTIONS
-  "Enable exception support in the Eigen library" ON)
 
 # Benchmark configuration options
 option(SNN_BENCH_EIGEN "Benchmark SYCL-DNN using Eigen" OFF)
