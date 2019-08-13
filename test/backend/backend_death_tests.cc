@@ -56,14 +56,12 @@ TYPED_TEST(ExternalDeathTest, FetchNonexistingBuffer) {
   float* ptr1 = backend.template allocate<float>(n_elems);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
-  ASSERT_ANY_THROW(backend.get_mem_object(ptr2, n_elems),
-                   "Cannot access null pointer");
+  ASSERT_ANY_THROW(backend.get_mem_object(ptr2, n_elems));
 }
 TYPED_TEST(ExternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
-  ASSERT_ANY_THROW(this->provider_.get_backend().get_mem_object(ptr, 0),
-                   "There are no pointers allocated");
+  ASSERT_ANY_THROW(this->provider_.get_backend().get_mem_object(ptr, 0));
 }
 TYPED_TEST(ExternalDeathTest, FetchAfterDeallocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -72,8 +70,7 @@ TYPED_TEST(ExternalDeathTest, FetchAfterDeallocating) {
   auto& backend = this->provider_.get_backend();
   float* ptr = backend.template allocate<float>(n_elems);
   backend.deallocate(ptr);
-  ASSERT_ANY_THROW(backend.get_mem_object(ptr, n_elems),
-                   "There are no pointers allocated");
+  ASSERT_ANY_THROW(backend.get_mem_object(ptr, n_elems));
 }
 TYPED_TEST(InternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -83,15 +80,13 @@ TYPED_TEST(InternalDeathTest, FetchNonexistingBuffer) {
   float* ptr1 = backend.template allocate<float>(buffer_size);
   ASSERT_NE(nullptr, ptr1);
   float* ptr2 = nullptr;
-  ASSERT_ANY_THROW(backend.get_mem_object_internal(ptr2, n_elems),
-                   "Cannot access null pointer");
+  ASSERT_ANY_THROW(backend.get_mem_object_internal(ptr2, n_elems));
 }
 TYPED_TEST(InternalDeathTest, FetchBeforeAllocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   float* ptr = nullptr;
   ASSERT_ANY_THROW(
-      this->provider_.get_backend().get_mem_object_internal(ptr, 0),
-      "There are no pointers allocated");
+      this->provider_.get_backend().get_mem_object_internal(ptr, 0));
 }
 TYPED_TEST(InternalDeathTest, FetchAfterDeallocating) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -100,6 +95,5 @@ TYPED_TEST(InternalDeathTest, FetchAfterDeallocating) {
   auto& backend = this->provider_.get_backend();
   float* ptr = backend.template allocate<float>(n_elems);
   backend.deallocate(ptr);
-  ASSERT_ANY_THROW(backend.get_mem_object_internal(ptr, n_elems),
-                   "There are no pointers allocated");
+  ASSERT_ANY_THROW(backend.get_mem_object_internal(ptr, n_elems));
 }
