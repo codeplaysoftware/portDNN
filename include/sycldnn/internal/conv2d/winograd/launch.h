@@ -267,8 +267,9 @@ SNNStatus split_workspace_and_launch_with_tiles(
       A * B * tile_info.number * kernel_params.features;
   size_t const workspace_minus_filter = workspace_size - filter_transform_size;
 
-  size_t const minibatch_size =
-      workspace_minus_filter / (input_transform_size + inter_transform_size);
+  size_t const minibatch_size = std::min<size_t>(
+      workspace_minus_filter / (input_transform_size + inter_transform_size),
+      params.batch);
   size_t const mb_input_transform_size = input_transform_size * minibatch_size;
 
   InternalPointer filter_transform_ptr{workspace, backend};
