@@ -22,6 +22,7 @@
  * along with the \ref sycldnn::make_mem_object helper function.
  */
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/helpers/macros.h"
 
 #include <CL/sycl.hpp>
 
@@ -219,6 +220,8 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
 template <typename T, typename Alloc>
 MemObject<T, Alloc> make_mem_object(cl::sycl::buffer<T, 1, Alloc> buffer,
                                     size_t extent, size_t offset) {
+  SNN_ASSERT(buffer.get_count() >= extent + offset,
+             "Buffer must contain at least extent + offset elements");
   return MemObject<T, Alloc>{buffer, extent, offset};
 }
 
