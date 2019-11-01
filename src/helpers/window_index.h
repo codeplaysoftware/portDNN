@@ -17,10 +17,12 @@
 #define SYCLDNN_SRC_HELPERS_WINDOW_INDEX_H_
 
 #include "sycldnn/helpers/macros.h"
+#include "sycldnn/helpers/non_deduced_type.h"
 #include "sycldnn/helpers/ratio.h"
 
 namespace sycldnn {
 namespace helpers {
+
 template <typename Index>
 struct WindowIndices {
   static_assert(std::is_integral<Index>::value,
@@ -43,7 +45,8 @@ struct WindowIndices {
  */
 template <typename Index>
 inline SNN_ALWAYS_INLINE WindowIndices<Index> in_window_from_output(
-    Index const index, Index const stride, Index const pad) {
+    Index const index, NonDeducedType<Index> const stride,
+    NonDeducedType<Index> const pad) {
   WindowIndices<Index> const in_window{index * stride - pad, 0};
   return in_window;
 }
@@ -58,7 +61,8 @@ inline SNN_ALWAYS_INLINE WindowIndices<Index> in_window_from_output(
  */
 template <typename Index>
 inline SNN_ALWAYS_INLINE WindowIndices<Index> out_window_from_input(
-    Index const index, Index const stride, Index const pad) {
+    Index const index, NonDeducedType<Index> const stride,
+    NonDeducedType<Index> const pad) {
   Index const padded = index - pad;
   Index const window_start = round_ratio_up_above_zero(padded, stride);
   Index const filter_start = window_start * stride - padded;

@@ -21,6 +21,7 @@
  * Contains helper functions to control rounding behvaiour in integer division.
  */
 #include "sycldnn/helpers/macros.h"
+#include "sycldnn/helpers/non_deduced_type.h"
 
 #include <type_traits>
 
@@ -39,8 +40,8 @@ template <
     typename std::enable_if<std::is_same<Index, DependentIndexType>::value &&
                                 std::is_signed<DependentIndexType>::value,
                             int>::type = 0>
-inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
-                                                         Index const div) {
+inline SNN_ALWAYS_INLINE Index
+round_ratio_up_above_zero(Index const num, NonDeducedType<Index> const div) {
   static_assert(std::is_integral<Index>::value,
                 "round_ratio_up_above_zero is only valid for integral types");
   SNN_ASSERT(div != 0, "Cannot divide by zero");
@@ -52,8 +53,8 @@ template <
     typename std::enable_if<std::is_same<Index, DependentIndexType>::value &&
                                 std::is_unsigned<DependentIndexType>::value,
                             int>::type = 0>
-inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
-                                                         Index const div) {
+inline SNN_ALWAYS_INLINE Index
+round_ratio_up_above_zero(Index const num, NonDeducedType<Index> const div) {
   static_assert(std::is_integral<Index>::value,
                 "round_ratio_up_above_zero is only valid for integral types");
   SNN_ASSERT(div != 0, "Cannot divide by zero");
@@ -68,7 +69,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up_above_zero(Index const num,
  */
 template <typename Index>
 inline SNN_ALWAYS_INLINE Index round_ratio_up(Index const num,
-                                              Index const div) {
+                                              NonDeducedType<Index> const div) {
   static_assert(std::is_integral<Index>::value,
                 "round_ratio_up is only valid for integral types");
   SNN_ASSERT(div != 0, "Cannot divide by zero");
@@ -90,8 +91,8 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up(Index const num,
  *         multiplier.
  */
 template <typename Index>
-inline SNN_ALWAYS_INLINE Index
-round_up_to_nearest_multiple(Index val, Index const multiplier) {
+inline SNN_ALWAYS_INLINE Index round_up_to_nearest_multiple(
+    Index val, NonDeducedType<Index> const multiplier) {
   static_assert(
       std::is_integral<Index>::value,
       "round_up_to_nearest_multiple is only valid for integral types");
