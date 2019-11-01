@@ -34,6 +34,10 @@ template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
 void BackendMatmul<Backend>::test_nonsquare_matmul(
     std::vector<T> const& lhs, std::vector<T> const& rhs,
     std::vector<T> const& expected, Index m, Index n, Index k) {
+  using Pointer = typename Backend::template internal_pointer_type<T>;
+  using ConstPointer =
+      typename Backend::template internal_pointer_type<const T>;
+
   const auto lhs_size = m * k;
   const auto rhs_size = k * n;
   const auto out_size = m * n;
@@ -43,12 +47,29 @@ void BackendMatmul<Backend>::test_nonsquare_matmul(
   auto& provider = this->provider_;
   auto& backend = provider.get_backend();
 
-  T* lhs_ptr = provider.get_initialised_device_memory(lhs_size, lhs);
-  T* rhs_ptr = provider.get_initialised_device_memory(rhs_size, rhs);
-  T* out_ptr = provider.get_initialised_device_memory(out_size, output);
+  auto lhs_ptr = provider.get_initialised_device_memory(lhs_size, lhs);
+  auto rhs_ptr = provider.get_initialised_device_memory(rhs_size, rhs);
+  auto out_ptr = provider.get_initialised_device_memory(out_size, output);
+  SNN_ON_SCOPE_EXIT {
+    provider.deallocate_ptr(out_ptr);
+    provider.deallocate_ptr(rhs_ptr);
+    provider.deallocate_ptr(lhs_ptr);
+  };
 
-  backend.template matmul<TransposeLHS, TransposeRHS>(
-      lhs_ptr, rhs_ptr, out_ptr, static_cast<T>(0), m, k, n);
+  {
+    ConstPointer lhs_internal_ptr = backend.to_internal_pointer(lhs_ptr);
+    ConstPointer rhs_internal_ptr = backend.to_internal_pointer(rhs_ptr);
+    Pointer out_internal_ptr = backend.to_internal_pointer(out_ptr);
+    SNN_ON_SCOPE_EXIT {
+      backend.release_internal_pointer(out_internal_ptr);
+      backend.release_internal_pointer(rhs_internal_ptr);
+      backend.release_internal_pointer(lhs_internal_ptr);
+    };
+
+    backend.template matmul<TransposeLHS, TransposeRHS>(
+        lhs_internal_ptr, rhs_internal_ptr, out_internal_ptr, static_cast<T>(0),
+        m, k, n);
+  }
 
   provider.copy_device_data_to_host(out_size, out_ptr, output);
 
@@ -62,6 +83,10 @@ template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
 void BackendMatmul<Backend>::test_square_batch_matmul(
     std::vector<T> const& lhs, std::vector<T> const& rhs,
     std::vector<T> const& expected, Index batch, Index dim) {
+  using Pointer = typename Backend::template internal_pointer_type<T>;
+  using ConstPointer =
+      typename Backend::template internal_pointer_type<const T>;
+
   const auto size = batch * dim * dim;
 
   std::vector<T> output(size, static_cast<T>(0));
@@ -69,17 +94,29 @@ void BackendMatmul<Backend>::test_square_batch_matmul(
   auto& provider = this->provider_;
   auto& backend = provider.get_backend();
 
-  T* lhs_ptr = provider.get_initialised_device_memory(size, lhs);
-  T* rhs_ptr = provider.get_initialised_device_memory(size, rhs);
-  T* out_ptr = provider.get_initialised_device_memory(size, output);
+  auto lhs_ptr = provider.get_initialised_device_memory(size, lhs);
+  auto rhs_ptr = provider.get_initialised_device_memory(size, rhs);
+  auto out_ptr = provider.get_initialised_device_memory(size, output);
   SNN_ON_SCOPE_EXIT {
     provider.deallocate_ptr(out_ptr);
     provider.deallocate_ptr(rhs_ptr);
     provider.deallocate_ptr(lhs_ptr);
   };
 
-  backend.template batch_matmul<TransposeLHS, TransposeRHS>(
-      lhs_ptr, rhs_ptr, out_ptr, batch, dim, dim, dim);
+  {
+    ConstPointer lhs_internal_ptr = backend.to_internal_pointer(lhs_ptr);
+    ConstPointer rhs_internal_ptr = backend.to_internal_pointer(rhs_ptr);
+    Pointer out_internal_ptr = backend.to_internal_pointer(out_ptr);
+    SNN_ON_SCOPE_EXIT {
+      backend.release_internal_pointer(out_internal_ptr);
+      backend.release_internal_pointer(rhs_internal_ptr);
+      backend.release_internal_pointer(lhs_internal_ptr);
+    };
+
+    backend.template batch_matmul<TransposeLHS, TransposeRHS>(
+        lhs_internal_ptr, rhs_internal_ptr, out_internal_ptr, batch, dim, dim,
+        dim);
+  }
 
   provider.copy_device_data_to_host(size, out_ptr, output);
 
