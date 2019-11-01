@@ -24,6 +24,8 @@
  */
 #include "sycldnn/helpers/macros.h"
 
+#include <type_traits>
+
 namespace sycldnn {
 namespace helpers {
 
@@ -34,8 +36,8 @@ namespace helpers {
  * \param b The second operand.
  * \return Returns the minimum value of operands a and b.
  */
-template <typename T>
-inline SNN_ALWAYS_INLINE T min(T a, T b) {
+template <typename T, typename U>
+inline SNN_ALWAYS_INLINE typename std::common_type<T, U>::type min(T a, U b) {
   return (a < b) ? a : b;
 }
 
@@ -46,8 +48,8 @@ inline SNN_ALWAYS_INLINE T min(T a, T b) {
  * \param b The second operand.
  * \return Returns the maximum value of operands a and b.
  */
-template <typename T>
-inline SNN_ALWAYS_INLINE T max(T a, T b) {
+template <typename T, typename U>
+inline SNN_ALWAYS_INLINE typename std::common_type<T, U>::type max(T a, U b) {
   return (a > b) ? a : b;
 }
 }  // namespace helpers
