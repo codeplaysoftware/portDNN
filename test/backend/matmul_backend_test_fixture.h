@@ -21,15 +21,17 @@
 template <typename Backend>
 struct BackendMatmul : public BackendTestFixture<Backend> {
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  void test_nonsquare_matmul(std::vector<T>& lhs, std::vector<T>& rhs,
-                             std::vector<T>& expected, Index m, Index n,
+  void test_nonsquare_matmul(std::vector<T> const& lhs,
+                             std::vector<T> const& rhs,
+                             std::vector<T> const& expected, Index m, Index n,
                              Index k);
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  void test_square_matmul(std::vector<T>& lhs, std::vector<T>& rhs,
-                          std::vector<T>& expected, Index dim);
+  void test_square_matmul(std::vector<T> const& lhs, std::vector<T> const& rhs,
+                          std::vector<T> const& expected, Index dim);
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  void test_square_batch_matmul(std::vector<T>& lhs, std::vector<T>& rhs,
-                                std::vector<T>& expected, Index batch,
+  void test_square_batch_matmul(std::vector<T> const& lhs,
+                                std::vector<T> const& rhs,
+                                std::vector<T> const& expected, Index batch,
                                 Index dim);
 };
 

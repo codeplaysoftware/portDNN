@@ -28,42 +28,22 @@
 #define DATA_TYPE_  ${DATA_TYPE}
 #define INDEX_TYPE_ ${INDEX_TYPE}
 #define BACKEND_TYPE_ ${BACKEND_TYPE}
-//clang-format on
+// clang-format on
 
 using sycldnn::backend::BACKEND_TYPE_;
 
-template void BackendMatmul<BACKEND_TYPE_>::test_square_matmul<true, true,
-                                                DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ dim);
-template void BackendMatmul<BACKEND_TYPE_>::test_square_batch_matmul<true, true,
-                                                      DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ batch, INDEX_TYPE_ dim);
+#define INSTANTIATE_TEMPLATES(TRANSA, TRANSB)                                 \
+  template void BackendMatmul<BACKEND_TYPE_>::test_square_matmul<             \
+      TRANSA, TRANSB, DATA_TYPE_, INDEX_TYPE_>(                               \
+      std::vector<DATA_TYPE_> const& lhs, std::vector<DATA_TYPE_> const& rhs, \
+      std::vector<DATA_TYPE_> const& expected, INDEX_TYPE_ dim);              \
+  template void BackendMatmul<BACKEND_TYPE_>::test_square_batch_matmul<       \
+      TRANSA, TRANSB, DATA_TYPE_, INDEX_TYPE_>(                               \
+      std::vector<DATA_TYPE_> const& lhs, std::vector<DATA_TYPE_> const& rhs, \
+      std::vector<DATA_TYPE_> const& expected, INDEX_TYPE_ batch,             \
+      INDEX_TYPE_ dim)
 
-template void BackendMatmul<BACKEND_TYPE_>::test_square_matmul<false, true,
-                                                DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ dim);
-template void BackendMatmul<BACKEND_TYPE_>::test_square_batch_matmul<false, true,
-                                                      DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ batch, INDEX_TYPE_ dim);
-
-template void BackendMatmul<BACKEND_TYPE_>::test_square_matmul<true, false,
-                                                DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ dim);
-template void BackendMatmul<BACKEND_TYPE_>::test_square_batch_matmul<true, false,
-                                                      DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ batch, INDEX_TYPE_ dim);
-
-template void BackendMatmul<BACKEND_TYPE_>::test_square_matmul<false, false,
-                                                DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ dim);
-template void BackendMatmul<BACKEND_TYPE_>::test_square_batch_matmul<false, false,
-                                                      DATA_TYPE_, INDEX_TYPE_>(
-    std::vector<DATA_TYPE_>& lhs, std::vector<DATA_TYPE_>& rhs,
-    std::vector<DATA_TYPE_>& expected, INDEX_TYPE_ batch, INDEX_TYPE_ dim);
+INSTANTIATE_TEMPLATES(true, true);
+INSTANTIATE_TEMPLATES(false, true);
+INSTANTIATE_TEMPLATES(true, false);
+INSTANTIATE_TEMPLATES(false, false);

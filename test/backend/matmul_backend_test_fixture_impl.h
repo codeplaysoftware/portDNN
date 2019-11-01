@@ -21,9 +21,9 @@
 
 template <typename Backend>
 template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-void BackendMatmul<Backend>::test_square_matmul(std::vector<T>& lhs,
-                                                std::vector<T>& rhs,
-                                                std::vector<T>& expected,
+void BackendMatmul<Backend>::test_square_matmul(std::vector<T> const& lhs,
+                                                std::vector<T> const& rhs,
+                                                std::vector<T> const& expected,
                                                 Index dim) {
   test_nonsquare_matmul<TransposeLHS, TransposeRHS>(lhs, rhs, expected, dim,
                                                     dim, dim);
@@ -31,10 +31,9 @@ void BackendMatmul<Backend>::test_square_matmul(std::vector<T>& lhs,
 
 template <typename Backend>
 template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-void BackendMatmul<Backend>::test_nonsquare_matmul(std::vector<T>& lhs,
-                                                   std::vector<T>& rhs,
-                                                   std::vector<T>& expected,
-                                                   Index m, Index n, Index k) {
+void BackendMatmul<Backend>::test_nonsquare_matmul(
+    std::vector<T> const& lhs, std::vector<T> const& rhs,
+    std::vector<T> const& expected, Index m, Index n, Index k) {
   const auto lhs_size = m * k;
   const auto rhs_size = k * n;
   const auto out_size = m * n;
@@ -60,10 +59,9 @@ void BackendMatmul<Backend>::test_nonsquare_matmul(std::vector<T>& lhs,
 
 template <typename Backend>
 template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-void BackendMatmul<Backend>::test_square_batch_matmul(std::vector<T>& lhs,
-                                                      std::vector<T>& rhs,
-                                                      std::vector<T>& expected,
-                                                      Index batch, Index dim) {
+void BackendMatmul<Backend>::test_square_batch_matmul(
+    std::vector<T> const& lhs, std::vector<T> const& rhs,
+    std::vector<T> const& expected, Index batch, Index dim) {
   const auto size = batch * dim * dim;
 
   std::vector<T> output(size, static_cast<T>(0));
