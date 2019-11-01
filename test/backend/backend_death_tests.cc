@@ -15,31 +15,19 @@
  */
 #include <gtest/gtest.h>
 
-#ifdef SNN_TEST_SYCLBLAS
-#include "src/backend/syclblas_backend_provider.h"
-#include "sycldnn/backend/sycl_blas_backend.h"
-#endif  // SNN_TEST_SYCLBLAS
+#ifndef SNN_TEST_EIGEN
+#error This Eigen specific test cannot compile without Eigen
+#endif
 
-#ifdef SNN_TEST_EIGEN
 #include "src/backend/eigen_backend_provider.h"
 #include "sycldnn/backend/eigen_backend.h"
-#endif  // SNN_TEST_EIGEN
 
 #include "test/backend/backend_test_fixture.h"
 
 #include <stddef.h>
 #include <string>
 
-#if defined(SNN_TEST_EIGEN) && defined(SNN_TEST_SYCLBLAS)
-using Backends = ::testing::Types<sycldnn::backend::SyclBLASBackend,
-                                  sycldnn::backend::EigenBackend>;
-#elif defined(SNN_TEST_SYCLBLAS)
-using Backends = ::testing::Types<sycldnn::backend::SyclBLASBackend>;
-#elif defined(SNN_TEST_EIGEN)
 using Backends = ::testing::Types<sycldnn::backend::EigenBackend>;
-#else
-#error Cannot compile without either Eigen or SYCL-BLAS
-#endif
 
 template <typename Backend>
 using ExternalDeathTest = BackendTestFixture<Backend>;

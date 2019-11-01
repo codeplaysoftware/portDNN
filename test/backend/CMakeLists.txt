@@ -61,16 +61,6 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
   snn_test(
     WITH_SYCL
     TARGET
-      backend_death_tests
-    SOURCES
-      backend_death_tests.cc
-    PUBLIC_LIBRARIES
-      ${_matmul_providers}
-    ${_cxx_opts}
-  )
-  snn_test(
-    WITH_SYCL
-    TARGET
       matmul_backend
     SIZE
       long
@@ -84,6 +74,16 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
     ${_cxx_opts}
   )
   if(SNN_TEST_EIGEN)
+    snn_test(
+      WITH_SYCL
+      TARGET
+        backend_death_tests
+      SOURCES
+        backend_death_tests.cc
+      PUBLIC_LIBRARIES
+        ${_matmul_providers}
+      ${_cxx_opts}
+    )
     snn_test(
       WITH_SYCL
       TARGET
