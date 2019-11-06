@@ -55,9 +55,18 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
       BUILD_BYPRODUCTS ${SyclBLAS_BYPRODUCTS}
     )
   endif()
-  set(SyclBLAS_INCLUDE_DIR ${SyclBLAS_SOURCE_DIR}/include)
-  set(SyclBLAS_SRC_DIR ${SyclBLAS_SOURCE_DIR}/src)
-  set(SyclBLAS_VPTR_INCLUDE_DIR ${SyclBLAS_SOURCE_DIR}/external/computecpp-sdk/include)
+  set(SyclBLAS_INCLUDE_DIR
+    ${SyclBLAS_SOURCE_DIR}/include CACHE PATH
+    "The SyclBLAS include directory" FORCE
+  )
+  set(SyclBLAS_SRC_DIR
+    ${SyclBLAS_SOURCE_DIR}/src CACHE PATH
+    "The SyclBLAS source directory" FORCE
+  )
+  set(SyclBLAS_VPTR_INCLUDE_DIR
+    ${SyclBLAS_SOURCE_DIR}/external/computecpp-sdk/include CACHE PATH
+    "The SyclBLAS virtual pointer include directory" FORCE
+  )
   set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_SRC_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
   # Have to explicitly make the include directories to add it to the library
   # target. This will be filled with the headers at build time when the
