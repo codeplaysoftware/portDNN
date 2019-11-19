@@ -46,13 +46,13 @@ struct BackendTraits<SyclBLASBackend> {
    * The external pointer type for SyclBLASBackend.
    */
   template <typename T>
-  using pointer_type = T*;
+  using pointer_type = blas::BufferIterator<T, blas::codeplay_policy>;
 
   /**
    * The internal pointer type for SyclBLASBackend.
    */
   template <typename T>
-  using internal_pointer_type = T*;
+  using internal_pointer_type = blas::BufferIterator<T, blas::codeplay_policy>;
 };
 
 /**
@@ -139,7 +139,7 @@ struct SyclBLASBackend final {
    * \param ptr The internal pointer to release.
    */
   template <typename T>
-  void release_internal_pointer(T* ptr) {
+  void release_internal_pointer(internal_pointer_type<T> ptr) {
     SNN_UNUSED_VAR(ptr);
   }
 
@@ -154,9 +154,7 @@ struct SyclBLASBackend final {
       -> decltype(make_mem_object(
           this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
           n_elems, 0u)) {
-    return make_mem_object(
-        this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-        n_elems, executor_.get_policy_handler().get_offset(ptr));
+    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
   }
 
   /** \copydoc get_mem_object */
@@ -165,9 +163,7 @@ struct SyclBLASBackend final {
       -> decltype(make_mem_object(
           this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
           n_elems, 0u)) {
-    return make_mem_object(
-        this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-        n_elems, executor_.get_policy_handler().get_offset(ptr));
+    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
   }
 
   /**
@@ -177,16 +173,16 @@ struct SyclBLASBackend final {
    */
   template <typename T>
   internal_pointer_type<T> allocate(size_t n_bytes) {
-    return executor_.get_policy_handler().allocate<T>(n_bytes / sizeof(T));
+    return blas::make_sycl_iterator_buffer<T, size_t>(n_bytes);
   }
 
   /**
-   * Deallocate a temporary buffer.
+   * Deallocate a temporary buffer. RAII means drop this.
    * \param ptr The pointer representing the buffer to deallocate.
    */
   template <typename T>
   void deallocate(internal_pointer_type<T> ptr) {
-    executor_.get_policy_handler().deallocate(ptr);
+    SNN_UNUSED_VAR(ptr);
   }
 
   /**
@@ -228,8 +224,7 @@ struct SyclBLASBackend final {
     cl::sycl::event e =
         blas::_gemm(executor_, TransposeRHS ? 't' : 'n',
                     TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
-                    static_cast<T>(1), const_cast<T*>(rhs), lda,
-                    const_cast<T*>(lhs), ldb, beta, output, ldc)
+                    static_cast<T>(1), rhs, lda, lhs, ldb, beta, output, ldc)
             .back();
     return e;
   }
@@ -269,10 +264,10 @@ struct SyclBLASBackend final {
     auto lda = TransposeRHS ? k : trans_m;
     auto ldb = TransposeLHS ? trans_n : k;
     cl::sycl::event e =
-        blas::_gemm_batched(
-            executor_, TransposeRHS ? 't' : 'n', TransposeLHS ? 't' : 'n',
-            trans_m, trans_n, k, static_cast<T>(1), const_cast<T*>(rhs), lda,
-            const_cast<T*>(lhs), ldb, static_cast<T>(0), output, ldc, n_batches)
+        blas::_gemm_batched(executor_, TransposeRHS ? 't' : 'n',
+                            TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
+                            static_cast<T>(1), rhs, lda, lhs, ldb,
+                            static_cast<T>(0), output, ldc, n_batches)
             .back();
     return e;
   }

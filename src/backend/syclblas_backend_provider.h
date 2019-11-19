@@ -52,16 +52,12 @@ struct BackendProvider<SyclBLASBackend> {
   Pointer<T> get_initialised_device_memory(size_t size,
                                            std::vector<T> const& data) {
     auto executor = get_backend().get_executor().get_policy_handler();
-    auto gpu_ptr = executor.template allocate<T>(size);
+    Pointer<T> gpu_ptr;
     if (size != 0u) {
-      try {
-        auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
-        for (auto& event : event_list) {
-          event.wait_and_throw();
-        }
-      } catch (...) {
-        executor.deallocate(gpu_ptr);
-        throw;
+      gpu_ptr = get_backend().allocate<T>(size);
+      auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
+      for (auto& event : event_list) {
+        event.wait_and_throw();
       }
     }
     return gpu_ptr;
@@ -82,7 +78,7 @@ struct BackendProvider<SyclBLASBackend> {
   /** Deallocate a device pointer. */
   template <typename T>
   void deallocate_ptr(Pointer<T> ptr) {
-    get_backend().get_executor().get_policy_handler().deallocate(ptr);
+    SNN_UNUSED_VAR(ptr);
   }
 
   /**
