@@ -1,11 +1,9 @@
-# SYCL-DNN Readme {#mainpage}
+# The SYCL-DNN neural network acceleration library
 
-## Introduction
+SYCL-DNN is a library implementing various neural network algorithms written
+using the SYCL API, developed by Codeplay Software.
 
-This is the README document for SYCL-DNN, a library implementing various
-neural network algorithms, written using the SYCL API.
-
-## Contents
+## Project layout
 
 * bench/
     - Some benchmarks, used to track the performance of SYCL-DNN.
@@ -32,7 +30,7 @@ neural network algorithms, written using the SYCL API.
     - All tests are bundled in this folder and are the mark of correctness
       when doing pre-merge tests.
 
-## Supported Operations
+## Supported operations
 
 SYCL-DNN is still in development, but at the moment we support the following
 operations:
@@ -45,16 +43,47 @@ operations:
 The convolution operations have several implementations, including tiled and
 Winograd kernels. The supported data format is NHWC.
 
+## Citation
+
+If you use SYCL-DNN in your research, please cite the library as follows:
+
+> Rod Burns, John Lawson, Duncan McBain, and Daniel Soutar. 2019. *Accelerated
+> Neural Networks on OpenCL Devices Using SYCL-DNN.* In Proceedings of the
+> International Workshop on OpenCL (IWOCL'19). ACM, New York, NY, USA, Article
+> 10, 4 pages. DOI: https://doi.org/10.1145/3318170.3318183
+
+```bibtex
+@inproceedings{Burns:2019:ANN:3318170.3318183,
+ author = {Burns, Rod and Lawson, John and McBain, Duncan and Soutar, Daniel},
+ title = {Accelerated Neural Networks on OpenCL Devices Using SYCL-DNN},
+ booktitle = {Proceedings of the International Workshop on OpenCL},
+ series = {IWOCL'19},
+ year = {2019},
+ isbn = {978-1-4503-6230-6},
+ location = {Boston, MA, USA},
+ pages = {10:1--10:4},
+ articleno = {10},
+ numpages = {4},
+ url = {http://doi.acm.org/10.1145/3318170.3318183},
+ doi = {10.1145/3318170.3318183},
+ acmid = {3318183},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {GPGPU, OpenCL, SYCL, machine learning, neural networks},
+}
+```
+
 ## Requirements
 
-* SYCL-DNN is primarily tested on Ubuntu 16.04 LTS, with the corresponding
-  default package versions. These are summarized below.
+SYCL-DNN is primarily tested on Ubuntu 16.04 LTS with the corresponding
+default package versions, as summarized below.
 
 * SYCL-DNN will generally match the most recently released ComputeCpp, though
-  it is likely that it will be compatible with multiple versions concurrently
-  as the SYCL interface is fixed. We test against the most recent version.
+  it is likely to be compatible with other versions. We test against the most
+  recent version.
 
-* OpenCL 1.2-capable hardware and drivers with SPIR 1.2/SPIR-V/PTX support.
+* Hardware capable of running SYCL code. For ComputeCpp this could be OpenCL
+  1.2-capable hardware and drivers with SPIR 1.2/SPIR-V/PTX support.
 
 * A C++-11 compiler and STL implementation. We test against GCC 5.4.0.
 
@@ -63,7 +92,7 @@ Winograd kernels. The supported data format is NHWC.
 * Building documentation requires Doxygen and Graphviz/Dot. Tested
   against versions 1.8.11 and 2.38.0 respectively.
 
-## Setup
+## Building SYCL-DNN
 
 SYCL-DNN uses CMake as its build system. There are provisions in the CMake
 files for downloading SYCL-DNN's dependencies automatically, for finding
@@ -74,32 +103,36 @@ tests and library will be built, but not the benchmarks.
 
 It is recommended to leave the option `SNN_DOWNLOAD_MISSING_DEPS` set to
 on. This will automatically download the source libraries necessary for
-SYCL-DNN to build and run (currently Google Test, Google benchmark and
+SYCL-DNN to build and run (such as Google Test, Google benchmark and
 the Eigen linear algebra library). Even if you already have these on your
 machine, downloading them as part of the SYCL-DNN means a more consistent
 configuration.
 
 You will need to provide the location of the ComputeCpp install you are
 using in the variable `ComputeCpp_DIR`. It should point to the folder
-where bin/, lib/ etc. are. This should be the only argument that is
+where `bin/`, `lib/` etc. are. This should be the only argument that is
 mandatory, everything else should be optional. The default build type is
 Release, though this can be overridden.
 
 The following example shows how to specify the ComputeCpp location, then
 build and run the tests.
 
-    mkdir build && cd build
-    cmake .. -DComputeCpp_DIR=/path/to/computecpp
-    make -j`nproc`
-    # Can then run tests
-    ctest
-    # If compiled with benchmark support, can run benchmarks exclusively
-    ctest -C Benchmark -E test
+```bash
+# Setup build environment
+mkdir build && cd build
+cmake .. -DComputeCpp_DIR=/path/to/computecpp
+# Compile SYCL-DNN
+make -j`nproc`
+# Run the tests
+ctest
+# If compiled with benchmark support, run just the benchmarks
+ctest -C Benchmark -E test
+```
 
 ## Cross-compilation with ComputeCpp
 
 SYCL-DNN supports cross-compilation targeting a number of devices. However,
-because of the two-step compilation process used in ComputeCpp, "normal"
+because of the two-step compilation process used in ComputeCpp, standard
 CMake toolchain files won't provide enough information to SYCL-DNN's build
 scripts to work properly.
 
