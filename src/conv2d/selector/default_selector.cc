@@ -62,12 +62,12 @@ class DefaultSelector : public sycldnn::conv2d::Selector {
         return sycldnn::conv2d::Algorithm::Winograd;
       }
     }
-    // Tiled is supported for 1x1s1, 1x1s2, 3x3s1, 3x3s2, 5x5s1, 5x5s2.
+    // Tiled is supported for 1x1s1, 1x1s2, 3x3s1, 3x3s2, 5x5s1.
     if (params.stride_rows == params.stride_cols &&
         params.window_rows == params.window_cols) {
-      if ((params.window_rows == 1 || params.window_rows == 3 ||
-           params.window_rows == 5) &&
-          (params.stride_rows == 1 || params.stride_rows == 2)) {
+      if ((params.window_rows == 5 && params.stride_rows == 1) ||
+          ((params.window_rows == 1 || params.window_rows == 3) &&
+           (params.stride_rows == 1 || params.stride_rows == 2))) {
         return sycldnn::conv2d::Algorithm::Tiled;
       }
     }

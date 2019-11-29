@@ -134,6 +134,10 @@ snn_test(
     conv2d/default_selector.cc
   OBJECTS
     $<TARGET_OBJECTS:direct_conv2d>
+    $<TARGET_OBJECTS:tiled_conv2d>
+    $<TARGET_OBJECTS:im2col_conv2d>
+    $<TARGET_OBJECTS:winograd_conv2d>
+    $<TARGET_OBJECTS:matmul>
     $<TARGET_OBJECTS:selector_conv2d>
 )
 snn_test(
