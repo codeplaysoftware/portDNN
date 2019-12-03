@@ -64,6 +64,7 @@ void check_conv_launch_successful(sycldnn::conv2d::Conv2DParams const& params) {
       input_gpu, filter_gpu, output_gpu, params, *selector,
       provider.get_backend());
   ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+  status.event.wait_and_throw();
 }
 }  // namespace
 
