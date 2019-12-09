@@ -449,6 +449,9 @@ function(snn_object_library)
   set_target_properties(${SNN_OBJLIB_TARGET}
     PROPERTIES POSITION_INDEPENDENT_CODE TRUE
   )
+  target_compile_definitions(${SNN_OBJLIB_TARGET}
+    PUBLIC sycl_dnn_EXPORTS
+  )
   snn_forward_option(_WITH_SYCL SNN_OBJLIB WITH_SYCL)
   snn_target(
     ${_WITH_SYCL}
