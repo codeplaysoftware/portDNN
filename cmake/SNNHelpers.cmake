@@ -459,7 +459,7 @@ function(snn_object_library)
   set_target_properties(${SNN_OBJLIB_TARGET}
     PROPERTIES POSITION_INDEPENDENT_CODE TRUE
   )
-  set_target_properties(${SNN_OBJLIB_TARGET} 
+  set_target_properties(${SNN_OBJLIB_TARGET}
     PROPERTIES COMPILE_DEFINITIONS sycl_dnn_EXPORTS
   )
   snn_forward_option(_WITH_SYCL SNN_OBJLIB WITH_SYCL)
