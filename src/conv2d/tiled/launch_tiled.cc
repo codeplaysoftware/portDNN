@@ -62,12 +62,6 @@ inline bool can_use_fast_div<conv_type::InputBackprop>(
          helpers::round_ratio_up_above_zero(params.in_rows, tile_rows) != 1 &&
          helpers::round_ratio_up_above_zero(params.in_cols, tile_cols) != 1;
 }
-template <>
-inline bool can_use_fast_div<conv_type::FilterBackprop>(
-    Conv2DParams const& params, int /*channel_vector_width*/,
-    int /*feature_vector_width*/, int /*tile_rows*/, int /*tile_cols*/) {
-  return params.features != 1 && params.channels != 1 && params.out_cols != 1;
-}
 template <typename ConvType>
 inline bool can_use_sizes(Conv2DParams const& params, int channel_vector,
                           int feature_vector, int window, int stride);
@@ -92,12 +86,6 @@ inline bool can_use_sizes<conv_type::InputBackprop>(Conv2DParams const& params,
           params.stride_rows == stride && params.stride_cols == stride &&
           params.features % feature_vector == 0 &&
           params.channels % channel_vector == 0);
-}
-template <>
-inline bool can_use_sizes<conv_type::FilterBackprop>(
-    Conv2DParams const& /*params*/, int const /*channel_vector*/,
-    int const /*feature_vector*/, int const /*window*/, int const /*stride*/) {
-  return false;
 }
 
 /**
@@ -161,23 +149,16 @@ SNNStatus launch_with_sizes(BaseMemObject<T const>& input,
                                                   tile_info, queue);
   }
 }
-}  // namespace
-/**
- * Use static window and stride sizes for the most common cases, or fall back
- * to using dynamic window and strides. This allows the compiler to make use of
- * the static window and stride sizes to better optimise when possible.
- */
-template <typename T, typename ConvType>
-inline SNNStatus launch_tiled(BaseMemObject<T const>& input,
-                              BaseMemObject<T const>& filter,
-                              BaseMemObject<T>& output,
-                              Conv2DParams const& params,
-                              cl::sycl::queue& queue) {
-  if (std::is_same<ConvType, conv_type::FilterBackprop>::value) {
-    SNNStatus invalid_algorithm_status;
-    invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
-    return invalid_algorithm_status;
-  }
+
+/** Internal tile size launcher for Forward.  */
+template <typename T, typename ConvType,
+          typename std::enable_if<
+              std::is_same<ConvType, conv_type::Forward>::value, int>::type = 0>
+inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& input,
+                                   BaseMemObject<T const>& filter,
+                                   BaseMemObject<T>& output,
+                                   Conv2DParams const& params,
+                                   cl::sycl::queue& queue) {
 #define LAUNCH_IF_MATCH(params, window, stride, tile_row, tile_col,           \
                         channel_vector, feature_vector)                       \
   if (can_use_sizes<ConvType>(params, channel_vector, feature_vector, window, \
@@ -222,18 +203,10 @@ inline SNNStatus launch_tiled(BaseMemObject<T const>& input,
   LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 8)
   LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
 #endif
-  if(std::is_same<ConvType, conv_type::Forward>::value) {
-    LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
-    LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
-    LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 4)
-    LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-  }
-  if(std::is_same<ConvType, conv_type::InputBackprop>::value) {
-    LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 4)
-    LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-    LAUNCH_IF_MATCH(params, 3, 2, 2, 4, 1, 2)
-    LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 4)
-  }
+  LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
+  LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
+  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 4)
+  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
   LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
   LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
   LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
@@ -242,12 +215,69 @@ inline SNNStatus launch_tiled(BaseMemObject<T const>& input,
   LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 4)
   LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
   LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-// clang-format on
-#undef LAUNCH_IF_MATCH
+  // clang-format on
 
   SNNStatus invalid_algorithm_status;
   invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
   return invalid_algorithm_status;
+}
+
+/** Internal tile size launcher for InputBackprop.  */
+template <
+    typename T, typename ConvType,
+    typename std::enable_if<
+        std::is_same<ConvType, conv_type::InputBackprop>::value, int>::type = 0>
+inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& input,
+                                   BaseMemObject<T const>& filter,
+                                   BaseMemObject<T>& output,
+                                   Conv2DParams const& params,
+                                   cl::sycl::queue& queue) {
+  // clang-format off
+  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 4)
+  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+  LAUNCH_IF_MATCH(params, 3, 2, 2, 4, 1, 2)
+  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 4)
+  LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
+  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
+  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
+  LAUNCH_IF_MATCH(params, 5, 1, 2, 2, 1, 2)
+  LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
+  LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 4)
+  LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
+  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+  // clang-format on
+
+  SNNStatus invalid_algorithm_status;
+  invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
+  return invalid_algorithm_status;
+}
+
+#undef LAUNCH_IF_MATCH
+
+/** Internal tile size launcher for FilterBackprop.  */
+template <typename T, typename ConvType,
+          typename std::enable_if<
+              std::is_same<ConvType, conv_type::FilterBackprop>::value,
+              int>::type = 0>
+inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& /*input*/,
+                                   BaseMemObject<T const>& /*filter*/,
+                                   BaseMemObject<T>& /*output*/,
+                                   Conv2DParams const& /*params*/,
+                                   cl::sycl::queue& /*queue*/) {
+  // Tiled algorithm is not supported for filter backprop.
+  SNNStatus invalid_algorithm_status;
+  invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
+  return invalid_algorithm_status;
+}
+}  // namespace
+
+template <typename T, typename ConvType>
+inline SNNStatus launch_tiled(BaseMemObject<T const>& input,
+                              BaseMemObject<T const>& filter,
+                              BaseMemObject<T>& output,
+                              Conv2DParams const& params,
+                              cl::sycl::queue& queue) {
+  return launch_tiled_impl<T, ConvType>(input, filter, output, params, queue);
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                       \

@@ -256,18 +256,6 @@ function(snn_executable)
     ${SNN_EXEC_SOURCES}
     ${SNN_EXEC_OBJECTS}
   )
-  # Allows for resolved symbols in executables, which is required for debug
-  # builds, where some unreachable references to undefined functions don't get
-  # dead code eliminated.
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set_property(
-      TARGET
-        ${SNN_EXEC_TARGET}
-      APPEND_STRING
-      PROPERTY LINK_FLAGS
-        " -Wl,-zlazy -Wl,--unresolved-symbols=ignore-all"
-    )
-  endif()
   snn_forward_option(_WITH_SYCL SNN_EXEC WITH_SYCL)
   snn_forward_option(_INSTALL SNN_EXEC INSTALL)
   snn_target(
