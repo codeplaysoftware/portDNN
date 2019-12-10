@@ -175,6 +175,10 @@ endif()
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS -O3 -DNDEBUG)
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-mllvm -inline-threshold=1000")
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-sycl -sycl-target ${COMPUTECPP_BITCODE}")
+if (MSVC)
+  # Allows compute++ to parse the Windows headers
+  list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=1")
+endif()
 
 if(CMAKE_CROSSCOMPILING)
   if(NOT SNN_DONT_USE_TOOLCHAIN)
@@ -495,20 +499,7 @@ function(add_sycl_to_target)
   # target_link_libraries(${SNN_ADD_SYCL_TARGET}
   #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   # )  
-  if (MSVC)
-    # Allows compute++ to parse the Windows headers
-    list(APPEND COMPUTECPP_USER_FLAGS "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=1")
-    if (MSVC_VERSION GREATER_EQUAL 1910)
-      # If /Zc:__cplusplus is not specified the compiler won't change the
-      # value of the macro __cplusplus. Lots of existing code rely on the
-      # value of this macro to determine whether or not some features are
-      # available. Setting this option will make sure the macro gets the
-      # correct value in Visual Studio versions 2017 and newer.
-      # https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
-      set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-        COMPILE_OPTIONS /Zc:__cplusplus
-      )
-    endif()
+  if (MSVC)    
     set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
       LINK_OPTIONS /FORCE
     )
