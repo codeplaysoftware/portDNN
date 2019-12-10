@@ -494,12 +494,37 @@ function(add_sycl_to_target)
   # This has the same effect as:
   # target_link_libraries(${SNN_ADD_SYCL_TARGET}
   #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
-  # )
-  set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-    LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
-  )
-  set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-    INTERFACE_LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
-  )
+  # )  
+  if (MSVC)
+    if (MSVC_VERSION GREATER_EQUAL 1910)
+      # If /Zc:__cplusplus is not specified the compiler won't change the
+      # value of the macro __cplusplus. Lots of existing code rely on the
+      # value of this macro to determine whether or not some features are
+      # available. Setting this option will make sure the macro gets the
+      # correct value in Visual Studio versions 2017 and newer.
+      # https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
+      set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+        COMPILE_OPTIONS /Zc:__cplusplus
+      )
+    endif()
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+      LINK_OPTIONS /FORCE
+    )
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+      INTERFACE_LINK_OPTIONS /FORCE
+    )
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY 
+        LINK_LIBRARIES ComputeCpp::ComputeCpp
+    )
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+      INTERFACE_LINK_LIBRARIES ComputeCpp::ComputeCpp
+    )
+  else()
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+      LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+    )
+    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+      INTERFACE_LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+    )
+  endif()
 endfunction(add_sycl_to_target)
-

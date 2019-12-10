@@ -442,9 +442,3 @@ snn_object_library(
   SOURCES
     selector/default_selector.cc
 )
-
-if (WIN32)
-  # Need to define sycl_dnn_EXPORTS so the symbols in 
-  # selector/default_selector.cc are exported
-  target_compile_definitions(selector_conv2d PUBLIC sycl_dnn_EXPORTS)
-endif()
