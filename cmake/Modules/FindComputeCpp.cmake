@@ -496,6 +496,8 @@ function(add_sycl_to_target)
   #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   # )  
   if (MSVC)
+    # Allows compute++ to parse the Windows headers
+    list(APPEND COMPUTECPP_USER_FLAGS "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=1")
     if (MSVC_VERSION GREATER_EQUAL 1910)
       # If /Zc:__cplusplus is not specified the compiler won't change the
       # value of the macro __cplusplus. Lots of existing code rely on the

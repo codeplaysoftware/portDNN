@@ -128,10 +128,7 @@ else()
   endif()
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-mad-enable")
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-no-signed-zeros")
-
-  if (MSVC)
-    # Allows compute++ to parse the Windows headers
-    list(APPEND COMPUTECPP_USER_FLAGS "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=1")    
+  if (MSVC)    
     # Enable Exception Handling Semantics in all configurations
     add_compile_options(/EHSc)
   endif()
