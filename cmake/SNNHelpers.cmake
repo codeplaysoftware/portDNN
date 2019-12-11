@@ -194,9 +194,7 @@ function(snn_target)
     # available. Setting this option will make sure the macro gets the
     # correct value in Visual Studio versions 2017 and newer.
     # https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
-    set_property(TARGET ${SNN_TARGET_TARGET} APPEND PROPERTY
-      COMPILE_OPTIONS /Zc:__cplusplus
-    )
+    target_compile_options(${SNN_TARGET_TARGET} PRIVATE /Zc:__cplusplus)
   endif()
   if(${SNN_TARGET_WITH_SYCL})
     set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
@@ -456,11 +454,9 @@ function(snn_object_library)
   list(APPEND SNN_OBJLIB_SOURCES ${SNN_OBJLIB_KERNEL_SOURCES})
   list(REMOVE_DUPLICATES SNN_OBJLIB_SOURCES)
   add_library(${SNN_OBJLIB_TARGET} OBJECT ${SNN_OBJLIB_SOURCES})
-  set_target_properties(${SNN_OBJLIB_TARGET}
-    PROPERTIES POSITION_INDEPENDENT_CODE TRUE
-  )
-  set_target_properties(${SNN_OBJLIB_TARGET}
-    PROPERTIES COMPILE_DEFINITIONS sycl_dnn_EXPORTS
+  set_target_properties(${SNN_OBJLIB_TARGET} PROPERTIES
+    POSITION_INDEPENDENT_CODE TRUE
+    COMPILE_DEFINITIONS sycl_dnn_EXPORTS
   )
   snn_forward_option(_WITH_SYCL SNN_OBJLIB WITH_SYCL)
   snn_target(
