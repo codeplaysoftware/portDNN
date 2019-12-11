@@ -187,6 +187,15 @@ function(snn_target)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
   snn_add_colour_diagnostics(${SNN_TARGET_TARGET})
+  if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
+    # If /Zc:__cplusplus is not specified the compiler won't change the
+    # value of the macro __cplusplus. Lots of existing code rely on the
+    # value of this macro to determine whether or not some features are
+    # available. Setting this option will make sure the macro gets the
+    # correct value in Visual Studio versions 2017 and newer.
+    # https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
+    target_compile_options(${SNN_TARGET_TARGET} PRIVATE /Zc:__cplusplus)
+  endif()
   if(${SNN_TARGET_WITH_SYCL})
     set(SNN_TARGET_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY})
     add_sycl_to_target(
@@ -445,9 +454,9 @@ function(snn_object_library)
   list(APPEND SNN_OBJLIB_SOURCES ${SNN_OBJLIB_KERNEL_SOURCES})
   list(REMOVE_DUPLICATES SNN_OBJLIB_SOURCES)
   add_library(${SNN_OBJLIB_TARGET} OBJECT ${SNN_OBJLIB_SOURCES})
-
-  set_target_properties(${SNN_OBJLIB_TARGET}
-    PROPERTIES POSITION_INDEPENDENT_CODE TRUE
+  set_target_properties(${SNN_OBJLIB_TARGET} PROPERTIES
+    POSITION_INDEPENDENT_CODE TRUE
+    COMPILE_DEFINITIONS sycl_dnn_EXPORTS
   )
   snn_forward_option(_WITH_SYCL SNN_OBJLIB WITH_SYCL)
   snn_target(

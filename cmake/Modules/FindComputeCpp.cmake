@@ -175,6 +175,10 @@ endif()
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS -O3 -DNDEBUG)
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-mllvm -inline-threshold=1000")
 list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-sycl -sycl-target ${COMPUTECPP_BITCODE}")
+if (MSVC)
+  # Allows compute++ to parse the Windows headers
+  list(APPEND COMPUTECPP_DEVICE_COMPILER_FLAGS "-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH=1")
+endif()
 
 if(CMAKE_CROSSCOMPILING)
   if(NOT SNN_DONT_USE_TOOLCHAIN)
@@ -495,11 +499,13 @@ function(add_sycl_to_target)
   # target_link_libraries(${SNN_ADD_SYCL_TARGET}
   #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   # )
+  if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang")
+    set(_platform_link_flags -Wl,--allow-shlib-undefined)
+  endif()
   set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-    LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+    LINK_LIBRARIES ${_platform_link_flags}  ComputeCpp::ComputeCpp
   )
   set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-    INTERFACE_LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
+    INTERFACE_LINK_LIBRARIES ${_platform_link_flags} ComputeCpp::ComputeCpp
   )
 endfunction(add_sycl_to_target)
-
