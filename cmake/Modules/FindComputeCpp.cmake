@@ -508,12 +508,6 @@ function(add_sycl_to_target)
     )
   else()
     set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-      LINK_OPTIONS /FORCE
-    )
-    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-      INTERFACE_LINK_OPTIONS /FORCE
-    )
-    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
         LINK_LIBRARIES ComputeCpp::ComputeCpp
     )
     set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY

@@ -128,10 +128,6 @@ else()
   endif()
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-mad-enable")
   list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-no-signed-zeros")
-  if (MSVC)    
-    # Enable Exception Handling Semantics in all configurations
-    add_compile_options(/EHSc)
-  endif()
 endif()
 
 set(CMAKE_DEBUG_POSTFIX "-debug")
