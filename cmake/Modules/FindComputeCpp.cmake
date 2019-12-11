@@ -500,18 +500,12 @@ function(add_sycl_to_target)
   #   PUBLIC -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
   # )
   if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang")
-    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-      LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
-    )
-    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-      INTERFACE_LINK_LIBRARIES -Wl,--allow-shlib-undefined ComputeCpp::ComputeCpp
-    )
-  else()
-    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-        LINK_LIBRARIES ComputeCpp::ComputeCpp
-    )
-    set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
-      INTERFACE_LINK_LIBRARIES ComputeCpp::ComputeCpp
-    )
+    set(_platform_link_flags -Wl,--allow-shlib-undefined)
   endif()
+  set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+    LINK_LIBRARIES ${_platform_link_flags}  ComputeCpp::ComputeCpp
+  )
+  set_property(TARGET ${SNN_ADD_SYCL_TARGET} APPEND PROPERTY
+    INTERFACE_LINK_LIBRARIES ${_platform_link_flags} ComputeCpp::ComputeCpp
+  )
 endfunction(add_sycl_to_target)
