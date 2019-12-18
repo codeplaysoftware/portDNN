@@ -187,7 +187,7 @@ function(snn_target)
     target_compile_options(${SNN_TARGET_TARGET} PUBLIC ${SNN_TARGET_CXX_OPTS})
   endif()
   snn_add_colour_diagnostics(${SNN_TARGET_TARGET})
-  if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
+  if (MSVC AND MSVC_VERSION GREATER 1909)
     # If /Zc:__cplusplus is not specified the compiler won't change the
     # value of the macro __cplusplus. Lots of existing code rely on the
     # value of this macro to determine whether or not some features are
