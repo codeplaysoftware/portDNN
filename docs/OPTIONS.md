@@ -31,8 +31,8 @@ Option                      | Type     | Default         | Description
 `SNN_DOWNLOAD_GTEST`        | `BOOL`   | `OFF`           | Download and build Google Test, rather than look locally
 `GTEST_GIT_TAG`             | `STRING` | `release-1.10.0`| Commit-ish object (e.g. tag, branch, commit hash)
 `SNN_DOWNLOAD_EIGEN`        | `BOOL`   | `ON`            | Download Eigen, rather than look locally
-`EIGEN_REPO`                | `STRING` | Codeplay Fork   | The remote to download Eigen from
-`EIGEN_HG_TAG`              | `STRING` | `a51187c`       | Commit-ish object (e.g. tag, branch, commit hash)
+`EIGEN_REPO`                | `STRING` | Eigen GitLab    | The remote to download Eigen from
+`EIGEN_GIT_TAG`             | `STRING` | `00de5707`      | Commit-ish object (e.g. tag, branch, commit hash)
 `EIGEN_INCLUDE_DIR`         | `STRING` | build/eigen     | The Eigen include directory. Can be set by download.
 `SNN_DOWNLOAD_SYCLBLAS`     | `BOOL`   | `ON`            | Download SYCLBLAS, rather than look locally
 `SYCLBLAS_REPO`             | `STRING` | Codeplay GitHub | The remote to download SYCLBLAS from
