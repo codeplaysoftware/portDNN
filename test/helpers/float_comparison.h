@@ -90,6 +90,21 @@ struct NumFractionBits<cl::sycl::half> {
 };
 #endif  // SNN_USE_HALF
 
+/** Provide a safe type that can be piped to an ostream. */
+template <typename DataType>
+struct Printable {
+  using type = DataType;
+};
+
+#ifdef SNN_USE_HALF
+// Trying to pipe a half to an ostream can cause ambiguous function errors, so
+// explicitly use float as the printable type.
+template <>
+struct Printable<cl::sycl::half> {
+  using type = float;
+};
+#endif  // SNN_USE_HALF
+
 /**
  * Struct for handling exponent/fraction sizes for different types like
  * float/double. General pattern of an IEEE floating-point type is:
@@ -245,15 +260,18 @@ template <typename DataType>
 inline ::testing::AssertionResult expect_almost_equal(
     const char* lhs_expr, const char* rhs_expr, const char* max_ulps_expr,
     DataType const& lhs, DataType const& rhs, size_t const max_ulps) {
+  using PrintableType = typename Printable<DataType>::type;
   FloatingPoint<DataType> x(lhs);
   FloatingPoint<DataType> y(rhs);
 
   auto difference_in_ulps = unsigned_difference(x, y);
 
   if (x.is_NaN() || y.is_NaN() || difference_in_ulps > max_ulps) {
+    PrintableType print_lhs = lhs;
+    PrintableType print_rhs = rhs;
     return ::testing::AssertionFailure()
-           << "  expected: " << lhs_expr << " (" << lhs << "), "
-           << "actual: " << rhs_expr << " (" << rhs << "), "
+           << "  expected: " << lhs_expr << " (" << print_lhs << "), "
+           << "actual: " << rhs_expr << " (" << print_rhs << "), "
            << "ULPs: " << difference_in_ulps << " when testing with "
            << max_ulps_expr << " (" << max_ulps << ")";
   } else {
