@@ -110,6 +110,9 @@ if(SNN_VISIBILITY_HIDDEN)
   set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
   set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 endif()
+set(SNN_HIGH_MEM_JOB_LIMIT 8 CACHE STRING
+  "Number of concurrent build jobs for high memory targets (Ninja only)")
+set_property(GLOBAL PROPERTY JOB_POOLS high_mem=${SNN_HIGH_MEM_JOB_LIMIT})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")

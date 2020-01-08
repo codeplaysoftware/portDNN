@@ -112,6 +112,7 @@ endfunction()
 function(snn_target)
   set(options
     WITH_SYCL
+    HIGH_MEM
     INSTALL
   )
   set(one_value_args
@@ -133,6 +134,11 @@ function(snn_target)
   )
   snn_warn_unparsed_args(SNN_TARGET)
 
+  if(${SNN_TARGET_HIGH_MEM})
+    set_property(TARGET ${SNN_TARGET_TARGET} PROPERTY
+      JOB_POOL_COMPILE high_mem
+    )
+  endif()
   if((DEFINED SNN_TARGET_PUBLIC_LIBRARIES) OR
     (DEFINED SNN_TARGET_PRIVATE_LIBRARIES))
     # Set link libraries directly to work around limitations of object
@@ -234,6 +240,7 @@ endfunction()
 function(snn_executable)
   set(options
     WITH_SYCL
+    HIGH_MEM
     INSTALL
   )
   set(one_value_args
@@ -266,9 +273,11 @@ function(snn_executable)
     ${SNN_EXEC_OBJECTS}
   )
   snn_forward_option(_WITH_SYCL SNN_EXEC WITH_SYCL)
+  snn_forward_option(_HIGH_MEM SNN_EXEC HIGH_MEM)
   snn_forward_option(_INSTALL SNN_EXEC INSTALL)
   snn_target(
     ${_WITH_SYCL}
+    ${_HIGH_MEM}
     ${_INSTALL}
     TARGET               ${SNN_EXEC_TARGET}
     KERNEL_SOURCES       ${SNN_EXEC_KERNEL_SOURCES}
@@ -300,6 +309,7 @@ endfunction()
 function(snn_test)
   set(options
     WITH_SYCL
+    HIGH_MEM
   )
   set(one_value_args
     TARGET
@@ -322,11 +332,13 @@ function(snn_test)
   message(STATUS "Test target: ${SNN_TEST_TARGET}")
   set(_NAME ${SNN_TEST_TARGET}_test)
   snn_forward_option(_WITH_SYCL SNN_TEST WITH_SYCL)
+  snn_forward_option(_HIGH_MEM SNN_TEST HIGH_MEM)
   if(SNN_INSTALL_TESTS)
     set(_INSTALL "INSTALL")
   endif()
   snn_executable(
     ${_WITH_SYCL}
+    ${_HIGH_MEM}
     ${_INSTALL}
     TARGET               ${_NAME}_bin
     SOURCES              ${SNN_TEST_SOURCES}

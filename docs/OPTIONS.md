@@ -20,6 +20,7 @@ Option                             | Type     | Default   | Description
 `SNN_TRISYCL`                      | `BOOL`   | `OFF`     | Use TriSYCL as SYCL implementation. ComputeCpp by default.
 `SNN_VISIBILITY_HIDDEN`            | `BOOL`   | `ON`      | Hides library symbols by default, exporting select functions
 `SNN_FORCE_COLOUR_DIAGNOSTICS`     | `BOOL`   | `ON`      | Forces compilers to output error messages in colour
+`SNN_HIGH_MEM_JOB_LIMIT`           | `INT`    | `8`       | Number of concurrent build jobs for high memory targets (Ninja only)
 
 ## Download options
 

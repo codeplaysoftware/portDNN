@@ -110,6 +110,7 @@ foreach(_index RANGE ${_list_len})
     endif()
     snn_test(
       WITH_SYCL
+      HIGH_MEM
       TARGET
         conv2d_${_type}_window${_window}_stride${_stride}
       SIZE
