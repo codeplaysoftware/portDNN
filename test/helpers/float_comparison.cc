@@ -55,7 +55,6 @@ DataType get_quiet_NaN_for_type() {
   static_assert(std::numeric_limits<DataType>::is_iec559,
                 "Testing code assumes IEEE 754 float representation");
   constexpr DataType qnan = std::numeric_limits<DataType>::quiet_NaN();
-  static_assert(std::isnan(qnan), "Plaform does not provide a quiet NaN");
   return qnan;
 }
 
@@ -64,7 +63,6 @@ DataType get_infinity_for_type() {
   static_assert(std::numeric_limits<DataType>::is_iec559,
                 "Testing code assumes IEEE 754 float representation");
   constexpr DataType inf = std::numeric_limits<DataType>::infinity();
-  static_assert(std::isinf(inf), "Plaform does not provide a quiet NaN");
   return inf;
 }
 
@@ -137,6 +135,7 @@ TEST(FloatingPointComparatorTest, Zero) {
 template <typename DataType>
 void test_nan_inequality() {
   auto const qnan = get_quiet_NaN_for_type<DataType>();
+  ASSERT_TRUE(std::isnan(qnan));
   SNN_NOT_EQUAL(qnan, qnan, 0);
   SNN_NOT_EQUAL(qnan, qnan, 4);
 }
@@ -154,6 +153,7 @@ TEST(FloatingPointComparatorTest, NaN) {
 template <typename DataType>
 void test_inf_large_val_equality() {
   DataType inf = get_infinity_for_type<DataType>();
+  ASSERT_TRUE(std::isinf(inf));
   DataType neg_inf = get_negative_infinity_for_type<DataType>();
 
   SNN_ALMOST_EQUAL(inf, inf, 0u);
@@ -208,10 +208,12 @@ TEST(FloatingPointComparatorTest, WithinFourULPs) {
   SNN_ALMOST_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1564f}, 4);
   SNN_ALMOST_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1565f}, 4);
   SNN_ALMOST_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1566f}, 4);
+  SNN_ALMOST_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1567f}, 4);
 #endif  // SNN_USE_HALF
 
   SNN_ALMOST_EQUAL(0.15625f, 0.15625001f, 4);
   SNN_ALMOST_EQUAL(0.15625f, 0.15625003f, 4);
+  SNN_ALMOST_EQUAL(0.15625f, 0.15625004f, 4);
   SNN_ALMOST_EQUAL(0.15625f, 0.15625006f, 4);
 
 #ifdef SNN_USE_DOUBLE
@@ -219,14 +221,17 @@ TEST(FloatingPointComparatorTest, WithinFourULPs) {
       0.15625, 0.1562500000000000277555756156289135105907917022705078125, 4);
   SNN_ALMOST_EQUAL(0.15625,
                    0.156250000000000055511151231257827021181583404541015625, 4);
+  SNN_ALMOST_EQUAL(
+      0.15625, 0.1562500000000000832667268468867405317723751068115234375, 4);
   SNN_ALMOST_EQUAL(0.15625,
                    0.15625000000000011102230246251565404236316680908203125, 4);
+
 #endif  // SNN_USE_DOUBLE
 }
 
 TEST(FloatingPointComparatorTest, NotWithinFourULPs) {
 #ifdef SNN_USE_HALF
-  SNN_NOT_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1567f}, 4);
+  SNN_NOT_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1569f}, 4);
 #endif  // SNN_USE_HALF
 
   SNN_NOT_EQUAL(0.15625f, 0.15625007f, 4);
@@ -243,7 +248,7 @@ TEST(FloatingPointComparatorTest, ExactDifferenceInULPs) {
 
 TEST(FloatingPointComparatorTest, WithinFiveULPs) {
 #ifdef SNN_USE_HALF
-  SNN_ALMOST_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1567f}, 5);
+  SNN_ALMOST_EQUAL(cl::sycl::half{0.15625f}, cl::sycl::half{0.1569f}, 5);
 #endif  // SNN_USE_HALF
 
   SNN_ALMOST_EQUAL(0.15625f, 0.15625007f, 5);
