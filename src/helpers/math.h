@@ -37,6 +37,19 @@ inline SNN_ALWAYS_INLINE cl::sycl::vec<T, 1> mad(cl::sycl::vec<T, 1> a,
   return cl::sycl::vec<T, 1>{cl::sycl::mad(a.s0(), b.s0(), c.s0())};
 }
 
+/**
+ * ComputeCpp's SYCL vectors have stringent alignment requirements, that can
+ * conflict with some calling conventions preventing passing vectors by value.
+ * To get around this we can pass by reference. The function will always be
+ * inlined on the device so this should make no functional difference.
+ */
+template <typename T, int Dim>
+inline SNN_ALWAYS_INLINE cl::sycl::vec<T, Dim> mad(
+    cl::sycl::vec<T, Dim> const& a, cl::sycl::vec<T, Dim> const& b,
+    cl::sycl::vec<T, Dim> const& c) {
+  return cl::sycl::mad(a, b, c);
+}
+
 template <typename T>
 inline SNN_ALWAYS_INLINE T dot(T a, T b) {
   return a * b;

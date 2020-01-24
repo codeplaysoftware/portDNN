@@ -188,4 +188,15 @@
 #define SNN_ERROR_MSG(impl, err, file, line) \
   SNN_ERROR_MSG_IMPL(impl, err, file, line)
 
+#ifdef _MSC_VER
+/**
+ * \def SNN_WINDOWS
+ * MSVC platform check macro.
+ *
+ * `SNN_WINDOWS` will be defined and set when compiling with MSVC, and will not
+ * be defined for other compilers.
+ */
+#define SNN_WINDOWS 1
+#endif
+
 #endif  // SYCLDNN_INCLUDE_HELPER_MACROS_H_

@@ -20,6 +20,10 @@
 #include "sycldnn/helpers/macros.h"
 
 TEST(DeviceHelperMacro, AlwaysInlineOnDevice) {
+// These tests depend on certain preprocessor behaviour which is not
+// compatible with MSVC, so avoid compiling these tests with the MSVC
+// compiler.
+#ifndef SNN_WINDOWS
   auto test_str = SNN_MAKE_STRING(SNN_ALWAYS_INLINE);
 #if SNN_HAS_ATTRIBUTE(always_inline)
   auto expected = "__attribute__((always_inline))";
@@ -27,8 +31,10 @@ TEST(DeviceHelperMacro, AlwaysInlineOnDevice) {
   auto expected = "";
 #endif
   ASSERT_STREQ(expected, test_str);
+#endif
 }
 TEST(DeviceHelperMacro, PragmaUnrollOnDevice) {
+#ifndef SNN_WINDOWS
   auto test_str = SNN_MAKE_STRING(SNN_PRAGMA_UNROLL);
 #ifdef __clang__
   auto expected = "_Pragma(\"clang loop unroll(enable) interleave(enable)\")";
@@ -36,4 +42,5 @@ TEST(DeviceHelperMacro, PragmaUnrollOnDevice) {
   auto expected = "";
 #endif
   ASSERT_STREQ(expected, test_str);
+#endif
 }

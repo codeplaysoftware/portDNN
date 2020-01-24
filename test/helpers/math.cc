@@ -42,7 +42,7 @@ struct MathTest : public ::testing::Test {
 
  private:
   template <int N>
-  void all_equal(T exp, cl::sycl::vec<T, N> val) {
+  void all_equal(T exp, cl::sycl::vec<T, N> const& val) {
     for (int i = 0; i < N; ++i) {
       SCOPED_TRACE("Vector element: " + std::to_string(i));
       EXPECT_EQ(exp, sycldnn::helpers::vector_element::get(val, i));

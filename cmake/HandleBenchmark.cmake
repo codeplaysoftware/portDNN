@@ -52,8 +52,11 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
     SOURCE_DIR        ${benchmark_SOURCE_DIR}
     BINARY_DIR        ${benchmark_BINARY_DIR}
     CMAKE_ARGS        -DBENCHMARK_ENABLE_TESTING=OFF
-                      -DCMAKE_BUILD_TYPE=Release
                       -DBUILD_SHARED_LIBS=OFF
+                      -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                      -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+                      -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}
+                      -DCMAKE_CXX_FLAGS_DEBUG=${CMAKE_CXX_FLAGS_DEBUG}
                       ${cmake_toolchain}
     INSTALL_COMMAND   ""
     TEST_COMMAND      ""

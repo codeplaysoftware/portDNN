@@ -19,6 +19,73 @@
 
 #include <CL/sycl.hpp>
 
+namespace {
+// Helper functions to compare expected values to actual values in SYCL vectors.
+// The explicit cast from a swizzled vector is required to ensure GTest uses
+// the correct data type and not the implementation defined swizzle type.
+// The numerous overloads of this function are required as there is no
+// programmatic way to access vector elements, and we don't want to rely on
+// helpers::vector_element in the test for that function.
+template <typename DType>
+void check_vector_matches(std::array<DType, 1> exp,
+                          cl::sycl::vec<DType, 1> const& vec) {
+  EXPECT_EQ(exp[0], DType{vec.s0()});
+}
+template <typename DType>
+void check_vector_matches(std::array<DType, 2> exp,
+                          cl::sycl::vec<DType, 2> const& vec) {
+  EXPECT_EQ(exp[0], DType{vec.s0()});
+  EXPECT_EQ(exp[1], DType{vec.s1()});
+}
+template <typename DType>
+void check_vector_matches(std::array<DType, 3> exp,
+                          cl::sycl::vec<DType, 3> const& vec) {
+  EXPECT_EQ(exp[0], DType{vec.s0()});
+  EXPECT_EQ(exp[1], DType{vec.s1()});
+  EXPECT_EQ(exp[2], DType{vec.s2()});
+}
+template <typename DType>
+void check_vector_matches(std::array<DType, 4> exp,
+                          cl::sycl::vec<DType, 4> const& vec) {
+  EXPECT_EQ(exp[0], DType{vec.s0()});
+  EXPECT_EQ(exp[1], DType{vec.s1()});
+  EXPECT_EQ(exp[2], DType{vec.s2()});
+  EXPECT_EQ(exp[3], DType{vec.s3()});
+}
+template <typename DType>
+void check_vector_matches(std::array<DType, 8> exp,
+                          cl::sycl::vec<DType, 8> const& vec) {
+  EXPECT_EQ(exp[0], DType{vec.s0()});
+  EXPECT_EQ(exp[1], DType{vec.s1()});
+  EXPECT_EQ(exp[2], DType{vec.s2()});
+  EXPECT_EQ(exp[3], DType{vec.s3()});
+  EXPECT_EQ(exp[4], DType{vec.s4()});
+  EXPECT_EQ(exp[5], DType{vec.s5()});
+  EXPECT_EQ(exp[6], DType{vec.s6()});
+  EXPECT_EQ(exp[7], DType{vec.s7()});
+}
+template <typename DType>
+void check_vector_matches(std::array<DType, 16> exp,
+                          cl::sycl::vec<DType, 16> const& vec) {
+  EXPECT_EQ(exp[0], DType{vec.s0()});
+  EXPECT_EQ(exp[1], DType{vec.s1()});
+  EXPECT_EQ(exp[2], DType{vec.s2()});
+  EXPECT_EQ(exp[3], DType{vec.s3()});
+  EXPECT_EQ(exp[4], DType{vec.s4()});
+  EXPECT_EQ(exp[5], DType{vec.s5()});
+  EXPECT_EQ(exp[6], DType{vec.s6()});
+  EXPECT_EQ(exp[7], DType{vec.s7()});
+  EXPECT_EQ(exp[8], DType{vec.s8()});
+  EXPECT_EQ(exp[9], DType{vec.s9()});
+  EXPECT_EQ(exp[10], DType{vec.sA()});
+  EXPECT_EQ(exp[11], DType{vec.sB()});
+  EXPECT_EQ(exp[12], DType{vec.sC()});
+  EXPECT_EQ(exp[13], DType{vec.sD()});
+  EXPECT_EQ(exp[14], DType{vec.sE()});
+  EXPECT_EQ(exp[15], DType{vec.sF()});
+}
+}
+
 template <typename T>
 struct VectorElementTest : public ::testing::Test {};
 
@@ -43,7 +110,7 @@ TYPED_TEST(VectorElementTest, Vector1DType) {
 
   TypeParam const b = 10;
   sycldnn::helpers::vector_element::set(vec, 0, b);
-  EXPECT_EQ(b, vec.s0());
+  check_vector_matches({b}, vec);
 }
 TYPED_TEST(VectorElementTest, Vector2DType) {
   using Vec = cl::sycl::vec<TypeParam, 2>;
@@ -58,13 +125,11 @@ TYPED_TEST(VectorElementTest, Vector2DType) {
 
   TypeParam const b0 = 10;
   sycldnn::helpers::vector_element::set(vec, 0, b0);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(a1, vec.s1());
+  check_vector_matches({b0, a1}, vec);
 
   TypeParam const b1 = 15;
   sycldnn::helpers::vector_element::set(vec, 1, b1);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
+  check_vector_matches({b0, b1}, vec);
 }
 TYPED_TEST(VectorElementTest, Vector3DType) {
   using Vec = cl::sycl::vec<TypeParam, 3>;
@@ -83,21 +148,15 @@ TYPED_TEST(VectorElementTest, Vector3DType) {
 
   TypeParam const b0 = 10;
   sycldnn::helpers::vector_element::set(vec, 0, b0);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(a1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
+  check_vector_matches({b0, a1, a2}, vec);
 
   TypeParam const b1 = 15;
   sycldnn::helpers::vector_element::set(vec, 1, b1);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
+  check_vector_matches({b0, b1, a2}, vec);
 
   TypeParam const b2 = 20;
   sycldnn::helpers::vector_element::set(vec, 2, b2);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
+  check_vector_matches({b0, b1, b2}, vec);
 }
 TYPED_TEST(VectorElementTest, Vector4DType) {
   using Vec = cl::sycl::vec<TypeParam, 4>;
@@ -120,31 +179,19 @@ TYPED_TEST(VectorElementTest, Vector4DType) {
 
   TypeParam const b0 = 10;
   sycldnn::helpers::vector_element::set(vec, 0, b0);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(a1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
+  check_vector_matches({b0, a1, a2, a3}, vec);
 
   TypeParam const b1 = 15;
   sycldnn::helpers::vector_element::set(vec, 1, b1);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
+  check_vector_matches({b0, b1, a2, a3}, vec);
 
   TypeParam const b2 = 20;
   sycldnn::helpers::vector_element::set(vec, 2, b2);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
+  check_vector_matches({b0, b1, b2, a3}, vec);
 
   TypeParam const b3 = 30;
   sycldnn::helpers::vector_element::set(vec, 3, b3);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
+  check_vector_matches({b0, b1, b2, b3}, vec);
 }
 TYPED_TEST(VectorElementTest, Vector8DType) {
   using Vec = cl::sycl::vec<TypeParam, 8>;
@@ -183,91 +230,35 @@ TYPED_TEST(VectorElementTest, Vector8DType) {
 
   TypeParam const b0 = 10;
   sycldnn::helpers::vector_element::set(vec, 0, b0);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(a1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, a1, a2, a3, a4, a5, a6, a7}, vec);
 
   TypeParam const b1 = 15;
   sycldnn::helpers::vector_element::set(vec, 1, b1);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, b1, a2, a3, a4, a5, a6, a7}, vec);
 
   TypeParam const b2 = 20;
   sycldnn::helpers::vector_element::set(vec, 2, b2);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, b1, b2, a3, a4, a5, a6, a7}, vec);
 
   TypeParam const b3 = 30;
   sycldnn::helpers::vector_element::set(vec, 3, b3);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, b1, b2, b3, a4, a5, a6, a7}, vec);
 
   TypeParam const b4 = 40;
   sycldnn::helpers::vector_element::set(vec, 4, b4);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, b1, b2, b3, b4, a5, a6, a7}, vec);
 
   TypeParam const b5 = 50;
   sycldnn::helpers::vector_element::set(vec, 5, b5);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, b1, b2, b3, b4, b5, a6, a7}, vec);
 
   TypeParam const b6 = 60;
   sycldnn::helpers::vector_element::set(vec, 6, b6);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
+  check_vector_matches({b0, b1, b2, b3, b4, b5, b6, a7}, vec);
 
   TypeParam const b7 = 70;
   sycldnn::helpers::vector_element::set(vec, 7, b7);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
+  check_vector_matches({b0, b1, b2, b3, b4, b5, b6, b7}, vec);
 }
 // NOLINTNEXTLINE(google-readability-function-size)
 TYPED_TEST(VectorElementTest, Vector16DType) {
@@ -339,305 +330,97 @@ TYPED_TEST(VectorElementTest, Vector16DType) {
 
   TypeParam const b0 = 10;
   sycldnn::helpers::vector_element::set(vec, 0, b0);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(a1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b1 = 15;
   sycldnn::helpers::vector_element::set(vec, 1, b1);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(a2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b2 = 20;
   sycldnn::helpers::vector_element::set(vec, 2, b2);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(a3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b3 = 30;
   sycldnn::helpers::vector_element::set(vec, 3, b3);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(a4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b4 = 40;
   sycldnn::helpers::vector_element::set(vec, 4, b4);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(a5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b5 = 50;
   sycldnn::helpers::vector_element::set(vec, 5, b5);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(a6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b6 = 60;
   sycldnn::helpers::vector_element::set(vec, 6, b6);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(a7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, a7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b7 = 70;
   sycldnn::helpers::vector_element::set(vec, 7, b7);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(a8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, a8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b8 = 80;
   sycldnn::helpers::vector_element::set(vec, 8, b8);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(a9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, a9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b9 = 90;
   sycldnn::helpers::vector_element::set(vec, 9, b9);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(a10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, a10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b10 = 100;
   sycldnn::helpers::vector_element::set(vec, 10, b10);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(b10, vec.sA());
-  EXPECT_EQ(a11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, a11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b11 = 110;
   sycldnn::helpers::vector_element::set(vec, 11, b11);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(b10, vec.sA());
-  EXPECT_EQ(b11, vec.sB());
-  EXPECT_EQ(a12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, a12, a13, a14, a15},
+      vec);
 
   TypeParam const b12 = 120;
   sycldnn::helpers::vector_element::set(vec, 12, b12);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(b10, vec.sA());
-  EXPECT_EQ(b11, vec.sB());
-  EXPECT_EQ(b12, vec.sC());
-  EXPECT_EQ(a13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, a13, a14, a15},
+      vec);
 
   TypeParam const b13 = 130;
   sycldnn::helpers::vector_element::set(vec, 13, b13);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(b10, vec.sA());
-  EXPECT_EQ(b11, vec.sB());
-  EXPECT_EQ(b12, vec.sC());
-  EXPECT_EQ(b13, vec.sD());
-  EXPECT_EQ(a14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, a14, a15},
+      vec);
 
   TypeParam const b14 = 140;
   sycldnn::helpers::vector_element::set(vec, 14, b14);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(b10, vec.sA());
-  EXPECT_EQ(b11, vec.sB());
-  EXPECT_EQ(b12, vec.sC());
-  EXPECT_EQ(b13, vec.sD());
-  EXPECT_EQ(b14, vec.sE());
-  EXPECT_EQ(a15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, a15},
+      vec);
 
   TypeParam const b15 = 150;
   sycldnn::helpers::vector_element::set(vec, 15, b15);
-  EXPECT_EQ(b0, vec.s0());
-  EXPECT_EQ(b1, vec.s1());
-  EXPECT_EQ(b2, vec.s2());
-  EXPECT_EQ(b3, vec.s3());
-  EXPECT_EQ(b4, vec.s4());
-  EXPECT_EQ(b5, vec.s5());
-  EXPECT_EQ(b6, vec.s6());
-  EXPECT_EQ(b7, vec.s7());
-  EXPECT_EQ(b8, vec.s8());
-  EXPECT_EQ(b9, vec.s9());
-  EXPECT_EQ(b10, vec.sA());
-  EXPECT_EQ(b11, vec.sB());
-  EXPECT_EQ(b12, vec.sC());
-  EXPECT_EQ(b13, vec.sD());
-  EXPECT_EQ(b14, vec.sE());
-  EXPECT_EQ(b15, vec.sF());
+  check_vector_matches(
+      {b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15},
+      vec);
 }

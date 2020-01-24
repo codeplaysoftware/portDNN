@@ -18,12 +18,19 @@
 #include "sycldnn/helpers/macros.h"
 
 TEST(NonDeviceHelperMacro, NoAlwaysInlineOnHost) {
+// These tests depend on certain preprocessor behaviour which is not
+// compatible with MSVC, so avoid compiling these tests with the MSVC
+// compiler.
+#ifndef SNN_WINDOWS
   auto test_str = SNN_MAKE_STRING(SNN_ALWAYS_INLINE);
   auto expected = "";
   ASSERT_STREQ(expected, test_str);
+#endif
 }
 TEST(NonDeviceHelperMacro, NoPragmaUnrollOnHost) {
+#ifndef SNN_WINDOWS
   auto test_str = SNN_MAKE_STRING(SNN_PRAGMA_UNROLL);
   auto expected = "";
   ASSERT_STREQ(expected, test_str);
+#endif
 }

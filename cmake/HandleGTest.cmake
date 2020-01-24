@@ -77,7 +77,10 @@ if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
                       -DBUILD_SHARED_LIBS=OFF
                       -DBUILD_GMOCK=OFF
                       -DBUILD_GTEST=ON
-                      -DCMAKE_BUILD_TYPE=Release
+                      -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                      -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+                      -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}
+                      -DCMAKE_CXX_FLAGS_DEBUG=${CMAKE_CXX_FLAGS_DEBUG}
                       ${cmake_toolchain}
     INSTALL_COMMAND   ""
     TEST_COMMAND      ""

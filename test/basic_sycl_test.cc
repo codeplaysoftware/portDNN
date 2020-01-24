@@ -27,8 +27,8 @@ TEST(BasicSycl, construct_queue_with_selector) {
   cl::sycl::queue queue{selector};
 }
 TEST(BasicSycl, host_set_float) {
-  constexpr int num_elems = 10;
-  constexpr auto write_mode = cl::sycl::access::mode::write;
+  static constexpr auto write_mode = cl::sycl::access::mode::write;
+  constexpr size_t num_elems = 10;
   cl::sycl::host_selector selector;
   cl::sycl::queue queue{selector};
   std::array<float, num_elems> base_mem{};
@@ -36,7 +36,7 @@ TEST(BasicSycl, host_set_float) {
     cl::sycl::buffer<float, 1> bufA{base_mem.data(),
                                     cl::sycl::range<1>{num_elems}};
     queue.submit([&](cl::sycl::handler& cgh) {
-      auto accessorA = bufA.template get_access<write_mode>(cgh);
+      auto accessorA = bufA.get_access<write_mode>(cgh);
 
       cgh.parallel_for<HostSet>(cl::sycl::range<1>{num_elems},
                                 [=](cl::sycl::item<1> item) {
@@ -45,13 +45,13 @@ TEST(BasicSycl, host_set_float) {
                                 });
     });
   }
-  for (int i = 0; i < num_elems; ++i) {
+  for (size_t i = 0; i < num_elems; ++i) {
     ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1f, base_mem[i]);
   }
 }
 TEST(BasicSycl, device_set_float) {
-  constexpr int num_elems = 10;
-  constexpr auto write_mode = cl::sycl::access::mode::write;
+  static constexpr auto write_mode = cl::sycl::access::mode::write;
+  constexpr size_t num_elems = 10;
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
   std::array<float, num_elems> base_mem{};
@@ -59,7 +59,7 @@ TEST(BasicSycl, device_set_float) {
     cl::sycl::buffer<float, 1> bufA{base_mem.data(),
                                     cl::sycl::range<1>{num_elems}};
     queue.submit([&](cl::sycl::handler& cgh) {
-      auto accessorA = bufA.template get_access<write_mode>(cgh);
+      auto accessorA = bufA.get_access<write_mode>(cgh);
 
       cgh.parallel_for<DeviceSet>(cl::sycl::range<1>{num_elems},
                                   [=](cl::sycl::item<1> item) {
@@ -68,7 +68,7 @@ TEST(BasicSycl, device_set_float) {
                                   });
     });
   }
-  for (int i = 0; i < num_elems; ++i) {
+  for (size_t i = 0; i < num_elems; ++i) {
     ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1f, base_mem[i]);
   }
 }
