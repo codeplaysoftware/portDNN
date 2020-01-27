@@ -169,6 +169,18 @@ inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& input,
   }
 
 // clang-format off
+#ifdef POWER_VR
+  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 2, 4)
+  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 8)
+  LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 8, 2)
+  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 4)
+  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 8, 1)
+  LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
+  LAUNCH_IF_MATCH(params, 1, 1, 5, 2, 8, 8)
+  LAUNCH_IF_MATCH(params, 1, 1, 4, 4, 1, 8)
+  LAUNCH_IF_MATCH(params, 1, 1, 5, 5, 8, 1)
+  LAUNCH_IF_MATCH(params, 1, 1, 5, 4, 1, 1)
+#endif
 #ifdef ARM_GPU
   LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
   LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 4, 2)

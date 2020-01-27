@@ -126,6 +126,17 @@ function(instantiate_tiled_conv)
         # duplicates of earlier list entries.
         if(NOT CONV_TYPE STREQUAL "conv_type::FilterBackprop")
           if(CONV_TYPE STREQUAL "conv_type::Forward")
+            # PowerVR
+            instantiate_tiled_conv_impl(_sources 3 1 5 4 2 4)
+            instantiate_tiled_conv_impl(_sources 3 1 3 4 1 8)
+            instantiate_tiled_conv_impl(_sources 3 1 4 3 8 2)
+            instantiate_tiled_conv_impl(_sources 3 1 5 4 1 4)
+            instantiate_tiled_conv_impl(_sources 3 1 5 4 8 1)
+            instantiate_tiled_conv_impl(_sources 3 1 5 5 1 1)
+            instantiate_tiled_conv_impl(_sources 1 1 5 2 8 8)
+            instantiate_tiled_conv_impl(_sources 1 1 4 4 1 8)
+            instantiate_tiled_conv_impl(_sources 1 1 5 5 8 1)
+            instantiate_tiled_conv_impl(_sources 1 1 5 4 1 1)
             # ARM GPU
             instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
             instantiate_tiled_conv_impl(_sources 1 1 2 4 4 2)

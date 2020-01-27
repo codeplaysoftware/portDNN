@@ -210,6 +210,41 @@ class AMDGPUSelector final : public DefaultSelector {
   char const* name() const override { return "AMDGPUSelector"; }
 };
 
+/** A selector specialised for PowerVR GPUs. */
+class PowerVRSelector final : public DefaultSelector {
+ public:
+  sycldnn::conv2d::Algorithm select_forward(
+      sycldnn::conv2d::Conv2DParams const& params) override {
+    if (params.stride_cols > 1 && params.stride_cols > 1) {
+      return sycldnn::conv2d::Algorithm::Im2col;
+    }
+    if (params.window_rows > 1 && params.out_rows < 10 &&
+        params.out_cols < 10) {
+      return sycldnn::conv2d::Algorithm::Im2col;
+    }
+    if (params.channels == 3) {
+      if (params.window_rows == 3 && params.window_cols == 3) {
+        return sycldnn::conv2d::Algorithm::Tiled;
+      }
+      return sycldnn::conv2d::Algorithm::Im2col;
+    }
+    if (params.window_rows == 3 && params.window_cols == 3) {
+      if (params.features < 30) {
+        return sycldnn::conv2d::Algorithm::Tiled;
+      }
+      if (params.batch < 4 && params.out_rows < 15 && params.out_cols < 15) {
+        return sycldnn::conv2d::Algorithm::Winograd;
+      }
+      if (params.out_rows < 13 && params.out_cols < 13) {
+        return sycldnn::conv2d::Algorithm::Winograd;
+      }
+    }
+    return this->DefaultSelector::select_forward(params);
+  }
+
+  char const* name() const override { return "PowerVRSelector"; }
+};
+
 }  // namespace
 
 namespace sycldnn {
@@ -222,6 +257,7 @@ SNN_EXPORT std::unique_ptr<Selector> get_default_selector(
   bool is_amd =
       vendor.find("Advanced Micro Devices, Inc.") != std::string::npos;
   bool is_arm = vendor.find("ARM") != std::string::npos;
+  bool is_img = vendor.find("Imagination Technologies") != std::string::npos;
 
   bool is_cpu = device.is_cpu();
   bool is_gpu = device.is_gpu();
@@ -236,6 +272,8 @@ SNN_EXPORT std::unique_ptr<Selector> get_default_selector(
     selector.reset(new AMDGPUSelector{});
   } else if (is_arm && is_gpu) {
     selector.reset(new ARMGPUSelector{});
+  } else if (is_img && is_gpu) {
+    selector.reset(new PowerVRSelector{});
   } else {
     selector.reset(new DefaultSelector{});
   }
