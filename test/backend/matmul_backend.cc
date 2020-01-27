@@ -143,3 +143,96 @@ TYPED_TEST(Matmul, SimpleBatchMatmulTlhsTrhs) {
                                     10, 22, 7,  15, 10, 22};
   this->template test_square_batch_matmul<true, true>(lhs, rhs, expected, 3, 2);
 }
+TYPED_TEST(Matmul, WithOneM) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2, 3, 4, 5, 6, 7, 8};
+  std::vector<DataType> expected = {50, 60};
+  this->template test_nonsquare_matmul<false, false>(lhs, rhs, expected, 1, 2,
+                                                     4);
+}
+TYPED_TEST(Matmul, WithOneMTlhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2, 3, 4, 5, 6, 7, 8};
+  std::vector<DataType> expected = {50, 60};
+  this->template test_nonsquare_matmul<true, false>(lhs, rhs, expected, 1, 2,
+                                                    4);
+}
+TYPED_TEST(Matmul, WithOneMTrhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2, 3, 4, 5, 6, 7, 8};
+  std::vector<DataType> expected = {30, 70};
+  this->template test_nonsquare_matmul<false, true>(lhs, rhs, expected, 1, 2,
+                                                    4);
+}
+TYPED_TEST(Matmul, WithOneMTlhsTrhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2, 3, 4, 5, 6, 7, 8};
+  std::vector<DataType> expected = {30, 70};
+  this->template test_nonsquare_matmul<true, true>(lhs, rhs, expected, 1, 2, 4);
+}
+TYPED_TEST(Matmul, WithOneK) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2};
+  std::vector<DataType> expected = {1, 2, 2, 4, 3, 6, 4, 8};
+  this->template test_nonsquare_matmul<false, false>(lhs, rhs, expected, 4, 2,
+                                                     1);
+}
+TYPED_TEST(Matmul, WithOneKTlhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2};
+  std::vector<DataType> expected = {1, 2, 2, 4, 3, 6, 4, 8};
+  this->template test_nonsquare_matmul<true, false>(lhs, rhs, expected, 4, 2,
+                                                    1);
+}
+TYPED_TEST(Matmul, WithOneKTrhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2};
+  std::vector<DataType> expected = {1, 2, 2, 4, 3, 6, 4, 8};
+  this->template test_nonsquare_matmul<false, true>(lhs, rhs, expected, 4, 2,
+                                                    1);
+}
+TYPED_TEST(Matmul, WithOneKTlhsTrhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4};
+  std::vector<DataType> rhs = {1, 2};
+  std::vector<DataType> expected = {1, 2, 2, 4, 3, 6, 4, 8};
+  this->template test_nonsquare_matmul<true, true>(lhs, rhs, expected, 4, 2, 1);
+}
+TYPED_TEST(Matmul, WithOneN) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4, 5, 6};
+  std::vector<DataType> rhs = {1, 2, 3};
+  std::vector<DataType> expected = {14, 32};
+  this->template test_nonsquare_matmul<false, false>(lhs, rhs, expected, 2, 1,
+                                                     3);
+}
+TYPED_TEST(Matmul, WithOneNTlhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4, 5, 6};
+  std::vector<DataType> rhs = {1, 2, 3};
+  std::vector<DataType> expected = {22, 28};
+  this->template test_nonsquare_matmul<true, false>(lhs, rhs, expected, 2, 1,
+                                                    3);
+}
+TYPED_TEST(Matmul, WithOneNTrhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4, 5, 6};
+  std::vector<DataType> rhs = {1, 2, 3};
+  std::vector<DataType> expected = {14, 32};
+  this->template test_nonsquare_matmul<false, true>(lhs, rhs, expected, 2, 1,
+                                                    3);
+}
+TYPED_TEST(Matmul, WithOneNTlhsTrhs) {
+  using DataType = typename TypeParam::SecondType;
+  std::vector<DataType> lhs = {1, 2, 3, 4, 5, 6};
+  std::vector<DataType> rhs = {1, 2, 3};
+  std::vector<DataType> expected = {22, 28};
+  this->template test_nonsquare_matmul<true, true>(lhs, rhs, expected, 2, 1, 3);
+}
