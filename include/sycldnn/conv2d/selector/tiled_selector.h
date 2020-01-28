@@ -74,25 +74,13 @@ class TiledSelector final : public Selector {
    * or Algorithm::NotSupported otherwise.
    */
   Algorithm select_input_backprop(Conv2DParams const& params) override {
-    if (params.window_rows != params.window_cols ||
-        params.stride_rows != params.stride_cols) {
-      return Algorithm::NotSupported;
-    }
-    if (params.window_rows == 1 && params.stride_rows == 2) {
-      return Algorithm::Tiled;
-    }
-    if (params.window_rows == 1 && params.stride_rows == 1) {
-      return Algorithm::Tiled;
-    }
-    if (params.window_rows == 3 && params.stride_rows == 2) {
-      return Algorithm::Tiled;
-    }
-    if (params.window_rows == 3 && params.stride_rows == 1) {
-      return Algorithm::Tiled;
-    }
-    if (params.window_rows == 5 && params.stride_rows == 1) {
-      return Algorithm::Tiled;
-    }
+    // The input backprop tiled implementation contains code that the compiler
+    // struggles to optimize correctly, generating very verbose code that
+    // requires a lot of stack. At best this just gives poor performance, at
+    // worst it causes some OpenCL implementations to crash when compiling the
+    // module. Disable these kernels until this can be fixed.
+    // TODO(jwlawson): Re-enable support when kernels fixed.
+    SNN_UNUSED_VAR(params);
     return Algorithm::NotSupported;
   }
 
