@@ -221,11 +221,21 @@ struct SyclBLASBackend final {
     auto ldc = trans_m;
     auto lda = TransposeRHS ? k : trans_m;
     auto ldb = TransposeLHS ? trans_n : k;
-    cl::sycl::event e =
-        blas::_gemm(executor_, TransposeRHS ? 't' : 'n',
-                    TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
-                    static_cast<T>(1), rhs, lda, lhs, ldb, beta, output, ldc)
-            .back();
+    cl::sycl::event e;
+    if (trans_m == 1) {
+      auto gemv_m = TransposeRHS ? k : trans_m;
+      auto gemv_n = TransposeRHS ? trans_m : k;
+      constexpr Index increment = 1;
+      e = blas::_gemv(executor_, TransposeLHS ? 't' : 'n', gemv_m, gemv_n,
+                      static_cast<T>(1), rhs, lda, lhs, increment, beta, output,
+                      increment)
+              .back();
+    } else {
+      e = blas::_gemm(executor_, TransposeRHS ? 't' : 'n',
+                      TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
+                      static_cast<T>(1), rhs, lda, lhs, ldb, beta, output, ldc)
+              .back();
+    }
     return e;
   }
 
