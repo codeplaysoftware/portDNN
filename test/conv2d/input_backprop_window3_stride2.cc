@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -48,7 +48,7 @@ using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
 template <typename Pair>
 using InputBackpropWindow3Stride2 = WindowStrideTest<Pair, 3, 2>;
-TYPED_TEST_CASE(InputBackpropWindow3Stride2, GTestTypeTriples);
+TYPED_TEST_SUITE(InputBackpropWindow3Stride2, GTestTypeTriples);
 TYPED_TEST(InputBackpropWindow3Stride2, SAME1x5x5x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {

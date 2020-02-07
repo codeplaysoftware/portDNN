@@ -18,7 +18,7 @@ project(sycldnn LANGUAGES C CXX VERSION 0.6.0)
 
 # Configuration options controlling automatic downloading of dependencies.
 option(SNN_DOWNLOAD_GTEST
-  "Download and build google test, rather than use the system version" OFF)
+  "Download and build google test, rather than use the system version" ON)
 option(SNN_DOWNLOAD_BENCHMARK
   "Download and build google benchmark, rather than use the system version" ON)
 option(SNN_DOWNLOAD_EIGEN "Download Eigen headers" ON)

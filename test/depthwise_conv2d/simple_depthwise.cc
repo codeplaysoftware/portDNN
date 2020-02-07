@@ -40,7 +40,7 @@ using Backends = sycldnn::types::TypeList<sycldnn::backend::SNNBackend>;
 using BackendTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<BackendTypePairs>::type;
-TYPED_TEST_CASE(BasicConvolutionTest, GTestTypePairs);
+TYPED_TEST_SUITE(BasicConvolutionTest, GTestTypePairs);
 
 sycldnn::depthwise_conv2d::DepthwiseConv2DParams get_3x3_params() {
   sycldnn::depthwise_conv2d::DepthwiseConv2DParams params;

@@ -48,7 +48,7 @@ using BackendTypePairs =
 using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
 
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
-TYPED_TEST_CASE(OffsetConvolutionTest, GTestTypeTriples);
+TYPED_TEST_SUITE(OffsetConvolutionTest, GTestTypeTriples);
 
 sycldnn::conv2d::Conv2DParams get_3x3_params() {
   sycldnn::conv2d::Conv2DParams params;

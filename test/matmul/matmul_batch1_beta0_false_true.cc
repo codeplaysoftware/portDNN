@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -30,7 +30,7 @@ using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 template <typename DataType>
 using MatmulBatch1Beta0FalseTrue = MatmulFixture<DataType, false, true>;
-TYPED_TEST_CASE(MatmulBatch1Beta0FalseTrue, GTestTypeList);
+TYPED_TEST_SUITE(MatmulBatch1Beta0FalseTrue, GTestTypeList);
 TYPED_TEST(MatmulBatch1Beta0FalseTrue, M14xK14xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {

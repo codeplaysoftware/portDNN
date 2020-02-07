@@ -70,7 +70,7 @@ struct AddPaddingToParamsTest : public ::testing::Test {
 };
 using ParamTypes = ::testing::Types<sycldnn::conv2d::Conv2DParams,
                                     sycldnn::pooling::PoolingParams>;
-TYPED_TEST_CASE(AddPaddingToParamsTest, ParamTypes);
+TYPED_TEST_SUITE(AddPaddingToParamsTest, ParamTypes);
 
 TYPED_TEST(AddPaddingToParamsTest, ValidStride1) {
   TestParams params{};

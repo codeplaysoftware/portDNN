@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -42,7 +42,7 @@ using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 template <typename Pair>
 using FilterBackpropWindow7Stride4 =
     sycldnn::depthwise_conv2d::WindowStrideTest<Pair, 7, 4>;
-TYPED_TEST_CASE(FilterBackpropWindow7Stride4, GTestTypePairs);
+TYPED_TEST_SUITE(FilterBackpropWindow7Stride4, GTestTypePairs);
 TYPED_TEST(FilterBackpropWindow7Stride4, SAME1x11x11x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {

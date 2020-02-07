@@ -62,7 +62,7 @@ using TestTypePairs =
 
 // GTest compatible type list
 using GTestTypePairs = sycldnn::types::ToGTestTypes<TestTypePairs>::type;
-TYPED_TEST_CASE(Matmul, GTestTypePairs);
+TYPED_TEST_SUITE(Matmul, GTestTypePairs);
 
 TYPED_TEST(Matmul, SimpleMatmul) {
   using DataType = typename TypeParam::SecondType;

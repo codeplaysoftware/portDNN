@@ -53,10 +53,10 @@ template <typename T>
 using SignedRatioHelpers = RatioHelpers<T>;
 
 using RatioTypes = ::testing::Types<int32_t, int64_t, uint32_t, uint64_t>;
-TYPED_TEST_CASE(RatioHelpers, RatioTypes);
+TYPED_TEST_SUITE(RatioHelpers, RatioTypes);
 
 using SignedRatioTypes = ::testing::Types<int32_t, int64_t>;
-TYPED_TEST_CASE(SignedRatioHelpers, SignedRatioTypes);
+TYPED_TEST_SUITE(SignedRatioHelpers, SignedRatioTypes);
 
 TYPED_TEST(RatioHelpers, RatioUpAbove0PositiveBy1) {
   std::vector<TypeParam> num = {0, 1, 2, 3, 4, 5, 11, 101, 10001};

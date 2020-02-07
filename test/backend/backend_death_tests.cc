@@ -33,8 +33,8 @@ template <typename Backend>
 using ExternalDeathTest = BackendTestFixture<Backend>;
 template <typename Backend>
 using InternalDeathTest = BackendTestFixture<Backend>;
-TYPED_TEST_CASE(ExternalDeathTest, Backends);
-TYPED_TEST_CASE(InternalDeathTest, Backends);
+TYPED_TEST_SUITE(ExternalDeathTest, Backends);
+TYPED_TEST_SUITE(InternalDeathTest, Backends);
 
 TYPED_TEST(ExternalDeathTest, FetchNonexistingBuffer) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";

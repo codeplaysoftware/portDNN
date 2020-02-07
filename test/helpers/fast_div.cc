@@ -41,7 +41,7 @@ struct FastDivTest : public ::testing::Test {
   }
 };
 using IntegerTypes = ::testing::Types<int32_t, int64_t>;
-TYPED_TEST_CASE(FastDivTest, IntegerTypes);
+TYPED_TEST_SUITE(FastDivTest, IntegerTypes);
 
 TYPED_TEST(FastDivTest, DivideBy2) {
   TypeParam divisor = 2;

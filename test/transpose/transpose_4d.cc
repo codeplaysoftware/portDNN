@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -30,7 +30,7 @@ using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 template <typename DataType>
 using Tranpose4D = TransposeFixture<DataType>;
-TYPED_TEST_CASE(Tranpose4D, GTestTypeList);
+TYPED_TEST_SUITE(Tranpose4D, GTestTypeList);
 TYPED_TEST(Tranpose4D, T4D_2x2x2x2_0x1x2x3) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2.,  3.,  4.,  5.,  6.,  7.,  8.,

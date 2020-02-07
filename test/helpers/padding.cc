@@ -49,7 +49,7 @@ struct PaddingTest : public ::testing::Test {
 };
 
 using IndexTypes = ::testing::Types<int32_t, int64_t>;
-TYPED_TEST_CASE(PaddingTest, IndexTypes);
+TYPED_TEST_SUITE(PaddingTest, IndexTypes);
 
 TYPED_TEST(PaddingTest, ValidWindow1Stride1) {
   TypeParam window = 1;

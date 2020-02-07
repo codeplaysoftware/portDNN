@@ -39,10 +39,10 @@ INCLUDES = r"""
 DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;"""
-TYPED_TEST_CASE_DECL_TPL = r"""
+TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename DataType>
 using {test_case} = MatmulFixture<DataType, {trans_lhs}, {trans_rhs}>;
-TYPED_TEST_CASE({test_case}, GTestTypeList);"""
+TYPED_TEST_SUITE({test_case}, GTestTypeList);"""
 TEST_CASE_TPL = r"MatmulBatch{batch}Beta{beta}{trans_lhs}{trans_rhs}"
 TEST_NAME_TPL = r"M{m}xK{k}xN{n}"
 
@@ -153,7 +153,7 @@ def test_case_for_transposes(batch, beta, trans_lhs, trans_rhs):
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
         DATA_TYPES,
-        TYPED_TEST_CASE_DECL_TPL.format(
+        TYPED_TEST_SUITE_DECL_TPL.format(
             test_case=test_case,
             trans_lhs=helpers.to_lower_case_str(trans_lhs),
             trans_rhs=helpers.to_lower_case_str(trans_rhs)),

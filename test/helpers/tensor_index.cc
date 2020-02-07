@@ -139,7 +139,7 @@ struct TensorIndexTest : public ::testing::Test {
   }
 };
 using IntegerTypes = ::testing::Types<int32_t, int64_t>;
-TYPED_TEST_CASE(TensorIndexTest, IntegerTypes);
+TYPED_TEST_SUITE(TensorIndexTest, IntegerTypes);
 
 TYPED_TEST(TensorIndexTest, Unflatten2DSize4) {
   std::vector<TypeParam> indices = {0, 1, 2,  3,  4,  5,  6,  7,

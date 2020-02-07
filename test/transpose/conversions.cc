@@ -48,7 +48,7 @@ struct TransposeConversion
   using DataType = T;
 };
 
-TYPED_TEST_CASE(TransposeConversion, GTestTypeList);
+TYPED_TEST_SUITE(TransposeConversion, GTestTypeList);
 
 TYPED_TEST(TransposeConversion, NHWCToNCHW) {
   using DataType = typename TestFixture::DataType;

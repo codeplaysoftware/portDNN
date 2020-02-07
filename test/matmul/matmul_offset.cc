@@ -26,7 +26,7 @@ using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 template <typename DataType>
 using MatmulOffset = MatmulFixture<DataType, false, false>;
-TYPED_TEST_CASE(MatmulOffset, GTestTypeList);
+TYPED_TEST_SUITE(MatmulOffset, GTestTypeList);
 
 TYPED_TEST(MatmulOffset, M4xK4xN4) {
   using DataType = typename TestFixture::DataType;

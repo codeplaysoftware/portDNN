@@ -69,12 +69,12 @@ using Backends = sycldnn::types::DefaultBackendTypes;
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;"""
-TYPED_TEST_CASE_DECL_TPL = r"""
+TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename Pair>
 using {test_case} =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    {operation}, {direction}>;
-TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
+TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple(
     'TestCaseParams',
@@ -278,7 +278,7 @@ def output_for_test_case(test_case):
                                           direction=helpers.to_camel_case(
                                               test_case.direction))
     output = [
-        TYPED_TEST_CASE_DECL_TPL.format(
+        TYPED_TEST_SUITE_DECL_TPL.format(
             test_case=test_case_name,
             operation=OPERATOR_MAP[test_case.test_type],
             direction=DIRECTION_MAP[test_case.direction])

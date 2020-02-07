@@ -50,11 +50,11 @@ INCLUDES = r"""
 #include "test/types/kernel_data_types.h"
 
 #include <vector>"""
-TYPED_TEST_CASE_DECL_TPL = r"""
+TYPED_TEST_SUITE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 template <typename DataType>
 using {test_case} = PointwiseFixture<DataType, {operation}, {direction}>;
-TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
+TYPED_TEST_SUITE({test_case}, types::GTestKernelDataTypes);"""
 
 TestCaseParams = namedtuple("TestCaseParams", ["test_type", "direction"])
 TestParams = namedtuple("TestParams", ["in_size"])
@@ -209,7 +209,7 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
-        TYPED_TEST_CASE_DECL_TPL.format(
+        TYPED_TEST_SUITE_DECL_TPL.format(
             test_case=test_case_name,
             operation=OPERATOR_MAP[test_case.test_type],
             direction=DIRECTION_MAP[test_case.direction]),

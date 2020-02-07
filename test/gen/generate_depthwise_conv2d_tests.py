@@ -66,11 +66,11 @@ using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 """
-TYPED_TEST_CASE_DECL_TPL = r"""
+TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename Pair>
 using {test_case} =
     sycldnn::depthwise_conv2d::WindowStrideTest<Pair, {window}, {stride}>;
-TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
+TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
                             ['test_type', 'window', 'stride'])
@@ -320,7 +320,7 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname), INCLUDES,
         DATA_TYPES,
-        TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name,
+        TYPED_TEST_SUITE_DECL_TPL.format(test_case=test_case_name,
                                         window=test_case.window,
                                         stride=test_case.stride)
     ]

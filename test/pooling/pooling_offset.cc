@@ -56,7 +56,7 @@ using PoolingOffsetMaxBackprop =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    sycldnn::pooling::Max, sycldnn::pooling::Backpropagate>;
 
-TYPED_TEST_CASE(PoolingOffsetAvgForward, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetAvgForward, GTestTypePairs);
 TYPED_TEST(PoolingOffsetAvgForward, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {181., 182., 183., 184., 197., 198.,
@@ -89,7 +89,7 @@ TYPED_TEST(PoolingOffsetAvgForward, Same) {
   this->test_pool(exp_out, params, max_input_val, 338, 0);
 }
 
-TYPED_TEST_CASE(PoolingOffsetMaxForward, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetMaxForward, GTestTypePairs);
 TYPED_TEST(PoolingOffsetMaxForward, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp = {11., 12., 15., 16.};
@@ -111,7 +111,7 @@ TYPED_TEST(PoolingOffsetMaxForward, Same) {
   this->test_pool(exp_out, params, max_input_val, 2048, 2048);
 }
 
-TYPED_TEST_CASE(PoolingOffsetAvgBackprop, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetAvgBackprop, GTestTypePairs);
 TYPED_TEST(PoolingOffsetAvgBackprop, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -153,7 +153,7 @@ TYPED_TEST(PoolingOffsetAvgBackprop, Same) {
   this->test_pool(exp_out, params, max_input_val, 128, 42);
 }
 
-TYPED_TEST_CASE(PoolingOffsetMaxBackprop, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetMaxBackprop, GTestTypePairs);
 TYPED_TEST(PoolingOffsetMaxBackprop, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {

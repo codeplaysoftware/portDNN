@@ -37,7 +37,7 @@ struct IndexHelpersInWindow : public ::testing::Test {
   }
 };
 using SignedIntegralTypes = ::testing::Types<int32_t, int64_t>;
-TYPED_TEST_CASE(IndexHelpersInWindow, SignedIntegralTypes);
+TYPED_TEST_SUITE(IndexHelpersInWindow, SignedIntegralTypes);
 
 TYPED_TEST(IndexHelpersInWindow, Stride1Pad0) {
   TypeParam const stride = 1;

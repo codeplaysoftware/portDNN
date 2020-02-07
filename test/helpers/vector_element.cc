@@ -90,7 +90,7 @@ template <typename T>
 struct VectorElementTest : public ::testing::Test {};
 
 using NumericTypes = ::testing::Types<float, double>;
-TYPED_TEST_CASE(VectorElementTest, NumericTypes);
+TYPED_TEST_SUITE(VectorElementTest, NumericTypes);
 
 TYPED_TEST(VectorElementTest, NonVectorTypes) {
   TypeParam a = 0;

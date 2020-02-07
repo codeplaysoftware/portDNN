@@ -53,7 +53,7 @@ using TestTriples =
     sycldnn::types::NestedPairsToTriple<DirectedBackTypePairs>::type;
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
-TYPED_TEST_CASE(OneByOneInputMaxPoolingTest, GTestTypeTriples);
+TYPED_TEST_SUITE(OneByOneInputMaxPoolingTest, GTestTypeTriples);
 
 /*
  * Input: 1    Output: 1

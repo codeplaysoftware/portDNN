@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -46,7 +46,7 @@ template <typename Pair>
 using MaxWindow7Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow7Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow7Stride4Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow7Stride4Forward, SAME1x11x11x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {49., 53.,  55.,  93., 97.,

@@ -51,7 +51,7 @@ struct MathTest : public ::testing::Test {
   void all_equal(T exp, T val) { EXPECT_EQ(exp, val); }
 };
 using NumericTypes = ::testing::Types<float, double>;
-TYPED_TEST_CASE(MathTest, NumericTypes);
+TYPED_TEST_SUITE(MathTest, NumericTypes);
 
 TYPED_TEST(MathTest, NonVectorValues) {
   using TestType = TypeParam;

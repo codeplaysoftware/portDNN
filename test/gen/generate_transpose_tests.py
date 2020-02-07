@@ -39,10 +39,10 @@ INCLUDES = r"""
 DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;"""
-TYPED_TEST_CASE_DECL_TPL = r"""
+TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename DataType>
 using {test_case} = TransposeFixture<DataType>;
-TYPED_TEST_CASE({test_case}, GTestTypeList);"""
+TYPED_TEST_SUITE({test_case}, GTestTypeList);"""
 TEST_CASE_TPL = r"Tranpose{n_dimensions}D"
 TEST_NAME_TPL = r"T{n_dimensions}D_"
 
@@ -133,7 +133,7 @@ def transpose_test_case(n_dimensions):
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
         DATA_TYPES,
-        TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case),
+        TYPED_TEST_SUITE_DECL_TPL.format(test_case=test_case),
     ]
     for in_shape, permutation in test_cases(n_dimensions):
         output.extend(get_test_lines(in_shape, permutation))

@@ -29,7 +29,7 @@ Option                      | Type     | Default         | Description
 `SNN_DOWNLOAD_BENCHMARK`    | `BOOL`   | `ON`            | Download and build Google Benchmark, rather than look locally
 `BENCHMARK_GIT_TAG`         | `STRING` | `v1.3.0`        | Commit-ish object (e.g. tag, branch, commit hash)
 `SNN_DOWNLOAD_GTEST`        | `BOOL`   | `OFF`           | Download and build Google Test, rather than look locally
-`GTEST_GIT_TAG`             | `STRING` | `release-1.8.0` | Commit-ish object (e.g. tag, branch, commit hash)
+`GTEST_GIT_TAG`             | `STRING` | `release-1.10.0`| Commit-ish object (e.g. tag, branch, commit hash)
 `SNN_DOWNLOAD_EIGEN`        | `BOOL`   | `ON`            | Download Eigen, rather than look locally
 `EIGEN_REPO`                | `STRING` | Codeplay Fork   | The remote to download Eigen from
 `EIGEN_HG_TAG`              | `STRING` | `a51187c`       | Commit-ish object (e.g. tag, branch, commit hash)

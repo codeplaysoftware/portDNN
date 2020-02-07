@@ -25,7 +25,7 @@ using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 template <typename DataType>
 using TranposeOffsets = TransposeFixture<DataType>;
-TYPED_TEST_CASE(TranposeOffsets, GTestTypeList);
+TYPED_TEST_SUITE(TranposeOffsets, GTestTypeList);
 
 TYPED_TEST(TranposeOffsets, Offsets_2D) {
   using DataType = typename TestFixture::DataType;

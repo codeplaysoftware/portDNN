@@ -42,7 +42,7 @@ struct MinMaxTest : public ::testing::Test {
   }
 };
 using NumericTypes = ::testing::Types<int, float>;
-TYPED_TEST_CASE(MinMaxTest, NumericTypes);
+TYPED_TEST_SUITE(MinMaxTest, NumericTypes);
 
 TYPED_TEST(MinMaxTest, MaxMacroNumericPositive) {
   std::vector<TypeParam> a = {5, 9, 10, 101};

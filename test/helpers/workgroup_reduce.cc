@@ -180,7 +180,7 @@ using DataTypes =
 
 template <typename T>
 using WorkspaceReductionTestScalar = WorkspaceReductionTest<T, 1>;
-TYPED_TEST_CASE(WorkspaceReductionTestScalar, DataTypes);
+TYPED_TEST_SUITE(WorkspaceReductionTestScalar, DataTypes);
 
 TYPED_TEST(WorkspaceReductionTestScalar, SingleOut16) {
   using DataType = typename TestFixture::ScalarType;
@@ -319,7 +319,7 @@ TYPED_TEST(WorkspaceReductionTestScalar, FourOut4x2x2Alt) {
 
 template <typename T>
 using WorkspaceReductionTestVec2 = WorkspaceReductionTest<T, 2>;
-TYPED_TEST_CASE(WorkspaceReductionTestVec2, DataTypes);
+TYPED_TEST_SUITE(WorkspaceReductionTestVec2, DataTypes);
 
 TYPED_TEST(WorkspaceReductionTestVec2, SingleOut16) {
   using DataType = typename TestFixture::ScalarType;
@@ -460,7 +460,7 @@ TYPED_TEST(WorkspaceReductionTestVec2, FourOut4x2x2Alt) {
 
 template <typename T>
 using WorkspaceReductionTestVec4 = WorkspaceReductionTest<T, 4>;
-TYPED_TEST_CASE(WorkspaceReductionTestVec4, DataTypes);
+TYPED_TEST_SUITE(WorkspaceReductionTestVec4, DataTypes);
 
 TYPED_TEST(WorkspaceReductionTestVec4, SingleOut16) {
   using DataType = typename TestFixture::ScalarType;

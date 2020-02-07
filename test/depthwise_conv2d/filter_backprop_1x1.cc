@@ -39,7 +39,7 @@ using Backends = sycldnn::types::DefaultBackendTypes;
 using BackendTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<BackendTypePairs>::type;
-TYPED_TEST_CASE(OneByOneInputDepthConvTest, GTestTypeTriples);
+TYPED_TEST_SUITE(OneByOneInputDepthConvTest, GTestTypeTriples);
 
 sycldnn::depthwise_conv2d::DepthwiseConv2DParams get_1x1_params(
     int batch, int channels, int chan_mult = 1) {

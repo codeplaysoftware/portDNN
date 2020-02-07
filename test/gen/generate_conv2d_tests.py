@@ -73,10 +73,10 @@ using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
 
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 """
-TYPED_TEST_CASE_DECL_TPL = r"""
+TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename Pair>
 using {test_case} = WindowStrideTest<Pair, {window}, {stride}>;
-TYPED_TEST_CASE({test_case}, GTestTypeTriples);"""
+TYPED_TEST_SUITE({test_case}, GTestTypeTriples);"""
 
 TestCaseParams = namedtuple('TestCaseParams',
                             ['test_type', 'window', 'stride'])
@@ -323,9 +323,9 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname), INCLUDES,
         DATA_TYPES,
-        TYPED_TEST_CASE_DECL_TPL.format(test_case=test_case_name,
-                                        window=test_case.window,
-                                        stride=test_case.stride)
+        TYPED_TEST_SUITE_DECL_TPL.format(test_case=test_case_name,
+                                         window=test_case.window,
+                                         stride=test_case.stride)
     ]
     for test_params in test_params_for_test_case(test_case):
         output.extend(get_test_lines(test_case, test_params))

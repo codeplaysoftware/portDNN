@@ -35,7 +35,7 @@ struct PowerTwoTest : public ::testing::Test {
   }
 };
 using NumericTypes = ::testing::Types<int32_t, int64_t, float, double>;
-TYPED_TEST_CASE(PowerTwoTest, NumericTypes);
+TYPED_TEST_SUITE(PowerTwoTest, NumericTypes);
 
 TYPED_TEST(PowerTwoTest, SmallValues) {
   std::vector<TypeParam> in = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};

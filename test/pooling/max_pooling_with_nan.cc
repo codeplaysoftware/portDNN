@@ -150,7 +150,7 @@ struct MaxPoolingWithNan
   }
 };
 
-TYPED_TEST_CASE(MaxPoolingWithNan, sycldnn::types::GTestKernelDataTypes);
+TYPED_TEST_SUITE(MaxPoolingWithNan, sycldnn::types::GTestKernelDataTypes);
 
 TYPED_TEST(MaxPoolingWithNan, ForwardNan1x1) {
   using DataType = typename TestFixture::DataType;

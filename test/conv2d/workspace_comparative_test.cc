@@ -180,7 +180,7 @@ using TestTriples =
     sycldnn::types::NestedPairsToTriple<TestPairsWithConvType>::type;
 
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
-TYPED_TEST_CASE(WorkspaceComparativeConv2D, GTestTypeTriples);
+TYPED_TEST_SUITE(WorkspaceComparativeConv2D, GTestTypeTriples);
 
 /**
  * Rather than using the full sized VGG model, which would take longer to

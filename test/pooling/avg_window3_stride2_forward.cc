@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -46,7 +46,7 @@ template <typename Pair>
 using AvgWindow3Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow3Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow3Stride2Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow3Stride2Forward, SAME1x5x5x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {4.,   5.5, 7.,   11.5, 13.,

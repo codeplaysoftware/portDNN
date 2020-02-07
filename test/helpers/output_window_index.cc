@@ -37,7 +37,7 @@ struct IndexHelpersOutWindow : public ::testing::Test {
   }
 };
 using SignedIntegralTypes = ::testing::Types<int32_t, int64_t>;
-TYPED_TEST_CASE(IndexHelpersOutWindow, SignedIntegralTypes);
+TYPED_TEST_SUITE(IndexHelpersOutWindow, SignedIntegralTypes);
 
 /*
  * in:  -   0   1   2   3   4

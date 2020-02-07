@@ -46,7 +46,7 @@ template <typename Pair>
 using MaxwithnanWindow1Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow1Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow1Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow1Stride1Forward, SAME1x4x4x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -154,7 +154,7 @@ template <typename Pair>
 using MaxwithnanWindow1Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow1Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow1Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow1Stride1Grad, SAME1x4x4x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -262,7 +262,7 @@ template <typename Pair>
 using MaxWindow1Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow1Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow1Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow1Stride1Forward, SAME1x4x4x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -370,7 +370,7 @@ template <typename Pair>
 using MaxWindow1Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow1Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow1Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow1Stride1Grad, SAME1x4x4x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -478,7 +478,7 @@ template <typename Pair>
 using AvgWindow1Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow1Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow1Stride1Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow1Stride1Forward, SAME1x4x4x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -586,7 +586,7 @@ template <typename Pair>
 using AvgWindow1Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow1Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow1Stride1Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow1Stride1Grad, SAME1x4x4x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -694,7 +694,7 @@ template <typename Pair>
 using MaxwithnanWindow3Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow3Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow3Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow3Stride1Forward, SAME1x6x6x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -837,7 +837,7 @@ template <typename Pair>
 using MaxwithnanWindow3Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow3Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow3Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow3Stride1Grad, SAME1x6x6x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -1009,7 +1009,7 @@ template <typename Pair>
 using MaxWindow3Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow3Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow3Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow3Stride1Forward, SAME1x6x6x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -1152,7 +1152,7 @@ template <typename Pair>
 using MaxWindow3Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow3Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow3Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow3Stride1Grad, SAME1x6x6x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -1324,7 +1324,7 @@ template <typename Pair>
 using AvgWindow3Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow3Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow3Stride1Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow3Stride1Forward, SAME1x6x6x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -1470,7 +1470,7 @@ template <typename Pair>
 using AvgWindow3Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow3Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow3Stride1Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow3Stride1Grad, SAME1x6x6x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {10.416666666666666,
@@ -2892,7 +2892,7 @@ template <typename Pair>
 using MaxwithnanWindow3Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow3Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow3Stride2Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x7x7x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -2993,7 +2993,7 @@ template <typename Pair>
 using MaxwithnanWindow3Stride2Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow3Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow3Stride2Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow3Stride2Grad, SAME1x7x7x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -3185,7 +3185,7 @@ template <typename Pair>
 using MaxWindow3Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow3Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow3Stride2Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow3Stride2Forward, SAME1x7x7x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -3286,7 +3286,7 @@ template <typename Pair>
 using MaxWindow3Stride2Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow3Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow3Stride2Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow3Stride2Grad, SAME1x7x7x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -3478,7 +3478,7 @@ template <typename Pair>
 using AvgWindow3Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow3Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow3Stride2Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow3Stride2Forward, SAME1x7x7x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -3580,7 +3580,7 @@ template <typename Pair>
 using AvgWindow3Stride2Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow3Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow3Stride2Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow3Stride2Grad, SAME1x7x7x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0.25,
@@ -5301,7 +5301,7 @@ template <typename Pair>
 using MaxwithnanWindow5Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow5Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow5Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow5Stride1Forward, SAME1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -5489,7 +5489,7 @@ template <typename Pair>
 using MaxwithnanWindow5Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow5Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow5Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow5Stride1Grad, SAME1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -5757,7 +5757,7 @@ template <typename Pair>
 using MaxWindow5Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow5Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow5Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow5Stride1Forward, SAME1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -5945,7 +5945,7 @@ template <typename Pair>
 using MaxWindow5Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow5Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow5Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow5Stride1Grad, SAME1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -6213,7 +6213,7 @@ template <typename Pair>
 using AvgWindow5Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow5Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow5Stride1Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow5Stride1Forward, SAME1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -6406,7 +6406,7 @@ template <typename Pair>
 using AvgWindow5Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow5Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow5Stride1Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow5Stride1Grad, SAME1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {23.526111111111113,
@@ -8636,7 +8636,7 @@ template <typename Pair>
 using MaxwithnanWindow5Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow5Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow5Stride2Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow5Stride2Forward, SAME1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -8752,7 +8752,7 @@ template <typename Pair>
 using MaxwithnanWindow5Stride2Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow5Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow5Stride2Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow5Stride2Grad, SAME1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -9044,7 +9044,7 @@ template <typename Pair>
 using MaxWindow5Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow5Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow5Stride2Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow5Stride2Forward, SAME1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -9160,7 +9160,7 @@ template <typename Pair>
 using MaxWindow5Stride2Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow5Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow5Stride2Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow5Stride2Grad, SAME1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -9452,7 +9452,7 @@ template <typename Pair>
 using AvgWindow5Stride2Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow5Stride2Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow5Stride2Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -9568,7 +9568,7 @@ template <typename Pair>
 using AvgWindow5Stride2Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow5Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow5Stride2Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow5Stride2Grad, SAME1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {3.4844444444444447,
@@ -12700,7 +12700,7 @@ template <typename Pair>
 using MaxwithnanWindow7Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow7Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow7Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow7Stride1Forward, SAME1x10x10x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -12945,7 +12945,7 @@ template <typename Pair>
 using MaxwithnanWindow7Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow7Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow7Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow7Stride1Grad, SAME1x10x10x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -13348,7 +13348,7 @@ template <typename Pair>
 using MaxWindow7Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow7Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow7Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow7Stride1Forward, SAME1x10x10x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -13593,7 +13593,7 @@ template <typename Pair>
 using MaxWindow7Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow7Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow7Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow7Stride1Grad, SAME1x10x10x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -13996,7 +13996,7 @@ template <typename Pair>
 using AvgWindow7Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow7Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow7Stride1Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow7Stride1Forward, SAME1x10x10x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -14249,7 +14249,7 @@ template <typename Pair>
 using AvgWindow7Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow7Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow7Stride1Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow7Stride1Grad, SAME1x10x10x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -16441,7 +16441,7 @@ template <typename Pair>
 using MaxwithnanWindow7Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow7Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow7Stride4Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow7Stride4Forward, SAME1x13x13x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -16539,7 +16539,7 @@ template <typename Pair>
 using MaxwithnanWindow7Stride4Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow7Stride4Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow7Stride4Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow7Stride4Grad, SAME1x13x13x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -17043,7 +17043,7 @@ template <typename Pair>
 using MaxWindow7Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow7Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow7Stride4Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow7Stride4Forward, SAME1x13x13x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -17141,7 +17141,7 @@ template <typename Pair>
 using MaxWindow7Stride4Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow7Stride4Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow7Stride4Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow7Stride4Grad, SAME1x13x13x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -17645,7 +17645,7 @@ template <typename Pair>
 using AvgWindow7Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow7Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow7Stride4Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x13x13x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -17741,7 +17741,7 @@ template <typename Pair>
 using AvgWindow7Stride4Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow7Stride4Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow7Stride4Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow7Stride4Grad, SAME1x13x13x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0.0625,
@@ -24217,7 +24217,7 @@ template <typename Pair>
 using MaxwithnanWindow11Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow11Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow11Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow11Stride1Forward, SAME1x14x14x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -24664,7 +24664,7 @@ template <typename Pair>
 using MaxwithnanWindow11Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow11Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow11Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow11Stride1Grad, SAME1x14x14x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -25402,7 +25402,7 @@ template <typename Pair>
 using MaxWindow11Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow11Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow11Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow11Stride1Forward, SAME1x14x14x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -25849,7 +25849,7 @@ template <typename Pair>
 using MaxWindow11Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow11Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow11Stride1Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow11Stride1Grad, SAME1x14x14x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -26587,7 +26587,7 @@ template <typename Pair>
 using AvgWindow11Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow11Stride1Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow11Stride1Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow11Stride1Forward, SAME1x14x14x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -27026,7 +27026,7 @@ template <typename Pair>
 using AvgWindow11Stride1Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow11Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow11Stride1Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow11Stride1Grad, SAME1x14x14x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -31266,7 +31266,7 @@ template <typename Pair>
 using MaxwithnanWindow11Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Forward>;
-TYPED_TEST_CASE(MaxwithnanWindow11Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow11Stride4Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow11Stride4Forward, SAME1x17x17x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -31383,7 +31383,7 @@ template <typename Pair>
 using MaxwithnanWindow11Stride4Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::MaxWithNan, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxwithnanWindow11Stride4Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxwithnanWindow11Stride4Grad, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow11Stride4Grad, SAME1x17x17x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -32254,7 +32254,7 @@ template <typename Pair>
 using MaxWindow11Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Forward>;
-TYPED_TEST_CASE(MaxWindow11Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow11Stride4Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow11Stride4Forward, SAME1x17x17x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -32371,7 +32371,7 @@ template <typename Pair>
 using MaxWindow11Stride4Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Max, pooling::Backpropagate>;
-TYPED_TEST_CASE(MaxWindow11Stride4Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow11Stride4Grad, GTestTypePairs);
 TYPED_TEST(MaxWindow11Stride4Grad, SAME1x17x17x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -33242,7 +33242,7 @@ template <typename Pair>
 using AvgWindow11Stride4Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Forward>;
-TYPED_TEST_CASE(AvgWindow11Stride4Forward, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow11Stride4Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x17x17x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -33538,7 +33538,7 @@ template <typename Pair>
 using AvgWindow11Stride4Grad =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
                    pooling::Average, pooling::Backpropagate>;
-TYPED_TEST_CASE(AvgWindow11Stride4Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow11Stride4Grad, GTestTypePairs);
 TYPED_TEST(AvgWindow11Stride4Grad, SAME1x17x17x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0.8711111111111112,

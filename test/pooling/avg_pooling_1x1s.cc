@@ -53,7 +53,7 @@ using TestTriples =
     sycldnn::types::NestedPairsToTriple<DirectedBackTypePairs>::type;
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
-TYPED_TEST_CASE(OneByOneInputAvgPoolingTest, GTestTypeTriples);
+TYPED_TEST_SUITE(OneByOneInputAvgPoolingTest, GTestTypeTriples);
 
 /*
  * Input: 1    Output: 1
