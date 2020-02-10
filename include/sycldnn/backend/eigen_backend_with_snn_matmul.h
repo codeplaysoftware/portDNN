@@ -86,7 +86,7 @@ struct EigenBackendSNNMatmul final
    * Gets a descriptive name for this backend.
    * \return a descriptive name for this backend.
    */
-  char const* name() const { return "EigenBackendSNNMatmul"; }
+  static char const* name() { return "EigenBackendSNNMatmul"; }
 
   /**
    * Gets the SYCL queue that the backend is bound to.

@@ -31,7 +31,7 @@ struct BackendInterface : public ExternalHandler,
                           public InternalHandler,
                           public ExternalToInternalConverter {
   /** Return a descriptive name for this backend. */
-  char const* name() const;
+  static char const* name();
 };
 
 struct ExternalHandler {

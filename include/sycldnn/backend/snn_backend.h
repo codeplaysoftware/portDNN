@@ -148,7 +148,7 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
    * Gets a descriptive name for this backend.
    * \return a descriptive name for this backend.
    */
-  char const* name() { return "SNNBackend"; }
+  static char const* name() { return "SNNBackend"; }
 
  private:
   cl::sycl::queue queue_;

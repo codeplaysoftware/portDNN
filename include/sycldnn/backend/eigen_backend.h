@@ -82,7 +82,7 @@ struct EigenBackend final : public EigenExternalHandler<EigenBackend>,
    * Gets a descriptive name for this backend.
    * \return a descriptive name for this backend.
    */
-  char const* name() const { return "EigenBackend"; }
+  static char const* name() { return "EigenBackend"; }
 
   /**
    * Gets the SYCL queue that the backend is bound to.
