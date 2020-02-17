@@ -1,6 +1,13 @@
 # The SYCL-DNN neural network acceleration library
 
-# Project Description
+## Table of Contents
+
+  * [Supported Platforms](#supported-platforms)
+  * [Getting Started with SYCL-DNN](#getting-started-with-sycl-dnn)
+  * [Support](#support)
+  * [Cross-compilation with ComputeCpp](#cross-compilation-with-computecpp)
+  * [Contributions](#contributions)
+  * [Citation](#citation)
 
 SYCL-DNN is a library implementing various neural network algorithms such as 
 pooling and convolution written using SYCL and C++.
@@ -15,22 +22,17 @@ SYCL-DNN currently supports the following operations:
 The convolution operations have several implementations, including tiled and
 Winograd kernels. The supported data format is NHWC.
 
-The project is maintained by [Codeplay Software](https://developer.codeplay.com).
+The project is maintained by [Codeplay Software][codeplay developer].
 
 ## Supported Platforms
 
 The master branch of SYCL-DNN is regularly tested with the "Supported" hardware 
-listed on [the ComputeCpp Supported Platforms page](https://developer.codeplay.com/products/computecpp/ce/guides/platform-support).
-
+listed on [the ComputeCpp Supported Platforms page][supported platforms]. 
 SYCL-DNN may also work on other hardware and platforms assuming they implement 
- SPIR or SPIR-V support.
- 
-SYCL-DNN is primarily tested on Ubuntu 16.04 LTS with the corresponding
-default package versions.
-
-SYCL-DNN will generally match the most recently released ComputeCpp, though
-  it is likely to be compatible with other versions. We test against the most
-  recent version.
+SPIR or SPIR-V support. SYCL-DNN is primarily tested on Ubuntu 16.04 LTS with 
+the corresponding default package versions. SYCL-DNN will generally match the 
+most recently released ComputeCpp, though it is likely to be compatible with 
+other versions. We test against the most recent version.
 
 ## Getting Started with SYCL-DNN
 
@@ -41,7 +43,7 @@ SYCL-DNN will generally match the most recently released ComputeCpp, though
 * OpenCL ICD Loader
 * OpenCL headers
 * gcc (version 5.4 and above)
-* [ComputeCpp](https://developer.codeplay.com)
+* [ComputeCpp][codeplay developer]
 * Building documentation requires Doxygen and Graphviz/Dot. Tested
   against versions 1.8.11 and 2.38.0 respectively.
 
@@ -80,9 +82,8 @@ make -j`nproc`
 ### Sample Code
 
 The "samples" directory contains sample code for the 2D convolution and pooling 
-operations offered by SYCL-DNN. 
-
-These binaries are compiled when building SYCL-DNN using CMake.
+operations offered by SYCL-DNN. These binaries are compiled when building SYCL-DNN 
+using CMake.
 
 ### Running the SYCL-DNN Tests
 
@@ -101,52 +102,20 @@ ctest -C Benchmark -E test
 ### Bug reports and Issues
 
 Bug reports are vital to provide feedback to the developers about what is going
-wrong with the project, you can raise these using the ["Issues"](https://github.com/codeplaysoftware/SYCL-DNN/issues) 
+wrong with the project, you can raise these using the ["Issues"][issues] 
 feature in GitHub.
 
 Please make sure that your bug report contains the following information:
 
 * A clear and descriptive title.
-
 * The output of
   `clinfo | grep -E "Platform ID|Name|Vendor|[Vv]ersion|Profile|Extensions"`.
-
 * The output of `computecpp_info`.
-
 * The exact steps and commands to run to reproduce the bug.
-
 * The exact error text shown (if applicable), otherwise the behaviour you
   expected and what you encountered instead.
-
 * Should the problem arise outside the project's test suite then please provide
   a minimal test to allow us to reproduce the problem.
-
-## Project layout
-
-* bench/
-    - Some benchmarks, used to track the performance of SYCL-DNN.
-* cmake/
-    - Contains helper files and functions for downloading dependencies
-      and performing common tasks (like adding tests, libraries etc.).
-* CMakeLists.txt
-    - The root CMakeLists.txt file, refer to this when building SYCL-DNN.
-* CONTRIBUTING.md
-    - Information about how to contribute bug reports, code, or other works
-      to this project.
-* hooks/
-    - Contains scripts that are suitable for adding to the .git/hooks folder
-      (e.g. making sure that the repo is correctly formatted).
-* include/
-    - The directory under which the public interface is stored.
-* LICENSE
-    - The license this sofware is available under: Apache 2.0
-* README.md
-    - This readme file.
-* src/
-    - The source files of SYCL-DNN are kept in here.
-* test/
-    - All tests are bundled in this folder and are the mark of correctness
-      when doing pre-merge tests.
 
 ## Cross-compilation with ComputeCpp
 
@@ -169,7 +138,7 @@ the platform you are targeting. Lastly you should download the OpenCL
 headers. They are standard across all platforms, but you cannot specify
 the default package-managed location of `/usr/include` for them, as that
 will cause conflicts with other system headers. An easy fix is to download
-the headers [from GitHub](https://github.com/KhronosGroup/OpenCL-Headers).
+the headers [from GitHub][ocl headers].
 
 Toolchain files cannot make use cache variables set by the user when
 running CMake, as the cache does not exist when the toolchain is executed.
@@ -210,17 +179,10 @@ point to the directory named `sysroots` in the poky toolchain. You will
 likely want `COMPUTECPP_BITCODE=spir32`. Otherwise, these instructions
 should still work.
 
-## Maintainers
-
-This project is written and maintained by
-[Codeplay Software Ltd](https://www.codeplay.com/).
-Please get in touch if you have any issues or questions - you can reach us at
-[sycl@codeplay.com](mailto:sycl@codeplay.com).
-
 ## Contributions
 
-Please see the file CONTRIBUTING.md for further details if you would like to
-contribute code, build systems, bug fixes or similar.
+Please see the file [CONTRIBUTING.md]((CONTRIBUTING.md)) for further details if 
+you would like to contribute code, build systems, bug fixes or similar.
 
 ## Citation
 
@@ -251,3 +213,8 @@ If you use SYCL-DNN in your research, please cite the library as follows:
  keywords = {GPGPU, OpenCL, SYCL, machine learning, neural networks},
 }
 ```
+
+[supported platforms]: https://developer.codeplay.com/products/computecpp/ce/guides/platform-support
+[issues]: https://github.com/codeplaysoftware/SYCL-DNN/issues
+[ocl headers]: https://github.com/KhronosGroup/OpenCL-Headers
+[codeplay developer]: https://developer.codeplay.com
