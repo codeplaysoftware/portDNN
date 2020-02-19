@@ -181,7 +181,7 @@ should still work.
 
 ## Contributions
 
-Please see the file [CONTRIBUTING.md]((CONTRIBUTING.md)) for further details if 
+Please see the file [CONTRIBUTING.md](CONTRIBUTING.md) for further details if 
 you would like to contribute code, build systems, bug fixes or similar.
 
 ## Citation
