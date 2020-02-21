@@ -218,19 +218,31 @@ struct SyclBLASBackend final {
     auto trans_m = n;
     auto trans_n = m;
 
-    auto ldc = trans_m;
-    auto lda = TransposeRHS ? k : trans_m;
-    auto ldb = TransposeLHS ? trans_n : k;
     cl::sycl::event e;
-    if (trans_m == 1) {
+    if (m == 1) {
+      // The LHS matrix is actually a vector
       auto gemv_m = TransposeRHS ? k : trans_m;
       auto gemv_n = TransposeRHS ? trans_m : k;
+      auto gemv_lda = gemv_m;
       constexpr Index increment = 1;
-      e = blas::_gemv(executor_, TransposeLHS ? 't' : 'n', gemv_m, gemv_n,
-                      static_cast<T>(1), rhs, lda, lhs, increment, beta, output,
-                      increment)
+      e = blas::_gemv(executor_, TransposeRHS ? 't' : 'n', gemv_m, gemv_n,
+                      static_cast<T>(1), rhs, gemv_lda, lhs, increment, beta,
+                      output, increment)
+              .back();
+    } else if (n == 1) {
+      // The RHS matrix is actually a vector
+      auto gemv_m = TransposeLHS ? trans_n : k;
+      auto gemv_n = TransposeLHS ? k : trans_n;
+      auto gemv_lda = gemv_m;
+      constexpr Index increment = 1;
+      e = blas::_gemv(executor_, TransposeLHS ? 'n' : 't', gemv_m, gemv_n,
+                      static_cast<T>(1), lhs, gemv_lda, rhs, increment, beta,
+                      output, increment)
               .back();
     } else {
+      auto ldc = trans_m;
+      auto lda = TransposeRHS ? k : trans_m;
+      auto ldb = TransposeLHS ? trans_n : k;
       e = blas::_gemm(executor_, TransposeRHS ? 't' : 'n',
                       TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
                       static_cast<T>(1), rhs, lda, lhs, ldb, beta, output, ldc)
