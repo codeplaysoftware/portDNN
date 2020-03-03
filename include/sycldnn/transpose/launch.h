@@ -29,6 +29,7 @@
 
 #include "sycldnn/internal/transpose/launch.h"
 
+#include <numeric>
 #include <vector>
 
 namespace sycldnn {
