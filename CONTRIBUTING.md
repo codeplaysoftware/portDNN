@@ -1,27 +1,5 @@
 # Contributing to SYCL DNN
 
-## Bug reports
-
-Bug reports are vital to provide feedback to the developers about what is going
-wrong with the project.
-
-Please make sure that your bug report contains the following information:
-
-* A clear and descriptive title.
-
-* The output of
-  `clinfo | grep -E "Platform ID|Name|Vendor|[Vv]ersion|Profile|Extensions"`.
-
-* The output of `computecpp_info`.
-
-* The exact steps and commands to run to reproduce the bug.
-
-* The exact error text shown (if applicable), otherwise the behaviour you
-  expected and what you encountered instead.
-
-* Should the problem arise outside the project's test suite then please provide
-  a minimal test to allow us to reproduce the problem.
-
 ## Pull requests
 
 We really appreciate all pull requests to SYCL DNN, but we also have a few
