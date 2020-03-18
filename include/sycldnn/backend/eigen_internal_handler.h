@@ -64,7 +64,6 @@ struct EigenInternalHandler
   /**
    * Deallocate an internal tensor.
    * \param ptr A pointer to the allocation to deallocate.
-   * \return void
    */
   template <typename T>
   void deallocate(internal_pointer_type<T> ptr) {

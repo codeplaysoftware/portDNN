@@ -9,7 +9,7 @@
   * [Contributions](#contributions)
   * [Citation](#citation)
 
-SYCL-DNN is a library implementing various neural network algorithms such as 
+SYCL-DNN is a library implementing various neural network algorithms such as
 pooling and convolution written using SYCL and C++.
 
 SYCL-DNN currently supports the following operations:
@@ -26,17 +26,17 @@ The project is maintained by [Codeplay Software][codeplay developer].
 
 ## Supported Platforms
 
-The master branch of SYCL-DNN is regularly tested with the "Supported" hardware 
-listed on [the ComputeCpp Supported Platforms page][supported platforms]. 
-SYCL-DNN may also work on other hardware and platforms assuming they implement 
-SPIR or SPIR-V support. SYCL-DNN is primarily tested on Ubuntu 16.04 LTS with 
-the corresponding default package versions. SYCL-DNN will generally match the 
-most recently released ComputeCpp, though it is likely to be compatible with 
+The master branch of SYCL-DNN is regularly tested with the "Supported" hardware
+listed on [the ComputeCpp Supported Platforms page][supported platforms].
+SYCL-DNN may also work on other hardware and platforms assuming they implement
+SPIR or SPIR-V support. SYCL-DNN is primarily tested on Ubuntu 16.04 LTS with
+the corresponding default package versions. SYCL-DNN will generally match the
+most recently released ComputeCpp, though it is likely to be compatible with
 other versions. We test against the most recent version.
 
 ## Getting Started with SYCL-DNN
 
-### Pre-requisites 
+### Pre-requisites
 
 * CMake (version 3.5.1 and above)
 * OpenCL 1.2-capable hardware and drivers with SPIR 1.2 or SPIR-V support
@@ -76,13 +76,13 @@ The following command shows how to compile SYCL-DNN.
 mkdir build && cd build
 cmake .. -DComputeCpp_DIR=/path/to/computecpp
 # Compile SYCL-DNN
-make -j`nproc`
+make -j$(nproc)
 ```
 
 ### Sample Code
 
-The "samples" directory contains sample code for the 2D convolution and pooling 
-operations offered by SYCL-DNN. These binaries are compiled when building SYCL-DNN 
+The "samples" directory contains sample code for the 2D convolution and pooling
+operations offered by SYCL-DNN. These binaries are compiled when building SYCL-DNN
 using CMake.
 
 ### Running the SYCL-DNN Tests
@@ -102,7 +102,7 @@ ctest -C Benchmark -E test
 ### Bug reports and Issues
 
 Bug reports are vital to provide feedback to the developers about what is going
-wrong with the project, you can raise these using the ["Issues"][issues] 
+wrong with the project, you can raise these using the ["Issues"][issues]
 feature in GitHub.
 
 Please make sure that your bug report contains the following information:
@@ -181,7 +181,7 @@ should still work.
 
 ## Contributions
 
-Please see the file [CONTRIBUTING.md](CONTRIBUTING.md) for further details if 
+Please see the file [CONTRIBUTING.md](CONTRIBUTING.md) for further details if
 you would like to contribute code, build systems, bug fixes or similar.
 
 ## Citation

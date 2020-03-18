@@ -26,10 +26,12 @@ configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 # Build a list of dependencies. This is rather crude, and won't detect newly
 # added files, but it's the best we can reasonably do with CMake
 file(GLOB_RECURSE DOC_SOURCES ${PROJECT_SOURCE_DIR}/include/*.h)
-list(APPEND DOC_SOURCES ${PROJECT_SOURCE_DIR}/README.md)
-list(APPEND DOC_SOURCES ${PROJECT_SOURCE_DIR}/CONTRIBUTING.md)
-list(APPEND DOC_SOURCES ${PROJECT_SOURCE_DIR}/docs/main.dox)
-
+list(APPEND DOC_SOURCES
+  ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+  ${PROJECT_SOURCE_DIR}/README.md
+  ${PROJECT_SOURCE_DIR}/CONTRIBUTING.md
+  ${PROJECT_SOURCE_DIR}/docs/main.dox
+)
 # Build documentation
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
   COMMAND
@@ -37,7 +39,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
   ARGS
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
   WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
+    ${sycldnn_SOURCE_DIR}
   DEPENDS
     ${DOC_SOURCES}
   COMMENT
