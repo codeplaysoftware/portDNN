@@ -23,5 +23,6 @@ snn_bench(
   KERNEL_SOURCES
     tiled_conv2d_benchmark.cc
   PUBLIC_LIBRARIES
+    bench_info
     bench_main
 )

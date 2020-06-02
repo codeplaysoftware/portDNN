@@ -67,9 +67,11 @@ endif()
 
 configure_file(computecpp_version_config.h.in computecpp_version_config.h @ONLY)
 
-add_library(bench_main STATIC bench_main.cc git_config.h computecpp_version_config.h)
-target_link_libraries(bench_main benchmark::benchmark)
-target_include_directories(bench_main PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_library(bench_info STATIC bench_info.cc git_config.h computecpp_version_config.h)
+target_include_directories(bench_info PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+add_library(bench_main STATIC bench_main.cc)
+target_link_libraries(bench_main PUBLIC benchmark::benchmark bench_info)
 
 if(SNN_BUILD_EXTENDED_BENCHMARKS)
   list(APPEND _BENCHMARK_DEFINITIONS -DSNN_EXTENDED_BENCHMARKS)
