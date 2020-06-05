@@ -30,7 +30,8 @@ template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
           int RowTile, int AccTile, int ColTile>
 SNNStatus queue_kernel(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
                        BaseMemObject<T>& output, int batches, int m, int k,
-                       int n, T beta, cl::sycl::queue& queue);
+                       int n, T beta, cl::sycl::queue& queue, size_t wg_row,
+                       size_t wg_col, size_t wg_batch);
 
 }  // namespace internal
 }  // namespace matmul

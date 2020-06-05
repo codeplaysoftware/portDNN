@@ -39,10 +39,10 @@ struct MatmulKernel {
         n_{n},
         beta_{beta} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) {
-    Index row = item.get_id(0) * RowTile;
-    Index col = item.get_id(1) * ColTile;
-    Index batch = item.get_id(2);
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<3> item) {
+    Index batch = item.get_global_id(0);
+    Index row = item.get_global_id(1) * RowTile;
+    Index col = item.get_global_id(2) * ColTile;
 
     if (row < m_ && col < n_) {
       auto lhs_ptr = lhs_.get_pointer() + batch * m_ * k_;

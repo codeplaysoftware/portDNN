@@ -31,8 +31,12 @@ SNNStatus launch_with_tiles(BaseMemObject<T const>& lhs,
                             BaseMemObject<T const>& rhs,
                             BaseMemObject<T>& output, int batches, int m, int k,
                             int n, T beta, cl::sycl::queue& queue) {
+  constexpr int wg_rows = 8;
+  constexpr int wg_cols = 8;
+  constexpr int wg_batch = 1;
   return queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile, AccTile,
-                      ColTile>(lhs, rhs, output, batches, m, k, n, beta, queue);
+                      ColTile>(lhs, rhs, output, batches, m, k, n, beta, queue,
+                               wg_rows, wg_cols, wg_batch);
 }
 
 }  // namespace
