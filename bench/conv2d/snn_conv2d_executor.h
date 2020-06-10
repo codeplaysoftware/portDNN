@@ -47,14 +47,14 @@ struct SNNConv2DExecutor : public BaseExecutor {
  private:
   using State = ::benchmark::State;
   using Conv2DParams = conv2d::Conv2DParams;
-  using Selector = conv2d::Selector;
 
   /** Get a reference to the underlying benchmark fixture. */
   Benchmark& underlying_benchmark() { return static_cast<Benchmark&>(*this); }
 
  public:
   /** Execute a conv2d benchmark with the given parameters and selector. */
-  void execute(State& state, Conv2DParams const& params, Selector& selector) {
+  void execute(State& state, Conv2DParams const& params,
+               conv2d::Selector& selector) {
     auto& benchmark = underlying_benchmark();
     auto& backend = benchmark.get_backend();
 
@@ -165,7 +165,8 @@ struct SNNConv2DExecutor : public BaseExecutor {
    * separate temporary buffers.
    */
   size_t compute_workspace_size(Conv2DParams const& params,
-                                cl::sycl::device device, Selector& selector) {
+                                cl::sycl::device device,
+                                conv2d::Selector& selector) {
     auto workspace_size_struct =
         sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
     // Query the max allocation size on the device. As the input, output and

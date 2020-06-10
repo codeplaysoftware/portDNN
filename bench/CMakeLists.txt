@@ -20,7 +20,7 @@ include(SNNHelpers)
 # Creates a git-config.tmp file containing the commit hash and date. A custom
 # target ensures that this command is always executed.
 add_custom_target(generate_git_config
-  ${CMAKE_CURRENT_SOURCE_DIR}/make_git_config.sh >
+  ${CMAKE_CURRENT_SOURCE_DIR}/make_git_config.$<IF:$<BOOL:${WIN32}>,bat,sh> >
     ${CMAKE_CURRENT_BINARY_DIR}/git_config.tmp
   BYPRODUCTS
     git_config.tmp

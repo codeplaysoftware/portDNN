@@ -91,7 +91,7 @@ inline ConvSizes get_sizes<conv2d::conv_type::FilterBackprop>(
   return ConvSizes{inp_size, fil_size, out_size};
 }
 
-}  // namespace conv2d
+}  // namespace depthwise_conv2d
 }  // namespace sycldnn
 
 #endif  // SYCLDNN_INCLUDE_DEPTHWISE_CONV2D_SIZES_H_

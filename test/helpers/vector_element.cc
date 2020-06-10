@@ -84,7 +84,7 @@ void check_vector_matches(std::array<DType, 16> exp,
   EXPECT_EQ(exp[14], DType{vec.sE()});
   EXPECT_EQ(exp[15], DType{vec.sF()});
 }
-}
+}  // namespace
 
 template <typename T>
 struct VectorElementTest : public ::testing::Test {};

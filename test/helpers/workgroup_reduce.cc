@@ -164,7 +164,6 @@ struct WorkspaceReductionTest
           Reducer<ScalarType, Width, Dims>{in_acc, out_acc, local_acc, in_size};
       cgh.parallel_for(cl::sycl::nd_range<Dims>{data_sizes, workgroup_sizes},
                        functor);
-
     });
     event.wait_and_throw();
     provider.copy_device_data_to_host(out_size, out_gpu, output);

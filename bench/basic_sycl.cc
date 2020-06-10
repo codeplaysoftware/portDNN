@@ -38,7 +38,7 @@ struct SetBuffer {
   write_accessor output;
 };
 static void BM_SetHostBufferDestruct(benchmark::State& state) {
-  constexpr auto write_mode = SetBuffer<float>::write_mode;
+  static constexpr auto write_mode = SetBuffer<float>::write_mode;
   const size_t num_elems = state.range(0);
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
@@ -56,7 +56,7 @@ static void BM_SetHostBufferDestruct(benchmark::State& state) {
   }
 }
 static void BM_SetDeviceBufferDestruct(benchmark::State& state) {
-  constexpr auto write_mode = SetBuffer<float>::write_mode;
+  static constexpr auto write_mode = SetBuffer<float>::write_mode;
   const size_t num_elems = state.range(0);
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
@@ -71,7 +71,7 @@ static void BM_SetDeviceBufferDestruct(benchmark::State& state) {
   }
 }
 static void BM_SetDeviceBufferNoDestruct(benchmark::State& state) {
-  constexpr auto write_mode = SetBuffer<float>::write_mode;
+  static constexpr auto write_mode = SetBuffer<float>::write_mode;
   const size_t num_elems = state.range(0);
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
