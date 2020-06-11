@@ -93,6 +93,10 @@ if(SNN_BENCH_SYCLBLAS)
   list(APPEND _BACKENDS SyclBLAS::SyclBLAS)
 endif()
 
+if(SNN_BENCH_SNN)
+  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_SNNBACKEND)
+endif()
+
 snn_bench(
   WITH_SYCL
   TARGET
@@ -288,6 +292,8 @@ endfunction()
 
 snn_depthwise_conv2d_bench(mobilenet)
 snn_depthwise_conv2d_bench(xception)
+
+add_subdirectory(matmul)
 
 if(SNN_BUILD_INTERNAL_BENCHMARKS)
   add_subdirectory(internal)

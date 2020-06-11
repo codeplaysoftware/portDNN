@@ -72,6 +72,7 @@ option(SNN_EIGEN_NO_BARRIER
 # Benchmark configuration options
 option(SNN_BENCH_EIGEN "Benchmark SYCL-DNN using Eigen" OFF)
 option(SNN_BENCH_SYCLBLAS "Benchmark SYCL-DNN using SYCL-BLAS" ON)
+option(SNN_BENCH_SNN "Benchmark SYCL-DNN's own matmul" OFF)
 option(SNN_BENCH_MKLDNN "Whether or not to build MKL-DNN benchmarks" OFF)
 option(SNN_BENCH_ARM_COMPUTE
   "Whether or not to build ARM compute library benchmarks" OFF)
