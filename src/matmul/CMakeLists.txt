@@ -67,3 +67,50 @@ snn_object_library(
   SOURCES        launch.cc
   KERNEL_SOURCES ${matmul_kernel_sources}
 )
+
+function(generate_extended_matmul_kernels)
+  set(options)
+  set(one_value_args
+    OUTPUT_VAR
+    TEMPLATE_FILE
+    FILENAME
+  )
+  set(multi_value_args)
+  cmake_parse_arguments(GEN_MATMUL
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+  set(_sources "")
+  set(_bool_list true false)
+  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+    foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
+      foreach(TRANS_LHS IN ITEMS "false")
+        foreach(TRANS_RHS IN ITEMS "false")
+          foreach(ROW IN ITEMS 1 2 4 8)
+            foreach(ACC IN ITEMS 1 2 4 8)
+              foreach(COL IN ITEMS 1 2 4 8)
+                generate_matmul_impl(_sources ${ROW} ${ACC} ${COL})
+              endforeach()
+            endforeach()
+          endforeach()
+        endforeach()
+      endforeach()
+    endforeach()
+  endforeach()
+  set(${GEN_MATMUL_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+endfunction()
+
+if(SNN_BUILD_INTERNAL_BENCHMARKS)
+  generate_extended_matmul_kernels(
+    OUTPUT_VAR    extended_matmul_kernel_sources
+    TEMPLATE_FILE queue_kernel_impl.cc.in
+    FILENAME      extended_matmul_kernel
+  )
+  snn_object_library(
+    WITH_SYCL
+    TARGET         internal_matmul
+    KERNEL_SOURCES ${extended_matmul_kernel_sources}
+  )
+endif()

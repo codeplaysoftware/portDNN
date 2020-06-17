@@ -16,6 +16,8 @@
 cmake_minimum_required(VERSION 3.2.2)
 project(snn_bench_internal)
 
+include(HandleCSV)
+
 snn_bench(
   WITH_SYCL
   TARGET
@@ -25,4 +27,17 @@ snn_bench(
   PUBLIC_LIBRARIES
     bench_info
     bench_main
+)
+
+snn_bench(
+  WITH_SYCL
+  TARGET
+    tiled_matmul
+  SOURCES
+    tiled_matmul_benchmark.cc
+  OBJECTS
+    $<TARGET_OBJECTS:internal_matmul>
+  PUBLIC_LIBRARIES
+    bench_info
+    CSV::fast-cpp-csv-parser
 )
