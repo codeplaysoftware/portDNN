@@ -142,6 +142,23 @@ load(cl::sycl::multi_ptr<T const, Space> input, int start_row, int start_col,
   return output;
 }
 
+template <int Rows, int Cols, bool Transpose, typename T,
+          cl::sycl::access::address_space Space>
+static VectorBlock<T, Rows, Cols> SNN_ALWAYS_INLINE
+load(cl::sycl::multi_ptr<T const, Space> input, int start_row, int start_col,
+     int ld) {
+  VectorBlock<T, Rows, Cols> output;
+  if (Transpose) {
+    auto out_trans = load_block<Cols, Rows, false, false>(input, start_col,
+                                                          start_row, ld, 0, 0);
+    output = transpose_block(out_trans);
+  } else {
+    output = load_block<Rows, Cols, false, false>(input, start_row, start_col,
+                                                  ld, 0, 0);
+  }
+  return output;
+}
+
 template <typename T, int Rows, int Cols>
 static void SNN_ALWAYS_INLINE scalar_multiply(VectorBlock<T, Rows, Cols>& block,
                                               T val) {
@@ -193,6 +210,20 @@ store_block(VectorBlock<T, Rows, Cols> const& block,
       store_row<Cols>(block.data(i), row_start_ptr, start_col, n_cols);
       row_start_ptr += ld;
     }
+  }
+}
+
+template <int Rows, int Cols, typename T, cl::sycl::access::address_space Space>
+static void SNN_ALWAYS_INLINE
+store_block_unchecked(VectorBlock<T, Rows, Cols> const& block,
+                      cl::sycl::multi_ptr<T, Space> output, int ld,
+                      int start_row, int start_col) {
+  using VectorType = typename VectorBlock<T, Rows, Cols>::VectorType;
+  using VectorStore = helpers::io::Store<VectorType>;
+  auto row_start_ptr = output + ld * start_row + start_col;
+  for (int i = 0; i < Rows; ++i) {
+    VectorStore()(row_start_ptr, 0, block.data(i));
+    row_start_ptr += ld;
   }
 }
 

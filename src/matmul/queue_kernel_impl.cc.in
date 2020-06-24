@@ -38,6 +38,15 @@ queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
     SNN_DATA_TYPE beta, cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
     size_t wg_batch);
 
+template SNNStatus
+queue_unchecked_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS,
+                       SNN_TRANS_RHS, SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE>(
+    BaseMemObject<SNN_DATA_TYPE const>& lhs,
+    BaseMemObject<SNN_DATA_TYPE const>& rhs,
+    BaseMemObject<SNN_DATA_TYPE>& output, int batches, int m, int k, int n,
+    SNN_DATA_TYPE beta, cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
+    size_t wg_batch);
+
 }  // namespace internal
 }  // namespace matmul
 }  // namespace sycldnn

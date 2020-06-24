@@ -39,6 +39,22 @@ SNNStatus launch_with_tiles(BaseMemObject<T const>& lhs,
                                wg_rows, wg_cols, wg_batch);
 }
 
+template <typename T, bool TransposeLHS, bool TransposeRHS, int RowTile,
+          int AccTile, int ColTile>
+SNNStatus launch_with_tiles_unchecked(BaseMemObject<T const>& lhs,
+                                      BaseMemObject<T const>& rhs,
+                                      BaseMemObject<T>& output, int batches,
+                                      int m, int k, int n, T beta,
+                                      cl::sycl::queue& queue) {
+  constexpr int wg_rows = 8;
+  constexpr int wg_cols = 4;
+  constexpr int wg_batch = 1;
+  return queue_unchecked_kernel<T, int, TransposeLHS, TransposeRHS, RowTile,
+                                AccTile, ColTile>(lhs, rhs, output, batches, m,
+                                                  k, n, beta, queue, wg_rows,
+                                                  wg_cols, wg_batch);
+}
+
 }  // namespace
 
 // Launch the matrix multiply kernel for the passed parameters.
@@ -46,8 +62,16 @@ template <typename T, bool TransposeLHS, bool TransposeRHS>
 SNNStatus launch(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
                  BaseMemObject<T>& output, int batches, int m, int k, int n,
                  T beta, cl::sycl::queue& queue) {
-  return launch_with_tiles<T, TransposeLHS, TransposeRHS, 4, 4, 4>(
-      lhs, rhs, output, batches, m, k, n, beta, queue);
+  constexpr int num_tiles = 4;
+  if ((m % num_tiles == 0) && (k % num_tiles == 0) && (n % num_tiles == 0)) {
+    return launch_with_tiles_unchecked<T, TransposeLHS, TransposeRHS, num_tiles,
+                                       num_tiles, num_tiles>(
+        lhs, rhs, output, batches, m, k, n, beta, queue);
+  } else {
+    return launch_with_tiles<T, TransposeLHS, TransposeRHS, num_tiles,
+                             num_tiles, num_tiles>(lhs, rhs, output, batches, m,
+                                                   k, n, beta, queue);
+  }
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, TLHS, TRHS)                                \
