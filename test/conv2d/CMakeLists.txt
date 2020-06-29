@@ -95,6 +95,12 @@ if(SNN_TEST_SYCLBLAS_MATMULS)
   list(APPEND _matmul_providers SyclBLAS::SyclBLAS)
 endif()
 
+if(SNN_TEST_CLBLAST_MATMULS)
+  include(HandleCLBlast)
+  list(APPEND _cxx_opts -DSNN_TEST_CLBLAST_MATMULS=1)
+  list(APPEND _matmul_providers clblast)
+endif()
+
 set(_windows 1 1 3 3 5 5 7 7 11 11)
 set(_strides 1 2 1 2 1 2 1 4 1 4)
 list(LENGTH _windows _list_len_raw)

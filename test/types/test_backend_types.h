@@ -31,6 +31,10 @@
 #include "sycldnn/backend/sycl_blas_backend.h"
 #endif
 
+#ifdef SNN_TEST_CLBLAST_MATMULS
+#include "sycldnn/backend/clblast_backend.h"
+#endif
+
 namespace sycldnn {
 namespace types {
 
@@ -47,6 +51,9 @@ using AllBackendTypes = sycldnn::types::TypeList<
 #endif
 #ifdef SNN_TEST_SYCLBLAS_MATMULS
     sycldnn::backend::SyclBLASBackend,
+#endif
+#ifdef SNN_TEST_CLBLAST_MATMULS
+    sycldnn::backend::CLBlastBackend,
 #endif
     sycldnn::backend::SNNBackend>;
 /** The same as AllBackends but in the googletest Types format. */

@@ -54,10 +54,13 @@ option(SNN_FASTBUILD
 # Testing configuration options
 option(SNN_TEST_EIGEN "Test Eigen backend" OFF)
 option(SNN_TEST_SYCLBLAS "Test SYCL-BLAS backend" OFF)
+option(SNN_TEST_CLBLAST "Test CLBlast backend" OFF)
 option(SNN_TEST_EIGEN_MATMULS
   "Enable testing using Eigen matmul in addition to internal matmul" OFF)
 option(SNN_TEST_SYCLBLAS_MATMULS
   "Enable testing using SYCL-BLAS matmul in addition to internal matmul" OFF)
+option(SNN_TEST_CLBLAST_MATMULS
+  "Enable testing using CLBlast matmul in addition to internal matmul" OFF)
 
 # Eigen configuration options.
 option(SNN_EIGEN_LOCAL_MEM
@@ -72,6 +75,7 @@ option(SNN_EIGEN_NO_BARRIER
 # Benchmark configuration options
 option(SNN_BENCH_EIGEN "Benchmark SYCL-DNN using Eigen" OFF)
 option(SNN_BENCH_SYCLBLAS "Benchmark SYCL-DNN using SYCL-BLAS" ON)
+option(SNN_BENCH_CLBLAST "Benchmark SYCL-DNN using CLBlast" OFF)
 option(SNN_BENCH_SNN "Benchmark SYCL-DNN's own matmul" OFF)
 option(SNN_BENCH_MKLDNN "Whether or not to build MKL-DNN benchmarks" OFF)
 option(SNN_BENCH_ARM_COMPUTE

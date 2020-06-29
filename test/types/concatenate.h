@@ -25,7 +25,7 @@
 namespace sycldnn {
 namespace types {
 
-template <typename T, typename U>
+template <typename... Ts>
 struct Concatenate;
 /** Concatenate two type lists together into one type list. */
 template <typename... Ts, typename... Us>
@@ -54,6 +54,18 @@ static_assert(std::is_same<TypeList<char, int, unsigned, float, double>,
                            Concatenate<TypeList<char, int, unsigned>,
                                        TypeList<float, double>>::type>::value,
               "Error when concatenating two type lists");
+
+/** Concatenate any number of type lists. */
+template <typename... Ts, typename... Us, typename... Lists>
+struct Concatenate<TypeList<Ts...>, TypeList<Us...>, Lists...> {
+  using type = typename Concatenate<TypeList<Ts..., Us...>, Lists...>::type;
+};
+static_assert(
+    std::is_same<TypeList<char, int, unsigned, float, double>,
+                 Concatenate<TypeList<char, int>, TypeList<unsigned>,
+                             TypeList<float>, TypeList<double>>::type>::value,
+    "Error when concatenating multiple type lists");
+
 }  // namespace types
 }  // namespace sycldnn
 #endif  // SYCLDNN_TEST_TYPES_CONCATENATE_H_
