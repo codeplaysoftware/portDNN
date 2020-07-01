@@ -68,8 +68,8 @@ struct SNNMatmulExecutor : public BaseExecutor {
 
  public:
   /** Execute a conv2d benchmark with the given parameters and selector. */
-  void execute(State& state, int m, int k, int n, int batch,
-               int workgroup_batch, int workgroup_rows, int workgroup_cols) {
+  void execute(State& state, int m, int k, int n, int batch, int workgroup_rows,
+               int workgroup_cols, int workgroup_batch) {
     auto& benchmark = underlying_benchmark();
     auto& backend = benchmark.get_backend();
     auto& queue = backend.get_queue();
@@ -128,7 +128,7 @@ struct SNNMatmulExecutor : public BaseExecutor {
         status = matmul::internal::queue_kernel<DataType, int32_t, false, false,
                                                 RowTile, AccTile, ColTile>(
             lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
-            workgroup_batch, workgroup_rows, workgroup_cols);
+            workgroup_rows, workgroup_cols, workgroup_batch);
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
@@ -163,7 +163,7 @@ struct SNNMatmulExecutor : public BaseExecutor {
             matmul::internal::queue_kernel<DataType, int32_t, false, false,
                                            RowTile, AccTile, ColTile>(
                 lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
-                workgroup_batch, workgroup_rows, workgroup_cols);
+                workgroup_rows, workgroup_cols, workgroup_batch);
 
         wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
@@ -246,7 +246,7 @@ class SNNMatmulBenchmark
   }
 };
 
-#define CONVOLUTION_BENCHMARK(name, ...)         \
+#define MATMUL_BENCHMARK(name, ...)              \
   class SNNMatmulBenchmark##_##name##_Benchmark  \
       : public SNNMatmulBenchmark<__VA_ARGS__> { \
    public:                                       \
@@ -277,9 +277,9 @@ class SNNMatmulBenchmark
   CALL_WITH_ROW(MACRO, 4);      \
   CALL_WITH_ROW(MACRO, 8)
 
-#define GENERATE_BENCH(ROW, ACC, COL)                      \
-  CONVOLUTION_BENCHMARK(TiledMatmul_##ROW##_##ACC##_##COL, \
-                        sycldnn::backend::SNNBackend, float, ROW, ACC, COL)
+#define GENERATE_BENCH(ROW, ACC, COL)                 \
+  MATMUL_BENCHMARK(TiledMatmul_##ROW##_##ACC##_##COL, \
+                   sycldnn::backend::SNNBackend, float, ROW, ACC, COL)
 
 CALL_WITH_PARAMS(GENERATE_BENCH);
 
