@@ -33,8 +33,9 @@ namespace matmul_benchmark_params {
  * instance, these parameters can be provided to each benchmark::State for that
  * benchmark.
  */
-inline std::vector<int> serialize(int m, int k, int n, int batch) {
-  return {m, k, n, batch};
+inline std::vector<int> serialize(int m, int k, int n, int batch,
+                                  bool transpose_lhs, bool transpose_rhs) {
+  return {m, k, n, batch, transpose_lhs, transpose_rhs};
 }
 
 struct MatmulParams {
@@ -42,8 +43,8 @@ struct MatmulParams {
   int k;
   int n;
   int batch;
-  bool transpose_lhs = false;
-  bool transpose_rhs = false;
+  bool transpose_lhs;
+  bool transpose_rhs;
 };
 
 /**
@@ -58,6 +59,8 @@ inline MatmulParams deserialize(benchmark::State const& state) {
   params.k = state.range(1);
   params.n = state.range(2);
   params.batch = state.range(3);
+  params.transpose_lhs = state.range(4);
+  params.transpose_rhs = state.range(5);
   return params;
 }
 

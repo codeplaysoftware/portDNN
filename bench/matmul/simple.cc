@@ -20,8 +20,8 @@
 
 char const* matmul_benchmark_name() { return "Simple matmuls"; }
 
-#define SIMPLE_PARAMS(M, K, N, BATCH) \
-  matmul_benchmark_params::serialize(M, K, N, BATCH),
+#define SIMPLE_PARAMS(M, K, N, BATCH, TRANS_L, TRANS_R) \
+  matmul_benchmark_params::serialize(M, K, N, BATCH, TRANS_L, TRANS_R),
 
 std::vector<std::vector<int>> const& matmul_benchmark_configs() {
   static std::vector<std::vector<int>> const configs = {

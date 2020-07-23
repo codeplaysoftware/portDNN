@@ -52,7 +52,8 @@ class SNNMatmulBenchmark : public sycldnn::bench::SNNMatmulExecutor<
         new sycldnn::bench::MinStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::StdDevStatistic{}});
-    this->execute(state, params.m, params.k, params.n, params.batch);
+    this->execute(state, params.m, params.k, params.n, params.batch,
+                  params.transpose_lhs, params.transpose_rhs);
 
     // Get the SYCL device, and add device and driver info to the benchmark.
     auto& backend = this->get_backend();

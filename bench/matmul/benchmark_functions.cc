@@ -25,6 +25,11 @@
 #include "sycldnn/backend/sycl_blas_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
+#ifdef SNN_BENCH_CLBLAST
+#include "src/backend/clblast_backend_provider.h"
+#include "sycldnn/backend/clblast_backend.h"
+#endif  // SNN_BENCH_SYCLBLAS
+
 #ifdef SNN_BENCH_SNNBACKEND
 #include "src/backend/snn_backend_provider.h"
 #include "sycldnn/backend/snn_backend.h"
@@ -41,6 +46,10 @@ BM_WITH_BACKEND(EigenBackend);
 
 #ifdef SNN_BENCH_SYCLBLAS
 BM_WITH_BACKEND(SyclBLASBackend);
+#endif
+
+#ifdef SNN_BENCH_CLBLAST
+BM_WITH_BACKEND(CLBlastBackend);
 #endif
 
 #ifdef SNN_BENCH_SNNBACKEND

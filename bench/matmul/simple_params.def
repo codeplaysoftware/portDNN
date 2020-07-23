@@ -1,5 +1,5 @@
 /*
- * Copyright Codeplay Software Ltd 
+ * Copyright Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use these files except in compliance with the License.
@@ -22,8 +22,11 @@
 #error This file expects the SIMPLE_PARAMS macro to be defined.
 #endif
 
-SIMPLE_PARAMS(100, 100, 100, 1)
-SIMPLE_PARAMS(128, 64, 256, 2)
-SIMPLE_PARAMS(512, 128, 512, 8)
-SIMPLE_PARAMS(1024, 196, 256, 1)
-SIMPLE_PARAMS(128, 16, 64, 3)
+SIMPLE_PARAMS(100, 100, 100, 1, false, false)
+SIMPLE_PARAMS(128, 64, 256, 2, false, false)
+SIMPLE_PARAMS(512, 128, 512, 8, false, false)
+SIMPLE_PARAMS(512, 128, 512, 8, true, false)
+SIMPLE_PARAMS(512, 128, 512, 8, false, true)
+SIMPLE_PARAMS(512, 128, 512, 8, true, true)
+SIMPLE_PARAMS(1024, 196, 256, 1, false, false)
+SIMPLE_PARAMS(128, 16, 64, 3, false, false)

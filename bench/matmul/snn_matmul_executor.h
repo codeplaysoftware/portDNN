@@ -49,7 +49,8 @@ struct SNNMatmulExecutor : public BaseExecutor {
 
  public:
   /** Execute a conv2d benchmark with the given parameters and selector. */
-  void execute(State& state, int m, int k, int n, int batch) {
+  void execute(State& state, int m, int k, int n, int batch, bool transpose_lhs,
+               bool transpose_rhs) {
     auto& benchmark = underlying_benchmark();
     auto& backend = benchmark.get_backend();
 
@@ -74,11 +75,26 @@ struct SNNMatmulExecutor : public BaseExecutor {
       benchmark.deallocate_ptr(lhs_gpu);
     };
 
+    auto do_matmul = [&]() {
+      if (!transpose_lhs && !transpose_rhs) {
+        return backend.template batch_matmul<false, false, float>(
+            lhs_gpu, rhs_gpu, out_gpu, batch, m, k, n);
+      } else if (transpose_lhs && !transpose_rhs) {
+        return backend.template batch_matmul<true, false, float>(
+            lhs_gpu, rhs_gpu, out_gpu, batch, m, k, n);
+      } else if (!transpose_lhs && transpose_rhs) {
+        return backend.template batch_matmul<false, true, float>(
+            lhs_gpu, rhs_gpu, out_gpu, batch, m, k, n);
+      } else {  // transpose_lhs && transpose_rhs
+        return backend.template batch_matmul<true, true, float>(
+            lhs_gpu, rhs_gpu, out_gpu, batch, m, k, n);
+      }
+    };
+
     {  // Ensure the kernel is built before benchmarking
       cl::sycl::event ev;
       try {
-        ev = backend.template batch_matmul<false, false, float>(
-            lhs_gpu, rhs_gpu, out_gpu, batch, m, k, n);
+        ev = do_matmul();
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
@@ -104,9 +120,7 @@ struct SNNMatmulExecutor : public BaseExecutor {
     for (auto _ : state) {
       this->start_timing();
       try {
-        auto ev = backend.template batch_matmul<false, false, float>(
-            lhs_gpu, rhs_gpu, out_gpu, batch, m, k, n);
-
+        auto ev = do_matmul();
         wait_for_event(ev, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
@@ -129,6 +143,8 @@ struct SNNMatmulExecutor : public BaseExecutor {
     state.counters["k"] = k;
     state.counters["n"] = n;
     state.counters["batch"] = batch;
+    state.counters["transpose_lhs"] = transpose_lhs;
+    state.counters["transpose_rhs"] = transpose_rhs;
 
     this->finish_benchmark(state);
   }
