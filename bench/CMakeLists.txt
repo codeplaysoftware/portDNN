@@ -102,6 +102,7 @@ endif()
 if(SNN_BENCH_SNN)
   list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_SNNBACKEND)
 endif()
+set(_MATMUL_OBJS $<$<BOOL:SNN_BENCH_SNN>:$<TARGET_OBJECTS:matmul>>)
 
 snn_bench(
   WITH_SYCL
@@ -167,6 +168,7 @@ function(snn_conv2d_bench modelname)
       $<TARGET_OBJECTS:winograd_conv2d>
       $<TARGET_OBJECTS:conv2d_benchmark_functions>
       $<TARGET_OBJECTS:${modelname}_convolution_config>
+      ${_MATMUL_OBJS}
     PUBLIC_LIBRARIES
       bench_main
       ${_BACKENDS}

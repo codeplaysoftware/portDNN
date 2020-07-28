@@ -31,6 +31,11 @@
 #include "sycldnn/backend/clblast_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
+#ifdef SNN_BENCH_SNNBACKEND
+#include "src/backend/snn_backend_provider.h"
+#include "sycldnn/backend/snn_backend.h"
+#endif  // SNN_BENCH_SNNBACKEND
+
 #include "sycldnn/conv2d/conv_type.h"
 
 #include "sycldnn/conv2d/selector/direct_selector.h"
@@ -71,10 +76,18 @@
 #define BM_WITH_CLBLAST(ALGO, DIR)
 #endif
 
+#ifdef SNN_BENCH_SNNBACKEND
+#define BM_WITH_SNNBACKEND(ALGO, DIR) \
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SNNBackend)
+#else
+#define BM_WITH_SNNBACKEND(ALGO, DIR)
+#endif
+
 #define BM_WITH_ALGO_AND_DIR(ALGO, DIR) \
   BM_WITH_EIGEN(ALGO, DIR)              \
   BM_WITH_SYCLBLAS(ALGO, DIR)           \
-  BM_WITH_CLBLAST(ALGO, DIR)
+  BM_WITH_CLBLAST(ALGO, DIR)            \
+  BM_WITH_SNNBACKEND(ALGO, DIR)
 
 #define BM_WITH_ALGO(ALGO)                  \
   BM_WITH_ALGO_AND_DIR(ALGO, Forward)       \
