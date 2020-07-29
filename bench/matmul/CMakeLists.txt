@@ -41,6 +41,9 @@ function(snn_matmul_config_lib modelname)
 endfunction()
 
 snn_matmul_config_lib(simple)
+snn_matmul_config_lib(resnet)
+snn_matmul_config_lib(vgg)
+snn_matmul_config_lib(mobilenet)
 
 function(snn_matmul_bench modelname)
   snn_bench(
@@ -58,3 +61,6 @@ function(snn_matmul_bench modelname)
 endfunction()
 
 snn_matmul_bench(simple)
+snn_matmul_bench(resnet)
+snn_matmul_bench(vgg)
+snn_matmul_bench(mobilenet)

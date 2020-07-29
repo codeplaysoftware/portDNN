@@ -1,0 +1,163 @@
+/*
+ * Copyright Codeplay Software Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * \file
+ * X-Macro definiton file for ResNet matmul sizes.
+ *
+ * Contains a number of calls to the RESNET_PARAMS function macro defining
+ * the following convolution parameters, as used in the Resnet network.
+ *
+ * The ordering of the arguments is:
+ * \code
+ *   RESNET_PARAMS(M, K, N, Batch, transLHS, transRHS)
+ * \endcode
+ */
+
+#ifndef RESNET_PARAMS
+#error This file expects the RESNET_PARAMS macro to be defined.
+#endif
+
+RESNET_PARAMS(12544,   147,   64,  1, false, false)
+RESNET_PARAMS( 3136,    64,  256,  1, false, false)
+RESNET_PARAMS( 3136,    64,   64,  1, false, false)
+RESNET_PARAMS( 3136,   576,   64,  1, false, false)
+RESNET_PARAMS( 3136,   256,   64,  1, false, false)
+RESNET_PARAMS(  784,   576,   64,  1, false, false)
+RESNET_PARAMS(  784,    64,  256,  1, false, false)
+RESNET_PARAMS(  784,   256,  512,  1, false, false)
+RESNET_PARAMS(  784,   256,  128,  1, false, false)
+RESNET_PARAMS(  784,  1152,  128,  1, false, false)
+RESNET_PARAMS(  784,   128,  512,  1, false, false)
+RESNET_PARAMS(  784,   512,  128,  1, false, false)
+RESNET_PARAMS(  196,  1152,  128,  1, false, false)
+RESNET_PARAMS(  196,   128,  512,  1, false, false)
+RESNET_PARAMS(  196,   512, 1024,  1, false, false)
+RESNET_PARAMS(  196,   512,  256,  1, false, false)
+RESNET_PARAMS(  196,  2304,  256,  1, false, false)
+RESNET_PARAMS(  196,   256, 1024,  1, false, false)
+RESNET_PARAMS(  196,  1024,  256,  1, false, false)
+RESNET_PARAMS(   49,  2304,  256,  1, false, false)
+RESNET_PARAMS(   49,   256, 1024,  1, false, false)
+RESNET_PARAMS(   49,  1024, 2048,  1, false, false)
+RESNET_PARAMS(   49,  1024,  512,  1, false, false)
+RESNET_PARAMS(   49,  4608,  512,  1, false, false)
+RESNET_PARAMS(   49,   512, 2048,  1, false, false)
+RESNET_PARAMS(   49,  2048,  512,  1, false, false)
+RESNET_PARAMS(52900,  3136,    3,  1, false, false)
+RESNET_PARAMS( 3136,   256,   64,  1, false, false)
+RESNET_PARAMS( 3136,    64,   64,  1, false, false)
+RESNET_PARAMS( 3136,   576,   64,  1, false, false)
+RESNET_PARAMS( 3136,    64,  256,  1, false, false)
+RESNET_PARAMS( 3136,   576,   64,  1, false, false)
+RESNET_PARAMS(  784,   256,   64,  1, false, false)
+RESNET_PARAMS(  784,   512,  256,  1, false, false)
+RESNET_PARAMS(  784,   128,  256,  1, false, false)
+RESNET_PARAMS(  784,  1152,  128,  1, false, false)
+RESNET_PARAMS(  784,   512,  128,  1, false, false)
+RESNET_PARAMS(  784,   128,  512,  1, false, false)
+RESNET_PARAMS(  784,  1152,  128,  1, false, false)
+RESNET_PARAMS(  196,   512,  128,  1, false, false)
+RESNET_PARAMS(  196,  1024,  512,  1, false, false)
+RESNET_PARAMS(  196,   256,  512,  1, false, false)
+RESNET_PARAMS(  196,  2304,  256,  1, false, false)
+RESNET_PARAMS(  196,  1024,  256,  1, false, false)
+RESNET_PARAMS(  196,   256, 1024,  1, false, false)
+RESNET_PARAMS(  196,  2304,  256,  1, false, false)
+RESNET_PARAMS(   49,  1024,  256,  1, false, false)
+RESNET_PARAMS(   49,  2048, 1024,  1, false, false)
+RESNET_PARAMS(   49,   512, 1024,  1, false, false)
+RESNET_PARAMS(   49,  4608,  512,  1, false, false)
+RESNET_PARAMS(   49,  2048,  512,  1, false, false)
+RESNET_PARAMS(   49,   512, 2048,  1, false, false)
+RESNET_PARAMS(  147, 12544,   64,  1, false, false)
+RESNET_PARAMS(   64,  3136,  256,  1, false, false)
+RESNET_PARAMS(   64,  3136,   64,  1, false, false)
+RESNET_PARAMS(  576,  3136,   64,  1, false, false)
+RESNET_PARAMS(  256,  3136,   64,  1, false, false)
+RESNET_PARAMS(  576,   784,   64,  1, false, false)
+RESNET_PARAMS(   64,   784,  256,  1, false, false)
+RESNET_PARAMS(  256,   784,  512,  1, false, false)
+RESNET_PARAMS(  256,   784,  128,  1, false, false)
+RESNET_PARAMS( 1152,   784,  128,  1, false, false)
+RESNET_PARAMS(  128,   784,  512,  1, false, false)
+RESNET_PARAMS(  512,   784,  128,  1, false, false)
+RESNET_PARAMS( 1152,   196,  128,  1, false, false)
+RESNET_PARAMS(  128,   196,  512,  1, false, false)
+RESNET_PARAMS(  512,   196, 1024,  1, false, false)
+RESNET_PARAMS(  512,   196,  256,  1, false, false)
+RESNET_PARAMS( 2304,   196,  256,  1, false, false)
+RESNET_PARAMS(  256,   196, 1024,  1, false, false)
+RESNET_PARAMS( 1024,   196,  256,  1, false, false)
+RESNET_PARAMS( 2304,    49,  256,  1, false, false)
+RESNET_PARAMS(  256,    49, 1024,  1, false, false)
+RESNET_PARAMS( 1024,    49, 2048,  1, false, false)
+RESNET_PARAMS( 1024,    49,  512,  1, false, false)
+RESNET_PARAMS( 4608,    49,  512,  1, false, false)
+RESNET_PARAMS(  512,    49, 2048,  1, false, false)
+RESNET_PARAMS( 2048,    49,  512,  1, false, false)
+RESNET_PARAMS(  784,    64,   64, 16, false, false)
+RESNET_PARAMS(  196,   128,  128, 16, false, false)
+RESNET_PARAMS(   49,   256,  256, 16, false, false)
+RESNET_PARAMS(   16,   512,  512, 16, false, false)
+RESNET_PARAMS(   64,   784,   64, 16,  true, false)
+RESNET_PARAMS(  128,   196,  128, 16,  true, false)
+RESNET_PARAMS(  256,    49,  256, 16,  true, false)
+RESNET_PARAMS(  512,    16,  512, 16,  true, false)
+RESNET_PARAMS(  196,    64,   64, 36, false, false)
+RESNET_PARAMS(   49,   128,  128, 36, false, false)
+RESNET_PARAMS(   16,   256,  256, 36, false, false)
+RESNET_PARAMS(    4,   512,  512, 36, false, false)
+RESNET_PARAMS(   64,   361,   64, 25,  true, false)
+RESNET_PARAMS(  128,   100,  128, 25,  true, false)
+RESNET_PARAMS(  256,    25,  256, 25,  true, false)
+RESNET_PARAMS(  512,     9,  512, 25,  true, false)
+RESNET_PARAMS( 3136,    64,  256,  1, false, false)
+RESNET_PARAMS( 3136,    64,   64,  1, false, false)
+RESNET_PARAMS( 3136,   256,   64,  1, false, false)
+RESNET_PARAMS(  784,    64,  256,  1, false, false)
+RESNET_PARAMS(  784,   256,  512,  1, false, false)
+RESNET_PARAMS(  784,   256,  128,  1, false, false)
+RESNET_PARAMS(  784,   128,  512,  1, false, false)
+RESNET_PARAMS(  784,   512,  128,  1, false, false)
+RESNET_PARAMS(  196,   128,  512,  1, false, false)
+RESNET_PARAMS(  196,   512, 1024,  1, false, false)
+RESNET_PARAMS(  196,   512,  256,  1, false, false)
+RESNET_PARAMS(  196,   256, 1024,  1, false, false)
+RESNET_PARAMS(  196,  1024,  256,  1, false, false)
+RESNET_PARAMS(   49,   256, 1024,  1, false, false)
+RESNET_PARAMS(   49,  1024, 2048,  1, false, false)
+RESNET_PARAMS(   49,  1024,  512,  1, false, false)
+RESNET_PARAMS(   49,   512, 2048,  1, false, false)
+RESNET_PARAMS(   49,  2048,  512,  1, false, false)
+RESNET_PARAMS(   64,  3136,  256,  1,  true, false)
+RESNET_PARAMS(   64,  3136,   64,  1,  true, false)
+RESNET_PARAMS(  256,  3136,   64,  1,  true, false)
+RESNET_PARAMS(   64,   784,  256,  1,  true, false)
+RESNET_PARAMS(  256,   784,  512,  1,  true, false)
+RESNET_PARAMS(  256,   784,  128,  1,  true, false)
+RESNET_PARAMS(  128,   784,  512,  1,  true, false)
+RESNET_PARAMS(  512,   784,  128,  1,  true, false)
+RESNET_PARAMS(  128,   196,  512,  1,  true, false)
+RESNET_PARAMS(  512,   196, 1024,  1,  true, false)
+RESNET_PARAMS(  512,   196,  256,  1,  true, false)
+RESNET_PARAMS(  256,   196, 1024,  1,  true, false)
+RESNET_PARAMS( 1024,   196,  256,  1,  true, false)
+RESNET_PARAMS(  256,    49, 1024,  1,  true, false)
+RESNET_PARAMS( 1024,    49, 2048,  1,  true, false)
+RESNET_PARAMS( 1024,    49,  512,  1,  true, false)
+RESNET_PARAMS(  512,    49, 2048,  1,  true, false)
+RESNET_PARAMS( 2048,    49,  512,  1,  true, false)
