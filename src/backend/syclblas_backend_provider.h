@@ -51,17 +51,18 @@ struct BackendProvider<SyclBLASBackend> {
   template <typename T>
   Pointer<T> get_initialised_device_memory(size_t size,
                                            std::vector<T> const& data) {
+    if (!size) {
+      return Pointer<T>{};
+    }
+    auto gpu_ptr = get_backend().allocate<T>(size);
     auto executor = get_backend().get_executor().get_policy_handler();
-    Pointer<T> gpu_ptr;
-    if (size != 0u) {
-      gpu_ptr = get_backend().allocate<T>(size);
-      auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
-      for (auto& event : event_list) {
-        event.wait_and_throw();
-      }
+    auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
+    for (auto& event : event_list) {
+      event.wait_and_throw();
     }
     return gpu_ptr;
   }
+
   /** Copy the device memory into the provided host vector. */
   template <typename T>
   void copy_device_data_to_host(size_t size, Pointer<T> gpu_ptr,

@@ -44,6 +44,9 @@ struct BackendProvider<SNNBackend> {
   template <typename T>
   Pointer<T> get_initialised_device_memory(size_t size,
                                            std::vector<T> const& data) {
+    if (!size) {
+      return Pointer<T>{};
+    }
     auto gpu_ptr = Pointer<T>{size};
     auto event = backend_.get_queue().submit([&](cl::sycl::handler& cgh) {
       auto acc =

@@ -44,7 +44,7 @@ struct BackendProvider<CLBlastBackend> {
   template <typename T>
   Pointer<T> get_initialised_device_memory(size_t size,
                                            std::vector<T> const& data) {
-    if (size == 0) {
+    if (!size) {
       return Pointer<T>{};
     }
     auto gpu_ptr = Pointer<T>{size};
