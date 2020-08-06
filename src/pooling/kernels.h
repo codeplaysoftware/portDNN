@@ -165,13 +165,13 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
           helpers::min(col_start + params_.window_cols, params_.in_cols);
       col_start = helpers::max(col_start, 0);
 
-      const auto input_data_offset =
-          in_data +
+      const auto input_offset =
           batch * params_.in_cols * params_.in_rows * params_.channels;
+      const auto offset_pointer = in_data + input_offset;
       for (Index r = row_start; r < row_end; r++) {
         for (Index c = col_start; c < col_end; c++) {
           Index loc = (r * params_.in_cols + c) * params_.channels + feature;
-          op.accumulate(Load()(input_data_offset, loc));
+          op.accumulate(Load()(offset_pointer, loc));
         }
       }
       Store()(out_data, index * VectorWidth, op.value());

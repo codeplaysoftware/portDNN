@@ -365,8 +365,9 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < ChannelVectorWidth; ++i) {
       helpers::vector_element::set(
-          output, i, helpers::vector_element::get(
-                         filter.data(filter_row, filter_col, i), index));
+          output, i,
+          helpers::vector_element::get(filter.data(filter_row, filter_col, i),
+                                       index));
     }
     return output;
   }
