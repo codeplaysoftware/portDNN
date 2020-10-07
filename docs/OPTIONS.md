@@ -36,7 +36,7 @@ Option                      | Type     | Default         | Description
 `EIGEN_INCLUDE_DIR`         | `STRING` | build/eigen     | The Eigen include directory. Can be set by download.
 `SNN_DOWNLOAD_SYCLBLAS`     | `BOOL`   | `ON`            | Download SYCLBLAS, rather than look locally
 `SYCLBLAS_REPO`             | `STRING` | Codeplay GitHub | The remote to download SYCLBLAS from
-`SYCLBLAS_GIT_TAG`          | `STRING` | `dcffd18`       | Commit-ish object (e.g. tag, branch, commit hash)
+`SyclBLAS_GIT_TAG`          | `STRING` | `c5325b8`       | Commit-ish object (e.g. tag, branch, commit hash)
 `SNN_DOWNLOAD_MISSING_DEPS` | `BOOL`   | `ON`            | Downloads any `-NOTFOUND` dependencies
 
 ## Test options
