@@ -87,6 +87,8 @@ TF_OPERATOR_MAP = {
     'avg': 'AVG',
 }
 
+# Ensures the pooling tests can run with fp16 data types
+MAX_INPUT_VALUE = 1024
 
 def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
                      padding):
@@ -185,6 +187,7 @@ def get_result_and_size(test_case, test_params):
     return helpers.get_result_and_size(get_result_function(test_case),
                                        pool_op=test_case.test_type,
                                        input_shape=test_params.in_shape,
+                                       max_input_val=MAX_INPUT_VALUE,
                                        window_shape=window_shape,
                                        stride_shape=stride_shape,
                                        padding=test_params.padding)

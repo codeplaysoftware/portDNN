@@ -33,6 +33,16 @@
 
 #include <vector>
 
+template <typename DataType>
+DataType pointwise_tolerance_for_type() {
+  return 0.00001;
+}
+
+template <>
+cl::sycl::half pointwise_tolerance_for_type() {
+  return 0.002f;
+}
+
 template <typename DType, template <typename> class Op, typename Direction>
 struct PointwiseFixture
     : public BackendTestFixture<sycldnn::backend::SNNBackend> {
@@ -78,7 +88,7 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
     /* While ULP-based errors are generally better, the expected values
      * in this test are close to 0, which can result in large ULP errors
      * even though the answer is "close" to the expected. */
-    const DataType tolerance = 0.00001;
+    const DataType tolerance = pointwise_tolerance_for_type<DataType>();
     const auto size = exp.size();
 
     std::vector<DataType> input_forward =

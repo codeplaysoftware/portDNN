@@ -56,10 +56,13 @@ def get_dont_modify_comment(scriptname):
 # To ensure that the tests can be computed exactly, we require that the results
 # are contained in the set of values that can be exactly represented by the
 # floating point data types. Single precision floating point values can
-# represent all integers up to 2^24. If the values would be larger than this,
-# then limit the input values to a smaller range of possible values to limit
+# represent all integers up to 2^24 and half precision floating point values
+# can represent all integers up to 2048 exactly, anything above that will
+# start be to rounded by some factor. The value 32768 was found to work
+# with all SYCL-DNN tests. If the values would be larger than this, then
+# limit the input values to a smaller range of possible values to limit
 # the size of the output values.
-REQUIRED_MAX = 2**24
+REQUIRED_MAX = 32768
 
 
 def get_result_and_size(func, max_input_val=2**12, floor_div=False, **kwargs):

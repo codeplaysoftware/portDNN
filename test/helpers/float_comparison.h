@@ -83,26 +83,107 @@ struct NumFractionBits {
   static constexpr size_t value = std::numeric_limits<DataType>::digits - 1;
 };
 
-#ifdef SNN_USE_HALF
-template <>
-struct NumFractionBits<cl::sycl::half> {
-  static constexpr size_t value = 10;
-};
-#endif  // SNN_USE_HALF
-
 /** Provide a safe type that can be piped to an ostream. */
 template <typename DataType>
 struct Printable {
   using type = DataType;
 };
 
+template <typename DataType>
+DataType get_quiet_NaN_for_type() {
+  static_assert(std::numeric_limits<DataType>::is_iec559,
+                "Testing code assumes IEEE 754 float representation");
+  constexpr DataType qnan = std::numeric_limits<DataType>::quiet_NaN();
+  return qnan;
+}
+
+template <typename DataType>
+DataType get_infinity_for_type() {
+  static_assert(std::numeric_limits<DataType>::is_iec559,
+                "Testing code assumes IEEE 754 float representation");
+  constexpr DataType inf = std::numeric_limits<DataType>::infinity();
+  return inf;
+}
+
+template <typename DataType>
+DataType get_negative_infinity_for_type() {
+  return -(get_infinity_for_type<DataType>());
+}
+
+template <typename DataType>
+DataType get_max_for_type() {
+  return std::numeric_limits<DataType>::max();
+}
+
+template <typename DataType>
+DataType get_lowest_for_type() {
+  return std::numeric_limits<DataType>::lowest();
+}
+
 #ifdef SNN_USE_HALF
+template <>
+struct NumFractionBits<cl::sycl::half> {
+  static constexpr size_t value = 10;
+};
+
 // Trying to pipe a half to an ostream can cause ambiguous function errors, so
 // explicitly use float as the printable type.
 template <>
 struct Printable<cl::sycl::half> {
   using type = float;
 };
+
+/**
+ * half type as provided by SYCL cannot currently use std::numeric_limits or
+ * other type traits, so we need to specialise.
+ */
+template <>
+cl::sycl::half get_quiet_NaN_for_type() {
+  return get_quiet_NaN_for_type<float>();
+}
+
+template <>
+cl::sycl::half get_infinity_for_type() {
+  return get_infinity_for_type<float>();
+}
+
+template <>
+cl::sycl::half get_negative_infinity_for_type() {
+  return get_negative_infinity_for_type<float>();
+}
+
+// Largest normal value for half: 0 11110 1111111111
+//  = 2^(30-15) * (1 + 1 - 2^-10) = 65504
+template <>
+cl::sycl::half get_max_for_type() {
+  return cl::sycl::half{65504};
+}
+
+// Lowest normal value for half: 1 11110 1111111111
+//  = -1 * 2^(30-15) * (1 + 1 - 2^-10) = -65504
+template <>
+cl::sycl::half get_lowest_for_type() {
+  return cl::sycl::half{-65504};
+}
+
+namespace std {
+template <>
+class numeric_limits<cl::sycl::half> {
+ public:
+  static constexpr bool has_quiet_NaN = true;
+  // TODO: Make these functions constepxr once sycl::half supports it
+  static cl::sycl::half min() noexcept { return 0.0f; }
+  static cl::sycl::half max() noexcept {
+    return get_max_for_type<cl::sycl::half>();
+  }
+  static cl::sycl::half lowest() noexcept {
+    return get_lowest_for_type<cl::sycl::half>();
+  }
+  static cl::sycl::half quiet_NaN() noexcept {
+    return get_quiet_NaN_for_type<cl::sycl::half>();
+  }
+};
+}  // namespace std
 #endif  // SNN_USE_HALF
 
 /**
@@ -267,6 +348,31 @@ inline ::testing::AssertionResult expect_almost_equal(
   auto difference_in_ulps = unsigned_difference(x, y);
 
   if (x.is_NaN() || y.is_NaN() || difference_in_ulps > max_ulps) {
+    PrintableType print_lhs = lhs;
+    PrintableType print_rhs = rhs;
+    return ::testing::AssertionFailure()
+           << "  expected: " << lhs_expr << " (" << print_lhs << "), "
+           << "actual: " << rhs_expr << " (" << print_rhs << "), "
+           << "ULPs: " << difference_in_ulps << " when testing with "
+           << max_ulps_expr << " (" << max_ulps << ")";
+  } else {
+    return ::testing::AssertionSuccess();
+  }
+}
+
+template <>
+inline ::testing::AssertionResult expect_almost_equal<cl::sycl::half>(
+    const char* lhs_expr, const char* rhs_expr, const char* max_ulps_expr,
+    cl::sycl::half const& lhs, cl::sycl::half const& rhs,
+    size_t const max_ulps) {
+  using PrintableType = typename Printable<cl::sycl::half>::type;
+  FloatingPoint<cl::sycl::half> x(lhs);
+  FloatingPoint<cl::sycl::half> y(rhs);
+
+  auto difference_in_ulps = unsigned_difference(x, y);
+
+  if (x.is_NaN() || y.is_NaN() ||
+      difference_in_ulps > std::max(616, static_cast<int>(max_ulps))) {
     PrintableType print_lhs = lhs;
     PrintableType print_rhs = rhs;
     return ::testing::AssertionFailure()
