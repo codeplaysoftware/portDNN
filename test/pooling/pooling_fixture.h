@@ -37,9 +37,8 @@
 #include <vector>
 
 template <typename DType, typename Backend, template <typename T> class Op,
-          typename Direction,
-          bool = sycldnn::pooling::internal::IsMaxGradient<DType, Op,
-                                                           Direction>::value>
+          typename Direction, bool = sycldnn::pooling::internal::IsMaxGradient<
+                                  DType, Op, Direction>::value>
 struct PoolingFixture : public BackendTestFixture<Backend> {
   using DataType = DType;
 

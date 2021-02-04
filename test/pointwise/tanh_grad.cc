@@ -20,17 +20,18 @@
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/pointwise/operators.h"
 #include "sycldnn/pointwise/direction.h"
+#include "sycldnn/pointwise/operators.h"
 
 #include "test/pointwise/pointwise_fixture.h"
 #include "test/types/kernel_data_types.h"
 
 #include <vector>
 
-using namespace sycldnn; // NOLINT(google-build-using-namespace)
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 template <typename DataType>
-using TanhGrad = PointwiseFixture<DataType, pointwise::Tanh, pointwise::Gradient>;
+using TanhGrad =
+    PointwiseFixture<DataType, pointwise::Tanh, pointwise::Gradient>;
 TYPED_TEST_SUITE(TanhGrad, types::GTestKernelDataTypes);
 TYPED_TEST(TanhGrad, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
@@ -39,17 +40,30 @@ TYPED_TEST(TanhGrad, Shape_1x1) {
 }
 TYPED_TEST(TanhGrad, Shape_8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {-0.005363802732103462, -0.029598111496319968, -0.14130164970632886 , -0.41997434161402614 ,  0.                  ,  0.41997434161402614 ,  0.14130164970632886 ,  0.029598111496319968};
+  const std::vector<DataType> exp_out = {-0.005363802732103462,
+                                         -0.029598111496319968,
+                                         -0.14130164970632886,
+                                         -0.41997434161402614,
+                                         0.,
+                                         0.41997434161402614,
+                                         0.14130164970632886,
+                                         0.029598111496319968};
   this->test_pointwise(exp_out);
 }
 TYPED_TEST(TanhGrad, Shape_9x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {-0.0009079161547204118, -0.005363802732103462 , -0.029598111496319968 , -0.14130164970632886  , -0.41997434161402614  ,  0.                   ,  0.41997434161402614  ,  0.14130164970632886  ,  0.029598111496320634 };
+  const std::vector<DataType> exp_out = {
+      -0.0009079161547204118, -0.005363802732103462, -0.029598111496319968,
+      -0.14130164970632886,   -0.41997434161402614,  0.,
+      0.41997434161402614,    0.14130164970632886,   0.029598111496320634};
   this->test_pointwise(exp_out);
 }
 TYPED_TEST(TanhGrad, Shape_10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {-0.0009079161547204118, -0.005363802732103462 , -0.029598111496319968 , -0.14130164970632886  , -0.41997434161402614  ,  0.                   ,  0.41997434161402614  ,  0.14130164970632886  ,  0.029598111496319968 ,  0.005363802732103462 };
+  const std::vector<DataType> exp_out = {
+      -0.0009079161547204118, -0.005363802732103462, -0.029598111496319968,
+      -0.14130164970632886,   -0.41997434161402614,  0.,
+      0.41997434161402614,    0.14130164970632886,   0.029598111496319968,
+      0.005363802732103462};
   this->test_pointwise(exp_out);
 }
-

@@ -34,7 +34,7 @@
 #include <array>
 #include <vector>
 
-using namespace sycldnn; // NOLINT(google-build-using-namespace)
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 
@@ -49,8 +49,9 @@ using AvgWindow7Stride4Forward =
 TYPED_TEST_SUITE(AvgWindow7Stride4Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25., 28., 31., 58., 61., 64., 91., 94., 97.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 11, 1 }};
+  const std::vector<DataType> exp_out = {25., 28., 31., 58., 61.,
+                                         64., 91., 94., 97.};
+  const std::array<int, 4> in_shape = {{1, 11, 11, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -59,7 +60,7 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x11x1) {
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x11x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {37., 41., 81., 85.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 11, 1 }};
+  const std::array<int, 4> in_shape = {{1, 11, 11, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -67,8 +68,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  55.,  56.,  61.,  62., 115., 116., 121., 122., 127., 128., 181., 182., 187., 188., 193., 194.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 11, 2 }};
+  const std::vector<DataType> exp_out = {49.,  50.,  55.,  56.,  61.,  62.,
+                                         115., 116., 121., 122., 127., 128.,
+                                         181., 182., 187., 188., 193., 194.};
+  const std::array<int, 4> in_shape = {{1, 11, 11, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -76,8 +79,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  81.,  82., 161., 162., 169., 170.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 11, 2 }};
+  const std::vector<DataType> exp_out = {73.,  74.,  81.,  82.,
+                                         161., 162., 169., 170.};
+  const std::array<int, 4> in_shape = {{1, 11, 11, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -85,8 +89,11 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.,  98.,  99., 100., 109., 110., 111., 112., 121., 122., 123., 124., 229., 230., 231., 232., 241., 242., 243., 244., 253., 254., 255., 256., 361., 362., 363., 364., 373., 374., 375., 376., 385., 386., 387., 388.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 11, 4 }};
+  const std::vector<DataType> exp_out = {
+      97.,  98.,  99.,  100., 109., 110., 111., 112., 121., 122., 123., 124.,
+      229., 230., 231., 232., 241., 242., 243., 244., 253., 254., 255., 256.,
+      361., 362., 363., 364., 373., 374., 375., 376., 385., 386., 387., 388.};
+  const std::array<int, 4> in_shape = {{1, 11, 11, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -94,8 +101,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {145., 146., 147., 148., 161., 162., 163., 164., 321., 322., 323., 324., 337., 338., 339., 340.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 11, 4 }};
+  const std::vector<DataType> exp_out = {145., 146., 147., 148., 161., 162.,
+                                         163., 164., 321., 322., 323., 324.,
+                                         337., 338., 339., 340.};
+  const std::array<int, 4> in_shape = {{1, 11, 11, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -103,8 +112,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 27.5,  31. ,  34. ,  63.5,  67. ,  70. ,  99.5, 103. , 106. };
-  const std::array<int, 4> in_shape = {{ 1, 11, 12, 1 }};
+  const std::vector<DataType> exp_out = {27.5, 31.,  34.,  63.5, 67.,
+                                         70.,  99.5, 103., 106.};
+  const std::array<int, 4> in_shape = {{1, 11, 12, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -113,7 +123,7 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x12x1) {
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x12x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {40., 44., 88., 92.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 12, 1 }};
+  const std::array<int, 4> in_shape = {{1, 11, 12, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -121,8 +131,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 54.,  55.,  61.,  62.,  67.,  68., 126., 127., 133., 134., 139., 140., 198., 199., 205., 206., 211., 212.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 12, 2 }};
+  const std::vector<DataType> exp_out = {54.,  55.,  61.,  62.,  67.,  68.,
+                                         126., 127., 133., 134., 139., 140.,
+                                         198., 199., 205., 206., 211., 212.};
+  const std::array<int, 4> in_shape = {{1, 11, 12, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -130,8 +142,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 79.,  80.,  87.,  88., 175., 176., 183., 184.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 12, 2 }};
+  const std::vector<DataType> exp_out = {79.,  80.,  87.,  88.,
+                                         175., 176., 183., 184.};
+  const std::array<int, 4> in_shape = {{1, 11, 12, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -139,8 +152,43 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {107.              , 108.              , 109.              , 110.              , 121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 251.              , 252.              , 253.              , 254.              , 265.              , 266.              , 267.              , 268.              , 277.              , 278.              , 279.              , 280.              , 395.              , 396.              , 397.              , 398.              , 379.74285714285713, 380.74285714285713, 381.74285714285713, 382.74285714285713, 339.08            , 340.08            , 341.08            , 342.08            };
-  const std::array<int, 4> in_shape = {{ 1, 11, 12, 4 }};
+  const std::vector<DataType> exp_out = {107.,
+                                         108.,
+                                         109.,
+                                         110.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         395.,
+                                         396.,
+                                         397.,
+                                         398.,
+                                         379.74285714285713,
+                                         380.74285714285713,
+                                         381.74285714285713,
+                                         382.74285714285713,
+                                         339.08,
+                                         340.08,
+                                         341.08,
+                                         342.08};
+  const std::array<int, 4> in_shape = {{1, 11, 12, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -148,8 +196,23 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {157.             , 158.             , 159.             , 160.             , 173.             , 174.             , 175.             , 176.             , 349.             , 350.             , 351.             , 352.             , 333.6530612244898, 334.6530612244898, 335.6530612244898, 336.6530612244898};
-  const std::array<int, 4> in_shape = {{ 1, 11, 12, 4 }};
+  const std::vector<DataType> exp_out = {157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898};
+  const std::array<int, 4> in_shape = {{1, 11, 12, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -157,8 +220,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 31. ,  34. ,  38. ,  40.5,  73. ,  76. ,  80. ,  82.5, 115. , 118. , 122. , 124.5};
-  const std::array<int, 4> in_shape = {{ 1, 11, 14, 1 }};
+  const std::vector<DataType> exp_out = {31., 34.,  38.,  40.5, 73.,  76.,
+                                         80., 82.5, 115., 118., 122., 124.5};
+  const std::array<int, 4> in_shape = {{1, 11, 14, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -166,8 +230,8 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 46.,  50., 102., 106.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 14, 1 }};
+  const std::vector<DataType> exp_out = {46., 50., 102., 106.};
+  const std::array<int, 4> in_shape = {{1, 11, 14, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -175,8 +239,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 61.,  62.,  67.,  68.,  75.,  76.,  80.,  81., 145., 146., 151., 152., 159., 160., 164., 165., 229., 230., 235., 236., 243., 244., 248., 249.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 14, 2 }};
+  const std::vector<DataType> exp_out = {
+      61.,  62.,  67.,  68.,  75.,  76.,  80.,  81.,  145., 146., 151., 152.,
+      159., 160., 164., 165., 229., 230., 235., 236., 243., 244., 248., 249.};
+  const std::array<int, 4> in_shape = {{1, 11, 14, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -184,8 +250,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 91.,  92.,  99., 100., 203., 204., 211., 212.};
-  const std::array<int, 4> in_shape = {{ 1, 11, 14, 2 }};
+  const std::vector<DataType> exp_out = {91.,  92.,  99.,  100.,
+                                         203., 204., 211., 212.};
+  const std::array<int, 4> in_shape = {{1, 11, 14, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -193,8 +260,13 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {121.  , 122.  , 123.  , 124.  , 133.  , 134.  , 135.  , 136.  , 149.  , 150.  , 151.  , 152.  , 159.  , 160.  , 161.  , 162.  , 289.  , 290.  , 291.  , 292.  , 301.  , 302.  , 303.  , 304.  , 317.  , 318.  , 319.  , 320.  , 327.  , 328.  , 329.  , 330.  , 293.16, 294.16, 295.16, 296.16, 264.2 , 265.2 , 266.2 , 267.2 , 280.2 , 281.2 , 282.2 , 283.2 , 290.2 , 291.2 , 292.2 , 293.2 };
-  const std::array<int, 4> in_shape = {{ 1, 11, 14, 4 }};
+  const std::vector<DataType> exp_out = {
+      121.,  122.,  123.,   124.,   133.,   134.,   135.,  136.,  149.,  150.,
+      151.,  152.,  159.,   160.,   161.,   162.,   289.,  290.,  291.,  292.,
+      301.,  302.,  303.,   304.,   317.,   318.,   319.,  320.,  327.,  328.,
+      329.,  330.,  293.16, 294.16, 295.16, 296.16, 264.2, 265.2, 266.2, 267.2,
+      280.2, 281.2, 282.2,  283.2,  290.2,  291.2,  292.2, 293.2};
+  const std::array<int, 4> in_shape = {{1, 11, 14, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -202,8 +274,23 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x11x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {181.              , 182.              , 183.              , 184.              , 197.              , 198.              , 199.              , 200.              , 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 };
-  const std::array<int, 4> in_shape = {{ 1, 11, 14, 4 }};
+  const std::vector<DataType> exp_out = {181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857};
+  const std::array<int, 4> in_shape = {{1, 11, 14, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -211,8 +298,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x11x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.5,  33.5,  36.5,  69. ,  72. ,  75. , 102. , 105. , 108. };
-  const std::array<int, 4> in_shape = {{ 1, 12, 11, 1 }};
+  const std::vector<DataType> exp_out = {30.5, 33.5, 36.5, 69., 72.,
+                                         75.,  102., 105., 108.};
+  const std::array<int, 4> in_shape = {{1, 12, 11, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -221,7 +309,7 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x11x1) {
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x11x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {37., 41., 81., 85.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 11, 1 }};
+  const std::array<int, 4> in_shape = {{1, 12, 11, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -229,8 +317,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 60.,  61.,  66.,  67.,  72.,  73., 137., 138., 143., 144., 149., 150., 203., 204., 209., 210., 215., 216.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 11, 2 }};
+  const std::vector<DataType> exp_out = {60.,  61.,  66.,  67.,  72.,  73.,
+                                         137., 138., 143., 144., 149., 150.,
+                                         203., 204., 209., 210., 215., 216.};
+  const std::array<int, 4> in_shape = {{1, 12, 11, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -238,8 +328,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  81.,  82., 161., 162., 169., 170.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 11, 2 }};
+  const std::vector<DataType> exp_out = {73.,  74.,  81.,  82.,
+                                         161., 162., 169., 170.};
+  const std::array<int, 4> in_shape = {{1, 12, 11, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -247,8 +338,43 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {119.              , 120.              , 121.              , 122.              , 131.              , 132.              , 133.              , 134.              , 143.              , 144.              , 145.              , 146.              , 273.              , 274.              , 275.              , 276.              , 285.              , 286.              , 287.              , 288.              , 297.              , 298.              , 299.              , 300.              , 405.              , 406.              , 407.              , 408.              , 387.74285714285713, 388.74285714285713, 389.74285714285713, 390.74285714285713, 347.08            , 348.08            , 349.08            , 350.08            };
-  const std::array<int, 4> in_shape = {{ 1, 12, 11, 4 }};
+  const std::vector<DataType> exp_out = {119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         131.,
+                                         132.,
+                                         133.,
+                                         134.,
+                                         143.,
+                                         144.,
+                                         145.,
+                                         146.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         405.,
+                                         406.,
+                                         407.,
+                                         408.,
+                                         387.74285714285713,
+                                         388.74285714285713,
+                                         389.74285714285713,
+                                         390.74285714285713,
+                                         347.08,
+                                         348.08,
+                                         349.08,
+                                         350.08};
+  const std::array<int, 4> in_shape = {{1, 12, 11, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -256,8 +382,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {145., 146., 147., 148., 161., 162., 163., 164., 321., 322., 323., 324., 337., 338., 339., 340.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 11, 4 }};
+  const std::vector<DataType> exp_out = {145., 146., 147., 148., 161., 162.,
+                                         163., 164., 321., 322., 323., 324.,
+                                         337., 338., 339., 340.};
+  const std::array<int, 4> in_shape = {{1, 12, 11, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -265,8 +393,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.5,  37. ,  40. ,  75.5,  79. ,  82. , 111.5, 115. , 118. };
-  const std::array<int, 4> in_shape = {{ 1, 12, 12, 1 }};
+  const std::vector<DataType> exp_out = {33.5, 37.,   40.,  75.5, 79.,
+                                         82.,  111.5, 115., 118.};
+  const std::array<int, 4> in_shape = {{1, 12, 12, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -275,7 +404,7 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x12x1) {
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x12x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {40., 44., 88., 92.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 12, 1 }};
+  const std::array<int, 4> in_shape = {{1, 12, 12, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -283,8 +412,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 66.,  67.,  73.,  74.,  79.,  80., 150., 151., 157., 158., 163., 164., 222., 223., 229., 230., 235., 236.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 12, 2 }};
+  const std::vector<DataType> exp_out = {66.,  67.,  73.,  74.,  79.,  80.,
+                                         150., 151., 157., 158., 163., 164.,
+                                         222., 223., 229., 230., 235., 236.};
+  const std::array<int, 4> in_shape = {{1, 12, 12, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -292,8 +423,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 79.,  80.,  87.,  88., 175., 176., 183., 184.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 12, 2 }};
+  const std::vector<DataType> exp_out = {79.,  80.,  87.,  88.,
+                                         175., 176., 183., 184.};
+  const std::array<int, 4> in_shape = {{1, 12, 12, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -301,8 +433,43 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {131.              , 132.              , 133.              , 134.              , 145.              , 146.              , 147.              , 148.              , 157.              , 158.              , 159.              , 160.              , 299.              , 300.              , 301.              , 302.              , 313.              , 314.              , 315.              , 316.              , 325.              , 326.              , 327.              , 328.              , 340.6             , 341.6             , 342.6             , 343.6             , 325.34285714285716, 326.34285714285716, 327.34285714285716, 328.34285714285716, 284.68            , 285.68            , 286.68            , 287.68            };
-  const std::array<int, 4> in_shape = {{ 1, 12, 12, 4 }};
+  const std::vector<DataType> exp_out = {131.,
+                                         132.,
+                                         133.,
+                                         134.,
+                                         145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         299.,
+                                         300.,
+                                         301.,
+                                         302.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         325.,
+                                         326.,
+                                         327.,
+                                         328.,
+                                         340.6,
+                                         341.6,
+                                         342.6,
+                                         343.6,
+                                         325.34285714285716,
+                                         326.34285714285716,
+                                         327.34285714285716,
+                                         328.34285714285716,
+                                         284.68,
+                                         285.68,
+                                         286.68,
+                                         287.68};
+  const std::array<int, 4> in_shape = {{1, 12, 12, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -310,8 +477,23 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {157.             , 158.             , 159.             , 160.             , 173.             , 174.             , 175.             , 176.             , 349.             , 350.             , 351.             , 352.             , 333.6530612244898, 334.6530612244898, 335.6530612244898, 336.6530612244898};
-  const std::array<int, 4> in_shape = {{ 1, 12, 12, 4 }};
+  const std::vector<DataType> exp_out = {157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898};
+  const std::array<int, 4> in_shape = {{1, 12, 12, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -319,8 +501,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 38. ,  41. ,  45. ,  47.5,  87. ,  90. ,  94. ,  96.5, 129. , 132. , 136. , 138.5};
-  const std::array<int, 4> in_shape = {{ 1, 12, 14, 1 }};
+  const std::vector<DataType> exp_out = {38., 41.,  45.,  47.5, 87.,  90.,
+                                         94., 96.5, 129., 132., 136., 138.5};
+  const std::array<int, 4> in_shape = {{1, 12, 14, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -328,8 +511,8 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 46.,  50., 102., 106.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 14, 1 }};
+  const std::vector<DataType> exp_out = {46., 50., 102., 106.};
+  const std::array<int, 4> in_shape = {{1, 12, 14, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -337,8 +520,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 75.,  76.,  81.,  82.,  89.,  90.,  94.,  95., 173., 174., 179., 180., 187., 188., 192., 193., 257., 258., 263., 264., 271., 272., 276., 277.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 14, 2 }};
+  const std::vector<DataType> exp_out = {
+      75.,  76.,  81.,  82.,  89.,  90.,  94.,  95.,  173., 174., 179., 180.,
+      187., 188., 192., 193., 257., 258., 263., 264., 271., 272., 276., 277.};
+  const std::array<int, 4> in_shape = {{1, 12, 14, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -346,8 +531,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 91.,  92.,  99., 100., 203., 204., 211., 212.};
-  const std::array<int, 4> in_shape = {{ 1, 12, 14, 2 }};
+  const std::vector<DataType> exp_out = {91.,  92.,  99.,  100.,
+                                         203., 204., 211., 212.};
+  const std::array<int, 4> in_shape = {{1, 12, 14, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -355,8 +541,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {149.              , 150.              , 151.              , 152.              , 161.              , 162.              , 163.              , 164.              , 177.              , 178.              , 179.              , 180.              , 187.              , 188.              , 189.              , 190.              , 301.1142857142857 , 302.1142857142857 , 303.1142857142857 , 304.1142857142857 , 283.85714285714283, 284.85714285714283, 285.85714285714283, 286.85714285714283, 299.85714285714283, 300.85714285714283, 301.85714285714283, 302.85714285714283, 309.85714285714283, 310.85714285714283, 311.85714285714283, 312.85714285714283, 246.76            , 247.76            , 248.76            , 249.76            , 217.8             , 218.8             , 219.8             , 220.8             , 233.8             , 234.8             , 235.8             , 236.8             , 243.8             , 244.8             , 245.8             , 246.8             };
-  const std::array<int, 4> in_shape = {{ 1, 12, 14, 4 }};
+  const std::vector<DataType> exp_out = {149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         177.,
+                                         178.,
+                                         179.,
+                                         180.,
+                                         187.,
+                                         188.,
+                                         189.,
+                                         190.,
+                                         301.1142857142857,
+                                         302.1142857142857,
+                                         303.1142857142857,
+                                         304.1142857142857,
+                                         283.85714285714283,
+                                         284.85714285714283,
+                                         285.85714285714283,
+                                         286.85714285714283,
+                                         299.85714285714283,
+                                         300.85714285714283,
+                                         301.85714285714283,
+                                         302.85714285714283,
+                                         309.85714285714283,
+                                         310.85714285714283,
+                                         311.85714285714283,
+                                         312.85714285714283,
+                                         246.76,
+                                         247.76,
+                                         248.76,
+                                         249.76,
+                                         217.8,
+                                         218.8,
+                                         219.8,
+                                         220.8,
+                                         233.8,
+                                         234.8,
+                                         235.8,
+                                         236.8,
+                                         243.8,
+                                         244.8,
+                                         245.8,
+                                         246.8};
+  const std::array<int, 4> in_shape = {{1, 12, 14, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -364,8 +597,23 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x12x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {181.              , 182.              , 183.              , 184.              , 197.              , 198.              , 199.              , 200.              , 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 };
-  const std::array<int, 4> in_shape = {{ 1, 12, 14, 4 }};
+  const std::vector<DataType> exp_out = {181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857};
+  const std::array<int, 4> in_shape = {{1, 12, 14, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -373,8 +621,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x12x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25. ,  28. ,  31. ,  58. ,  61. ,  64. , 102. , 105. , 108. , 129.5, 132.5, 135.5};
-  const std::array<int, 4> in_shape = {{ 1, 14, 11, 1 }};
+  const std::vector<DataType> exp_out = {25.,  28.,  31.,  58.,   61.,   64.,
+                                         102., 105., 108., 129.5, 132.5, 135.5};
+  const std::array<int, 4> in_shape = {{1, 14, 11, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -383,7 +632,7 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x11x1) {
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x11x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {37., 41., 81., 85.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 11, 1 }};
+  const std::array<int, 4> in_shape = {{1, 14, 11, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -391,8 +640,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  55.,  56.,  61.,  62., 115., 116., 121., 122., 127., 128., 203., 204., 209., 210., 215., 216., 258., 259., 264., 265., 270., 271.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 11, 2 }};
+  const std::vector<DataType> exp_out = {
+      49.,  50.,  55.,  56.,  61.,  62.,  115., 116., 121., 122., 127., 128.,
+      203., 204., 209., 210., 215., 216., 258., 259., 264., 265., 270., 271.};
+  const std::array<int, 4> in_shape = {{1, 14, 11, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -400,8 +651,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  81.,  82., 161., 162., 169., 170.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 11, 2 }};
+  const std::vector<DataType> exp_out = {73.,  74.,  81.,  82.,
+                                         161., 162., 169., 170.};
+  const std::array<int, 4> in_shape = {{1, 14, 11, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -409,8 +661,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.              ,  98.              ,  99.              , 100.              , 109.              , 110.              , 111.              , 112.              , 121.              , 122.              , 123.              , 124.              , 229.              , 230.              , 231.              , 232.              , 241.              , 242.              , 243.              , 244.              , 253.              , 254.              , 255.              , 256.              , 331.85714285714283, 332.85714285714283, 333.85714285714283, 334.85714285714283, 322.9591836734694 , 323.9591836734694 , 324.9591836734694 , 325.9591836734694 , 297.34285714285716, 298.34285714285716, 299.34285714285716, 300.34285714285716, 259.              , 260.              , 261.              , 262.              , 234.42857142857142, 235.42857142857142, 236.42857142857142, 237.42857142857142, 180.6             , 181.6             , 182.6             , 183.6             };
-  const std::array<int, 4> in_shape = {{ 1, 14, 11, 4 }};
+  const std::vector<DataType> exp_out = {97.,
+                                         98.,
+                                         99.,
+                                         100.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         331.85714285714283,
+                                         332.85714285714283,
+                                         333.85714285714283,
+                                         334.85714285714283,
+                                         322.9591836734694,
+                                         323.9591836734694,
+                                         324.9591836734694,
+                                         325.9591836734694,
+                                         297.34285714285716,
+                                         298.34285714285716,
+                                         299.34285714285716,
+                                         300.34285714285716,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         236.42857142857142,
+                                         237.42857142857142,
+                                         180.6,
+                                         181.6,
+                                         182.6,
+                                         183.6};
+  const std::array<int, 4> in_shape = {{1, 14, 11, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -418,8 +717,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {145., 146., 147., 148., 161., 162., 163., 164., 321., 322., 323., 324., 337., 338., 339., 340.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 11, 4 }};
+  const std::vector<DataType> exp_out = {145., 146., 147., 148., 161., 162.,
+                                         163., 164., 321., 322., 323., 324.,
+                                         337., 338., 339., 340.};
+  const std::array<int, 4> in_shape = {{1, 14, 11, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -427,8 +728,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 27.5,  31. ,  34. ,  63.5,  67. ,  70. , 111.5, 115. , 118. , 141.5, 145. , 148. };
-  const std::array<int, 4> in_shape = {{ 1, 14, 12, 1 }};
+  const std::vector<DataType> exp_out = {27.5,  31.,  34.,  63.5,  67.,  70.,
+                                         111.5, 115., 118., 141.5, 145., 148.};
+  const std::array<int, 4> in_shape = {{1, 14, 12, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -437,7 +739,7 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x12x1) {
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x12x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {40., 44., 88., 92.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 12, 1 }};
+  const std::array<int, 4> in_shape = {{1, 14, 12, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -445,8 +747,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 54.,  55.,  61.,  62.,  67.,  68., 126., 127., 133., 134., 139., 140., 222., 223., 229., 230., 235., 236., 282., 283., 289., 290., 295., 296.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 12, 2 }};
+  const std::vector<DataType> exp_out = {
+      54.,  55.,  61.,  62.,  67.,  68.,  126., 127., 133., 134., 139., 140.,
+      222., 223., 229., 230., 235., 236., 282., 283., 289., 290., 295., 296.};
+  const std::array<int, 4> in_shape = {{1, 14, 12, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -454,8 +758,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 79.,  80.,  87.,  88., 175., 176., 183., 184.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 12, 2 }};
+  const std::vector<DataType> exp_out = {79.,  80.,  87.,  88.,
+                                         175., 176., 183., 184.};
+  const std::array<int, 4> in_shape = {{1, 14, 12, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -463,8 +768,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {107.              , 108.              , 109.              , 110.              , 121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 251.              , 252.              , 253.              , 254.              , 265.              , 266.              , 267.              , 268.              , 277.              , 278.              , 279.              , 280.              , 296.7142857142857 , 297.7142857142857 , 298.7142857142857 , 299.7142857142857 , 289.81632653061223, 290.81632653061223, 291.81632653061223, 292.81632653061223, 264.2             , 265.2             , 266.2             , 267.2             , 179.              , 180.              , 181.              , 182.              , 156.42857142857142, 157.42857142857142, 158.42857142857142, 159.42857142857142, 102.6             , 103.6             , 104.6             , 105.6             };
-  const std::array<int, 4> in_shape = {{ 1, 14, 12, 4 }};
+  const std::vector<DataType> exp_out = {107.,
+                                         108.,
+                                         109.,
+                                         110.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         296.7142857142857,
+                                         297.7142857142857,
+                                         298.7142857142857,
+                                         299.7142857142857,
+                                         289.81632653061223,
+                                         290.81632653061223,
+                                         291.81632653061223,
+                                         292.81632653061223,
+                                         264.2,
+                                         265.2,
+                                         266.2,
+                                         267.2,
+                                         179.,
+                                         180.,
+                                         181.,
+                                         182.,
+                                         156.42857142857142,
+                                         157.42857142857142,
+                                         158.42857142857142,
+                                         159.42857142857142,
+                                         102.6,
+                                         103.6,
+                                         104.6,
+                                         105.6};
+  const std::array<int, 4> in_shape = {{1, 14, 12, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -472,8 +824,23 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {157.             , 158.             , 159.             , 160.             , 173.             , 174.             , 175.             , 176.             , 349.             , 350.             , 351.             , 352.             , 333.6530612244898, 334.6530612244898, 335.6530612244898, 336.6530612244898};
-  const std::array<int, 4> in_shape = {{ 1, 14, 12, 4 }};
+  const std::vector<DataType> exp_out = {157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898};
+  const std::array<int, 4> in_shape = {{1, 14, 12, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -481,8 +848,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 31. ,  34. ,  38. ,  40.5,  73. ,  76. ,  80. ,  82.5, 129. , 132. , 136. , 138.5, 164. , 167. , 171. , 173.5};
-  const std::array<int, 4> in_shape = {{ 1, 14, 14, 1 }};
+  const std::vector<DataType> exp_out = {31.,  34.,  38.,  40.5, 73.,  76.,
+                                         80.,  82.5, 129., 132., 136., 138.5,
+                                         164., 167., 171., 173.5};
+  const std::array<int, 4> in_shape = {{1, 14, 14, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -490,8 +859,8 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 46.,  50., 102., 106.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 14, 1 }};
+  const std::vector<DataType> exp_out = {46., 50., 102., 106.};
+  const std::array<int, 4> in_shape = {{1, 14, 14, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -499,8 +868,11 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 61.,  62.,  67.,  68.,  75.,  76.,  80.,  81., 145., 146., 151., 152., 159., 160., 164., 165., 257., 258., 263., 264., 271., 272., 276., 277., 327., 328., 333., 334., 341., 342., 346., 347.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 14, 2 }};
+  const std::vector<DataType> exp_out = {
+      61.,  62.,  67.,  68.,  75.,  76.,  80.,  81.,  145., 146., 151.,
+      152., 159., 160., 164., 165., 257., 258., 263., 264., 271., 272.,
+      276., 277., 327., 328., 333., 334., 341., 342., 346., 347.};
+  const std::array<int, 4> in_shape = {{1, 14, 14, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -508,8 +880,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 91.,  92.,  99., 100., 203., 204., 211., 212.};
-  const std::array<int, 4> in_shape = {{ 1, 14, 14, 2 }};
+  const std::vector<DataType> exp_out = {91.,  92.,  99.,  100.,
+                                         203., 204., 211., 212.};
+  const std::array<int, 4> in_shape = {{1, 14, 14, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -517,8 +890,71 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 149.              , 150.              , 151.              , 152.              , 159.              , 160.              , 161.              , 162.              , 289.              , 290.              , 291.              , 292.              , 301.              , 302.              , 303.              , 304.              , 317.              , 318.              , 319.              , 320.              , 327.              , 328.              , 329.              , 330.              , 249.68571428571428, 250.68571428571428, 251.68571428571428, 252.68571428571428, 232.42857142857142, 233.42857142857142, 234.42857142857142, 235.42857142857142, 248.42857142857142, 249.42857142857142, 250.42857142857142, 251.42857142857142, 258.42857142857144, 259.42857142857144, 260.42857142857144, 261.42857142857144, 141.              , 142.              , 143.              , 144.              , 153.              , 154.              , 155.              , 156.              , 169.              , 170.              , 171.              , 172.              , 179.              , 180.              , 181.              , 182.              };
-  const std::array<int, 4> in_shape = {{ 1, 14, 14, 4 }};
+  const std::vector<DataType> exp_out = {121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         289.,
+                                         290.,
+                                         291.,
+                                         292.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         249.68571428571428,
+                                         250.68571428571428,
+                                         251.68571428571428,
+                                         252.68571428571428,
+                                         232.42857142857142,
+                                         233.42857142857142,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         248.42857142857142,
+                                         249.42857142857142,
+                                         250.42857142857142,
+                                         251.42857142857142,
+                                         258.42857142857144,
+                                         259.42857142857144,
+                                         260.42857142857144,
+                                         261.42857142857144,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         169.,
+                                         170.,
+                                         171.,
+                                         172.,
+                                         179.,
+                                         180.,
+                                         181.,
+                                         182.};
+  const std::array<int, 4> in_shape = {{1, 14, 14, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -526,8 +962,23 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME1x14x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {181.              , 182.              , 183.              , 184.              , 197.              , 198.              , 199.              , 200.              , 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 };
-  const std::array<int, 4> in_shape = {{ 1, 14, 14, 4 }};
+  const std::vector<DataType> exp_out = {181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857};
+  const std::array<int, 4> in_shape = {{1, 14, 14, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -535,8 +986,11 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID1x14x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25.,  28.,  31.,  58.,  61.,  64.,  91.,  94.,  97., 146., 149., 152., 179., 182., 185., 212., 215., 218., 267., 270., 273., 300., 303., 306., 333., 336., 339.};
-  const std::array<int, 4> in_shape = {{ 3, 11, 11, 1 }};
+  const std::vector<DataType> exp_out = {
+      25.,  28.,  31.,  58.,  61.,  64.,  91.,  94.,  97.,
+      146., 149., 152., 179., 182., 185., 212., 215., 218.,
+      267., 270., 273., 300., 303., 306., 333., 336., 339.};
+  const std::array<int, 4> in_shape = {{3, 11, 11, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -544,8 +998,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  41.,  81.,  85., 158., 162., 202., 206., 279., 283., 323., 327.};
-  const std::array<int, 4> in_shape = {{ 3, 11, 11, 1 }};
+  const std::vector<DataType> exp_out = {37.,  41.,  81.,  85.,  158., 162.,
+                                         202., 206., 279., 283., 323., 327.};
+  const std::array<int, 4> in_shape = {{3, 11, 11, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -553,8 +1008,61 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.              ,  50.              ,  55.              ,  56.              ,  61.              ,  62.              , 115.              , 116.              , 121.              , 122.              , 127.              , 128.              , 181.              , 182.              , 187.              , 188.              , 193.              , 194.              , 291.              , 292.              , 297.              , 298.              , 303.              , 304.              , 357.              , 358.              , 363.              , 364.              , 369.              , 370.              , 423.              , 424.              , 429.              , 430.              , 435.              , 436.              , 184.84            , 185.84            , 144.02857142857144, 145.02857142857144, 135.4             , 136.4             ,  87.              ,  88.              ,  93.              ,  94.              ,  99.              , 100.              , 153.              , 154.              , 159.              , 160.              , 165.              , 166.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 11, 2 }};
+  const std::vector<DataType> exp_out = {49.,
+                                         50.,
+                                         55.,
+                                         56.,
+                                         61.,
+                                         62.,
+                                         115.,
+                                         116.,
+                                         121.,
+                                         122.,
+                                         127.,
+                                         128.,
+                                         181.,
+                                         182.,
+                                         187.,
+                                         188.,
+                                         193.,
+                                         194.,
+                                         291.,
+                                         292.,
+                                         297.,
+                                         298.,
+                                         303.,
+                                         304.,
+                                         357.,
+                                         358.,
+                                         363.,
+                                         364.,
+                                         369.,
+                                         370.,
+                                         423.,
+                                         424.,
+                                         429.,
+                                         430.,
+                                         435.,
+                                         436.,
+                                         184.84,
+                                         185.84,
+                                         144.02857142857144,
+                                         145.02857142857144,
+                                         135.4,
+                                         136.4,
+                                         87.,
+                                         88.,
+                                         93.,
+                                         94.,
+                                         99.,
+                                         100.,
+                                         153.,
+                                         154.,
+                                         159.,
+                                         160.,
+                                         165.,
+                                         166.};
+  const std::array<int, 4> in_shape = {{3, 11, 11, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -562,8 +1070,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.              ,  74.              ,  81.              ,  82.              , 161.              , 162.              , 169.              , 170.              , 315.              , 316.              , 323.              , 324.              , 403.              , 404.              , 411.              , 412.              , 149.48979591836735, 150.48979591836735, 126.14285714285714, 127.14285714285714, 133.              , 134.              , 141.              , 142.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 11, 2 }};
+  const std::vector<DataType> exp_out = {73.,
+                                         74.,
+                                         81.,
+                                         82.,
+                                         161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         315.,
+                                         316.,
+                                         323.,
+                                         324.,
+                                         403.,
+                                         404.,
+                                         411.,
+                                         412.,
+                                         149.48979591836735,
+                                         150.48979591836735,
+                                         126.14285714285714,
+                                         127.14285714285714,
+                                         133.,
+                                         134.,
+                                         141.,
+                                         142.};
+  const std::array<int, 4> in_shape = {{3, 11, 11, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -571,8 +1102,115 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.              ,  98.              ,  99.              , 100.              , 109.              , 110.              , 111.              , 112.              , 121.              , 122.              , 123.              , 124.              , 229.              , 230.              , 231.              , 232.              , 241.              , 242.              , 243.              , 244.              , 253.              , 254.              , 255.              , 256.              , 361.              , 362.              , 363.              , 364.              , 373.              , 374.              , 375.              , 376.              , 385.              , 386.              , 387.              , 388.              , 171.4             , 172.4             , 173.4             , 174.4             , 154.14285714285714, 155.14285714285714, 156.14285714285714, 157.14285714285714, 113.48            , 114.48            , 115.48            , 116.48            , 201.              , 202.              , 203.              , 204.              , 213.              , 214.              , 215.              , 216.              , 225.              , 226.              , 227.              , 228.              , 333.              , 334.              , 335.              , 336.              , 345.              , 346.              , 347.              , 348.              , 357.              , 358.              , 359.              , 360.              , 204.84            , 205.84            , 206.84            , 207.84            , 170.02857142857144, 171.02857142857144, 172.02857142857144, 173.02857142857144, 167.4             , 168.4             , 169.4             , 170.4             , 173.              , 174.              , 175.              , 176.              , 185.              , 186.              , 187.              , 188.              , 197.              , 198.              , 199.              , 200.              , 305.              , 306.              , 307.              , 308.              , 317.              , 318.              , 319.              , 320.              , 329.              , 330.              , 331.              , 332.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 11, 4 }};
+  const std::vector<DataType> exp_out = {97.,
+                                         98.,
+                                         99.,
+                                         100.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         361.,
+                                         362.,
+                                         363.,
+                                         364.,
+                                         373.,
+                                         374.,
+                                         375.,
+                                         376.,
+                                         385.,
+                                         386.,
+                                         387.,
+                                         388.,
+                                         171.4,
+                                         172.4,
+                                         173.4,
+                                         174.4,
+                                         154.14285714285714,
+                                         155.14285714285714,
+                                         156.14285714285714,
+                                         157.14285714285714,
+                                         113.48,
+                                         114.48,
+                                         115.48,
+                                         116.48,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         333.,
+                                         334.,
+                                         335.,
+                                         336.,
+                                         345.,
+                                         346.,
+                                         347.,
+                                         348.,
+                                         357.,
+                                         358.,
+                                         359.,
+                                         360.,
+                                         204.84,
+                                         205.84,
+                                         206.84,
+                                         207.84,
+                                         170.02857142857144,
+                                         171.02857142857144,
+                                         172.02857142857144,
+                                         173.02857142857144,
+                                         167.4,
+                                         168.4,
+                                         169.4,
+                                         170.4,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         185.,
+                                         186.,
+                                         187.,
+                                         188.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.};
+  const std::array<int, 4> in_shape = {{3, 11, 11, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -580,8 +1218,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {145.              , 146.              , 147.              , 148.              , 161.              , 162.              , 163.              , 164.              , 321.              , 322.              , 323.              , 324.              , 337.              , 338.              , 339.              , 340.              , 190.14285714285714, 191.14285714285714, 192.14285714285714, 193.14285714285714, 164.3469387755102 , 165.3469387755102 , 166.3469387755102 , 167.3469387755102 , 293.              , 294.              , 295.              , 296.              , 309.              , 310.              , 311.              , 312.              , 193.48979591836735, 194.48979591836735, 195.48979591836735, 196.48979591836735, 178.14285714285714, 179.14285714285714, 180.14285714285714, 181.14285714285714, 265.              , 266.              , 267.              , 268.              , 281.              , 282.              , 283.              , 284.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 11, 4 }};
+  const std::vector<DataType> exp_out = {145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         321.,
+                                         322.,
+                                         323.,
+                                         324.,
+                                         337.,
+                                         338.,
+                                         339.,
+                                         340.,
+                                         190.14285714285714,
+                                         191.14285714285714,
+                                         192.14285714285714,
+                                         193.14285714285714,
+                                         164.3469387755102,
+                                         165.3469387755102,
+                                         166.3469387755102,
+                                         167.3469387755102,
+                                         293.,
+                                         294.,
+                                         295.,
+                                         296.,
+                                         309.,
+                                         310.,
+                                         311.,
+                                         312.,
+                                         193.48979591836735,
+                                         194.48979591836735,
+                                         195.48979591836735,
+                                         196.48979591836735,
+                                         178.14285714285714,
+                                         179.14285714285714,
+                                         180.14285714285714,
+                                         181.14285714285714,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.};
+  const std::array<int, 4> in_shape = {{3, 11, 11, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -589,8 +1274,11 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 27.5,  31. ,  34. ,  63.5,  67. ,  70. ,  99.5, 103. , 106. , 159.5, 163. , 166. , 195.5, 199. , 202. , 231.5, 235. , 238. , 291.5, 295. , 298. , 327.5, 331. , 334. , 363.5, 367. , 370. };
-  const std::array<int, 4> in_shape = {{ 3, 11, 12, 1 }};
+  const std::vector<DataType> exp_out = {
+      27.5,  31.,  34.,  63.5,  67.,  70.,  99.5,  103., 106.,
+      159.5, 163., 166., 195.5, 199., 202., 231.5, 235., 238.,
+      291.5, 295., 298., 327.5, 331., 334., 363.5, 367., 370.};
+  const std::array<int, 4> in_shape = {{3, 11, 12, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -598,8 +1286,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 40.,  44.,  88.,  92., 172., 176., 220., 224., 304., 308., 352., 356.};
-  const std::array<int, 4> in_shape = {{ 3, 11, 12, 1 }};
+  const std::vector<DataType> exp_out = {40.,  44.,  88.,  92.,  172., 176.,
+                                         220., 224., 304., 308., 352., 356.};
+  const std::array<int, 4> in_shape = {{3, 11, 12, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -607,8 +1296,61 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 54.              ,  55.              ,  61.              ,  62.              ,  67.              ,  68.              , 126.              , 127.              , 133.              , 134.              , 139.              , 140.              , 198.              , 199.              , 205.              , 206.              , 211.              , 212.              , 318.              , 319.              , 325.              , 326.              , 331.              , 332.              , 390.              , 391.              , 397.              , 398.              , 403.              , 404.              , 427.8666666666667 , 428.8666666666667 , 381.22857142857146, 382.22857142857146, 372.6             , 373.6             ,  70.              ,  71.              ,  77.              ,  78.              ,  83.              ,  84.              , 142.              , 143.              , 149.              , 150.              , 155.              , 156.              , 214.              , 215.              , 221.              , 222.              , 227.              , 228.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 12, 2 }};
+  const std::vector<DataType> exp_out = {54.,
+                                         55.,
+                                         61.,
+                                         62.,
+                                         67.,
+                                         68.,
+                                         126.,
+                                         127.,
+                                         133.,
+                                         134.,
+                                         139.,
+                                         140.,
+                                         198.,
+                                         199.,
+                                         205.,
+                                         206.,
+                                         211.,
+                                         212.,
+                                         318.,
+                                         319.,
+                                         325.,
+                                         326.,
+                                         331.,
+                                         332.,
+                                         390.,
+                                         391.,
+                                         397.,
+                                         398.,
+                                         403.,
+                                         404.,
+                                         427.8666666666667,
+                                         428.8666666666667,
+                                         381.22857142857146,
+                                         382.22857142857146,
+                                         372.6,
+                                         373.6,
+                                         70.,
+                                         71.,
+                                         77.,
+                                         78.,
+                                         83.,
+                                         84.,
+                                         142.,
+                                         143.,
+                                         149.,
+                                         150.,
+                                         155.,
+                                         156.,
+                                         214.,
+                                         215.,
+                                         221.,
+                                         222.,
+                                         227.,
+                                         228.};
+  const std::array<int, 4> in_shape = {{3, 11, 12, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -616,8 +1358,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 79.              ,  80.              ,  87.              ,  88.              , 175.              , 176.              , 183.              , 184.              , 343.              , 344.              , 351.              , 352.              , 407.6530612244898 , 408.6530612244898 , 373.85714285714283, 374.85714285714283,  95.              ,  96.              , 103.              , 104.              , 191.              , 192.              , 199.              , 200.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 12, 2 }};
+  const std::vector<DataType> exp_out = {79.,
+                                         80.,
+                                         87.,
+                                         88.,
+                                         175.,
+                                         176.,
+                                         183.,
+                                         184.,
+                                         343.,
+                                         344.,
+                                         351.,
+                                         352.,
+                                         407.6530612244898,
+                                         408.6530612244898,
+                                         373.85714285714283,
+                                         374.85714285714283,
+                                         95.,
+                                         96.,
+                                         103.,
+                                         104.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.};
+  const std::array<int, 4> in_shape = {{3, 11, 12, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -625,8 +1390,115 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {107.              , 108.              , 109.              , 110.              , 121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 251.              , 252.              , 253.              , 254.              , 265.              , 266.              , 267.              , 268.              , 277.              , 278.              , 279.              , 280.              , 395.              , 396.              , 397.              , 398.              , 379.74285714285713, 380.74285714285713, 381.74285714285713, 382.74285714285713, 339.08            , 340.08            , 341.08            , 342.08            , 123.              , 124.              , 125.              , 126.              , 137.              , 138.              , 139.              , 140.              , 149.              , 150.              , 151.              , 152.              , 267.              , 268.              , 269.              , 270.              , 281.              , 282.              , 283.              , 284.              , 293.              , 294.              , 295.              , 296.              , 376.8666666666667 , 377.8666666666667 , 378.8666666666667 , 379.8666666666667 , 337.22857142857146, 338.22857142857146, 339.22857142857146, 340.22857142857146, 334.6             , 335.6             , 336.6             , 337.6             , 139.              , 140.              , 141.              , 142.              , 153.              , 154.              , 155.              , 156.              , 165.              , 166.              , 167.              , 168.              , 283.              , 284.              , 285.              , 286.              , 297.              , 298.              , 299.              , 300.              , 309.              , 310.              , 311.              , 312.              , 324.6             , 325.6             , 326.6             , 327.6             , 338.6             , 339.6             , 340.6             , 341.6             , 350.6             , 351.6             , 352.6             , 353.6             };
-  const std::array<int, 4> in_shape = {{ 3, 11, 12, 4 }};
+  const std::vector<DataType> exp_out = {107.,
+                                         108.,
+                                         109.,
+                                         110.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         395.,
+                                         396.,
+                                         397.,
+                                         398.,
+                                         379.74285714285713,
+                                         380.74285714285713,
+                                         381.74285714285713,
+                                         382.74285714285713,
+                                         339.08,
+                                         340.08,
+                                         341.08,
+                                         342.08,
+                                         123.,
+                                         124.,
+                                         125.,
+                                         126.,
+                                         137.,
+                                         138.,
+                                         139.,
+                                         140.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         293.,
+                                         294.,
+                                         295.,
+                                         296.,
+                                         376.8666666666667,
+                                         377.8666666666667,
+                                         378.8666666666667,
+                                         379.8666666666667,
+                                         337.22857142857146,
+                                         338.22857142857146,
+                                         339.22857142857146,
+                                         340.22857142857146,
+                                         334.6,
+                                         335.6,
+                                         336.6,
+                                         337.6,
+                                         139.,
+                                         140.,
+                                         141.,
+                                         142.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         165.,
+                                         166.,
+                                         167.,
+                                         168.,
+                                         283.,
+                                         284.,
+                                         285.,
+                                         286.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         309.,
+                                         310.,
+                                         311.,
+                                         312.,
+                                         324.6,
+                                         325.6,
+                                         326.6,
+                                         327.6,
+                                         338.6,
+                                         339.6,
+                                         340.6,
+                                         341.6,
+                                         350.6,
+                                         351.6,
+                                         352.6,
+                                         353.6};
+  const std::array<int, 4> in_shape = {{3, 11, 12, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -634,8 +1506,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {157.              , 158.              , 159.              , 160.              , 173.              , 174.              , 175.              , 176.              , 349.              , 350.              , 351.              , 352.              , 333.6530612244898 , 334.6530612244898 , 335.6530612244898 , 336.6530612244898 , 173.              , 174.              , 175.              , 176.              , 189.              , 190.              , 191.              , 192.              , 333.6530612244898 , 334.6530612244898 , 335.6530612244898 , 336.6530612244898 , 307.85714285714283, 308.85714285714283, 309.85714285714283, 310.85714285714283, 189.              , 190.              , 191.              , 192.              , 205.              , 206.              , 207.              , 208.              , 307.85714285714283, 308.85714285714283, 309.85714285714283, 310.85714285714283, 323.85714285714283, 324.85714285714283, 325.85714285714283, 326.85714285714283};
-  const std::array<int, 4> in_shape = {{ 3, 11, 12, 4 }};
+  const std::vector<DataType> exp_out = {157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         189.,
+                                         190.,
+                                         191.,
+                                         192.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898,
+                                         307.85714285714283,
+                                         308.85714285714283,
+                                         309.85714285714283,
+                                         310.85714285714283,
+                                         189.,
+                                         190.,
+                                         191.,
+                                         192.,
+                                         205.,
+                                         206.,
+                                         207.,
+                                         208.,
+                                         307.85714285714283,
+                                         308.85714285714283,
+                                         309.85714285714283,
+                                         310.85714285714283,
+                                         323.85714285714283,
+                                         324.85714285714283,
+                                         325.85714285714283,
+                                         326.85714285714283};
+  const std::array<int, 4> in_shape = {{3, 11, 12, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -643,8 +1562,12 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 31. ,  34. ,  38. ,  40.5,  73. ,  76. ,  80. ,  82.5, 115. , 118. , 122. , 124.5, 185. , 188. , 192. , 194.5, 227. , 230. , 234. , 236.5, 269. , 272. , 276. , 278.5, 339. , 342. , 346. , 348.5, 381. , 384. , 388. , 390.5, 423. , 426. , 430. , 432.5};
-  const std::array<int, 4> in_shape = {{ 3, 11, 14, 1 }};
+  const std::vector<DataType> exp_out = {
+      31.,   34.,   38.,   40.5, 73.,   76.,   80.,   82.5, 115.,
+      118.,  122.,  124.5, 185., 188.,  192.,  194.5, 227., 230.,
+      234.,  236.5, 269.,  272., 276.,  278.5, 339.,  342., 346.,
+      348.5, 381.,  384.,  388., 390.5, 423.,  426.,  430., 432.5};
+  const std::array<int, 4> in_shape = {{3, 11, 14, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -652,8 +1575,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 46.,  50., 102., 106., 200., 204., 256., 260., 354., 358., 410., 414.};
-  const std::array<int, 4> in_shape = {{ 3, 11, 14, 1 }};
+  const std::vector<DataType> exp_out = {46.,  50.,  102., 106., 200., 204.,
+                                         256., 260., 354., 358., 410., 414.};
+  const std::array<int, 4> in_shape = {{3, 11, 14, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -661,8 +1585,79 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 61.              ,  62.              ,  67.              ,  68.              ,  75.              ,  76.              ,  80.              ,  81.              , 145.              , 146.              , 151.              , 152.              , 159.              , 160.              , 164.              , 165.              , 229.              , 230.              , 235.              , 236.              , 243.              , 244.              , 248.              , 249.              , 369.              , 370.              , 375.              , 376.              , 383.              , 384.              , 388.              , 389.              , 365.22857142857146, 366.22857142857146, 333.61224489795916, 334.61224489795916, 320.7142857142857 , 321.7142857142857 , 325.7142857142857 , 326.7142857142857 , 209.32            , 210.32            , 162.65714285714284, 163.65714285714284, 141.4             , 142.4             , 146.4             , 147.4             , 165.              , 166.              , 171.              , 172.              , 179.              , 180.              , 184.              , 185.              , 249.              , 250.              , 255.              , 256.              , 263.              , 264.              , 268.              , 269.              , 333.              , 334.              , 339.              , 340.              , 347.              , 348.              , 352.              , 353.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 14, 2 }};
+  const std::vector<DataType> exp_out = {61.,
+                                         62.,
+                                         67.,
+                                         68.,
+                                         75.,
+                                         76.,
+                                         80.,
+                                         81.,
+                                         145.,
+                                         146.,
+                                         151.,
+                                         152.,
+                                         159.,
+                                         160.,
+                                         164.,
+                                         165.,
+                                         229.,
+                                         230.,
+                                         235.,
+                                         236.,
+                                         243.,
+                                         244.,
+                                         248.,
+                                         249.,
+                                         369.,
+                                         370.,
+                                         375.,
+                                         376.,
+                                         383.,
+                                         384.,
+                                         388.,
+                                         389.,
+                                         365.22857142857146,
+                                         366.22857142857146,
+                                         333.61224489795916,
+                                         334.61224489795916,
+                                         320.7142857142857,
+                                         321.7142857142857,
+                                         325.7142857142857,
+                                         326.7142857142857,
+                                         209.32,
+                                         210.32,
+                                         162.65714285714284,
+                                         163.65714285714284,
+                                         141.4,
+                                         142.4,
+                                         146.4,
+                                         147.4,
+                                         165.,
+                                         166.,
+                                         171.,
+                                         172.,
+                                         179.,
+                                         180.,
+                                         184.,
+                                         185.,
+                                         249.,
+                                         250.,
+                                         255.,
+                                         256.,
+                                         263.,
+                                         264.,
+                                         268.,
+                                         269.,
+                                         333.,
+                                         334.,
+                                         339.,
+                                         340.,
+                                         347.,
+                                         348.,
+                                         352.,
+                                         353.};
+  const std::array<int, 4> in_shape = {{3, 11, 14, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -670,8 +1665,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 91.              ,  92.              ,  99.              , 100.              , 203.              , 204.              , 211.              , 212.              , 399.              , 400.              , 407.              , 408.              , 260.2244897959184 , 261.2244897959184 , 226.42857142857142, 227.42857142857142, 195.              , 196.              , 203.              , 204.              , 307.              , 308.              , 315.              , 316.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 14, 2 }};
+  const std::vector<DataType> exp_out = {91.,
+                                         92.,
+                                         99.,
+                                         100.,
+                                         203.,
+                                         204.,
+                                         211.,
+                                         212.,
+                                         399.,
+                                         400.,
+                                         407.,
+                                         408.,
+                                         260.2244897959184,
+                                         261.2244897959184,
+                                         226.42857142857142,
+                                         227.42857142857142,
+                                         195.,
+                                         196.,
+                                         203.,
+                                         204.,
+                                         307.,
+                                         308.,
+                                         315.,
+                                         316.};
+  const std::array<int, 4> in_shape = {{3, 11, 14, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -679,8 +1697,151 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 149.              , 150.              , 151.              , 152.              , 159.              , 160.              , 161.              , 162.              , 289.              , 290.              , 291.              , 292.              , 301.              , 302.              , 303.              , 304.              , 317.              , 318.              , 319.              , 320.              , 327.              , 328.              , 329.              , 330.              , 293.16            , 294.16            , 295.16            , 296.16            , 264.2             , 265.2             , 266.2             , 267.2             , 280.2             , 281.2             , 282.2             , 283.2             , 290.2             , 291.2             , 292.2             , 293.2             , 225.              , 226.              , 227.              , 228.              , 237.              , 238.              , 239.              , 240.              , 253.              , 254.              , 255.              , 256.              , 263.              , 264.              , 265.              , 266.              , 305.22857142857146, 306.22857142857146, 307.22857142857146, 308.22857142857146, 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 , 284.7142857142857 , 285.7142857142857 , 286.7142857142857 , 287.7142857142857 , 233.32            , 234.32            , 235.32            , 236.32            , 192.65714285714284, 193.65714285714284, 194.65714285714284, 195.65714285714284, 179.4             , 180.4             , 181.4             , 182.4             , 189.4             , 190.4             , 191.4             , 192.4             , 329.              , 330.              , 331.              , 332.              , 341.              , 342.              , 343.              , 344.              , 357.              , 358.              , 359.              , 360.              , 367.              , 368.              , 369.              , 370.              , 277.57142857142856, 278.57142857142856, 279.57142857142856, 280.57142857142856, 258.2244897959184 , 259.2244897959184 , 260.2244897959184 , 261.2244897959184 , 232.42857142857142, 233.42857142857142, 234.42857142857142, 235.42857142857142, 242.42857142857142, 243.42857142857142, 244.42857142857142, 245.42857142857142, 153.              , 154.              , 155.              , 156.              , 165.              , 166.              , 167.              , 168.              , 181.              , 182.              , 183.              , 184.              , 191.              , 192.              , 193.              , 194.              };
-  const std::array<int, 4> in_shape = {{ 3, 11, 14, 4 }};
+  const std::vector<DataType> exp_out = {121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         289.,
+                                         290.,
+                                         291.,
+                                         292.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         293.16,
+                                         294.16,
+                                         295.16,
+                                         296.16,
+                                         264.2,
+                                         265.2,
+                                         266.2,
+                                         267.2,
+                                         280.2,
+                                         281.2,
+                                         282.2,
+                                         283.2,
+                                         290.2,
+                                         291.2,
+                                         292.2,
+                                         293.2,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         263.,
+                                         264.,
+                                         265.,
+                                         266.,
+                                         305.22857142857146,
+                                         306.22857142857146,
+                                         307.22857142857146,
+                                         308.22857142857146,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857,
+                                         284.7142857142857,
+                                         285.7142857142857,
+                                         286.7142857142857,
+                                         287.7142857142857,
+                                         233.32,
+                                         234.32,
+                                         235.32,
+                                         236.32,
+                                         192.65714285714284,
+                                         193.65714285714284,
+                                         194.65714285714284,
+                                         195.65714285714284,
+                                         179.4,
+                                         180.4,
+                                         181.4,
+                                         182.4,
+                                         189.4,
+                                         190.4,
+                                         191.4,
+                                         192.4,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.,
+                                         341.,
+                                         342.,
+                                         343.,
+                                         344.,
+                                         357.,
+                                         358.,
+                                         359.,
+                                         360.,
+                                         367.,
+                                         368.,
+                                         369.,
+                                         370.,
+                                         277.57142857142856,
+                                         278.57142857142856,
+                                         279.57142857142856,
+                                         280.57142857142856,
+                                         258.2244897959184,
+                                         259.2244897959184,
+                                         260.2244897959184,
+                                         261.2244897959184,
+                                         232.42857142857142,
+                                         233.42857142857142,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         242.42857142857142,
+                                         243.42857142857142,
+                                         244.42857142857142,
+                                         245.42857142857142,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         165.,
+                                         166.,
+                                         167.,
+                                         168.,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         191.,
+                                         192.,
+                                         193.,
+                                         194.};
+  const std::array<int, 4> in_shape = {{3, 11, 14, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -688,8 +1849,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x11x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {181.              , 182.              , 183.              , 184.              , 197.              , 198.              , 199.              , 200.              , 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 , 285.              , 286.              , 287.              , 288.              , 301.              , 302.              , 303.              , 304.              , 258.2244897959184 , 259.2244897959184 , 260.2244897959184 , 261.2244897959184 , 232.42857142857142, 233.42857142857142, 234.42857142857142, 235.42857142857142, 305.40816326530614, 306.40816326530614, 307.40816326530614, 308.40816326530614, 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 236.83673469387756, 237.83673469387756, 238.83673469387756, 239.83673469387756, 211.0408163265306 , 212.0408163265306 , 213.0408163265306 , 214.0408163265306 };
-  const std::array<int, 4> in_shape = {{ 3, 11, 14, 4 }};
+  const std::vector<DataType> exp_out = {181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         258.2244897959184,
+                                         259.2244897959184,
+                                         260.2244897959184,
+                                         261.2244897959184,
+                                         232.42857142857142,
+                                         233.42857142857142,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         305.40816326530614,
+                                         306.40816326530614,
+                                         307.40816326530614,
+                                         308.40816326530614,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         236.83673469387756,
+                                         237.83673469387756,
+                                         238.83673469387756,
+                                         239.83673469387756,
+                                         211.0408163265306,
+                                         212.0408163265306,
+                                         213.0408163265306,
+                                         214.0408163265306};
+  const std::array<int, 4> in_shape = {{3, 11, 14, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -697,8 +1905,11 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x11x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.5,  33.5,  36.5,  69. ,  72. ,  75. , 102. , 105. , 108. , 162.5, 165.5, 168.5, 201. , 204. , 207. , 234. , 237. , 240. , 294.5, 297.5, 300.5, 333. , 336. , 339. , 366. , 369. , 372. };
-  const std::array<int, 4> in_shape = {{ 3, 12, 11, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.5,  33.5,  36.5,  69.,  72.,  75.,  102., 105., 108.,
+      162.5, 165.5, 168.5, 201., 204., 207., 234., 237., 240.,
+      294.5, 297.5, 300.5, 333., 336., 339., 366., 369., 372.};
+  const std::array<int, 4> in_shape = {{3, 12, 11, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -706,8 +1917,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  41.,  81.,  85., 169., 173., 213., 217., 301., 305., 345., 349.};
-  const std::array<int, 4> in_shape = {{ 3, 12, 11, 1 }};
+  const std::vector<DataType> exp_out = {37.,  41.,  81.,  85.,  169., 173.,
+                                         213., 217., 301., 305., 345., 349.};
+  const std::array<int, 4> in_shape = {{3, 12, 11, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -715,8 +1927,61 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 60.              ,  61.              ,  66.              ,  67.              ,  72.              ,  73.              , 137.              , 138.              , 143.              , 144.              , 149.              , 150.              , 203.              , 204.              , 209.              , 210.              , 215.              , 216.              , 324.              , 325.              , 330.              , 331.              , 336.              , 337.              , 401.              , 402.              , 407.              , 408.              , 413.              , 414.              , 426.04            , 427.04            , 385.22857142857146, 386.22857142857146, 376.6             , 377.6             ,  76.              ,  77.              ,  82.              ,  83.              ,  88.              ,  89.              , 153.              , 154.              , 159.              , 160.              , 165.              , 166.              , 219.              , 220.              , 225.              , 226.              , 231.              , 232.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 11, 2 }};
+  const std::vector<DataType> exp_out = {60.,
+                                         61.,
+                                         66.,
+                                         67.,
+                                         72.,
+                                         73.,
+                                         137.,
+                                         138.,
+                                         143.,
+                                         144.,
+                                         149.,
+                                         150.,
+                                         203.,
+                                         204.,
+                                         209.,
+                                         210.,
+                                         215.,
+                                         216.,
+                                         324.,
+                                         325.,
+                                         330.,
+                                         331.,
+                                         336.,
+                                         337.,
+                                         401.,
+                                         402.,
+                                         407.,
+                                         408.,
+                                         413.,
+                                         414.,
+                                         426.04,
+                                         427.04,
+                                         385.22857142857146,
+                                         386.22857142857146,
+                                         376.6,
+                                         377.6,
+                                         76.,
+                                         77.,
+                                         82.,
+                                         83.,
+                                         88.,
+                                         89.,
+                                         153.,
+                                         154.,
+                                         159.,
+                                         160.,
+                                         165.,
+                                         166.,
+                                         219.,
+                                         220.,
+                                         225.,
+                                         226.,
+                                         231.,
+                                         232.};
+  const std::array<int, 4> in_shape = {{3, 12, 11, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -724,8 +1989,10 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  81.,  82., 161., 162., 169., 170., 337., 338., 345., 346., 425., 426., 433., 434.,  89.,  90.,  97.,  98., 177., 178., 185., 186.};
-  const std::array<int, 4> in_shape = {{ 3, 12, 11, 2 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  81.,  82.,  161., 162., 169., 170., 337., 338., 345., 346.,
+      425., 426., 433., 434., 89.,  90.,  97.,  98.,  177., 178., 185., 186.};
+  const std::array<int, 4> in_shape = {{3, 12, 11, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -733,8 +2000,115 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {119.              , 120.              , 121.              , 122.              , 131.              , 132.              , 133.              , 134.              , 143.              , 144.              , 145.              , 146.              , 273.              , 274.              , 275.              , 276.              , 285.              , 286.              , 287.              , 288.              , 297.              , 298.              , 299.              , 300.              , 405.              , 406.              , 407.              , 408.              , 387.74285714285713, 388.74285714285713, 389.74285714285713, 390.74285714285713, 347.08            , 348.08            , 349.08            , 350.08            , 135.              , 136.              , 137.              , 138.              , 147.              , 148.              , 149.              , 150.              , 159.              , 160.              , 161.              , 162.              , 289.              , 290.              , 291.              , 292.              , 301.              , 302.              , 303.              , 304.              , 313.              , 314.              , 315.              , 316.              , 380.04            , 381.04            , 382.04            , 383.04            , 345.22857142857146, 346.22857142857146, 347.22857142857146, 348.22857142857146, 342.6             , 343.6             , 344.6             , 345.6             , 151.              , 152.              , 153.              , 154.              , 163.              , 164.              , 165.              , 166.              , 175.              , 176.              , 177.              , 178.              , 305.              , 306.              , 307.              , 308.              , 317.              , 318.              , 319.              , 320.              , 329.              , 330.              , 331.              , 332.              , 334.6             , 335.6             , 336.6             , 337.6             , 346.6             , 347.6             , 348.6             , 349.6             , 338.12            , 339.12            , 340.12            , 341.12            };
-  const std::array<int, 4> in_shape = {{ 3, 12, 11, 4 }};
+  const std::vector<DataType> exp_out = {119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         131.,
+                                         132.,
+                                         133.,
+                                         134.,
+                                         143.,
+                                         144.,
+                                         145.,
+                                         146.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         405.,
+                                         406.,
+                                         407.,
+                                         408.,
+                                         387.74285714285713,
+                                         388.74285714285713,
+                                         389.74285714285713,
+                                         390.74285714285713,
+                                         347.08,
+                                         348.08,
+                                         349.08,
+                                         350.08,
+                                         135.,
+                                         136.,
+                                         137.,
+                                         138.,
+                                         147.,
+                                         148.,
+                                         149.,
+                                         150.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         289.,
+                                         290.,
+                                         291.,
+                                         292.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         380.04,
+                                         381.04,
+                                         382.04,
+                                         383.04,
+                                         345.22857142857146,
+                                         346.22857142857146,
+                                         347.22857142857146,
+                                         348.22857142857146,
+                                         342.6,
+                                         343.6,
+                                         344.6,
+                                         345.6,
+                                         151.,
+                                         152.,
+                                         153.,
+                                         154.,
+                                         163.,
+                                         164.,
+                                         165.,
+                                         166.,
+                                         175.,
+                                         176.,
+                                         177.,
+                                         178.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.,
+                                         334.6,
+                                         335.6,
+                                         336.6,
+                                         337.6,
+                                         346.6,
+                                         347.6,
+                                         348.6,
+                                         349.6,
+                                         338.12,
+                                         339.12,
+                                         340.12,
+                                         341.12};
+  const std::array<int, 4> in_shape = {{3, 12, 11, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -742,8 +2116,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {145.              , 146.              , 147.              , 148.              , 161.              , 162.              , 163.              , 164.              , 321.              , 322.              , 323.              , 324.              , 337.              , 338.              , 339.              , 340.              , 161.              , 162.              , 163.              , 164.              , 177.              , 178.              , 179.              , 180.              , 337.              , 338.              , 339.              , 340.              , 353.              , 354.              , 355.              , 356.              , 177.              , 178.              , 179.              , 180.              , 193.              , 194.              , 195.              , 196.              , 353.              , 354.              , 355.              , 356.              , 358.55102040816325, 359.55102040816325, 360.55102040816325, 361.55102040816325};
-  const std::array<int, 4> in_shape = {{ 3, 12, 11, 4 }};
+  const std::vector<DataType> exp_out = {145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         321.,
+                                         322.,
+                                         323.,
+                                         324.,
+                                         337.,
+                                         338.,
+                                         339.,
+                                         340.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         177.,
+                                         178.,
+                                         179.,
+                                         180.,
+                                         337.,
+                                         338.,
+                                         339.,
+                                         340.,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         177.,
+                                         178.,
+                                         179.,
+                                         180.,
+                                         193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         358.55102040816325,
+                                         359.55102040816325,
+                                         360.55102040816325,
+                                         361.55102040816325};
+  const std::array<int, 4> in_shape = {{3, 12, 11, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -751,8 +2172,11 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.5,  37. ,  40. ,  75.5,  79. ,  82. , 111.5, 115. , 118. , 177.5, 181. , 184. , 219.5, 223. , 226. , 255.5, 259. , 262. , 321.5, 325. , 328. , 363.5, 367. , 370. , 399.5, 403. , 406. };
-  const std::array<int, 4> in_shape = {{ 3, 12, 12, 1 }};
+  const std::vector<DataType> exp_out = {
+      33.5,  37.,  40.,  75.5,  79.,  82.,  111.5, 115., 118.,
+      177.5, 181., 184., 219.5, 223., 226., 255.5, 259., 262.,
+      321.5, 325., 328., 363.5, 367., 370., 399.5, 403., 406.};
+  const std::array<int, 4> in_shape = {{3, 12, 12, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -760,8 +2184,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 40.,  44.,  88.,  92., 184., 188., 232., 236., 328., 332., 376., 380.};
-  const std::array<int, 4> in_shape = {{ 3, 12, 12, 1 }};
+  const std::vector<DataType> exp_out = {40.,  44.,  88.,  92.,  184., 188.,
+                                         232., 236., 328., 332., 376., 380.};
+  const std::array<int, 4> in_shape = {{3, 12, 12, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -769,8 +2194,61 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 66.              ,  67.              ,  73.              ,  74.              ,  79.              ,  80.              , 150.              , 151.              , 157.              , 158.              , 163.              , 164.              , 222.              , 223.              , 229.              , 230.              , 235.              , 236.              , 354.              , 355.              , 361.              , 362.              , 367.              , 368.              , 413.6190476190476 , 414.6190476190476 , 382.3061224489796 , 383.3061224489796 , 377.85714285714283, 378.85714285714283, 271.06666666666666, 272.06666666666666, 224.42857142857142, 225.42857142857142, 215.8             , 216.8             , 130.              , 131.              , 137.              , 138.              , 143.              , 144.              , 214.              , 215.              , 221.              , 222.              , 227.              , 228.              , 286.              , 287.              , 293.              , 294.              , 299.              , 300.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 12, 2 }};
+  const std::vector<DataType> exp_out = {66.,
+                                         67.,
+                                         73.,
+                                         74.,
+                                         79.,
+                                         80.,
+                                         150.,
+                                         151.,
+                                         157.,
+                                         158.,
+                                         163.,
+                                         164.,
+                                         222.,
+                                         223.,
+                                         229.,
+                                         230.,
+                                         235.,
+                                         236.,
+                                         354.,
+                                         355.,
+                                         361.,
+                                         362.,
+                                         367.,
+                                         368.,
+                                         413.6190476190476,
+                                         414.6190476190476,
+                                         382.3061224489796,
+                                         383.3061224489796,
+                                         377.85714285714283,
+                                         378.85714285714283,
+                                         271.06666666666666,
+                                         272.06666666666666,
+                                         224.42857142857142,
+                                         225.42857142857142,
+                                         215.8,
+                                         216.8,
+                                         130.,
+                                         131.,
+                                         137.,
+                                         138.,
+                                         143.,
+                                         144.,
+                                         214.,
+                                         215.,
+                                         221.,
+                                         222.,
+                                         227.,
+                                         228.,
+                                         286.,
+                                         287.,
+                                         293.,
+                                         294.,
+                                         299.,
+                                         300.};
+  const std::array<int, 4> in_shape = {{3, 12, 12, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -778,8 +2256,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 79.              ,  80.              ,  87.              ,  88.              , 175.              , 176.              , 183.              , 184.              , 367.              , 368.              , 375.              , 376.              , 358.51020408163265, 359.51020408163265, 324.7142857142857 , 325.7142857142857 , 143.              , 144.              , 151.              , 152.              , 239.              , 240.              , 247.              , 248.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 12, 2 }};
+  const std::vector<DataType> exp_out = {79.,
+                                         80.,
+                                         87.,
+                                         88.,
+                                         175.,
+                                         176.,
+                                         183.,
+                                         184.,
+                                         367.,
+                                         368.,
+                                         375.,
+                                         376.,
+                                         358.51020408163265,
+                                         359.51020408163265,
+                                         324.7142857142857,
+                                         325.7142857142857,
+                                         143.,
+                                         144.,
+                                         151.,
+                                         152.,
+                                         239.,
+                                         240.,
+                                         247.,
+                                         248.};
+  const std::array<int, 4> in_shape = {{3, 12, 12, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -787,8 +2288,115 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {131.              , 132.              , 133.              , 134.              , 145.              , 146.              , 147.              , 148.              , 157.              , 158.              , 159.              , 160.              , 299.              , 300.              , 301.              , 302.              , 313.              , 314.              , 315.              , 316.              , 325.              , 326.              , 327.              , 328.              , 340.6             , 341.6             , 342.6             , 343.6             , 325.34285714285716, 326.34285714285716, 327.34285714285716, 328.34285714285716, 284.68            , 285.68            , 286.68            , 287.68            , 195.              , 196.              , 197.              , 198.              , 209.              , 210.              , 211.              , 212.              , 221.              , 222.              , 223.              , 224.              , 338.6190476190476 , 339.6190476190476 , 340.6190476190476 , 341.6190476190476 , 314.3061224489796 , 315.3061224489796 , 316.3061224489796 , 317.3061224489796 , 315.85714285714283, 316.85714285714283, 317.85714285714283, 318.85714285714283, 268.06666666666666, 269.06666666666666, 270.06666666666666, 271.06666666666666, 228.42857142857142, 229.42857142857142, 230.42857142857142, 231.42857142857142, 225.8             , 226.8             , 227.8             , 228.8             , 259.              , 260.              , 261.              , 262.              , 273.              , 274.              , 275.              , 276.              , 285.              , 286.              , 287.              , 288.              , 280.7142857142857 , 281.7142857142857 , 282.7142857142857 , 283.7142857142857 , 294.7142857142857 , 295.7142857142857 , 296.7142857142857 , 297.7142857142857 , 306.7142857142857 , 307.7142857142857 , 308.7142857142857 , 309.7142857142857 , 161.4             , 162.4             , 163.4             , 164.4             , 175.4             , 176.4             , 177.4             , 178.4             , 187.4             , 188.4             , 189.4             , 190.4             };
-  const std::array<int, 4> in_shape = {{ 3, 12, 12, 4 }};
+  const std::vector<DataType> exp_out = {131.,
+                                         132.,
+                                         133.,
+                                         134.,
+                                         145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         299.,
+                                         300.,
+                                         301.,
+                                         302.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         325.,
+                                         326.,
+                                         327.,
+                                         328.,
+                                         340.6,
+                                         341.6,
+                                         342.6,
+                                         343.6,
+                                         325.34285714285716,
+                                         326.34285714285716,
+                                         327.34285714285716,
+                                         328.34285714285716,
+                                         284.68,
+                                         285.68,
+                                         286.68,
+                                         287.68,
+                                         195.,
+                                         196.,
+                                         197.,
+                                         198.,
+                                         209.,
+                                         210.,
+                                         211.,
+                                         212.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         338.6190476190476,
+                                         339.6190476190476,
+                                         340.6190476190476,
+                                         341.6190476190476,
+                                         314.3061224489796,
+                                         315.3061224489796,
+                                         316.3061224489796,
+                                         317.3061224489796,
+                                         315.85714285714283,
+                                         316.85714285714283,
+                                         317.85714285714283,
+                                         318.85714285714283,
+                                         268.06666666666666,
+                                         269.06666666666666,
+                                         270.06666666666666,
+                                         271.06666666666666,
+                                         228.42857142857142,
+                                         229.42857142857142,
+                                         230.42857142857142,
+                                         231.42857142857142,
+                                         225.8,
+                                         226.8,
+                                         227.8,
+                                         228.8,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         280.7142857142857,
+                                         281.7142857142857,
+                                         282.7142857142857,
+                                         283.7142857142857,
+                                         294.7142857142857,
+                                         295.7142857142857,
+                                         296.7142857142857,
+                                         297.7142857142857,
+                                         306.7142857142857,
+                                         307.7142857142857,
+                                         308.7142857142857,
+                                         309.7142857142857,
+                                         161.4,
+                                         162.4,
+                                         163.4,
+                                         164.4,
+                                         175.4,
+                                         176.4,
+                                         177.4,
+                                         178.4,
+                                         187.4,
+                                         188.4,
+                                         189.4,
+                                         190.4};
+  const std::array<int, 4> in_shape = {{3, 12, 12, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -796,8 +2404,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {157.              , 158.              , 159.              , 160.              , 173.              , 174.              , 175.              , 176.              , 349.              , 350.              , 351.              , 352.              , 333.6530612244898 , 334.6530612244898 , 335.6530612244898 , 336.6530612244898 , 221.              , 222.              , 223.              , 224.              , 237.              , 238.              , 239.              , 240.              , 308.51020408163265, 309.51020408163265, 310.51020408163265, 311.51020408163265, 282.7142857142857 , 283.7142857142857 , 284.7142857142857 , 285.7142857142857 , 285.              , 286.              , 287.              , 288.              , 301.              , 302.              , 303.              , 304.              , 257.57142857142856, 258.57142857142856, 259.57142857142856, 260.57142857142856, 273.57142857142856, 274.57142857142856, 275.57142857142856, 276.57142857142856};
-  const std::array<int, 4> in_shape = {{ 3, 12, 12, 4 }};
+  const std::vector<DataType> exp_out = {157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         308.51020408163265,
+                                         309.51020408163265,
+                                         310.51020408163265,
+                                         311.51020408163265,
+                                         282.7142857142857,
+                                         283.7142857142857,
+                                         284.7142857142857,
+                                         285.7142857142857,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         257.57142857142856,
+                                         258.57142857142856,
+                                         259.57142857142856,
+                                         260.57142857142856,
+                                         273.57142857142856,
+                                         274.57142857142856,
+                                         275.57142857142856,
+                                         276.57142857142856};
+  const std::array<int, 4> in_shape = {{3, 12, 12, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -805,8 +2460,12 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 38. ,  41. ,  45. ,  47.5,  87. ,  90. ,  94. ,  96.5, 129. , 132. , 136. , 138.5, 206. , 209. , 213. , 215.5, 255. , 258. , 262. , 264.5, 297. , 300. , 304. , 306.5, 374. , 377. , 381. , 383.5, 423. , 426. , 430. , 432.5, 465. , 468. , 472. , 474.5};
-  const std::array<int, 4> in_shape = {{ 3, 12, 14, 1 }};
+  const std::vector<DataType> exp_out = {
+      38.,   41.,   45.,   47.5, 87.,   90.,   94.,   96.5, 129.,
+      132.,  136.,  138.5, 206., 209.,  213.,  215.5, 255., 258.,
+      262.,  264.5, 297.,  300., 304.,  306.5, 374.,  377., 381.,
+      383.5, 423.,  426.,  430., 432.5, 465.,  468.,  472., 474.5};
+  const std::array<int, 4> in_shape = {{3, 12, 14, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -814,8 +2473,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 46.,  50., 102., 106., 214., 218., 270., 274., 382., 386., 438., 442.};
-  const std::array<int, 4> in_shape = {{ 3, 12, 14, 1 }};
+  const std::vector<DataType> exp_out = {46.,  50.,  102., 106., 214., 218.,
+                                         270., 274., 382., 386., 438., 442.};
+  const std::array<int, 4> in_shape = {{3, 12, 14, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -823,8 +2483,79 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 75.              ,  76.              ,  81.              ,  82.              ,  89.              ,  90.              ,  94.              ,  95.              , 173.              , 174.              , 179.              , 180.              , 187.              , 188.              , 192.              , 193.              , 257.              , 258.              , 263.              , 264.              , 271.              , 272.              , 276.              , 277.              , 411.              , 412.              , 417.              , 418.              , 425.              , 426.              , 430.              , 431.              , 274.9428571428571 , 275.9428571428571 , 243.3265306122449 , 244.3265306122449 , 230.42857142857142, 231.42857142857142, 235.42857142857142, 236.42857142857142,  81.              ,  82.              ,  87.              ,  88.              ,  95.              ,  96.              , 100.              , 101.              , 235.              , 236.              , 241.              , 242.              , 249.              , 250.              , 254.              , 255.              , 333.              , 334.              , 339.              , 340.              , 347.              , 348.              , 352.              , 353.              , 417.              , 418.              , 423.              , 424.              , 431.              , 432.              , 436.              , 437.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 14, 2 }};
+  const std::vector<DataType> exp_out = {75.,
+                                         76.,
+                                         81.,
+                                         82.,
+                                         89.,
+                                         90.,
+                                         94.,
+                                         95.,
+                                         173.,
+                                         174.,
+                                         179.,
+                                         180.,
+                                         187.,
+                                         188.,
+                                         192.,
+                                         193.,
+                                         257.,
+                                         258.,
+                                         263.,
+                                         264.,
+                                         271.,
+                                         272.,
+                                         276.,
+                                         277.,
+                                         411.,
+                                         412.,
+                                         417.,
+                                         418.,
+                                         425.,
+                                         426.,
+                                         430.,
+                                         431.,
+                                         274.9428571428571,
+                                         275.9428571428571,
+                                         243.3265306122449,
+                                         244.3265306122449,
+                                         230.42857142857142,
+                                         231.42857142857142,
+                                         235.42857142857142,
+                                         236.42857142857142,
+                                         81.,
+                                         82.,
+                                         87.,
+                                         88.,
+                                         95.,
+                                         96.,
+                                         100.,
+                                         101.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         249.,
+                                         250.,
+                                         254.,
+                                         255.,
+                                         333.,
+                                         334.,
+                                         339.,
+                                         340.,
+                                         347.,
+                                         348.,
+                                         352.,
+                                         353.,
+                                         417.,
+                                         418.,
+                                         423.,
+                                         424.,
+                                         431.,
+                                         432.,
+                                         436.,
+                                         437.};
+  const std::array<int, 4> in_shape = {{3, 12, 14, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -832,8 +2563,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 91.              ,  92.              ,  99.              , 100.              , 203.              , 204.              , 211.              , 212.              , 395.6530612244898 , 396.6530612244898 , 361.85714285714283, 362.85714285714283, 215.08163265306123, 216.08163265306123, 181.28571428571428, 182.28571428571428, 251.              , 252.              , 259.              , 260.              , 363.              , 364.              , 371.              , 372.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 14, 2 }};
+  const std::vector<DataType> exp_out = {91.,
+                                         92.,
+                                         99.,
+                                         100.,
+                                         203.,
+                                         204.,
+                                         211.,
+                                         212.,
+                                         395.6530612244898,
+                                         396.6530612244898,
+                                         361.85714285714283,
+                                         362.85714285714283,
+                                         215.08163265306123,
+                                         216.08163265306123,
+                                         181.28571428571428,
+                                         182.28571428571428,
+                                         251.,
+                                         252.,
+                                         259.,
+                                         260.,
+                                         363.,
+                                         364.,
+                                         371.,
+                                         372.};
+  const std::array<int, 4> in_shape = {{3, 12, 14, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -841,8 +2595,151 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {149.              , 150.              , 151.              , 152.              , 161.              , 162.              , 163.              , 164.              , 177.              , 178.              , 179.              , 180.              , 187.              , 188.              , 189.              , 190.              , 301.1142857142857 , 302.1142857142857 , 303.1142857142857 , 304.1142857142857 , 283.85714285714283, 284.85714285714283, 285.85714285714283, 286.85714285714283, 299.85714285714283, 300.85714285714283, 301.85714285714283, 302.85714285714283, 309.85714285714283, 310.85714285714283, 311.85714285714283, 312.85714285714283, 246.76            , 247.76            , 248.76            , 249.76            , 217.8             , 218.8             , 219.8             , 220.8             , 233.8             , 234.8             , 235.8             , 236.8             , 243.8             , 244.8             , 245.8             , 246.8             , 309.              , 310.              , 311.              , 312.              , 321.              , 322.              , 323.              , 324.              , 337.              , 338.              , 339.              , 340.              , 347.              , 348.              , 349.              , 350.              , 270.9428571428571 , 271.9428571428571 , 272.9428571428571 , 273.9428571428571 , 245.3265306122449 , 246.3265306122449 , 247.3265306122449 , 248.3265306122449 , 240.42857142857142, 241.42857142857142, 242.42857142857142, 243.42857142857142, 250.42857142857142, 251.42857142857142, 252.42857142857142, 253.42857142857142, 161.              , 162.              , 163.              , 164.              , 173.              , 174.              , 175.              , 176.              , 189.              , 190.              , 191.              , 192.              , 199.              , 200.              , 201.              , 202.              , 298.3333333333333 , 299.3333333333333 , 300.3333333333333 , 301.3333333333333 , 273.76190476190476, 274.76190476190476, 275.76190476190476, 276.76190476190476, 241.              , 242.              , 243.              , 244.              , 251.              , 252.              , 253.              , 254.              , 226.14285714285714, 227.14285714285714, 228.14285714285714, 229.14285714285714, 206.79591836734693, 207.79591836734693, 208.79591836734693, 209.79591836734693, 181.              , 182.              , 183.              , 184.              , 191.              , 192.              , 193.              , 194.              , 321.              , 322.              , 323.              , 324.              , 333.              , 334.              , 335.              , 336.              , 349.              , 350.              , 351.              , 352.              , 359.              , 360.              , 361.              , 362.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 14, 4 }};
+  const std::vector<DataType> exp_out = {149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         177.,
+                                         178.,
+                                         179.,
+                                         180.,
+                                         187.,
+                                         188.,
+                                         189.,
+                                         190.,
+                                         301.1142857142857,
+                                         302.1142857142857,
+                                         303.1142857142857,
+                                         304.1142857142857,
+                                         283.85714285714283,
+                                         284.85714285714283,
+                                         285.85714285714283,
+                                         286.85714285714283,
+                                         299.85714285714283,
+                                         300.85714285714283,
+                                         301.85714285714283,
+                                         302.85714285714283,
+                                         309.85714285714283,
+                                         310.85714285714283,
+                                         311.85714285714283,
+                                         312.85714285714283,
+                                         246.76,
+                                         247.76,
+                                         248.76,
+                                         249.76,
+                                         217.8,
+                                         218.8,
+                                         219.8,
+                                         220.8,
+                                         233.8,
+                                         234.8,
+                                         235.8,
+                                         236.8,
+                                         243.8,
+                                         244.8,
+                                         245.8,
+                                         246.8,
+                                         309.,
+                                         310.,
+                                         311.,
+                                         312.,
+                                         321.,
+                                         322.,
+                                         323.,
+                                         324.,
+                                         337.,
+                                         338.,
+                                         339.,
+                                         340.,
+                                         347.,
+                                         348.,
+                                         349.,
+                                         350.,
+                                         270.9428571428571,
+                                         271.9428571428571,
+                                         272.9428571428571,
+                                         273.9428571428571,
+                                         245.3265306122449,
+                                         246.3265306122449,
+                                         247.3265306122449,
+                                         248.3265306122449,
+                                         240.42857142857142,
+                                         241.42857142857142,
+                                         242.42857142857142,
+                                         243.42857142857142,
+                                         250.42857142857142,
+                                         251.42857142857142,
+                                         252.42857142857142,
+                                         253.42857142857142,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         189.,
+                                         190.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         201.,
+                                         202.,
+                                         298.3333333333333,
+                                         299.3333333333333,
+                                         300.3333333333333,
+                                         301.3333333333333,
+                                         273.76190476190476,
+                                         274.76190476190476,
+                                         275.76190476190476,
+                                         276.76190476190476,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         226.14285714285714,
+                                         227.14285714285714,
+                                         228.14285714285714,
+                                         229.14285714285714,
+                                         206.79591836734693,
+                                         207.79591836734693,
+                                         208.79591836734693,
+                                         209.79591836734693,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         191.,
+                                         192.,
+                                         193.,
+                                         194.,
+                                         321.,
+                                         322.,
+                                         323.,
+                                         324.,
+                                         333.,
+                                         334.,
+                                         335.,
+                                         336.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         359.,
+                                         360.,
+                                         361.,
+                                         362.};
+  const std::array<int, 4> in_shape = {{3, 12, 14, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -850,8 +2747,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x12x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {181.              , 182.              , 183.              , 184.              , 197.              , 198.              , 199.              , 200.              , 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 , 309.6530612244898 , 310.6530612244898 , 311.6530612244898 , 312.6530612244898 , 283.85714285714283, 284.85714285714283, 285.85714285714283, 286.85714285714283, 241.08163265306123, 242.08163265306123, 243.08163265306123, 244.08163265306123, 215.28571428571428, 216.28571428571428, 217.28571428571428, 218.28571428571428, 271.1224489795918 , 272.1224489795918 , 273.1224489795918 , 274.1224489795918 , 245.3265306122449 , 246.3265306122449 , 247.3265306122449 , 248.3265306122449 , 213.              , 214.              , 215.              , 216.              , 229.              , 230.              , 231.              , 232.              };
-  const std::array<int, 4> in_shape = {{ 3, 12, 14, 4 }};
+  const std::vector<DataType> exp_out = {181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857,
+                                         309.6530612244898,
+                                         310.6530612244898,
+                                         311.6530612244898,
+                                         312.6530612244898,
+                                         283.85714285714283,
+                                         284.85714285714283,
+                                         285.85714285714283,
+                                         286.85714285714283,
+                                         241.08163265306123,
+                                         242.08163265306123,
+                                         243.08163265306123,
+                                         244.08163265306123,
+                                         215.28571428571428,
+                                         216.28571428571428,
+                                         217.28571428571428,
+                                         218.28571428571428,
+                                         271.1224489795918,
+                                         272.1224489795918,
+                                         273.1224489795918,
+                                         274.1224489795918,
+                                         245.3265306122449,
+                                         246.3265306122449,
+                                         247.3265306122449,
+                                         248.3265306122449,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.};
+  const std::array<int, 4> in_shape = {{3, 12, 14, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -859,8 +2803,12 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x12x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25. ,  28. ,  31. ,  58. ,  61. ,  64. , 102. , 105. , 108. , 129.5, 132.5, 135.5, 179. , 182. , 185. , 212. , 215. , 218. , 256. , 259. , 262. , 283.5, 286.5, 289.5, 333. , 336. , 339. , 366. , 369. , 372. , 410. , 413. , 416. , 437.5, 440.5, 443.5};
-  const std::array<int, 4> in_shape = {{ 3, 14, 11, 1 }};
+  const std::vector<DataType> exp_out = {
+      25.,   28.,   31.,   58.,   61.,   64.,   102.,  105.,  108.,
+      129.5, 132.5, 135.5, 179.,  182.,  185.,  212.,  215.,  218.,
+      256.,  259.,  262.,  283.5, 286.5, 289.5, 333.,  336.,  339.,
+      366.,  369.,  372.,  410.,  413.,  416.,  437.5, 440.5, 443.5};
+  const std::array<int, 4> in_shape = {{3, 14, 11, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -868,8 +2816,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x11x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  41.,  81.,  85., 191., 195., 235., 239., 345., 349., 389., 393.};
-  const std::array<int, 4> in_shape = {{ 3, 14, 11, 1 }};
+  const std::vector<DataType> exp_out = {37.,  41.,  81.,  85.,  191., 195.,
+                                         235., 239., 345., 349., 389., 393.};
+  const std::array<int, 4> in_shape = {{3, 14, 11, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -877,8 +2826,79 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x11x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.              ,  50.              ,  55.              ,  56.              ,  61.              ,  62.              , 115.              , 116.              , 121.              , 122.              , 127.              , 128.              , 203.              , 204.              , 209.              , 210.              , 215.              , 216.              , 258.              , 259.              , 264.              , 265.              , 270.              , 271.              , 357.              , 358.              , 363.              , 364.              , 369.              , 370.              , 423.              , 424.              , 429.              , 430.              , 435.              , 436.              , 262.3142857142857 , 263.3142857142857 , 234.87755102040816, 235.87755102040816, 230.42857142857142, 231.42857142857142,  54.              ,  55.              ,  60.              ,  61.              ,  66.              ,  67.              , 153.              , 154.              , 159.              , 160.              , 165.              , 166.              , 219.              , 220.              , 225.              , 226.              , 231.              , 232.              , 307.              , 308.              , 313.              , 314.              , 319.              , 320.              , 362.              , 363.              , 368.              , 369.              , 374.              , 375.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 11, 2 }};
+  const std::vector<DataType> exp_out = {49.,
+                                         50.,
+                                         55.,
+                                         56.,
+                                         61.,
+                                         62.,
+                                         115.,
+                                         116.,
+                                         121.,
+                                         122.,
+                                         127.,
+                                         128.,
+                                         203.,
+                                         204.,
+                                         209.,
+                                         210.,
+                                         215.,
+                                         216.,
+                                         258.,
+                                         259.,
+                                         264.,
+                                         265.,
+                                         270.,
+                                         271.,
+                                         357.,
+                                         358.,
+                                         363.,
+                                         364.,
+                                         369.,
+                                         370.,
+                                         423.,
+                                         424.,
+                                         429.,
+                                         430.,
+                                         435.,
+                                         436.,
+                                         262.3142857142857,
+                                         263.3142857142857,
+                                         234.87755102040816,
+                                         235.87755102040816,
+                                         230.42857142857142,
+                                         231.42857142857142,
+                                         54.,
+                                         55.,
+                                         60.,
+                                         61.,
+                                         66.,
+                                         67.,
+                                         153.,
+                                         154.,
+                                         159.,
+                                         160.,
+                                         165.,
+                                         166.,
+                                         219.,
+                                         220.,
+                                         225.,
+                                         226.,
+                                         231.,
+                                         232.,
+                                         307.,
+                                         308.,
+                                         313.,
+                                         314.,
+                                         319.,
+                                         320.,
+                                         362.,
+                                         363.,
+                                         368.,
+                                         369.,
+                                         374.,
+                                         375.};
+  const std::array<int, 4> in_shape = {{3, 14, 11, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -886,8 +2906,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x11x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.             ,  74.             ,  81.             ,  82.             , 161.             , 162.             , 169.             , 170.             , 381.             , 382.             , 389.             , 390.             , 354.0612244897959, 355.0612244897959, 330.7142857142857, 331.7142857142857, 177.             , 178.             , 185.             , 186.             , 265.             , 266.             , 273.             , 274.             };
-  const std::array<int, 4> in_shape = {{ 3, 14, 11, 2 }};
+  const std::vector<DataType> exp_out = {73.,
+                                         74.,
+                                         81.,
+                                         82.,
+                                         161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         381.,
+                                         382.,
+                                         389.,
+                                         390.,
+                                         354.0612244897959,
+                                         355.0612244897959,
+                                         330.7142857142857,
+                                         331.7142857142857,
+                                         177.,
+                                         178.,
+                                         185.,
+                                         186.,
+                                         265.,
+                                         266.,
+                                         273.,
+                                         274.};
+  const std::array<int, 4> in_shape = {{3, 14, 11, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -895,8 +2938,151 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x11x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.              ,  98.              ,  99.              , 100.              , 109.              , 110.              , 111.              , 112.              , 121.              , 122.              , 123.              , 124.              , 229.              , 230.              , 231.              , 232.              , 241.              , 242.              , 243.              , 244.              , 253.              , 254.              , 255.              , 256.              , 331.85714285714283, 332.85714285714283, 333.85714285714283, 334.85714285714283, 322.9591836734694 , 323.9591836734694 , 324.9591836734694 , 325.9591836734694 , 297.34285714285716, 298.34285714285716, 299.34285714285716, 300.34285714285716, 259.              , 260.              , 261.              , 262.              , 234.42857142857142, 235.42857142857142, 236.42857142857142, 237.42857142857142, 180.6             , 181.6             , 182.6             , 183.6             , 201.              , 202.              , 203.              , 204.              , 213.              , 214.              , 215.              , 216.              , 225.              , 226.              , 227.              , 228.              , 333.              , 334.              , 335.              , 336.              , 345.              , 346.              , 347.              , 348.              , 357.              , 358.              , 359.              , 360.              , 260.3142857142857 , 261.3142857142857 , 262.3142857142857 , 263.3142857142857 , 238.87755102040816, 239.87755102040816, 240.87755102040816, 241.87755102040816, 240.42857142857142, 241.42857142857142, 242.42857142857142, 243.42857142857142, 107.              , 108.              , 109.              , 110.              , 119.              , 120.              , 121.              , 122.              , 131.              , 132.              , 133.              , 134.              , 305.              , 306.              , 307.              , 308.              , 317.              , 318.              , 319.              , 320.              , 329.              , 330.              , 331.              , 332.              , 290.7142857142857 , 291.7142857142857 , 292.7142857142857 , 293.7142857142857 , 302.7142857142857 , 303.7142857142857 , 304.7142857142857 , 305.7142857142857 , 300.0857142857143 , 301.0857142857143 , 302.0857142857143 , 303.0857142857143 , 174.14285714285714, 175.14285714285714, 176.14285714285714, 177.14285714285714, 186.14285714285714, 187.14285714285714, 188.14285714285714, 189.14285714285714, 183.5142857142857 , 184.5142857142857 , 185.5142857142857 , 186.5142857142857 , 211.              , 212.              , 213.              , 214.              , 223.              , 224.              , 225.              , 226.              , 235.              , 236.              , 237.              , 238.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 11, 4 }};
+  const std::vector<DataType> exp_out = {97.,
+                                         98.,
+                                         99.,
+                                         100.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         331.85714285714283,
+                                         332.85714285714283,
+                                         333.85714285714283,
+                                         334.85714285714283,
+                                         322.9591836734694,
+                                         323.9591836734694,
+                                         324.9591836734694,
+                                         325.9591836734694,
+                                         297.34285714285716,
+                                         298.34285714285716,
+                                         299.34285714285716,
+                                         300.34285714285716,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         236.42857142857142,
+                                         237.42857142857142,
+                                         180.6,
+                                         181.6,
+                                         182.6,
+                                         183.6,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         333.,
+                                         334.,
+                                         335.,
+                                         336.,
+                                         345.,
+                                         346.,
+                                         347.,
+                                         348.,
+                                         357.,
+                                         358.,
+                                         359.,
+                                         360.,
+                                         260.3142857142857,
+                                         261.3142857142857,
+                                         262.3142857142857,
+                                         263.3142857142857,
+                                         238.87755102040816,
+                                         239.87755102040816,
+                                         240.87755102040816,
+                                         241.87755102040816,
+                                         240.42857142857142,
+                                         241.42857142857142,
+                                         242.42857142857142,
+                                         243.42857142857142,
+                                         107.,
+                                         108.,
+                                         109.,
+                                         110.,
+                                         119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         131.,
+                                         132.,
+                                         133.,
+                                         134.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.,
+                                         290.7142857142857,
+                                         291.7142857142857,
+                                         292.7142857142857,
+                                         293.7142857142857,
+                                         302.7142857142857,
+                                         303.7142857142857,
+                                         304.7142857142857,
+                                         305.7142857142857,
+                                         300.0857142857143,
+                                         301.0857142857143,
+                                         302.0857142857143,
+                                         303.0857142857143,
+                                         174.14285714285714,
+                                         175.14285714285714,
+                                         176.14285714285714,
+                                         177.14285714285714,
+                                         186.14285714285714,
+                                         187.14285714285714,
+                                         188.14285714285714,
+                                         189.14285714285714,
+                                         183.5142857142857,
+                                         184.5142857142857,
+                                         185.5142857142857,
+                                         186.5142857142857,
+                                         211.,
+                                         212.,
+                                         213.,
+                                         214.,
+                                         223.,
+                                         224.,
+                                         225.,
+                                         226.,
+                                         235.,
+                                         236.,
+                                         237.,
+                                         238.};
+  const std::array<int, 4> in_shape = {{3, 14, 11, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -904,8 +3090,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x11x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {145.              , 146.              , 147.              , 148.              , 161.              , 162.              , 163.              , 164.              , 321.              , 322.              , 323.              , 324.              , 337.              , 338.              , 339.              , 340.              , 249.              , 250.              , 251.              , 252.              , 265.              , 266.              , 267.              , 268.              , 310.0612244897959 , 311.0612244897959 , 312.0612244897959 , 313.0612244897959 , 294.7142857142857 , 295.7142857142857 , 296.7142857142857 , 297.7142857142857 , 353.              , 354.              , 355.              , 356.              , 358.55102040816325, 359.55102040816325, 360.55102040816325, 361.55102040816325, 236.42857142857142, 237.42857142857142, 238.42857142857142, 239.42857142857142, 241.9795918367347 , 242.9795918367347 , 243.9795918367347 , 244.9795918367347 };
-  const std::array<int, 4> in_shape = {{ 3, 14, 11, 4 }};
+  const std::vector<DataType> exp_out = {145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         321.,
+                                         322.,
+                                         323.,
+                                         324.,
+                                         337.,
+                                         338.,
+                                         339.,
+                                         340.,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         310.0612244897959,
+                                         311.0612244897959,
+                                         312.0612244897959,
+                                         313.0612244897959,
+                                         294.7142857142857,
+                                         295.7142857142857,
+                                         296.7142857142857,
+                                         297.7142857142857,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         358.55102040816325,
+                                         359.55102040816325,
+                                         360.55102040816325,
+                                         361.55102040816325,
+                                         236.42857142857142,
+                                         237.42857142857142,
+                                         238.42857142857142,
+                                         239.42857142857142,
+                                         241.9795918367347,
+                                         242.9795918367347,
+                                         243.9795918367347,
+                                         244.9795918367347};
+  const std::array<int, 4> in_shape = {{3, 14, 11, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -913,8 +3146,12 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x11x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 27.5,  31. ,  34. ,  63.5,  67. ,  70. , 111.5, 115. , 118. , 141.5, 145. , 148. , 195.5, 199. , 202. , 231.5, 235. , 238. , 279.5, 283. , 286. , 309.5, 313. , 316. , 363.5, 367. , 370. , 399.5, 403. , 406. , 447.5, 451. , 454. , 477.5, 481. , 484. };
-  const std::array<int, 4> in_shape = {{ 3, 14, 12, 1 }};
+  const std::vector<DataType> exp_out = {
+      27.5,  31.,  34.,  63.5,  67.,  70.,  111.5, 115., 118.,
+      141.5, 145., 148., 195.5, 199., 202., 231.5, 235., 238.,
+      279.5, 283., 286., 309.5, 313., 316., 363.5, 367., 370.,
+      399.5, 403., 406., 447.5, 451., 454., 477.5, 481., 484.};
+  const std::array<int, 4> in_shape = {{3, 14, 12, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -922,8 +3159,9 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x12x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 40.,  44.,  88.,  92., 208., 212., 256., 260., 376., 380., 424., 428.};
-  const std::array<int, 4> in_shape = {{ 3, 14, 12, 1 }};
+  const std::vector<DataType> exp_out = {40.,  44.,  88.,  92.,  208., 212.,
+                                         256., 260., 376., 380., 424., 428.};
+  const std::array<int, 4> in_shape = {{3, 14, 12, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -931,8 +3169,79 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x12x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 54.              ,  55.              ,  61.              ,  62.              ,  67.              ,  68.              , 126.              , 127.              , 133.              , 134.              , 139.              , 140.              , 222.              , 223.              , 229.              , 230.              , 235.              , 236.              , 282.              , 283.              , 289.              , 290.              , 295.              , 296.              , 390.              , 391.              , 397.              , 398.              , 403.              , 404.              , 364.4761904761905 , 365.4761904761905 , 333.16326530612247, 334.16326530612247, 328.7142857142857 , 329.7142857142857 , 167.9047619047619 , 168.9047619047619 , 136.59183673469389, 137.59183673469389, 132.14285714285714, 133.14285714285714, 106.              , 107.              , 113.              , 114.              , 119.              , 120.              , 214.              , 215.              , 221.              , 222.              , 227.              , 228.              , 286.              , 287.              , 293.              , 294.              , 299.              , 300.              , 382.              , 383.              , 389.              , 390.              , 395.              , 396.              , 442.              , 443.              , 449.              , 450.              , 455.              , 456.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 12, 2 }};
+  const std::vector<DataType> exp_out = {54.,
+                                         55.,
+                                         61.,
+                                         62.,
+                                         67.,
+                                         68.,
+                                         126.,
+                                         127.,
+                                         133.,
+                                         134.,
+                                         139.,
+                                         140.,
+                                         222.,
+                                         223.,
+                                         229.,
+                                         230.,
+                                         235.,
+                                         236.,
+                                         282.,
+                                         283.,
+                                         289.,
+                                         290.,
+                                         295.,
+                                         296.,
+                                         390.,
+                                         391.,
+                                         397.,
+                                         398.,
+                                         403.,
+                                         404.,
+                                         364.4761904761905,
+                                         365.4761904761905,
+                                         333.16326530612247,
+                                         334.16326530612247,
+                                         328.7142857142857,
+                                         329.7142857142857,
+                                         167.9047619047619,
+                                         168.9047619047619,
+                                         136.59183673469389,
+                                         137.59183673469389,
+                                         132.14285714285714,
+                                         133.14285714285714,
+                                         106.,
+                                         107.,
+                                         113.,
+                                         114.,
+                                         119.,
+                                         120.,
+                                         214.,
+                                         215.,
+                                         221.,
+                                         222.,
+                                         227.,
+                                         228.,
+                                         286.,
+                                         287.,
+                                         293.,
+                                         294.,
+                                         299.,
+                                         300.,
+                                         382.,
+                                         383.,
+                                         389.,
+                                         390.,
+                                         395.,
+                                         396.,
+                                         442.,
+                                         443.,
+                                         449.,
+                                         450.,
+                                         455.,
+                                         456.};
+  const std::array<int, 4> in_shape = {{3, 14, 12, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -940,8 +3249,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x12x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 79.              ,  80.              ,  87.              ,  88.              , 175.              , 176.              , 183.              , 184.              , 415.              , 416.              , 423.              , 424.              , 260.2244897959184 , 261.2244897959184 , 226.42857142857142, 227.42857142857142, 239.              , 240.              , 247.              , 248.              , 335.              , 336.              , 343.              , 344.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 12, 2 }};
+  const std::vector<DataType> exp_out = {79.,
+                                         80.,
+                                         87.,
+                                         88.,
+                                         175.,
+                                         176.,
+                                         183.,
+                                         184.,
+                                         415.,
+                                         416.,
+                                         423.,
+                                         424.,
+                                         260.2244897959184,
+                                         261.2244897959184,
+                                         226.42857142857142,
+                                         227.42857142857142,
+                                         239.,
+                                         240.,
+                                         247.,
+                                         248.,
+                                         335.,
+                                         336.,
+                                         343.,
+                                         344.};
+  const std::array<int, 4> in_shape = {{3, 14, 12, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -949,8 +3281,151 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x12x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {107.              , 108.              , 109.              , 110.              , 121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 251.              , 252.              , 253.              , 254.              , 265.              , 266.              , 267.              , 268.              , 277.              , 278.              , 279.              , 280.              , 296.7142857142857 , 297.7142857142857 , 298.7142857142857 , 299.7142857142857 , 289.81632653061223, 290.81632653061223, 291.81632653061223, 292.81632653061223, 264.2             , 265.2             , 266.2             , 267.2             , 179.              , 180.              , 181.              , 182.              , 156.42857142857142, 157.42857142857142, 158.42857142857142, 159.42857142857142, 102.6             , 103.6             , 104.6             , 105.6             , 267.              , 268.              , 269.              , 270.              , 281.              , 282.              , 283.              , 284.              , 293.              , 294.              , 295.              , 296.              , 313.4761904761905 , 314.4761904761905 , 315.4761904761905 , 316.4761904761905 , 289.16326530612247, 290.16326530612247, 291.16326530612247, 292.16326530612247, 290.7142857142857 , 291.7142857142857 , 292.7142857142857 , 293.7142857142857 , 212.9047619047619 , 213.9047619047619 , 214.9047619047619 , 215.9047619047619 , 188.59183673469389, 189.59183673469389, 190.59183673469389, 191.59183673469389, 190.14285714285714, 191.14285714285714, 192.14285714285714, 193.14285714285714, 211.              , 212.              , 213.              , 214.              , 225.              , 226.              , 227.              , 228.              , 237.              , 238.              , 239.              , 240.              , 324.6             , 325.6             , 326.6             , 327.6             , 338.6             , 339.6             , 340.6             , 341.6             , 350.6             , 351.6             , 352.6             , 353.6             , 205.28571428571428, 206.28571428571428, 207.28571428571428, 208.28571428571428, 219.28571428571428, 220.28571428571428, 221.28571428571428, 222.28571428571428, 231.28571428571428, 232.28571428571428, 233.28571428571428, 234.28571428571428, 251.              , 252.              , 253.              , 254.              , 265.              , 266.              , 267.              , 268.              , 277.              , 278.              , 279.              , 280.              , 371.              , 372.              , 373.              , 374.              , 385.              , 386.              , 387.              , 388.              , 397.              , 398.              , 399.              , 400.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 12, 4 }};
+  const std::vector<DataType> exp_out = {107.,
+                                         108.,
+                                         109.,
+                                         110.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         296.7142857142857,
+                                         297.7142857142857,
+                                         298.7142857142857,
+                                         299.7142857142857,
+                                         289.81632653061223,
+                                         290.81632653061223,
+                                         291.81632653061223,
+                                         292.81632653061223,
+                                         264.2,
+                                         265.2,
+                                         266.2,
+                                         267.2,
+                                         179.,
+                                         180.,
+                                         181.,
+                                         182.,
+                                         156.42857142857142,
+                                         157.42857142857142,
+                                         158.42857142857142,
+                                         159.42857142857142,
+                                         102.6,
+                                         103.6,
+                                         104.6,
+                                         105.6,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         293.,
+                                         294.,
+                                         295.,
+                                         296.,
+                                         313.4761904761905,
+                                         314.4761904761905,
+                                         315.4761904761905,
+                                         316.4761904761905,
+                                         289.16326530612247,
+                                         290.16326530612247,
+                                         291.16326530612247,
+                                         292.16326530612247,
+                                         290.7142857142857,
+                                         291.7142857142857,
+                                         292.7142857142857,
+                                         293.7142857142857,
+                                         212.9047619047619,
+                                         213.9047619047619,
+                                         214.9047619047619,
+                                         215.9047619047619,
+                                         188.59183673469389,
+                                         189.59183673469389,
+                                         190.59183673469389,
+                                         191.59183673469389,
+                                         190.14285714285714,
+                                         191.14285714285714,
+                                         192.14285714285714,
+                                         193.14285714285714,
+                                         211.,
+                                         212.,
+                                         213.,
+                                         214.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         324.6,
+                                         325.6,
+                                         326.6,
+                                         327.6,
+                                         338.6,
+                                         339.6,
+                                         340.6,
+                                         341.6,
+                                         350.6,
+                                         351.6,
+                                         352.6,
+                                         353.6,
+                                         205.28571428571428,
+                                         206.28571428571428,
+                                         207.28571428571428,
+                                         208.28571428571428,
+                                         219.28571428571428,
+                                         220.28571428571428,
+                                         221.28571428571428,
+                                         222.28571428571428,
+                                         231.28571428571428,
+                                         232.28571428571428,
+                                         233.28571428571428,
+                                         234.28571428571428,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         371.,
+                                         372.,
+                                         373.,
+                                         374.,
+                                         385.,
+                                         386.,
+                                         387.,
+                                         388.,
+                                         397.,
+                                         398.,
+                                         399.,
+                                         400.};
+  const std::array<int, 4> in_shape = {{3, 14, 12, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -958,8 +3433,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x12x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {157.              , 158.              , 159.              , 160.              , 173.              , 174.              , 175.              , 176.              , 349.              , 350.              , 351.              , 352.              , 333.6530612244898 , 334.6530612244898 , 335.6530612244898 , 336.6530612244898 , 317.              , 318.              , 319.              , 320.              , 333.              , 334.              , 335.              , 336.              , 258.2244897959184 , 259.2244897959184 , 260.2244897959184 , 261.2244897959184 , 232.42857142857142, 233.42857142857142, 234.42857142857142, 235.42857142857142, 257.57142857142856, 258.57142857142856, 259.57142857142856, 260.57142857142856, 273.57142857142856, 274.57142857142856, 275.57142857142856, 276.57142857142856, 157.              , 158.              , 159.              , 160.              , 173.              , 174.              , 175.              , 176.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 12, 4 }};
+  const std::vector<DataType> exp_out = {157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         333.6530612244898,
+                                         334.6530612244898,
+                                         335.6530612244898,
+                                         336.6530612244898,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         333.,
+                                         334.,
+                                         335.,
+                                         336.,
+                                         258.2244897959184,
+                                         259.2244897959184,
+                                         260.2244897959184,
+                                         261.2244897959184,
+                                         232.42857142857142,
+                                         233.42857142857142,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         257.57142857142856,
+                                         258.57142857142856,
+                                         259.57142857142856,
+                                         260.57142857142856,
+                                         273.57142857142856,
+                                         274.57142857142856,
+                                         275.57142857142856,
+                                         276.57142857142856,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.};
+  const std::array<int, 4> in_shape = {{3, 14, 12, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -967,8 +3489,55 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x12x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 31.              ,  34.              ,  38.              ,  40.5             ,  73.              ,  76.              ,  80.              ,  82.5             , 129.              , 132.              , 136.              , 138.5             , 164.              , 167.              , 171.              , 173.5             , 227.              , 230.              , 234.              , 236.5             , 269.              , 272.              , 276.              , 278.5             , 325.              , 328.              , 332.              , 334.5             , 360.              , 363.              , 367.              , 369.5             , 423.              , 426.              , 430.              , 432.5             , 465.              , 457.55102040816325, 419.7551020408163 , 401.35714285714283, 228.42857142857142, 220.9795918367347 , 183.18367346938774, 164.78571428571428,  44.              ,  47.              ,  51.              ,  53.5             };
-  const std::array<int, 4> in_shape = {{ 3, 14, 14, 1 }};
+  const std::vector<DataType> exp_out = {31.,
+                                         34.,
+                                         38.,
+                                         40.5,
+                                         73.,
+                                         76.,
+                                         80.,
+                                         82.5,
+                                         129.,
+                                         132.,
+                                         136.,
+                                         138.5,
+                                         164.,
+                                         167.,
+                                         171.,
+                                         173.5,
+                                         227.,
+                                         230.,
+                                         234.,
+                                         236.5,
+                                         269.,
+                                         272.,
+                                         276.,
+                                         278.5,
+                                         325.,
+                                         328.,
+                                         332.,
+                                         334.5,
+                                         360.,
+                                         363.,
+                                         367.,
+                                         369.5,
+                                         423.,
+                                         426.,
+                                         430.,
+                                         432.5,
+                                         465.,
+                                         457.55102040816325,
+                                         419.7551020408163,
+                                         401.35714285714283,
+                                         228.42857142857142,
+                                         220.9795918367347,
+                                         183.18367346938774,
+                                         164.78571428571428,
+                                         44.,
+                                         47.,
+                                         51.,
+                                         53.5};
+  const std::array<int, 4> in_shape = {{3, 14, 14, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -976,8 +3545,19 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x14x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 46.             ,  50.             , 102.             , 106.             , 242.             , 246.             , 298.             , 302.             , 438.             , 442.             , 347.7142857142857, 320.3673469387755};
-  const std::array<int, 4> in_shape = {{ 3, 14, 14, 1 }};
+  const std::vector<DataType> exp_out = {46.,
+                                         50.,
+                                         102.,
+                                         106.,
+                                         242.,
+                                         246.,
+                                         298.,
+                                         302.,
+                                         438.,
+                                         442.,
+                                         347.7142857142857,
+                                         320.3673469387755};
+  const std::array<int, 4> in_shape = {{3, 14, 14, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -985,8 +3565,103 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x14x1) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 61.              ,  62.              ,  67.              ,  68.              ,  75.              ,  76.              ,  80.              ,  81.              , 145.              , 146.              , 151.              , 152.              , 159.              , 160.              , 164.              , 165.              , 257.              , 258.              , 263.              , 264.              , 271.              , 272.              , 276.              , 277.              , 327.              , 328.              , 333.              , 334.              , 341.              , 342.              , 346.              , 347.              , 432.52            , 433.52            , 385.85714285714283, 386.85714285714283, 364.6             , 365.6             , 369.6             , 370.6             , 229.8             , 230.8             , 198.18367346938774, 199.18367346938774, 185.28571428571428, 186.28571428571428, 190.28571428571428, 191.28571428571428, 137.              , 138.              , 143.              , 144.              , 151.              , 152.              , 156.              , 157.              , 207.              , 208.              , 213.              , 214.              , 221.              , 222.              , 226.              , 227.              , 333.              , 334.              , 339.              , 340.              , 347.              , 348.              , 352.              , 353.              , 417.              , 418.              , 412.55102040816325, 413.55102040816325, 378.7551020408163 , 379.7551020408163 , 362.85714285714283, 363.85714285714283, 236.42857142857142, 237.42857142857142, 231.9795918367347 , 232.9795918367347 , 198.18367346938774, 199.18367346938774, 182.28571428571428, 183.28571428571428,  87.              ,  88.              ,  93.              ,  94.              , 101.              , 102.              , 106.              , 107.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 14, 2 }};
+  const std::vector<DataType> exp_out = {61.,
+                                         62.,
+                                         67.,
+                                         68.,
+                                         75.,
+                                         76.,
+                                         80.,
+                                         81.,
+                                         145.,
+                                         146.,
+                                         151.,
+                                         152.,
+                                         159.,
+                                         160.,
+                                         164.,
+                                         165.,
+                                         257.,
+                                         258.,
+                                         263.,
+                                         264.,
+                                         271.,
+                                         272.,
+                                         276.,
+                                         277.,
+                                         327.,
+                                         328.,
+                                         333.,
+                                         334.,
+                                         341.,
+                                         342.,
+                                         346.,
+                                         347.,
+                                         432.52,
+                                         433.52,
+                                         385.85714285714283,
+                                         386.85714285714283,
+                                         364.6,
+                                         365.6,
+                                         369.6,
+                                         370.6,
+                                         229.8,
+                                         230.8,
+                                         198.18367346938774,
+                                         199.18367346938774,
+                                         185.28571428571428,
+                                         186.28571428571428,
+                                         190.28571428571428,
+                                         191.28571428571428,
+                                         137.,
+                                         138.,
+                                         143.,
+                                         144.,
+                                         151.,
+                                         152.,
+                                         156.,
+                                         157.,
+                                         207.,
+                                         208.,
+                                         213.,
+                                         214.,
+                                         221.,
+                                         222.,
+                                         226.,
+                                         227.,
+                                         333.,
+                                         334.,
+                                         339.,
+                                         340.,
+                                         347.,
+                                         348.,
+                                         352.,
+                                         353.,
+                                         417.,
+                                         418.,
+                                         412.55102040816325,
+                                         413.55102040816325,
+                                         378.7551020408163,
+                                         379.7551020408163,
+                                         362.85714285714283,
+                                         363.85714285714283,
+                                         236.42857142857142,
+                                         237.42857142857142,
+                                         231.9795918367347,
+                                         232.9795918367347,
+                                         198.18367346938774,
+                                         199.18367346938774,
+                                         182.28571428571428,
+                                         183.28571428571428,
+                                         87.,
+                                         88.,
+                                         93.,
+                                         94.,
+                                         101.,
+                                         102.,
+                                         106.,
+                                         107.};
+  const std::array<int, 4> in_shape = {{3, 14, 14, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -994,8 +3669,31 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x14x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 91.              ,  92.              ,  99.              , 100.              , 203.              , 204.              , 211.              , 212.              , 305.3673469387755 , 306.3673469387755 , 271.57142857142856, 272.57142857142856, 124.79591836734694, 125.79591836734694,  91.              ,  92.              , 363.              , 364.              , 371.              , 372.              , 328.7142857142857 , 329.7142857142857 , 305.3673469387755 , 306.3673469387755 };
-  const std::array<int, 4> in_shape = {{ 3, 14, 14, 2 }};
+  const std::vector<DataType> exp_out = {91.,
+                                         92.,
+                                         99.,
+                                         100.,
+                                         203.,
+                                         204.,
+                                         211.,
+                                         212.,
+                                         305.3673469387755,
+                                         306.3673469387755,
+                                         271.57142857142856,
+                                         272.57142857142856,
+                                         124.79591836734694,
+                                         125.79591836734694,
+                                         91.,
+                                         92.,
+                                         363.,
+                                         364.,
+                                         371.,
+                                         372.,
+                                         328.7142857142857,
+                                         329.7142857142857,
+                                         305.3673469387755,
+                                         306.3673469387755};
+  const std::array<int, 4> in_shape = {{3, 14, 14, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1003,8 +3701,199 @@ TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x14x2) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {121.              , 122.              , 123.              , 124.              , 133.              , 134.              , 135.              , 136.              , 149.              , 150.              , 151.              , 152.              , 159.              , 160.              , 161.              , 162.              , 289.              , 290.              , 291.              , 292.              , 301.              , 302.              , 303.              , 304.              , 317.              , 318.              , 319.              , 320.              , 327.              , 328.              , 329.              , 330.              , 249.68571428571428, 250.68571428571428, 251.68571428571428, 252.68571428571428, 232.42857142857142, 233.42857142857142, 234.42857142857142, 235.42857142857142, 248.42857142857142, 249.42857142857142, 250.42857142857142, 251.42857142857142, 258.42857142857144, 259.42857142857144, 260.42857142857144, 261.42857142857144, 141.              , 142.              , 143.              , 144.              , 153.              , 154.              , 155.              , 156.              , 169.              , 170.              , 171.              , 172.              , 179.              , 180.              , 181.              , 182.              , 372.52            , 373.52            , 374.52            , 375.52            , 331.85714285714283, 332.85714285714283, 333.85714285714283, 334.85714285714283, 318.6             , 319.6             , 320.6             , 321.6             , 328.6             , 329.6             , 330.6             , 331.6             , 253.8             , 254.8             , 255.8             , 256.8             , 228.18367346938774, 229.18367346938774, 230.18367346938774, 231.18367346938774, 223.28571428571428, 224.28571428571428, 225.28571428571428, 226.28571428571428, 233.28571428571428, 234.28571428571428, 235.28571428571428, 236.28571428571428, 273.              , 274.              , 275.              , 276.              , 285.              , 286.              , 287.              , 288.              , 301.              , 302.              , 303.              , 304.              , 311.              , 312.              , 313.              , 314.              , 413.              , 414.              , 415.              , 416.              , 370.14285714285717, 371.14285714285717, 372.14285714285717, 373.14285714285717, 313.              , 314.              , 315.              , 316.              , 323.              , 324.              , 325.              , 326.              , 153.              , 154.              , 155.              , 156.              , 165.              , 166.              , 167.              , 168.              , 181.              , 182.              , 183.              , 184.              , 191.              , 192.              , 193.              , 194.              , 321.              , 322.              , 323.              , 324.              , 322.55102040816325, 323.55102040816325, 324.55102040816325, 325.55102040816325, 296.7551020408163 , 297.7551020408163 , 298.7551020408163 , 299.7551020408163 , 285.85714285714283, 286.85714285714283, 287.85714285714283, 288.85714285714283, 252.42857142857142, 253.42857142857142, 254.42857142857142, 255.42857142857142, 253.9795918367347 , 254.9795918367347 , 255.9795918367347 , 256.9795918367347 , 228.18367346938774, 229.18367346938774, 230.18367346938774, 231.18367346938774, 217.28571428571428, 218.28571428571428, 219.28571428571428, 220.28571428571428, 173.              , 174.              , 175.              , 176.              , 185.              , 186.              , 187.              , 188.              , 201.              , 202.              , 203.              , 204.              , 211.              , 212.              , 213.              , 214.              };
-  const std::array<int, 4> in_shape = {{ 3, 14, 14, 4 }};
+  const std::vector<DataType> exp_out = {121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         289.,
+                                         290.,
+                                         291.,
+                                         292.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         249.68571428571428,
+                                         250.68571428571428,
+                                         251.68571428571428,
+                                         252.68571428571428,
+                                         232.42857142857142,
+                                         233.42857142857142,
+                                         234.42857142857142,
+                                         235.42857142857142,
+                                         248.42857142857142,
+                                         249.42857142857142,
+                                         250.42857142857142,
+                                         251.42857142857142,
+                                         258.42857142857144,
+                                         259.42857142857144,
+                                         260.42857142857144,
+                                         261.42857142857144,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         169.,
+                                         170.,
+                                         171.,
+                                         172.,
+                                         179.,
+                                         180.,
+                                         181.,
+                                         182.,
+                                         372.52,
+                                         373.52,
+                                         374.52,
+                                         375.52,
+                                         331.85714285714283,
+                                         332.85714285714283,
+                                         333.85714285714283,
+                                         334.85714285714283,
+                                         318.6,
+                                         319.6,
+                                         320.6,
+                                         321.6,
+                                         328.6,
+                                         329.6,
+                                         330.6,
+                                         331.6,
+                                         253.8,
+                                         254.8,
+                                         255.8,
+                                         256.8,
+                                         228.18367346938774,
+                                         229.18367346938774,
+                                         230.18367346938774,
+                                         231.18367346938774,
+                                         223.28571428571428,
+                                         224.28571428571428,
+                                         225.28571428571428,
+                                         226.28571428571428,
+                                         233.28571428571428,
+                                         234.28571428571428,
+                                         235.28571428571428,
+                                         236.28571428571428,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         311.,
+                                         312.,
+                                         313.,
+                                         314.,
+                                         413.,
+                                         414.,
+                                         415.,
+                                         416.,
+                                         370.14285714285717,
+                                         371.14285714285717,
+                                         372.14285714285717,
+                                         373.14285714285717,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         323.,
+                                         324.,
+                                         325.,
+                                         326.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         165.,
+                                         166.,
+                                         167.,
+                                         168.,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         191.,
+                                         192.,
+                                         193.,
+                                         194.,
+                                         321.,
+                                         322.,
+                                         323.,
+                                         324.,
+                                         322.55102040816325,
+                                         323.55102040816325,
+                                         324.55102040816325,
+                                         325.55102040816325,
+                                         296.7551020408163,
+                                         297.7551020408163,
+                                         298.7551020408163,
+                                         299.7551020408163,
+                                         285.85714285714283,
+                                         286.85714285714283,
+                                         287.85714285714283,
+                                         288.85714285714283,
+                                         252.42857142857142,
+                                         253.42857142857142,
+                                         254.42857142857142,
+                                         255.42857142857142,
+                                         253.9795918367347,
+                                         254.9795918367347,
+                                         255.9795918367347,
+                                         256.9795918367347,
+                                         228.18367346938774,
+                                         229.18367346938774,
+                                         230.18367346938774,
+                                         231.18367346938774,
+                                         217.28571428571428,
+                                         218.28571428571428,
+                                         219.28571428571428,
+                                         220.28571428571428,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         185.,
+                                         186.,
+                                         187.,
+                                         188.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         211.,
+                                         212.,
+                                         213.,
+                                         214.};
+  const std::array<int, 4> in_shape = {{3, 14, 14, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1012,11 +3901,57 @@ TYPED_TEST(AvgWindow7Stride4Forward, SAME3x14x14x4) {
 }
 TYPED_TEST(AvgWindow7Stride4Forward, VALID3x14x14x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {181.              , 182.              , 183.              , 184.              , 197.              , 198.              , 199.              , 200.              , 279.61224489795916, 280.61224489795916, 281.61224489795916, 282.61224489795916, 274.7142857142857 , 275.7142857142857 , 276.7142857142857 , 277.7142857142857 , 275.3673469387755 , 276.3673469387755 , 277.3673469387755 , 278.3673469387755 , 249.57142857142858, 250.57142857142858, 251.57142857142858, 252.57142857142858, 206.79591836734693, 207.79591836734693, 208.79591836734693, 209.79591836734693, 181.              , 182.              , 183.              , 184.              , 213.              , 214.              , 215.              , 216.              , 229.              , 230.              , 231.              , 232.              , 290.7142857142857 , 291.7142857142857 , 292.7142857142857 , 293.7142857142857 , 275.3673469387755 , 276.3673469387755 , 277.3673469387755 , 278.3673469387755 };
-  const std::array<int, 4> in_shape = {{ 3, 14, 14, 4 }};
+  const std::vector<DataType> exp_out = {181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         279.61224489795916,
+                                         280.61224489795916,
+                                         281.61224489795916,
+                                         282.61224489795916,
+                                         274.7142857142857,
+                                         275.7142857142857,
+                                         276.7142857142857,
+                                         277.7142857142857,
+                                         275.3673469387755,
+                                         276.3673469387755,
+                                         277.3673469387755,
+                                         278.3673469387755,
+                                         249.57142857142858,
+                                         250.57142857142858,
+                                         251.57142857142858,
+                                         252.57142857142858,
+                                         206.79591836734693,
+                                         207.79591836734693,
+                                         208.79591836734693,
+                                         209.79591836734693,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         290.7142857142857,
+                                         291.7142857142857,
+                                         292.7142857142857,
+                                         293.7142857142857,
+                                         275.3673469387755,
+                                         276.3673469387755,
+                                         277.3673469387755,
+                                         278.3673469387755};
+  const std::array<int, 4> in_shape = {{3, 14, 14, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<7, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
   this->test_pool(exp_out, params, max_input_val);
 }
-

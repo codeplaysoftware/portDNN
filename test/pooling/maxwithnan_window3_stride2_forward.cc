@@ -34,7 +34,7 @@
 #include <array>
 #include <vector>
 
-using namespace sycldnn; // NOLINT(google-build-using-namespace)
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 
@@ -49,8 +49,9 @@ using MaxwithnanWindow3Stride2Forward =
 TYPED_TEST_SUITE(MaxwithnanWindow3Stride2Forward, GTestTypePairs);
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7.,  9., 10., 17., 19., 20., 22., 24., 25.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 5, 1 }};
+  const std::vector<DataType> exp_out = {7.,  9.,  10., 17., 19.,
+                                         20., 22., 24., 25.};
+  const std::array<int, 4> in_shape = {{1, 5, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -59,7 +60,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x5x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x5x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {13., 15., 23., 25.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 5, 1 }};
+  const std::array<int, 4> in_shape = {{1, 5, 5, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -67,8 +68,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13., 14., 17., 18., 19., 20., 33., 34., 37., 38., 39., 40., 43., 44., 47., 48., 49., 50.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 5, 2 }};
+  const std::vector<DataType> exp_out = {13., 14., 17., 18., 19., 20.,
+                                         33., 34., 37., 38., 39., 40.,
+                                         43., 44., 47., 48., 49., 50.};
+  const std::array<int, 4> in_shape = {{1, 5, 5, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -76,8 +79,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25., 26., 29., 30., 45., 46., 49., 50.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 5, 2 }};
+  const std::vector<DataType> exp_out = {25., 26., 29., 30.,
+                                         45., 46., 49., 50.};
+  const std::array<int, 4> in_shape = {{1, 5, 5, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -85,8 +89,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25.,  26.,  27.,  28.,  33.,  34.,  35.,  36.,  37.,  38.,  39.,  40.,  65.,  66.,  67.,  68.,  73.,  74.,  75.,  76.,  77.,  78.,  79.,  80.,  85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99., 100.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      25., 26., 27., 28., 33., 34., 35., 36., 37., 38., 39., 40.,
+      65., 66., 67., 68., 73., 74., 75., 76., 77., 78., 79., 80.,
+      85., 86., 87., 88., 93., 94., 95., 96., 97., 98., 99., 100.};
+  const std::array<int, 4> in_shape = {{1, 5, 5, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -94,8 +101,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,  97.,  98.,  99., 100.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 5, 4 }};
+  const std::vector<DataType> exp_out = {49., 50., 51., 52., 57., 58.,
+                                         59., 60., 89., 90., 91., 92.,
+                                         97., 98., 99., 100.};
+  const std::array<int, 4> in_shape = {{1, 5, 5, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -103,8 +112,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9., 11., 12., 21., 23., 24., 27., 29., 30.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 6, 1 }};
+  const std::vector<DataType> exp_out = {9.,  11., 12., 21., 23.,
+                                         24., 27., 29., 30.};
+  const std::array<int, 4> in_shape = {{1, 5, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -113,7 +123,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x6x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x6x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {15., 17., 27., 29.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 6, 1 }};
+  const std::array<int, 4> in_shape = {{1, 5, 6, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -121,8 +131,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17., 18., 21., 22., 23., 24., 41., 42., 45., 46., 47., 48., 53., 54., 57., 58., 59., 60.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 6, 2 }};
+  const std::vector<DataType> exp_out = {17., 18., 21., 22., 23., 24.,
+                                         41., 42., 45., 46., 47., 48.,
+                                         53., 54., 57., 58., 59., 60.};
+  const std::array<int, 4> in_shape = {{1, 5, 6, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -130,8 +142,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {29., 30., 33., 34., 53., 54., 57., 58.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 6, 2 }};
+  const std::vector<DataType> exp_out = {29., 30., 33., 34.,
+                                         53., 54., 57., 58.};
+  const std::array<int, 4> in_shape = {{1, 5, 6, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -139,8 +152,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.,  34.,  35.,  36.,  41.,  42.,  43.,  44.,  45.,  46.,  47.,  48.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      33.,  34.,  35.,  36.,  41.,  42.,  43.,  44.,  45.,  46.,  47.,  48.,
+      81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.};
+  const std::array<int, 4> in_shape = {{1, 5, 6, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -148,8 +164,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68., 105., 106., 107., 108., 113., 114., 115., 116.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 6, 4 }};
+  const std::vector<DataType> exp_out = {57.,  58.,  59.,  60.,  65.,  66.,
+                                         67.,  68.,  105., 106., 107., 108.,
+                                         113., 114., 115., 116.};
+  const std::array<int, 4> in_shape = {{1, 5, 6, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -157,8 +175,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11., 13., 15., 16., 27., 29., 31., 32., 35., 37., 39., 40.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 8, 1 }};
+  const std::vector<DataType> exp_out = {11., 13., 15., 16., 27., 29.,
+                                         31., 32., 35., 37., 39., 40.};
+  const std::array<int, 4> in_shape = {{1, 5, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -167,7 +186,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x8x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {19., 21., 23., 35., 37., 39.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 8, 1 }};
+  const std::array<int, 4> in_shape = {{1, 5, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -175,8 +194,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {21., 22., 25., 26., 29., 30., 31., 32., 53., 54., 57., 58., 61., 62., 63., 64., 69., 70., 73., 74., 77., 78., 79., 80.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      21., 22., 25., 26., 29., 30., 31., 32., 53., 54., 57., 58.,
+      61., 62., 63., 64., 69., 70., 73., 74., 77., 78., 79., 80.};
+  const std::array<int, 4> in_shape = {{1, 5, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -184,8 +205,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {37., 38., 41., 42., 45., 46., 69., 70., 73., 74., 77., 78.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 8, 2 }};
+  const std::vector<DataType> exp_out = {37., 38., 41., 42., 45., 46.,
+                                         69., 70., 73., 74., 77., 78.};
+  const std::array<int, 4> in_shape = {{1, 5, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -193,8 +215,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 41.,  42.,  43.,  44.,  49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  61.,  62.,  63.,  64., 105., 106., 107., 108., 113., 114., 115., 116., 121., 122., 123., 124., 125., 126., 127., 128., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      41.,  42.,  43.,  44.,  49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,
+      61.,  62.,  63.,  64.,  105., 106., 107., 108., 113., 114., 115., 116.,
+      121., 122., 123., 124., 125., 126., 127., 128., 137., 138., 139., 140.,
+      145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160.};
+  const std::array<int, 4> in_shape = {{1, 5, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -202,8 +228,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x5x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.};
-  const std::array<int, 4> in_shape = {{ 1, 5, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.};
+  const std::array<int, 4> in_shape = {{1, 5, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -211,8 +239,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x5x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12., 14., 15., 22., 24., 25., 27., 29., 30.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 5, 1 }};
+  const std::vector<DataType> exp_out = {12., 14., 15., 22., 24.,
+                                         25., 27., 29., 30.};
+  const std::array<int, 4> in_shape = {{1, 6, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -221,7 +250,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x5x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x5x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {13., 15., 23., 25.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 5, 1 }};
+  const std::array<int, 4> in_shape = {{1, 6, 5, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -229,8 +258,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23., 24., 27., 28., 29., 30., 43., 44., 47., 48., 49., 50., 53., 54., 57., 58., 59., 60.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 5, 2 }};
+  const std::vector<DataType> exp_out = {23., 24., 27., 28., 29., 30.,
+                                         43., 44., 47., 48., 49., 50.,
+                                         53., 54., 57., 58., 59., 60.};
+  const std::array<int, 4> in_shape = {{1, 6, 5, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -238,8 +269,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25., 26., 29., 30., 45., 46., 49., 50.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 5, 2 }};
+  const std::vector<DataType> exp_out = {25., 26., 29., 30.,
+                                         45., 46., 49., 50.};
+  const std::array<int, 4> in_shape = {{1, 6, 5, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -247,8 +279,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,  85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99., 100., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,
+      85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99.,  100.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.};
+  const std::array<int, 4> in_shape = {{1, 6, 5, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -256,8 +291,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,  97.,  98.,  99., 100.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 5, 4 }};
+  const std::vector<DataType> exp_out = {49., 50., 51., 52., 57., 58.,
+                                         59., 60., 89., 90., 91., 92.,
+                                         97., 98., 99., 100.};
+  const std::array<int, 4> in_shape = {{1, 6, 5, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -265,8 +302,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15., 17., 18., 27., 29., 30., 33., 35., 36.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 6, 1 }};
+  const std::vector<DataType> exp_out = {15., 17., 18., 27., 29.,
+                                         30., 33., 35., 36.};
+  const std::array<int, 4> in_shape = {{1, 6, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -275,7 +313,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x6x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x6x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {15., 17., 27., 29.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 6, 1 }};
+  const std::array<int, 4> in_shape = {{1, 6, 6, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -283,8 +321,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {29., 30., 33., 34., 35., 36., 53., 54., 57., 58., 59., 60., 65., 66., 69., 70., 71., 72.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 6, 2 }};
+  const std::vector<DataType> exp_out = {29., 30., 33., 34., 35., 36.,
+                                         53., 54., 57., 58., 59., 60.,
+                                         65., 66., 69., 70., 71., 72.};
+  const std::array<int, 4> in_shape = {{1, 6, 6, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -292,8 +332,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {29., 30., 33., 34., 53., 54., 57., 58.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 6, 2 }};
+  const std::vector<DataType> exp_out = {29., 30., 33., 34.,
+                                         53., 54., 57., 58.};
+  const std::array<int, 4> in_shape = {{1, 6, 6, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -301,8 +342,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120., 129., 130., 131., 132., 137., 138., 139., 140., 141., 142., 143., 144.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.,
+      129., 130., 131., 132., 137., 138., 139., 140., 141., 142., 143., 144.};
+  const std::array<int, 4> in_shape = {{1, 6, 6, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -310,8 +354,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68., 105., 106., 107., 108., 113., 114., 115., 116.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 6, 4 }};
+  const std::vector<DataType> exp_out = {57.,  58.,  59.,  60.,  65.,  66.,
+                                         67.,  68.,  105., 106., 107., 108.,
+                                         113., 114., 115., 116.};
+  const std::array<int, 4> in_shape = {{1, 6, 6, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -319,8 +365,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19., 21., 23., 24., 35., 37., 39., 40., 43., 45., 47., 48.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 8, 1 }};
+  const std::vector<DataType> exp_out = {19., 21., 23., 24., 35., 37.,
+                                         39., 40., 43., 45., 47., 48.};
+  const std::array<int, 4> in_shape = {{1, 6, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -329,7 +376,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x8x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {19., 21., 23., 35., 37., 39.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 8, 1 }};
+  const std::array<int, 4> in_shape = {{1, 6, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -337,8 +384,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {37., 38., 41., 42., 45., 46., 47., 48., 69., 70., 73., 74., 77., 78., 79., 80., 85., 86., 89., 90., 93., 94., 95., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37., 38., 41., 42., 45., 46., 47., 48., 69., 70., 73., 74.,
+      77., 78., 79., 80., 85., 86., 89., 90., 93., 94., 95., 96.};
+  const std::array<int, 4> in_shape = {{1, 6, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -346,8 +395,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {37., 38., 41., 42., 45., 46., 69., 70., 73., 74., 77., 78.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 8, 2 }};
+  const std::vector<DataType> exp_out = {37., 38., 41., 42., 45., 46.,
+                                         69., 70., 73., 74., 77., 78.};
+  const std::array<int, 4> in_shape = {{1, 6, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -355,8 +405,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      93.,  94.,  95.,  96.,  137., 138., 139., 140., 145., 146., 147., 148.,
+      153., 154., 155., 156., 157., 158., 159., 160., 169., 170., 171., 172.,
+      177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.};
+  const std::array<int, 4> in_shape = {{1, 6, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -364,8 +418,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x6x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.};
-  const std::array<int, 4> in_shape = {{ 1, 6, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.};
+  const std::array<int, 4> in_shape = {{1, 6, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -373,8 +429,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x6x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12., 14., 15., 22., 24., 25., 32., 34., 35., 37., 39., 40.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 5, 1 }};
+  const std::vector<DataType> exp_out = {12., 14., 15., 22., 24., 25.,
+                                         32., 34., 35., 37., 39., 40.};
+  const std::array<int, 4> in_shape = {{1, 8, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -383,7 +440,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x5x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x5x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {13., 15., 23., 25., 33., 35.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 5, 1 }};
+  const std::array<int, 4> in_shape = {{1, 8, 5, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -391,8 +448,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23., 24., 27., 28., 29., 30., 43., 44., 47., 48., 49., 50., 63., 64., 67., 68., 69., 70., 73., 74., 77., 78., 79., 80.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      23., 24., 27., 28., 29., 30., 43., 44., 47., 48., 49., 50.,
+      63., 64., 67., 68., 69., 70., 73., 74., 77., 78., 79., 80.};
+  const std::array<int, 4> in_shape = {{1, 8, 5, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -400,8 +459,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25., 26., 29., 30., 45., 46., 49., 50., 65., 66., 69., 70.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 5, 2 }};
+  const std::vector<DataType> exp_out = {25., 26., 29., 30., 45., 46.,
+                                         49., 50., 65., 66., 69., 70.};
+  const std::array<int, 4> in_shape = {{1, 8, 5, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -409,8 +469,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,  85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99., 100., 125., 126., 127., 128., 133., 134., 135., 136., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,
+      85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99.,  100.,
+      125., 126., 127., 128., 133., 134., 135., 136., 137., 138., 139., 140.,
+      145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160.};
+  const std::array<int, 4> in_shape = {{1, 8, 5, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -418,8 +482,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 129., 130., 131., 132., 137., 138., 139., 140.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      49., 50., 51., 52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,
+      97., 98., 99., 100., 129., 130., 131., 132., 137., 138., 139., 140.};
+  const std::array<int, 4> in_shape = {{1, 8, 5, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -427,8 +493,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15., 17., 18., 27., 29., 30., 39., 41., 42., 45., 47., 48.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 6, 1 }};
+  const std::vector<DataType> exp_out = {15., 17., 18., 27., 29., 30.,
+                                         39., 41., 42., 45., 47., 48.};
+  const std::array<int, 4> in_shape = {{1, 8, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -437,7 +504,7 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x6x1) {
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x6x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {15., 17., 27., 29., 39., 41.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 6, 1 }};
+  const std::array<int, 4> in_shape = {{1, 8, 6, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -445,8 +512,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {29., 30., 33., 34., 35., 36., 53., 54., 57., 58., 59., 60., 77., 78., 81., 82., 83., 84., 89., 90., 93., 94., 95., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      29., 30., 33., 34., 35., 36., 53., 54., 57., 58., 59., 60.,
+      77., 78., 81., 82., 83., 84., 89., 90., 93., 94., 95., 96.};
+  const std::array<int, 4> in_shape = {{1, 8, 6, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -454,8 +523,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {29., 30., 33., 34., 53., 54., 57., 58., 77., 78., 81., 82.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 6, 2 }};
+  const std::vector<DataType> exp_out = {29., 30., 33., 34., 53., 54.,
+                                         57., 58., 77., 78., 81., 82.};
+  const std::array<int, 4> in_shape = {{1, 8, 6, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -463,8 +533,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120., 153., 154., 155., 156., 161., 162., 163., 164., 165., 166., 167., 168., 177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.,
+      153., 154., 155., 156., 161., 162., 163., 164., 165., 166., 167., 168.,
+      177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.};
+  const std::array<int, 4> in_shape = {{1, 8, 6, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -472,8 +546,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68., 105., 106., 107., 108., 113., 114., 115., 116., 153., 154., 155., 156., 161., 162., 163., 164.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  105., 106., 107., 108.,
+      113., 114., 115., 116., 153., 154., 155., 156., 161., 162., 163., 164.};
+  const std::array<int, 4> in_shape = {{1, 8, 6, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -481,8 +557,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19., 21., 23., 24., 35., 37., 39., 40., 51., 53., 55., 56., 59., 61., 63., 64.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {19., 21., 23., 24., 35., 37.,
+                                         39., 40., 51., 53., 55., 56.,
+                                         59., 61., 63., 64.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -490,8 +568,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19., 21., 23., 35., 37., 39., 51., 53., 55.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {19., 21., 23., 35., 37.,
+                                         39., 51., 53., 55.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -499,8 +578,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80., 101., 102., 105., 106., 109., 110., 111., 112., 117., 118., 121., 122., 125., 126., 127., 128.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  69.,  70.,  73.,
+      74.,  77.,  78.,  79.,  80.,  101., 102., 105., 106., 109., 110.,
+      111., 112., 117., 118., 121., 122., 125., 126., 127., 128.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -508,8 +590,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,  78., 101., 102., 105., 106., 109., 110.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {37.,  38.,  41.,  42.,  45.,  46.,
+                                         69.,  70.,  73.,  74.,  77.,  78.,
+                                         101., 102., 105., 106., 109., 110.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -517,8 +601,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220., 221., 222., 223., 224., 233., 234., 235., 236., 241., 242., 243., 244., 249., 250., 251., 252., 253., 254., 255., 256.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,
+      92.,  93.,  94.,  95.,  96.,  137., 138., 139., 140., 145., 146.,
+      147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 201.,
+      202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.,
+      221., 222., 223., 224., 233., 234., 235., 236., 241., 242., 243.,
+      244., 249., 250., 251., 252., 253., 254., 255., 256.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -526,8 +616,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME1x8x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.,
+      201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -535,8 +628,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID1x8x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7.,  9., 10., 17., 19., 20., 22., 24., 25., 32., 34., 35., 42., 44., 45., 47., 49., 50., 57., 59., 60., 67., 69., 70., 72., 74., 75.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 5, 1 }};
+  const std::vector<DataType> exp_out = {
+      7.,  9.,  10., 17., 19., 20., 22., 24., 25., 32., 34., 35., 42., 44.,
+      45., 47., 49., 50., 57., 59., 60., 67., 69., 70., 72., 74., 75.};
+  const std::array<int, 4> in_shape = {{3, 5, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -544,8 +639,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13., 15., 23., 25., 38., 40., 48., 50., 63., 65., 73., 75.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 5, 1 }};
+  const std::vector<DataType> exp_out = {13., 15., 23., 25., 38., 40.,
+                                         48., 50., 63., 65., 73., 75.};
+  const std::array<int, 4> in_shape = {{3, 5, 5, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -553,8 +649,13 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 13.,  14.,  17.,  18.,  19.,  20.,  33.,  34.,  37.,  38.,  39.,  40.,  43.,  44.,  47.,  48.,  49.,  50.,  63.,  64.,  67.,  68.,  69.,  70.,  83.,  84.,  87.,  88.,  89.,  90.,  93.,  94.,  97.,  98.,  99., 100., 113., 114., 117., 118., 119., 120., 133., 134., 137., 138., 139., 140., 143., 144., 147., 148., 149., 150.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      13.,  14.,  17.,  18.,  19.,  20.,  33.,  34.,  37.,  38.,  39.,
+      40.,  43.,  44.,  47.,  48.,  49.,  50.,  63.,  64.,  67.,  68.,
+      69.,  70.,  83.,  84.,  87.,  88.,  89.,  90.,  93.,  94.,  97.,
+      98.,  99.,  100., 113., 114., 117., 118., 119., 120., 133., 134.,
+      137., 138., 139., 140., 143., 144., 147., 148., 149., 150.};
+  const std::array<int, 4> in_shape = {{3, 5, 5, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -562,8 +663,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25.,  26.,  29.,  30.,  45.,  46.,  49.,  50.,  75.,  76.,  79.,  80.,  95.,  96.,  99., 100., 125., 126., 129., 130., 145., 146., 149., 150.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      25., 26., 29., 30.,  45.,  46.,  49.,  50.,  75.,  76.,  79.,  80.,
+      95., 96., 99., 100., 125., 126., 129., 130., 145., 146., 149., 150.};
+  const std::array<int, 4> in_shape = {{3, 5, 5, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -571,8 +674,17 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25.,  26.,  27.,  28.,  33.,  34.,  35.,  36.,  37.,  38.,  39.,  40.,  65.,  66.,  67.,  68.,  73.,  74.,  75.,  76.,  77.,  78.,  79.,  80.,  85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99., 100., 125., 126., 127., 128., 133., 134., 135., 136., 137., 138., 139., 140., 165., 166., 167., 168., 173., 174., 175., 176., 177., 178., 179., 180., 185., 186., 187., 188., 193., 194., 195., 196., 197., 198., 199., 200., 225., 226., 227., 228., 233., 234., 235., 236., 237., 238., 239., 240., 265., 266., 267., 268., 273., 274., 275., 276., 277., 278., 279., 280., 285., 286., 287., 288., 293., 294., 295., 296., 297., 298., 299., 300.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      25.,  26.,  27.,  28.,  33.,  34.,  35.,  36.,  37.,  38.,  39.,  40.,
+      65.,  66.,  67.,  68.,  73.,  74.,  75.,  76.,  77.,  78.,  79.,  80.,
+      85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99.,  100.,
+      125., 126., 127., 128., 133., 134., 135., 136., 137., 138., 139., 140.,
+      165., 166., 167., 168., 173., 174., 175., 176., 177., 178., 179., 180.,
+      185., 186., 187., 188., 193., 194., 195., 196., 197., 198., 199., 200.,
+      225., 226., 227., 228., 233., 234., 235., 236., 237., 238., 239., 240.,
+      265., 266., 267., 268., 273., 274., 275., 276., 277., 278., 279., 280.,
+      285., 286., 287., 288., 293., 294., 295., 296., 297., 298., 299., 300.};
+  const std::array<int, 4> in_shape = {{3, 5, 5, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -580,8 +692,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 149., 150., 151., 152., 157., 158., 159., 160., 189., 190., 191., 192., 197., 198., 199., 200., 249., 250., 251., 252., 257., 258., 259., 260., 289., 290., 291., 292., 297., 298., 299., 300.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,
+      97.,  98.,  99.,  100., 149., 150., 151., 152., 157., 158., 159., 160.,
+      189., 190., 191., 192., 197., 198., 199., 200., 249., 250., 251., 252.,
+      257., 258., 259., 260., 289., 290., 291., 292., 297., 298., 299., 300.};
+  const std::array<int, 4> in_shape = {{3, 5, 5, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -589,8 +705,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9., 11., 12., 21., 23., 24., 27., 29., 30., 39., 41., 42., 51., 53., 54., 57., 59., 60., 69., 71., 72., 81., 83., 84., 87., 89., 90.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 6, 1 }};
+  const std::vector<DataType> exp_out = {
+      9.,  11., 12., 21., 23., 24., 27., 29., 30., 39., 41., 42., 51., 53.,
+      54., 57., 59., 60., 69., 71., 72., 81., 83., 84., 87., 89., 90.};
+  const std::array<int, 4> in_shape = {{3, 5, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -598,8 +716,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15., 17., 27., 29., 45., 47., 57., 59., 75., 77., 87., 89.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 6, 1 }};
+  const std::vector<DataType> exp_out = {15., 17., 27., 29., 45., 47.,
+                                         57., 59., 75., 77., 87., 89.};
+  const std::array<int, 4> in_shape = {{3, 5, 6, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -607,8 +726,13 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.,  18.,  21.,  22.,  23.,  24.,  41.,  42.,  45.,  46.,  47.,  48.,  53.,  54.,  57.,  58.,  59.,  60.,  77.,  78.,  81.,  82.,  83.,  84., 101., 102., 105., 106., 107., 108., 113., 114., 117., 118., 119., 120., 137., 138., 141., 142., 143., 144., 161., 162., 165., 166., 167., 168., 173., 174., 177., 178., 179., 180.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      17.,  18.,  21.,  22.,  23.,  24.,  41.,  42.,  45.,  46.,  47.,
+      48.,  53.,  54.,  57.,  58.,  59.,  60.,  77.,  78.,  81.,  82.,
+      83.,  84.,  101., 102., 105., 106., 107., 108., 113., 114., 117.,
+      118., 119., 120., 137., 138., 141., 142., 143., 144., 161., 162.,
+      165., 166., 167., 168., 173., 174., 177., 178., 179., 180.};
+  const std::array<int, 4> in_shape = {{3, 5, 6, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -616,8 +740,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 29.,  30.,  33.,  34.,  53.,  54.,  57.,  58.,  89.,  90.,  93.,  94., 113., 114., 117., 118., 149., 150., 153., 154., 173., 174., 177., 178.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      29.,  30.,  33.,  34.,  53.,  54.,  57.,  58.,  89.,  90.,  93.,  94.,
+      113., 114., 117., 118., 149., 150., 153., 154., 173., 174., 177., 178.};
+  const std::array<int, 4> in_shape = {{3, 5, 6, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -625,8 +751,17 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.,  34.,  35.,  36.,  41.,  42.,  43.,  44.,  45.,  46.,  47.,  48.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120., 153., 154., 155., 156., 161., 162., 163., 164., 165., 166., 167., 168., 201., 202., 203., 204., 209., 210., 211., 212., 213., 214., 215., 216., 225., 226., 227., 228., 233., 234., 235., 236., 237., 238., 239., 240., 273., 274., 275., 276., 281., 282., 283., 284., 285., 286., 287., 288., 321., 322., 323., 324., 329., 330., 331., 332., 333., 334., 335., 336., 345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      33.,  34.,  35.,  36.,  41.,  42.,  43.,  44.,  45.,  46.,  47.,  48.,
+      81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.,
+      153., 154., 155., 156., 161., 162., 163., 164., 165., 166., 167., 168.,
+      201., 202., 203., 204., 209., 210., 211., 212., 213., 214., 215., 216.,
+      225., 226., 227., 228., 233., 234., 235., 236., 237., 238., 239., 240.,
+      273., 274., 275., 276., 281., 282., 283., 284., 285., 286., 287., 288.,
+      321., 322., 323., 324., 329., 330., 331., 332., 333., 334., 335., 336.,
+      345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360.};
+  const std::array<int, 4> in_shape = {{3, 5, 6, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -634,8 +769,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68., 105., 106., 107., 108., 113., 114., 115., 116., 177., 178., 179., 180., 185., 186., 187., 188., 225., 226., 227., 228., 233., 234., 235., 236., 297., 298., 299., 300., 305., 306., 307., 308., 345., 346., 347., 348., 353., 354., 355., 356.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  105., 106., 107., 108.,
+      113., 114., 115., 116., 177., 178., 179., 180., 185., 186., 187., 188.,
+      225., 226., 227., 228., 233., 234., 235., 236., 297., 298., 299., 300.,
+      305., 306., 307., 308., 345., 346., 347., 348., 353., 354., 355., 356.};
+  const std::array<int, 4> in_shape = {{3, 5, 6, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -643,8 +782,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 11.,  13.,  15.,  16.,  27.,  29.,  31.,  32.,  35.,  37.,  39.,  40.,  51.,  53.,  55.,  56.,  67.,  69.,  71.,  72.,  75.,  77.,  79.,  80.,  91.,  93.,  95.,  96., 107., 109., 111., 112., 115., 117., 119., 120.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      11., 13., 15., 16., 27.,  29.,  31.,  32.,  35.,  37.,  39.,  40.,
+      51., 53., 55., 56., 67.,  69.,  71.,  72.,  75.,  77.,  79.,  80.,
+      91., 93., 95., 96., 107., 109., 111., 112., 115., 117., 119., 120.};
+  const std::array<int, 4> in_shape = {{3, 5, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -652,8 +794,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  23.,  35.,  37.,  39.,  59.,  61.,  63.,  75.,  77.,  79.,  99., 101., 103., 115., 117., 119.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 8, 1 }};
+  const std::vector<DataType> exp_out = {19., 21.,  23.,  35.,  37.,  39.,
+                                         59., 61.,  63.,  75.,  77.,  79.,
+                                         99., 101., 103., 115., 117., 119.};
+  const std::array<int, 4> in_shape = {{3, 5, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -661,8 +805,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 21.,  22.,  25.,  26.,  29.,  30.,  31.,  32.,  53.,  54.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80., 101., 102., 105., 106., 109., 110., 111., 112., 133., 134., 137., 138., 141., 142., 143., 144., 149., 150., 153., 154., 157., 158., 159., 160., 181., 182., 185., 186., 189., 190., 191., 192., 213., 214., 217., 218., 221., 222., 223., 224., 229., 230., 233., 234., 237., 238., 239., 240.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      21.,  22.,  25.,  26.,  29.,  30.,  31.,  32.,  53.,  54.,  57.,  58.,
+      61.,  62.,  63.,  64.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80.,
+      101., 102., 105., 106., 109., 110., 111., 112., 133., 134., 137., 138.,
+      141., 142., 143., 144., 149., 150., 153., 154., 157., 158., 159., 160.,
+      181., 182., 185., 186., 189., 190., 191., 192., 213., 214., 217., 218.,
+      221., 222., 223., 224., 229., 230., 233., 234., 237., 238., 239., 240.};
+  const std::array<int, 4> in_shape = {{3, 5, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -670,8 +820,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,  78., 117., 118., 121., 122., 125., 126., 149., 150., 153., 154., 157., 158., 197., 198., 201., 202., 205., 206., 229., 230., 233., 234., 237., 238.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,  78.,
+      117., 118., 121., 122., 125., 126., 149., 150., 153., 154., 157., 158.,
+      197., 198., 201., 202., 205., 206., 229., 230., 233., 234., 237., 238.};
+  const std::array<int, 4> in_shape = {{3, 5, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -679,8 +832,20 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 41.,  42.,  43.,  44.,  49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  61.,  62.,  63.,  64., 105., 106., 107., 108., 113., 114., 115., 116., 121., 122., 123., 124., 125., 126., 127., 128., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220., 221., 222., 223., 224., 265., 266., 267., 268., 273., 274., 275., 276., 281., 282., 283., 284., 285., 286., 287., 288., 297., 298., 299., 300., 305., 306., 307., 308., 313., 314., 315., 316., 317., 318., 319., 320., 361., 362., 363., 364., 369., 370., 371., 372., 377., 378., 379., 380., 381., 382., 383., 384., 425., 426., 427., 428., 433., 434., 435., 436., 441., 442., 443., 444., 445., 446., 447., 448., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476., 477., 478., 479., 480.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      41.,  42.,  43.,  44.,  49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,
+      61.,  62.,  63.,  64.,  105., 106., 107., 108., 113., 114., 115., 116.,
+      121., 122., 123., 124., 125., 126., 127., 128., 137., 138., 139., 140.,
+      145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160.,
+      201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.,
+      221., 222., 223., 224., 265., 266., 267., 268., 273., 274., 275., 276.,
+      281., 282., 283., 284., 285., 286., 287., 288., 297., 298., 299., 300.,
+      305., 306., 307., 308., 313., 314., 315., 316., 317., 318., 319., 320.,
+      361., 362., 363., 364., 369., 370., 371., 372., 377., 378., 379., 380.,
+      381., 382., 383., 384., 425., 426., 427., 428., 433., 434., 435., 436.,
+      441., 442., 443., 444., 445., 446., 447., 448., 457., 458., 459., 460.,
+      465., 466., 467., 468., 473., 474., 475., 476., 477., 478., 479., 480.};
+  const std::array<int, 4> in_shape = {{3, 5, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -688,8 +853,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x5x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 233., 234., 235., 236., 241., 242., 243., 244., 249., 250., 251., 252., 297., 298., 299., 300., 305., 306., 307., 308., 313., 314., 315., 316., 393., 394., 395., 396., 401., 402., 403., 404., 409., 410., 411., 412., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.};
-  const std::array<int, 4> in_shape = {{ 3, 5, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.,
+      233., 234., 235., 236., 241., 242., 243., 244., 249., 250., 251., 252.,
+      297., 298., 299., 300., 305., 306., 307., 308., 313., 314., 315., 316.,
+      393., 394., 395., 396., 401., 402., 403., 404., 409., 410., 411., 412.,
+      457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.};
+  const std::array<int, 4> in_shape = {{3, 5, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -697,8 +868,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x5x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12., 14., 15., 22., 24., 25., 27., 29., 30., 42., 44., 45., 52., 54., 55., 57., 59., 60., 72., 74., 75., 82., 84., 85., 87., 89., 90.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 5, 1 }};
+  const std::vector<DataType> exp_out = {
+      12., 14., 15., 22., 24., 25., 27., 29., 30., 42., 44., 45., 52., 54.,
+      55., 57., 59., 60., 72., 74., 75., 82., 84., 85., 87., 89., 90.};
+  const std::array<int, 4> in_shape = {{3, 6, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -706,8 +879,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13., 15., 23., 25., 43., 45., 53., 55., 73., 75., 83., 85.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 5, 1 }};
+  const std::vector<DataType> exp_out = {13., 15., 23., 25., 43., 45.,
+                                         53., 55., 73., 75., 83., 85.};
+  const std::array<int, 4> in_shape = {{3, 6, 5, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -715,8 +889,13 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 23.,  24.,  27.,  28.,  29.,  30.,  43.,  44.,  47.,  48.,  49.,  50.,  53.,  54.,  57.,  58.,  59.,  60.,  83.,  84.,  87.,  88.,  89.,  90., 103., 104., 107., 108., 109., 110., 113., 114., 117., 118., 119., 120., 143., 144., 147., 148., 149., 150., 163., 164., 167., 168., 169., 170., 173., 174., 177., 178., 179., 180.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      23.,  24.,  27.,  28.,  29.,  30.,  43.,  44.,  47.,  48.,  49.,
+      50.,  53.,  54.,  57.,  58.,  59.,  60.,  83.,  84.,  87.,  88.,
+      89.,  90.,  103., 104., 107., 108., 109., 110., 113., 114., 117.,
+      118., 119., 120., 143., 144., 147., 148., 149., 150., 163., 164.,
+      167., 168., 169., 170., 173., 174., 177., 178., 179., 180.};
+  const std::array<int, 4> in_shape = {{3, 6, 5, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -724,8 +903,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25.,  26.,  29.,  30.,  45.,  46.,  49.,  50.,  85.,  86.,  89.,  90., 105., 106., 109., 110., 145., 146., 149., 150., 165., 166., 169., 170.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      25.,  26.,  29.,  30.,  45.,  46.,  49.,  50.,  85.,  86.,  89.,  90.,
+      105., 106., 109., 110., 145., 146., 149., 150., 165., 166., 169., 170.};
+  const std::array<int, 4> in_shape = {{3, 6, 5, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -733,8 +914,17 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,  85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99., 100., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120., 165., 166., 167., 168., 173., 174., 175., 176., 177., 178., 179., 180., 205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220., 225., 226., 227., 228., 233., 234., 235., 236., 237., 238., 239., 240., 285., 286., 287., 288., 293., 294., 295., 296., 297., 298., 299., 300., 325., 326., 327., 328., 333., 334., 335., 336., 337., 338., 339., 340., 345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,
+      85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99.,  100.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.,
+      165., 166., 167., 168., 173., 174., 175., 176., 177., 178., 179., 180.,
+      205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220.,
+      225., 226., 227., 228., 233., 234., 235., 236., 237., 238., 239., 240.,
+      285., 286., 287., 288., 293., 294., 295., 296., 297., 298., 299., 300.,
+      325., 326., 327., 328., 333., 334., 335., 336., 337., 338., 339., 340.,
+      345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360.};
+  const std::array<int, 4> in_shape = {{3, 6, 5, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -742,8 +932,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 169., 170., 171., 172., 177., 178., 179., 180., 209., 210., 211., 212., 217., 218., 219., 220., 289., 290., 291., 292., 297., 298., 299., 300., 329., 330., 331., 332., 337., 338., 339., 340.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,
+      97.,  98.,  99.,  100., 169., 170., 171., 172., 177., 178., 179., 180.,
+      209., 210., 211., 212., 217., 218., 219., 220., 289., 290., 291., 292.,
+      297., 298., 299., 300., 329., 330., 331., 332., 337., 338., 339., 340.};
+  const std::array<int, 4> in_shape = {{3, 6, 5, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -751,8 +945,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 15.,  17.,  18.,  27.,  29.,  30.,  33.,  35.,  36.,  51.,  53.,  54.,  63.,  65.,  66.,  69.,  71.,  72.,  87.,  89.,  90.,  99., 101., 102., 105., 107., 108.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 6, 1 }};
+  const std::vector<DataType> exp_out = {
+      15., 17., 18., 27., 29., 30., 33., 35., 36.,  51.,  53.,  54.,  63., 65.,
+      66., 69., 71., 72., 87., 89., 90., 99., 101., 102., 105., 107., 108.};
+  const std::array<int, 4> in_shape = {{3, 6, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -760,8 +956,9 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 15.,  17.,  27.,  29.,  51.,  53.,  63.,  65.,  87.,  89.,  99., 101.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 6, 1 }};
+  const std::vector<DataType> exp_out = {15., 17., 27., 29., 51., 53.,
+                                         63., 65., 87., 89., 99., 101.};
+  const std::array<int, 4> in_shape = {{3, 6, 6, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -769,8 +966,13 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 29.,  30.,  33.,  34.,  35.,  36.,  53.,  54.,  57.,  58.,  59.,  60.,  65.,  66.,  69.,  70.,  71.,  72., 101., 102., 105., 106., 107., 108., 125., 126., 129., 130., 131., 132., 137., 138., 141., 142., 143., 144., 173., 174., 177., 178., 179., 180., 197., 198., 201., 202., 203., 204., 209., 210., 213., 214., 215., 216.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      29.,  30.,  33.,  34.,  35.,  36.,  53.,  54.,  57.,  58.,  59.,
+      60.,  65.,  66.,  69.,  70.,  71.,  72.,  101., 102., 105., 106.,
+      107., 108., 125., 126., 129., 130., 131., 132., 137., 138., 141.,
+      142., 143., 144., 173., 174., 177., 178., 179., 180., 197., 198.,
+      201., 202., 203., 204., 209., 210., 213., 214., 215., 216.};
+  const std::array<int, 4> in_shape = {{3, 6, 6, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -778,8 +980,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 29.,  30.,  33.,  34.,  53.,  54.,  57.,  58., 101., 102., 105., 106., 125., 126., 129., 130., 173., 174., 177., 178., 197., 198., 201., 202.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      29.,  30.,  33.,  34.,  53.,  54.,  57.,  58.,  101., 102., 105., 106.,
+      125., 126., 129., 130., 173., 174., 177., 178., 197., 198., 201., 202.};
+  const std::array<int, 4> in_shape = {{3, 6, 6, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -787,8 +991,17 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120., 129., 130., 131., 132., 137., 138., 139., 140., 141., 142., 143., 144., 201., 202., 203., 204., 209., 210., 211., 212., 213., 214., 215., 216., 249., 250., 251., 252., 257., 258., 259., 260., 261., 262., 263., 264., 273., 274., 275., 276., 281., 282., 283., 284., 285., 286., 287., 288., 345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360., 393., 394., 395., 396., 401., 402., 403., 404., 405., 406., 407., 408., 417., 418., 419., 420., 425., 426., 427., 428., 429., 430., 431., 432.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.,
+      129., 130., 131., 132., 137., 138., 139., 140., 141., 142., 143., 144.,
+      201., 202., 203., 204., 209., 210., 211., 212., 213., 214., 215., 216.,
+      249., 250., 251., 252., 257., 258., 259., 260., 261., 262., 263., 264.,
+      273., 274., 275., 276., 281., 282., 283., 284., 285., 286., 287., 288.,
+      345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360.,
+      393., 394., 395., 396., 401., 402., 403., 404., 405., 406., 407., 408.,
+      417., 418., 419., 420., 425., 426., 427., 428., 429., 430., 431., 432.};
+  const std::array<int, 4> in_shape = {{3, 6, 6, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -796,8 +1009,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68., 105., 106., 107., 108., 113., 114., 115., 116., 201., 202., 203., 204., 209., 210., 211., 212., 249., 250., 251., 252., 257., 258., 259., 260., 345., 346., 347., 348., 353., 354., 355., 356., 393., 394., 395., 396., 401., 402., 403., 404.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  105., 106., 107., 108.,
+      113., 114., 115., 116., 201., 202., 203., 204., 209., 210., 211., 212.,
+      249., 250., 251., 252., 257., 258., 259., 260., 345., 346., 347., 348.,
+      353., 354., 355., 356., 393., 394., 395., 396., 401., 402., 403., 404.};
+  const std::array<int, 4> in_shape = {{3, 6, 6, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -805,8 +1022,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  23.,  24.,  35.,  37.,  39.,  40.,  43.,  45.,  47.,  48.,  67.,  69.,  71.,  72.,  83.,  85.,  87.,  88.,  91.,  93.,  95.,  96., 115., 117., 119., 120., 131., 133., 135., 136., 139., 141., 143., 144.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      19.,  21.,  23.,  24.,  35.,  37.,  39.,  40.,  43.,  45.,  47.,  48.,
+      67.,  69.,  71.,  72.,  83.,  85.,  87.,  88.,  91.,  93.,  95.,  96.,
+      115., 117., 119., 120., 131., 133., 135., 136., 139., 141., 143., 144.};
+  const std::array<int, 4> in_shape = {{3, 6, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -814,8 +1034,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  23.,  35.,  37.,  39.,  67.,  69.,  71.,  83.,  85.,  87., 115., 117., 119., 131., 133., 135.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 8, 1 }};
+  const std::vector<DataType> exp_out = {19.,  21.,  23.,  35.,  37.,  39.,
+                                         67.,  69.,  71.,  83.,  85.,  87.,
+                                         115., 117., 119., 131., 133., 135.};
+  const std::array<int, 4> in_shape = {{3, 6, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -823,8 +1045,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80.,  85.,  86.,  89.,  90.,  93.,  94.,  95.,  96., 133., 134., 137., 138., 141., 142., 143., 144., 165., 166., 169., 170., 173., 174., 175., 176., 181., 182., 185., 186., 189., 190., 191., 192., 229., 230., 233., 234., 237., 238., 239., 240., 261., 262., 265., 266., 269., 270., 271., 272., 277., 278., 281., 282., 285., 286., 287., 288.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  69.,  70.,  73.,  74.,
+      77.,  78.,  79.,  80.,  85.,  86.,  89.,  90.,  93.,  94.,  95.,  96.,
+      133., 134., 137., 138., 141., 142., 143., 144., 165., 166., 169., 170.,
+      173., 174., 175., 176., 181., 182., 185., 186., 189., 190., 191., 192.,
+      229., 230., 233., 234., 237., 238., 239., 240., 261., 262., 265., 266.,
+      269., 270., 271., 272., 277., 278., 281., 282., 285., 286., 287., 288.};
+  const std::array<int, 4> in_shape = {{3, 6, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -832,8 +1060,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,  78., 133., 134., 137., 138., 141., 142., 165., 166., 169., 170., 173., 174., 229., 230., 233., 234., 237., 238., 261., 262., 265., 266., 269., 270.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,  78.,
+      133., 134., 137., 138., 141., 142., 165., 166., 169., 170., 173., 174.,
+      229., 230., 233., 234., 237., 238., 261., 262., 265., 266., 269., 270.};
+  const std::array<int, 4> in_shape = {{3, 6, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -841,8 +1072,20 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192., 265., 266., 267., 268., 273., 274., 275., 276., 281., 282., 283., 284., 285., 286., 287., 288., 329., 330., 331., 332., 337., 338., 339., 340., 345., 346., 347., 348., 349., 350., 351., 352., 361., 362., 363., 364., 369., 370., 371., 372., 377., 378., 379., 380., 381., 382., 383., 384., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476., 477., 478., 479., 480., 489., 490., 491., 492., 497., 498., 499., 500., 505., 506., 507., 508., 509., 510., 511., 512.,  41.,  42.,  43.,  44.,  49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  61.,  62.,  63.,  64.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      93.,  94.,  95.,  96.,  137., 138., 139., 140., 145., 146., 147., 148.,
+      153., 154., 155., 156., 157., 158., 159., 160., 169., 170., 171., 172.,
+      177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.,
+      265., 266., 267., 268., 273., 274., 275., 276., 281., 282., 283., 284.,
+      285., 286., 287., 288., 329., 330., 331., 332., 337., 338., 339., 340.,
+      345., 346., 347., 348., 349., 350., 351., 352., 361., 362., 363., 364.,
+      369., 370., 371., 372., 377., 378., 379., 380., 381., 382., 383., 384.,
+      457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.,
+      477., 478., 479., 480., 489., 490., 491., 492., 497., 498., 499., 500.,
+      505., 506., 507., 508., 509., 510., 511., 512., 41.,  42.,  43.,  44.,
+      49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  61.,  62.,  63.,  64.};
+  const std::array<int, 4> in_shape = {{3, 6, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -850,8 +1093,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x6x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 265., 266., 267., 268., 273., 274., 275., 276., 281., 282., 283., 284., 329., 330., 331., 332., 337., 338., 339., 340., 345., 346., 347., 348., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476., 489., 490., 491., 492., 497., 498., 499., 500., 505., 506., 507., 508.};
-  const std::array<int, 4> in_shape = {{ 3, 6, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.,
+      265., 266., 267., 268., 273., 274., 275., 276., 281., 282., 283., 284.,
+      329., 330., 331., 332., 337., 338., 339., 340., 345., 346., 347., 348.,
+      457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.,
+      489., 490., 491., 492., 497., 498., 499., 500., 505., 506., 507., 508.};
+  const std::array<int, 4> in_shape = {{3, 6, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -859,8 +1108,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x6x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 12.,  14.,  15.,  22.,  24.,  25.,  32.,  34.,  35.,  37.,  39.,  40.,  52.,  54.,  55.,  62.,  64.,  65.,  72.,  74.,  75.,  77.,  79.,  80.,  92.,  94.,  95., 102., 104., 105., 112., 114., 115., 117., 119., 120.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 5, 1 }};
+  const std::vector<DataType> exp_out = {
+      12., 14., 15., 22.,  24.,  25.,  32.,  34.,  35.,  37.,  39.,  40.,
+      52., 54., 55., 62.,  64.,  65.,  72.,  74.,  75.,  77.,  79.,  80.,
+      92., 94., 95., 102., 104., 105., 112., 114., 115., 117., 119., 120.};
+  const std::array<int, 4> in_shape = {{3, 8, 5, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -868,8 +1120,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x5x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 13.,  15.,  23.,  25.,  33.,  35.,  53.,  55.,  63.,  65.,  73.,  75.,  93.,  95., 103., 105., 113., 115.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 5, 1 }};
+  const std::vector<DataType> exp_out = {13., 15., 23.,  25.,  33.,  35.,
+                                         53., 55., 63.,  65.,  73.,  75.,
+                                         93., 95., 103., 105., 113., 115.};
+  const std::array<int, 4> in_shape = {{3, 8, 5, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -877,8 +1131,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x5x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 23.,  24.,  27.,  28.,  29.,  30.,  43.,  44.,  47.,  48.,  49.,  50.,  63.,  64.,  67.,  68.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80., 103., 104., 107., 108., 109., 110., 123., 124., 127., 128., 129., 130., 143., 144., 147., 148., 149., 150., 153., 154., 157., 158., 159., 160., 183., 184., 187., 188., 189., 190., 203., 204., 207., 208., 209., 210., 223., 224., 227., 228., 229., 230., 233., 234., 237., 238., 239., 240.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      23.,  24.,  27.,  28.,  29.,  30.,  43.,  44.,  47.,  48.,  49.,  50.,
+      63.,  64.,  67.,  68.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80.,
+      103., 104., 107., 108., 109., 110., 123., 124., 127., 128., 129., 130.,
+      143., 144., 147., 148., 149., 150., 153., 154., 157., 158., 159., 160.,
+      183., 184., 187., 188., 189., 190., 203., 204., 207., 208., 209., 210.,
+      223., 224., 227., 228., 229., 230., 233., 234., 237., 238., 239., 240.};
+  const std::array<int, 4> in_shape = {{3, 8, 5, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -886,8 +1146,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x5x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 25.,  26.,  29.,  30.,  45.,  46.,  49.,  50.,  65.,  66.,  69.,  70., 105., 106., 109., 110., 125., 126., 129., 130., 145., 146., 149., 150., 185., 186., 189., 190., 205., 206., 209., 210., 225., 226., 229., 230.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 5, 2 }};
+  const std::vector<DataType> exp_out = {
+      25.,  26.,  29.,  30.,  45.,  46.,  49.,  50.,  65.,  66.,  69.,  70.,
+      105., 106., 109., 110., 125., 126., 129., 130., 145., 146., 149., 150.,
+      185., 186., 189., 190., 205., 206., 209., 210., 225., 226., 229., 230.};
+  const std::array<int, 4> in_shape = {{3, 8, 5, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -895,8 +1158,20 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x5x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,  85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99., 100., 125., 126., 127., 128., 133., 134., 135., 136., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220., 245., 246., 247., 248., 253., 254., 255., 256., 257., 258., 259., 260., 285., 286., 287., 288., 293., 294., 295., 296., 297., 298., 299., 300., 305., 306., 307., 308., 313., 314., 315., 316., 317., 318., 319., 320., 365., 366., 367., 368., 373., 374., 375., 376., 377., 378., 379., 380., 405., 406., 407., 408., 413., 414., 415., 416., 417., 418., 419., 420., 445., 446., 447., 448., 453., 454., 455., 456., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476., 477., 478., 479., 480.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,
+      85.,  86.,  87.,  88.,  93.,  94.,  95.,  96.,  97.,  98.,  99.,  100.,
+      125., 126., 127., 128., 133., 134., 135., 136., 137., 138., 139., 140.,
+      145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160.,
+      205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220.,
+      245., 246., 247., 248., 253., 254., 255., 256., 257., 258., 259., 260.,
+      285., 286., 287., 288., 293., 294., 295., 296., 297., 298., 299., 300.,
+      305., 306., 307., 308., 313., 314., 315., 316., 317., 318., 319., 320.,
+      365., 366., 367., 368., 373., 374., 375., 376., 377., 378., 379., 380.,
+      405., 406., 407., 408., 413., 414., 415., 416., 417., 418., 419., 420.,
+      445., 446., 447., 448., 453., 454., 455., 456., 457., 458., 459., 460.,
+      465., 466., 467., 468., 473., 474., 475., 476., 477., 478., 479., 480.};
+  const std::array<int, 4> in_shape = {{3, 8, 5, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -904,8 +1179,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x5x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 129., 130., 131., 132., 137., 138., 139., 140., 209., 210., 211., 212., 217., 218., 219., 220., 249., 250., 251., 252., 257., 258., 259., 260., 289., 290., 291., 292., 297., 298., 299., 300., 369., 370., 371., 372., 377., 378., 379., 380., 409., 410., 411., 412., 417., 418., 419., 420., 449., 450., 451., 452., 457., 458., 459., 460.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 5, 4 }};
+  const std::vector<DataType> exp_out = {
+      49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  89.,  90.,  91.,  92.,
+      97.,  98.,  99.,  100., 129., 130., 131., 132., 137., 138., 139., 140.,
+      209., 210., 211., 212., 217., 218., 219., 220., 249., 250., 251., 252.,
+      257., 258., 259., 260., 289., 290., 291., 292., 297., 298., 299., 300.,
+      369., 370., 371., 372., 377., 378., 379., 380., 409., 410., 411., 412.,
+      417., 418., 419., 420., 449., 450., 451., 452., 457., 458., 459., 460.};
+  const std::array<int, 4> in_shape = {{3, 8, 5, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -913,8 +1194,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x5x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 15.,  17.,  18.,  27.,  29.,  30.,  39.,  41.,  42.,  45.,  47.,  48.,  63.,  65.,  66.,  75.,  77.,  78.,  87.,  89.,  90.,  93.,  95.,  96., 111., 113., 114., 123., 125., 126., 135., 137., 138., 141., 143., 144.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 6, 1 }};
+  const std::vector<DataType> exp_out = {
+      15.,  17.,  18.,  27.,  29.,  30.,  39.,  41.,  42.,  45.,  47.,  48.,
+      63.,  65.,  66.,  75.,  77.,  78.,  87.,  89.,  90.,  93.,  95.,  96.,
+      111., 113., 114., 123., 125., 126., 135., 137., 138., 141., 143., 144.};
+  const std::array<int, 4> in_shape = {{3, 8, 6, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -922,8 +1206,10 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x6x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 15.,  17.,  27.,  29.,  39.,  41.,  63.,  65.,  75.,  77.,  87.,  89., 111., 113., 123., 125., 135., 137.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 6, 1 }};
+  const std::vector<DataType> exp_out = {15.,  17.,  27.,  29.,  39.,  41.,
+                                         63.,  65.,  75.,  77.,  87.,  89.,
+                                         111., 113., 123., 125., 135., 137.};
+  const std::array<int, 4> in_shape = {{3, 8, 6, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -931,8 +1217,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x6x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 29.,  30.,  33.,  34.,  35.,  36.,  53.,  54.,  57.,  58.,  59.,  60.,  77.,  78.,  81.,  82.,  83.,  84.,  89.,  90.,  93.,  94.,  95.,  96., 125., 126., 129., 130., 131., 132., 149., 150., 153., 154., 155., 156., 173., 174., 177., 178., 179., 180., 185., 186., 189., 190., 191., 192., 221., 222., 225., 226., 227., 228., 245., 246., 249., 250., 251., 252., 269., 270., 273., 274., 275., 276., 281., 282., 285., 286., 287., 288.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      29.,  30.,  33.,  34.,  35.,  36.,  53.,  54.,  57.,  58.,  59.,  60.,
+      77.,  78.,  81.,  82.,  83.,  84.,  89.,  90.,  93.,  94.,  95.,  96.,
+      125., 126., 129., 130., 131., 132., 149., 150., 153., 154., 155., 156.,
+      173., 174., 177., 178., 179., 180., 185., 186., 189., 190., 191., 192.,
+      221., 222., 225., 226., 227., 228., 245., 246., 249., 250., 251., 252.,
+      269., 270., 273., 274., 275., 276., 281., 282., 285., 286., 287., 288.};
+  const std::array<int, 4> in_shape = {{3, 8, 6, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -940,8 +1232,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x6x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 29.,  30.,  33.,  34.,  53.,  54.,  57.,  58.,  77.,  78.,  81.,  82., 125., 126., 129., 130., 149., 150., 153., 154., 173., 174., 177., 178., 221., 222., 225., 226., 245., 246., 249., 250., 269., 270., 273., 274.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 6, 2 }};
+  const std::vector<DataType> exp_out = {
+      29.,  30.,  33.,  34.,  53.,  54.,  57.,  58.,  77.,  78.,  81.,  82.,
+      125., 126., 129., 130., 149., 150., 153., 154., 173., 174., 177., 178.,
+      221., 222., 225., 226., 245., 246., 249., 250., 269., 270., 273., 274.};
+  const std::array<int, 4> in_shape = {{3, 8, 6, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -949,8 +1244,20 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x6x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72., 105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120., 153., 154., 155., 156., 161., 162., 163., 164., 165., 166., 167., 168., 177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192., 249., 250., 251., 252., 257., 258., 259., 260., 261., 262., 263., 264., 297., 298., 299., 300., 305., 306., 307., 308., 309., 310., 311., 312., 345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360., 369., 370., 371., 372., 377., 378., 379., 380., 381., 382., 383., 384., 441., 442., 443., 444., 449., 450., 451., 452., 453., 454., 455., 456., 489., 490., 491., 492., 497., 498., 499., 500., 501., 502., 503., 504., 509., 510., 511., 512., 497., 498., 499., 500., 501., 502., 503., 504.,  49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  61.,  62.,  63.,  64.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  69.,  70.,  71.,  72.,
+      105., 106., 107., 108., 113., 114., 115., 116., 117., 118., 119., 120.,
+      153., 154., 155., 156., 161., 162., 163., 164., 165., 166., 167., 168.,
+      177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.,
+      249., 250., 251., 252., 257., 258., 259., 260., 261., 262., 263., 264.,
+      297., 298., 299., 300., 305., 306., 307., 308., 309., 310., 311., 312.,
+      345., 346., 347., 348., 353., 354., 355., 356., 357., 358., 359., 360.,
+      369., 370., 371., 372., 377., 378., 379., 380., 381., 382., 383., 384.,
+      441., 442., 443., 444., 449., 450., 451., 452., 453., 454., 455., 456.,
+      489., 490., 491., 492., 497., 498., 499., 500., 501., 502., 503., 504.,
+      509., 510., 511., 512., 497., 498., 499., 500., 501., 502., 503., 504.,
+      49.,  50.,  51.,  52.,  57.,  58.,  59.,  60.,  61.,  62.,  63.,  64.};
+  const std::array<int, 4> in_shape = {{3, 8, 6, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -958,8 +1265,14 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x6x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 57.,  58.,  59.,  60.,  65.,  66.,  67.,  68., 105., 106., 107., 108., 113., 114., 115., 116., 153., 154., 155., 156., 161., 162., 163., 164., 249., 250., 251., 252., 257., 258., 259., 260., 297., 298., 299., 300., 305., 306., 307., 308., 345., 346., 347., 348., 353., 354., 355., 356., 441., 442., 443., 444., 449., 450., 451., 452., 489., 490., 491., 492., 497., 498., 499., 500., 509., 510., 511., 512., 497., 498., 499., 500.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 6, 4 }};
+  const std::vector<DataType> exp_out = {
+      57.,  58.,  59.,  60.,  65.,  66.,  67.,  68.,  105., 106., 107., 108.,
+      113., 114., 115., 116., 153., 154., 155., 156., 161., 162., 163., 164.,
+      249., 250., 251., 252., 257., 258., 259., 260., 297., 298., 299., 300.,
+      305., 306., 307., 308., 345., 346., 347., 348., 353., 354., 355., 356.,
+      441., 442., 443., 444., 449., 450., 451., 452., 489., 490., 491., 492.,
+      497., 498., 499., 500., 509., 510., 511., 512., 497., 498., 499., 500.};
+  const std::array<int, 4> in_shape = {{3, 8, 6, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -967,8 +1280,12 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x6x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  23.,  24.,  35.,  37.,  39.,  40.,  51.,  53.,  55.,  56.,  59.,  61.,  63.,  64.,  83.,  85.,  87.,  88.,  99., 101., 103., 104., 115., 117., 119., 120., 123., 125., 127., 128., 147., 149., 151., 152., 163., 165., 167., 168., 179., 181., 183., 184., 187., 189., 191., 192.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      19.,  21.,  23.,  24.,  35.,  37.,  39.,  40.,  51.,  53.,  55.,  56.,
+      59.,  61.,  63.,  64.,  83.,  85.,  87.,  88.,  99.,  101., 103., 104.,
+      115., 117., 119., 120., 123., 125., 127., 128., 147., 149., 151., 152.,
+      163., 165., 167., 168., 179., 181., 183., 184., 187., 189., 191., 192.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -976,8 +1293,11 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  23.,  35.,  37.,  39.,  51.,  53.,  55.,  83.,  85.,  87.,  99., 101., 103., 115., 117., 119., 147., 149., 151., 163., 165., 167., 179., 181., 183.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      19.,  21.,  23.,  35.,  37.,  39.,  51.,  53.,  55.,
+      83.,  85.,  87.,  99.,  101., 103., 115., 117., 119.,
+      147., 149., 151., 163., 165., 167., 179., 181., 183.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -985,8 +1305,16 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x8x1) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  69.,  70.,  73.,  74.,  77.,  78.,  79.,  80., 101., 102., 105., 106., 109., 110., 111., 112., 117., 118., 121., 122., 125., 126., 127., 128., 165., 166., 169., 170., 173., 174., 175., 176., 197., 198., 201., 202., 205., 206., 207., 208., 229., 230., 233., 234., 237., 238., 239., 240., 245., 246., 249., 250., 253., 254., 255., 256., 293., 294., 297., 298., 301., 302., 303., 304., 325., 326., 329., 330., 333., 334., 335., 336., 357., 358., 361., 362., 365., 366., 367., 368., 373., 374., 377., 378., 381., 382., 383., 384.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  69.,  70.,  73.,  74.,
+      77.,  78.,  79.,  80.,  101., 102., 105., 106., 109., 110., 111., 112.,
+      117., 118., 121., 122., 125., 126., 127., 128., 165., 166., 169., 170.,
+      173., 174., 175., 176., 197., 198., 201., 202., 205., 206., 207., 208.,
+      229., 230., 233., 234., 237., 238., 239., 240., 245., 246., 249., 250.,
+      253., 254., 255., 256., 293., 294., 297., 298., 301., 302., 303., 304.,
+      325., 326., 329., 330., 333., 334., 335., 336., 357., 358., 361., 362.,
+      365., 366., 367., 368., 373., 374., 377., 378., 381., 382., 383., 384.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -994,8 +1322,13 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,  78., 101., 102., 105., 106., 109., 110., 165., 166., 169., 170., 173., 174., 197., 198., 201., 202., 205., 206., 229., 230., 233., 234., 237., 238., 293., 294., 297., 298., 301., 302., 325., 326., 329., 330., 333., 334., 357., 358., 361., 362., 365., 366.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  45.,  46.,  69.,  70.,  73.,  74.,  77.,
+      78.,  101., 102., 105., 106., 109., 110., 165., 166., 169., 170.,
+      173., 174., 197., 198., 201., 202., 205., 206., 229., 230., 233.,
+      234., 237., 238., 293., 294., 297., 298., 301., 302., 325., 326.,
+      329., 330., 333., 334., 357., 358., 361., 362., 365., 366.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1003,8 +1336,24 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x8x2) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220., 221., 222., 223., 224., 233., 234., 235., 236., 241., 242., 243., 244., 249., 250., 251., 252., 253., 254., 255., 256., 329., 330., 331., 332., 337., 338., 339., 340., 345., 346., 347., 348., 349., 350., 351., 352., 393., 394., 395., 396., 401., 402., 403., 404., 409., 410., 411., 412., 413., 414., 415., 416., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476., 477., 478., 479., 480., 489., 490., 491., 492., 497., 498., 499., 500., 505., 506., 507., 508., 509., 510., 511., 512.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 157., 158., 159., 160., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220., 221., 222., 223., 224., 233., 234., 235., 236., 241., 242., 243., 244., 249., 250., 251., 252., 253., 254., 255., 256.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      93.,  94.,  95.,  96.,  137., 138., 139., 140., 145., 146., 147., 148.,
+      153., 154., 155., 156., 157., 158., 159., 160., 201., 202., 203., 204.,
+      209., 210., 211., 212., 217., 218., 219., 220., 221., 222., 223., 224.,
+      233., 234., 235., 236., 241., 242., 243., 244., 249., 250., 251., 252.,
+      253., 254., 255., 256., 329., 330., 331., 332., 337., 338., 339., 340.,
+      345., 346., 347., 348., 349., 350., 351., 352., 393., 394., 395., 396.,
+      401., 402., 403., 404., 409., 410., 411., 412., 413., 414., 415., 416.,
+      457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.,
+      477., 478., 479., 480., 489., 490., 491., 492., 497., 498., 499., 500.,
+      505., 506., 507., 508., 509., 510., 511., 512., 73.,  74.,  75.,  76.,
+      81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.,
+      157., 158., 159., 160., 201., 202., 203., 204., 209., 210., 211., 212.,
+      217., 218., 219., 220., 221., 222., 223., 224., 233., 234., 235., 236.,
+      241., 242., 243., 244., 249., 250., 251., 252., 253., 254., 255., 256.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1012,11 +1361,19 @@ TYPED_TEST(MaxwithnanWindow3Stride2Forward, SAME3x8x8x4) {
 }
 TYPED_TEST(MaxwithnanWindow3Stride2Forward, VALID3x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220., 329., 330., 331., 332., 337., 338., 339., 340., 345., 346., 347., 348., 393., 394., 395., 396., 401., 402., 403., 404., 409., 410., 411., 412., 457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92., 137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156., 201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.,
+      201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.,
+      329., 330., 331., 332., 337., 338., 339., 340., 345., 346., 347., 348.,
+      393., 394., 395., 396., 401., 402., 403., 404., 409., 410., 411., 412.,
+      457., 458., 459., 460., 465., 466., 467., 468., 473., 474., 475., 476.,
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,
+      137., 138., 139., 140., 145., 146., 147., 148., 153., 154., 155., 156.,
+      201., 202., 203., 204., 209., 210., 211., 212., 217., 218., 219., 220.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<3, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
   this->test_pool(exp_out, params, max_input_val);
 }
-

@@ -34,7 +34,7 @@
 #include <array>
 #include <vector>
 
-using namespace sycldnn; // NOLINT(google-build-using-namespace)
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 
@@ -49,8 +49,10 @@ using AvgWindow5Stride2Forward =
 TYPED_TEST_SUITE(AvgWindow5Stride2Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9., 10., 12., 13., 16., 17., 19., 20., 30., 31., 33., 34., 37., 38., 40., 41.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {9.,  10., 12., 13., 16., 17.,
+                                         19., 20., 30., 31., 33., 34.,
+                                         37., 38., 40., 41.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -59,7 +61,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x7x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x7x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {17., 19., 31., 33.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -67,8 +69,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17., 18., 19., 20., 23., 24., 25., 26., 31., 32., 33., 34., 37., 38., 39., 40., 59., 60., 61., 62., 65., 66., 67., 68., 73., 74., 75., 76., 79., 80., 81., 82.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      17., 18., 19., 20., 23., 24., 25., 26., 31., 32., 33.,
+      34., 37., 38., 39., 40., 59., 60., 61., 62., 65., 66.,
+      67., 68., 73., 74., 75., 76., 79., 80., 81., 82.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -76,8 +81,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {33., 34., 37., 38., 61., 62., 65., 66.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {33., 34., 37., 38.,
+                                         61., 62., 65., 66.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -85,8 +91,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.,  34.,  35.,  36.,  37.,  38.,  39.,  40.,  45.,  46.,  47.,  48.,  49.,  50.,  51.,  52.,  61.,  62.,  63.,  64.,  65.,  66.,  67.,  68.,  73.,  74.,  75.,  76.,  77.,  78.,  79.,  80., 117., 118., 119., 120., 121., 122., 123., 124., 129., 130., 131., 132., 133., 134., 135., 136., 145., 146., 147., 148., 149., 150., 151., 152., 157., 158., 159., 160., 161., 162., 163., 164.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      33.,  34.,  35.,  36.,  37.,  38.,  39.,  40.,  45.,  46.,  47.,
+      48.,  49.,  50.,  51.,  52.,  61.,  62.,  63.,  64.,  65.,  66.,
+      67.,  68.,  73.,  74.,  75.,  76.,  77.,  78.,  79.,  80.,  117.,
+      118., 119., 120., 121., 122., 123., 124., 129., 130., 131., 132.,
+      133., 134., 135., 136., 145., 146., 147., 148., 149., 150., 151.,
+      152., 157., 158., 159., 160., 161., 162., 163., 164.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -94,8 +106,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 65.,  66.,  67.,  68.,  73.,  74.,  75.,  76., 121., 122., 123., 124., 129., 130., 131., 132.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {65.,  66.,  67.,  68.,  73.,  74.,
+                                         75.,  76.,  121., 122., 123., 124.,
+                                         129., 130., 131., 132.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -103,8 +117,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10.5, 12. , 14. , 15. , 18.5, 20. , 22. , 23. , 34.5, 36. , 38. , 39. , 42.5, 44. , 46. , 47. };
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {10.5, 12., 14.,  15., 18.5, 20.,
+                                         22.,  23., 34.5, 36., 38.,  39.,
+                                         42.5, 44., 46.,  47.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -113,7 +129,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x8x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {19., 21., 35., 37.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -121,8 +137,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {20., 21., 23., 24., 27., 28., 29., 30., 36., 37., 39., 40., 43., 44., 45., 46., 68., 69., 71., 72., 75., 76., 77., 78., 84., 85., 87., 88., 91., 92., 93., 94.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      20., 21., 23., 24., 27., 28., 29., 30., 36., 37., 39.,
+      40., 43., 44., 45., 46., 68., 69., 71., 72., 75., 76.,
+      77., 78., 84., 85., 87., 88., 91., 92., 93., 94.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -130,8 +149,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {37., 38., 41., 42., 69., 70., 73., 74.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {37., 38., 41., 42.,
+                                         69., 70., 73., 74.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -139,8 +159,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 39.,  40.,  41.,  42.,  45.,  46.,  47.,  48.,  53.,  54.,  55.,  56.,  57.,  58.,  59.,  60.,  71.,  72.,  73.,  74.,  77.,  78.,  79.,  80.,  85.,  86.,  87.,  88.,  89.,  90.,  91.,  92., 135., 136., 137., 138., 141., 142., 143., 144., 149., 150., 151., 152., 153., 154., 155., 156., 167., 168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      39.,  40.,  41.,  42.,  45.,  46.,  47.,  48.,  53.,  54.,  55.,
+      56.,  57.,  58.,  59.,  60.,  71.,  72.,  73.,  74.,  77.,  78.,
+      79.,  80.,  85.,  86.,  87.,  88.,  89.,  90.,  91.,  92.,  135.,
+      136., 137., 138., 141., 142., 143., 144., 149., 150., 151., 152.,
+      153., 154., 155., 156., 167., 168., 169., 170., 173., 174., 175.,
+      176., 181., 182., 183., 184., 185., 186., 187., 188.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -148,8 +174,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84., 137., 138., 139., 140., 145., 146., 147., 148.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {73.,  74.,  75.,  76.,  81.,  82.,
+                                         83.,  84.,  137., 138., 139., 140.,
+                                         145., 146., 147., 148.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -157,8 +185,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12.5, 14. , 16. , 18. , 19. , 22.5, 24. , 26. , 28. , 29. , 42.5, 44. , 46. , 48. , 49. , 52.5, 54. , 56. , 58. , 59. };
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {12.5, 14.,  16., 18.,  19., 22.5, 24.,
+                                         26.,  28.,  29., 42.5, 44., 46.,  48.,
+                                         49.,  52.5, 54., 56.,  58., 59.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -167,7 +197,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x10x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x10x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {23., 25., 27., 43., 45., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -175,8 +205,12 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 24.,  25.,  27.,  28.,  31.,  32.,  35.,  36.,  37.,  38.,  44.,  45.,  47.,  48.,  51.,  52.,  55.,  56.,  57.,  58.,  84.,  85.,  87.,  88.,  91.,  92.,  95.,  96.,  97.,  98., 104., 105., 107., 108., 111., 112., 115., 116., 117., 118.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      24.,  25.,  27.,  28.,  31.,  32.,  35.,  36.,  37.,  38.,
+      44.,  45.,  47.,  48.,  51.,  52.,  55.,  56.,  57.,  58.,
+      84.,  85.,  87.,  88.,  91.,  92.,  95.,  96.,  97.,  98.,
+      104., 105., 107., 108., 111., 112., 115., 116., 117., 118.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -184,8 +218,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {45., 46., 49., 50., 53., 54., 85., 86., 89., 90., 93., 94.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {45., 46., 49., 50., 53., 54.,
+                                         85., 86., 89., 90., 93., 94.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -193,8 +228,15 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 47.,  48.,  49.,  50.,  53.,  54.,  55.,  56.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,  73.,  74.,  75.,  76.,  87.,  88.,  89.,  90.,  93.,  94.,  95.,  96., 101., 102., 103., 104., 109., 110., 111., 112., 113., 114., 115., 116., 167., 168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184., 189., 190., 191., 192., 193., 194., 195., 196., 207., 208., 209., 210., 213., 214., 215., 216., 221., 222., 223., 224., 229., 230., 231., 232., 233., 234., 235., 236.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      47.,  48.,  49.,  50.,  53.,  54.,  55.,  56.,  61.,  62.,  63.,  64.,
+      69.,  70.,  71.,  72.,  73.,  74.,  75.,  76.,  87.,  88.,  89.,  90.,
+      93.,  94.,  95.,  96.,  101., 102., 103., 104., 109., 110., 111., 112.,
+      113., 114., 115., 116., 167., 168., 169., 170., 173., 174., 175., 176.,
+      181., 182., 183., 184., 189., 190., 191., 192., 193., 194., 195., 196.,
+      207., 208., 209., 210., 213., 214., 215., 216., 221., 222., 223., 224.,
+      229., 230., 231., 232., 233., 234., 235., 236.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -202,8 +244,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x7x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 105., 106., 107., 108., 169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      89.,  90.,  91.,  92.,  97.,  98.,  99.,  100., 105., 106., 107., 108.,
+      169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -211,8 +255,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x7x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12.5, 13.5, 15.5, 16.5, 23. , 24. , 26. , 27. , 37. , 38. , 40. , 41. , 44. , 45. , 47. , 48. };
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {12.5, 13.5, 15.5, 16.5, 23., 24.,
+                                         26.,  27.,  37.,  38.,  40., 41.,
+                                         44.,  45.,  47.,  48.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -221,7 +267,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x7x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x7x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {17., 19., 31., 33.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -229,8 +275,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {24., 25., 26., 27., 30., 31., 32., 33., 45., 46., 47., 48., 51., 52., 53., 54., 73., 74., 75., 76., 79., 80., 81., 82., 87., 88., 89., 90., 93., 94., 95., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      24., 25., 26., 27., 30., 31., 32., 33., 45., 46., 47.,
+      48., 51., 52., 53., 54., 73., 74., 75., 76., 79., 80.,
+      81., 82., 87., 88., 89., 90., 93., 94., 95., 96.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -238,8 +287,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {33., 34., 37., 38., 61., 62., 65., 66.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {33., 34., 37., 38.,
+                                         61., 62., 65., 66.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -247,8 +297,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 47.,  48.,  49.,  50.,  51.,  52.,  53.,  54.,  59.,  60.,  61.,  62.,  63.,  64.,  65.,  66.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 101., 102., 103., 104., 105., 106., 107., 108., 145., 146., 147., 148., 149., 150., 151., 152., 157., 158., 159., 160., 161., 162., 163., 164., 173., 174., 175., 176., 177., 178., 179., 180., 185., 186., 187., 188., 189., 190., 191., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      47.,  48.,  49.,  50.,  51.,  52.,  53.,  54.,  59.,  60.,  61.,
+      62.,  63.,  64.,  65.,  66.,  89.,  90.,  91.,  92.,  93.,  94.,
+      95.,  96.,  101., 102., 103., 104., 105., 106., 107., 108., 145.,
+      146., 147., 148., 149., 150., 151., 152., 157., 158., 159., 160.,
+      161., 162., 163., 164., 173., 174., 175., 176., 177., 178., 179.,
+      180., 185., 186., 187., 188., 189., 190., 191., 192.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -256,8 +312,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 65.,  66.,  67.,  68.,  73.,  74.,  75.,  76., 121., 122., 123., 124., 129., 130., 131., 132.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {65.,  66.,  67.,  68.,  73.,  74.,
+                                         75.,  76.,  121., 122., 123., 124.,
+                                         129., 130., 131., 132.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -265,8 +323,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {14.5, 16. , 18. , 19. , 26.5, 28. , 30. , 31. , 42.5, 44. , 46. , 47. , 50.5, 52. , 54. , 55. };
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {14.5, 16., 18.,  19., 26.5, 28.,
+                                         30.,  31., 42.5, 44., 46.,  47.,
+                                         50.5, 52., 54.,  55.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -275,7 +335,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x8x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {19., 21., 35., 37.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -283,8 +343,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,  55.,  56.,  59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94., 100., 101., 103., 104., 107., 108., 109., 110.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      28., 29., 31.,  32.,  35.,  36.,  37.,  38.,  52.,  53., 55.,
+      56., 59., 60.,  61.,  62.,  84.,  85.,  87.,  88.,  91., 92.,
+      93., 94., 100., 101., 103., 104., 107., 108., 109., 110.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -292,8 +355,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {37., 38., 41., 42., 69., 70., 73., 74.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {37., 38., 41., 42.,
+                                         69., 70., 73., 74.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -301,8 +365,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,  73.,  74.,  75.,  76., 103., 104., 105., 106., 109., 110., 111., 112., 117., 118., 119., 120., 121., 122., 123., 124., 167., 168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188., 199., 200., 201., 202., 205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,
+      72.,  73.,  74.,  75.,  76.,  103., 104., 105., 106., 109., 110.,
+      111., 112., 117., 118., 119., 120., 121., 122., 123., 124., 167.,
+      168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184.,
+      185., 186., 187., 188., 199., 200., 201., 202., 205., 206., 207.,
+      208., 213., 214., 215., 216., 217., 218., 219., 220.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -310,8 +380,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84., 137., 138., 139., 140., 145., 146., 147., 148.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {73.,  74.,  75.,  76.,  81.,  82.,
+                                         83.,  84.,  137., 138., 139., 140.,
+                                         145., 146., 147., 148.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -319,8 +391,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17.5, 19. , 21. , 23. , 24. , 32.5, 34. , 36. , 38. , 39. , 52.5, 54. , 56. , 58. , 59. , 62.5, 64. , 66. , 68. , 69. };
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {17.5, 19.,  21., 23.,  24., 32.5, 34.,
+                                         36.,  38.,  39., 52.5, 54., 56.,  58.,
+                                         59.,  62.5, 64., 66.,  68., 69.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -329,7 +403,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x10x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x10x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {23., 25., 27., 43., 45., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -337,8 +411,12 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 34.,  35.,  37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  64.,  65.,  67.,  68.,  71.,  72.,  75.,  76.,  77.,  78., 104., 105., 107., 108., 111., 112., 115., 116., 117., 118., 124., 125., 127., 128., 131., 132., 135., 136., 137., 138.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      34.,  35.,  37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,
+      64.,  65.,  67.,  68.,  71.,  72.,  75.,  76.,  77.,  78.,
+      104., 105., 107., 108., 111., 112., 115., 116., 117., 118.,
+      124., 125., 127., 128., 131., 132., 135., 136., 137., 138.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -346,8 +424,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {45., 46., 49., 50., 53., 54., 85., 86., 89., 90., 93., 94.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {45., 46., 49., 50., 53., 54.,
+                                         85., 86., 89., 90., 93., 94.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -355,8 +434,15 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 67.,  68.,  69.,  70.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 127., 128., 129., 130., 133., 134., 135., 136., 141., 142., 143., 144., 149., 150., 151., 152., 153., 154., 155., 156., 207., 208., 209., 210., 213., 214., 215., 216., 221., 222., 223., 224., 229., 230., 231., 232., 233., 234., 235., 236., 247., 248., 249., 250., 253., 254., 255., 256., 261., 262., 263., 264., 269., 270., 271., 272., 273., 274., 275., 276.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      67.,  68.,  69.,  70.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,
+      89.,  90.,  91.,  92.,  93.,  94.,  95.,  96.,  127., 128., 129., 130.,
+      133., 134., 135., 136., 141., 142., 143., 144., 149., 150., 151., 152.,
+      153., 154., 155., 156., 207., 208., 209., 210., 213., 214., 215., 216.,
+      221., 222., 223., 224., 229., 230., 231., 232., 233., 234., 235., 236.,
+      247., 248., 249., 250., 253., 254., 255., 256., 261., 262., 263., 264.,
+      269., 270., 271., 272., 273., 274., 275., 276.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -364,8 +450,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x8x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 105., 106., 107., 108., 169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      89.,  90.,  91.,  92.,  97.,  98.,  99.,  100., 105., 106., 107., 108.,
+      169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -373,8 +461,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x8x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12.5, 13.5, 15.5, 16.5, 23. , 24. , 26. , 27. , 37. , 38. , 40. , 41. , 51. , 52. , 54. , 55. , 58. , 59. , 61. , 62. };
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {12.5, 13.5, 15.5, 16.5, 23., 24., 26.,
+                                         27.,  37.,  38.,  40.,  41., 51., 52.,
+                                         54.,  55.,  58.,  59.,  61., 62.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -383,7 +473,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x7x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x7x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {17., 19., 31., 33., 45., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -391,8 +481,12 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 24.,  25.,  26.,  27.,  30.,  31.,  32.,  33.,  45.,  46.,  47.,  48.,  51.,  52.,  53.,  54.,  73.,  74.,  75.,  76.,  79.,  80.,  81.,  82., 101., 102., 103., 104., 107., 108., 109., 110., 115., 116., 117., 118., 121., 122., 123., 124.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      24.,  25.,  26.,  27.,  30.,  31.,  32.,  33.,  45.,  46.,
+      47.,  48.,  51.,  52.,  53.,  54.,  73.,  74.,  75.,  76.,
+      79.,  80.,  81.,  82.,  101., 102., 103., 104., 107., 108.,
+      109., 110., 115., 116., 117., 118., 121., 122., 123., 124.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -400,8 +494,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {33., 34., 37., 38., 61., 62., 65., 66., 89., 90., 93., 94.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {33., 34., 37., 38., 61., 62.,
+                                         65., 66., 89., 90., 93., 94.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -409,8 +504,15 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 47.,  48.,  49.,  50.,  51.,  52.,  53.,  54.,  59.,  60.,  61.,  62.,  63.,  64.,  65.,  66.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 101., 102., 103., 104., 105., 106., 107., 108., 145., 146., 147., 148., 149., 150., 151., 152., 157., 158., 159., 160., 161., 162., 163., 164., 201., 202., 203., 204., 205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220., 229., 230., 231., 232., 233., 234., 235., 236., 241., 242., 243., 244., 245., 246., 247., 248.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      47.,  48.,  49.,  50.,  51.,  52.,  53.,  54.,  59.,  60.,  61.,  62.,
+      63.,  64.,  65.,  66.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96.,
+      101., 102., 103., 104., 105., 106., 107., 108., 145., 146., 147., 148.,
+      149., 150., 151., 152., 157., 158., 159., 160., 161., 162., 163., 164.,
+      201., 202., 203., 204., 205., 206., 207., 208., 213., 214., 215., 216.,
+      217., 218., 219., 220., 229., 230., 231., 232., 233., 234., 235., 236.,
+      241., 242., 243., 244., 245., 246., 247., 248.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -418,8 +520,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 65.,  66.,  67.,  68.,  73.,  74.,  75.,  76., 121., 122., 123., 124., 129., 130., 131., 132., 177., 178., 179., 180., 185., 186., 187., 188.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      65.,  66.,  67.,  68.,  73.,  74.,  75.,  76.,  121., 122., 123., 124.,
+      129., 130., 131., 132., 177., 178., 179., 180., 185., 186., 187., 188.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -427,8 +531,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {14.5, 16. , 18. , 19. , 26.5, 28. , 30. , 31. , 42.5, 44. , 46. , 47. , 58.5, 60. , 62. , 63. , 66.5, 68. , 70. , 71. };
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {14.5, 16.,  18.,  19., 26.5, 28.,  30.,
+                                         31.,  42.5, 44.,  46., 47.,  58.5, 60.,
+                                         62.,  63.,  66.5, 68., 70.,  71.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -437,7 +543,7 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x8x1) {
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {19., 21., 35., 37., 51., 53.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -445,8 +551,12 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,  55.,  56.,  59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94., 116., 117., 119., 120., 123., 124., 125., 126., 132., 133., 135., 136., 139., 140., 141., 142.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,
+      55.,  56.,  59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,
+      91.,  92.,  93.,  94.,  116., 117., 119., 120., 123., 124.,
+      125., 126., 132., 133., 135., 136., 139., 140., 141., 142.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -454,8 +564,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  69.,  70.,  73.,  74., 101., 102., 105., 106.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {37., 38., 41.,  42.,  69.,  70.,
+                                         73., 74., 101., 102., 105., 106.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -463,8 +574,15 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,  73.,  74.,  75.,  76., 103., 104., 105., 106., 109., 110., 111., 112., 117., 118., 119., 120., 121., 122., 123., 124., 167., 168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188., 231., 232., 233., 234., 237., 238., 239., 240., 245., 246., 247., 248., 249., 250., 251., 252., 263., 264., 265., 266., 269., 270., 271., 272., 277., 278., 279., 280., 281., 282., 283., 284.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,
+      73.,  74.,  75.,  76.,  103., 104., 105., 106., 109., 110., 111., 112.,
+      117., 118., 119., 120., 121., 122., 123., 124., 167., 168., 169., 170.,
+      173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188.,
+      231., 232., 233., 234., 237., 238., 239., 240., 245., 246., 247., 248.,
+      249., 250., 251., 252., 263., 264., 265., 266., 269., 270., 271., 272.,
+      277., 278., 279., 280., 281., 282., 283., 284.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -472,8 +590,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84., 137., 138., 139., 140., 145., 146., 147., 148., 201., 202., 203., 204., 209., 210., 211., 212.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  137., 138., 139., 140.,
+      145., 146., 147., 148., 201., 202., 203., 204., 209., 210., 211., 212.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -481,8 +601,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17.5, 19. , 21. , 23. , 24. , 32.5, 34. , 36. , 38. , 39. , 52.5, 54. , 56. , 58. , 59. , 72.5, 74. , 76. , 78. , 79. , 82.5, 84. , 86. , 88. , 89. };
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      17.5, 19., 21.,  23., 24., 32.5, 34., 36.,  38., 39., 52.5, 54., 56.,
+      58.,  59., 72.5, 74., 76., 78.,  79., 82.5, 84., 86., 88.,  89.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -490,8 +612,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23., 25., 27., 43., 45., 47., 63., 65., 67.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {23., 25., 27., 43., 45.,
+                                         47., 63., 65., 67.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -499,8 +622,13 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 34.,  35.,  37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  64.,  65.,  67.,  68.,  71.,  72.,  75.,  76.,  77.,  78., 104., 105., 107., 108., 111., 112., 115., 116., 117., 118., 144., 145., 147., 148., 151., 152., 155., 156., 157., 158., 164., 165., 167., 168., 171., 172., 175., 176., 177., 178.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      34.,  35.,  37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,
+      64.,  65.,  67.,  68.,  71.,  72.,  75.,  76.,  77.,  78.,
+      104., 105., 107., 108., 111., 112., 115., 116., 117., 118.,
+      144., 145., 147., 148., 151., 152., 155., 156., 157., 158.,
+      164., 165., 167., 168., 171., 172., 175., 176., 177., 178.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -508,8 +636,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  49.,  50.,  53.,  54.,  85.,  86.,  89.,  90.,  93.,  94., 125., 126., 129., 130., 133., 134.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {45.,  46.,  49.,  50.,  53.,  54.,
+                                         85.,  86.,  89.,  90.,  93.,  94.,
+                                         125., 126., 129., 130., 133., 134.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -517,8 +647,17 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 67.,  68.,  69.,  70.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  89.,  90.,  91.,  92.,  93.,  94.,  95.,  96., 127., 128., 129., 130., 133., 134., 135., 136., 141., 142., 143., 144., 149., 150., 151., 152., 153., 154., 155., 156., 207., 208., 209., 210., 213., 214., 215., 216., 221., 222., 223., 224., 229., 230., 231., 232., 233., 234., 235., 236., 287., 288., 289., 290., 293., 294., 295., 296., 301., 302., 303., 304., 309., 310., 311., 312., 313., 314., 315., 316., 327., 328., 329., 330., 333., 334., 335., 336., 341., 342., 343., 344., 349., 350., 351., 352., 353., 354., 355., 356.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      67.,  68.,  69.,  70.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,
+      89.,  90.,  91.,  92.,  93.,  94.,  95.,  96.,  127., 128., 129., 130.,
+      133., 134., 135., 136., 141., 142., 143., 144., 149., 150., 151., 152.,
+      153., 154., 155., 156., 207., 208., 209., 210., 213., 214., 215., 216.,
+      221., 222., 223., 224., 229., 230., 231., 232., 233., 234., 235., 236.,
+      287., 288., 289., 290., 293., 294., 295., 296., 301., 302., 303., 304.,
+      309., 310., 311., 312., 313., 314., 315., 316., 327., 328., 329., 330.,
+      333., 334., 335., 336., 341., 342., 343., 344., 349., 350., 351., 352.,
+      353., 354., 355., 356.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -526,8 +665,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME1x10x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 89.,  90.,  91.,  92.,  97.,  98.,  99., 100., 105., 106., 107., 108., 169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188., 249., 250., 251., 252., 257., 258., 259., 260., 265., 266., 267., 268.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      89.,  90.,  91.,  92.,  97.,  98.,  99.,  100., 105., 106., 107., 108.,
+      169., 170., 171., 172., 177., 178., 179., 180., 185., 186., 187., 188.,
+      249., 250., 251., 252., 257., 258., 259., 260., 265., 266., 267., 268.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -535,8 +677,12 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID1x10x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  9.,  10.,  12.,  13.,  16.,  17.,  19.,  20.,  30.,  31.,  33.,  34.,  37.,  38.,  40.,  41.,  58.,  59.,  61.,  62.,  65.,  66.,  68.,  69.,  79.,  80.,  82.,  83.,  86.,  87.,  89.,  90., 107., 108., 110., 111., 114., 115., 117., 118., 128., 129., 131., 132., 135., 136., 138., 139.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      9.,   10.,  12.,  13.,  16.,  17.,  19.,  20.,  30.,  31.,  33.,  34.,
+      37.,  38.,  40.,  41.,  58.,  59.,  61.,  62.,  65.,  66.,  68.,  69.,
+      79.,  80.,  82.,  83.,  86.,  87.,  89.,  90.,  107., 108., 110., 111.,
+      114., 115., 117., 118., 128., 129., 131., 132., 135., 136., 138., 139.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -544,8 +690,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.,  19.,  31.,  33.,  66.,  68.,  80.,  82., 115., 117., 129., 131.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {17., 19., 31.,  33.,  66.,  68.,
+                                         80., 82., 115., 117., 129., 131.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -553,8 +700,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.,  18.,  19.,  20.,  23.,  24.,  25.,  26.,  31.,  32.,  33.,  34.,  37.,  38.,  39.,  40.,  59.,  60.,  61.,  62.,  65.,  66.,  67.,  68.,  73.,  74.,  75.,  76.,  79.,  80.,  81.,  82., 115., 116., 117., 118., 121., 122., 123., 124., 129., 130., 131., 132., 135., 136., 137., 138., 157., 158., 159., 160., 163., 164., 165., 166., 171., 172., 173., 174., 177., 178., 179., 180., 213., 214., 215., 216., 219., 220., 221., 222., 227., 228., 229., 230., 233., 234., 235., 236., 255., 256., 257., 258., 261., 262., 263., 264., 269., 270., 271., 272., 275., 276., 277., 278.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      17.,  18.,  19.,  20.,  23.,  24.,  25.,  26.,  31.,  32.,  33.,  34.,
+      37.,  38.,  39.,  40.,  59.,  60.,  61.,  62.,  65.,  66.,  67.,  68.,
+      73.,  74.,  75.,  76.,  79.,  80.,  81.,  82.,  115., 116., 117., 118.,
+      121., 122., 123., 124., 129., 130., 131., 132., 135., 136., 137., 138.,
+      157., 158., 159., 160., 163., 164., 165., 166., 171., 172., 173., 174.,
+      177., 178., 179., 180., 213., 214., 215., 216., 219., 220., 221., 222.,
+      227., 228., 229., 230., 233., 234., 235., 236., 255., 256., 257., 258.,
+      261., 262., 263., 264., 269., 270., 271., 272., 275., 276., 277., 278.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -562,8 +717,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.,  34.,  37.,  38.,  61.,  62.,  65.,  66., 131., 132., 135., 136., 159., 160., 163., 164., 229., 230., 233., 234., 257., 258., 261., 262.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      33.,  34.,  37.,  38.,  61.,  62.,  65.,  66.,  131., 132., 135., 136.,
+      159., 160., 163., 164., 229., 230., 233., 234., 257., 258., 261., 262.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -571,8 +728,199 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.              ,  34.              ,  35.              ,  36.              ,  37.              ,  38.              ,  39.              ,  40.              ,  45.              ,  46.              ,  47.              ,  48.              ,  49.              ,  50.              ,  51.              ,  52.              ,  61.              ,  62.              ,  63.              ,  64.              ,  65.              ,  66.              ,  67.              ,  68.              ,  73.              ,  74.              ,  75.              ,  76.              ,  77.              ,  78.              ,  79.              ,  80.              , 117.              , 118.              , 119.              , 120.              , 121.              , 122.              , 123.              , 124.              , 129.              , 130.              , 131.              , 132.              , 133.              , 134.              , 135.              , 136.              , 145.              , 146.              , 147.              , 148.              , 149.              , 150.              , 151.              , 152.              , 157.              , 158.              , 159.              , 160.              , 161.              , 162.              , 163.              , 164.              , 229.              , 230.              , 231.              , 232.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 245.              , 246.              , 247.              , 248.              , 257.              , 258.              , 259.              , 260.              , 261.              , 262.              , 263.              , 264.              , 269.              , 270.              , 271.              , 272.              , 273.              , 274.              , 275.              , 276.              , 313.              , 314.              , 315.              , 316.              , 317.              , 318.              , 319.              , 320.              , 325.              , 326.              , 327.              , 328.              , 329.              , 330.              , 331.              , 332.              , 341.              , 342.              , 343.              , 344.              , 345.              , 346.              , 347.              , 348.              , 353.              , 354.              , 355.              , 356.              , 357.              , 358.              , 359.              , 360.              , 425.              , 426.              , 427.              , 428.              , 429.              , 430.              , 431.              , 432.              , 437.              , 438.              , 439.              , 440.              , 441.              , 442.              , 443.              , 444.              , 418.8666666666667 , 419.8666666666667 , 420.8666666666667 , 421.8666666666667 , 395.56            , 396.56            , 397.56            , 398.56            , 362.6             , 363.6             , 364.6             , 365.6             , 366.6             , 367.6             , 368.6             , 369.6             , 270.06666666666666, 271.06666666666666, 272.06666666666666, 273.06666666666666, 246.76            , 247.76            , 248.76            , 249.76            , 213.8             , 214.8             , 215.8             , 216.8             , 217.8             , 218.8             , 219.8             , 220.8             , 138.77777777777777, 139.77777777777777, 140.77777777777777, 141.77777777777777,  97.26666666666667,  98.26666666666667,  99.26666666666667, 100.26666666666667,  37.              ,  38.              ,  39.              ,  40.              ,  41.              ,  42.              ,  43.              ,  44.              };
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {33.,
+                                         34.,
+                                         35.,
+                                         36.,
+                                         37.,
+                                         38.,
+                                         39.,
+                                         40.,
+                                         45.,
+                                         46.,
+                                         47.,
+                                         48.,
+                                         49.,
+                                         50.,
+                                         51.,
+                                         52.,
+                                         61.,
+                                         62.,
+                                         63.,
+                                         64.,
+                                         65.,
+                                         66.,
+                                         67.,
+                                         68.,
+                                         73.,
+                                         74.,
+                                         75.,
+                                         76.,
+                                         77.,
+                                         78.,
+                                         79.,
+                                         80.,
+                                         117.,
+                                         118.,
+                                         119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         129.,
+                                         130.,
+                                         131.,
+                                         132.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         245.,
+                                         246.,
+                                         247.,
+                                         248.,
+                                         257.,
+                                         258.,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         269.,
+                                         270.,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         325.,
+                                         326.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.,
+                                         341.,
+                                         342.,
+                                         343.,
+                                         344.,
+                                         345.,
+                                         346.,
+                                         347.,
+                                         348.,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         357.,
+                                         358.,
+                                         359.,
+                                         360.,
+                                         425.,
+                                         426.,
+                                         427.,
+                                         428.,
+                                         429.,
+                                         430.,
+                                         431.,
+                                         432.,
+                                         437.,
+                                         438.,
+                                         439.,
+                                         440.,
+                                         441.,
+                                         442.,
+                                         443.,
+                                         444.,
+                                         418.8666666666667,
+                                         419.8666666666667,
+                                         420.8666666666667,
+                                         421.8666666666667,
+                                         395.56,
+                                         396.56,
+                                         397.56,
+                                         398.56,
+                                         362.6,
+                                         363.6,
+                                         364.6,
+                                         365.6,
+                                         366.6,
+                                         367.6,
+                                         368.6,
+                                         369.6,
+                                         270.06666666666666,
+                                         271.06666666666666,
+                                         272.06666666666666,
+                                         273.06666666666666,
+                                         246.76,
+                                         247.76,
+                                         248.76,
+                                         249.76,
+                                         213.8,
+                                         214.8,
+                                         215.8,
+                                         216.8,
+                                         217.8,
+                                         218.8,
+                                         219.8,
+                                         220.8,
+                                         138.77777777777777,
+                                         139.77777777777777,
+                                         140.77777777777777,
+                                         141.77777777777777,
+                                         97.26666666666667,
+                                         98.26666666666667,
+                                         99.26666666666667,
+                                         100.26666666666667,
+                                         37.,
+                                         38.,
+                                         39.,
+                                         40.,
+                                         41.,
+                                         42.,
+                                         43.,
+                                         44.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -580,8 +928,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 65.  ,  66.  ,  67.  ,  68.  ,  73.  ,  74.  ,  75.  ,  76.  , 121.  , 122.  , 123.  , 124.  , 129.  , 130.  , 131.  , 132.  , 261.  , 262.  , 263.  , 264.  , 269.  , 270.  , 271.  , 272.  , 317.  , 318.  , 319.  , 320.  , 325.  , 326.  , 327.  , 328.  , 395.56, 396.56, 397.56, 398.56, 362.6 , 363.6 , 364.6 , 365.6 , 246.76, 247.76, 248.76, 249.76, 213.8 , 214.8 , 215.8 , 216.8 };
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      65.,    66.,    67.,    68.,    73.,   74.,   75.,   76.,
+      121.,   122.,   123.,   124.,   129.,  130.,  131.,  132.,
+      261.,   262.,   263.,   264.,   269.,  270.,  271.,  272.,
+      317.,   318.,   319.,   320.,   325.,  326.,  327.,  328.,
+      395.56, 396.56, 397.56, 398.56, 362.6, 363.6, 364.6, 365.6,
+      246.76, 247.76, 248.76, 249.76, 213.8, 214.8, 215.8, 216.8};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -589,8 +943,13 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 10.5,  12. ,  14. ,  15. ,  18.5,  20. ,  22. ,  23. ,  34.5,  36. ,  38. ,  39. ,  42.5,  44. ,  46. ,  47. ,  66.5,  68. ,  70. ,  71. ,  74.5,  76. ,  78. ,  79. ,  90.5,  92. ,  94. ,  95. ,  98.5, 100. , 102. , 103. , 122.5, 124. , 126. , 127. , 130.5, 132. , 134. , 135. , 146.5, 148. , 150. , 151. , 154.5, 156. , 158. , 159. };
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      10.5,  12.,  14.,   15.,  18.5,  20.,  22.,   23.,  34.5, 36.,
+      38.,   39.,  42.5,  44.,  46.,   47.,  66.5,  68.,  70.,  71.,
+      74.5,  76.,  78.,   79.,  90.5,  92.,  94.,   95.,  98.5, 100.,
+      102.,  103., 122.5, 124., 126.,  127., 130.5, 132., 134., 135.,
+      146.5, 148., 150.,  151., 154.5, 156., 158.,  159.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -598,8 +957,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  35.,  37.,  75.,  77.,  91.,  93., 131., 133., 147., 149.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {19., 21., 35.,  37.,  75.,  77.,
+                                         91., 93., 131., 133., 147., 149.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -607,8 +967,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 20.,  21.,  23.,  24.,  27.,  28.,  29.,  30.,  36.,  37.,  39.,  40.,  43.,  44.,  45.,  46.,  68.,  69.,  71.,  72.,  75.,  76.,  77.,  78.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94., 132., 133., 135., 136., 139., 140., 141., 142., 148., 149., 151., 152., 155., 156., 157., 158., 180., 181., 183., 184., 187., 188., 189., 190., 196., 197., 199., 200., 203., 204., 205., 206., 244., 245., 247., 248., 251., 252., 253., 254., 260., 261., 263., 264., 267., 268., 269., 270., 292., 293., 295., 296., 299., 300., 301., 302., 308., 309., 311., 312., 315., 316., 317., 318.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      20.,  21.,  23.,  24.,  27.,  28.,  29.,  30.,  36.,  37.,  39.,  40.,
+      43.,  44.,  45.,  46.,  68.,  69.,  71.,  72.,  75.,  76.,  77.,  78.,
+      84.,  85.,  87.,  88.,  91.,  92.,  93.,  94.,  132., 133., 135., 136.,
+      139., 140., 141., 142., 148., 149., 151., 152., 155., 156., 157., 158.,
+      180., 181., 183., 184., 187., 188., 189., 190., 196., 197., 199., 200.,
+      203., 204., 205., 206., 244., 245., 247., 248., 251., 252., 253., 254.,
+      260., 261., 263., 264., 267., 268., 269., 270., 292., 293., 295., 296.,
+      299., 300., 301., 302., 308., 309., 311., 312., 315., 316., 317., 318.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -616,8 +984,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  69.,  70.,  73.,  74., 149., 150., 153., 154., 181., 182., 185., 186., 261., 262., 265., 266., 293., 294., 297., 298.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  69.,  70.,  73.,  74.,  149., 150., 153., 154.,
+      181., 182., 185., 186., 261., 262., 265., 266., 293., 294., 297., 298.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -625,8 +995,199 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 39.             ,  40.             ,  41.             ,  42.             ,  45.             ,  46.             ,  47.             ,  48.             ,  53.             ,  54.             ,  55.             ,  56.             ,  57.             ,  58.             ,  59.             ,  60.             ,  71.             ,  72.             ,  73.             ,  74.             ,  77.             ,  78.             ,  79.             ,  80.             ,  85.             ,  86.             ,  87.             ,  88.             ,  89.             ,  90.             ,  91.             ,  92.             , 135.             , 136.             , 137.             , 138.             , 141.             , 142.             , 143.             , 144.             , 149.             , 150.             , 151.             , 152.             , 153.             , 154.             , 155.             , 156.             , 167.             , 168.             , 169.             , 170.             , 173.             , 174.             , 175.             , 176.             , 181.             , 182.             , 183.             , 184.             , 185.             , 186.             , 187.             , 188.             , 263.             , 264.             , 265.             , 266.             , 269.             , 270.             , 271.             , 272.             , 277.             , 278.             , 279.             , 280.             , 281.             , 282.             , 283.             , 284.             , 295.             , 296.             , 297.             , 298.             , 301.             , 302.             , 303.             , 304.             , 309.             , 310.             , 311.             , 312.             , 313.             , 314.             , 315.             , 316.             , 359.             , 360.             , 361.             , 362.             , 365.             , 366.             , 367.             , 368.             , 373.             , 374.             , 375.             , 376.             , 377.             , 378.             , 379.             , 380.             , 391.             , 392.             , 393.             , 394.             , 397.             , 398.             , 399.             , 400.             , 405.             , 406.             , 407.             , 408.             , 409.             , 410.             , 411.             , 412.             , 316.3333333333333, 317.3333333333333, 318.3333333333333, 319.3333333333333, 322.3333333333333, 323.3333333333333, 324.3333333333333, 325.3333333333333, 330.3333333333333, 331.3333333333333, 332.3333333333333, 333.3333333333333, 334.3333333333333, 335.3333333333333, 336.3333333333333, 337.3333333333333, 211.8            , 212.8            , 213.8            , 214.8            , 217.8            , 218.8            , 219.8            , 220.8            , 225.8            , 226.8            , 227.8            , 228.8            , 229.8            , 230.8            , 231.8            , 232.8            ,  71.             ,  72.             ,  73.             ,  74.             ,  77.             ,  78.             ,  79.             ,  80.             ,  85.             ,  86.             ,  87.             ,  88.             ,  89.             ,  90.             ,  91.             ,  92.             , 103.             , 104.             , 105.             , 106.             , 109.             , 110.             , 111.             , 112.             , 117.             , 118.             , 119.             , 120.             , 121.             , 122.             , 123.             , 124.             };
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {39.,
+                                         40.,
+                                         41.,
+                                         42.,
+                                         45.,
+                                         46.,
+                                         47.,
+                                         48.,
+                                         53.,
+                                         54.,
+                                         55.,
+                                         56.,
+                                         57.,
+                                         58.,
+                                         59.,
+                                         60.,
+                                         71.,
+                                         72.,
+                                         73.,
+                                         74.,
+                                         77.,
+                                         78.,
+                                         79.,
+                                         80.,
+                                         85.,
+                                         86.,
+                                         87.,
+                                         88.,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         135.,
+                                         136.,
+                                         137.,
+                                         138.,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         167.,
+                                         168.,
+                                         169.,
+                                         170.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         185.,
+                                         186.,
+                                         187.,
+                                         188.,
+                                         263.,
+                                         264.,
+                                         265.,
+                                         266.,
+                                         269.,
+                                         270.,
+                                         271.,
+                                         272.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         295.,
+                                         296.,
+                                         297.,
+                                         298.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         309.,
+                                         310.,
+                                         311.,
+                                         312.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         359.,
+                                         360.,
+                                         361.,
+                                         362.,
+                                         365.,
+                                         366.,
+                                         367.,
+                                         368.,
+                                         373.,
+                                         374.,
+                                         375.,
+                                         376.,
+                                         377.,
+                                         378.,
+                                         379.,
+                                         380.,
+                                         391.,
+                                         392.,
+                                         393.,
+                                         394.,
+                                         397.,
+                                         398.,
+                                         399.,
+                                         400.,
+                                         405.,
+                                         406.,
+                                         407.,
+                                         408.,
+                                         409.,
+                                         410.,
+                                         411.,
+                                         412.,
+                                         316.3333333333333,
+                                         317.3333333333333,
+                                         318.3333333333333,
+                                         319.3333333333333,
+                                         322.3333333333333,
+                                         323.3333333333333,
+                                         324.3333333333333,
+                                         325.3333333333333,
+                                         330.3333333333333,
+                                         331.3333333333333,
+                                         332.3333333333333,
+                                         333.3333333333333,
+                                         334.3333333333333,
+                                         335.3333333333333,
+                                         336.3333333333333,
+                                         337.3333333333333,
+                                         211.8,
+                                         212.8,
+                                         213.8,
+                                         214.8,
+                                         217.8,
+                                         218.8,
+                                         219.8,
+                                         220.8,
+                                         225.8,
+                                         226.8,
+                                         227.8,
+                                         228.8,
+                                         229.8,
+                                         230.8,
+                                         231.8,
+                                         232.8,
+                                         71.,
+                                         72.,
+                                         73.,
+                                         74.,
+                                         77.,
+                                         78.,
+                                         79.,
+                                         80.,
+                                         85.,
+                                         86.,
+                                         87.,
+                                         88.,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         103.,
+                                         104.,
+                                         105.,
+                                         106.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         117.,
+                                         118.,
+                                         119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -634,8 +1195,13 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73. ,  74. ,  75. ,  76. ,  81. ,  82. ,  83. ,  84. , 137. , 138. , 139. , 140. , 145. , 146. , 147. , 148. , 297. , 298. , 299. , 300. , 305. , 306. , 307. , 308. , 361. , 362. , 363. , 364. , 369. , 370. , 371. , 372. , 213.8, 214.8, 215.8, 216.8, 221.8, 222.8, 223.8, 224.8,  73. ,  74. ,  75. ,  76. ,  81. ,  82. ,  83. ,  84. };
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,   76.,   81.,   82.,   83.,   84.,   137.,  138.,
+      139., 140., 145.,  146.,  147.,  148.,  297.,  298.,  299.,  300.,
+      305., 306., 307.,  308.,  361.,  362.,  363.,  364.,  369.,  370.,
+      371., 372., 213.8, 214.8, 215.8, 216.8, 221.8, 222.8, 223.8, 224.8,
+      73.,  74.,  75.,   76.,   81.,   82.,   83.,   84.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -643,8 +1209,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 12.5,  14. ,  16. ,  18. ,  19. ,  22.5,  24. ,  26. ,  28. ,  29. ,  42.5,  44. ,  46. ,  48. ,  49. ,  52.5,  54. ,  56. ,  58. ,  59. ,  82.5,  84. ,  86. ,  88. ,  89. ,  92.5,  94. ,  96. ,  98. ,  99. , 112.5, 114. , 116. , 118. , 119. , 122.5, 124. , 126. , 128. , 129. , 152.5, 154. , 156. , 158. , 159. , 162.5, 164. , 166. , 168. , 169. , 182.5, 184. , 186. , 188. , 189. , 192.5, 194. , 196. , 198. , 199. };
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      12.5,  14.,  16.,  18.,  19.,  22.5,  24.,  26.,  28.,  29.,
+      42.5,  44.,  46.,  48.,  49.,  52.5,  54.,  56.,  58.,  59.,
+      82.5,  84.,  86.,  88.,  89.,  92.5,  94.,  96.,  98.,  99.,
+      112.5, 114., 116., 118., 119., 122.5, 124., 126., 128., 129.,
+      152.5, 154., 156., 158., 159., 162.5, 164., 166., 168., 169.,
+      182.5, 184., 186., 188., 189., 192.5, 194., 196., 198., 199.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -652,8 +1224,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 23.,  25.,  27.,  43.,  45.,  47.,  93.,  95.,  97., 113., 115., 117., 163., 165., 167., 183., 185., 187.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {23.,  25.,  27.,  43.,  45.,  47.,
+                                         93.,  95.,  97.,  113., 115., 117.,
+                                         163., 165., 167., 183., 185., 187.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -661,8 +1235,18 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 24.,  25.,  27.,  28.,  31.,  32.,  35.,  36.,  37.,  38.,  44.,  45.,  47.,  48.,  51.,  52.,  55.,  56.,  57.,  58.,  84.,  85.,  87.,  88.,  91.,  92.,  95.,  96.,  97.,  98., 104., 105., 107., 108., 111., 112., 115., 116., 117., 118., 164., 165., 167., 168., 171., 172., 175., 176., 177., 178., 184., 185., 187., 188., 191., 192., 195., 196., 197., 198., 224., 225., 227., 228., 231., 232., 235., 236., 237., 238., 244., 245., 247., 248., 251., 252., 255., 256., 257., 258., 304., 305., 307., 308., 311., 312., 315., 316., 317., 318., 324., 325., 327., 328., 331., 332., 335., 336., 337., 338., 364., 365., 367., 368., 371., 372., 375., 376., 377., 378., 384., 385., 387., 388., 391., 392., 395., 396., 397., 398.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      24.,  25.,  27.,  28.,  31.,  32.,  35.,  36.,  37.,  38.,  44.,  45.,
+      47.,  48.,  51.,  52.,  55.,  56.,  57.,  58.,  84.,  85.,  87.,  88.,
+      91.,  92.,  95.,  96.,  97.,  98.,  104., 105., 107., 108., 111., 112.,
+      115., 116., 117., 118., 164., 165., 167., 168., 171., 172., 175., 176.,
+      177., 178., 184., 185., 187., 188., 191., 192., 195., 196., 197., 198.,
+      224., 225., 227., 228., 231., 232., 235., 236., 237., 238., 244., 245.,
+      247., 248., 251., 252., 255., 256., 257., 258., 304., 305., 307., 308.,
+      311., 312., 315., 316., 317., 318., 324., 325., 327., 328., 331., 332.,
+      335., 336., 337., 338., 364., 365., 367., 368., 371., 372., 375., 376.,
+      377., 378., 384., 385., 387., 388., 391., 392., 395., 396., 397., 398.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -670,8 +1254,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  49.,  50.,  53.,  54.,  85.,  86.,  89.,  90.,  93.,  94., 185., 186., 189., 190., 193., 194., 225., 226., 229., 230., 233., 234., 325., 326., 329., 330., 333., 334., 365., 366., 369., 370., 373., 374.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      45.,  46.,  49.,  50.,  53.,  54.,  85.,  86.,  89.,  90.,  93.,  94.,
+      185., 186., 189., 190., 193., 194., 225., 226., 229., 230., 233., 234.,
+      325., 326., 329., 330., 333., 334., 365., 366., 369., 370., 373., 374.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -679,8 +1266,247 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 47.              ,  48.              ,  49.              ,  50.              ,  53.              ,  54.              ,  55.              ,  56.              ,  61.              ,  62.              ,  63.              ,  64.              ,  69.              ,  70.              ,  71.              ,  72.              ,  73.              ,  74.              ,  75.              ,  76.              ,  87.              ,  88.              ,  89.              ,  90.              ,  93.              ,  94.              ,  95.              ,  96.              , 101.              , 102.              , 103.              , 104.              , 109.              , 110.              , 111.              , 112.              , 113.              , 114.              , 115.              , 116.              , 167.              , 168.              , 169.              , 170.              , 173.              , 174.              , 175.              , 176.              , 181.              , 182.              , 183.              , 184.              , 189.              , 190.              , 191.              , 192.              , 193.              , 194.              , 195.              , 196.              , 207.              , 208.              , 209.              , 210.              , 213.              , 214.              , 215.              , 216.              , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 233.              , 234.              , 235.              , 236.              , 327.              , 328.              , 329.              , 330.              , 333.              , 334.              , 335.              , 336.              , 341.              , 342.              , 343.              , 344.              , 349.              , 350.              , 351.              , 352.              , 353.              , 354.              , 355.              , 356.              , 367.              , 368.              , 369.              , 370.              , 373.              , 374.              , 375.              , 376.              , 381.              , 382.              , 383.              , 384.              , 389.              , 390.              , 391.              , 392.              , 393.              , 394.              , 395.              , 396.              , 344.6             , 345.6             , 346.6             , 347.6             , 350.6             , 351.6             , 352.6             , 353.6             , 358.6             , 359.6             , 360.6             , 361.6             , 325.64            , 326.64            , 327.64            , 328.64            , 302.3333333333333 , 303.3333333333333 , 304.3333333333333 , 305.3333333333333 , 316.3333333333333 , 317.3333333333333 , 318.3333333333333 , 319.3333333333333 , 322.3333333333333 , 323.3333333333333 , 324.3333333333333 , 325.3333333333333 , 330.3333333333333 , 331.3333333333333 , 332.3333333333333 , 333.3333333333333 , 270.06666666666666, 271.06666666666666, 272.06666666666666, 273.06666666666666, 228.55555555555554, 229.55555555555554, 230.55555555555554, 231.55555555555554,  95.              ,  96.              ,  97.              ,  98.              , 101.              , 102.              , 103.              , 104.              , 109.              , 110.              , 111.              , 112.              , 117.              , 118.              , 119.              , 120.              , 121.              , 122.              , 123.              , 124.              , 135.              , 136.              , 137.              , 138.              , 141.              , 142.              , 143.              , 144.              , 149.              , 150.              , 151.              , 152.              , 157.              , 158.              , 159.              , 160.              , 161.              , 162.              , 163.              , 164.              , 215.              , 216.              , 217.              , 218.              , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 237.              , 238.              , 239.              , 240.              , 241.              , 242.              , 243.              , 244.              , 255.              , 256.              , 257.              , 258.              , 261.              , 262.              , 263.              , 264.              , 269.              , 270.              , 271.              , 272.              , 277.              , 278.              , 279.              , 280.              , 281.              , 282.              , 283.              , 284.              };
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {47.,
+                                         48.,
+                                         49.,
+                                         50.,
+                                         53.,
+                                         54.,
+                                         55.,
+                                         56.,
+                                         61.,
+                                         62.,
+                                         63.,
+                                         64.,
+                                         69.,
+                                         70.,
+                                         71.,
+                                         72.,
+                                         73.,
+                                         74.,
+                                         75.,
+                                         76.,
+                                         87.,
+                                         88.,
+                                         89.,
+                                         90.,
+                                         93.,
+                                         94.,
+                                         95.,
+                                         96.,
+                                         101.,
+                                         102.,
+                                         103.,
+                                         104.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         113.,
+                                         114.,
+                                         115.,
+                                         116.,
+                                         167.,
+                                         168.,
+                                         169.,
+                                         170.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         189.,
+                                         190.,
+                                         191.,
+                                         192.,
+                                         193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         333.,
+                                         334.,
+                                         335.,
+                                         336.,
+                                         341.,
+                                         342.,
+                                         343.,
+                                         344.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         367.,
+                                         368.,
+                                         369.,
+                                         370.,
+                                         373.,
+                                         374.,
+                                         375.,
+                                         376.,
+                                         381.,
+                                         382.,
+                                         383.,
+                                         384.,
+                                         389.,
+                                         390.,
+                                         391.,
+                                         392.,
+                                         393.,
+                                         394.,
+                                         395.,
+                                         396.,
+                                         344.6,
+                                         345.6,
+                                         346.6,
+                                         347.6,
+                                         350.6,
+                                         351.6,
+                                         352.6,
+                                         353.6,
+                                         358.6,
+                                         359.6,
+                                         360.6,
+                                         361.6,
+                                         325.64,
+                                         326.64,
+                                         327.64,
+                                         328.64,
+                                         302.3333333333333,
+                                         303.3333333333333,
+                                         304.3333333333333,
+                                         305.3333333333333,
+                                         316.3333333333333,
+                                         317.3333333333333,
+                                         318.3333333333333,
+                                         319.3333333333333,
+                                         322.3333333333333,
+                                         323.3333333333333,
+                                         324.3333333333333,
+                                         325.3333333333333,
+                                         330.3333333333333,
+                                         331.3333333333333,
+                                         332.3333333333333,
+                                         333.3333333333333,
+                                         270.06666666666666,
+                                         271.06666666666666,
+                                         272.06666666666666,
+                                         273.06666666666666,
+                                         228.55555555555554,
+                                         229.55555555555554,
+                                         230.55555555555554,
+                                         231.55555555555554,
+                                         95.,
+                                         96.,
+                                         97.,
+                                         98.,
+                                         101.,
+                                         102.,
+                                         103.,
+                                         104.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         117.,
+                                         118.,
+                                         119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         135.,
+                                         136.,
+                                         137.,
+                                         138.,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         215.,
+                                         216.,
+                                         217.,
+                                         218.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         269.,
+                                         270.,
+                                         271.,
+                                         272.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -688,8 +1514,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x7x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 89.  ,  90.  ,  91.  ,  92.  ,  97.  ,  98.  ,  99.  , 100.  , 105.  , 106.  , 107.  , 108.  , 169.  , 170.  , 171.  , 172.  , 177.  , 178.  , 179.  , 180.  , 185.  , 186.  , 187.  , 188.  , 369.  , 370.  , 371.  , 372.  , 377.  , 378.  , 379.  , 380.  , 385.  , 386.  , 387.  , 388.  , 346.6 , 347.6 , 348.6 , 349.6 , 354.6 , 355.6 , 356.6 , 357.6 , 342.12, 343.12, 344.12, 345.12, 137.  , 138.  , 139.  , 140.  , 145.  , 146.  , 147.  , 148.  , 153.  , 154.  , 155.  , 156.  , 217.  , 218.  , 219.  , 220.  , 225.  , 226.  , 227.  , 228.  , 233.  , 234.  , 235.  , 236.  };
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      89.,    90.,    91.,    92.,   97.,   98.,   99.,   100.,  105.,
+      106.,   107.,   108.,   169.,  170.,  171.,  172.,  177.,  178.,
+      179.,   180.,   185.,   186.,  187.,  188.,  369.,  370.,  371.,
+      372.,   377.,   378.,   379.,  380.,  385.,  386.,  387.,  388.,
+      346.6,  347.6,  348.6,  349.6, 354.6, 355.6, 356.6, 357.6, 342.12,
+      343.12, 344.12, 345.12, 137.,  138.,  139.,  140.,  145.,  146.,
+      147.,   148.,   153.,   154.,  155.,  156.,  217.,  218.,  219.,
+      220.,   225.,   226.,   227.,  228.,  233.,  234.,  235.,  236.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -697,8 +1531,13 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x7x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 12.5,  13.5,  15.5,  16.5,  23. ,  24. ,  26. ,  27. ,  37. ,  38. ,  40. ,  41. ,  44. ,  45. ,  47. ,  48. ,  68.5,  69.5,  71.5,  72.5,  79. ,  80. ,  82. ,  83. ,  93. ,  94. ,  96. ,  97. , 100. , 101. , 103. , 104. , 124.5, 125.5, 127.5, 128.5, 135. , 136. , 138. , 139. , 149. , 150. , 152. , 153. , 156. , 157. , 159. , 160. };
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      12.5, 13.5, 15.5,  16.5,  23.,   24.,   26.,  27.,  37.,  38.,
+      40.,  41.,  44.,   45.,   47.,   48.,   68.5, 69.5, 71.5, 72.5,
+      79.,  80.,  82.,   83.,   93.,   94.,   96.,  97.,  100., 101.,
+      103., 104., 124.5, 125.5, 127.5, 128.5, 135., 136., 138., 139.,
+      149., 150., 152.,  153.,  156.,  157.,  159., 160.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -706,8 +1545,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.,  19.,  31.,  33.,  73.,  75.,  87.,  89., 129., 131., 143., 145.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {17., 19., 31.,  33.,  73.,  75.,
+                                         87., 89., 129., 131., 143., 145.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -715,8 +1555,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 24.,  25.,  26.,  27.,  30.,  31.,  32.,  33.,  45.,  46.,  47.,  48.,  51.,  52.,  53.,  54.,  73.,  74.,  75.,  76.,  79.,  80.,  81.,  82.,  87.,  88.,  89.,  90.,  93.,  94.,  95.,  96., 136., 137., 138., 139., 142., 143., 144., 145., 157., 158., 159., 160., 163., 164., 165., 166., 185., 186., 187., 188., 191., 192., 193., 194., 199., 200., 201., 202., 205., 206., 207., 208., 248., 249., 250., 251., 254., 255., 256., 257., 269., 270., 271., 272., 275., 276., 277., 278., 297., 298., 299., 300., 303., 304., 305., 306., 311., 312., 313., 314., 317., 318., 319., 320.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      24.,  25.,  26.,  27.,  30.,  31.,  32.,  33.,  45.,  46.,  47.,  48.,
+      51.,  52.,  53.,  54.,  73.,  74.,  75.,  76.,  79.,  80.,  81.,  82.,
+      87.,  88.,  89.,  90.,  93.,  94.,  95.,  96.,  136., 137., 138., 139.,
+      142., 143., 144., 145., 157., 158., 159., 160., 163., 164., 165., 166.,
+      185., 186., 187., 188., 191., 192., 193., 194., 199., 200., 201., 202.,
+      205., 206., 207., 208., 248., 249., 250., 251., 254., 255., 256., 257.,
+      269., 270., 271., 272., 275., 276., 277., 278., 297., 298., 299., 300.,
+      303., 304., 305., 306., 311., 312., 313., 314., 317., 318., 319., 320.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -724,8 +1572,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.,  34.,  37.,  38.,  61.,  62.,  65.,  66., 145., 146., 149., 150., 173., 174., 177., 178., 257., 258., 261., 262., 285., 286., 289., 290.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      33.,  34.,  37.,  38.,  61.,  62.,  65.,  66.,  145., 146., 149., 150.,
+      173., 174., 177., 178., 257., 258., 261., 262., 285., 286., 289., 290.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -733,8 +1583,199 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 47.              ,  48.              ,  49.              ,  50.              ,  51.              ,  52.              ,  53.              ,  54.              ,  59.              ,  60.              ,  61.              ,  62.              ,  63.              ,  64.              ,  65.              ,  66.              ,  89.              ,  90.              ,  91.              ,  92.              ,  93.              ,  94.              ,  95.              ,  96.              , 101.              , 102.              , 103.              , 104.              , 105.              , 106.              , 107.              , 108.              , 145.              , 146.              , 147.              , 148.              , 149.              , 150.              , 151.              , 152.              , 157.              , 158.              , 159.              , 160.              , 161.              , 162.              , 163.              , 164.              , 173.              , 174.              , 175.              , 176.              , 177.              , 178.              , 179.              , 180.              , 185.              , 186.              , 187.              , 188.              , 189.              , 190.              , 191.              , 192.              , 271.              , 272.              , 273.              , 274.              , 275.              , 276.              , 277.              , 278.              , 283.              , 284.              , 285.              , 286.              , 287.              , 288.              , 289.              , 290.              , 313.              , 314.              , 315.              , 316.              , 317.              , 318.              , 319.              , 320.              , 325.              , 326.              , 327.              , 328.              , 329.              , 330.              , 331.              , 332.              , 369.              , 370.              , 371.              , 372.              , 373.              , 374.              , 375.              , 376.              , 381.              , 382.              , 383.              , 384.              , 385.              , 386.              , 387.              , 388.              , 397.              , 398.              , 399.              , 400.              , 401.              , 402.              , 403.              , 404.              , 409.              , 410.              , 411.              , 412.              , 413.              , 414.              , 415.              , 416.              , 324.3333333333333 , 325.3333333333333 , 326.3333333333333 , 327.3333333333333 , 294.2             , 295.2             , 296.2             , 297.2             , 251.              , 252.              , 253.              , 254.              , 255.              , 256.              , 257.              , 258.              , 195.66666666666666, 196.66666666666666, 197.66666666666666, 198.66666666666666, 172.36            , 173.36            , 174.36            , 175.36            , 139.4             , 140.4             , 141.4             , 142.4             , 143.4             , 144.4             , 145.4             , 146.4             ,  81.              ,  82.              ,  83.              ,  84.              ,  85.              ,  86.              ,  87.              ,  88.              ,  93.              ,  94.              ,  95.              ,  96.              ,  97.              ,  98.              ,  99.              , 100.              , 109.              , 110.              , 111.              , 112.              , 113.              , 114.              , 115.              , 116.              , 121.              , 122.              , 123.              , 124.              , 125.              , 126.              , 127.              , 128.              };
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {47.,
+                                         48.,
+                                         49.,
+                                         50.,
+                                         51.,
+                                         52.,
+                                         53.,
+                                         54.,
+                                         59.,
+                                         60.,
+                                         61.,
+                                         62.,
+                                         63.,
+                                         64.,
+                                         65.,
+                                         66.,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         93.,
+                                         94.,
+                                         95.,
+                                         96.,
+                                         101.,
+                                         102.,
+                                         103.,
+                                         104.,
+                                         105.,
+                                         106.,
+                                         107.,
+                                         108.,
+                                         145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         173.,
+                                         174.,
+                                         175.,
+                                         176.,
+                                         177.,
+                                         178.,
+                                         179.,
+                                         180.,
+                                         185.,
+                                         186.,
+                                         187.,
+                                         188.,
+                                         189.,
+                                         190.,
+                                         191.,
+                                         192.,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         277.,
+                                         278.,
+                                         283.,
+                                         284.,
+                                         285.,
+                                         286.,
+                                         287.,
+                                         288.,
+                                         289.,
+                                         290.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         317.,
+                                         318.,
+                                         319.,
+                                         320.,
+                                         325.,
+                                         326.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.,
+                                         369.,
+                                         370.,
+                                         371.,
+                                         372.,
+                                         373.,
+                                         374.,
+                                         375.,
+                                         376.,
+                                         381.,
+                                         382.,
+                                         383.,
+                                         384.,
+                                         385.,
+                                         386.,
+                                         387.,
+                                         388.,
+                                         397.,
+                                         398.,
+                                         399.,
+                                         400.,
+                                         401.,
+                                         402.,
+                                         403.,
+                                         404.,
+                                         409.,
+                                         410.,
+                                         411.,
+                                         412.,
+                                         413.,
+                                         414.,
+                                         415.,
+                                         416.,
+                                         324.3333333333333,
+                                         325.3333333333333,
+                                         326.3333333333333,
+                                         327.3333333333333,
+                                         294.2,
+                                         295.2,
+                                         296.2,
+                                         297.2,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         195.66666666666666,
+                                         196.66666666666666,
+                                         197.66666666666666,
+                                         198.66666666666666,
+                                         172.36,
+                                         173.36,
+                                         174.36,
+                                         175.36,
+                                         139.4,
+                                         140.4,
+                                         141.4,
+                                         142.4,
+                                         143.4,
+                                         144.4,
+                                         145.4,
+                                         146.4,
+                                         81.,
+                                         82.,
+                                         83.,
+                                         84.,
+                                         85.,
+                                         86.,
+                                         87.,
+                                         88.,
+                                         93.,
+                                         94.,
+                                         95.,
+                                         96.,
+                                         97.,
+                                         98.,
+                                         99.,
+                                         100.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         113.,
+                                         114.,
+                                         115.,
+                                         116.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         125.,
+                                         126.,
+                                         127.,
+                                         128.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -742,8 +1783,13 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 65.  ,  66.  ,  67.  ,  68.  ,  73.  ,  74.  ,  75.  ,  76.  , 121.  , 122.  , 123.  , 124.  , 129.  , 130.  , 131.  , 132.  , 289.  , 290.  , 291.  , 292.  , 297.  , 298.  , 299.  , 300.  , 345.  , 346.  , 347.  , 348.  , 353.  , 354.  , 355.  , 356.  , 246.76, 247.76, 248.76, 249.76, 213.8 , 214.8 , 215.8 , 216.8 ,  97.96,  98.96,  99.96, 100.96,  65.  ,  66.  ,  67.  ,  68.  };
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      65.,   66.,   67.,    68.,    73.,    74.,    75.,   76.,   121.,  122.,
+      123.,  124.,  129.,   130.,   131.,   132.,   289.,  290.,  291.,  292.,
+      297.,  298.,  299.,   300.,   345.,   346.,   347.,  348.,  353.,  354.,
+      355.,  356.,  246.76, 247.76, 248.76, 249.76, 213.8, 214.8, 215.8, 216.8,
+      97.96, 98.96, 99.96,  100.96, 65.,    66.,    67.,   68.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -751,8 +1797,13 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 14.5,  16. ,  18. ,  19. ,  26.5,  28. ,  30. ,  31. ,  42.5,  44. ,  46. ,  47. ,  50.5,  52. ,  54. ,  55. ,  78.5,  80. ,  82. ,  83. ,  90.5,  92. ,  94. ,  95. , 106.5, 108. , 110. , 111. , 114.5, 116. , 118. , 119. , 142.5, 144. , 146. , 147. , 154.5, 156. , 158. , 159. , 170.5, 172. , 174. , 175. , 178.5, 180. , 182. , 183. };
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      14.5,  16.,  18.,   19.,  26.5,  28.,  30.,   31.,  42.5,  44.,
+      46.,   47.,  50.5,  52.,  54.,   55.,  78.5,  80.,  82.,   83.,
+      90.5,  92.,  94.,   95.,  106.5, 108., 110.,  111., 114.5, 116.,
+      118.,  119., 142.5, 144., 146.,  147., 154.5, 156., 158.,  159.,
+      170.5, 172., 174.,  175., 178.5, 180., 182.,  183.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -760,8 +1811,9 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  35.,  37.,  83.,  85.,  99., 101., 147., 149., 163., 165.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {19., 21.,  35.,  37.,  83.,  85.,
+                                         99., 101., 147., 149., 163., 165.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -769,8 +1821,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,  55.,  56.,  59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94., 100., 101., 103., 104., 107., 108., 109., 110., 156., 157., 159., 160., 163., 164., 165., 166., 180., 181., 183., 184., 187., 188., 189., 190., 212., 213., 215., 216., 219., 220., 221., 222., 228., 229., 231., 232., 235., 236., 237., 238., 284., 285., 287., 288., 291., 292., 293., 294., 308., 309., 311., 312., 315., 316., 317., 318., 340., 341., 343., 344., 347., 348., 349., 350., 356., 357., 359., 360., 363., 364., 365., 366.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,  55.,  56.,
+      59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94.,
+      100., 101., 103., 104., 107., 108., 109., 110., 156., 157., 159., 160.,
+      163., 164., 165., 166., 180., 181., 183., 184., 187., 188., 189., 190.,
+      212., 213., 215., 216., 219., 220., 221., 222., 228., 229., 231., 232.,
+      235., 236., 237., 238., 284., 285., 287., 288., 291., 292., 293., 294.,
+      308., 309., 311., 312., 315., 316., 317., 318., 340., 341., 343., 344.,
+      347., 348., 349., 350., 356., 357., 359., 360., 363., 364., 365., 366.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -778,8 +1838,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  69.,  70.,  73.,  74., 165., 166., 169., 170., 197., 198., 201., 202., 293., 294., 297., 298., 325., 326., 329., 330.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  69.,  70.,  73.,  74.,  165., 166., 169., 170.,
+      197., 198., 201., 202., 293., 294., 297., 298., 325., 326., 329., 330.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -787,8 +1849,24 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,  73.,  74.,  75.,  76., 103., 104., 105., 106., 109., 110., 111., 112., 117., 118., 119., 120., 121., 122., 123., 124., 167., 168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188., 199., 200., 201., 202., 205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220., 311., 312., 313., 314., 317., 318., 319., 320., 325., 326., 327., 328., 329., 330., 331., 332., 359., 360., 361., 362., 365., 366., 367., 368., 373., 374., 375., 376., 377., 378., 379., 380., 423., 424., 425., 426., 429., 430., 431., 432., 437., 438., 439., 440., 441., 442., 443., 444., 455., 456., 457., 458., 461., 462., 463., 464., 469., 470., 471., 472., 473., 474., 475., 476.,  55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,  73.,  74.,  75.,  76., 103., 104., 105., 106., 109., 110., 111., 112., 117., 118., 119., 120., 121., 122., 123., 124., 167., 168., 169., 170., 173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188., 199., 200., 201., 202., 205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      55.,  56.,  57.,  58.,  61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,
+      73.,  74.,  75.,  76.,  103., 104., 105., 106., 109., 110., 111., 112.,
+      117., 118., 119., 120., 121., 122., 123., 124., 167., 168., 169., 170.,
+      173., 174., 175., 176., 181., 182., 183., 184., 185., 186., 187., 188.,
+      199., 200., 201., 202., 205., 206., 207., 208., 213., 214., 215., 216.,
+      217., 218., 219., 220., 311., 312., 313., 314., 317., 318., 319., 320.,
+      325., 326., 327., 328., 329., 330., 331., 332., 359., 360., 361., 362.,
+      365., 366., 367., 368., 373., 374., 375., 376., 377., 378., 379., 380.,
+      423., 424., 425., 426., 429., 430., 431., 432., 437., 438., 439., 440.,
+      441., 442., 443., 444., 455., 456., 457., 458., 461., 462., 463., 464.,
+      469., 470., 471., 472., 473., 474., 475., 476., 55.,  56.,  57.,  58.,
+      61.,  62.,  63.,  64.,  69.,  70.,  71.,  72.,  73.,  74.,  75.,  76.,
+      103., 104., 105., 106., 109., 110., 111., 112., 117., 118., 119., 120.,
+      121., 122., 123., 124., 167., 168., 169., 170., 173., 174., 175., 176.,
+      181., 182., 183., 184., 185., 186., 187., 188., 199., 200., 201., 202.,
+      205., 206., 207., 208., 213., 214., 215., 216., 217., 218., 219., 220.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -796,8 +1874,12 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73.,  74.,  75.,  76.,  81.,  82.,  83.,  84., 137., 138., 139., 140., 145., 146., 147., 148., 329., 330., 331., 332., 337., 338., 339., 340., 393., 394., 395., 396., 401., 402., 403., 404.,  73.,  74.,  75.,  76.,  81.,  82.,  83.,  84., 137., 138., 139., 140., 145., 146., 147., 148.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,  74.,  75.,  76.,  81.,  82.,  83.,  84.,  137., 138., 139., 140.,
+      145., 146., 147., 148., 329., 330., 331., 332., 337., 338., 339., 340.,
+      393., 394., 395., 396., 401., 402., 403., 404., 73.,  74.,  75.,  76.,
+      81.,  82.,  83.,  84.,  137., 138., 139., 140., 145., 146., 147., 148.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -805,8 +1887,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.5,  19. ,  21. ,  23. ,  24. ,  32.5,  34. ,  36. ,  38. ,  39. ,  52.5,  54. ,  56. ,  58. ,  59. ,  62.5,  64. ,  66. ,  68. ,  69. ,  97.5,  99. , 101. , 103. , 104. , 112.5, 114. , 116. , 118. , 119. , 132.5, 134. , 136. , 138. , 139. , 142.5, 144. , 146. , 148. , 149. , 177.5, 179. , 181. , 183. , 184. , 192.5, 194. , 196. , 198. , 199. , 212.5, 214. , 216. , 218. , 219. , 222.5, 224. , 226. , 228. , 229. };
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      17.5,  19.,  21.,  23.,  24.,  32.5,  34.,  36.,  38.,  39.,
+      52.5,  54.,  56.,  58.,  59.,  62.5,  64.,  66.,  68.,  69.,
+      97.5,  99.,  101., 103., 104., 112.5, 114., 116., 118., 119.,
+      132.5, 134., 136., 138., 139., 142.5, 144., 146., 148., 149.,
+      177.5, 179., 181., 183., 184., 192.5, 194., 196., 198., 199.,
+      212.5, 214., 216., 218., 219., 222.5, 224., 226., 228., 229.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -814,8 +1902,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 23.,  25.,  27.,  43.,  45.,  47., 103., 105., 107., 123., 125., 127., 183., 185., 187., 203., 205., 207.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {23.,  25.,  27.,  43.,  45.,  47.,
+                                         103., 105., 107., 123., 125., 127.,
+                                         183., 185., 187., 203., 205., 207.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -823,8 +1913,18 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 34.,  35.,  37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  64.,  65.,  67.,  68.,  71.,  72.,  75.,  76.,  77.,  78., 104., 105., 107., 108., 111., 112., 115., 116., 117., 118., 124., 125., 127., 128., 131., 132., 135., 136., 137., 138., 194., 195., 197., 198., 201., 202., 205., 206., 207., 208., 224., 225., 227., 228., 231., 232., 235., 236., 237., 238., 264., 265., 267., 268., 271., 272., 275., 276., 277., 278., 284., 285., 287., 288., 291., 292., 295., 296., 297., 298., 354., 355., 357., 358., 361., 362., 365., 366., 367., 368., 384., 385., 387., 388., 391., 392., 395., 396., 397., 398., 424., 425., 427., 428., 431., 432., 435., 436., 437., 438., 444., 445., 447., 448., 451., 452., 455., 456., 457., 458.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      34.,  35.,  37.,  38.,  41.,  42.,  45.,  46.,  47.,  48.,  64.,  65.,
+      67.,  68.,  71.,  72.,  75.,  76.,  77.,  78.,  104., 105., 107., 108.,
+      111., 112., 115., 116., 117., 118., 124., 125., 127., 128., 131., 132.,
+      135., 136., 137., 138., 194., 195., 197., 198., 201., 202., 205., 206.,
+      207., 208., 224., 225., 227., 228., 231., 232., 235., 236., 237., 238.,
+      264., 265., 267., 268., 271., 272., 275., 276., 277., 278., 284., 285.,
+      287., 288., 291., 292., 295., 296., 297., 298., 354., 355., 357., 358.,
+      361., 362., 365., 366., 367., 368., 384., 385., 387., 388., 391., 392.,
+      395., 396., 397., 398., 424., 425., 427., 428., 431., 432., 435., 436.,
+      437., 438., 444., 445., 447., 448., 451., 452., 455., 456., 457., 458.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -832,8 +1932,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.,  46.,  49.,  50.,  53.,  54.,  85.,  86.,  89.,  90.,  93.,  94., 205., 206., 209., 210., 213., 214., 245., 246., 249., 250., 253., 254., 365., 366., 369., 370., 373., 374., 405., 406., 409., 410., 413., 414.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      45.,  46.,  49.,  50.,  53.,  54.,  85.,  86.,  89.,  90.,  93.,  94.,
+      205., 206., 209., 210., 213., 214., 245., 246., 249., 250., 253., 254.,
+      365., 366., 369., 370., 373., 374., 405., 406., 409., 410., 413., 414.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -841,8 +1944,247 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 67.              ,  68.              ,  69.              ,  70.              ,  73.              ,  74.              ,  75.              ,  76.              ,  81.              ,  82.              ,  83.              ,  84.              ,  89.              ,  90.              ,  91.              ,  92.              ,  93.              ,  94.              ,  95.              ,  96.              , 127.              , 128.              , 129.              , 130.              , 133.              , 134.              , 135.              , 136.              , 141.              , 142.              , 143.              , 144.              , 149.              , 150.              , 151.              , 152.              , 153.              , 154.              , 155.              , 156.              , 207.              , 208.              , 209.              , 210.              , 213.              , 214.              , 215.              , 216.              , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 233.              , 234.              , 235.              , 236.              , 247.              , 248.              , 249.              , 250.              , 253.              , 254.              , 255.              , 256.              , 261.              , 262.              , 263.              , 264.              , 269.              , 270.              , 271.              , 272.              , 273.              , 274.              , 275.              , 276.              , 387.              , 388.              , 389.              , 390.              , 393.              , 394.              , 395.              , 396.              , 401.              , 402.              , 403.              , 404.              , 409.              , 410.              , 411.              , 412.              , 413.              , 414.              , 415.              , 416.              , 344.6             , 345.6             , 346.6             , 347.6             , 350.6             , 351.6             , 352.6             , 353.6             , 358.6             , 359.6             , 360.6             , 361.6             , 325.64            , 326.64            , 327.64            , 328.64            , 302.3333333333333 , 303.3333333333333 , 304.3333333333333 , 305.3333333333333 , 219.8             , 220.8             , 221.8             , 222.8             , 225.8             , 226.8             , 227.8             , 228.8             , 233.8             , 234.8             , 235.8             , 236.8             , 200.84            , 201.84            , 202.84            , 203.84            , 177.53333333333333, 178.53333333333333, 179.53333333333333, 180.53333333333333,  55.              ,  56.              ,  57.              ,  58.              ,  61.              ,  62.              ,  63.              ,  64.              ,  69.              ,  70.              ,  71.              ,  72.              ,  77.              ,  78.              ,  79.              ,  80.              ,  81.              ,  82.              ,  83.              ,  84.              , 195.              , 196.              , 197.              , 198.              , 201.              , 202.              , 203.              , 204.              , 209.              , 210.              , 211.              , 212.              , 217.              , 218.              , 219.              , 220.              , 221.              , 222.              , 223.              , 224.              , 255.              , 256.              , 257.              , 258.              , 261.              , 262.              , 263.              , 264.              , 269.              , 270.              , 271.              , 272.              , 277.              , 278.              , 279.              , 280.              , 281.              , 282.              , 283.              , 284.              , 335.              , 336.              , 337.              , 338.              , 341.              , 342.              , 343.              , 344.              , 349.              , 350.              , 351.              , 352.              , 357.              , 358.              , 359.              , 360.              , 361.              , 362.              , 363.              , 364.              , 375.              , 376.              , 377.              , 378.              , 381.              , 382.              , 383.              , 384.              , 389.              , 390.              , 391.              , 392.              , 397.              , 398.              , 399.              , 400.              , 401.              , 402.              , 403.              , 404.              };
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {67.,
+                                         68.,
+                                         69.,
+                                         70.,
+                                         73.,
+                                         74.,
+                                         75.,
+                                         76.,
+                                         81.,
+                                         82.,
+                                         83.,
+                                         84.,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         93.,
+                                         94.,
+                                         95.,
+                                         96.,
+                                         127.,
+                                         128.,
+                                         129.,
+                                         130.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         269.,
+                                         270.,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         387.,
+                                         388.,
+                                         389.,
+                                         390.,
+                                         393.,
+                                         394.,
+                                         395.,
+                                         396.,
+                                         401.,
+                                         402.,
+                                         403.,
+                                         404.,
+                                         409.,
+                                         410.,
+                                         411.,
+                                         412.,
+                                         413.,
+                                         414.,
+                                         415.,
+                                         416.,
+                                         344.6,
+                                         345.6,
+                                         346.6,
+                                         347.6,
+                                         350.6,
+                                         351.6,
+                                         352.6,
+                                         353.6,
+                                         358.6,
+                                         359.6,
+                                         360.6,
+                                         361.6,
+                                         325.64,
+                                         326.64,
+                                         327.64,
+                                         328.64,
+                                         302.3333333333333,
+                                         303.3333333333333,
+                                         304.3333333333333,
+                                         305.3333333333333,
+                                         219.8,
+                                         220.8,
+                                         221.8,
+                                         222.8,
+                                         225.8,
+                                         226.8,
+                                         227.8,
+                                         228.8,
+                                         233.8,
+                                         234.8,
+                                         235.8,
+                                         236.8,
+                                         200.84,
+                                         201.84,
+                                         202.84,
+                                         203.84,
+                                         177.53333333333333,
+                                         178.53333333333333,
+                                         179.53333333333333,
+                                         180.53333333333333,
+                                         55.,
+                                         56.,
+                                         57.,
+                                         58.,
+                                         61.,
+                                         62.,
+                                         63.,
+                                         64.,
+                                         69.,
+                                         70.,
+                                         71.,
+                                         72.,
+                                         77.,
+                                         78.,
+                                         79.,
+                                         80.,
+                                         81.,
+                                         82.,
+                                         83.,
+                                         84.,
+                                         195.,
+                                         196.,
+                                         197.,
+                                         198.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         209.,
+                                         210.,
+                                         211.,
+                                         212.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         269.,
+                                         270.,
+                                         271.,
+                                         272.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         335.,
+                                         336.,
+                                         337.,
+                                         338.,
+                                         341.,
+                                         342.,
+                                         343.,
+                                         344.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         357.,
+                                         358.,
+                                         359.,
+                                         360.,
+                                         361.,
+                                         362.,
+                                         363.,
+                                         364.,
+                                         375.,
+                                         376.,
+                                         377.,
+                                         378.,
+                                         381.,
+                                         382.,
+                                         383.,
+                                         384.,
+                                         389.,
+                                         390.,
+                                         391.,
+                                         392.,
+                                         397.,
+                                         398.,
+                                         399.,
+                                         400.,
+                                         401.,
+                                         402.,
+                                         403.,
+                                         404.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -850,8 +2192,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x8x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 89.  ,  90.  ,  91.  ,  92.  ,  97.  ,  98.  ,  99.  , 100.  , 105.  , 106.  , 107.  , 108.  , 169.  , 170.  , 171.  , 172.  , 177.  , 178.  , 179.  , 180.  , 185.  , 186.  , 187.  , 188.  , 409.  , 410.  , 411.  , 412.  , 417.  , 418.  , 419.  , 420.  , 404.52, 405.52, 406.52, 407.52, 284.2 , 285.2 , 286.2 , 287.2 , 292.2 , 293.2 , 294.2 , 295.2 , 279.72, 280.72, 281.72, 282.72, 217.  , 218.  , 219.  , 220.  , 225.  , 226.  , 227.  , 228.  , 233.  , 234.  , 235.  , 236.  , 297.  , 298.  , 299.  , 300.  , 305.  , 306.  , 307.  , 308.  , 313.  , 314.  , 315.  , 316.  };
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      89.,    90.,    91.,    92.,   97.,   98.,    99.,    100.,   105.,
+      106.,   107.,   108.,   169.,  170.,  171.,   172.,   177.,   178.,
+      179.,   180.,   185.,   186.,  187.,  188.,   409.,   410.,   411.,
+      412.,   417.,   418.,   419.,  420.,  404.52, 405.52, 406.52, 407.52,
+      284.2,  285.2,  286.2,  287.2, 292.2, 293.2,  294.2,  295.2,  279.72,
+      280.72, 281.72, 282.72, 217.,  218.,  219.,   220.,   225.,   226.,
+      227.,   228.,   233.,   234.,  235.,  236.,   297.,   298.,   299.,
+      300.,   305.,   306.,   307.,  308.,  313.,   314.,   315.,   316.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -859,8 +2209,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x8x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 12.5,  13.5,  15.5,  16.5,  23. ,  24. ,  26. ,  27. ,  37. ,  38. ,  40. ,  41. ,  51. ,  52. ,  54. ,  55. ,  58. ,  59. ,  61. ,  62. ,  82.5,  83.5,  85.5,  86.5,  93. ,  94. ,  96. ,  97. , 107. , 108. , 110. , 111. , 121. , 122. , 124. , 125. , 128. , 129. , 131. , 132. , 152.5, 153.5, 155.5, 156.5, 163. , 164. , 166. , 167. , 177. , 178. , 180. , 181. , 191. , 192. , 194. , 195. , 198. , 199. , 201. , 202. };
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      12.5,  13.5,  15.5,  16.5,  23.,  24.,  26.,  27.,  37.,  38.,
+      40.,   41.,   51.,   52.,   54.,  55.,  58.,  59.,  61.,  62.,
+      82.5,  83.5,  85.5,  86.5,  93.,  94.,  96.,  97.,  107., 108.,
+      110.,  111.,  121.,  122.,  124., 125., 128., 129., 131., 132.,
+      152.5, 153.5, 155.5, 156.5, 163., 164., 166., 167., 177., 178.,
+      180.,  181.,  191.,  192.,  194., 195., 198., 199., 201., 202.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -868,8 +2224,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x7x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.,  19.,  31.,  33.,  45.,  47.,  87.,  89., 101., 103., 115., 117., 157., 159., 171., 173., 185., 187.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {17.,  19.,  31.,  33.,  45.,  47.,
+                                         87.,  89.,  101., 103., 115., 117.,
+                                         157., 159., 171., 173., 185., 187.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -877,8 +2235,18 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x7x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 24.,  25.,  26.,  27.,  30.,  31.,  32.,  33.,  45.,  46.,  47.,  48.,  51.,  52.,  53.,  54.,  73.,  74.,  75.,  76.,  79.,  80.,  81.,  82., 101., 102., 103., 104., 107., 108., 109., 110., 115., 116., 117., 118., 121., 122., 123., 124., 164., 165., 166., 167., 170., 171., 172., 173., 185., 186., 187., 188., 191., 192., 193., 194., 213., 214., 215., 216., 219., 220., 221., 222., 241., 242., 243., 244., 247., 248., 249., 250., 255., 256., 257., 258., 261., 262., 263., 264., 304., 305., 306., 307., 310., 311., 312., 313., 325., 326., 327., 328., 331., 332., 333., 334., 353., 354., 355., 356., 359., 360., 361., 362., 381., 382., 383., 384., 387., 388., 389., 390., 395., 396., 397., 398., 401., 402., 403., 404.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      24.,  25.,  26.,  27.,  30.,  31.,  32.,  33.,  45.,  46.,  47.,  48.,
+      51.,  52.,  53.,  54.,  73.,  74.,  75.,  76.,  79.,  80.,  81.,  82.,
+      101., 102., 103., 104., 107., 108., 109., 110., 115., 116., 117., 118.,
+      121., 122., 123., 124., 164., 165., 166., 167., 170., 171., 172., 173.,
+      185., 186., 187., 188., 191., 192., 193., 194., 213., 214., 215., 216.,
+      219., 220., 221., 222., 241., 242., 243., 244., 247., 248., 249., 250.,
+      255., 256., 257., 258., 261., 262., 263., 264., 304., 305., 306., 307.,
+      310., 311., 312., 313., 325., 326., 327., 328., 331., 332., 333., 334.,
+      353., 354., 355., 356., 359., 360., 361., 362., 381., 382., 383., 384.,
+      387., 388., 389., 390., 395., 396., 397., 398., 401., 402., 403., 404.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -886,8 +2254,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x7x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 33.,  34.,  37.,  38.,  61.,  62.,  65.,  66.,  89.,  90.,  93.,  94., 173., 174., 177., 178., 201., 202., 205., 206., 229., 230., 233., 234., 313., 314., 317., 318., 341., 342., 345., 346., 369., 370., 373., 374.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      33.,  34.,  37.,  38.,  61.,  62.,  65.,  66.,  89.,  90.,  93.,  94.,
+      173., 174., 177., 178., 201., 202., 205., 206., 229., 230., 233., 234.,
+      313., 314., 317., 318., 341., 342., 345., 346., 369., 370., 373., 374.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -895,8 +2266,247 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x7x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 47.              ,  48.              ,  49.              ,  50.              ,  51.              ,  52.              ,  53.              ,  54.              ,  59.              ,  60.              ,  61.              ,  62.              ,  63.              ,  64.              ,  65.              ,  66.              ,  89.              ,  90.              ,  91.              ,  92.              ,  93.              ,  94.              ,  95.              ,  96.              , 101.              , 102.              , 103.              , 104.              , 105.              , 106.              , 107.              , 108.              , 145.              , 146.              , 147.              , 148.              , 149.              , 150.              , 151.              , 152.              , 157.              , 158.              , 159.              , 160.              , 161.              , 162.              , 163.              , 164.              , 201.              , 202.              , 203.              , 204.              , 205.              , 206.              , 207.              , 208.              , 213.              , 214.              , 215.              , 216.              , 217.              , 218.              , 219.              , 220.              , 229.              , 230.              , 231.              , 232.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 245.              , 246.              , 247.              , 248.              , 327.              , 328.              , 329.              , 330.              , 331.              , 332.              , 333.              , 334.              , 339.              , 340.              , 341.              , 342.              , 343.              , 344.              , 345.              , 346.              , 369.              , 370.              , 371.              , 372.              , 373.              , 374.              , 375.              , 376.              , 381.              , 382.              , 383.              , 384.              , 385.              , 386.              , 387.              , 388.              , 425.              , 426.              , 427.              , 428.              , 429.              , 430.              , 431.              , 432.              , 437.              , 438.              , 439.              , 440.              , 441.              , 442.              , 443.              , 444.              , 344.46666666666664, 345.46666666666664, 346.46666666666664, 347.46666666666664, 321.16            , 322.16            , 323.16            , 324.16            , 288.2             , 289.2             , 290.2             , 291.2             , 292.2             , 293.2             , 294.2             , 295.2             , 281.44444444444446, 282.44444444444446, 283.44444444444446, 284.44444444444446, 239.93333333333334, 240.93333333333334, 241.93333333333334, 242.93333333333334, 179.66666666666666, 180.66666666666666, 181.66666666666666, 182.66666666666666, 183.66666666666666, 184.66666666666666, 185.66666666666666, 186.66666666666666,  95.              ,  96.              ,  97.              ,  98.              ,  99.              , 100.              , 101.              , 102.              , 107.              , 108.              , 109.              , 110.              , 111.              , 112.              , 113.              , 114.              , 137.              , 138.              , 139.              , 140.              , 141.              , 142.              , 143.              , 144.              , 149.              , 150.              , 151.              , 152.              , 153.              , 154.              , 155.              , 156.              , 193.              , 194.              , 195.              , 196.              , 197.              , 198.              , 199.              , 200.              , 205.              , 206.              , 207.              , 208.              , 209.              , 210.              , 211.              , 212.              , 249.              , 250.              , 251.              , 252.              , 253.              , 254.              , 255.              , 256.              , 261.              , 262.              , 263.              , 264.              , 265.              , 266.              , 267.              , 268.              , 277.              , 278.              , 279.              , 280.              , 281.              , 282.              , 283.              , 284.              , 289.              , 290.              , 291.              , 292.              , 293.              , 294.              , 295.              , 296.              };
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {47.,
+                                         48.,
+                                         49.,
+                                         50.,
+                                         51.,
+                                         52.,
+                                         53.,
+                                         54.,
+                                         59.,
+                                         60.,
+                                         61.,
+                                         62.,
+                                         63.,
+                                         64.,
+                                         65.,
+                                         66.,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         93.,
+                                         94.,
+                                         95.,
+                                         96.,
+                                         101.,
+                                         102.,
+                                         103.,
+                                         104.,
+                                         105.,
+                                         106.,
+                                         107.,
+                                         108.,
+                                         145.,
+                                         146.,
+                                         147.,
+                                         148.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         157.,
+                                         158.,
+                                         159.,
+                                         160.,
+                                         161.,
+                                         162.,
+                                         163.,
+                                         164.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         205.,
+                                         206.,
+                                         207.,
+                                         208.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         245.,
+                                         246.,
+                                         247.,
+                                         248.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         331.,
+                                         332.,
+                                         333.,
+                                         334.,
+                                         339.,
+                                         340.,
+                                         341.,
+                                         342.,
+                                         343.,
+                                         344.,
+                                         345.,
+                                         346.,
+                                         369.,
+                                         370.,
+                                         371.,
+                                         372.,
+                                         373.,
+                                         374.,
+                                         375.,
+                                         376.,
+                                         381.,
+                                         382.,
+                                         383.,
+                                         384.,
+                                         385.,
+                                         386.,
+                                         387.,
+                                         388.,
+                                         425.,
+                                         426.,
+                                         427.,
+                                         428.,
+                                         429.,
+                                         430.,
+                                         431.,
+                                         432.,
+                                         437.,
+                                         438.,
+                                         439.,
+                                         440.,
+                                         441.,
+                                         442.,
+                                         443.,
+                                         444.,
+                                         344.46666666666664,
+                                         345.46666666666664,
+                                         346.46666666666664,
+                                         347.46666666666664,
+                                         321.16,
+                                         322.16,
+                                         323.16,
+                                         324.16,
+                                         288.2,
+                                         289.2,
+                                         290.2,
+                                         291.2,
+                                         292.2,
+                                         293.2,
+                                         294.2,
+                                         295.2,
+                                         281.44444444444446,
+                                         282.44444444444446,
+                                         283.44444444444446,
+                                         284.44444444444446,
+                                         239.93333333333334,
+                                         240.93333333333334,
+                                         241.93333333333334,
+                                         242.93333333333334,
+                                         179.66666666666666,
+                                         180.66666666666666,
+                                         181.66666666666666,
+                                         182.66666666666666,
+                                         183.66666666666666,
+                                         184.66666666666666,
+                                         185.66666666666666,
+                                         186.66666666666666,
+                                         95.,
+                                         96.,
+                                         97.,
+                                         98.,
+                                         99.,
+                                         100.,
+                                         101.,
+                                         102.,
+                                         107.,
+                                         108.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         113.,
+                                         114.,
+                                         137.,
+                                         138.,
+                                         139.,
+                                         140.,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         205.,
+                                         206.,
+                                         207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         211.,
+                                         212.,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         277.,
+                                         278.,
+                                         279.,
+                                         280.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         289.,
+                                         290.,
+                                         291.,
+                                         292.,
+                                         293.,
+                                         294.,
+                                         295.,
+                                         296.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -904,8 +2514,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x7x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 65.  ,  66.  ,  67.  ,  68.  ,  73.  ,  74.  ,  75.  ,  76.  , 121.  , 122.  , 123.  , 124.  , 129.  , 130.  , 131.  , 132.  , 177.  , 178.  , 179.  , 180.  , 185.  , 186.  , 187.  , 188.  , 345.  , 346.  , 347.  , 348.  , 353.  , 354.  , 355.  , 356.  , 401.  , 402.  , 403.  , 404.  , 409.  , 410.  , 411.  , 412.  , 395.56, 396.56, 397.56, 398.56, 362.6 , 363.6 , 364.6 , 365.6 , 113.  , 114.  , 115.  , 116.  , 121.  , 122.  , 123.  , 124.  , 169.  , 170.  , 171.  , 172.  , 177.  , 178.  , 179.  , 180.  , 225.  , 226.  , 227.  , 228.  , 233.  , 234.  , 235.  , 236.  };
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      65.,   66.,   67.,   68.,  73.,    74.,    75.,    76.,    121.,
+      122.,  123.,  124.,  129., 130.,   131.,   132.,   177.,   178.,
+      179.,  180.,  185.,  186., 187.,   188.,   345.,   346.,   347.,
+      348.,  353.,  354.,  355., 356.,   401.,   402.,   403.,   404.,
+      409.,  410.,  411.,  412., 395.56, 396.56, 397.56, 398.56, 362.6,
+      363.6, 364.6, 365.6, 113., 114.,   115.,   116.,   121.,   122.,
+      123.,  124.,  169.,  170., 171.,   172.,   177.,   178.,   179.,
+      180.,  225.,  226.,  227., 228.,   233.,   234.,   235.,   236.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -913,8 +2531,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x7x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 14.5,  16. ,  18. ,  19. ,  26.5,  28. ,  30. ,  31. ,  42.5,  44. ,  46. ,  47. ,  58.5,  60. ,  62. ,  63. ,  66.5,  68. ,  70. ,  71. ,  94.5,  96. ,  98. ,  99. , 106.5, 108. , 110. , 111. , 122.5, 124. , 126. , 127. , 138.5, 140. , 142. , 143. , 146.5, 148. , 150. , 151. , 174.5, 176. , 178. , 179. , 186.5, 188. , 190. , 191. , 202.5, 204. , 206. , 207. , 218.5, 220. , 222. , 223. , 226.5, 228. , 230. , 231. };
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      14.5,  16.,  18.,   19.,  26.5,  28.,  30.,   31.,  42.5,  44.,
+      46.,   47.,  58.5,  60.,  62.,   63.,  66.5,  68.,  70.,   71.,
+      94.5,  96.,  98.,   99.,  106.5, 108., 110.,  111., 122.5, 124.,
+      126.,  127., 138.5, 140., 142.,  143., 146.5, 148., 150.,  151.,
+      174.5, 176., 178.,  179., 186.5, 188., 190.,  191., 202.5, 204.,
+      206.,  207., 218.5, 220., 222.,  223., 226.5, 228., 230.,  231.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -922,8 +2546,10 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 19.,  21.,  35.,  37.,  51.,  53.,  99., 101., 115., 117., 131., 133., 179., 181., 195., 197., 211., 213.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {19.,  21.,  35.,  37.,  51.,  53.,
+                                         99.,  101., 115., 117., 131., 133.,
+                                         179., 181., 195., 197., 211., 213.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -931,8 +2557,18 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x8x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,  55.,  56.,  59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94., 116., 117., 119., 120., 123., 124., 125., 126., 132., 133., 135., 136., 139., 140., 141., 142., 188., 189., 191., 192., 195., 196., 197., 198., 212., 213., 215., 216., 219., 220., 221., 222., 244., 245., 247., 248., 251., 252., 253., 254., 276., 277., 279., 280., 283., 284., 285., 286., 292., 293., 295., 296., 299., 300., 301., 302., 348., 349., 351., 352., 355., 356., 357., 358., 372., 373., 375., 376., 379., 380., 381., 382., 404., 405., 407., 408., 411., 412., 413., 414., 436., 437., 439., 440., 443., 444., 445., 446., 452., 453., 455., 456., 459., 460., 461., 462.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      28.,  29.,  31.,  32.,  35.,  36.,  37.,  38.,  52.,  53.,  55.,  56.,
+      59.,  60.,  61.,  62.,  84.,  85.,  87.,  88.,  91.,  92.,  93.,  94.,
+      116., 117., 119., 120., 123., 124., 125., 126., 132., 133., 135., 136.,
+      139., 140., 141., 142., 188., 189., 191., 192., 195., 196., 197., 198.,
+      212., 213., 215., 216., 219., 220., 221., 222., 244., 245., 247., 248.,
+      251., 252., 253., 254., 276., 277., 279., 280., 283., 284., 285., 286.,
+      292., 293., 295., 296., 299., 300., 301., 302., 348., 349., 351., 352.,
+      355., 356., 357., 358., 372., 373., 375., 376., 379., 380., 381., 382.,
+      404., 405., 407., 408., 411., 412., 413., 414., 436., 437., 439., 440.,
+      443., 444., 445., 446., 452., 453., 455., 456., 459., 460., 461., 462.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -940,8 +2576,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x8x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 37.,  38.,  41.,  42.,  69.,  70.,  73.,  74., 101., 102., 105., 106., 197., 198., 201., 202., 229., 230., 233., 234., 261., 262., 265., 266., 357., 358., 361., 362., 389., 390., 393., 394., 421., 422., 425., 426.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      37.,  38.,  41.,  42.,  69.,  70.,  73.,  74.,  101., 102., 105., 106.,
+      197., 198., 201., 202., 229., 230., 233., 234., 261., 262., 265., 266.,
+      357., 358., 361., 362., 389., 390., 393., 394., 421., 422., 425., 426.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -949,8 +2588,32 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x8x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 55. ,  56. ,  57. ,  58. ,  61. ,  62. ,  63. ,  64. ,  69. ,  70. ,  71. ,  72. ,  73. ,  74. ,  75. ,  76. , 103. , 104. , 105. , 106. , 109. , 110. , 111. , 112. , 117. , 118. , 119. , 120. , 121. , 122. , 123. , 124. , 167. , 168. , 169. , 170. , 173. , 174. , 175. , 176. , 181. , 182. , 183. , 184. , 185. , 186. , 187. , 188. , 231. , 232. , 233. , 234. , 237. , 238. , 239. , 240. , 245. , 246. , 247. , 248. , 249. , 250. , 251. , 252. , 263. , 264. , 265. , 266. , 269. , 270. , 271. , 272. , 277. , 278. , 279. , 280. , 281. , 282. , 283. , 284. , 375. , 376. , 377. , 378. , 381. , 382. , 383. , 384. , 389. , 390. , 391. , 392. , 393. , 394. , 395. , 396. , 423. , 424. , 425. , 426. , 429. , 430. , 431. , 432. , 437. , 438. , 439. , 440. , 441. , 442. , 443. , 444. , 282.2, 283.2, 284.2, 285.2, 288.2, 289.2, 290.2, 291.2, 296.2, 297.2, 298.2, 299.2, 300.2, 301.2, 302.2, 303.2, 141.4, 142.4, 143.4, 144.4, 147.4, 148.4, 149.4, 150.4, 155.4, 156.4, 157.4, 158.4, 159.4, 160.4, 161.4, 162.4,  71. ,  72. ,  73. ,  74. ,  77. ,  78. ,  79. ,  80. ,  85. ,  86. ,  87. ,  88. ,  89. ,  90. ,  91. ,  92. , 183. , 184. , 185. , 186. , 189. , 190. , 191. , 192. , 197. , 198. , 199. , 200. , 201. , 202. , 203. , 204. , 231. , 232. , 233. , 234. , 237. , 238. , 239. , 240. , 245. , 246. , 247. , 248. , 249. , 250. , 251. , 252. , 295. , 296. , 297. , 298. , 301. , 302. , 303. , 304. , 309. , 310. , 311. , 312. , 313. , 314. , 315. , 316. , 359. , 360. , 361. , 362. , 365. , 366. , 367. , 368. , 373. , 374. , 375. , 376. , 377. , 378. , 379. , 380. , 391. , 392. , 393. , 394. , 397. , 398. , 399. , 400. , 405. , 406. , 407. , 408. , 409. , 410. , 411. , 412. };
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      55.,   56.,   57.,   58.,   61.,   62.,   63.,   64.,   69.,   70.,
+      71.,   72.,   73.,   74.,   75.,   76.,   103.,  104.,  105.,  106.,
+      109.,  110.,  111.,  112.,  117.,  118.,  119.,  120.,  121.,  122.,
+      123.,  124.,  167.,  168.,  169.,  170.,  173.,  174.,  175.,  176.,
+      181.,  182.,  183.,  184.,  185.,  186.,  187.,  188.,  231.,  232.,
+      233.,  234.,  237.,  238.,  239.,  240.,  245.,  246.,  247.,  248.,
+      249.,  250.,  251.,  252.,  263.,  264.,  265.,  266.,  269.,  270.,
+      271.,  272.,  277.,  278.,  279.,  280.,  281.,  282.,  283.,  284.,
+      375.,  376.,  377.,  378.,  381.,  382.,  383.,  384.,  389.,  390.,
+      391.,  392.,  393.,  394.,  395.,  396.,  423.,  424.,  425.,  426.,
+      429.,  430.,  431.,  432.,  437.,  438.,  439.,  440.,  441.,  442.,
+      443.,  444.,  282.2, 283.2, 284.2, 285.2, 288.2, 289.2, 290.2, 291.2,
+      296.2, 297.2, 298.2, 299.2, 300.2, 301.2, 302.2, 303.2, 141.4, 142.4,
+      143.4, 144.4, 147.4, 148.4, 149.4, 150.4, 155.4, 156.4, 157.4, 158.4,
+      159.4, 160.4, 161.4, 162.4, 71.,   72.,   73.,   74.,   77.,   78.,
+      79.,   80.,   85.,   86.,   87.,   88.,   89.,   90.,   91.,   92.,
+      183.,  184.,  185.,  186.,  189.,  190.,  191.,  192.,  197.,  198.,
+      199.,  200.,  201.,  202.,  203.,  204.,  231.,  232.,  233.,  234.,
+      237.,  238.,  239.,  240.,  245.,  246.,  247.,  248.,  249.,  250.,
+      251.,  252.,  295.,  296.,  297.,  298.,  301.,  302.,  303.,  304.,
+      309.,  310.,  311.,  312.,  313.,  314.,  315.,  316.,  359.,  360.,
+      361.,  362.,  365.,  366.,  367.,  368.,  373.,  374.,  375.,  376.,
+      377.,  378.,  379.,  380.,  391.,  392.,  393.,  394.,  397.,  398.,
+      399.,  400.,  405.,  406.,  407.,  408.,  409.,  410.,  411.,  412.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -958,8 +2621,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x8x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 73. ,  74. ,  75. ,  76. ,  81. ,  82. ,  83. ,  84. , 137. , 138. , 139. , 140. , 145. , 146. , 147. , 148. , 201. , 202. , 203. , 204. , 209. , 210. , 211. , 212. , 393. , 394. , 395. , 396. , 401. , 402. , 403. , 404. , 354.6, 355.6, 356.6, 357.6, 362.6, 363.6, 364.6, 365.6, 213.8, 214.8, 215.8, 216.8, 221.8, 222.8, 223.8, 224.8, 201. , 202. , 203. , 204. , 209. , 210. , 211. , 212. , 265. , 266. , 267. , 268. , 273. , 274. , 275. , 276. , 329. , 330. , 331. , 332. , 337. , 338. , 339. , 340. };
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      73.,   74.,   75.,   76.,   81.,   82.,   83.,   84.,   137.,
+      138.,  139.,  140.,  145.,  146.,  147.,  148.,  201.,  202.,
+      203.,  204.,  209.,  210.,  211.,  212.,  393.,  394.,  395.,
+      396.,  401.,  402.,  403.,  404.,  354.6, 355.6, 356.6, 357.6,
+      362.6, 363.6, 364.6, 365.6, 213.8, 214.8, 215.8, 216.8, 221.8,
+      222.8, 223.8, 224.8, 201.,  202.,  203.,  204.,  209.,  210.,
+      211.,  212.,  265.,  266.,  267.,  268.,  273.,  274.,  275.,
+      276.,  329.,  330.,  331.,  332.,  337.,  338.,  339.,  340.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -967,8 +2638,16 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x8x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 17.5,  19. ,  21. ,  23. ,  24. ,  32.5,  34. ,  36. ,  38. ,  39. ,  52.5,  54. ,  56. ,  58. ,  59. ,  72.5,  74. ,  76. ,  78. ,  79. ,  82.5,  84. ,  86. ,  88. ,  89. , 117.5, 119. , 121. , 123. , 124. , 132.5, 134. , 136. , 138. , 139. , 152.5, 154. , 156. , 158. , 159. , 172.5, 174. , 176. , 178. , 179. , 182.5, 184. , 186. , 188. , 189. , 217.5, 219. , 221. , 223. , 224. , 232.5, 234. , 236. , 238. , 239. , 252.5, 254. , 256. , 258. , 259. , 272.5, 274. , 276. , 278. , 279. , 282.5, 284. , 286. , 288. , 289. };
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      17.5,  19.,  21.,  23.,  24.,  32.5,  34.,  36.,  38.,  39.,
+      52.5,  54.,  56.,  58.,  59.,  72.5,  74.,  76.,  78.,  79.,
+      82.5,  84.,  86.,  88.,  89.,  117.5, 119., 121., 123., 124.,
+      132.5, 134., 136., 138., 139., 152.5, 154., 156., 158., 159.,
+      172.5, 174., 176., 178., 179., 182.5, 184., 186., 188., 189.,
+      217.5, 219., 221., 223., 224., 232.5, 234., 236., 238., 239.,
+      252.5, 254., 256., 258., 259., 272.5, 274., 276., 278., 279.,
+      282.5, 284., 286., 288., 289.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -976,8 +2655,11 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 23.,  25.,  27.,  43.,  45.,  47.,  63.,  65.,  67., 123., 125., 127., 143., 145., 147., 163., 165., 167., 223., 225., 227., 243., 245., 247., 263., 265., 267.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      23.,  25.,  27.,  43.,  45.,  47.,  63.,  65.,  67.,
+      123., 125., 127., 143., 145., 147., 163., 165., 167.,
+      223., 225., 227., 243., 245., 247., 263., 265., 267.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -985,8 +2667,23 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x10x1) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 34.  ,  35.  ,  37.  ,  38.  ,  41.  ,  42.  ,  45.  ,  46.  ,  47.  ,  48.  ,  64.  ,  65.  ,  67.  ,  68.  ,  71.  ,  72.  ,  75.  ,  76.  ,  77.  ,  78.  , 104.  , 105.  , 107.  , 108.  , 111.  , 112.  , 115.  , 116.  , 117.  , 118.  , 144.  , 145.  , 147.  , 148.  , 151.  , 152.  , 155.  , 156.  , 157.  , 158.  , 164.  , 165.  , 167.  , 168.  , 171.  , 172.  , 175.  , 176.  , 177.  , 178.  , 234.  , 235.  , 237.  , 238.  , 241.  , 242.  , 245.  , 246.  , 247.  , 248.  , 264.  , 265.  , 267.  , 268.  , 271.  , 272.  , 275.  , 276.  , 277.  , 278.  , 304.  , 305.  , 307.  , 308.  , 311.  , 312.  , 315.  , 316.  , 317.  , 318.  , 344.  , 345.  , 347.  , 348.  , 351.  , 352.  , 355.  , 356.  , 357.  , 358.  , 364.  , 365.  , 367.  , 368.  , 371.  , 372.  , 375.  , 376.  , 377.  , 378.  , 434.  , 435.  , 437.  , 438.  , 441.  , 442.  , 445.  , 446.  , 447.  , 448.  , 464.  , 465.  , 467.  , 468.  , 430.04, 431.04, 393.08, 394.08, 374.6 , 375.6 , 299.2 , 300.2 , 302.2 , 303.2 , 265.24, 266.24, 228.28, 229.28, 209.8 , 210.8 , 134.4 , 135.4 , 137.4 , 138.4 , 100.44, 101.44,  63.48,  64.48,  45.  ,  46.  ,  52.  ,  53.  ,  55.  ,  56.  ,  59.  ,  60.  ,  63.  ,  64.  ,  65.  ,  66.  };
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      34.,   35.,   37.,   38.,   41.,    42.,    45.,    46.,    47.,   48.,
+      64.,   65.,   67.,   68.,   71.,    72.,    75.,    76.,    77.,   78.,
+      104.,  105.,  107.,  108.,  111.,   112.,   115.,   116.,   117.,  118.,
+      144.,  145.,  147.,  148.,  151.,   152.,   155.,   156.,   157.,  158.,
+      164.,  165.,  167.,  168.,  171.,   172.,   175.,   176.,   177.,  178.,
+      234.,  235.,  237.,  238.,  241.,   242.,   245.,   246.,   247.,  248.,
+      264.,  265.,  267.,  268.,  271.,   272.,   275.,   276.,   277.,  278.,
+      304.,  305.,  307.,  308.,  311.,   312.,   315.,   316.,   317.,  318.,
+      344.,  345.,  347.,  348.,  351.,   352.,   355.,   356.,   357.,  358.,
+      364.,  365.,  367.,  368.,  371.,   372.,   375.,   376.,   377.,  378.,
+      434.,  435.,  437.,  438.,  441.,   442.,   445.,   446.,   447.,  448.,
+      464.,  465.,  467.,  468.,  430.04, 431.04, 393.08, 394.08, 374.6, 375.6,
+      299.2, 300.2, 302.2, 303.2, 265.24, 266.24, 228.28, 229.28, 209.8, 210.8,
+      134.4, 135.4, 137.4, 138.4, 100.44, 101.44, 63.48,  64.48,  45.,   46.,
+      52.,   53.,   55.,   56.,   59.,    60.,    63.,    64.,    65.,   66.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -994,8 +2691,14 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x10x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 45.  ,  46.  ,  49.  ,  50.  ,  53.  ,  54.  ,  85.  ,  86.  ,  89.  ,  90.  ,  93.  ,  94.  , 125.  , 126.  , 129.  , 130.  , 133.  , 134.  , 245.  , 246.  , 249.  , 250.  , 253.  , 254.  , 285.  , 286.  , 289.  , 290.  , 293.  , 294.  , 325.  , 326.  , 329.  , 330.  , 333.  , 334.  , 445.  , 446.  , 449.  , 450.  , 453.  , 454.  , 382.6 , 383.6 , 366.12, 367.12, 329.16, 330.16, 217.8 , 218.8 , 201.32, 202.32, 164.36, 165.36};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      45.,    46.,    49.,    50.,   53.,   54.,    85.,    86.,    89.,
+      90.,    93.,    94.,    125.,  126.,  129.,   130.,   133.,   134.,
+      245.,   246.,   249.,   250.,  253.,  254.,   285.,   286.,   289.,
+      290.,   293.,   294.,   325.,  326.,  329.,   330.,   333.,   334.,
+      445.,   446.,   449.,   450.,  453.,  454.,   382.6,  383.6,  366.12,
+      367.12, 329.16, 330.16, 217.8, 218.8, 201.32, 202.32, 164.36, 165.36};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1003,8 +2706,307 @@ TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x10x2) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 67.              ,  68.              ,  69.              ,  70.              ,  73.              ,  74.              ,  75.              ,  76.              ,  81.              ,  82.              ,  83.              ,  84.              ,  89.              ,  90.              ,  91.              ,  92.              ,  93.              ,  94.              ,  95.              ,  96.              , 127.              , 128.              , 129.              , 130.              , 133.              , 134.              , 135.              , 136.              , 141.              , 142.              , 143.              , 144.              , 149.              , 150.              , 151.              , 152.              , 153.              , 154.              , 155.              , 156.              , 207.              , 208.              , 209.              , 210.              , 213.              , 214.              , 215.              , 216.              , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 233.              , 234.              , 235.              , 236.              , 287.              , 288.              , 289.              , 290.              , 293.              , 294.              , 295.              , 296.              , 301.              , 302.              , 303.              , 304.              , 309.              , 310.              , 311.              , 312.              , 313.              , 314.              , 315.              , 316.              , 327.              , 328.              , 329.              , 330.              , 333.              , 334.              , 335.              , 336.              , 341.              , 342.              , 343.              , 344.              , 349.              , 350.              , 351.              , 352.              , 353.              , 354.              , 355.              , 356.              , 339.              , 340.              , 341.              , 342.              , 345.              , 346.              , 347.              , 348.              , 353.              , 354.              , 355.              , 356.              , 309.8             , 310.8             , 311.8             , 312.8             , 279.6666666666667 , 280.6666666666667 , 281.6666666666667 , 282.6666666666667 , 219.8             , 220.8             , 221.8             , 222.8             , 225.8             , 226.8             , 227.8             , 228.8             , 233.8             , 234.8             , 235.8             , 236.8             , 200.84            , 201.84            , 202.84            , 203.84            , 177.53333333333333, 178.53333333333333, 179.53333333333333, 180.53333333333333,  95.              ,  96.              ,  97.              ,  98.              , 101.              , 102.              , 103.              , 104.              , 109.              , 110.              , 111.              , 112.              , 117.              , 118.              , 119.              , 120.              , 121.              , 122.              , 123.              , 124.              , 175.              , 176.              , 177.              , 178.              , 181.              , 182.              , 183.              , 184.              , 189.              , 190.              , 191.              , 192.              , 197.              , 198.              , 199.              , 200.              , 201.              , 202.              , 203.              , 204.              , 215.              , 216.              , 217.              , 218.              , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 237.              , 238.              , 239.              , 240.              , 241.              , 242.              , 243.              , 244.              , 355.              , 356.              , 357.              , 358.              , 361.              , 362.              , 363.              , 364.              , 369.              , 370.              , 371.              , 372.              , 377.              , 378.              , 379.              , 380.              , 381.              , 382.              , 383.              , 384.              , 415.              , 416.              , 417.              , 418.              , 421.              , 422.              , 423.              , 424.              , 388.04            , 389.04            , 390.04            , 391.04            , 355.08            , 356.08            , 357.08            , 358.08            , 338.6             , 339.6             , 340.6             , 341.6             , 290.2             , 291.2             , 292.2             , 293.2             , 296.2             , 297.2             , 298.2             , 299.2             , 263.24            , 264.24            , 265.24            , 266.24            , 230.28            , 231.28            , 232.28            , 233.28            , 213.8             , 214.8             , 215.8             , 216.8             , 165.4             , 166.4             , 167.4             , 168.4             , 171.4             , 172.4             , 173.4             , 174.4             , 138.44            , 139.44            , 140.44            , 141.44            , 105.48            , 106.48            , 107.48            , 108.48            ,  89.              ,  90.              ,  91.              ,  92.              , 103.              , 104.              , 105.              , 106.              , 109.              , 110.              , 111.              , 112.              , 117.              , 118.              , 119.              , 120.              , 125.              , 126.              , 127.              , 128.              , 129.              , 130.              , 131.              , 132.              };
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {67.,
+                                         68.,
+                                         69.,
+                                         70.,
+                                         73.,
+                                         74.,
+                                         75.,
+                                         76.,
+                                         81.,
+                                         82.,
+                                         83.,
+                                         84.,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         93.,
+                                         94.,
+                                         95.,
+                                         96.,
+                                         127.,
+                                         128.,
+                                         129.,
+                                         130.,
+                                         133.,
+                                         134.,
+                                         135.,
+                                         136.,
+                                         141.,
+                                         142.,
+                                         143.,
+                                         144.,
+                                         149.,
+                                         150.,
+                                         151.,
+                                         152.,
+                                         153.,
+                                         154.,
+                                         155.,
+                                         156.,
+                                         207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         213.,
+                                         214.,
+                                         215.,
+                                         216.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         287.,
+                                         288.,
+                                         289.,
+                                         290.,
+                                         293.,
+                                         294.,
+                                         295.,
+                                         296.,
+                                         301.,
+                                         302.,
+                                         303.,
+                                         304.,
+                                         309.,
+                                         310.,
+                                         311.,
+                                         312.,
+                                         313.,
+                                         314.,
+                                         315.,
+                                         316.,
+                                         327.,
+                                         328.,
+                                         329.,
+                                         330.,
+                                         333.,
+                                         334.,
+                                         335.,
+                                         336.,
+                                         341.,
+                                         342.,
+                                         343.,
+                                         344.,
+                                         349.,
+                                         350.,
+                                         351.,
+                                         352.,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         339.,
+                                         340.,
+                                         341.,
+                                         342.,
+                                         345.,
+                                         346.,
+                                         347.,
+                                         348.,
+                                         353.,
+                                         354.,
+                                         355.,
+                                         356.,
+                                         309.8,
+                                         310.8,
+                                         311.8,
+                                         312.8,
+                                         279.6666666666667,
+                                         280.6666666666667,
+                                         281.6666666666667,
+                                         282.6666666666667,
+                                         219.8,
+                                         220.8,
+                                         221.8,
+                                         222.8,
+                                         225.8,
+                                         226.8,
+                                         227.8,
+                                         228.8,
+                                         233.8,
+                                         234.8,
+                                         235.8,
+                                         236.8,
+                                         200.84,
+                                         201.84,
+                                         202.84,
+                                         203.84,
+                                         177.53333333333333,
+                                         178.53333333333333,
+                                         179.53333333333333,
+                                         180.53333333333333,
+                                         95.,
+                                         96.,
+                                         97.,
+                                         98.,
+                                         101.,
+                                         102.,
+                                         103.,
+                                         104.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         117.,
+                                         118.,
+                                         119.,
+                                         120.,
+                                         121.,
+                                         122.,
+                                         123.,
+                                         124.,
+                                         175.,
+                                         176.,
+                                         177.,
+                                         178.,
+                                         181.,
+                                         182.,
+                                         183.,
+                                         184.,
+                                         189.,
+                                         190.,
+                                         191.,
+                                         192.,
+                                         197.,
+                                         198.,
+                                         199.,
+                                         200.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         215.,
+                                         216.,
+                                         217.,
+                                         218.,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         355.,
+                                         356.,
+                                         357.,
+                                         358.,
+                                         361.,
+                                         362.,
+                                         363.,
+                                         364.,
+                                         369.,
+                                         370.,
+                                         371.,
+                                         372.,
+                                         377.,
+                                         378.,
+                                         379.,
+                                         380.,
+                                         381.,
+                                         382.,
+                                         383.,
+                                         384.,
+                                         415.,
+                                         416.,
+                                         417.,
+                                         418.,
+                                         421.,
+                                         422.,
+                                         423.,
+                                         424.,
+                                         388.04,
+                                         389.04,
+                                         390.04,
+                                         391.04,
+                                         355.08,
+                                         356.08,
+                                         357.08,
+                                         358.08,
+                                         338.6,
+                                         339.6,
+                                         340.6,
+                                         341.6,
+                                         290.2,
+                                         291.2,
+                                         292.2,
+                                         293.2,
+                                         296.2,
+                                         297.2,
+                                         298.2,
+                                         299.2,
+                                         263.24,
+                                         264.24,
+                                         265.24,
+                                         266.24,
+                                         230.28,
+                                         231.28,
+                                         232.28,
+                                         233.28,
+                                         213.8,
+                                         214.8,
+                                         215.8,
+                                         216.8,
+                                         165.4,
+                                         166.4,
+                                         167.4,
+                                         168.4,
+                                         171.4,
+                                         172.4,
+                                         173.4,
+                                         174.4,
+                                         138.44,
+                                         139.44,
+                                         140.44,
+                                         141.44,
+                                         105.48,
+                                         106.48,
+                                         107.48,
+                                         108.48,
+                                         89.,
+                                         90.,
+                                         91.,
+                                         92.,
+                                         103.,
+                                         104.,
+                                         105.,
+                                         106.,
+                                         109.,
+                                         110.,
+                                         111.,
+                                         112.,
+                                         117.,
+                                         118.,
+                                         119.,
+                                         120.,
+                                         125.,
+                                         126.,
+                                         127.,
+                                         128.,
+                                         129.,
+                                         130.,
+                                         131.,
+                                         132.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1012,11 +3014,22 @@ TYPED_TEST(AvgWindow5Stride2Forward, SAME3x10x10x4) {
 }
 TYPED_TEST(AvgWindow5Stride2Forward, VALID3x10x10x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 89.  ,  90.  ,  91.  ,  92.  ,  97.  ,  98.  ,  99.  , 100.  , 105.  , 106.  , 107.  , 108.  , 169.  , 170.  , 171.  , 172.  , 177.  , 178.  , 179.  , 180.  , 185.  , 186.  , 187.  , 188.  , 249.  , 250.  , 251.  , 252.  , 257.  , 258.  , 259.  , 260.  , 265.  , 266.  , 267.  , 268.  , 284.2 , 285.2 , 286.2 , 287.2 , 292.2 , 293.2 , 294.2 , 295.2 , 279.72, 280.72, 281.72, 282.72, 159.4 , 160.4 , 161.4 , 162.4 , 167.4 , 168.4 , 169.4 , 170.4 , 154.92, 155.92, 156.92, 157.92, 137.  , 138.  , 139.  , 140.  , 145.  , 146.  , 147.  , 148.  , 153.  , 154.  , 155.  , 156.  , 377.  , 378.  , 379.  , 380.  , 385.  , 386.  , 387.  , 388.  , 393.  , 394.  , 395.  , 396.  , 354.6 , 355.6 , 356.6 , 357.6 , 342.12, 343.12, 344.12, 345.12, 309.16, 310.16, 311.16, 312.16, 229.8 , 230.8 , 231.8 , 232.8 , 217.32, 218.32, 219.32, 220.32, 184.36, 185.36, 186.36, 187.36};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      89.,    90.,    91.,    92.,    97.,    98.,    99.,    100.,   105.,
+      106.,   107.,   108.,   169.,   170.,   171.,   172.,   177.,   178.,
+      179.,   180.,   185.,   186.,   187.,   188.,   249.,   250.,   251.,
+      252.,   257.,   258.,   259.,   260.,   265.,   266.,   267.,   268.,
+      284.2,  285.2,  286.2,  287.2,  292.2,  293.2,  294.2,  295.2,  279.72,
+      280.72, 281.72, 282.72, 159.4,  160.4,  161.4,  162.4,  167.4,  168.4,
+      169.4,  170.4,  154.92, 155.92, 156.92, 157.92, 137.,   138.,   139.,
+      140.,   145.,   146.,   147.,   148.,   153.,   154.,   155.,   156.,
+      377.,   378.,   379.,   380.,   385.,   386.,   387.,   388.,   393.,
+      394.,   395.,   396.,   354.6,  355.6,  356.6,  357.6,  342.12, 343.12,
+      344.12, 345.12, 309.16, 310.16, 311.16, 312.16, 229.8,  230.8,  231.8,
+      232.8,  217.32, 218.32, 219.32, 220.32, 184.36, 185.36, 186.36, 187.36};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<5, 2>(in_shape, padding);
   const DataType max_input_val = 512.0;
   this->test_pool(exp_out, params, max_input_val);
 }
-

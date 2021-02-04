@@ -39,7 +39,6 @@ using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 
-
 template <typename Pair>
 using InputBackpropWindow1Stride1 =
     sycldnn::depthwise_conv2d::WindowStrideTest<Pair, 1, 1>;
@@ -47,2916 +46,4548 @@ TYPED_TEST_SUITE(InputBackpropWindow1Stride1, GTestTypePairs);
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 1 }};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 1 }};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {30., 70., 110., 150.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {30., 70., 110., 150.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {1., 4., 3., 8., 5., 12., 7., 16.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {1., 4., 3., 8., 5., 12., 7., 16.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25., 17., 53.,
+                                         29., 81., 41., 109.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25., 17., 53.,
+                                         29., 81., 41., 109.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30., 174., 110., 382., 190., 590., 270., 798.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174., 110., 382.,
+                                         190., 590., 270., 798.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30., 174., 110., 382., 190., 590., 270., 798.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174., 110., 382.,
+                                         190., 590., 270., 798.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  9., 16.,  5., 12., 21., 32.,  9., 20., 33., 48., 13., 28., 45., 64.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {1., 4.,  9.,  16., 5.,  12., 21., 32.,
+                                         9., 20., 33., 48., 13., 28., 45., 64.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  9., 16.,  5., 12., 21., 32.,  9., 20., 33., 48., 13., 28., 45., 64.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {1., 4.,  9.,  16., 5.,  12., 21., 32.,
+                                         9., 20., 33., 48., 13., 28., 45., 64.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {5.,   25.,  61.,  113., 29.,  81.,
+                                         149., 233., 53.,  137., 237., 353.,
+                                         77.,  193., 325., 473.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {5.,   25.,  61.,  113., 29.,  81.,
+                                         149., 233., 53.,  137., 237., 353.,
+                                         77.,  193., 325., 473.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190., 590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510., 1422., 2462., 3630.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190., 590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510., 1422., 2462., 3630.};
+  const std::array<int, 4> in_shape = {{1, 2, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 1 }};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 1 }};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {30., 70., 110., 150., 190., 230.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {30., 70., 110., 150., 190., 230.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3., 8.,  5.,  12.,
+                                         7., 16., 9., 20., 11., 24.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3., 8.,  5.,  12.,
+                                         7., 16., 9., 20., 11., 24.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174., 110., 382.,  190., 590.,
+                                         270., 798., 350., 1006., 430., 1214.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174., 110., 382.,  190., 590.,
+                                         270., 798., 350., 1006., 430., 1214.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  9., 16.,  5., 12., 21., 32.,  9., 20., 33., 48., 13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12., 21., 32., 9.,  20., 33., 48.,
+      13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  9., 16.,  5., 12., 21., 32.,  9., 20., 33., 48., 13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12., 21., 32., 9.,  20., 33., 48.,
+      13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237., 353.,
+      77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237., 353.,
+      77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190., 590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510., 1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830., 2254., 3806., 5486.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190., 590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510., 1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830., 2254., 3806., 5486.};
+  const std::array<int, 4> in_shape = {{1, 2, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 1 }};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 1 }};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35., 41., 47.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35., 41., 47.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150.,
+                                         190., 230., 270., 310.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150.,
+                                         190., 230., 270., 310.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3.,  8.,  5.,  12., 7.,  16.,
+                                         9., 20., 11., 24., 13., 28., 15., 32.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3.,  8.,  5.,  12., 7.,  16.,
+                                         9., 20., 11., 24., 13., 28., 15., 32.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.,
+                                         77., 193., 89., 221.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.,
+                                         77., 193., 89., 221.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12.,  21., 32., 9.,  20., 33.,
+      48., 13., 28., 45., 64., 17.,  36., 57., 80., 21., 44.,
+      69., 96., 25., 52., 81., 112., 29., 60., 93., 128.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12.,  21., 32., 9.,  20., 33.,
+      48., 13., 28., 45., 64., 17.,  36., 57., 80., 21., 44.,
+      69., 96., 25., 52., 81., 112., 29., 60., 93., 128.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237.,
+      353., 77.,  193., 325., 473., 101., 249., 413., 593., 125., 305.,
+      501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237.,
+      353., 77.,  193., 325., 473., 101., 249., 413., 593., 125., 305.,
+      501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x2x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.,  990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190.,  590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510.,  1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830.,  2254., 3806., 5486.,
+      990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x2x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.,  990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
-  const std::array<int, 4> in_shape = {{ 1, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190.,  590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510.,  1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830.,  2254., 3806., 5486.,
+      990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
+  const std::array<int, 4> in_shape = {{1, 2, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 1 }};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 1 }};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {30., 70., 110., 150., 190., 230.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {30., 70., 110., 150., 190., 230.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3., 8.,  5.,  12.,
+                                         7., 16., 9., 20., 11., 24.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3., 8.,  5.,  12.,
+                                         7., 16., 9., 20., 11., 24.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174., 110., 382.,  190., 590.,
+                                         270., 798., 350., 1006., 430., 1214.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174., 110., 382.,  190., 590.,
+                                         270., 798., 350., 1006., 430., 1214.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  9., 16.,  5., 12., 21., 32.,  9., 20., 33., 48., 13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12., 21., 32., 9.,  20., 33., 48.,
+      13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  9., 16.,  5., 12., 21., 32.,  9., 20., 33., 48., 13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12., 21., 32., 9.,  20., 33., 48.,
+      13., 28., 45., 64., 17., 36., 57., 80., 21., 44., 69., 96.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237., 353.,
+      77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237., 353.,
+      77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190., 590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510., 1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830., 2254., 3806., 5486.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190., 590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510., 1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830., 2254., 3806., 5486.};
+  const std::array<int, 4> in_shape = {{1, 3, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8., 9.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 1 }};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8., 9.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 1 }};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29.,
+                                         35., 41., 47., 53.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29.,
+                                         35., 41., 47., 53.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190.,
+                                         230., 270., 310., 350.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190.,
+                                         230., 270., 310., 350.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {1.,  4.,  3.,  8.,  5.,  12.,
+                                         7.,  16., 9.,  20., 11., 24.,
+                                         13., 28., 15., 32., 17., 36.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {1.,  4.,  3.,  8.,  5.,  12.,
+                                         7.,  16., 9.,  20., 11., 24.,
+                                         13., 28., 15., 32., 17., 36.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29.,  81.,
+                                         41., 109., 53., 137., 65.,  165.,
+                                         77., 193., 89., 221., 101., 249.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29.,  81.,
+                                         41., 109., 53., 137., 65.,  165.,
+                                         77., 193., 89., 221., 101., 249.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16.,  5.,  12., 21., 32.,  9.,  20., 33.,  48.,
+      13., 28., 45., 64.,  17., 36., 57., 80.,  21., 44., 69.,  96.,
+      25., 52., 81., 112., 29., 60., 93., 128., 33., 68., 105., 144.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16.,  5.,  12., 21., 32.,  9.,  20., 33.,  48.,
+      13., 28., 45., 64.,  17., 36., 57., 80.,  21., 44., 69.,  96.,
+      25., 52., 81., 112., 29., 60., 93., 128., 33., 68., 105., 144.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237., 353.,
+      77.,  193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.,
+      149., 361., 589., 833., 173., 417., 677., 953., 197., 473., 765., 1073.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237., 353.,
+      77.,  193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713.,
+      149., 361., 589., 833., 173., 417., 677., 953., 197., 473., 765., 1073.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.,  990., 2670., 4478., 6414., 1150., 3086., 5150., 7342., 1310., 3502., 5822., 8270.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,  190.,  590.,  1118., 1774., 350.,
+      1006., 1790., 2702., 510.,  1422., 2462., 3630., 670.,  1838.,
+      3134., 4558., 830.,  2254., 3806., 5486., 990.,  2670., 4478.,
+      6414., 1150., 3086., 5150., 7342., 1310., 3502., 5822., 8270.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.,  990., 2670., 4478., 6414., 1150., 3086., 5150., 7342., 1310., 3502., 5822., 8270.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,  190.,  590.,  1118., 1774., 350.,
+      1006., 1790., 2702., 510.,  1422., 2462., 3630., 670.,  1838.,
+      3134., 4558., 830.,  2254., 3806., 5486., 990.,  2670., 4478.,
+      6414., 1150., 3086., 5150., 7342., 1310., 3502., 5822., 8270.};
+  const std::array<int, 4> in_shape = {{1, 3, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
+                                         7., 8., 9., 10., 11., 12.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
+                                         7., 8., 9., 10., 11., 12.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  17., 53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77., 193., 89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  17., 53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77., 193., 89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.,
+                                         750., 2046., 830., 2254., 910., 2462.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.,
+                                         750., 2046., 830., 2254., 910., 2462.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,   16.,  5.,  12., 21.,  32.,  9.,  20., 33.,  48.,
+      13., 28., 45.,  64.,  17., 36., 57.,  80.,  21., 44., 69.,  96.,
+      25., 52., 81.,  112., 29., 60., 93.,  128., 33., 68., 105., 144.,
+      37., 76., 117., 160., 41., 84., 129., 176., 45., 92., 141., 192.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,   16.,  5.,  12., 21.,  32.,  9.,  20., 33.,  48.,
+      13., 28., 45.,  64.,  17., 36., 57.,  80.,  21., 44., 69.,  96.,
+      25., 52., 81.,  112., 29., 60., 93.,  128., 33., 68., 105., 144.,
+      37., 76., 117., 160., 41., 84., 129., 176., 45., 92., 141., 192.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113.,  29.,  81.,   149.,  233., 53.,  137.,
+      237., 353., 77.,  193.,  325., 473.,  101.,  249., 413., 593.,
+      125., 305., 501., 713.,  149., 361.,  589.,  833., 173., 417.,
+      677., 953., 197., 473.,  765., 1073., 221.,  529., 853., 1193.,
+      245., 585., 941., 1313., 269., 641.,  1029., 1433.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113.,  29.,  81.,   149.,  233., 53.,  137.,
+      237., 353., 77.,  193.,  325., 473.,  101.,  249., 413., 593.,
+      125., 305., 501., 713.,  149., 361.,  589.,  833., 173., 417.,
+      677., 953., 197., 473.,  765., 1073., 221.,  529., 853., 1193.,
+      245., 585., 941., 1313., 269., 641.,  1029., 1433.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x3x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118., 1774., 350.,  1006.,
+      1790., 2702., 510.,  1422.,  2462., 3630., 670.,  1838., 3134., 4558.,
+      830.,  2254., 3806., 5486.,  990.,  2670., 4478., 6414., 1150., 3086.,
+      5150., 7342., 1310., 3502.,  5822., 8270., 1470., 3918., 6494., 9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838., 11054.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x3x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.};
-  const std::array<int, 4> in_shape = {{ 1, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118., 1774., 350.,  1006.,
+      1790., 2702., 510.,  1422.,  2462., 3630., 670.,  1838., 3134., 4558.,
+      830.,  2254., 3806., 5486.,  990.,  2670., 4478., 6414., 1150., 3086.,
+      5150., 7342., 1310., 3502.,  5822., 8270., 1470., 3918., 6494., 9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838., 11054.};
+  const std::array<int, 4> in_shape = {{1, 3, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 1 }};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 1 }};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35., 41., 47.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {5., 11., 17., 23., 29., 35., 41., 47.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150.,
+                                         190., 230., 270., 310.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150.,
+                                         190., 230., 270., 310.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3.,  8.,  5.,  12., 7.,  16.,
+                                         9., 20., 11., 24., 13., 28., 15., 32.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {1., 4.,  3.,  8.,  5.,  12., 7.,  16.,
+                                         9., 20., 11., 24., 13., 28., 15., 32.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.,
+                                         77., 193., 89., 221.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {5.,  25.,  17., 53.,  29., 81.,
+                                         41., 109., 53., 137., 65., 165.,
+                                         77., 193., 89., 221.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12.,  21., 32., 9.,  20., 33.,
+      48., 13., 28., 45., 64., 17.,  36., 57., 80., 21., 44.,
+      69., 96., 25., 52., 81., 112., 29., 60., 93., 128.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,  16., 5.,  12.,  21., 32., 9.,  20., 33.,
+      48., 13., 28., 45., 64., 17.,  36., 57., 80., 21., 44.,
+      69., 96., 25., 52., 81., 112., 29., 60., 93., 128.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237.,
+      353., 77.,  193., 325., 473., 101., 249., 413., 593., 125., 305.,
+      501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  61., 113.,  29.,  81., 149., 233.,  53., 137., 237., 353.,  77., 193., 325., 473., 101., 249., 413., 593., 125., 305., 501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113., 29.,  81.,  149., 233., 53.,  137., 237.,
+      353., 77.,  193., 325., 473., 101., 249., 413., 593., 125., 305.,
+      501., 713., 149., 361., 589., 833., 173., 417., 677., 953.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.,  990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190.,  590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510.,  1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830.,  2254., 3806., 5486.,
+      990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  446.,  846.,  190.,  590., 1118., 1774.,  350., 1006., 1790., 2702.,  510., 1422., 2462., 3630.,  670., 1838., 3134., 4558.,  830., 2254., 3806., 5486.,  990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  446.,  846.,  190.,  590.,  1118., 1774.,
+      350., 1006., 1790., 2702., 510.,  1422., 2462., 3630.,
+      670., 1838., 3134., 4558., 830.,  2254., 3806., 5486.,
+      990., 2670., 4478., 6414., 1150., 3086., 5150., 7342.};
+  const std::array<int, 4> in_shape = {{1, 4, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
+                                         7., 8., 9., 10., 11., 12.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
+                                         7., 8., 9., 10., 11., 12.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  17., 53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77., 193., 89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  17., 53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77., 193., 89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.,
+                                         750., 2046., 830., 2254., 910., 2462.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.,
+                                         750., 2046., 830., 2254., 910., 2462.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,   16.,  5.,  12., 21.,  32.,  9.,  20., 33.,  48.,
+      13., 28., 45.,  64.,  17., 36., 57.,  80.,  21., 44., 69.,  96.,
+      25., 52., 81.,  112., 29., 60., 93.,  128., 33., 68., 105., 144.,
+      37., 76., 117., 160., 41., 84., 129., 176., 45., 92., 141., 192.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,   16.,  5.,  12., 21.,  32.,  9.,  20., 33.,  48.,
+      13., 28., 45.,  64.,  17., 36., 57.,  80.,  21., 44., 69.,  96.,
+      25., 52., 81.,  112., 29., 60., 93.,  128., 33., 68., 105., 144.,
+      37., 76., 117., 160., 41., 84., 129., 176., 45., 92., 141., 192.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113.,  29.,  81.,   149.,  233., 53.,  137.,
+      237., 353., 77.,  193.,  325., 473.,  101.,  249., 413., 593.,
+      125., 305., 501., 713.,  149., 361.,  589.,  833., 173., 417.,
+      677., 953., 197., 473.,  765., 1073., 221.,  529., 853., 1193.,
+      245., 585., 941., 1313., 269., 641.,  1029., 1433.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113.,  29.,  81.,   149.,  233., 53.,  137.,
+      237., 353., 77.,  193.,  325., 473.,  101.,  249., 413., 593.,
+      125., 305., 501., 713.,  149., 361.,  589.,  833., 173., 417.,
+      677., 953., 197., 473.,  765., 1073., 221.,  529., 853., 1193.,
+      245., 585., 941., 1313., 269., 641.,  1029., 1433.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118., 1774., 350.,  1006.,
+      1790., 2702., 510.,  1422.,  2462., 3630., 670.,  1838., 3134., 4558.,
+      830.,  2254., 3806., 5486.,  990.,  2670., 4478., 6414., 1150., 3086.,
+      5150., 7342., 1310., 3502.,  5822., 8270., 1470., 3918., 6494., 9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838., 11054.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118., 1774., 350.,  1006.,
+      1790., 2702., 510.,  1422.,  2462., 3630., 670.,  1838., 3134., 4558.,
+      830.,  2254., 3806., 5486.,  990.,  2670., 4478., 6414., 1150., 3086.,
+      5150., 7342., 1310., 3502.,  5822., 8270., 1470., 3918., 6494., 9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838., 11054.};
+  const std::array<int, 4> in_shape = {{1, 4, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {1., 2.,  3.,  4.,  5.,  6.,  7.,  8.,
+                                         9., 10., 11., 12., 13., 14., 15., 16.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {1., 2.,  3.,  4.,  5.,  6.,  7.,  8.,
+                                         9., 10., 11., 12., 13., 14., 15., 16.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71., 77., 83., 89., 95.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.,
+                                         77., 83., 89., 95.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71., 77., 83., 89., 95.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.,
+                                         77., 83., 89., 95.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.,
+                                         510., 550., 590., 630.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.,
+                                         510., 550., 590., 630.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11.,
+      24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44.,
+      23., 48., 25., 52., 27., 56., 29., 60., 31., 64.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11.,
+      24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44.,
+      23., 48., 25., 52., 27., 56., 29., 60., 31., 64.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,
+      165., 77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305.,
+      137., 333., 149., 361., 161., 389., 173., 417., 185., 445.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,
+      165., 77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305.,
+      137., 333., 149., 361., 161., 389., 173., 417., 185., 445.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,
+      350., 1006., 430.,  1214., 510.,  1422., 590.,  1630.,
+      670., 1838., 750.,  2046., 830.,  2254., 910.,  2462.,
+      990., 2670., 1070., 2878., 1150., 3086., 1230., 3294.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,
+      350., 1006., 430.,  1214., 510.,  1422., 590.,  1630.,
+      670., 1838., 750.,  2046., 830.,  2254., 910.,  2462.,
+      990., 2670., 1070., 2878., 1150., 3086., 1230., 3294.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,  20.,  33.,
+      48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80., 21.,  44.,
+      69.,  96.,  25.,  52.,  81.,  112., 29.,  60.,  93., 128., 33.,
+      68.,  105., 144., 37.,  76.,  117., 160., 41.,  84., 129., 176.,
+      45.,  92.,  141., 192., 49.,  100., 153., 208., 53., 108., 165.,
+      224., 57.,  116., 177., 240., 61.,  124., 189., 256.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,  20.,  33.,
+      48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80., 21.,  44.,
+      69.,  96.,  25.,  52.,  81.,  112., 29.,  60.,  93., 128., 33.,
+      68.,  105., 144., 37.,  76.,  117., 160., 41.,  84., 129., 176.,
+      45.,  92.,  141., 192., 49.,  100., 153., 208., 53., 108., 165.,
+      224., 57.,  116., 177., 240., 61.,  124., 189., 256.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,  61.,   113.,  29.,   81.,  149.,  233.,  53.,  137., 237.,
+      353.,  77.,  193.,  325.,  473.,  101., 249.,  413.,  593., 125., 305.,
+      501.,  713., 149.,  361.,  589.,  833., 173.,  417.,  677., 953., 197.,
+      473.,  765., 1073., 221.,  529.,  853., 1193., 245.,  585., 941., 1313.,
+      269.,  641., 1029., 1433., 293.,  697., 1117., 1553., 317., 753., 1205.,
+      1673., 341., 809.,  1293., 1793., 365., 865.,  1381., 1913.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,  61.,   113.,  29.,   81.,  149.,  233.,  53.,  137., 237.,
+      353.,  77.,  193.,  325.,  473.,  101., 249.,  413.,  593., 125., 305.,
+      501.,  713., 149.,  361.,  589.,  833., 173.,  417.,  677., 953., 197.,
+      473.,  765., 1073., 221.,  529.,  853., 1193., 245.,  585., 941., 1313.,
+      269.,  641., 1029., 1433., 293.,  697., 1117., 1553., 317., 753., 1205.,
+      1673., 341., 809.,  1293., 1793., 365., 865.,  1381., 1913.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME1x4x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118.,  1774.,
+      350.,  1006., 1790., 2702.,  510.,  1422., 2462.,  3630.,
+      670.,  1838., 3134., 4558.,  830.,  2254., 3806.,  5486.,
+      990.,  2670., 4478., 6414.,  1150., 3086., 5150.,  7342.,
+      1310., 3502., 5822., 8270.,  1470., 3918., 6494.,  9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838.,  11054.,
+      1950., 5166., 8510., 11982., 2110., 5582., 9182.,  12910.,
+      2270., 5998., 9854., 13838., 2430., 6414., 10526., 14766.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID1x4x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.};
-  const std::array<int, 4> in_shape = {{ 1, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118.,  1774.,
+      350.,  1006., 1790., 2702.,  510.,  1422., 2462.,  3630.,
+      670.,  1838., 3134., 4558.,  830.,  2254., 3806.,  5486.,
+      990.,  2670., 4478., 6414.,  1150., 3086., 5150.,  7342.,
+      1310., 3502., 5822., 8270.,  1470., 3918., 6494.,  9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838.,  11054.,
+      1950., 5166., 8510., 11982., 2110., 5582., 9182.,  12910.,
+      2270., 5998., 9854., 13838., 2430., 6414., 10526., 14766.};
+  const std::array<int, 4> in_shape = {{1, 4, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
+                                         7., 8., 9., 10., 11., 12.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
+                                         7., 8., 9., 10., 11., 12.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5., 11., 17., 23., 29., 35., 41., 47., 53., 59., 65., 71.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29., 35.,
+                                         41., 47., 53., 59., 65., 71.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  17., 53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77., 193., 89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,  25.,  17., 53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77., 193., 89., 221., 101., 249., 113., 277., 125., 305., 137., 333.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.,
+                                         750., 2046., 830., 2254., 910., 2462.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 2 }};
+  const std::vector<DataType> exp_out = {30.,  174.,  110., 382.,  190., 590.,
+                                         270., 798.,  350., 1006., 430., 1214.,
+                                         510., 1422., 590., 1630., 670., 1838.,
+                                         750., 2046., 830., 2254., 910., 2462.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,   16.,  5.,  12., 21.,  32.,  9.,  20., 33.,  48.,
+      13., 28., 45.,  64.,  17., 36., 57.,  80.,  21., 44., 69.,  96.,
+      25., 52., 81.,  112., 29., 60., 93.,  128., 33., 68., 105., 144.,
+      37., 76., 117., 160., 41., 84., 129., 176., 45., 92., 141., 192.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  9.,   16.,  5.,  12., 21.,  32.,  9.,  20., 33.,  48.,
+      13., 28., 45.,  64.,  17., 36., 57.,  80.,  21., 44., 69.,  96.,
+      25., 52., 81.,  112., 29., 60., 93.,  128., 33., 68., 105., 144.,
+      37., 76., 117., 160., 41., 84., 129., 176., 45., 92., 141., 192.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113.,  29.,  81.,   149.,  233., 53.,  137.,
+      237., 353., 77.,  193.,  325., 473.,  101.,  249., 413., 593.,
+      125., 305., 501., 713.,  149., 361.,  589.,  833., 173., 417.,
+      677., 953., 197., 473.,  765., 1073., 221.,  529., 853., 1193.,
+      245., 585., 941., 1313., 269., 641.,  1029., 1433.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  61.,  113.,  29.,  81.,   149.,  233., 53.,  137.,
+      237., 353., 77.,  193.,  325., 473.,  101.,  249., 413., 593.,
+      125., 305., 501., 713.,  149., 361.,  589.,  833., 173., 417.,
+      677., 953., 197., 473.,  765., 1073., 221.,  529., 853., 1193.,
+      245., 585., 941., 1313., 269., 641.,  1029., 1433.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118., 1774., 350.,  1006.,
+      1790., 2702., 510.,  1422.,  2462., 3630., 670.,  1838., 3134., 4558.,
+      830.,  2254., 3806., 5486.,  990.,  2670., 4478., 6414., 1150., 3086.,
+      5150., 7342., 1310., 3502.,  5822., 8270., 1470., 3918., 6494., 9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838., 11054.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  446.,  846.,   190.,  590.,  1118., 1774., 350.,  1006.,
+      1790., 2702., 510.,  1422.,  2462., 3630., 670.,  1838., 3134., 4558.,
+      830.,  2254., 3806., 5486.,  990.,  2670., 4478., 6414., 1150., 3086.,
+      5150., 7342., 1310., 3502.,  5822., 8270., 1470., 3918., 6494., 9198.,
+      1630., 4334., 7166., 10126., 1790., 4750., 7838., 11054.};
+  const std::array<int, 4> in_shape = {{3, 2, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {1.,  2.,  3.,  4.,  5.,  6.,
+                                         7.,  8.,  9.,  10., 11., 12.,
+                                         13., 14., 15., 16., 17., 18.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {1.,  2.,  3.,  4.,  5.,  6.,
+                                         7.,  8.,  9.,  10., 11., 12.,
+                                         13., 14., 15., 16., 17., 18.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29.,  35.,
+                                         41., 47., 53., 59., 65.,  71.,
+                                         77., 83., 89., 95., 101., 107.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29.,  35.,
+                                         41., 47., 53., 59., 65.,  71.,
+                                         77., 83., 89., 95., 101., 107.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.,
+                                         510., 550., 590., 630., 670., 710.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.,
+                                         510., 550., 590., 630., 670., 710.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,  149.,  233.,  53.,   137., 237.,
+      353.,  77.,   193.,  325.,  473.,  101., 249.,  413.,  593.,  125., 305.,
+      501.,  713.,  149.,  361.,  589.,  833., 173.,  417.,  677.,  953., 197.,
+      473.,  765.,  1073., 221.,  529.,  853., 1193., 245.,  585.,  941., 1313.,
+      269.,  641.,  1029., 1433., 293.,  697., 1117., 1553., 317.,  753., 1205.,
+      1673., 341.,  809.,  1293., 1793., 365., 865.,  1381., 1913., 389., 921.,
+      1469., 2033., 413.,  977.,  1557., 2153.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,  149.,  233.,  53.,   137., 237.,
+      353.,  77.,   193.,  325.,  473.,  101., 249.,  413.,  593.,  125., 305.,
+      501.,  713.,  149.,  361.,  589.,  833., 173.,  417.,  677.,  953., 197.,
+      473.,  765.,  1073., 221.,  529.,  853., 1193., 245.,  585.,  941., 1313.,
+      269.,  641.,  1029., 1433., 293.,  697., 1117., 1553., 317.,  753., 1205.,
+      1673., 341.,  809.,  1293., 1793., 365., 865.,  1381., 1913., 389., 921.,
+      1469., 2033., 413.,  977.,  1557., 2153.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.};
+  const std::array<int, 4> in_shape = {{3, 2, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,  11., 17., 23., 29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77., 83., 89., 95., 101., 107., 113., 119., 125., 131., 137., 143.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,  11., 17., 23., 29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77., 83., 89., 95., 101., 107., 113., 119., 125., 131., 137., 143.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,  70.,  110., 150., 190., 230., 270., 310., 350., 390., 430., 470.,
+      510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,  70.,  110., 150., 190., 230., 270., 310., 350., 390., 430., 470.,
+      510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72., 37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.,
+      37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72., 37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.,
+      37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,  1006.,
+      430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838., 750.,  2046.,
+      830.,  2254., 910.,  2462., 990.,  2670., 1070., 2878., 1150., 3086.,
+      1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126.,
+      1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,  1006.,
+      430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838., 750.,  2046.,
+      830.,  2254., 910.,  2462., 990.,  2670., 1070., 2878., 1150., 3086.,
+      1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126.,
+      1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.,
+      73., 148., 225., 304., 77., 156., 237., 320., 81., 164., 249., 336.,
+      85., 172., 261., 352., 89., 180., 273., 368., 93., 188., 285., 384.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.,
+      73., 148., 225., 304., 77., 156., 237., 320., 81., 164., 249., 336.,
+      85., 172., 261., 352., 89., 180., 273., 368., 93., 188., 285., 384.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x2x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x2x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.};
-  const std::array<int, 4> in_shape = {{ 3, 2, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190.};
+  const std::array<int, 4> in_shape = {{3, 2, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {1.,  2.,  3.,  4.,  5.,  6.,
+                                         7.,  8.,  9.,  10., 11., 12.,
+                                         13., 14., 15., 16., 17., 18.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {1.,  2.,  3.,  4.,  5.,  6.,
+                                         7.,  8.,  9.,  10., 11., 12.,
+                                         13., 14., 15., 16., 17., 18.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29.,  35.,
+                                         41., 47., 53., 59., 65.,  71.,
+                                         77., 83., 89., 95., 101., 107.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {5.,  11., 17., 23., 29.,  35.,
+                                         41., 47., 53., 59., 65.,  71.,
+                                         77., 83., 89., 95., 101., 107.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.,
+                                         510., 550., 590., 630., 670., 710.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 1 }};
+  const std::vector<DataType> exp_out = {30.,  70.,  110., 150., 190., 230.,
+                                         270., 310., 350., 390., 430., 470.,
+                                         510., 550., 590., 630., 670., 710.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,  149.,  233.,  53.,   137., 237.,
+      353.,  77.,   193.,  325.,  473.,  101., 249.,  413.,  593.,  125., 305.,
+      501.,  713.,  149.,  361.,  589.,  833., 173.,  417.,  677.,  953., 197.,
+      473.,  765.,  1073., 221.,  529.,  853., 1193., 245.,  585.,  941., 1313.,
+      269.,  641.,  1029., 1433., 293.,  697., 1117., 1553., 317.,  753., 1205.,
+      1673., 341.,  809.,  1293., 1793., 365., 865.,  1381., 1913., 389., 921.,
+      1469., 2033., 413.,  977.,  1557., 2153.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,  149.,  233.,  53.,   137., 237.,
+      353.,  77.,   193.,  325.,  473.,  101., 249.,  413.,  593.,  125., 305.,
+      501.,  713.,  149.,  361.,  589.,  833., 173.,  417.,  677.,  953., 197.,
+      473.,  765.,  1073., 221.,  529.,  853., 1193., 245.,  585.,  941., 1313.,
+      269.,  641.,  1029., 1433., 293.,  697., 1117., 1553., 317.,  753., 1205.,
+      1673., 341.,  809.,  1293., 1793., 365., 865.,  1381., 1913., 389., 921.,
+      1469., 2033., 413.,  977.,  1557., 2153.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.};
+  const std::array<int, 4> in_shape = {{3, 3, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12., 13., 14.,
+      15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12., 13., 14.,
+      15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,
+      59.,  65.,  71.,  77.,  83.,  89.,  95.,  101., 107.,
+      113., 119., 125., 131., 137., 143., 149., 155., 161.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,
+      59.,  65.,  71.,  77.,  83.,  89.,  95.,  101., 107.,
+      113., 119., 125., 131., 137., 143., 149., 155., 161.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,  70.,  110., 150., 190., 230., 270., 310.,  350.,
+      390., 430., 470., 510., 550., 590., 630., 670.,  710.,
+      750., 790., 830., 870., 910., 950., 990., 1030., 1070.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,  70.,  110., 150., 190., 230., 270., 310.,  350.,
+      390., 430., 470., 510., 550., 590., 630., 670.,  710.,
+      750., 790., 830., 870., 910., 950., 990., 1030., 1070.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16.,  9.,  20.,  11., 24., 13., 28.,
+      15., 32., 17., 36., 19., 40., 21., 44.,  23., 48.,  25., 52., 27., 56.,
+      29., 60., 31., 64., 33., 68., 35., 72.,  37., 76.,  39., 80., 41., 84.,
+      43., 88., 45., 92., 47., 96., 49., 100., 51., 104., 53., 108.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16.,  9.,  20.,  11., 24., 13., 28.,
+      15., 32., 17., 36., 19., 40., 21., 44.,  23., 48.,  25., 52., 27., 56.,
+      29., 60., 31., 64., 33., 68., 35., 72.,  37., 76.,  39., 80., 41., 84.,
+      43., 88., 45., 92., 47., 96., 49., 100., 51., 104., 53., 108.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669., 293., 697., 305., 725., 317., 753.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,
+      165., 77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305.,
+      137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197.,
+      473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613.,
+      269., 641., 281., 669., 293., 697., 305., 725., 317., 753.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669., 293., 697., 305., 725., 317., 753.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,
+      165., 77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305.,
+      137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197.,
+      473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613.,
+      269., 641., 281., 669., 293., 697., 305., 725., 317., 753.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.,
+      1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790.,
+      4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.,
+      1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790.,
+      4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25., 52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37., 76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49., 100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61., 124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73., 148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85., 172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25., 52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37., 76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49., 100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61., 124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73., 148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85., 172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.};
+  const std::array<int, 4> in_shape = {{3, 3, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+      25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+      25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77.,  83.,  89.,  95.,  101., 107., 113., 119., 125., 131., 137., 143.,
+      149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77.,  83.,  89.,  95.,  101., 107., 113., 119., 125., 131., 137., 143.,
+      149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070., 1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,   70.,   110.,  150.,  190.,  230.,  270.,  310.,  350.,
+      390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,
+      750.,  790.,  830.,  870.,  910.,  950.,  990.,  1030., 1070.,
+      1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070., 1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,   70.,   110.,  150.,  190.,  230.,  270.,  310.,  350.,
+      390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,
+      750.,  790.,  830.,  870.,  910.,  950.,  990.,  1030., 1070.,
+      1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.,  55., 112.,  57., 116.,  59., 120.,  61., 124.,  63., 128.,  65., 132.,  67., 136.,  69., 140.,  71., 144.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   3.,  8.,   5.,  12.,  7.,  16.,  9.,  20.,  11., 24.,
+      13., 28.,  15., 32.,  17., 36.,  19., 40.,  21., 44.,  23., 48.,
+      25., 52.,  27., 56.,  29., 60.,  31., 64.,  33., 68.,  35., 72.,
+      37., 76.,  39., 80.,  41., 84.,  43., 88.,  45., 92.,  47., 96.,
+      49., 100., 51., 104., 53., 108., 55., 112., 57., 116., 59., 120.,
+      61., 124., 63., 128., 65., 132., 67., 136., 69., 140., 71., 144.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.,  55., 112.,  57., 116.,  59., 120.,  61., 124.,  63., 128.,  65., 132.,  67., 136.,  69., 140.,  71., 144.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   3.,  8.,   5.,  12.,  7.,  16.,  9.,  20.,  11., 24.,
+      13., 28.,  15., 32.,  17., 36.,  19., 40.,  21., 44.,  23., 48.,
+      25., 52.,  27., 56.,  29., 60.,  31., 64.,  33., 68.,  35., 72.,
+      37., 76.,  39., 80.,  41., 84.,  43., 88.,  45., 92.,  47., 96.,
+      49., 100., 51., 104., 53., 108., 55., 112., 57., 116., 59., 120.,
+      61., 124., 63., 128., 65., 132., 67., 136., 69., 140., 71., 144.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   17.,   53.,   29.,   81.,   41.,  109.,   53.,  137.,   65.,  165.,   77.,  193.,   89.,  221.,  101.,  249.,  113.,  277.,  125.,  305.,  137.,  333.,  149.,  361.,  161.,  389.,  173.,  417.,  185.,  445.,  197.,  473.,  209.,  501.,  221.,  529.,  233.,  557.,  245.,  585.,  257.,  613.,  269.,  641.,  281.,  669.,  293.,  697.,  305.,  725.,  317.,  753.,  329.,  781.,  341.,  809.,  353.,  837.,  365.,  865.,  377.,  893.,  389.,  921.,  401.,  949.,  413.,  977.,  425., 1005.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.,
+      293., 697., 305., 725., 317., 753., 329., 781., 341., 809., 353., 837.,
+      365., 865., 377., 893., 389., 921., 401., 949., 413., 977., 425., 1005.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   17.,   53.,   29.,   81.,   41.,  109.,   53.,  137.,   65.,  165.,   77.,  193.,   89.,  221.,  101.,  249.,  113.,  277.,  125.,  305.,  137.,  333.,  149.,  361.,  161.,  389.,  173.,  417.,  185.,  445.,  197.,  473.,  209.,  501.,  221.,  529.,  233.,  557.,  245.,  585.,  257.,  613.,  269.,  641.,  281.,  669.,  293.,  697.,  305.,  725.,  317.,  753.,  329.,  781.,  341.,  809.,  353.,  837.,  365.,  865.,  377.,  893.,  389.,  921.,  401.,  949.,  413.,  977.,  425., 1005.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.,
+      293., 697., 305., 725., 317., 753., 329., 781., 341., 809., 353., 837.,
+      365., 865., 377., 893., 389., 921., 401., 949., 413., 977., 425., 1005.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.,
+      1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790.,
+      4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.,
+      2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510.,
+      6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.,
+      1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790.,
+      4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.,
+      2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510.,
+      6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432., 109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480., 121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528., 133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25.,  52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37.,  76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49.,  100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61.,  124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73.,  148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85.,  172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97.,  196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.,
+      109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480.,
+      121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528.,
+      133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432., 109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480., 121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528., 133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25.,  52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37.,  76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49.,  100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61.,  124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73.,  148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85.,  172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97.,  196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.,
+      109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480.,
+      121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528.,
+      133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.,  653., 1537., 2437., 3353.,  677., 1593., 2525., 3473.,  701., 1649., 2613., 3593.,  725., 1705., 2701., 3713.,  749., 1761., 2789., 3833.,  773., 1817., 2877., 3953.,  797., 1873., 2965., 4073.,  821., 1929., 3053., 4193.,  845., 1985., 3141., 4313.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233., 653.,  1537.,
+      2437., 3353., 677.,  1593., 2525., 3473., 701.,  1649., 2613., 3593.,
+      725.,  1705., 2701., 3713., 749.,  1761., 2789., 3833., 773.,  1817.,
+      2877., 3953., 797.,  1873., 2965., 4073., 821.,  1929., 3053., 4193.,
+      845.,  1985., 3141., 4313.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.,  653., 1537., 2437., 3353.,  677., 1593., 2525., 3473.,  701., 1649., 2613., 3593.,  725., 1705., 2701., 3713.,  749., 1761., 2789., 3833.,  773., 1817., 2877., 3953.,  797., 1873., 2965., 4073.,  821., 1929., 3053., 4193.,  845., 1985., 3141., 4313.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233., 653.,  1537.,
+      2437., 3353., 677.,  1593., 2525., 3473., 701.,  1649., 2613., 3593.,
+      725.,  1705., 2701., 3713., 749.,  1761., 2789., 3833., 773.,  1817.,
+      2877., 3953., 797.,  1873., 2965., 4073., 821.,  1929., 3053., 4193.,
+      845.,  1985., 3141., 4313.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x3x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.,  4350., 11406., 18590., 25902.,  4510., 11822., 19262., 26830.,  4670., 12238., 19934., 27758.,  4830., 12654., 20606., 28686.,  4990., 13070., 21278., 29614.,  5150., 13486., 21950., 30542.,  5310., 13902., 22622., 31470.,  5470., 14318., 23294., 32398.,  5630., 14734., 23966., 33326.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.,
+      4350.,  11406., 18590., 25902., 4510.,  11822., 19262., 26830., 4670.,
+      12238., 19934., 27758., 4830.,  12654., 20606., 28686., 4990.,  13070.,
+      21278., 29614., 5150.,  13486., 21950., 30542., 5310.,  13902., 22622.,
+      31470., 5470.,  14318., 23294., 32398., 5630.,  14734., 23966., 33326.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x3x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.,  4350., 11406., 18590., 25902.,  4510., 11822., 19262., 26830.,  4670., 12238., 19934., 27758.,  4830., 12654., 20606., 28686.,  4990., 13070., 21278., 29614.,  5150., 13486., 21950., 30542.,  5310., 13902., 22622., 31470.,  5470., 14318., 23294., 32398.,  5630., 14734., 23966., 33326.};
-  const std::array<int, 4> in_shape = {{ 3, 3, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.,
+      4350.,  11406., 18590., 25902., 4510.,  11822., 19262., 26830., 4670.,
+      12238., 19934., 27758., 4830.,  12654., 20606., 28686., 4990.,  13070.,
+      21278., 29614., 5150.,  13486., 21950., 30542., 5310.,  13902., 22622.,
+      31470., 5470.,  14318., 23294., 32398., 5630.,  14734., 23966., 33326.};
+  const std::array<int, 4> in_shape = {{3, 3, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,  11., 17., 23., 29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77., 83., 89., 95., 101., 107., 113., 119., 125., 131., 137., 143.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,  11., 17., 23., 29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77., 83., 89., 95., 101., 107., 113., 119., 125., 131., 137., 143.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,  70.,  110., 150., 190., 230., 270., 310., 350., 390., 430., 470.,
+      510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 30.,  70., 110., 150., 190., 230., 270., 310., 350., 390., 430., 470., 510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,  70.,  110., 150., 190., 230., 270., 310., 350., 390., 430., 470.,
+      510., 550., 590., 630., 670., 710., 750., 790., 830., 870., 910., 950.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72., 37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.,
+      37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  4.,  3.,  8.,  5., 12.,  7., 16.,  9., 20., 11., 24., 13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48., 25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72., 37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,  3.,  8.,  5.,  12., 7.,  16., 9.,  20., 11., 24.,
+      13., 28., 15., 32., 17., 36., 19., 40., 21., 44., 23., 48.,
+      25., 52., 27., 56., 29., 60., 31., 64., 33., 68., 35., 72.,
+      37., 76., 39., 80., 41., 84., 43., 88., 45., 92., 47., 96.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  25.,  17.,  53.,  29.,  81.,  41., 109.,  53., 137.,  65., 165.,  77., 193.,  89., 221., 101., 249., 113., 277., 125., 305., 137., 333., 149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501., 221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,  1006.,
+      430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838., 750.,  2046.,
+      830.,  2254., 910.,  2462., 990.,  2670., 1070., 2878., 1150., 3086.,
+      1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126.,
+      1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,  1006.,
+      430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838., 750.,  2046.,
+      830.,  2254., 910.,  2462., 990.,  2670., 1070., 2878., 1150., 3086.,
+      1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126.,
+      1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.,
+      73., 148., 225., 304., 77., 156., 237., 320., 81., 164., 249., 336.,
+      85., 172., 261., 352., 89., 180., 273., 368., 93., 188., 285., 384.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   9.,   16.,  5.,  12.,  21.,  32.,  9.,  20.,  33.,  48.,
+      13., 28.,  45.,  64.,  17., 36.,  57.,  80.,  21., 44.,  69.,  96.,
+      25., 52.,  81.,  112., 29., 60.,  93.,  128., 33., 68.,  105., 144.,
+      37., 76.,  117., 160., 41., 84.,  129., 176., 45., 92.,  141., 192.,
+      49., 100., 153., 208., 53., 108., 165., 224., 57., 116., 177., 240.,
+      61., 124., 189., 256., 65., 132., 201., 272., 69., 140., 213., 288.,
+      73., 148., 225., 304., 77., 156., 237., 320., 81., 164., 249., 336.,
+      85., 172., 261., 352., 89., 180., 273., 368., 93., 188., 285., 384.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x2x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 2, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190.};
+  const std::array<int, 4> in_shape = {{3, 4, 2, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+      25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+      25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77.,  83.,  89.,  95.,  101., 107., 113., 119., 125., 131., 137., 143.,
+      149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77.,  83.,  89.,  95.,  101., 107., 113., 119., 125., 131., 137., 143.,
+      149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070., 1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,   70.,   110.,  150.,  190.,  230.,  270.,  310.,  350.,
+      390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,
+      750.,  790.,  830.,  870.,  910.,  950.,  990.,  1030., 1070.,
+      1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070., 1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,   70.,   110.,  150.,  190.,  230.,  270.,  310.,  350.,
+      390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,
+      750.,  790.,  830.,  870.,  910.,  950.,  990.,  1030., 1070.,
+      1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.,  55., 112.,  57., 116.,  59., 120.,  61., 124.,  63., 128.,  65., 132.,  67., 136.,  69., 140.,  71., 144.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   3.,  8.,   5.,  12.,  7.,  16.,  9.,  20.,  11., 24.,
+      13., 28.,  15., 32.,  17., 36.,  19., 40.,  21., 44.,  23., 48.,
+      25., 52.,  27., 56.,  29., 60.,  31., 64.,  33., 68.,  35., 72.,
+      37., 76.,  39., 80.,  41., 84.,  43., 88.,  45., 92.,  47., 96.,
+      49., 100., 51., 104., 53., 108., 55., 112., 57., 116., 59., 120.,
+      61., 124., 63., 128., 65., 132., 67., 136., 69., 140., 71., 144.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.,  55., 112.,  57., 116.,  59., 120.,  61., 124.,  63., 128.,  65., 132.,  67., 136.,  69., 140.,  71., 144.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   3.,  8.,   5.,  12.,  7.,  16.,  9.,  20.,  11., 24.,
+      13., 28.,  15., 32.,  17., 36.,  19., 40.,  21., 44.,  23., 48.,
+      25., 52.,  27., 56.,  29., 60.,  31., 64.,  33., 68.,  35., 72.,
+      37., 76.,  39., 80.,  41., 84.,  43., 88.,  45., 92.,  47., 96.,
+      49., 100., 51., 104., 53., 108., 55., 112., 57., 116., 59., 120.,
+      61., 124., 63., 128., 65., 132., 67., 136., 69., 140., 71., 144.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   17.,   53.,   29.,   81.,   41.,  109.,   53.,  137.,   65.,  165.,   77.,  193.,   89.,  221.,  101.,  249.,  113.,  277.,  125.,  305.,  137.,  333.,  149.,  361.,  161.,  389.,  173.,  417.,  185.,  445.,  197.,  473.,  209.,  501.,  221.,  529.,  233.,  557.,  245.,  585.,  257.,  613.,  269.,  641.,  281.,  669.,  293.,  697.,  305.,  725.,  317.,  753.,  329.,  781.,  341.,  809.,  353.,  837.,  365.,  865.,  377.,  893.,  389.,  921.,  401.,  949.,  413.,  977.,  425., 1005.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.,
+      293., 697., 305., 725., 317., 753., 329., 781., 341., 809., 353., 837.,
+      365., 865., 377., 893., 389., 921., 401., 949., 413., 977., 425., 1005.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   17.,   53.,   29.,   81.,   41.,  109.,   53.,  137.,   65.,  165.,   77.,  193.,   89.,  221.,  101.,  249.,  113.,  277.,  125.,  305.,  137.,  333.,  149.,  361.,  161.,  389.,  173.,  417.,  185.,  445.,  197.,  473.,  209.,  501.,  221.,  529.,  233.,  557.,  245.,  585.,  257.,  613.,  269.,  641.,  281.,  669.,  293.,  697.,  305.,  725.,  317.,  753.,  329.,  781.,  341.,  809.,  353.,  837.,  365.,  865.,  377.,  893.,  389.,  921.,  401.,  949.,  413.,  977.,  425., 1005.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,  17.,  53.,  29.,  81.,  41.,  109., 53.,  137., 65.,  165.,
+      77.,  193., 89.,  221., 101., 249., 113., 277., 125., 305., 137., 333.,
+      149., 361., 161., 389., 173., 417., 185., 445., 197., 473., 209., 501.,
+      221., 529., 233., 557., 245., 585., 257., 613., 269., 641., 281., 669.,
+      293., 697., 305., 725., 317., 753., 329., 781., 341., 809., 353., 837.,
+      365., 865., 377., 893., 389., 921., 401., 949., 413., 977., 425., 1005.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.,
+      1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790.,
+      4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.,
+      2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510.,
+      6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,
+      1006., 430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838.,
+      750.,  2046., 830.,  2254., 910.,  2462., 990.,  2670., 1070.,
+      2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710.,
+      1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790.,
+      4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582.,
+      2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510.,
+      6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432., 109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480., 121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528., 133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25.,  52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37.,  76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49.,  100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61.,  124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73.,  148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85.,  172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97.,  196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.,
+      109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480.,
+      121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528.,
+      133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432., 109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480., 121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528., 133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25.,  52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37.,  76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49.,  100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61.,  124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73.,  148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85.,  172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97.,  196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.,
+      109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480.,
+      121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528.,
+      133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.,  653., 1537., 2437., 3353.,  677., 1593., 2525., 3473.,  701., 1649., 2613., 3593.,  725., 1705., 2701., 3713.,  749., 1761., 2789., 3833.,  773., 1817., 2877., 3953.,  797., 1873., 2965., 4073.,  821., 1929., 3053., 4193.,  845., 1985., 3141., 4313.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233., 653.,  1537.,
+      2437., 3353., 677.,  1593., 2525., 3473., 701.,  1649., 2613., 3593.,
+      725.,  1705., 2701., 3713., 749.,  1761., 2789., 3833., 773.,  1817.,
+      2877., 3953., 797.,  1873., 2965., 4073., 821.,  1929., 3053., 4193.,
+      845.,  1985., 3141., 4313.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.,  653., 1537., 2437., 3353.,  677., 1593., 2525., 3473.,  701., 1649., 2613., 3593.,  725., 1705., 2701., 3713.,  749., 1761., 2789., 3833.,  773., 1817., 2877., 3953.,  797., 1873., 2965., 4073.,  821., 1929., 3053., 4193.,  845., 1985., 3141., 4313.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233., 653.,  1537.,
+      2437., 3353., 677.,  1593., 2525., 3473., 701.,  1649., 2613., 3593.,
+      725.,  1705., 2701., 3713., 749.,  1761., 2789., 3833., 773.,  1817.,
+      2877., 3953., 797.,  1873., 2965., 4073., 821.,  1929., 3053., 4193.,
+      845.,  1985., 3141., 4313.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.,  4350., 11406., 18590., 25902.,  4510., 11822., 19262., 26830.,  4670., 12238., 19934., 27758.,  4830., 12654., 20606., 28686.,  4990., 13070., 21278., 29614.,  5150., 13486., 21950., 30542.,  5310., 13902., 22622., 31470.,  5470., 14318., 23294., 32398.,  5630., 14734., 23966., 33326.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.,
+      4350.,  11406., 18590., 25902., 4510.,  11822., 19262., 26830., 4670.,
+      12238., 19934., 27758., 4830.,  12654., 20606., 28686., 4990.,  13070.,
+      21278., 29614., 5150.,  13486., 21950., 30542., 5310.,  13902., 22622.,
+      31470., 5470.,  14318., 23294., 32398., 5630.,  14734., 23966., 33326.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x3x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.,  4350., 11406., 18590., 25902.,  4510., 11822., 19262., 26830.,  4670., 12238., 19934., 27758.,  4830., 12654., 20606., 28686.,  4990., 13070., 21278., 29614.,  5150., 13486., 21950., 30542.,  5310., 13902., 22622., 31470.,  5470., 14318., 23294., 32398.,  5630., 14734., 23966., 33326.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 3, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.,
+      4350.,  11406., 18590., 25902., 4510.,  11822., 19262., 26830., 4670.,
+      12238., 19934., 27758., 4830.,  12654., 20606., 28686., 4990.,  13070.,
+      21278., 29614., 5150.,  13486., 21950., 30542., 5310.,  13902., 22622.,
+      31470., 5470.,  14318., 23294., 32398., 5630.,  14734., 23966., 33326.};
+  const std::array<int, 4> in_shape = {{3, 4, 3, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36., 37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+      25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.,
+      37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36., 37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12.,
+      13., 14., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.,
+      25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36.,
+      37., 38., 39., 40., 41., 42., 43., 44., 45., 46., 47., 48.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 1}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215., 221., 227., 233., 239., 245., 251., 257., 263., 269., 275., 281., 287.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77.,  83.,  89.,  95.,  101., 107., 113., 119., 125., 131., 137., 143.,
+      149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.,
+      221., 227., 233., 239., 245., 251., 257., 263., 269., 275., 281., 287.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  5.,  11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,  77.,  83.,  89.,  95., 101., 107., 113., 119., 125., 131., 137., 143., 149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215., 221., 227., 233., 239., 245., 251., 257., 263., 269., 275., 281., 287.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      5.,   11.,  17.,  23.,  29.,  35.,  41.,  47.,  53.,  59.,  65.,  71.,
+      77.,  83.,  89.,  95.,  101., 107., 113., 119., 125., 131., 137., 143.,
+      149., 155., 161., 167., 173., 179., 185., 191., 197., 203., 209., 215.,
+      221., 227., 233., 239., 245., 251., 257., 263., 269., 275., 281., 287.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 1}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070., 1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430., 1470., 1510., 1550., 1590., 1630., 1670., 1710., 1750., 1790., 1830., 1870., 1910.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,   70.,   110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,
+      430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,
+      830.,  870.,  910.,  950.,  990.,  1030., 1070., 1110., 1150., 1190.,
+      1230., 1270., 1310., 1350., 1390., 1430., 1470., 1510., 1550., 1590.,
+      1630., 1670., 1710., 1750., 1790., 1830., 1870., 1910.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,   70.,  110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,  430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,  830.,  870.,  910.,  950.,  990., 1030., 1070., 1110., 1150., 1190., 1230., 1270., 1310., 1350., 1390., 1430., 1470., 1510., 1550., 1590., 1630., 1670., 1710., 1750., 1790., 1830., 1870., 1910.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 1 }};
+  const std::vector<DataType> exp_out = {
+      30.,   70.,   110.,  150.,  190.,  230.,  270.,  310.,  350.,  390.,
+      430.,  470.,  510.,  550.,  590.,  630.,  670.,  710.,  750.,  790.,
+      830.,  870.,  910.,  950.,  990.,  1030., 1070., 1110., 1150., 1190.,
+      1230., 1270., 1310., 1350., 1390., 1430., 1470., 1510., 1550., 1590.,
+      1630., 1670., 1710., 1750., 1790., 1830., 1870., 1910.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 1}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.,  55., 112.,  57., 116.,  59., 120.,  61., 124.,  63., 128.,  65., 132.,  67., 136.,  69., 140.,  71., 144.,  73., 148.,  75., 152.,  77., 156.,  79., 160.,  81., 164.,  83., 168.,  85., 172.,  87., 176.,  89., 180.,  91., 184.,  93., 188.,  95., 192.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   3.,  8.,   5.,  12.,  7.,  16.,  9.,  20.,  11., 24.,
+      13., 28.,  15., 32.,  17., 36.,  19., 40.,  21., 44.,  23., 48.,
+      25., 52.,  27., 56.,  29., 60.,  31., 64.,  33., 68.,  35., 72.,
+      37., 76.,  39., 80.,  41., 84.,  43., 88.,  45., 92.,  47., 96.,
+      49., 100., 51., 104., 53., 108., 55., 112., 57., 116., 59., 120.,
+      61., 124., 63., 128., 65., 132., 67., 136., 69., 140., 71., 144.,
+      73., 148., 75., 152., 77., 156., 79., 160., 81., 164., 83., 168.,
+      85., 172., 87., 176., 89., 180., 91., 184., 93., 188., 95., 192.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   3.,   8.,   5.,  12.,   7.,  16.,   9.,  20.,  11.,  24.,  13.,  28.,  15.,  32.,  17.,  36.,  19.,  40.,  21.,  44.,  23.,  48.,  25.,  52.,  27.,  56.,  29.,  60.,  31.,  64.,  33.,  68.,  35.,  72.,  37.,  76.,  39.,  80.,  41.,  84.,  43.,  88.,  45.,  92.,  47.,  96.,  49., 100.,  51., 104.,  53., 108.,  55., 112.,  57., 116.,  59., 120.,  61., 124.,  63., 128.,  65., 132.,  67., 136.,  69., 140.,  71., 144.,  73., 148.,  75., 152.,  77., 156.,  79., 160.,  81., 164.,  83., 168.,  85., 172.,  87., 176.,  89., 180.,  91., 184.,  93., 188.,  95., 192.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      1.,  4.,   3.,  8.,   5.,  12.,  7.,  16.,  9.,  20.,  11., 24.,
+      13., 28.,  15., 32.,  17., 36.,  19., 40.,  21., 44.,  23., 48.,
+      25., 52.,  27., 56.,  29., 60.,  31., 64.,  33., 68.,  35., 72.,
+      37., 76.,  39., 80.,  41., 84.,  43., 88.,  45., 92.,  47., 96.,
+      49., 100., 51., 104., 53., 108., 55., 112., 57., 116., 59., 120.,
+      61., 124., 63., 128., 65., 132., 67., 136., 69., 140., 71., 144.,
+      73., 148., 75., 152., 77., 156., 79., 160., 81., 164., 83., 168.,
+      85., 172., 87., 176., 89., 180., 91., 184., 93., 188., 95., 192.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 2}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   17.,   53.,   29.,   81.,   41.,  109.,   53.,  137.,   65.,  165.,   77.,  193.,   89.,  221.,  101.,  249.,  113.,  277.,  125.,  305.,  137.,  333.,  149.,  361.,  161.,  389.,  173.,  417.,  185.,  445.,  197.,  473.,  209.,  501.,  221.,  529.,  233.,  557.,  245.,  585.,  257.,  613.,  269.,  641.,  281.,  669.,  293.,  697.,  305.,  725.,  317.,  753.,  329.,  781.,  341.,  809.,  353.,  837.,  365.,  865.,  377.,  893.,  389.,  921.,  401.,  949.,  413.,  977.,  425., 1005.,  437., 1033.,  449., 1061.,  461., 1089.,  473., 1117.,  485., 1145.,  497., 1173.,  509., 1201.,  521., 1229.,  533., 1257.,  545., 1285.,  557., 1313.,  569., 1341.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,   17.,  53.,   29.,  81.,   41.,  109.,  53.,  137.,
+      65.,  165.,  77.,  193.,  89.,  221.,  101., 249.,  113., 277.,
+      125., 305.,  137., 333.,  149., 361.,  161., 389.,  173., 417.,
+      185., 445.,  197., 473.,  209., 501.,  221., 529.,  233., 557.,
+      245., 585.,  257., 613.,  269., 641.,  281., 669.,  293., 697.,
+      305., 725.,  317., 753.,  329., 781.,  341., 809.,  353., 837.,
+      365., 865.,  377., 893.,  389., 921.,  401., 949.,  413., 977.,
+      425., 1005., 437., 1033., 449., 1061., 461., 1089., 473., 1117.,
+      485., 1145., 497., 1173., 509., 1201., 521., 1229., 533., 1257.,
+      545., 1285., 557., 1313., 569., 1341.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   17.,   53.,   29.,   81.,   41.,  109.,   53.,  137.,   65.,  165.,   77.,  193.,   89.,  221.,  101.,  249.,  113.,  277.,  125.,  305.,  137.,  333.,  149.,  361.,  161.,  389.,  173.,  417.,  185.,  445.,  197.,  473.,  209.,  501.,  221.,  529.,  233.,  557.,  245.,  585.,  257.,  613.,  269.,  641.,  281.,  669.,  293.,  697.,  305.,  725.,  317.,  753.,  329.,  781.,  341.,  809.,  353.,  837.,  365.,  865.,  377.,  893.,  389.,  921.,  401.,  949.,  413.,  977.,  425., 1005.,  437., 1033.,  449., 1061.,  461., 1089.,  473., 1117.,  485., 1145.,  497., 1173.,  509., 1201.,  521., 1229.,  533., 1257.,  545., 1285.,  557., 1313.,  569., 1341.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      5.,   25.,   17.,  53.,   29.,  81.,   41.,  109.,  53.,  137.,
+      65.,  165.,  77.,  193.,  89.,  221.,  101., 249.,  113., 277.,
+      125., 305.,  137., 333.,  149., 361.,  161., 389.,  173., 417.,
+      185., 445.,  197., 473.,  209., 501.,  221., 529.,  233., 557.,
+      245., 585.,  257., 613.,  269., 641.,  281., 669.,  293., 697.,
+      305., 725.,  317., 753.,  329., 781.,  341., 809.,  353., 837.,
+      365., 865.,  377., 893.,  389., 921.,  401., 949.,  413., 977.,
+      425., 1005., 437., 1033., 449., 1061., 461., 1089., 473., 1117.,
+      485., 1145., 497., 1173., 509., 1201., 521., 1229., 533., 1257.,
+      545., 1285., 557., 1313., 569., 1341.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 2}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454., 2910., 7662., 2990., 7870., 3070., 8078., 3150., 8286., 3230., 8494., 3310., 8702., 3390., 8910., 3470., 9118., 3550., 9326., 3630., 9534., 3710., 9742., 3790., 9950.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,  1006.,
+      430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838., 750.,  2046.,
+      830.,  2254., 910.,  2462., 990.,  2670., 1070., 2878., 1150., 3086.,
+      1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126.,
+      1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166.,
+      2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206.,
+      2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246.,
+      2830., 7454., 2910., 7662., 2990., 7870., 3070., 8078., 3150., 8286.,
+      3230., 8494., 3310., 8702., 3390., 8910., 3470., 9118., 3550., 9326.,
+      3630., 9534., 3710., 9742., 3790., 9950.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  30.,  174.,  110.,  382.,  190.,  590.,  270.,  798.,  350., 1006.,  430., 1214.,  510., 1422.,  590., 1630.,  670., 1838.,  750., 2046.,  830., 2254.,  910., 2462.,  990., 2670., 1070., 2878., 1150., 3086., 1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126., 1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166., 2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206., 2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246., 2830., 7454., 2910., 7662., 2990., 7870., 3070., 8078., 3150., 8286., 3230., 8494., 3310., 8702., 3390., 8910., 3470., 9118., 3550., 9326., 3630., 9534., 3710., 9742., 3790., 9950.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 2 }};
+  const std::vector<DataType> exp_out = {
+      30.,   174.,  110.,  382.,  190.,  590.,  270.,  798.,  350.,  1006.,
+      430.,  1214., 510.,  1422., 590.,  1630., 670.,  1838., 750.,  2046.,
+      830.,  2254., 910.,  2462., 990.,  2670., 1070., 2878., 1150., 3086.,
+      1230., 3294., 1310., 3502., 1390., 3710., 1470., 3918., 1550., 4126.,
+      1630., 4334., 1710., 4542., 1790., 4750., 1870., 4958., 1950., 5166.,
+      2030., 5374., 2110., 5582., 2190., 5790., 2270., 5998., 2350., 6206.,
+      2430., 6414., 2510., 6622., 2590., 6830., 2670., 7038., 2750., 7246.,
+      2830., 7454., 2910., 7662., 2990., 7870., 3070., 8078., 3150., 8286.,
+      3230., 8494., 3310., 8702., 3390., 8910., 3470., 9118., 3550., 9326.,
+      3630., 9534., 3710., 9742., 3790., 9950.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 2}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432., 109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480., 121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528., 133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576., 145., 292., 441., 592., 149., 300., 453., 608., 153., 308., 465., 624., 157., 316., 477., 640., 161., 324., 489., 656., 165., 332., 501., 672., 169., 340., 513., 688., 173., 348., 525., 704., 177., 356., 537., 720., 181., 364., 549., 736., 185., 372., 561., 752., 189., 380., 573., 768.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25.,  52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37.,  76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49.,  100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61.,  124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73.,  148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85.,  172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97.,  196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.,
+      109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480.,
+      121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528.,
+      133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.,
+      145., 292., 441., 592., 149., 300., 453., 608., 153., 308., 465., 624.,
+      157., 316., 477., 640., 161., 324., 489., 656., 165., 332., 501., 672.,
+      169., 340., 513., 688., 173., 348., 525., 704., 177., 356., 537., 720.,
+      181., 364., 549., 736., 185., 372., 561., 752., 189., 380., 573., 768.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {  1.,   4.,   9.,  16.,   5.,  12.,  21.,  32.,   9.,  20.,  33.,  48.,  13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,  25.,  52.,  81., 112.,  29.,  60.,  93., 128.,  33.,  68., 105., 144.,  37.,  76., 117., 160.,  41.,  84., 129., 176.,  45.,  92., 141., 192.,  49., 100., 153., 208.,  53., 108., 165., 224.,  57., 116., 177., 240.,  61., 124., 189., 256.,  65., 132., 201., 272.,  69., 140., 213., 288.,  73., 148., 225., 304.,  77., 156., 237., 320.,  81., 164., 249., 336.,  85., 172., 261., 352.,  89., 180., 273., 368.,  93., 188., 285., 384.,  97., 196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432., 109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480., 121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528., 133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576., 145., 292., 441., 592., 149., 300., 453., 608., 153., 308., 465., 624., 157., 316., 477., 640., 161., 324., 489., 656., 165., 332., 501., 672., 169., 340., 513., 688., 173., 348., 525., 704., 177., 356., 537., 720., 181., 364., 549., 736., 185., 372., 561., 752., 189., 380., 573., 768.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      1.,   4.,   9.,   16.,  5.,   12.,  21.,  32.,  9.,   20.,  33.,  48.,
+      13.,  28.,  45.,  64.,  17.,  36.,  57.,  80.,  21.,  44.,  69.,  96.,
+      25.,  52.,  81.,  112., 29.,  60.,  93.,  128., 33.,  68.,  105., 144.,
+      37.,  76.,  117., 160., 41.,  84.,  129., 176., 45.,  92.,  141., 192.,
+      49.,  100., 153., 208., 53.,  108., 165., 224., 57.,  116., 177., 240.,
+      61.,  124., 189., 256., 65.,  132., 201., 272., 69.,  140., 213., 288.,
+      73.,  148., 225., 304., 77.,  156., 237., 320., 81.,  164., 249., 336.,
+      85.,  172., 261., 352., 89.,  180., 273., 368., 93.,  188., 285., 384.,
+      97.,  196., 297., 400., 101., 204., 309., 416., 105., 212., 321., 432.,
+      109., 220., 333., 448., 113., 228., 345., 464., 117., 236., 357., 480.,
+      121., 244., 369., 496., 125., 252., 381., 512., 129., 260., 393., 528.,
+      133., 268., 405., 544., 137., 276., 417., 560., 141., 284., 429., 576.,
+      145., 292., 441., 592., 149., 300., 453., 608., 153., 308., 465., 624.,
+      157., 316., 477., 640., 161., 324., 489., 656., 165., 332., 501., 672.,
+      169., 340., 513., 688., 173., 348., 525., 704., 177., 356., 537., 720.,
+      181., 364., 549., 736., 185., 372., 561., 752., 189., 380., 573., 768.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 4}};
   const int multiplier = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.,  653., 1537., 2437., 3353.,  677., 1593., 2525., 3473.,  701., 1649., 2613., 3593.,  725., 1705., 2701., 3713.,  749., 1761., 2789., 3833.,  773., 1817., 2877., 3953.,  797., 1873., 2965., 4073.,  821., 1929., 3053., 4193.,  845., 1985., 3141., 4313.,  869., 2041., 3229., 4433.,  893., 2097., 3317., 4553.,  917., 2153., 3405., 4673.,  941., 2209., 3493., 4793.,  965., 2265., 3581., 4913.,  989., 2321., 3669., 5033., 1013., 2377., 3757., 5153., 1037., 2433., 3845., 5273., 1061., 2489., 3933., 5393., 1085., 2545., 4021., 5513., 1109., 2601., 4109., 5633., 1133., 2657., 4197., 5753.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233., 653.,  1537.,
+      2437., 3353., 677.,  1593., 2525., 3473., 701.,  1649., 2613., 3593.,
+      725.,  1705., 2701., 3713., 749.,  1761., 2789., 3833., 773.,  1817.,
+      2877., 3953., 797.,  1873., 2965., 4073., 821.,  1929., 3053., 4193.,
+      845.,  1985., 3141., 4313., 869.,  2041., 3229., 4433., 893.,  2097.,
+      3317., 4553., 917.,  2153., 3405., 4673., 941.,  2209., 3493., 4793.,
+      965.,  2265., 3581., 4913., 989.,  2321., 3669., 5033., 1013., 2377.,
+      3757., 5153., 1037., 2433., 3845., 5273., 1061., 2489., 3933., 5393.,
+      1085., 2545., 4021., 5513., 1109., 2601., 4109., 5633., 1133., 2657.,
+      4197., 5753.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   5.,   25.,   61.,  113.,   29.,   81.,  149.,  233.,   53.,  137.,  237.,  353.,   77.,  193.,  325.,  473.,  101.,  249.,  413.,  593.,  125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,  677.,  953.,  197.,  473.,  765., 1073.,  221.,  529.,  853., 1193.,  245.,  585.,  941., 1313.,  269.,  641., 1029., 1433.,  293.,  697., 1117., 1553.,  317.,  753., 1205., 1673.,  341.,  809., 1293., 1793.,  365.,  865., 1381., 1913.,  389.,  921., 1469., 2033.,  413.,  977., 1557., 2153.,  437., 1033., 1645., 2273.,  461., 1089., 1733., 2393.,  485., 1145., 1821., 2513.,  509., 1201., 1909., 2633.,  533., 1257., 1997., 2753.,  557., 1313., 2085., 2873.,  581., 1369., 2173., 2993.,  605., 1425., 2261., 3113.,  629., 1481., 2349., 3233.,  653., 1537., 2437., 3353.,  677., 1593., 2525., 3473.,  701., 1649., 2613., 3593.,  725., 1705., 2701., 3713.,  749., 1761., 2789., 3833.,  773., 1817., 2877., 3953.,  797., 1873., 2965., 4073.,  821., 1929., 3053., 4193.,  845., 1985., 3141., 4313.,  869., 2041., 3229., 4433.,  893., 2097., 3317., 4553.,  917., 2153., 3405., 4673.,  941., 2209., 3493., 4793.,  965., 2265., 3581., 4913.,  989., 2321., 3669., 5033., 1013., 2377., 3757., 5153., 1037., 2433., 3845., 5273., 1061., 2489., 3933., 5393., 1085., 2545., 4021., 5513., 1109., 2601., 4109., 5633., 1133., 2657., 4197., 5753.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      5.,    25.,   61.,   113.,  29.,   81.,   149.,  233.,  53.,   137.,
+      237.,  353.,  77.,   193.,  325.,  473.,  101.,  249.,  413.,  593.,
+      125.,  305.,  501.,  713.,  149.,  361.,  589.,  833.,  173.,  417.,
+      677.,  953.,  197.,  473.,  765.,  1073., 221.,  529.,  853.,  1193.,
+      245.,  585.,  941.,  1313., 269.,  641.,  1029., 1433., 293.,  697.,
+      1117., 1553., 317.,  753.,  1205., 1673., 341.,  809.,  1293., 1793.,
+      365.,  865.,  1381., 1913., 389.,  921.,  1469., 2033., 413.,  977.,
+      1557., 2153., 437.,  1033., 1645., 2273., 461.,  1089., 1733., 2393.,
+      485.,  1145., 1821., 2513., 509.,  1201., 1909., 2633., 533.,  1257.,
+      1997., 2753., 557.,  1313., 2085., 2873., 581.,  1369., 2173., 2993.,
+      605.,  1425., 2261., 3113., 629.,  1481., 2349., 3233., 653.,  1537.,
+      2437., 3353., 677.,  1593., 2525., 3473., 701.,  1649., 2613., 3593.,
+      725.,  1705., 2701., 3713., 749.,  1761., 2789., 3833., 773.,  1817.,
+      2877., 3953., 797.,  1873., 2965., 4073., 821.,  1929., 3053., 4193.,
+      845.,  1985., 3141., 4313., 869.,  2041., 3229., 4433., 893.,  2097.,
+      3317., 4553., 917.,  2153., 3405., 4673., 941.,  2209., 3493., 4793.,
+      965.,  2265., 3581., 4913., 989.,  2321., 3669., 5033., 1013., 2377.,
+      3757., 5153., 1037., 2433., 3845., 5273., 1061., 2489., 3933., 5393.,
+      1085., 2545., 4021., 5513., 1109., 2601., 4109., 5633., 1133., 2657.,
+      4197., 5753.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 4}};
   const int multiplier = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, SAME3x4x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.,  4350., 11406., 18590., 25902.,  4510., 11822., 19262., 26830.,  4670., 12238., 19934., 27758.,  4830., 12654., 20606., 28686.,  4990., 13070., 21278., 29614.,  5150., 13486., 21950., 30542.,  5310., 13902., 22622., 31470.,  5470., 14318., 23294., 32398.,  5630., 14734., 23966., 33326.,  5790., 15150., 24638., 34254.,  5950., 15566., 25310., 35182.,  6110., 15982., 25982., 36110.,  6270., 16398., 26654., 37038.,  6430., 16814., 27326., 37966.,  6590., 17230., 27998., 38894.,  6750., 17646., 28670., 39822.,  6910., 18062., 29342., 40750.,  7070., 18478., 30014., 41678.,  7230., 18894., 30686., 42606.,  7390., 19310., 31358., 43534.,  7550., 19726., 32030., 44462.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.,
+      4350.,  11406., 18590., 25902., 4510.,  11822., 19262., 26830., 4670.,
+      12238., 19934., 27758., 4830.,  12654., 20606., 28686., 4990.,  13070.,
+      21278., 29614., 5150.,  13486., 21950., 30542., 5310.,  13902., 22622.,
+      31470., 5470.,  14318., 23294., 32398., 5630.,  14734., 23966., 33326.,
+      5790.,  15150., 24638., 34254., 5950.,  15566., 25310., 35182., 6110.,
+      15982., 25982., 36110., 6270.,  16398., 26654., 37038., 6430.,  16814.,
+      27326., 37966., 6590.,  17230., 27998., 38894., 6750.,  17646., 28670.,
+      39822., 6910.,  18062., 29342., 40750., 7070.,  18478., 30014., 41678.,
+      7230.,  18894., 30686., 42606., 7390.,  19310., 31358., 43534., 7550.,
+      19726., 32030., 44462.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }
 TYPED_TEST(InputBackpropWindow1Stride1, VALID3x4x4x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {   30.,   174.,   446.,   846.,   190.,   590.,  1118.,  1774.,   350.,  1006.,  1790.,  2702.,   510.,  1422.,  2462.,  3630.,   670.,  1838.,  3134.,  4558.,   830.,  2254.,  3806.,  5486.,   990.,  2670.,  4478.,  6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,  1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166., 10126.,  1790.,  4750.,  7838., 11054.,  1950.,  5166.,  8510., 11982.,  2110.,  5582.,  9182., 12910.,  2270.,  5998.,  9854., 13838.,  2430.,  6414., 10526., 14766.,  2590.,  6830., 11198., 15694.,  2750.,  7246., 11870., 16622.,  2910.,  7662., 12542., 17550.,  3070.,  8078., 13214., 18478.,  3230.,  8494., 13886., 19406.,  3390.,  8910., 14558., 20334.,  3550.,  9326., 15230., 21262.,  3710.,  9742., 15902., 22190.,  3870., 10158., 16574., 23118.,  4030., 10574., 17246., 24046.,  4190., 10990., 17918., 24974.,  4350., 11406., 18590., 25902.,  4510., 11822., 19262., 26830.,  4670., 12238., 19934., 27758.,  4830., 12654., 20606., 28686.,  4990., 13070., 21278., 29614.,  5150., 13486., 21950., 30542.,  5310., 13902., 22622., 31470.,  5470., 14318., 23294., 32398.,  5630., 14734., 23966., 33326.,  5790., 15150., 24638., 34254.,  5950., 15566., 25310., 35182.,  6110., 15982., 25982., 36110.,  6270., 16398., 26654., 37038.,  6430., 16814., 27326., 37966.,  6590., 17230., 27998., 38894.,  6750., 17646., 28670., 39822.,  6910., 18062., 29342., 40750.,  7070., 18478., 30014., 41678.,  7230., 18894., 30686., 42606.,  7390., 19310., 31358., 43534.,  7550., 19726., 32030., 44462.};
-  const std::array<int, 4> in_shape = {{ 3, 4, 4, 4 }};
+  const std::vector<DataType> exp_out = {
+      30.,    174.,   446.,   846.,   190.,   590.,   1118.,  1774.,  350.,
+      1006.,  1790.,  2702.,  510.,   1422.,  2462.,  3630.,  670.,   1838.,
+      3134.,  4558.,  830.,   2254.,  3806.,  5486.,  990.,   2670.,  4478.,
+      6414.,  1150.,  3086.,  5150.,  7342.,  1310.,  3502.,  5822.,  8270.,
+      1470.,  3918.,  6494.,  9198.,  1630.,  4334.,  7166.,  10126., 1790.,
+      4750.,  7838.,  11054., 1950.,  5166.,  8510.,  11982., 2110.,  5582.,
+      9182.,  12910., 2270.,  5998.,  9854.,  13838., 2430.,  6414.,  10526.,
+      14766., 2590.,  6830.,  11198., 15694., 2750.,  7246.,  11870., 16622.,
+      2910.,  7662.,  12542., 17550., 3070.,  8078.,  13214., 18478., 3230.,
+      8494.,  13886., 19406., 3390.,  8910.,  14558., 20334., 3550.,  9326.,
+      15230., 21262., 3710.,  9742.,  15902., 22190., 3870.,  10158., 16574.,
+      23118., 4030.,  10574., 17246., 24046., 4190.,  10990., 17918., 24974.,
+      4350.,  11406., 18590., 25902., 4510.,  11822., 19262., 26830., 4670.,
+      12238., 19934., 27758., 4830.,  12654., 20606., 28686., 4990.,  13070.,
+      21278., 29614., 5150.,  13486., 21950., 30542., 5310.,  13902., 22622.,
+      31470., 5470.,  14318., 23294., 32398., 5630.,  14734., 23966., 33326.,
+      5790.,  15150., 24638., 34254., 5950.,  15566., 25310., 35182., 6110.,
+      15982., 25982., 36110., 6270.,  16398., 26654., 37038., 6430.,  16814.,
+      27326., 37966., 6590.,  17230., 27998., 38894., 6750.,  17646., 28670.,
+      39822., 6910.,  18062., 29342., 40750., 7070.,  18478., 30014., 41678.,
+      7230.,  18894., 30686., 42606., 7390.,  19310., 31358., 43534., 7550.,
+      19726., 32030., 44462.};
+  const std::array<int, 4> in_shape = {{3, 4, 4, 4}};
   const int multiplier = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
-  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding, max_input_val);
+  this->run_input_backprop_test(exp_out, in_shape, multiplier, padding,
+                                max_input_val);
 }

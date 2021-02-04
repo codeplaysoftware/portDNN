@@ -34,7 +34,7 @@
 #include <array>
 #include <vector>
 
-using namespace sycldnn; // NOLINT(google-build-using-namespace)
+using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::DefaultBackendTypes;
 
@@ -49,8 +49,10 @@ using AvgWindow11Stride4Forward =
 TYPED_TEST_SUITE(AvgWindow11Stride4Forward, GTestTypePairs);
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.,  51.,  55.,  57.,  79.,  81.,  85.,  87., 139., 141., 145., 147., 169., 171., 175., 177.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 15, 1 }};
+  const std::vector<DataType> exp_out = {49.,  51.,  55.,  57.,  79.,  81.,
+                                         85.,  87.,  139., 141., 145., 147.,
+                                         169., 171., 175., 177.};
+  const std::array<int, 4> in_shape = {{1, 15, 15, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -58,8 +60,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 81.,  85., 141., 145.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 15, 1 }};
+  const std::vector<DataType> exp_out = {81., 85., 141., 145.};
+  const std::array<int, 4> in_shape = {{1, 15, 15, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -67,8 +69,11 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.,  98., 101., 102., 109., 110., 113., 114., 157., 158., 161., 162., 169., 170., 173., 174., 277., 278., 281., 282., 289., 290., 293., 294., 337., 338., 341., 342., 349., 350., 353., 354.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 15, 2 }};
+  const std::vector<DataType> exp_out = {
+      97.,  98.,  101., 102., 109., 110., 113., 114., 157., 158., 161.,
+      162., 169., 170., 173., 174., 277., 278., 281., 282., 289., 290.,
+      293., 294., 337., 338., 341., 342., 349., 350., 353., 354.};
+  const std::array<int, 4> in_shape = {{1, 15, 15, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -76,8 +81,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {161., 162., 169., 170., 281., 282., 289., 290.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 15, 2 }};
+  const std::vector<DataType> exp_out = {161., 162., 169., 170.,
+                                         281., 282., 289., 290.};
+  const std::array<int, 4> in_shape = {{1, 15, 15, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -85,8 +91,71 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {193.              , 194.              , 195.              , 196.              , 201.              , 202.              , 203.              , 204.              , 217.              , 218.              , 219.              , 220.              , 225.              , 226.              , 227.              , 228.              , 219.9090909090909 , 220.9090909090909 , 221.9090909090909 , 222.9090909090909 , 215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 273.72727272727275, 274.72727272727275, 275.72727272727275, 276.72727272727275, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 259.1818181818182 , 260.1818181818182 , 261.1818181818182 , 262.1818181818182 , 234.14285714285714, 235.14285714285714, 236.14285714285714, 237.14285714285714, 222.19480519480518, 223.19480519480518, 224.19480519480518, 225.19480519480518, 211.5974025974026 , 212.5974025974026 , 213.5974025974026 , 214.5974025974026 , 193.              , 194.              , 195.              , 196.              };
-  const std::array<int, 4> in_shape = {{ 1, 15, 15, 4 }};
+  const std::vector<DataType> exp_out = {193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         219.9090909090909,
+                                         220.9090909090909,
+                                         221.9090909090909,
+                                         222.9090909090909,
+                                         215.21487603305786,
+                                         216.21487603305786,
+                                         217.21487603305786,
+                                         218.21487603305786,
+                                         214.28925619834712,
+                                         215.28925619834712,
+                                         216.28925619834712,
+                                         217.28925619834712,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         273.72727272727275,
+                                         274.72727272727275,
+                                         275.72727272727275,
+                                         276.72727272727275,
+                                         269.0330578512397,
+                                         270.0330578512397,
+                                         271.0330578512397,
+                                         272.0330578512397,
+                                         268.10743801652893,
+                                         269.10743801652893,
+                                         270.10743801652893,
+                                         271.10743801652893,
+                                         259.1818181818182,
+                                         260.1818181818182,
+                                         261.1818181818182,
+                                         262.1818181818182,
+                                         234.14285714285714,
+                                         235.14285714285714,
+                                         236.14285714285714,
+                                         237.14285714285714,
+                                         222.19480519480518,
+                                         223.19480519480518,
+                                         224.19480519480518,
+                                         225.19480519480518,
+                                         211.5974025974026,
+                                         212.5974025974026,
+                                         213.5974025974026,
+                                         214.5974025974026,
+                                         193.,
+                                         194.,
+                                         195.,
+                                         196.};
+  const std::array<int, 4> in_shape = {{1, 15, 15, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -94,8 +163,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893};
-  const std::array<int, 4> in_shape = {{ 1, 15, 15, 4 }};
+  const std::vector<DataType> exp_out = {
+      215.21487603305786, 216.21487603305786, 217.21487603305786,
+      218.21487603305786, 214.28925619834712, 215.28925619834712,
+      216.28925619834712, 217.28925619834712, 269.0330578512397,
+      270.0330578512397,  271.0330578512397,  272.0330578512397,
+      268.10743801652893, 269.10743801652893, 270.10743801652893,
+      271.10743801652893};
+  const std::array<int, 4> in_shape = {{1, 15, 15, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -103,8 +178,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 52.5,  55. ,  59. ,  61. ,  84.5,  87. ,  91. ,  93. , 148.5, 151. , 155. , 157. , 180.5, 183. , 187. , 189. };
-  const std::array<int, 4> in_shape = {{ 1, 15, 16, 1 }};
+  const std::vector<DataType> exp_out = {52.5,  55.,  59.,   61.,  84.5, 87.,
+                                         91.,   93.,  148.5, 151., 155., 157.,
+                                         180.5, 183., 187.,  189.};
+  const std::array<int, 4> in_shape = {{1, 15, 16, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -112,8 +189,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 86.,  90., 150., 154.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 16, 1 }};
+  const std::vector<DataType> exp_out = {86., 90., 150., 154.};
+  const std::array<int, 4> in_shape = {{1, 15, 16, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -121,8 +198,11 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {104., 105., 109., 110., 117., 118., 121., 122., 168., 169., 173., 174., 181., 182., 185., 186., 296., 297., 301., 302., 309., 310., 313., 314., 360., 361., 365., 366., 373., 374., 377., 378.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 16, 2 }};
+  const std::vector<DataType> exp_out = {
+      104., 105., 109., 110., 117., 118., 121., 122., 168., 169., 173.,
+      174., 181., 182., 185., 186., 296., 297., 301., 302., 309., 310.,
+      313., 314., 360., 361., 365., 366., 373., 374., 377., 378.};
+  const std::array<int, 4> in_shape = {{1, 15, 16, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -130,8 +210,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {171., 172., 179., 180., 299., 300., 307., 308.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 16, 2 }};
+  const std::vector<DataType> exp_out = {171., 172., 179., 180.,
+                                         299., 300., 307., 308.};
+  const std::array<int, 4> in_shape = {{1, 15, 16, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -139,8 +220,71 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {207.              , 208.              , 209.              , 210.              , 217.              , 218.              , 219.              , 220.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 195.36363636363637, 196.36363636363637, 197.36363636363637, 198.36363636363637, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 221.36363636363637, 222.36363636363637, 223.36363636363637, 224.36363636363637, 229.36363636363637, 230.36363636363637, 231.36363636363637, 232.36363636363637, 265.1818181818182 , 266.1818181818182 , 267.1818181818182 , 268.1818181818182 , 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 291.1818181818182 , 292.1818181818182 , 293.1818181818182 , 294.1818181818182 , 299.1818181818182 , 300.1818181818182 , 301.1818181818182 , 302.1818181818182 , 207.              , 208.              , 209.              , 210.              , 217.              , 218.              , 219.              , 220.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              };
-  const std::array<int, 4> in_shape = {{ 1, 15, 16, 4 }};
+  const std::vector<DataType> exp_out = {207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         195.36363636363637,
+                                         196.36363636363637,
+                                         197.36363636363637,
+                                         198.36363636363637,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         221.36363636363637,
+                                         222.36363636363637,
+                                         223.36363636363637,
+                                         224.36363636363637,
+                                         229.36363636363637,
+                                         230.36363636363637,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         265.1818181818182,
+                                         266.1818181818182,
+                                         267.1818181818182,
+                                         268.1818181818182,
+                                         275.1818181818182,
+                                         276.1818181818182,
+                                         277.1818181818182,
+                                         278.1818181818182,
+                                         291.1818181818182,
+                                         292.1818181818182,
+                                         293.1818181818182,
+                                         294.1818181818182,
+                                         299.1818181818182,
+                                         300.1818181818182,
+                                         301.1818181818182,
+                                         302.1818181818182,
+                                         207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.};
+  const std::array<int, 4> in_shape = {{1, 15, 16, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -148,8 +292,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 };
-  const std::array<int, 4> in_shape = {{ 1, 15, 16, 4 }};
+  const std::vector<DataType> exp_out = {
+      201.36363636363637, 202.36363636363637, 203.36363636363637,
+      204.36363636363637, 217.36363636363637, 218.36363636363637,
+      219.36363636363637, 220.36363636363637, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182};
+  const std::array<int, 4> in_shape = {{1, 15, 16, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -157,8 +307,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 58. ,  60. ,  64. ,  67.5,  69.5,  94. ,  96. , 100. , 103.5, 105.5, 166. , 168. , 172. , 175.5, 177.5, 202. , 204. , 208. , 211.5, 213.5};
-  const std::array<int, 4> in_shape = {{ 1, 15, 18, 1 }};
+  const std::vector<DataType> exp_out = {
+      58.,  60.,  64.,  67.5,  69.5,  94.,  96.,  100., 103.5, 105.5,
+      166., 168., 172., 175.5, 177.5, 202., 204., 208., 211.5, 213.5};
+  const std::array<int, 4> in_shape = {{1, 15, 18, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -166,8 +318,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 96., 100., 168., 172.};
-  const std::array<int, 4> in_shape = {{ 1, 15, 18, 1 }};
+  const std::vector<DataType> exp_out = {96., 100., 168., 172.};
+  const std::array<int, 4> in_shape = {{1, 15, 18, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -175,8 +327,47 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {115.              , 116.              , 119.              , 120.              , 127.              , 128.              , 134.              , 135.              , 138.              , 139.              , 187.              , 188.              , 191.              , 192.              , 199.              , 200.              , 206.              , 207.              , 210.              , 211.              , 311.05194805194805, 312.05194805194805, 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 303.45454545454544, 304.45454545454544, 307.45454545454544, 308.45454545454544, 371.6530612244898 , 372.6530612244898 , 360.45454545454544, 361.45454545454544, 341.85714285714283, 342.85714285714283, 348.85714285714283, 349.85714285714283, 352.85714285714283, 353.85714285714283};
-  const std::array<int, 4> in_shape = {{ 1, 15, 18, 2 }};
+  const std::vector<DataType> exp_out = {115.,
+                                         116.,
+                                         119.,
+                                         120.,
+                                         127.,
+                                         128.,
+                                         134.,
+                                         135.,
+                                         138.,
+                                         139.,
+                                         187.,
+                                         188.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         206.,
+                                         207.,
+                                         210.,
+                                         211.,
+                                         311.05194805194805,
+                                         312.05194805194805,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         303.45454545454544,
+                                         304.45454545454544,
+                                         307.45454545454544,
+                                         308.45454545454544,
+                                         371.6530612244898,
+                                         372.6530612244898,
+                                         360.45454545454544,
+                                         361.45454545454544,
+                                         341.85714285714283,
+                                         342.85714285714283,
+                                         348.85714285714283,
+                                         349.85714285714283,
+                                         352.85714285714283,
+                                         353.85714285714283};
+  const std::array<int, 4> in_shape = {{1, 15, 18, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -184,8 +375,15 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {191.              , 192.              , 199.              , 200.              , 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544};
-  const std::array<int, 4> in_shape = {{ 1, 15, 18, 2 }};
+  const std::vector<DataType> exp_out = {191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544};
+  const std::array<int, 4> in_shape = {{1, 15, 18, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -193,8 +391,87 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {229.              , 230.              , 231.              , 232.              , 237.              , 238.              , 239.              , 240.              , 253.              , 254.              , 255.              , 256.              , 267.              , 268.              , 269.              , 270.              , 275.              , 276.              , 277.              , 278.              , 200.11688311688312, 201.11688311688312, 202.11688311688312, 203.11688311688312, 203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 224.8181818181818 , 225.8181818181818 , 226.8181818181818 , 227.8181818181818 , 232.8181818181818 , 233.8181818181818 , 234.8181818181818 , 235.8181818181818 , 281.987012987013  , 282.987012987013  , 283.987012987013  , 284.987012987013  , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 280.09090909090907, 281.09090909090907, 282.09090909090907, 283.09090909090907, 288.09090909090907, 289.09090909090907, 290.09090909090907, 291.09090909090907, 261.6530612244898 , 262.6530612244898 , 263.6530612244898 , 264.6530612244898 , 254.45454545454547, 255.45454545454547, 256.45454545454544, 257.45454545454544, 243.85714285714286, 244.85714285714286, 245.85714285714286, 246.85714285714286, 257.85714285714283, 258.85714285714283, 259.85714285714283, 260.85714285714283, 265.85714285714283, 266.85714285714283, 267.85714285714283, 268.85714285714283};
-  const std::array<int, 4> in_shape = {{ 1, 15, 18, 4 }};
+  const std::vector<DataType> exp_out = {229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         275.,
+                                         276.,
+                                         277.,
+                                         278.,
+                                         200.11688311688312,
+                                         201.11688311688312,
+                                         202.11688311688312,
+                                         203.11688311688312,
+                                         203.28099173553719,
+                                         204.28099173553719,
+                                         205.28099173553719,
+                                         206.28099173553719,
+                                         210.8181818181818,
+                                         211.8181818181818,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         226.8181818181818,
+                                         227.8181818181818,
+                                         232.8181818181818,
+                                         233.8181818181818,
+                                         234.8181818181818,
+                                         235.8181818181818,
+                                         281.987012987013,
+                                         282.987012987013,
+                                         283.987012987013,
+                                         284.987012987013,
+                                         275.4793388429752,
+                                         276.4793388429752,
+                                         277.4793388429752,
+                                         278.4793388429752,
+                                         266.09090909090907,
+                                         267.09090909090907,
+                                         268.09090909090907,
+                                         269.09090909090907,
+                                         280.09090909090907,
+                                         281.09090909090907,
+                                         282.09090909090907,
+                                         283.09090909090907,
+                                         288.09090909090907,
+                                         289.09090909090907,
+                                         290.09090909090907,
+                                         291.09090909090907,
+                                         261.6530612244898,
+                                         262.6530612244898,
+                                         263.6530612244898,
+                                         264.6530612244898,
+                                         254.45454545454547,
+                                         255.45454545454547,
+                                         256.45454545454544,
+                                         257.45454545454544,
+                                         243.85714285714286,
+                                         244.85714285714286,
+                                         245.85714285714286,
+                                         246.85714285714286,
+                                         257.85714285714283,
+                                         258.85714285714283,
+                                         259.85714285714283,
+                                         260.85714285714283,
+                                         265.85714285714283,
+                                         266.85714285714283,
+                                         267.85714285714283,
+                                         268.85714285714283};
+  const std::array<int, 4> in_shape = {{1, 15, 18, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -202,8 +479,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x15x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907};
-  const std::array<int, 4> in_shape = {{ 1, 15, 18, 4 }};
+  const std::vector<DataType> exp_out = {
+      203.28099173553719, 204.28099173553719, 205.28099173553719,
+      206.28099173553719, 210.8181818181818,  211.8181818181818,
+      212.8181818181818,  213.8181818181818,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      266.09090909090907, 267.09090909090907, 268.09090909090907,
+      269.09090909090907};
+  const std::array<int, 4> in_shape = {{1, 15, 18, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -211,8 +494,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x15x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 56.5,  58.5,  62.5,  64.5,  94. ,  96. , 100. , 102. , 154. , 156. , 160. , 162. , 184. , 186. , 190. , 192. };
-  const std::array<int, 4> in_shape = {{ 1, 16, 15, 1 }};
+  const std::vector<DataType> exp_out = {56.5, 58.5, 62.5, 64.5, 94.,  96.,
+                                         100., 102., 154., 156., 160., 162.,
+                                         184., 186., 190., 192.};
+  const std::array<int, 4> in_shape = {{1, 16, 15, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -220,8 +505,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 81.,  85., 141., 145.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 15, 1 }};
+  const std::vector<DataType> exp_out = {81., 85., 141., 145.};
+  const std::array<int, 4> in_shape = {{1, 16, 15, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -229,8 +514,11 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {112., 113., 116., 117., 124., 125., 128., 129., 187., 188., 191., 192., 199., 200., 203., 204., 307., 308., 311., 312., 319., 320., 323., 324., 367., 368., 371., 372., 379., 380., 383., 384.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 15, 2 }};
+  const std::vector<DataType> exp_out = {
+      112., 113., 116., 117., 124., 125., 128., 129., 187., 188., 191.,
+      192., 199., 200., 203., 204., 307., 308., 311., 312., 319., 320.,
+      323., 324., 367., 368., 371., 372., 379., 380., 383., 384.};
+  const std::array<int, 4> in_shape = {{1, 16, 15, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -238,8 +526,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {161., 162., 169., 170., 281., 282., 289., 290.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 15, 2 }};
+  const std::vector<DataType> exp_out = {161., 162., 169., 170.,
+                                         281., 282., 289., 290.};
+  const std::array<int, 4> in_shape = {{1, 16, 15, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -247,8 +536,71 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {223.              , 224.              , 225.              , 226.              , 231.              , 232.              , 233.              , 234.              , 247.              , 248.              , 249.              , 250.              , 255.              , 256.              , 257.              , 258.              , 233.36363636363637, 234.36363636363637, 235.36363636363637, 236.36363636363637, 228.6694214876033 , 229.6694214876033 , 230.6694214876033 , 231.6694214876033 , 227.74380165289256, 228.74380165289256, 229.74380165289256, 230.74380165289256, 218.8181818181818 , 219.8181818181818 , 220.8181818181818 , 221.8181818181818 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 282.4876033057851 , 283.4876033057851 , 284.4876033057851 , 285.4876033057851 , 281.56198347107437, 282.56198347107437, 283.56198347107437, 284.56198347107437, 272.6363636363636 , 273.6363636363636 , 274.6363636363636 , 275.6363636363636 , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 245.              , 246.              , 247.              , 248.              , 253.              , 254.              , 255.              , 256.              };
-  const std::array<int, 4> in_shape = {{ 1, 16, 15, 4 }};
+  const std::vector<DataType> exp_out = {223.,
+                                         224.,
+                                         225.,
+                                         226.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         233.36363636363637,
+                                         234.36363636363637,
+                                         235.36363636363637,
+                                         236.36363636363637,
+                                         228.6694214876033,
+                                         229.6694214876033,
+                                         230.6694214876033,
+                                         231.6694214876033,
+                                         227.74380165289256,
+                                         228.74380165289256,
+                                         229.74380165289256,
+                                         230.74380165289256,
+                                         218.8181818181818,
+                                         219.8181818181818,
+                                         220.8181818181818,
+                                         221.8181818181818,
+                                         287.1818181818182,
+                                         288.1818181818182,
+                                         289.1818181818182,
+                                         290.1818181818182,
+                                         282.4876033057851,
+                                         283.4876033057851,
+                                         284.4876033057851,
+                                         285.4876033057851,
+                                         281.56198347107437,
+                                         282.56198347107437,
+                                         283.56198347107437,
+                                         284.56198347107437,
+                                         272.6363636363636,
+                                         273.6363636363636,
+                                         274.6363636363636,
+                                         275.6363636363636,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         245.,
+                                         246.,
+                                         247.,
+                                         248.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.};
+  const std::array<int, 4> in_shape = {{1, 16, 15, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -256,8 +608,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893};
-  const std::array<int, 4> in_shape = {{ 1, 16, 15, 4 }};
+  const std::vector<DataType> exp_out = {
+      215.21487603305786, 216.21487603305786, 217.21487603305786,
+      218.21487603305786, 214.28925619834712, 215.28925619834712,
+      216.28925619834712, 217.28925619834712, 269.0330578512397,
+      270.0330578512397,  271.0330578512397,  272.0330578512397,
+      268.10743801652893, 269.10743801652893, 270.10743801652893,
+      271.10743801652893};
+  const std::array<int, 4> in_shape = {{1, 16, 15, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -265,8 +623,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 60.5,  63. ,  67. ,  69. , 100.5, 103. , 107. , 109. , 164.5, 167. , 171. , 173. , 196.5, 199. , 203. , 205. };
-  const std::array<int, 4> in_shape = {{ 1, 16, 16, 1 }};
+  const std::vector<DataType> exp_out = {60.5,  63.,  67.,   69.,  100.5, 103.,
+                                         107.,  109., 164.5, 167., 171.,  173.,
+                                         196.5, 199., 203.,  205.};
+  const std::array<int, 4> in_shape = {{1, 16, 16, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -274,8 +634,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 86.,  90., 150., 154.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 16, 1 }};
+  const std::vector<DataType> exp_out = {86., 90., 150., 154.};
+  const std::array<int, 4> in_shape = {{1, 16, 16, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -283,8 +643,11 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {120., 121., 125., 126., 133., 134., 137., 138., 200., 201., 205., 206., 213., 214., 217., 218., 328., 329., 333., 334., 341., 342., 345., 346., 392., 393., 397., 398., 405., 406., 409., 410.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 16, 2 }};
+  const std::vector<DataType> exp_out = {
+      120., 121., 125., 126., 133., 134., 137., 138., 200., 201., 205.,
+      206., 213., 214., 217., 218., 328., 329., 333., 334., 341., 342.,
+      345., 346., 392., 393., 397., 398., 405., 406., 409., 410.};
+  const std::array<int, 4> in_shape = {{1, 16, 16, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -292,8 +655,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {171., 172., 179., 180., 299., 300., 307., 308.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 16, 2 }};
+  const std::vector<DataType> exp_out = {171., 172., 179., 180.,
+                                         299., 300., 307., 308.};
+  const std::array<int, 4> in_shape = {{1, 16, 16, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -301,8 +665,71 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {239.             , 240.             , 241.             , 242.             , 249.             , 250.             , 251.             , 252.             , 265.             , 266.             , 267.             , 268.             , 273.             , 274.             , 275.             , 276.             , 212.8181818181818, 213.8181818181818, 214.8181818181818, 215.8181818181818, 222.8181818181818, 223.8181818181818, 224.8181818181818, 225.8181818181818, 238.8181818181818, 239.8181818181818, 240.8181818181818, 241.8181818181818, 246.8181818181818, 247.8181818181818, 248.8181818181818, 249.8181818181818, 282.6363636363636, 283.6363636363636, 284.6363636363636, 285.6363636363636, 292.6363636363636, 293.6363636363636, 294.6363636363636, 295.6363636363636, 308.6363636363636, 309.6363636363636, 310.6363636363636, 311.6363636363636, 316.6363636363636, 317.6363636363636, 318.6363636363636, 319.6363636363636, 271.             , 272.             , 273.             , 274.             , 281.             , 282.             , 283.             , 284.             , 297.             , 298.             , 299.             , 300.             , 305.             , 306.             , 307.             , 308.             };
-  const std::array<int, 4> in_shape = {{ 1, 16, 16, 4 }};
+  const std::vector<DataType> exp_out = {239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         214.8181818181818,
+                                         215.8181818181818,
+                                         222.8181818181818,
+                                         223.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         238.8181818181818,
+                                         239.8181818181818,
+                                         240.8181818181818,
+                                         241.8181818181818,
+                                         246.8181818181818,
+                                         247.8181818181818,
+                                         248.8181818181818,
+                                         249.8181818181818,
+                                         282.6363636363636,
+                                         283.6363636363636,
+                                         284.6363636363636,
+                                         285.6363636363636,
+                                         292.6363636363636,
+                                         293.6363636363636,
+                                         294.6363636363636,
+                                         295.6363636363636,
+                                         308.6363636363636,
+                                         309.6363636363636,
+                                         310.6363636363636,
+                                         311.6363636363636,
+                                         316.6363636363636,
+                                         317.6363636363636,
+                                         318.6363636363636,
+                                         319.6363636363636,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.};
+  const std::array<int, 4> in_shape = {{1, 16, 16, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -310,8 +737,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 };
-  const std::array<int, 4> in_shape = {{ 1, 16, 16, 4 }};
+  const std::vector<DataType> exp_out = {
+      201.36363636363637, 202.36363636363637, 203.36363636363637,
+      204.36363636363637, 217.36363636363637, 218.36363636363637,
+      219.36363636363637, 220.36363636363637, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182};
+  const std::array<int, 4> in_shape = {{1, 16, 16, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -319,8 +752,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 67. ,  69. ,  73. ,  76.5,  78.5, 112. , 114. , 118. , 121.5, 123.5, 184. , 186. , 190. , 193.5, 195.5, 220. , 222. , 226. , 229.5, 231.5};
-  const std::array<int, 4> in_shape = {{ 1, 16, 18, 1 }};
+  const std::vector<DataType> exp_out = {
+      67.,  69.,  73.,  76.5,  78.5,  112., 114., 118., 121.5, 123.5,
+      184., 186., 190., 193.5, 195.5, 220., 222., 226., 229.5, 231.5};
+  const std::array<int, 4> in_shape = {{1, 16, 18, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -328,8 +763,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 96., 100., 168., 172.};
-  const std::array<int, 4> in_shape = {{ 1, 16, 18, 1 }};
+  const std::vector<DataType> exp_out = {96., 100., 168., 172.};
+  const std::array<int, 4> in_shape = {{1, 16, 18, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -337,8 +772,47 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {133.              , 134.              , 137.              , 138.              , 145.              , 146.              , 152.              , 153.              , 156.              , 157.              , 223.              , 224.              , 227.              , 228.              , 235.              , 236.              , 242.              , 243.              , 246.              , 247.              , 300.5064935064935 , 301.5064935064935 , 294.8347107438017 , 295.8347107438017 , 285.90909090909093, 286.90909090909093, 292.90909090909093, 293.90909090909093, 296.90909090909093, 297.90909090909093, 334.51020408163265, 335.51020408163265, 323.31168831168833, 324.31168831168833, 304.7142857142857 , 305.7142857142857 , 311.7142857142857 , 312.7142857142857 , 315.7142857142857 , 316.7142857142857 };
-  const std::array<int, 4> in_shape = {{ 1, 16, 18, 2 }};
+  const std::vector<DataType> exp_out = {133.,
+                                         134.,
+                                         137.,
+                                         138.,
+                                         145.,
+                                         146.,
+                                         152.,
+                                         153.,
+                                         156.,
+                                         157.,
+                                         223.,
+                                         224.,
+                                         227.,
+                                         228.,
+                                         235.,
+                                         236.,
+                                         242.,
+                                         243.,
+                                         246.,
+                                         247.,
+                                         300.5064935064935,
+                                         301.5064935064935,
+                                         294.8347107438017,
+                                         295.8347107438017,
+                                         285.90909090909093,
+                                         286.90909090909093,
+                                         292.90909090909093,
+                                         293.90909090909093,
+                                         296.90909090909093,
+                                         297.90909090909093,
+                                         334.51020408163265,
+                                         335.51020408163265,
+                                         323.31168831168833,
+                                         324.31168831168833,
+                                         304.7142857142857,
+                                         305.7142857142857,
+                                         311.7142857142857,
+                                         312.7142857142857,
+                                         315.7142857142857,
+                                         316.7142857142857};
+  const std::array<int, 4> in_shape = {{1, 16, 18, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -346,8 +820,15 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {191.              , 192.              , 199.              , 200.              , 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544};
-  const std::array<int, 4> in_shape = {{ 1, 16, 18, 2 }};
+  const std::vector<DataType> exp_out = {191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544};
+  const std::array<int, 4> in_shape = {{1, 16, 18, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -355,8 +836,87 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {219.28571428571428, 220.28571428571428, 221.28571428571428, 222.28571428571428, 220.63636363636363, 221.63636363636363, 222.63636363636363, 223.63636363636363, 225.              , 226.              , 227.              , 228.              , 239.              , 240.              , 241.              , 242.              , 247.              , 248.              , 249.              , 250.              , 225.57142857142858, 226.57142857142858, 227.57142857142858, 228.57142857142858, 228.73553719008265, 229.73553719008265, 230.73553719008265, 231.73553719008265, 236.27272727272728, 237.27272727272728, 238.27272727272728, 239.27272727272728, 250.27272727272728, 251.27272727272728, 252.27272727272728, 253.27272727272728, 258.27272727272725, 259.27272727272725, 260.27272727272725, 261.27272727272725, 260.8961038961039 , 261.8961038961039 , 262.8961038961039 , 263.8961038961039 , 254.38842975206612, 255.38842975206612, 256.3884297520661 , 257.3884297520661 , 245.              , 246.              , 247.              , 248.              , 259.              , 260.              , 261.              , 262.              , 267.              , 268.              , 269.              , 270.              , 260.51020408163265, 261.51020408163265, 262.51020408163265, 263.51020408163265, 253.3116883116883 , 254.3116883116883 , 255.3116883116883 , 256.31168831168833, 242.71428571428572, 243.71428571428572, 244.71428571428572, 245.71428571428572, 256.7142857142857 , 257.7142857142857 , 258.7142857142857 , 259.7142857142857 , 264.7142857142857 , 265.7142857142857 , 266.7142857142857 , 267.7142857142857 };
-  const std::array<int, 4> in_shape = {{ 1, 16, 18, 4 }};
+  const std::vector<DataType> exp_out = {219.28571428571428,
+                                         220.28571428571428,
+                                         221.28571428571428,
+                                         222.28571428571428,
+                                         220.63636363636363,
+                                         221.63636363636363,
+                                         222.63636363636363,
+                                         223.63636363636363,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         225.57142857142858,
+                                         226.57142857142858,
+                                         227.57142857142858,
+                                         228.57142857142858,
+                                         228.73553719008265,
+                                         229.73553719008265,
+                                         230.73553719008265,
+                                         231.73553719008265,
+                                         236.27272727272728,
+                                         237.27272727272728,
+                                         238.27272727272728,
+                                         239.27272727272728,
+                                         250.27272727272728,
+                                         251.27272727272728,
+                                         252.27272727272728,
+                                         253.27272727272728,
+                                         258.27272727272725,
+                                         259.27272727272725,
+                                         260.27272727272725,
+                                         261.27272727272725,
+                                         260.8961038961039,
+                                         261.8961038961039,
+                                         262.8961038961039,
+                                         263.8961038961039,
+                                         254.38842975206612,
+                                         255.38842975206612,
+                                         256.3884297520661,
+                                         257.3884297520661,
+                                         245.,
+                                         246.,
+                                         247.,
+                                         248.,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         260.51020408163265,
+                                         261.51020408163265,
+                                         262.51020408163265,
+                                         263.51020408163265,
+                                         253.3116883116883,
+                                         254.3116883116883,
+                                         255.3116883116883,
+                                         256.31168831168833,
+                                         242.71428571428572,
+                                         243.71428571428572,
+                                         244.71428571428572,
+                                         245.71428571428572,
+                                         256.7142857142857,
+                                         257.7142857142857,
+                                         258.7142857142857,
+                                         259.7142857142857,
+                                         264.7142857142857,
+                                         265.7142857142857,
+                                         266.7142857142857,
+                                         267.7142857142857};
+  const std::array<int, 4> in_shape = {{1, 16, 18, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -364,8 +924,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x16x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907};
-  const std::array<int, 4> in_shape = {{ 1, 16, 18, 4 }};
+  const std::vector<DataType> exp_out = {
+      203.28099173553719, 204.28099173553719, 205.28099173553719,
+      206.28099173553719, 210.8181818181818,  211.8181818181818,
+      212.8181818181818,  213.8181818181818,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      266.09090909090907, 267.09090909090907, 268.09090909090907,
+      269.09090909090907};
+  const std::array<int, 4> in_shape = {{1, 16, 18, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -373,8 +939,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x16x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49. ,  51. ,  55. ,  57. ,  79. ,  81. ,  85. ,  87. , 139. , 141. , 145. , 147. , 191.5, 193.5, 197.5, 199.5, 221.5, 223.5, 227.5, 229.5};
-  const std::array<int, 4> in_shape = {{ 1, 18, 15, 1 }};
+  const std::vector<DataType> exp_out = {
+      49.,  51.,  55.,   57.,   79.,   81.,   85.,   87.,   139.,  141.,
+      145., 147., 191.5, 193.5, 197.5, 199.5, 221.5, 223.5, 227.5, 229.5};
+  const std::array<int, 4> in_shape = {{1, 18, 15, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -382,8 +950,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 81.,  85., 141., 145.};
-  const std::array<int, 4> in_shape = {{ 1, 18, 15, 1 }};
+  const std::vector<DataType> exp_out = {81., 85., 141., 145.};
+  const std::array<int, 4> in_shape = {{1, 18, 15, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -391,8 +959,47 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.              ,  98.              , 101.              , 102.              , 109.              , 110.              , 113.              , 114.              , 157.              , 158.              , 161.              , 162.              , 169.              , 170.              , 173.              , 174.              , 277.              , 278.              , 281.              , 282.              , 289.              , 290.              , 293.              , 294.              , 338.1142857142857 , 339.1142857142857 , 339.45454545454544, 340.45454545454544, 342.8             , 343.8             , 346.8             , 347.8             , 368.85714285714283, 369.85714285714283, 368.42424242424244, 369.42424242424244, 368.6666666666667 , 369.6666666666667 , 372.6666666666667 , 373.6666666666667 };
-  const std::array<int, 4> in_shape = {{ 1, 18, 15, 2 }};
+  const std::vector<DataType> exp_out = {97.,
+                                         98.,
+                                         101.,
+                                         102.,
+                                         109.,
+                                         110.,
+                                         113.,
+                                         114.,
+                                         157.,
+                                         158.,
+                                         161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         173.,
+                                         174.,
+                                         277.,
+                                         278.,
+                                         281.,
+                                         282.,
+                                         289.,
+                                         290.,
+                                         293.,
+                                         294.,
+                                         338.1142857142857,
+                                         339.1142857142857,
+                                         339.45454545454544,
+                                         340.45454545454544,
+                                         342.8,
+                                         343.8,
+                                         346.8,
+                                         347.8,
+                                         368.85714285714283,
+                                         369.85714285714283,
+                                         368.42424242424244,
+                                         369.42424242424244,
+                                         368.6666666666667,
+                                         369.6666666666667,
+                                         372.6666666666667,
+                                         373.6666666666667};
+  const std::array<int, 4> in_shape = {{1, 18, 15, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -400,8 +1007,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {161., 162., 169., 170., 281., 282., 289., 290.};
-  const std::array<int, 4> in_shape = {{ 1, 18, 15, 2 }};
+  const std::vector<DataType> exp_out = {161., 162., 169., 170.,
+                                         281., 282., 289., 290.};
+  const std::array<int, 4> in_shape = {{1, 18, 15, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -409,8 +1017,87 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {193.              , 194.              , 195.              , 196.              , 201.              , 202.              , 203.              , 204.              , 217.              , 218.              , 219.              , 220.              , 225.              , 226.              , 227.              , 228.              , 219.9090909090909 , 220.9090909090909 , 221.9090909090909 , 222.9090909090909 , 215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 273.72727272727275, 274.72727272727275, 275.72727272727275, 276.72727272727275, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 259.1818181818182 , 260.1818181818182 , 261.1818181818182 , 262.1818181818182 , 258.3142857142857 , 259.3142857142857 , 260.3142857142857 , 261.3142857142857 , 249.6909090909091 , 250.6909090909091 , 251.6909090909091 , 252.6909090909091 , 242.4181818181818 , 243.4181818181818 , 244.4181818181818 , 245.4181818181818 , 231.8             , 232.8             , 233.8             , 234.8             , 297.85714285714283, 298.85714285714283, 299.85714285714283, 300.85714285714283, 301.42424242424244, 302.42424242424244, 303.42424242424244, 304.42424242424244, 309.6666666666667 , 310.6666666666667 , 311.6666666666667 , 312.6666666666667 , 317.6666666666667 , 318.6666666666667 , 319.6666666666667 , 320.6666666666667 };
-  const std::array<int, 4> in_shape = {{ 1, 18, 15, 4 }};
+  const std::vector<DataType> exp_out = {193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         219.9090909090909,
+                                         220.9090909090909,
+                                         221.9090909090909,
+                                         222.9090909090909,
+                                         215.21487603305786,
+                                         216.21487603305786,
+                                         217.21487603305786,
+                                         218.21487603305786,
+                                         214.28925619834712,
+                                         215.28925619834712,
+                                         216.28925619834712,
+                                         217.28925619834712,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         273.72727272727275,
+                                         274.72727272727275,
+                                         275.72727272727275,
+                                         276.72727272727275,
+                                         269.0330578512397,
+                                         270.0330578512397,
+                                         271.0330578512397,
+                                         272.0330578512397,
+                                         268.10743801652893,
+                                         269.10743801652893,
+                                         270.10743801652893,
+                                         271.10743801652893,
+                                         259.1818181818182,
+                                         260.1818181818182,
+                                         261.1818181818182,
+                                         262.1818181818182,
+                                         258.3142857142857,
+                                         259.3142857142857,
+                                         260.3142857142857,
+                                         261.3142857142857,
+                                         249.6909090909091,
+                                         250.6909090909091,
+                                         251.6909090909091,
+                                         252.6909090909091,
+                                         242.4181818181818,
+                                         243.4181818181818,
+                                         244.4181818181818,
+                                         245.4181818181818,
+                                         231.8,
+                                         232.8,
+                                         233.8,
+                                         234.8,
+                                         297.85714285714283,
+                                         298.85714285714283,
+                                         299.85714285714283,
+                                         300.85714285714283,
+                                         301.42424242424244,
+                                         302.42424242424244,
+                                         303.42424242424244,
+                                         304.42424242424244,
+                                         309.6666666666667,
+                                         310.6666666666667,
+                                         311.6666666666667,
+                                         312.6666666666667,
+                                         317.6666666666667,
+                                         318.6666666666667,
+                                         319.6666666666667,
+                                         320.6666666666667};
+  const std::array<int, 4> in_shape = {{1, 18, 15, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -418,8 +1105,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893};
-  const std::array<int, 4> in_shape = {{ 1, 18, 15, 4 }};
+  const std::vector<DataType> exp_out = {
+      215.21487603305786, 216.21487603305786, 217.21487603305786,
+      218.21487603305786, 214.28925619834712, 215.28925619834712,
+      216.28925619834712, 217.28925619834712, 269.0330578512397,
+      270.0330578512397,  271.0330578512397,  272.0330578512397,
+      268.10743801652893, 269.10743801652893, 270.10743801652893,
+      271.10743801652893};
+  const std::array<int, 4> in_shape = {{1, 18, 15, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -427,8 +1120,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 52.5,  55. ,  59. ,  61. ,  84.5,  87. ,  91. ,  93. , 148.5, 151. , 155. , 157. , 204.5, 207. , 211. , 213. , 236.5, 239. , 243. , 245. };
-  const std::array<int, 4> in_shape = {{ 1, 18, 16, 1 }};
+  const std::vector<DataType> exp_out = {
+      52.5, 55.,  59.,   61.,  84.5, 87.,  91.,   93.,  148.5, 151.,
+      155., 157., 204.5, 207., 211., 213., 236.5, 239., 243.,  245.};
+  const std::array<int, 4> in_shape = {{1, 18, 16, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -436,8 +1131,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 86.,  90., 150., 154.};
-  const std::array<int, 4> in_shape = {{ 1, 18, 16, 1 }};
+  const std::vector<DataType> exp_out = {86., 90., 150., 154.};
+  const std::array<int, 4> in_shape = {{1, 18, 16, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -445,8 +1140,47 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {104.             , 105.             , 109.             , 110.             , 117.             , 118.             , 121.             , 122.             , 168.             , 169.             , 173.             , 174.             , 181.             , 182.             , 185.             , 186.             , 296.             , 297.             , 301.             , 302.             , 309.             , 310.             , 313.             , 314.             , 305.6            , 306.6            , 310.6            , 311.6            , 318.6            , 319.6            , 322.6            , 323.6            , 301.3333333333333, 302.3333333333333, 306.3333333333333, 307.3333333333333, 314.3333333333333, 315.3333333333333, 318.3333333333333, 319.3333333333333};
-  const std::array<int, 4> in_shape = {{ 1, 18, 16, 2 }};
+  const std::vector<DataType> exp_out = {104.,
+                                         105.,
+                                         109.,
+                                         110.,
+                                         117.,
+                                         118.,
+                                         121.,
+                                         122.,
+                                         168.,
+                                         169.,
+                                         173.,
+                                         174.,
+                                         181.,
+                                         182.,
+                                         185.,
+                                         186.,
+                                         296.,
+                                         297.,
+                                         301.,
+                                         302.,
+                                         309.,
+                                         310.,
+                                         313.,
+                                         314.,
+                                         305.6,
+                                         306.6,
+                                         310.6,
+                                         311.6,
+                                         318.6,
+                                         319.6,
+                                         322.6,
+                                         323.6,
+                                         301.3333333333333,
+                                         302.3333333333333,
+                                         306.3333333333333,
+                                         307.3333333333333,
+                                         314.3333333333333,
+                                         315.3333333333333,
+                                         318.3333333333333,
+                                         319.3333333333333};
+  const std::array<int, 4> in_shape = {{1, 18, 16, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -454,8 +1188,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {171., 172., 179., 180., 299., 300., 307., 308.};
-  const std::array<int, 4> in_shape = {{ 1, 18, 16, 2 }};
+  const std::vector<DataType> exp_out = {171., 172., 179., 180.,
+                                         299., 300., 307., 308.};
+  const std::array<int, 4> in_shape = {{1, 18, 16, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -463,8 +1198,87 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {207.              , 208.              , 209.              , 210.              , 217.              , 218.              , 219.              , 220.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 195.36363636363637, 196.36363636363637, 197.36363636363637, 198.36363636363637, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 221.36363636363637, 222.36363636363637, 223.36363636363637, 224.36363636363637, 229.36363636363637, 230.36363636363637, 231.36363636363637, 232.36363636363637, 265.1818181818182 , 266.1818181818182 , 267.1818181818182 , 268.1818181818182 , 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 291.1818181818182 , 292.1818181818182 , 293.1818181818182 , 294.1818181818182 , 299.1818181818182 , 300.1818181818182 , 301.1818181818182 , 302.1818181818182 , 200.6             , 201.6             , 202.6             , 203.6             , 210.6             , 211.6             , 212.6             , 213.6             , 226.6             , 227.6             , 228.6             , 229.6             , 234.6             , 235.6             , 236.6             , 237.6             , 260.3333333333333 , 261.3333333333333 , 262.3333333333333 , 263.3333333333333 , 270.3333333333333 , 271.3333333333333 , 272.3333333333333 , 273.3333333333333 , 286.3333333333333 , 287.3333333333333 , 288.3333333333333 , 289.3333333333333 , 294.3333333333333 , 295.3333333333333 , 296.3333333333333 , 297.3333333333333 };
-  const std::array<int, 4> in_shape = {{ 1, 18, 16, 4 }};
+  const std::vector<DataType> exp_out = {207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         195.36363636363637,
+                                         196.36363636363637,
+                                         197.36363636363637,
+                                         198.36363636363637,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         221.36363636363637,
+                                         222.36363636363637,
+                                         223.36363636363637,
+                                         224.36363636363637,
+                                         229.36363636363637,
+                                         230.36363636363637,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         265.1818181818182,
+                                         266.1818181818182,
+                                         267.1818181818182,
+                                         268.1818181818182,
+                                         275.1818181818182,
+                                         276.1818181818182,
+                                         277.1818181818182,
+                                         278.1818181818182,
+                                         291.1818181818182,
+                                         292.1818181818182,
+                                         293.1818181818182,
+                                         294.1818181818182,
+                                         299.1818181818182,
+                                         300.1818181818182,
+                                         301.1818181818182,
+                                         302.1818181818182,
+                                         200.6,
+                                         201.6,
+                                         202.6,
+                                         203.6,
+                                         210.6,
+                                         211.6,
+                                         212.6,
+                                         213.6,
+                                         226.6,
+                                         227.6,
+                                         228.6,
+                                         229.6,
+                                         234.6,
+                                         235.6,
+                                         236.6,
+                                         237.6,
+                                         260.3333333333333,
+                                         261.3333333333333,
+                                         262.3333333333333,
+                                         263.3333333333333,
+                                         270.3333333333333,
+                                         271.3333333333333,
+                                         272.3333333333333,
+                                         273.3333333333333,
+                                         286.3333333333333,
+                                         287.3333333333333,
+                                         288.3333333333333,
+                                         289.3333333333333,
+                                         294.3333333333333,
+                                         295.3333333333333,
+                                         296.3333333333333,
+                                         297.3333333333333};
+  const std::array<int, 4> in_shape = {{1, 18, 16, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -472,8 +1286,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 };
-  const std::array<int, 4> in_shape = {{ 1, 18, 16, 4 }};
+  const std::vector<DataType> exp_out = {
+      201.36363636363637, 202.36363636363637, 203.36363636363637,
+      204.36363636363637, 217.36363636363637, 218.36363636363637,
+      219.36363636363637, 220.36363636363637, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182};
+  const std::array<int, 4> in_shape = {{1, 18, 16, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -481,8 +1301,11 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 58. ,  60. ,  64. ,  67.5,  69.5,  94. ,  96. , 100. , 103.5, 105.5, 166. , 168. , 172. , 175.5, 177.5, 229. , 231. , 235. , 238.5, 240.5, 265. , 267. , 271. , 274.5, 276.5};
-  const std::array<int, 4> in_shape = {{ 1, 18, 18, 1 }};
+  const std::vector<DataType> exp_out = {
+      58.,   60.,   64.,  67.5, 69.5,  94.,   96.,  100., 103.5,
+      105.5, 166.,  168., 172., 175.5, 177.5, 229., 231., 235.,
+      238.5, 240.5, 265., 267., 271.,  274.5, 276.5};
+  const std::array<int, 4> in_shape = {{1, 18, 18, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -490,8 +1313,8 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 96., 100., 168., 172.};
-  const std::array<int, 4> in_shape = {{ 1, 18, 18, 1 }};
+  const std::vector<DataType> exp_out = {96., 100., 168., 172.};
+  const std::array<int, 4> in_shape = {{1, 18, 18, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -499,8 +1322,57 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {115.              , 116.              , 119.              , 120.              , 127.              , 128.              , 134.              , 135.              , 138.              , 139.              , 187.              , 188.              , 191.              , 192.              , 199.              , 200.              , 206.              , 207.              , 210.              , 211.              , 311.05194805194805, 312.05194805194805, 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 303.45454545454544, 304.45454545454544, 307.45454545454544, 308.45454545454544, 281.45714285714286, 282.45714285714286, 274.8181818181818 , 275.8181818181818 , 264.2             , 265.2             , 271.2             , 272.2             , 275.2             , 276.2             , 236.42857142857142, 237.42857142857142, 222.6969696969697 , 223.6969696969697 , 199.66666666666666, 200.66666666666666, 206.66666666666666, 207.66666666666666, 210.66666666666666, 211.66666666666666};
-  const std::array<int, 4> in_shape = {{ 1, 18, 18, 2 }};
+  const std::vector<DataType> exp_out = {115.,
+                                         116.,
+                                         119.,
+                                         120.,
+                                         127.,
+                                         128.,
+                                         134.,
+                                         135.,
+                                         138.,
+                                         139.,
+                                         187.,
+                                         188.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         206.,
+                                         207.,
+                                         210.,
+                                         211.,
+                                         311.05194805194805,
+                                         312.05194805194805,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         303.45454545454544,
+                                         304.45454545454544,
+                                         307.45454545454544,
+                                         308.45454545454544,
+                                         281.45714285714286,
+                                         282.45714285714286,
+                                         274.8181818181818,
+                                         275.8181818181818,
+                                         264.2,
+                                         265.2,
+                                         271.2,
+                                         272.2,
+                                         275.2,
+                                         276.2,
+                                         236.42857142857142,
+                                         237.42857142857142,
+                                         222.6969696969697,
+                                         223.6969696969697,
+                                         199.66666666666666,
+                                         200.66666666666666,
+                                         206.66666666666666,
+                                         207.66666666666666,
+                                         210.66666666666666,
+                                         211.66666666666666};
+  const std::array<int, 4> in_shape = {{1, 18, 18, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -508,8 +1380,15 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {191.              , 192.              , 199.              , 200.              , 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544};
-  const std::array<int, 4> in_shape = {{ 1, 18, 18, 2 }};
+  const std::vector<DataType> exp_out = {191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544};
+  const std::array<int, 4> in_shape = {{1, 18, 18, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -517,8 +1396,107 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {229.              , 230.              , 231.              , 232.              , 237.              , 238.              , 239.              , 240.              , 253.              , 254.              , 255.              , 256.              , 267.              , 268.              , 269.              , 270.              , 275.              , 276.              , 277.              , 278.              , 200.11688311688312, 201.11688311688312, 202.11688311688312, 203.11688311688312, 203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 224.8181818181818 , 225.8181818181818 , 226.8181818181818 , 227.8181818181818 , 232.8181818181818 , 233.8181818181818 , 234.8181818181818 , 235.8181818181818 , 281.987012987013  , 282.987012987013  , 283.987012987013  , 284.987012987013  , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 280.09090909090907, 281.09090909090907, 282.09090909090907, 283.09090909090907, 288.09090909090907, 289.09090909090907, 290.09090909090907, 291.09090909090907, 225.45714285714286, 226.45714285714286, 227.45714285714286, 228.45714285714286, 222.8181818181818 , 223.8181818181818 , 224.8181818181818 , 225.8181818181818 , 220.2             , 221.2             , 222.2             , 223.2             , 234.2             , 235.2             , 236.2             , 237.2             , 242.2             , 243.2             , 244.2             , 245.2             , 252.42857142857142, 253.42857142857142, 254.42857142857142, 255.42857142857142, 242.6969696969697 , 243.6969696969697 , 244.6969696969697 , 245.6969696969697 , 227.66666666666666, 228.66666666666666, 229.66666666666666, 230.66666666666666, 241.66666666666666, 242.66666666666666, 243.66666666666666, 244.66666666666666, 249.66666666666666, 250.66666666666666, 251.66666666666666, 252.66666666666666};
-  const std::array<int, 4> in_shape = {{ 1, 18, 18, 4 }};
+  const std::vector<DataType> exp_out = {229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         275.,
+                                         276.,
+                                         277.,
+                                         278.,
+                                         200.11688311688312,
+                                         201.11688311688312,
+                                         202.11688311688312,
+                                         203.11688311688312,
+                                         203.28099173553719,
+                                         204.28099173553719,
+                                         205.28099173553719,
+                                         206.28099173553719,
+                                         210.8181818181818,
+                                         211.8181818181818,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         226.8181818181818,
+                                         227.8181818181818,
+                                         232.8181818181818,
+                                         233.8181818181818,
+                                         234.8181818181818,
+                                         235.8181818181818,
+                                         281.987012987013,
+                                         282.987012987013,
+                                         283.987012987013,
+                                         284.987012987013,
+                                         275.4793388429752,
+                                         276.4793388429752,
+                                         277.4793388429752,
+                                         278.4793388429752,
+                                         266.09090909090907,
+                                         267.09090909090907,
+                                         268.09090909090907,
+                                         269.09090909090907,
+                                         280.09090909090907,
+                                         281.09090909090907,
+                                         282.09090909090907,
+                                         283.09090909090907,
+                                         288.09090909090907,
+                                         289.09090909090907,
+                                         290.09090909090907,
+                                         291.09090909090907,
+                                         225.45714285714286,
+                                         226.45714285714286,
+                                         227.45714285714286,
+                                         228.45714285714286,
+                                         222.8181818181818,
+                                         223.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         220.2,
+                                         221.2,
+                                         222.2,
+                                         223.2,
+                                         234.2,
+                                         235.2,
+                                         236.2,
+                                         237.2,
+                                         242.2,
+                                         243.2,
+                                         244.2,
+                                         245.2,
+                                         252.42857142857142,
+                                         253.42857142857142,
+                                         254.42857142857142,
+                                         255.42857142857142,
+                                         242.6969696969697,
+                                         243.6969696969697,
+                                         244.6969696969697,
+                                         245.6969696969697,
+                                         227.66666666666666,
+                                         228.66666666666666,
+                                         229.66666666666666,
+                                         230.66666666666666,
+                                         241.66666666666666,
+                                         242.66666666666666,
+                                         243.66666666666666,
+                                         244.66666666666666,
+                                         249.66666666666666,
+                                         250.66666666666666,
+                                         251.66666666666666,
+                                         252.66666666666666};
+  const std::array<int, 4> in_shape = {{1, 18, 18, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -526,8 +1504,14 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME1x18x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907};
-  const std::array<int, 4> in_shape = {{ 1, 18, 18, 4 }};
+  const std::vector<DataType> exp_out = {
+      203.28099173553719, 204.28099173553719, 205.28099173553719,
+      206.28099173553719, 210.8181818181818,  211.8181818181818,
+      212.8181818181818,  213.8181818181818,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      266.09090909090907, 267.09090909090907, 268.09090909090907,
+      269.09090909090907};
+  const std::array<int, 4> in_shape = {{1, 18, 18, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -535,8 +1519,55 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID1x18x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.              ,  51.              ,  55.              ,  57.              ,  79.              ,  81.              ,  85.              ,  87.              , 139.              , 141.              , 145.              , 147.              , 169.              , 171.              , 175.              , 177.              , 274.              , 276.              , 280.              , 282.              , 304.              , 306.              , 310.              , 312.              , 364.              , 366.              , 370.              , 372.              , 394.              , 396.              , 400.              , 402.              , 300.46938775510205, 294.87012987012986, 285.57142857142856, 287.57142857142856, 216.4805194805195 , 213.64462809917356, 209.1818181818182 , 211.1818181818182 ,  90.2987012987013 ,  87.46280991735537,  83.              ,  85.              , 107.              , 109.              , 113.              , 115.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 15, 1 }};
+  const std::vector<DataType> exp_out = {49.,
+                                         51.,
+                                         55.,
+                                         57.,
+                                         79.,
+                                         81.,
+                                         85.,
+                                         87.,
+                                         139.,
+                                         141.,
+                                         145.,
+                                         147.,
+                                         169.,
+                                         171.,
+                                         175.,
+                                         177.,
+                                         274.,
+                                         276.,
+                                         280.,
+                                         282.,
+                                         304.,
+                                         306.,
+                                         310.,
+                                         312.,
+                                         364.,
+                                         366.,
+                                         370.,
+                                         372.,
+                                         394.,
+                                         396.,
+                                         400.,
+                                         402.,
+                                         300.46938775510205,
+                                         294.87012987012986,
+                                         285.57142857142856,
+                                         287.57142857142856,
+                                         216.4805194805195,
+                                         213.64462809917356,
+                                         209.1818181818182,
+                                         211.1818181818182,
+                                         90.2987012987013,
+                                         87.46280991735537,
+                                         83.,
+                                         85.,
+                                         107.,
+                                         109.,
+                                         113.,
+                                         115.};
+  const std::array<int, 4> in_shape = {{3, 15, 15, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -544,8 +1575,19 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 81.              ,  85.              , 141.              , 145.              , 306.              , 310.              , 366.              , 370.              , 213.64462809917356, 209.1818181818182 ,  87.46280991735537,  83.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 15, 1 }};
+  const std::vector<DataType> exp_out = {81.,
+                                         85.,
+                                         141.,
+                                         145.,
+                                         306.,
+                                         310.,
+                                         366.,
+                                         370.,
+                                         213.64462809917356,
+                                         209.1818181818182,
+                                         87.46280991735537,
+                                         83.};
+  const std::array<int, 4> in_shape = {{3, 15, 15, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -553,8 +1595,103 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.              ,  98.              , 101.              , 102.              , 109.              , 110.              , 113.              , 114.              , 157.              , 158.              , 161.              , 162.              , 169.              , 170.              , 173.              , 174.              , 277.              , 278.              , 281.              , 282.              , 289.              , 290.              , 293.              , 294.              , 337.              , 338.              , 341.              , 342.              , 349.              , 350.              , 353.              , 354.              , 191.73469387755102, 192.73469387755102, 191.93506493506493, 192.93506493506493, 193.28571428571428, 194.28571428571428, 197.28571428571428, 198.28571428571428, 194.74025974025975, 195.74025974025975, 196.32231404958677, 197.32231404958677, 200.0909090909091 , 201.0909090909091 , 204.0909090909091 , 205.0909090909091 , 215.              , 216.              , 219.              , 220.              , 227.              , 228.              , 231.              , 232.              , 275.              , 276.              , 279.              , 280.              , 287.              , 288.              , 291.              , 292.              , 286.46938775510205, 287.46938775510205, 282.87012987012986, 283.87012987012986, 277.57142857142856, 278.57142857142856, 281.57142857142856, 282.57142857142856, 232.4805194805195 , 233.4805194805195 , 231.64462809917356, 232.64462809917356, 231.1818181818182 , 232.1818181818182 , 235.1818181818182 , 236.1818181818182 , 166.2987012987013 , 167.2987012987013 , 165.46280991735537, 166.46280991735537, 165.              , 166.              , 169.              , 170.              , 213.              , 214.              , 217.              , 218.              , 225.              , 226.              , 229.              , 230.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 15, 2 }};
+  const std::vector<DataType> exp_out = {97.,
+                                         98.,
+                                         101.,
+                                         102.,
+                                         109.,
+                                         110.,
+                                         113.,
+                                         114.,
+                                         157.,
+                                         158.,
+                                         161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         173.,
+                                         174.,
+                                         277.,
+                                         278.,
+                                         281.,
+                                         282.,
+                                         289.,
+                                         290.,
+                                         293.,
+                                         294.,
+                                         337.,
+                                         338.,
+                                         341.,
+                                         342.,
+                                         349.,
+                                         350.,
+                                         353.,
+                                         354.,
+                                         191.73469387755102,
+                                         192.73469387755102,
+                                         191.93506493506493,
+                                         192.93506493506493,
+                                         193.28571428571428,
+                                         194.28571428571428,
+                                         197.28571428571428,
+                                         198.28571428571428,
+                                         194.74025974025975,
+                                         195.74025974025975,
+                                         196.32231404958677,
+                                         197.32231404958677,
+                                         200.0909090909091,
+                                         201.0909090909091,
+                                         204.0909090909091,
+                                         205.0909090909091,
+                                         215.,
+                                         216.,
+                                         219.,
+                                         220.,
+                                         227.,
+                                         228.,
+                                         231.,
+                                         232.,
+                                         275.,
+                                         276.,
+                                         279.,
+                                         280.,
+                                         287.,
+                                         288.,
+                                         291.,
+                                         292.,
+                                         286.46938775510205,
+                                         287.46938775510205,
+                                         282.87012987012986,
+                                         283.87012987012986,
+                                         277.57142857142856,
+                                         278.57142857142856,
+                                         281.57142857142856,
+                                         282.57142857142856,
+                                         232.4805194805195,
+                                         233.4805194805195,
+                                         231.64462809917356,
+                                         232.64462809917356,
+                                         231.1818181818182,
+                                         232.1818181818182,
+                                         235.1818181818182,
+                                         236.1818181818182,
+                                         166.2987012987013,
+                                         167.2987012987013,
+                                         165.46280991735537,
+                                         166.46280991735537,
+                                         165.,
+                                         166.,
+                                         169.,
+                                         170.,
+                                         213.,
+                                         214.,
+                                         217.,
+                                         218.,
+                                         225.,
+                                         226.,
+                                         229.,
+                                         230.};
+  const std::array<int, 4> in_shape = {{3, 15, 15, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -562,8 +1699,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {161.              , 162.              , 169.              , 170.              , 281.              , 282.              , 289.              , 290.              , 196.32231404958677, 197.32231404958677, 200.0909090909091 , 201.0909090909091 , 219.              , 220.              , 227.              , 228.              , 231.64462809917356, 232.64462809917356, 231.1818181818182 , 232.1818181818182 , 165.46280991735537, 166.46280991735537, 165.              , 166.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 15, 2 }};
+  const std::vector<DataType> exp_out = {161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         281.,
+                                         282.,
+                                         289.,
+                                         290.,
+                                         196.32231404958677,
+                                         197.32231404958677,
+                                         200.0909090909091,
+                                         201.0909090909091,
+                                         219.,
+                                         220.,
+                                         227.,
+                                         228.,
+                                         231.64462809917356,
+                                         232.64462809917356,
+                                         231.1818181818182,
+                                         232.1818181818182,
+                                         165.46280991735537,
+                                         166.46280991735537,
+                                         165.,
+                                         166.};
+  const std::array<int, 4> in_shape = {{3, 15, 15, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -571,8 +1731,199 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {193.              , 194.              , 195.              , 196.              , 201.              , 202.              , 203.              , 204.              , 217.              , 218.              , 219.              , 220.              , 225.              , 226.              , 227.              , 228.              , 219.9090909090909 , 220.9090909090909 , 221.9090909090909 , 222.9090909090909 , 215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 273.72727272727275, 274.72727272727275, 275.72727272727275, 276.72727272727275, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 259.1818181818182 , 260.1818181818182 , 261.1818181818182 , 262.1818181818182 , 234.14285714285714, 235.14285714285714, 236.14285714285714, 237.14285714285714, 222.19480519480518, 223.19480519480518, 224.19480519480518, 225.19480519480518, 211.5974025974026 , 212.5974025974026 , 213.5974025974026 , 214.5974025974026 , 193.              , 194.              , 195.              , 196.              , 225.73469387755102, 226.73469387755102, 227.73469387755102, 228.73469387755102, 229.93506493506493, 230.93506493506493, 231.93506493506493, 232.93506493506493, 239.28571428571428, 240.28571428571428, 241.28571428571428, 242.28571428571428, 247.28571428571428, 248.28571428571428, 249.28571428571428, 250.28571428571428, 288.7402597402597 , 289.7402597402597 , 290.7402597402597 , 291.7402597402597 , 285.8595041322314 , 286.8595041322314 , 287.8595041322314 , 288.8595041322314 , 280.702479338843  , 281.702479338843  , 282.702479338843  , 283.702479338843  , 274.1948051948052 , 275.1948051948052 , 276.1948051948052 , 277.1948051948052 , 242.8181818181818 , 243.8181818181818 , 244.8181818181818 , 245.8181818181818 , 242.35537190082644, 243.35537190082644, 244.35537190082644, 245.35537190082644, 241.4297520661157 , 242.4297520661157 , 243.4297520661157 , 244.4297520661157 , 234.92207792207793, 235.92207792207793, 236.92207792207793, 237.92207792207793, 256.42857142857144, 257.42857142857144, 258.42857142857144, 259.42857142857144, 251.12987012987014, 252.12987012987014, 253.12987012987014, 254.12987012987014, 240.53246753246754, 241.53246753246754, 242.53246753246754, 243.53246753246754, 225.73469387755102, 226.73469387755102, 227.73469387755102, 228.73469387755102, 258.46938775510205, 259.46938775510205, 260.46938775510205, 261.46938775510205, 258.87012987012986, 259.87012987012986, 260.87012987012986, 261.87012987012986, 261.57142857142856, 262.57142857142856, 263.57142857142856, 264.57142857142856, 269.57142857142856, 270.57142857142856, 271.57142857142856, 272.57142857142856, 264.4805194805195 , 265.4805194805195 , 266.4805194805195 , 267.4805194805195 , 267.64462809917353, 268.64462809917353, 269.64462809917353, 270.64462809917353, 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 283.1818181818182 , 284.1818181818182 , 285.1818181818182 , 286.1818181818182 , 225.2077922077922 , 226.2077922077922 , 227.2077922077922 , 228.2077922077922 , 224.1404958677686 , 225.1404958677686 , 226.1404958677686 , 227.1404958677686 , 214.7520661157025 , 215.7520661157025 , 216.7520661157025 , 217.7520661157025 , 210.66233766233765, 211.66233766233765, 212.66233766233765, 213.66233766233765, 278.7142857142857 , 279.7142857142857 , 280.7142857142857 , 281.7142857142857 , 280.06493506493507, 281.06493506493507, 282.06493506493507, 283.06493506493507, 269.46753246753246, 270.46753246753246, 271.46753246753246, 272.46753246753246, 258.46938775510205, 259.46938775510205, 260.46938775510205, 261.46938775510205};
-  const std::array<int, 4> in_shape = {{ 3, 15, 15, 4 }};
+  const std::vector<DataType> exp_out = {193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         219.9090909090909,
+                                         220.9090909090909,
+                                         221.9090909090909,
+                                         222.9090909090909,
+                                         215.21487603305786,
+                                         216.21487603305786,
+                                         217.21487603305786,
+                                         218.21487603305786,
+                                         214.28925619834712,
+                                         215.28925619834712,
+                                         216.28925619834712,
+                                         217.28925619834712,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         273.72727272727275,
+                                         274.72727272727275,
+                                         275.72727272727275,
+                                         276.72727272727275,
+                                         269.0330578512397,
+                                         270.0330578512397,
+                                         271.0330578512397,
+                                         272.0330578512397,
+                                         268.10743801652893,
+                                         269.10743801652893,
+                                         270.10743801652893,
+                                         271.10743801652893,
+                                         259.1818181818182,
+                                         260.1818181818182,
+                                         261.1818181818182,
+                                         262.1818181818182,
+                                         234.14285714285714,
+                                         235.14285714285714,
+                                         236.14285714285714,
+                                         237.14285714285714,
+                                         222.19480519480518,
+                                         223.19480519480518,
+                                         224.19480519480518,
+                                         225.19480519480518,
+                                         211.5974025974026,
+                                         212.5974025974026,
+                                         213.5974025974026,
+                                         214.5974025974026,
+                                         193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         225.73469387755102,
+                                         226.73469387755102,
+                                         227.73469387755102,
+                                         228.73469387755102,
+                                         229.93506493506493,
+                                         230.93506493506493,
+                                         231.93506493506493,
+                                         232.93506493506493,
+                                         239.28571428571428,
+                                         240.28571428571428,
+                                         241.28571428571428,
+                                         242.28571428571428,
+                                         247.28571428571428,
+                                         248.28571428571428,
+                                         249.28571428571428,
+                                         250.28571428571428,
+                                         288.7402597402597,
+                                         289.7402597402597,
+                                         290.7402597402597,
+                                         291.7402597402597,
+                                         285.8595041322314,
+                                         286.8595041322314,
+                                         287.8595041322314,
+                                         288.8595041322314,
+                                         280.702479338843,
+                                         281.702479338843,
+                                         282.702479338843,
+                                         283.702479338843,
+                                         274.1948051948052,
+                                         275.1948051948052,
+                                         276.1948051948052,
+                                         277.1948051948052,
+                                         242.8181818181818,
+                                         243.8181818181818,
+                                         244.8181818181818,
+                                         245.8181818181818,
+                                         242.35537190082644,
+                                         243.35537190082644,
+                                         244.35537190082644,
+                                         245.35537190082644,
+                                         241.4297520661157,
+                                         242.4297520661157,
+                                         243.4297520661157,
+                                         244.4297520661157,
+                                         234.92207792207793,
+                                         235.92207792207793,
+                                         236.92207792207793,
+                                         237.92207792207793,
+                                         256.42857142857144,
+                                         257.42857142857144,
+                                         258.42857142857144,
+                                         259.42857142857144,
+                                         251.12987012987014,
+                                         252.12987012987014,
+                                         253.12987012987014,
+                                         254.12987012987014,
+                                         240.53246753246754,
+                                         241.53246753246754,
+                                         242.53246753246754,
+                                         243.53246753246754,
+                                         225.73469387755102,
+                                         226.73469387755102,
+                                         227.73469387755102,
+                                         228.73469387755102,
+                                         258.46938775510205,
+                                         259.46938775510205,
+                                         260.46938775510205,
+                                         261.46938775510205,
+                                         258.87012987012986,
+                                         259.87012987012986,
+                                         260.87012987012986,
+                                         261.87012987012986,
+                                         261.57142857142856,
+                                         262.57142857142856,
+                                         263.57142857142856,
+                                         264.57142857142856,
+                                         269.57142857142856,
+                                         270.57142857142856,
+                                         271.57142857142856,
+                                         272.57142857142856,
+                                         264.4805194805195,
+                                         265.4805194805195,
+                                         266.4805194805195,
+                                         267.4805194805195,
+                                         267.64462809917353,
+                                         268.64462809917353,
+                                         269.64462809917353,
+                                         270.64462809917353,
+                                         275.1818181818182,
+                                         276.1818181818182,
+                                         277.1818181818182,
+                                         278.1818181818182,
+                                         283.1818181818182,
+                                         284.1818181818182,
+                                         285.1818181818182,
+                                         286.1818181818182,
+                                         225.2077922077922,
+                                         226.2077922077922,
+                                         227.2077922077922,
+                                         228.2077922077922,
+                                         224.1404958677686,
+                                         225.1404958677686,
+                                         226.1404958677686,
+                                         227.1404958677686,
+                                         214.7520661157025,
+                                         215.7520661157025,
+                                         216.7520661157025,
+                                         217.7520661157025,
+                                         210.66233766233765,
+                                         211.66233766233765,
+                                         212.66233766233765,
+                                         213.66233766233765,
+                                         278.7142857142857,
+                                         279.7142857142857,
+                                         280.7142857142857,
+                                         281.7142857142857,
+                                         280.06493506493507,
+                                         281.06493506493507,
+                                         282.06493506493507,
+                                         283.06493506493507,
+                                         269.46753246753246,
+                                         270.46753246753246,
+                                         271.46753246753246,
+                                         272.46753246753246,
+                                         258.46938775510205,
+                                         259.46938775510205,
+                                         260.46938775510205,
+                                         261.46938775510205};
+  const std::array<int, 4> in_shape = {{3, 15, 15, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -580,8 +1931,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 285.8595041322314 , 286.8595041322314 , 287.8595041322314 , 288.8595041322314 , 280.702479338843  , 281.702479338843  , 282.702479338843  , 283.702479338843  , 242.35537190082644, 243.35537190082644, 244.35537190082644, 245.35537190082644, 241.4297520661157 , 242.4297520661157 , 243.4297520661157 , 244.4297520661157 , 267.64462809917353, 268.64462809917353, 269.64462809917353, 270.64462809917353, 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 224.1404958677686 , 225.1404958677686 , 226.1404958677686 , 227.1404958677686 , 214.7520661157025 , 215.7520661157025 , 216.7520661157025 , 217.7520661157025 };
-  const std::array<int, 4> in_shape = {{ 3, 15, 15, 4 }};
+  const std::vector<DataType> exp_out = {
+      215.21487603305786, 216.21487603305786, 217.21487603305786,
+      218.21487603305786, 214.28925619834712, 215.28925619834712,
+      216.28925619834712, 217.28925619834712, 269.0330578512397,
+      270.0330578512397,  271.0330578512397,  272.0330578512397,
+      268.10743801652893, 269.10743801652893, 270.10743801652893,
+      271.10743801652893, 285.8595041322314,  286.8595041322314,
+      287.8595041322314,  288.8595041322314,  280.702479338843,
+      281.702479338843,   282.702479338843,   283.702479338843,
+      242.35537190082644, 243.35537190082644, 244.35537190082644,
+      245.35537190082644, 241.4297520661157,  242.4297520661157,
+      243.4297520661157,  244.4297520661157,  267.64462809917353,
+      268.64462809917353, 269.64462809917353, 270.64462809917353,
+      275.1818181818182,  276.1818181818182,  277.1818181818182,
+      278.1818181818182,  224.1404958677686,  225.1404958677686,
+      226.1404958677686,  227.1404958677686,  214.7520661157025,
+      215.7520661157025,  216.7520661157025,  217.7520661157025};
+  const std::array<int, 4> in_shape = {{3, 15, 15, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -589,8 +1956,55 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 52.5             ,  55.              ,  59.              ,  61.              ,  84.5             ,  87.              ,  91.              ,  93.              , 148.5             , 151.              , 155.              , 157.              , 180.5             , 183.              , 187.              , 189.              , 292.5             , 295.              , 299.              , 301.              , 324.5             , 327.              , 331.              , 333.              , 388.5             , 391.              , 395.              , 397.              , 420.5             , 423.              , 427.              , 429.              , 166.78571428571428, 169.28571428571428, 173.28571428571428, 175.28571428571428, 145.5909090909091 , 148.0909090909091 , 152.0909090909091 , 154.0909090909091 , 116.5             , 119.              , 123.              , 125.              , 148.5             , 151.              , 155.              , 157.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 16, 1 }};
+  const std::vector<DataType> exp_out = {52.5,
+                                         55.,
+                                         59.,
+                                         61.,
+                                         84.5,
+                                         87.,
+                                         91.,
+                                         93.,
+                                         148.5,
+                                         151.,
+                                         155.,
+                                         157.,
+                                         180.5,
+                                         183.,
+                                         187.,
+                                         189.,
+                                         292.5,
+                                         295.,
+                                         299.,
+                                         301.,
+                                         324.5,
+                                         327.,
+                                         331.,
+                                         333.,
+                                         388.5,
+                                         391.,
+                                         395.,
+                                         397.,
+                                         420.5,
+                                         423.,
+                                         427.,
+                                         429.,
+                                         166.78571428571428,
+                                         169.28571428571428,
+                                         173.28571428571428,
+                                         175.28571428571428,
+                                         145.5909090909091,
+                                         148.0909090909091,
+                                         152.0909090909091,
+                                         154.0909090909091,
+                                         116.5,
+                                         119.,
+                                         123.,
+                                         125.,
+                                         148.5,
+                                         151.,
+                                         155.,
+                                         157.};
+  const std::array<int, 4> in_shape = {{3, 15, 16, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -598,8 +2012,19 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 86.             ,  90.             , 150.             , 154.             , 326.             , 330.             , 390.             , 394.             , 147.0909090909091, 151.0909090909091, 118.             , 122.             };
-  const std::array<int, 4> in_shape = {{ 3, 15, 16, 1 }};
+  const std::vector<DataType> exp_out = {86.,
+                                         90.,
+                                         150.,
+                                         154.,
+                                         326.,
+                                         330.,
+                                         390.,
+                                         394.,
+                                         147.0909090909091,
+                                         151.0909090909091,
+                                         118.,
+                                         122.};
+  const std::array<int, 4> in_shape = {{3, 15, 16, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -607,8 +2032,103 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {104.              , 105.              , 109.              , 110.              , 117.              , 118.              , 121.              , 122.              , 168.              , 169.              , 173.              , 174.              , 181.              , 182.              , 185.              , 186.              , 296.              , 297.              , 301.              , 302.              , 309.              , 310.              , 313.              , 314.              , 360.              , 361.              , 365.              , 366.              , 373.              , 374.              , 377.              , 378.              , 145.14285714285714, 146.14285714285714, 150.14285714285714, 151.14285714285714, 158.14285714285714, 159.14285714285714, 162.14285714285714, 163.14285714285714, 182.54545454545453, 183.54545454545453, 187.54545454545453, 188.54545454545453, 195.54545454545453, 196.54545454545453, 199.54545454545453, 200.54545454545453, 264.              , 265.              , 269.              , 270.              , 277.              , 278.              , 281.              , 282.              , 328.              , 329.              , 333.              , 334.              , 341.              , 342.              , 345.              , 346.              , 186.28571428571428, 187.28571428571428, 191.28571428571428, 192.28571428571428, 199.28571428571428, 200.28571428571428, 203.28571428571428, 204.28571428571428, 197.0909090909091 , 198.0909090909091 , 202.0909090909091 , 203.0909090909091 , 210.0909090909091 , 211.0909090909091 , 214.0909090909091 , 215.0909090909091 , 232.              , 233.              , 237.              , 238.              , 245.              , 246.              , 249.              , 250.              , 296.              , 297.              , 301.              , 302.              , 309.              , 310.              , 313.              , 314.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 16, 2 }};
+  const std::vector<DataType> exp_out = {104.,
+                                         105.,
+                                         109.,
+                                         110.,
+                                         117.,
+                                         118.,
+                                         121.,
+                                         122.,
+                                         168.,
+                                         169.,
+                                         173.,
+                                         174.,
+                                         181.,
+                                         182.,
+                                         185.,
+                                         186.,
+                                         296.,
+                                         297.,
+                                         301.,
+                                         302.,
+                                         309.,
+                                         310.,
+                                         313.,
+                                         314.,
+                                         360.,
+                                         361.,
+                                         365.,
+                                         366.,
+                                         373.,
+                                         374.,
+                                         377.,
+                                         378.,
+                                         145.14285714285714,
+                                         146.14285714285714,
+                                         150.14285714285714,
+                                         151.14285714285714,
+                                         158.14285714285714,
+                                         159.14285714285714,
+                                         162.14285714285714,
+                                         163.14285714285714,
+                                         182.54545454545453,
+                                         183.54545454545453,
+                                         187.54545454545453,
+                                         188.54545454545453,
+                                         195.54545454545453,
+                                         196.54545454545453,
+                                         199.54545454545453,
+                                         200.54545454545453,
+                                         264.,
+                                         265.,
+                                         269.,
+                                         270.,
+                                         277.,
+                                         278.,
+                                         281.,
+                                         282.,
+                                         328.,
+                                         329.,
+                                         333.,
+                                         334.,
+                                         341.,
+                                         342.,
+                                         345.,
+                                         346.,
+                                         186.28571428571428,
+                                         187.28571428571428,
+                                         191.28571428571428,
+                                         192.28571428571428,
+                                         199.28571428571428,
+                                         200.28571428571428,
+                                         203.28571428571428,
+                                         204.28571428571428,
+                                         197.0909090909091,
+                                         198.0909090909091,
+                                         202.0909090909091,
+                                         203.0909090909091,
+                                         210.0909090909091,
+                                         211.0909090909091,
+                                         214.0909090909091,
+                                         215.0909090909091,
+                                         232.,
+                                         233.,
+                                         237.,
+                                         238.,
+                                         245.,
+                                         246.,
+                                         249.,
+                                         250.,
+                                         296.,
+                                         297.,
+                                         301.,
+                                         302.,
+                                         309.,
+                                         310.,
+                                         313.,
+                                         314.};
+  const std::array<int, 4> in_shape = {{3, 15, 16, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -616,8 +2136,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {171.              , 172.              , 179.              , 180.              , 299.              , 300.              , 307.              , 308.              , 185.54545454545453, 186.54545454545453, 193.54545454545453, 194.54545454545453, 267.              , 268.              , 275.              , 276.              , 200.0909090909091 , 201.0909090909091 , 208.0909090909091 , 209.0909090909091 , 235.              , 236.              , 243.              , 244.              };
-  const std::array<int, 4> in_shape = {{ 3, 15, 16, 2 }};
+  const std::vector<DataType> exp_out = {171.,
+                                         172.,
+                                         179.,
+                                         180.,
+                                         299.,
+                                         300.,
+                                         307.,
+                                         308.,
+                                         185.54545454545453,
+                                         186.54545454545453,
+                                         193.54545454545453,
+                                         194.54545454545453,
+                                         267.,
+                                         268.,
+                                         275.,
+                                         276.,
+                                         200.0909090909091,
+                                         201.0909090909091,
+                                         208.0909090909091,
+                                         209.0909090909091,
+                                         235.,
+                                         236.,
+                                         243.,
+                                         244.};
+  const std::array<int, 4> in_shape = {{3, 15, 16, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -625,8 +2168,199 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {207.              , 208.              , 209.              , 210.              , 217.              , 218.              , 219.              , 220.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 195.36363636363637, 196.36363636363637, 197.36363636363637, 198.36363636363637, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 221.36363636363637, 222.36363636363637, 223.36363636363637, 224.36363636363637, 229.36363636363637, 230.36363636363637, 231.36363636363637, 232.36363636363637, 265.1818181818182 , 266.1818181818182 , 267.1818181818182 , 268.1818181818182 , 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 291.1818181818182 , 292.1818181818182 , 293.1818181818182 , 294.1818181818182 , 299.1818181818182 , 300.1818181818182 , 301.1818181818182 , 302.1818181818182 , 207.              , 208.              , 209.              , 210.              , 217.              , 218.              , 219.              , 220.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 216.14285714285714, 217.14285714285714, 218.14285714285714, 219.14285714285714, 226.14285714285714, 227.14285714285714, 228.14285714285714, 229.14285714285714, 242.14285714285714, 243.14285714285714, 244.14285714285714, 245.14285714285714, 250.14285714285714, 251.14285714285714, 252.14285714285714, 253.14285714285714, 224.45454545454547, 225.45454545454547, 226.45454545454547, 227.45454545454547, 234.45454545454547, 235.45454545454547, 236.45454545454547, 237.45454545454547, 250.45454545454547, 251.45454545454547, 252.45454545454547, 253.45454545454547, 258.45454545454544, 259.45454545454544, 260.45454545454544, 261.45454545454544, 247.72727272727272, 248.72727272727272, 249.72727272727272, 250.72727272727272, 257.72727272727275, 258.72727272727275, 259.72727272727275, 260.72727272727275, 273.72727272727275, 274.72727272727275, 275.72727272727275, 276.72727272727275, 281.72727272727275, 282.72727272727275, 283.72727272727275, 284.72727272727275, 216.14285714285714, 217.14285714285714, 218.14285714285714, 219.14285714285714, 226.14285714285714, 227.14285714285714, 228.14285714285714, 229.14285714285714, 242.14285714285714, 243.14285714285714, 244.14285714285714, 245.14285714285714, 250.14285714285714, 251.14285714285714, 252.14285714285714, 253.14285714285714, 225.28571428571428, 226.28571428571428, 227.28571428571428, 228.28571428571428, 235.28571428571428, 236.28571428571428, 237.28571428571428, 238.28571428571428, 251.28571428571428, 252.28571428571428, 253.28571428571428, 254.28571428571428, 259.2857142857143 , 260.2857142857143 , 261.2857142857143 , 262.2857142857143 , 253.54545454545453, 254.54545454545453, 255.54545454545453, 256.54545454545456, 263.54545454545456, 264.54545454545456, 265.54545454545456, 266.54545454545456, 279.54545454545456, 280.54545454545456, 281.54545454545456, 282.54545454545456, 287.54545454545456, 288.54545454545456, 289.54545454545456, 290.54545454545456, 230.27272727272728, 231.27272727272728, 232.27272727272728, 233.27272727272728, 240.27272727272728, 241.27272727272728, 242.27272727272728, 243.27272727272728, 256.27272727272725, 257.27272727272725, 258.27272727272725, 259.27272727272725, 264.27272727272725, 265.27272727272725, 266.27272727272725, 267.27272727272725, 225.28571428571428, 226.28571428571428, 227.28571428571428, 228.28571428571428, 235.28571428571428, 236.28571428571428, 237.28571428571428, 238.28571428571428, 251.28571428571428, 252.28571428571428, 253.28571428571428, 254.28571428571428, 259.2857142857143 , 260.2857142857143 , 261.2857142857143 , 262.2857142857143 };
-  const std::array<int, 4> in_shape = {{ 3, 15, 16, 4 }};
+  const std::vector<DataType> exp_out = {207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         195.36363636363637,
+                                         196.36363636363637,
+                                         197.36363636363637,
+                                         198.36363636363637,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         221.36363636363637,
+                                         222.36363636363637,
+                                         223.36363636363637,
+                                         224.36363636363637,
+                                         229.36363636363637,
+                                         230.36363636363637,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         265.1818181818182,
+                                         266.1818181818182,
+                                         267.1818181818182,
+                                         268.1818181818182,
+                                         275.1818181818182,
+                                         276.1818181818182,
+                                         277.1818181818182,
+                                         278.1818181818182,
+                                         291.1818181818182,
+                                         292.1818181818182,
+                                         293.1818181818182,
+                                         294.1818181818182,
+                                         299.1818181818182,
+                                         300.1818181818182,
+                                         301.1818181818182,
+                                         302.1818181818182,
+                                         207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         216.14285714285714,
+                                         217.14285714285714,
+                                         218.14285714285714,
+                                         219.14285714285714,
+                                         226.14285714285714,
+                                         227.14285714285714,
+                                         228.14285714285714,
+                                         229.14285714285714,
+                                         242.14285714285714,
+                                         243.14285714285714,
+                                         244.14285714285714,
+                                         245.14285714285714,
+                                         250.14285714285714,
+                                         251.14285714285714,
+                                         252.14285714285714,
+                                         253.14285714285714,
+                                         224.45454545454547,
+                                         225.45454545454547,
+                                         226.45454545454547,
+                                         227.45454545454547,
+                                         234.45454545454547,
+                                         235.45454545454547,
+                                         236.45454545454547,
+                                         237.45454545454547,
+                                         250.45454545454547,
+                                         251.45454545454547,
+                                         252.45454545454547,
+                                         253.45454545454547,
+                                         258.45454545454544,
+                                         259.45454545454544,
+                                         260.45454545454544,
+                                         261.45454545454544,
+                                         247.72727272727272,
+                                         248.72727272727272,
+                                         249.72727272727272,
+                                         250.72727272727272,
+                                         257.72727272727275,
+                                         258.72727272727275,
+                                         259.72727272727275,
+                                         260.72727272727275,
+                                         273.72727272727275,
+                                         274.72727272727275,
+                                         275.72727272727275,
+                                         276.72727272727275,
+                                         281.72727272727275,
+                                         282.72727272727275,
+                                         283.72727272727275,
+                                         284.72727272727275,
+                                         216.14285714285714,
+                                         217.14285714285714,
+                                         218.14285714285714,
+                                         219.14285714285714,
+                                         226.14285714285714,
+                                         227.14285714285714,
+                                         228.14285714285714,
+                                         229.14285714285714,
+                                         242.14285714285714,
+                                         243.14285714285714,
+                                         244.14285714285714,
+                                         245.14285714285714,
+                                         250.14285714285714,
+                                         251.14285714285714,
+                                         252.14285714285714,
+                                         253.14285714285714,
+                                         225.28571428571428,
+                                         226.28571428571428,
+                                         227.28571428571428,
+                                         228.28571428571428,
+                                         235.28571428571428,
+                                         236.28571428571428,
+                                         237.28571428571428,
+                                         238.28571428571428,
+                                         251.28571428571428,
+                                         252.28571428571428,
+                                         253.28571428571428,
+                                         254.28571428571428,
+                                         259.2857142857143,
+                                         260.2857142857143,
+                                         261.2857142857143,
+                                         262.2857142857143,
+                                         253.54545454545453,
+                                         254.54545454545453,
+                                         255.54545454545453,
+                                         256.54545454545456,
+                                         263.54545454545456,
+                                         264.54545454545456,
+                                         265.54545454545456,
+                                         266.54545454545456,
+                                         279.54545454545456,
+                                         280.54545454545456,
+                                         281.54545454545456,
+                                         282.54545454545456,
+                                         287.54545454545456,
+                                         288.54545454545456,
+                                         289.54545454545456,
+                                         290.54545454545456,
+                                         230.27272727272728,
+                                         231.27272727272728,
+                                         232.27272727272728,
+                                         233.27272727272728,
+                                         240.27272727272728,
+                                         241.27272727272728,
+                                         242.27272727272728,
+                                         243.27272727272728,
+                                         256.27272727272725,
+                                         257.27272727272725,
+                                         258.27272727272725,
+                                         259.27272727272725,
+                                         264.27272727272725,
+                                         265.27272727272725,
+                                         266.27272727272725,
+                                         267.27272727272725,
+                                         225.28571428571428,
+                                         226.28571428571428,
+                                         227.28571428571428,
+                                         228.28571428571428,
+                                         235.28571428571428,
+                                         236.28571428571428,
+                                         237.28571428571428,
+                                         238.28571428571428,
+                                         251.28571428571428,
+                                         252.28571428571428,
+                                         253.28571428571428,
+                                         254.28571428571428,
+                                         259.2857142857143,
+                                         260.2857142857143,
+                                         261.2857142857143,
+                                         262.2857142857143};
+  const std::array<int, 4> in_shape = {{3, 15, 16, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -634,8 +2368,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 230.45454545454547, 231.45454545454547, 232.45454545454547, 233.45454545454547, 246.45454545454547, 247.45454545454547, 248.45454545454547, 249.45454545454547, 253.72727272727272, 254.72727272727272, 255.72727272727272, 256.72727272727275, 269.72727272727275, 270.72727272727275, 271.72727272727275, 272.72727272727275, 259.54545454545456, 260.54545454545456, 261.54545454545456, 262.54545454545456, 275.54545454545456, 276.54545454545456, 277.54545454545456, 278.54545454545456, 236.27272727272728, 237.27272727272728, 238.27272727272728, 239.27272727272728, 252.27272727272728, 253.27272727272728, 254.27272727272728, 255.27272727272728};
-  const std::array<int, 4> in_shape = {{ 3, 15, 16, 4 }};
+  const std::vector<DataType> exp_out = {
+      201.36363636363637, 202.36363636363637, 203.36363636363637,
+      204.36363636363637, 217.36363636363637, 218.36363636363637,
+      219.36363636363637, 220.36363636363637, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182,  230.45454545454547, 231.45454545454547,
+      232.45454545454547, 233.45454545454547, 246.45454545454547,
+      247.45454545454547, 248.45454545454547, 249.45454545454547,
+      253.72727272727272, 254.72727272727272, 255.72727272727272,
+      256.72727272727275, 269.72727272727275, 270.72727272727275,
+      271.72727272727275, 272.72727272727275, 259.54545454545456,
+      260.54545454545456, 261.54545454545456, 262.54545454545456,
+      275.54545454545456, 276.54545454545456, 277.54545454545456,
+      278.54545454545456, 236.27272727272728, 237.27272727272728,
+      238.27272727272728, 239.27272727272728, 252.27272727272728,
+      253.27272727272728, 254.27272727272728, 255.27272727272728};
+  const std::array<int, 4> in_shape = {{3, 15, 16, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -643,8 +2393,67 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 58.              ,  60.              ,  64.              ,  67.5             ,  69.5             ,  94.              ,  96.              , 100.              , 103.5             , 105.5             , 166.              , 168.              , 172.              , 175.5             , 177.5             , 202.              , 204.              , 208.              , 211.5             , 213.5             , 328.              , 330.              , 334.              , 337.5             , 339.5             , 364.              , 366.              , 370.              , 373.5             , 375.5             , 389.45454545454544, 378.7603305785124 , 365.8347107438017 , 352.40909090909093, 354.40909090909093, 398.85714285714283, 380.90909090909093, 358.31168831168833, 335.2142857142857 , 337.2142857142857 ,  86.              ,  88.              ,  92.              ,  95.5             ,  97.5             , 122.              , 124.              , 128.              , 131.5             , 133.5             , 194.              , 196.              , 200.              , 203.5             , 205.5             , 230.              , 232.              , 236.              , 239.5             , 241.5             };
-  const std::array<int, 4> in_shape = {{ 3, 15, 18, 1 }};
+  const std::vector<DataType> exp_out = {58.,
+                                         60.,
+                                         64.,
+                                         67.5,
+                                         69.5,
+                                         94.,
+                                         96.,
+                                         100.,
+                                         103.5,
+                                         105.5,
+                                         166.,
+                                         168.,
+                                         172.,
+                                         175.5,
+                                         177.5,
+                                         202.,
+                                         204.,
+                                         208.,
+                                         211.5,
+                                         213.5,
+                                         328.,
+                                         330.,
+                                         334.,
+                                         337.5,
+                                         339.5,
+                                         364.,
+                                         366.,
+                                         370.,
+                                         373.5,
+                                         375.5,
+                                         389.45454545454544,
+                                         378.7603305785124,
+                                         365.8347107438017,
+                                         352.40909090909093,
+                                         354.40909090909093,
+                                         398.85714285714283,
+                                         380.90909090909093,
+                                         358.31168831168833,
+                                         335.2142857142857,
+                                         337.2142857142857,
+                                         86.,
+                                         88.,
+                                         92.,
+                                         95.5,
+                                         97.5,
+                                         122.,
+                                         124.,
+                                         128.,
+                                         131.5,
+                                         133.5,
+                                         194.,
+                                         196.,
+                                         200.,
+                                         203.5,
+                                         205.5,
+                                         230.,
+                                         232.,
+                                         236.,
+                                         239.5,
+                                         241.5};
+  const std::array<int, 4> in_shape = {{3, 15, 18, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -652,8 +2461,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 96.             , 100.             , 168.             , 172.             , 366.             , 370.             , 378.7603305785124, 365.8347107438017, 124.             , 128.             , 196.             , 200.             };
-  const std::array<int, 4> in_shape = {{ 3, 15, 18, 1 }};
+  const std::vector<DataType> exp_out = {
+      96.,  100., 168., 172., 366., 370., 378.7603305785124, 365.8347107438017,
+      124., 128., 196., 200.};
+  const std::array<int, 4> in_shape = {{3, 15, 18, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -661,8 +2472,127 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {115.              , 116.              , 119.              , 120.              , 127.              , 128.              , 134.              , 135.              , 138.              , 139.              , 187.              , 188.              , 191.              , 192.              , 199.              , 200.              , 206.              , 207.              , 210.              , 211.              , 311.05194805194805, 312.05194805194805, 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 303.45454545454544, 304.45454545454544, 307.45454545454544, 308.45454545454544, 371.6530612244898 , 372.6530612244898 , 360.45454545454544, 361.45454545454544, 341.85714285714283, 342.85714285714283, 348.85714285714283, 349.85714285714283, 352.85714285714283, 353.85714285714283, 143.              , 144.              , 147.              , 148.              , 155.              , 156.              , 162.              , 163.              , 166.              , 167.              , 215.              , 216.              , 219.              , 220.              , 227.              , 228.              , 234.              , 235.              , 238.              , 239.              , 312.45454545454544, 313.45454545454544, 303.7603305785124 , 304.7603305785124 , 294.8347107438017 , 295.8347107438017 , 284.90909090909093, 285.90909090909093, 288.90909090909093, 289.90909090909093, 357.85714285714283, 358.85714285714283, 341.90909090909093, 342.90909090909093, 323.31168831168833, 324.31168831168833, 303.7142857142857 , 304.7142857142857 , 307.7142857142857 , 308.7142857142857 , 171.              , 172.              , 175.              , 176.              , 183.              , 184.              , 190.              , 191.              , 194.              , 195.              , 243.              , 244.              , 247.              , 248.              , 255.              , 256.              , 262.              , 263.              , 266.              , 267.              , 293.90909090909093, 294.90909090909093, 297.90909090909093, 298.90909090909093, 293.21487603305786, 294.21487603305786, 284.9818181818182 , 285.9818181818182 , 270.3636363636364 , 271.3636363636364 , 312.7142857142857 , 313.7142857142857 , 316.7142857142857 , 317.7142857142857 , 304.76623376623377, 305.76623376623377, 287.8285714285714 , 288.8285714285714 , 262.57142857142856, 263.57142857142856};
-  const std::array<int, 4> in_shape = {{ 3, 15, 18, 2 }};
+  const std::vector<DataType> exp_out = {115.,
+                                         116.,
+                                         119.,
+                                         120.,
+                                         127.,
+                                         128.,
+                                         134.,
+                                         135.,
+                                         138.,
+                                         139.,
+                                         187.,
+                                         188.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         206.,
+                                         207.,
+                                         210.,
+                                         211.,
+                                         311.05194805194805,
+                                         312.05194805194805,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         303.45454545454544,
+                                         304.45454545454544,
+                                         307.45454545454544,
+                                         308.45454545454544,
+                                         371.6530612244898,
+                                         372.6530612244898,
+                                         360.45454545454544,
+                                         361.45454545454544,
+                                         341.85714285714283,
+                                         342.85714285714283,
+                                         348.85714285714283,
+                                         349.85714285714283,
+                                         352.85714285714283,
+                                         353.85714285714283,
+                                         143.,
+                                         144.,
+                                         147.,
+                                         148.,
+                                         155.,
+                                         156.,
+                                         162.,
+                                         163.,
+                                         166.,
+                                         167.,
+                                         215.,
+                                         216.,
+                                         219.,
+                                         220.,
+                                         227.,
+                                         228.,
+                                         234.,
+                                         235.,
+                                         238.,
+                                         239.,
+                                         312.45454545454544,
+                                         313.45454545454544,
+                                         303.7603305785124,
+                                         304.7603305785124,
+                                         294.8347107438017,
+                                         295.8347107438017,
+                                         284.90909090909093,
+                                         285.90909090909093,
+                                         288.90909090909093,
+                                         289.90909090909093,
+                                         357.85714285714283,
+                                         358.85714285714283,
+                                         341.90909090909093,
+                                         342.90909090909093,
+                                         323.31168831168833,
+                                         324.31168831168833,
+                                         303.7142857142857,
+                                         304.7142857142857,
+                                         307.7142857142857,
+                                         308.7142857142857,
+                                         171.,
+                                         172.,
+                                         175.,
+                                         176.,
+                                         183.,
+                                         184.,
+                                         190.,
+                                         191.,
+                                         194.,
+                                         195.,
+                                         243.,
+                                         244.,
+                                         247.,
+                                         248.,
+                                         255.,
+                                         256.,
+                                         262.,
+                                         263.,
+                                         266.,
+                                         267.,
+                                         293.90909090909093,
+                                         294.90909090909093,
+                                         297.90909090909093,
+                                         298.90909090909093,
+                                         293.21487603305786,
+                                         294.21487603305786,
+                                         284.9818181818182,
+                                         285.9818181818182,
+                                         270.3636363636364,
+                                         271.3636363636364,
+                                         312.7142857142857,
+                                         313.7142857142857,
+                                         316.7142857142857,
+                                         317.7142857142857,
+                                         304.76623376623377,
+                                         305.76623376623377,
+                                         287.8285714285714,
+                                         288.8285714285714,
+                                         262.57142857142856,
+                                         263.57142857142856};
+  const std::array<int, 4> in_shape = {{3, 15, 18, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -670,8 +2600,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {191.              , 192.              , 199.              , 200.              , 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 219.              , 220.              , 227.              , 228.              , 303.7603305785124 , 304.7603305785124 , 294.8347107438017 , 295.8347107438017 , 247.              , 248.              , 255.              , 256.              , 297.90909090909093, 298.90909090909093, 293.21487603305786, 294.21487603305786};
-  const std::array<int, 4> in_shape = {{ 3, 15, 18, 2 }};
+  const std::vector<DataType> exp_out = {191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         219.,
+                                         220.,
+                                         227.,
+                                         228.,
+                                         303.7603305785124,
+                                         304.7603305785124,
+                                         294.8347107438017,
+                                         295.8347107438017,
+                                         247.,
+                                         248.,
+                                         255.,
+                                         256.,
+                                         297.90909090909093,
+                                         298.90909090909093,
+                                         293.21487603305786,
+                                         294.21487603305786};
+  const std::array<int, 4> in_shape = {{3, 15, 18, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -679,8 +2632,247 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {229.              , 230.              , 231.              , 232.              , 237.              , 238.              , 239.              , 240.              , 253.              , 254.              , 255.              , 256.              , 267.              , 268.              , 269.              , 270.              , 275.              , 276.              , 277.              , 278.              , 200.11688311688312, 201.11688311688312, 202.11688311688312, 203.11688311688312, 203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 224.8181818181818 , 225.8181818181818 , 226.8181818181818 , 227.8181818181818 , 232.8181818181818 , 233.8181818181818 , 234.8181818181818 , 235.8181818181818 , 281.987012987013  , 282.987012987013  , 283.987012987013  , 284.987012987013  , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 280.09090909090907, 281.09090909090907, 282.09090909090907, 283.09090909090907, 288.09090909090907, 289.09090909090907, 290.09090909090907, 291.09090909090907, 261.6530612244898 , 262.6530612244898 , 263.6530612244898 , 264.6530612244898 , 254.45454545454547, 255.45454545454547, 256.45454545454544, 257.45454545454544, 243.85714285714286, 244.85714285714286, 245.85714285714286, 246.85714285714286, 257.85714285714283, 258.85714285714283, 259.85714285714283, 260.85714285714283, 265.85714285714283, 266.85714285714283, 267.85714285714283, 268.85714285714283, 274.55102040816325, 275.55102040816325, 276.55102040816325, 277.55102040816325, 259.75324675324674, 260.75324675324674, 261.75324675324674, 262.75324675324674, 249.15584415584416, 250.15584415584416, 251.15584415584416, 252.15584415584416, 249.85714285714286, 250.85714285714286, 251.85714285714286, 252.85714285714286, 257.85714285714283, 258.85714285714283, 259.85714285714283, 260.85714285714283, 236.16883116883116, 237.16883116883116, 238.16883116883116, 239.16883116883116, 229.6611570247934 , 230.6611570247934 , 231.6611570247934 , 232.6611570247934 , 228.73553719008265, 229.73553719008265, 230.73553719008265, 231.73553719008265, 234.27272727272728, 235.27272727272728, 236.27272727272728, 237.27272727272728, 242.27272727272728, 243.27272727272728, 244.27272727272728, 245.27272727272728, 291.4415584415584 , 292.4415584415584 , 293.4415584415584 , 294.4415584415584 , 272.2396694214876 , 273.2396694214876 , 274.2396694214876 , 275.2396694214876 , 254.38842975206612, 255.38842975206612, 256.3884297520661 , 257.3884297520661 , 243.              , 244.              , 245.              , 246.              , 251.              , 252.              , 253.              , 254.              , 275.85714285714283, 276.85714285714283, 277.85714285714283, 278.85714285714283, 263.90909090909093, 264.90909090909093, 265.90909090909093, 266.90909090909093, 253.3116883116883 , 254.3116883116883 , 255.3116883116883 , 256.31168831168833, 240.71428571428572, 241.71428571428572, 242.71428571428572, 243.71428571428572, 248.71428571428572, 249.71428571428572, 250.71428571428572, 251.71428571428572, 267.85714285714283, 268.85714285714283, 269.85714285714283, 270.85714285714283, 269.2077922077922 , 270.2077922077922 , 271.2077922077922 , 272.2077922077922 , 258.61038961038963, 259.61038961038963, 260.61038961038963, 261.61038961038963, 247.34285714285716, 248.34285714285716, 249.34285714285716, 250.34285714285716, 240.71428571428572, 241.71428571428572, 242.71428571428572, 243.71428571428572, 252.27272727272728, 253.27272727272728, 254.27272727272728, 255.27272727272728, 256.0413223140496 , 257.0413223140496 , 258.0413223140496 , 259.0413223140496 , 255.11570247933884, 256.11570247933884, 257.11570247933884, 258.11570247933884, 253.03636363636363, 254.03636363636363, 255.03636363636363, 256.03636363636366, 251.72727272727272, 252.72727272727272, 253.72727272727272, 254.72727272727272, 261.              , 262.              , 263.              , 264.              , 264.7685950413223 , 265.7685950413223 , 266.7685950413223 , 267.7685950413223 , 251.1487603305785 , 252.1487603305785 , 253.1487603305785 , 254.1487603305785 , 233.83636363636364, 234.83636363636364, 235.83636363636364, 236.83636363636364, 213.9090909090909 , 214.9090909090909 , 215.9090909090909 , 216.9090909090909 , 258.7142857142857 , 259.7142857142857 , 260.7142857142857 , 261.7142857142857 , 266.7142857142857 , 267.7142857142857 , 268.7142857142857 , 269.7142857142857 , 262.76623376623377, 263.76623376623377, 264.76623376623377, 265.76623376623377, 252.82857142857142, 253.82857142857142, 254.82857142857142, 255.82857142857142, 231.57142857142858, 232.57142857142858, 233.57142857142858, 234.57142857142858};
-  const std::array<int, 4> in_shape = {{ 3, 15, 18, 4 }};
+  const std::vector<DataType> exp_out = {229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         275.,
+                                         276.,
+                                         277.,
+                                         278.,
+                                         200.11688311688312,
+                                         201.11688311688312,
+                                         202.11688311688312,
+                                         203.11688311688312,
+                                         203.28099173553719,
+                                         204.28099173553719,
+                                         205.28099173553719,
+                                         206.28099173553719,
+                                         210.8181818181818,
+                                         211.8181818181818,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         226.8181818181818,
+                                         227.8181818181818,
+                                         232.8181818181818,
+                                         233.8181818181818,
+                                         234.8181818181818,
+                                         235.8181818181818,
+                                         281.987012987013,
+                                         282.987012987013,
+                                         283.987012987013,
+                                         284.987012987013,
+                                         275.4793388429752,
+                                         276.4793388429752,
+                                         277.4793388429752,
+                                         278.4793388429752,
+                                         266.09090909090907,
+                                         267.09090909090907,
+                                         268.09090909090907,
+                                         269.09090909090907,
+                                         280.09090909090907,
+                                         281.09090909090907,
+                                         282.09090909090907,
+                                         283.09090909090907,
+                                         288.09090909090907,
+                                         289.09090909090907,
+                                         290.09090909090907,
+                                         291.09090909090907,
+                                         261.6530612244898,
+                                         262.6530612244898,
+                                         263.6530612244898,
+                                         264.6530612244898,
+                                         254.45454545454547,
+                                         255.45454545454547,
+                                         256.45454545454544,
+                                         257.45454545454544,
+                                         243.85714285714286,
+                                         244.85714285714286,
+                                         245.85714285714286,
+                                         246.85714285714286,
+                                         257.85714285714283,
+                                         258.85714285714283,
+                                         259.85714285714283,
+                                         260.85714285714283,
+                                         265.85714285714283,
+                                         266.85714285714283,
+                                         267.85714285714283,
+                                         268.85714285714283,
+                                         274.55102040816325,
+                                         275.55102040816325,
+                                         276.55102040816325,
+                                         277.55102040816325,
+                                         259.75324675324674,
+                                         260.75324675324674,
+                                         261.75324675324674,
+                                         262.75324675324674,
+                                         249.15584415584416,
+                                         250.15584415584416,
+                                         251.15584415584416,
+                                         252.15584415584416,
+                                         249.85714285714286,
+                                         250.85714285714286,
+                                         251.85714285714286,
+                                         252.85714285714286,
+                                         257.85714285714283,
+                                         258.85714285714283,
+                                         259.85714285714283,
+                                         260.85714285714283,
+                                         236.16883116883116,
+                                         237.16883116883116,
+                                         238.16883116883116,
+                                         239.16883116883116,
+                                         229.6611570247934,
+                                         230.6611570247934,
+                                         231.6611570247934,
+                                         232.6611570247934,
+                                         228.73553719008265,
+                                         229.73553719008265,
+                                         230.73553719008265,
+                                         231.73553719008265,
+                                         234.27272727272728,
+                                         235.27272727272728,
+                                         236.27272727272728,
+                                         237.27272727272728,
+                                         242.27272727272728,
+                                         243.27272727272728,
+                                         244.27272727272728,
+                                         245.27272727272728,
+                                         291.4415584415584,
+                                         292.4415584415584,
+                                         293.4415584415584,
+                                         294.4415584415584,
+                                         272.2396694214876,
+                                         273.2396694214876,
+                                         274.2396694214876,
+                                         275.2396694214876,
+                                         254.38842975206612,
+                                         255.38842975206612,
+                                         256.3884297520661,
+                                         257.3884297520661,
+                                         243.,
+                                         244.,
+                                         245.,
+                                         246.,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         275.85714285714283,
+                                         276.85714285714283,
+                                         277.85714285714283,
+                                         278.85714285714283,
+                                         263.90909090909093,
+                                         264.90909090909093,
+                                         265.90909090909093,
+                                         266.90909090909093,
+                                         253.3116883116883,
+                                         254.3116883116883,
+                                         255.3116883116883,
+                                         256.31168831168833,
+                                         240.71428571428572,
+                                         241.71428571428572,
+                                         242.71428571428572,
+                                         243.71428571428572,
+                                         248.71428571428572,
+                                         249.71428571428572,
+                                         250.71428571428572,
+                                         251.71428571428572,
+                                         267.85714285714283,
+                                         268.85714285714283,
+                                         269.85714285714283,
+                                         270.85714285714283,
+                                         269.2077922077922,
+                                         270.2077922077922,
+                                         271.2077922077922,
+                                         272.2077922077922,
+                                         258.61038961038963,
+                                         259.61038961038963,
+                                         260.61038961038963,
+                                         261.61038961038963,
+                                         247.34285714285716,
+                                         248.34285714285716,
+                                         249.34285714285716,
+                                         250.34285714285716,
+                                         240.71428571428572,
+                                         241.71428571428572,
+                                         242.71428571428572,
+                                         243.71428571428572,
+                                         252.27272727272728,
+                                         253.27272727272728,
+                                         254.27272727272728,
+                                         255.27272727272728,
+                                         256.0413223140496,
+                                         257.0413223140496,
+                                         258.0413223140496,
+                                         259.0413223140496,
+                                         255.11570247933884,
+                                         256.11570247933884,
+                                         257.11570247933884,
+                                         258.11570247933884,
+                                         253.03636363636363,
+                                         254.03636363636363,
+                                         255.03636363636363,
+                                         256.03636363636366,
+                                         251.72727272727272,
+                                         252.72727272727272,
+                                         253.72727272727272,
+                                         254.72727272727272,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         264.7685950413223,
+                                         265.7685950413223,
+                                         266.7685950413223,
+                                         267.7685950413223,
+                                         251.1487603305785,
+                                         252.1487603305785,
+                                         253.1487603305785,
+                                         254.1487603305785,
+                                         233.83636363636364,
+                                         234.83636363636364,
+                                         235.83636363636364,
+                                         236.83636363636364,
+                                         213.9090909090909,
+                                         214.9090909090909,
+                                         215.9090909090909,
+                                         216.9090909090909,
+                                         258.7142857142857,
+                                         259.7142857142857,
+                                         260.7142857142857,
+                                         261.7142857142857,
+                                         266.7142857142857,
+                                         267.7142857142857,
+                                         268.7142857142857,
+                                         269.7142857142857,
+                                         262.76623376623377,
+                                         263.76623376623377,
+                                         264.76623376623377,
+                                         265.76623376623377,
+                                         252.82857142857142,
+                                         253.82857142857142,
+                                         254.82857142857142,
+                                         255.82857142857142,
+                                         231.57142857142858,
+                                         232.57142857142858,
+                                         233.57142857142858,
+                                         234.57142857142858};
+  const std::array<int, 4> in_shape = {{3, 15, 18, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -688,8 +2880,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x15x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 229.6611570247934 , 230.6611570247934 , 231.6611570247934 , 232.6611570247934 , 228.73553719008265, 229.73553719008265, 230.73553719008265, 231.73553719008265, 272.2396694214876 , 273.2396694214876 , 274.2396694214876 , 275.2396694214876 , 254.38842975206612, 255.38842975206612, 256.3884297520661 , 257.3884297520661 , 256.0413223140496 , 257.0413223140496 , 258.0413223140496 , 259.0413223140496 , 255.11570247933884, 256.11570247933884, 257.11570247933884, 258.11570247933884, 264.7685950413223 , 265.7685950413223 , 266.7685950413223 , 267.7685950413223 , 251.1487603305785 , 252.1487603305785 , 253.1487603305785 , 254.1487603305785 };
-  const std::array<int, 4> in_shape = {{ 3, 15, 18, 4 }};
+  const std::vector<DataType> exp_out = {
+      203.28099173553719, 204.28099173553719, 205.28099173553719,
+      206.28099173553719, 210.8181818181818,  211.8181818181818,
+      212.8181818181818,  213.8181818181818,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      266.09090909090907, 267.09090909090907, 268.09090909090907,
+      269.09090909090907, 229.6611570247934,  230.6611570247934,
+      231.6611570247934,  232.6611570247934,  228.73553719008265,
+      229.73553719008265, 230.73553719008265, 231.73553719008265,
+      272.2396694214876,  273.2396694214876,  274.2396694214876,
+      275.2396694214876,  254.38842975206612, 255.38842975206612,
+      256.3884297520661,  257.3884297520661,  256.0413223140496,
+      257.0413223140496,  258.0413223140496,  259.0413223140496,
+      255.11570247933884, 256.11570247933884, 257.11570247933884,
+      258.11570247933884, 264.7685950413223,  265.7685950413223,
+      266.7685950413223,  267.7685950413223,  251.1487603305785,
+      252.1487603305785,  253.1487603305785,  254.1487603305785};
+  const std::array<int, 4> in_shape = {{3, 15, 18, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -697,8 +2905,55 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x15x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 56.5             ,  58.5             ,  62.5             ,  64.5             ,  94.              ,  96.              , 100.              , 102.              , 154.              , 156.              , 160.              , 162.              , 184.              , 186.              , 190.              , 192.              , 296.5             , 298.5             , 302.5             , 304.5             , 334.              , 336.              , 340.              , 342.              , 394.              , 396.              , 400.              , 402.              , 424.              , 426.              , 430.              , 432.              , 170.78571428571428, 166.13636363636363, 158.5             , 160.5             , 121.84415584415585, 119.00826446280992, 114.54545454545455, 116.54545454545455, 122.              , 124.              , 128.              , 130.              , 152.              , 154.              , 158.              , 160.              };
-  const std::array<int, 4> in_shape = {{ 3, 16, 15, 1 }};
+  const std::vector<DataType> exp_out = {56.5,
+                                         58.5,
+                                         62.5,
+                                         64.5,
+                                         94.,
+                                         96.,
+                                         100.,
+                                         102.,
+                                         154.,
+                                         156.,
+                                         160.,
+                                         162.,
+                                         184.,
+                                         186.,
+                                         190.,
+                                         192.,
+                                         296.5,
+                                         298.5,
+                                         302.5,
+                                         304.5,
+                                         334.,
+                                         336.,
+                                         340.,
+                                         342.,
+                                         394.,
+                                         396.,
+                                         400.,
+                                         402.,
+                                         424.,
+                                         426.,
+                                         430.,
+                                         432.,
+                                         170.78571428571428,
+                                         166.13636363636363,
+                                         158.5,
+                                         160.5,
+                                         121.84415584415585,
+                                         119.00826446280992,
+                                         114.54545454545455,
+                                         116.54545454545455,
+                                         122.,
+                                         124.,
+                                         128.,
+                                         130.,
+                                         152.,
+                                         154.,
+                                         158.,
+                                         160.};
+  const std::array<int, 4> in_shape = {{3, 16, 15, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -706,8 +2961,19 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 81.              ,  85.              , 141.              , 145.              , 321.              , 325.              , 381.              , 385.              , 150.55371900826447, 146.0909090909091 , 109.              , 113.              };
-  const std::array<int, 4> in_shape = {{ 3, 16, 15, 1 }};
+  const std::vector<DataType> exp_out = {81.,
+                                         85.,
+                                         141.,
+                                         145.,
+                                         321.,
+                                         325.,
+                                         381.,
+                                         385.,
+                                         150.55371900826447,
+                                         146.0909090909091,
+                                         109.,
+                                         113.};
+  const std::array<int, 4> in_shape = {{3, 16, 15, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -715,8 +2981,103 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {112.              , 113.              , 116.              , 117.              , 124.              , 125.              , 128.              , 129.              , 187.              , 188.              , 191.              , 192.              , 199.              , 200.              , 203.              , 204.              , 307.              , 308.              , 311.              , 312.              , 319.              , 320.              , 323.              , 324.              , 367.              , 368.              , 371.              , 372.              , 379.              , 380.              , 383.              , 384.              , 153.14285714285714, 154.14285714285714, 153.8181818181818 , 154.8181818181818 , 156.              , 157.              , 160.              , 161.              , 161.64935064935065, 162.64935064935065, 163.23140495867767, 164.23140495867767, 167.              , 168.              , 171.              , 172.              , 275.              , 276.              , 279.              , 280.              , 287.              , 288.              , 291.              , 292.              , 335.              , 336.              , 339.              , 340.              , 347.              , 348.              , 351.              , 352.              , 194.28571428571428, 195.28571428571428, 191.63636363636363, 192.63636363636363, 188.              , 189.              , 192.              , 193.              , 182.84415584415584, 183.84415584415584, 182.0082644628099 , 183.0082644628099 , 181.54545454545453, 182.54545454545453, 185.54545454545453, 186.54545454545453, 243.              , 244.              , 247.              , 248.              , 255.              , 256.              , 259.              , 260.              , 303.              , 304.              , 307.              , 308.              , 315.              , 316.              , 319.              , 320.              };
-  const std::array<int, 4> in_shape = {{ 3, 16, 15, 2 }};
+  const std::vector<DataType> exp_out = {112.,
+                                         113.,
+                                         116.,
+                                         117.,
+                                         124.,
+                                         125.,
+                                         128.,
+                                         129.,
+                                         187.,
+                                         188.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         203.,
+                                         204.,
+                                         307.,
+                                         308.,
+                                         311.,
+                                         312.,
+                                         319.,
+                                         320.,
+                                         323.,
+                                         324.,
+                                         367.,
+                                         368.,
+                                         371.,
+                                         372.,
+                                         379.,
+                                         380.,
+                                         383.,
+                                         384.,
+                                         153.14285714285714,
+                                         154.14285714285714,
+                                         153.8181818181818,
+                                         154.8181818181818,
+                                         156.,
+                                         157.,
+                                         160.,
+                                         161.,
+                                         161.64935064935065,
+                                         162.64935064935065,
+                                         163.23140495867767,
+                                         164.23140495867767,
+                                         167.,
+                                         168.,
+                                         171.,
+                                         172.,
+                                         275.,
+                                         276.,
+                                         279.,
+                                         280.,
+                                         287.,
+                                         288.,
+                                         291.,
+                                         292.,
+                                         335.,
+                                         336.,
+                                         339.,
+                                         340.,
+                                         347.,
+                                         348.,
+                                         351.,
+                                         352.,
+                                         194.28571428571428,
+                                         195.28571428571428,
+                                         191.63636363636363,
+                                         192.63636363636363,
+                                         188.,
+                                         189.,
+                                         192.,
+                                         193.,
+                                         182.84415584415584,
+                                         183.84415584415584,
+                                         182.0082644628099,
+                                         183.0082644628099,
+                                         181.54545454545453,
+                                         182.54545454545453,
+                                         185.54545454545453,
+                                         186.54545454545453,
+                                         243.,
+                                         244.,
+                                         247.,
+                                         248.,
+                                         255.,
+                                         256.,
+                                         259.,
+                                         260.,
+                                         303.,
+                                         304.,
+                                         307.,
+                                         308.,
+                                         315.,
+                                         316.,
+                                         319.,
+                                         320.};
+  const std::array<int, 4> in_shape = {{3, 16, 15, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -724,8 +3085,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {161.              , 162.              , 169.              , 170.              , 281.              , 282.              , 289.              , 290.              , 179.77685950413223, 180.77685950413223, 183.54545454545453, 184.54545454545453, 249.              , 250.              , 257.              , 258.              , 198.55371900826447, 199.55371900826447, 198.0909090909091 , 199.0909090909091 , 217.              , 218.              , 225.              , 226.              };
-  const std::array<int, 4> in_shape = {{ 3, 16, 15, 2 }};
+  const std::vector<DataType> exp_out = {161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         281.,
+                                         282.,
+                                         289.,
+                                         290.,
+                                         179.77685950413223,
+                                         180.77685950413223,
+                                         183.54545454545453,
+                                         184.54545454545453,
+                                         249.,
+                                         250.,
+                                         257.,
+                                         258.,
+                                         198.55371900826447,
+                                         199.55371900826447,
+                                         198.0909090909091,
+                                         199.0909090909091,
+                                         217.,
+                                         218.,
+                                         225.,
+                                         226.};
+  const std::array<int, 4> in_shape = {{3, 16, 15, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -733,8 +3117,199 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {223.              , 224.              , 225.              , 226.              , 231.              , 232.              , 233.              , 234.              , 247.              , 248.              , 249.              , 250.              , 255.              , 256.              , 257.              , 258.              , 233.36363636363637, 234.36363636363637, 235.36363636363637, 236.36363636363637, 228.6694214876033 , 229.6694214876033 , 230.6694214876033 , 231.6694214876033 , 227.74380165289256, 228.74380165289256, 229.74380165289256, 230.74380165289256, 218.8181818181818 , 219.8181818181818 , 220.8181818181818 , 221.8181818181818 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 282.4876033057851 , 283.4876033057851 , 284.4876033057851 , 285.4876033057851 , 281.56198347107437, 282.56198347107437, 283.56198347107437, 284.56198347107437, 272.6363636363636 , 273.6363636363636 , 274.6363636363636 , 275.6363636363636 , 221.              , 222.              , 223.              , 224.              , 229.              , 230.              , 231.              , 232.              , 245.              , 246.              , 247.              , 248.              , 253.              , 254.              , 255.              , 256.              , 232.14285714285714, 233.14285714285714, 234.14285714285714, 235.14285714285714, 236.8181818181818 , 237.8181818181818 , 238.8181818181818 , 239.8181818181818 , 247.              , 248.              , 249.              , 250.              , 255.              , 256.              , 257.              , 258.              , 222.55844155844156, 223.55844155844156, 224.55844155844156, 225.55844155844156, 219.67768595041323, 220.67768595041323, 221.67768595041323, 222.67768595041323, 214.5206611570248 , 215.5206611570248 , 216.5206611570248 , 217.5206611570248 , 208.01298701298703, 209.01298701298703, 210.01298701298703, 211.01298701298703, 269.72727272727275, 270.72727272727275, 271.72727272727275, 272.72727272727275, 269.26446280991735, 270.26446280991735, 271.26446280991735, 272.26446280991735, 268.3388429752066 , 269.3388429752066 , 270.3388429752066 , 271.3388429752066 , 261.83116883116884, 262.83116883116884, 263.83116883116884, 264.83116883116884, 230.14285714285714, 231.14285714285714, 232.14285714285714, 233.14285714285714, 224.84415584415584, 225.84415584415584, 226.84415584415584, 227.84415584415584, 214.24675324675326, 215.24675324675326, 216.24675324675326, 217.24675324675326, 199.44897959183675, 200.44897959183675, 201.44897959183675, 202.44897959183675, 241.28571428571428, 242.28571428571428, 243.28571428571428, 244.28571428571428, 242.63636363636363, 243.63636363636363, 244.63636363636363, 245.63636363636363, 247.              , 248.              , 249.              , 250.              , 255.              , 256.              , 257.              , 258.              , 258.2987012987013 , 259.2987012987013 , 260.2987012987013 , 261.2987012987013 , 257.2314049586777 , 258.2314049586777 , 259.2314049586777 , 260.2314049586777 , 247.84297520661158, 248.84297520661158, 249.84297520661158, 250.84297520661158, 243.75324675324674, 244.75324675324674, 245.75324675324674, 246.75324675324674, 252.27272727272728, 253.27272727272728, 254.27272727272728, 255.27272727272728, 256.0413223140496 , 257.0413223140496 , 258.0413223140496 , 259.0413223140496 , 255.11570247933884, 256.11570247933884, 257.11570247933884, 258.11570247933884, 251.02597402597402, 252.02597402597402, 253.02597402597402, 254.02597402597402, 239.28571428571428, 240.28571428571428, 241.28571428571428, 242.28571428571428, 240.63636363636363, 241.63636363636363, 242.63636363636363, 243.63636363636363, 230.03896103896105, 231.03896103896105, 232.03896103896105, 233.03896103896105, 219.0408163265306 , 220.0408163265306 , 221.0408163265306 , 222.0408163265306 };
-  const std::array<int, 4> in_shape = {{ 3, 16, 15, 4 }};
+  const std::vector<DataType> exp_out = {223.,
+                                         224.,
+                                         225.,
+                                         226.,
+                                         231.,
+                                         232.,
+                                         233.,
+                                         234.,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         233.36363636363637,
+                                         234.36363636363637,
+                                         235.36363636363637,
+                                         236.36363636363637,
+                                         228.6694214876033,
+                                         229.6694214876033,
+                                         230.6694214876033,
+                                         231.6694214876033,
+                                         227.74380165289256,
+                                         228.74380165289256,
+                                         229.74380165289256,
+                                         230.74380165289256,
+                                         218.8181818181818,
+                                         219.8181818181818,
+                                         220.8181818181818,
+                                         221.8181818181818,
+                                         287.1818181818182,
+                                         288.1818181818182,
+                                         289.1818181818182,
+                                         290.1818181818182,
+                                         282.4876033057851,
+                                         283.4876033057851,
+                                         284.4876033057851,
+                                         285.4876033057851,
+                                         281.56198347107437,
+                                         282.56198347107437,
+                                         283.56198347107437,
+                                         284.56198347107437,
+                                         272.6363636363636,
+                                         273.6363636363636,
+                                         274.6363636363636,
+                                         275.6363636363636,
+                                         221.,
+                                         222.,
+                                         223.,
+                                         224.,
+                                         229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         245.,
+                                         246.,
+                                         247.,
+                                         248.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         232.14285714285714,
+                                         233.14285714285714,
+                                         234.14285714285714,
+                                         235.14285714285714,
+                                         236.8181818181818,
+                                         237.8181818181818,
+                                         238.8181818181818,
+                                         239.8181818181818,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         222.55844155844156,
+                                         223.55844155844156,
+                                         224.55844155844156,
+                                         225.55844155844156,
+                                         219.67768595041323,
+                                         220.67768595041323,
+                                         221.67768595041323,
+                                         222.67768595041323,
+                                         214.5206611570248,
+                                         215.5206611570248,
+                                         216.5206611570248,
+                                         217.5206611570248,
+                                         208.01298701298703,
+                                         209.01298701298703,
+                                         210.01298701298703,
+                                         211.01298701298703,
+                                         269.72727272727275,
+                                         270.72727272727275,
+                                         271.72727272727275,
+                                         272.72727272727275,
+                                         269.26446280991735,
+                                         270.26446280991735,
+                                         271.26446280991735,
+                                         272.26446280991735,
+                                         268.3388429752066,
+                                         269.3388429752066,
+                                         270.3388429752066,
+                                         271.3388429752066,
+                                         261.83116883116884,
+                                         262.83116883116884,
+                                         263.83116883116884,
+                                         264.83116883116884,
+                                         230.14285714285714,
+                                         231.14285714285714,
+                                         232.14285714285714,
+                                         233.14285714285714,
+                                         224.84415584415584,
+                                         225.84415584415584,
+                                         226.84415584415584,
+                                         227.84415584415584,
+                                         214.24675324675326,
+                                         215.24675324675326,
+                                         216.24675324675326,
+                                         217.24675324675326,
+                                         199.44897959183675,
+                                         200.44897959183675,
+                                         201.44897959183675,
+                                         202.44897959183675,
+                                         241.28571428571428,
+                                         242.28571428571428,
+                                         243.28571428571428,
+                                         244.28571428571428,
+                                         242.63636363636363,
+                                         243.63636363636363,
+                                         244.63636363636363,
+                                         245.63636363636363,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         255.,
+                                         256.,
+                                         257.,
+                                         258.,
+                                         258.2987012987013,
+                                         259.2987012987013,
+                                         260.2987012987013,
+                                         261.2987012987013,
+                                         257.2314049586777,
+                                         258.2314049586777,
+                                         259.2314049586777,
+                                         260.2314049586777,
+                                         247.84297520661158,
+                                         248.84297520661158,
+                                         249.84297520661158,
+                                         250.84297520661158,
+                                         243.75324675324674,
+                                         244.75324675324674,
+                                         245.75324675324674,
+                                         246.75324675324674,
+                                         252.27272727272728,
+                                         253.27272727272728,
+                                         254.27272727272728,
+                                         255.27272727272728,
+                                         256.0413223140496,
+                                         257.0413223140496,
+                                         258.0413223140496,
+                                         259.0413223140496,
+                                         255.11570247933884,
+                                         256.11570247933884,
+                                         257.11570247933884,
+                                         258.11570247933884,
+                                         251.02597402597402,
+                                         252.02597402597402,
+                                         253.02597402597402,
+                                         254.02597402597402,
+                                         239.28571428571428,
+                                         240.28571428571428,
+                                         241.28571428571428,
+                                         242.28571428571428,
+                                         240.63636363636363,
+                                         241.63636363636363,
+                                         242.63636363636363,
+                                         243.63636363636363,
+                                         230.03896103896105,
+                                         231.03896103896105,
+                                         232.03896103896105,
+                                         233.03896103896105,
+                                         219.0408163265306,
+                                         220.0408163265306,
+                                         221.0408163265306,
+                                         222.0408163265306};
+  const std::array<int, 4> in_shape = {{3, 16, 15, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -742,8 +3317,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 252.76859504132233, 253.76859504132233, 254.76859504132233, 255.76859504132233, 247.61157024793388, 248.61157024793388, 249.61157024793388, 250.61157024793388, 255.8099173553719 , 256.8099173553719 , 257.8099173553719 , 258.8099173553719 , 254.88429752066116, 255.88429752066116, 256.88429752066116, 257.88429752066116, 290.3223140495868 , 291.3223140495868 , 292.3223140495868 , 293.3223140495868 , 280.93388429752065, 281.93388429752065, 282.93388429752065, 283.93388429752065, 242.58677685950414, 243.58677685950414, 244.58677685950414, 245.58677685950414, 241.6611570247934 , 242.6611570247934 , 243.6611570247934 , 244.6611570247934 };
-  const std::array<int, 4> in_shape = {{ 3, 16, 15, 4 }};
+  const std::vector<DataType> exp_out = {
+      215.21487603305786, 216.21487603305786, 217.21487603305786,
+      218.21487603305786, 214.28925619834712, 215.28925619834712,
+      216.28925619834712, 217.28925619834712, 269.0330578512397,
+      270.0330578512397,  271.0330578512397,  272.0330578512397,
+      268.10743801652893, 269.10743801652893, 270.10743801652893,
+      271.10743801652893, 252.76859504132233, 253.76859504132233,
+      254.76859504132233, 255.76859504132233, 247.61157024793388,
+      248.61157024793388, 249.61157024793388, 250.61157024793388,
+      255.8099173553719,  256.8099173553719,  257.8099173553719,
+      258.8099173553719,  254.88429752066116, 255.88429752066116,
+      256.88429752066116, 257.88429752066116, 290.3223140495868,
+      291.3223140495868,  292.3223140495868,  293.3223140495868,
+      280.93388429752065, 281.93388429752065, 282.93388429752065,
+      283.93388429752065, 242.58677685950414, 243.58677685950414,
+      244.58677685950414, 245.58677685950414, 241.6611570247934,
+      242.6611570247934,  243.6611570247934,  244.6611570247934};
+  const std::array<int, 4> in_shape = {{3, 16, 15, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -751,8 +3342,13 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 60.5,  63. ,  67. ,  69. , 100.5, 103. , 107. , 109. , 164.5, 167. , 171. , 173. , 196.5, 199. , 203. , 205. , 316.5, 319. , 323. , 325. , 356.5, 359. , 363. , 365. , 420.5, 423. , 427. , 429. , 452.5, 455. , 459. , 461. ,  60.5,  63. ,  67. ,  69. , 100.5, 103. , 107. , 109. , 164.5, 167. , 171. , 173. , 196.5, 199. , 203. , 205. };
-  const std::array<int, 4> in_shape = {{ 3, 16, 16, 1 }};
+  const std::vector<DataType> exp_out = {
+      60.5,  63.,  67.,   69.,  100.5, 103., 107.,  109., 164.5, 167.,
+      171.,  173., 196.5, 199., 203.,  205., 316.5, 319., 323.,  325.,
+      356.5, 359., 363.,  365., 420.5, 423., 427.,  429., 452.5, 455.,
+      459.,  461., 60.5,  63.,  67.,   69.,  100.5, 103., 107.,  109.,
+      164.5, 167., 171.,  173., 196.5, 199., 203.,  205.};
+  const std::array<int, 4> in_shape = {{3, 16, 16, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -760,8 +3356,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 86.,  90., 150., 154., 342., 346., 406., 410.,  86.,  90., 150., 154.};
-  const std::array<int, 4> in_shape = {{ 3, 16, 16, 1 }};
+  const std::vector<DataType> exp_out = {86.,  90.,  150., 154., 342., 346.,
+                                         406., 410., 86.,  90.,  150., 154.};
+  const std::array<int, 4> in_shape = {{3, 16, 16, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -769,8 +3366,16 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {120., 121., 125., 126., 133., 134., 137., 138., 200., 201., 205., 206., 213., 214., 217., 218., 328., 329., 333., 334., 341., 342., 345., 346., 392., 393., 397., 398., 405., 406., 409., 410., 120., 121., 125., 126., 133., 134., 137., 138., 200., 201., 205., 206., 213., 214., 217., 218., 328., 329., 333., 334., 341., 342., 345., 346., 392., 393., 397., 398., 405., 406., 409., 410., 120., 121., 125., 126., 133., 134., 137., 138., 200., 201., 205., 206., 213., 214., 217., 218., 328., 329., 333., 334., 341., 342., 345., 346., 392., 393., 397., 398., 405., 406., 409., 410.};
-  const std::array<int, 4> in_shape = {{ 3, 16, 16, 2 }};
+  const std::vector<DataType> exp_out = {
+      120., 121., 125., 126., 133., 134., 137., 138., 200., 201., 205., 206.,
+      213., 214., 217., 218., 328., 329., 333., 334., 341., 342., 345., 346.,
+      392., 393., 397., 398., 405., 406., 409., 410., 120., 121., 125., 126.,
+      133., 134., 137., 138., 200., 201., 205., 206., 213., 214., 217., 218.,
+      328., 329., 333., 334., 341., 342., 345., 346., 392., 393., 397., 398.,
+      405., 406., 409., 410., 120., 121., 125., 126., 133., 134., 137., 138.,
+      200., 201., 205., 206., 213., 214., 217., 218., 328., 329., 333., 334.,
+      341., 342., 345., 346., 392., 393., 397., 398., 405., 406., 409., 410.};
+  const std::array<int, 4> in_shape = {{3, 16, 16, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -778,8 +3383,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {171., 172., 179., 180., 299., 300., 307., 308., 171., 172., 179., 180., 299., 300., 307., 308., 171., 172., 179., 180., 299., 300., 307., 308.};
-  const std::array<int, 4> in_shape = {{ 3, 16, 16, 2 }};
+  const std::vector<DataType> exp_out = {
+      171., 172., 179., 180., 299., 300., 307., 308., 171., 172., 179., 180.,
+      299., 300., 307., 308., 171., 172., 179., 180., 299., 300., 307., 308.};
+  const std::array<int, 4> in_shape = {{3, 16, 16, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -787,8 +3394,199 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {239.             , 240.             , 241.             , 242.             , 249.             , 250.             , 251.             , 252.             , 265.             , 266.             , 267.             , 268.             , 273.             , 274.             , 275.             , 276.             , 212.8181818181818, 213.8181818181818, 214.8181818181818, 215.8181818181818, 222.8181818181818, 223.8181818181818, 224.8181818181818, 225.8181818181818, 238.8181818181818, 239.8181818181818, 240.8181818181818, 241.8181818181818, 246.8181818181818, 247.8181818181818, 248.8181818181818, 249.8181818181818, 282.6363636363636, 283.6363636363636, 284.6363636363636, 285.6363636363636, 292.6363636363636, 293.6363636363636, 294.6363636363636, 295.6363636363636, 308.6363636363636, 309.6363636363636, 310.6363636363636, 311.6363636363636, 316.6363636363636, 317.6363636363636, 318.6363636363636, 319.6363636363636, 271.             , 272.             , 273.             , 274.             , 281.             , 282.             , 283.             , 284.             , 297.             , 298.             , 299.             , 300.             , 305.             , 306.             , 307.             , 308.             , 239.             , 240.             , 241.             , 242.             , 249.             , 250.             , 251.             , 252.             , 265.             , 266.             , 267.             , 268.             , 273.             , 274.             , 275.             , 276.             , 212.8181818181818, 213.8181818181818, 214.8181818181818, 215.8181818181818, 222.8181818181818, 223.8181818181818, 224.8181818181818, 225.8181818181818, 238.8181818181818, 239.8181818181818, 240.8181818181818, 241.8181818181818, 246.8181818181818, 247.8181818181818, 248.8181818181818, 249.8181818181818, 282.6363636363636, 283.6363636363636, 284.6363636363636, 285.6363636363636, 292.6363636363636, 293.6363636363636, 294.6363636363636, 295.6363636363636, 308.6363636363636, 309.6363636363636, 310.6363636363636, 311.6363636363636, 316.6363636363636, 317.6363636363636, 318.6363636363636, 319.6363636363636, 271.             , 272.             , 273.             , 274.             , 281.             , 282.             , 283.             , 284.             , 297.             , 298.             , 299.             , 300.             , 305.             , 306.             , 307.             , 308.             , 239.             , 240.             , 241.             , 242.             , 249.             , 250.             , 251.             , 252.             , 265.             , 266.             , 267.             , 268.             , 273.             , 274.             , 275.             , 276.             , 212.8181818181818, 213.8181818181818, 214.8181818181818, 215.8181818181818, 222.8181818181818, 223.8181818181818, 224.8181818181818, 225.8181818181818, 238.8181818181818, 239.8181818181818, 240.8181818181818, 241.8181818181818, 246.8181818181818, 247.8181818181818, 248.8181818181818, 249.8181818181818, 282.6363636363636, 283.6363636363636, 284.6363636363636, 285.6363636363636, 292.6363636363636, 293.6363636363636, 294.6363636363636, 295.6363636363636, 308.6363636363636, 309.6363636363636, 310.6363636363636, 311.6363636363636, 316.6363636363636, 317.6363636363636, 318.6363636363636, 319.6363636363636, 271.             , 272.             , 273.             , 274.             , 281.             , 282.             , 283.             , 284.             , 297.             , 298.             , 299.             , 300.             , 305.             , 306.             , 307.             , 308.             };
-  const std::array<int, 4> in_shape = {{ 3, 16, 16, 4 }};
+  const std::vector<DataType> exp_out = {239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         214.8181818181818,
+                                         215.8181818181818,
+                                         222.8181818181818,
+                                         223.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         238.8181818181818,
+                                         239.8181818181818,
+                                         240.8181818181818,
+                                         241.8181818181818,
+                                         246.8181818181818,
+                                         247.8181818181818,
+                                         248.8181818181818,
+                                         249.8181818181818,
+                                         282.6363636363636,
+                                         283.6363636363636,
+                                         284.6363636363636,
+                                         285.6363636363636,
+                                         292.6363636363636,
+                                         293.6363636363636,
+                                         294.6363636363636,
+                                         295.6363636363636,
+                                         308.6363636363636,
+                                         309.6363636363636,
+                                         310.6363636363636,
+                                         311.6363636363636,
+                                         316.6363636363636,
+                                         317.6363636363636,
+                                         318.6363636363636,
+                                         319.6363636363636,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         214.8181818181818,
+                                         215.8181818181818,
+                                         222.8181818181818,
+                                         223.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         238.8181818181818,
+                                         239.8181818181818,
+                                         240.8181818181818,
+                                         241.8181818181818,
+                                         246.8181818181818,
+                                         247.8181818181818,
+                                         248.8181818181818,
+                                         249.8181818181818,
+                                         282.6363636363636,
+                                         283.6363636363636,
+                                         284.6363636363636,
+                                         285.6363636363636,
+                                         292.6363636363636,
+                                         293.6363636363636,
+                                         294.6363636363636,
+                                         295.6363636363636,
+                                         308.6363636363636,
+                                         309.6363636363636,
+                                         310.6363636363636,
+                                         311.6363636363636,
+                                         316.6363636363636,
+                                         317.6363636363636,
+                                         318.6363636363636,
+                                         319.6363636363636,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         214.8181818181818,
+                                         215.8181818181818,
+                                         222.8181818181818,
+                                         223.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         238.8181818181818,
+                                         239.8181818181818,
+                                         240.8181818181818,
+                                         241.8181818181818,
+                                         246.8181818181818,
+                                         247.8181818181818,
+                                         248.8181818181818,
+                                         249.8181818181818,
+                                         282.6363636363636,
+                                         283.6363636363636,
+                                         284.6363636363636,
+                                         285.6363636363636,
+                                         292.6363636363636,
+                                         293.6363636363636,
+                                         294.6363636363636,
+                                         295.6363636363636,
+                                         308.6363636363636,
+                                         309.6363636363636,
+                                         310.6363636363636,
+                                         311.6363636363636,
+                                         316.6363636363636,
+                                         317.6363636363636,
+                                         318.6363636363636,
+                                         319.6363636363636,
+                                         271.,
+                                         272.,
+                                         273.,
+                                         274.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         297.,
+                                         298.,
+                                         299.,
+                                         300.,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.};
+  const std::array<int, 4> in_shape = {{3, 16, 16, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -796,8 +3594,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 };
-  const std::array<int, 4> in_shape = {{ 3, 16, 16, 4 }};
+  const std::vector<DataType> exp_out = {
+      201.36363636363637, 202.36363636363637, 203.36363636363637,
+      204.36363636363637, 217.36363636363637, 218.36363636363637,
+      219.36363636363637, 220.36363636363637, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182,  201.36363636363637, 202.36363636363637,
+      203.36363636363637, 204.36363636363637, 217.36363636363637,
+      218.36363636363637, 219.36363636363637, 220.36363636363637,
+      271.1818181818182,  272.1818181818182,  273.1818181818182,
+      274.1818181818182,  287.1818181818182,  288.1818181818182,
+      289.1818181818182,  290.1818181818182,  201.36363636363637,
+      202.36363636363637, 203.36363636363637, 204.36363636363637,
+      217.36363636363637, 218.36363636363637, 219.36363636363637,
+      220.36363636363637, 271.1818181818182,  272.1818181818182,
+      273.1818181818182,  274.1818181818182,  287.1818181818182,
+      288.1818181818182,  289.1818181818182,  290.1818181818182};
+  const std::array<int, 4> in_shape = {{3, 16, 16, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -805,8 +3619,67 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 67.              ,  69.              ,  73.              ,  76.5             ,  78.5             , 112.              , 114.              , 118.              , 121.5             , 123.5             , 184.              , 186.              , 190.              , 193.5             , 195.5             , 220.              , 222.              , 226.              , 229.5             , 231.5             , 355.              , 357.              , 361.              , 364.5             , 366.5             , 400.              , 402.              , 406.              , 409.5             , 411.5             , 332.3636363636364 , 321.6694214876033 , 308.74380165289256, 295.3181818181818 , 297.3181818181818 , 288.57142857142856, 270.6233766233766 , 248.02597402597402, 224.92857142857142, 226.92857142857142, 131.              , 133.              , 137.              , 140.5             , 142.5             , 176.              , 178.              , 182.              , 185.5             , 187.5             , 248.              , 250.              , 254.              , 257.5             , 259.5             , 284.              , 286.              , 290.              , 293.5             , 295.5             };
-  const std::array<int, 4> in_shape = {{ 3, 16, 18, 1 }};
+  const std::vector<DataType> exp_out = {67.,
+                                         69.,
+                                         73.,
+                                         76.5,
+                                         78.5,
+                                         112.,
+                                         114.,
+                                         118.,
+                                         121.5,
+                                         123.5,
+                                         184.,
+                                         186.,
+                                         190.,
+                                         193.5,
+                                         195.5,
+                                         220.,
+                                         222.,
+                                         226.,
+                                         229.5,
+                                         231.5,
+                                         355.,
+                                         357.,
+                                         361.,
+                                         364.5,
+                                         366.5,
+                                         400.,
+                                         402.,
+                                         406.,
+                                         409.5,
+                                         411.5,
+                                         332.3636363636364,
+                                         321.6694214876033,
+                                         308.74380165289256,
+                                         295.3181818181818,
+                                         297.3181818181818,
+                                         288.57142857142856,
+                                         270.6233766233766,
+                                         248.02597402597402,
+                                         224.92857142857142,
+                                         226.92857142857142,
+                                         131.,
+                                         133.,
+                                         137.,
+                                         140.5,
+                                         142.5,
+                                         176.,
+                                         178.,
+                                         182.,
+                                         185.5,
+                                         187.5,
+                                         248.,
+                                         250.,
+                                         254.,
+                                         257.5,
+                                         259.5,
+                                         284.,
+                                         286.,
+                                         290.,
+                                         293.5,
+                                         295.5};
+  const std::array<int, 4> in_shape = {{3, 16, 18, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -814,8 +3687,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 96.              , 100.              , 168.              , 172.              , 384.              , 388.              , 350.21487603305786, 337.2892561983471 , 160.              , 164.              , 232.              , 236.              };
-  const std::array<int, 4> in_shape = {{ 3, 16, 18, 1 }};
+  const std::vector<DataType> exp_out = {
+      96.,  100., 168., 172., 384., 388., 350.21487603305786, 337.2892561983471,
+      160., 164., 232., 236.};
+  const std::array<int, 4> in_shape = {{3, 16, 18, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -823,8 +3698,127 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {133.              , 134.              , 137.              , 138.              , 145.              , 146.              , 152.              , 153.              , 156.              , 157.              , 223.              , 224.              , 227.              , 228.              , 235.              , 236.              , 242.              , 243.              , 246.              , 247.              , 300.5064935064935 , 301.5064935064935 , 294.8347107438017 , 295.8347107438017 , 285.90909090909093, 286.90909090909093, 292.90909090909093, 293.90909090909093, 296.90909090909093, 297.90909090909093, 334.51020408163265, 335.51020408163265, 323.31168831168833, 324.31168831168833, 304.7142857142857 , 305.7142857142857 , 311.7142857142857 , 312.7142857142857 , 315.7142857142857 , 316.7142857142857 , 197.              , 198.              , 201.              , 202.              , 209.              , 210.              , 216.              , 217.              , 220.              , 221.              , 287.              , 288.              , 291.              , 292.              , 299.              , 300.              , 306.              , 307.              , 310.              , 311.              , 291.3636363636364 , 292.3636363636364 , 282.6694214876033 , 283.6694214876033 , 273.74380165289256, 274.74380165289256, 263.8181818181818 , 264.8181818181818 , 267.8181818181818 , 268.8181818181818 , 283.57142857142856, 284.57142857142856, 267.6233766233766 , 268.6233766233766 , 249.02597402597402, 250.02597402597402, 229.42857142857142, 230.42857142857142, 233.42857142857142, 234.42857142857142, 261.              , 262.              , 265.              , 266.              , 273.              , 274.              , 280.              , 281.              , 284.              , 285.              , 304.45454545454544, 305.45454545454544, 308.45454545454544, 309.45454545454544, 303.7603305785124 , 304.7603305785124 , 295.5272727272727 , 296.5272727272727 , 280.90909090909093, 281.90909090909093, 262.27272727272725, 263.27272727272725, 266.27272727272725, 267.27272727272725, 261.57851239669424, 262.57851239669424, 253.34545454545454, 254.34545454545454, 238.72727272727272, 239.72727272727272, 201.28571428571428, 202.28571428571428, 205.28571428571428, 206.28571428571428, 193.33766233766235, 194.33766233766235, 176.4             , 177.4             , 151.14285714285714, 152.14285714285714};
-  const std::array<int, 4> in_shape = {{ 3, 16, 18, 2 }};
+  const std::vector<DataType> exp_out = {133.,
+                                         134.,
+                                         137.,
+                                         138.,
+                                         145.,
+                                         146.,
+                                         152.,
+                                         153.,
+                                         156.,
+                                         157.,
+                                         223.,
+                                         224.,
+                                         227.,
+                                         228.,
+                                         235.,
+                                         236.,
+                                         242.,
+                                         243.,
+                                         246.,
+                                         247.,
+                                         300.5064935064935,
+                                         301.5064935064935,
+                                         294.8347107438017,
+                                         295.8347107438017,
+                                         285.90909090909093,
+                                         286.90909090909093,
+                                         292.90909090909093,
+                                         293.90909090909093,
+                                         296.90909090909093,
+                                         297.90909090909093,
+                                         334.51020408163265,
+                                         335.51020408163265,
+                                         323.31168831168833,
+                                         324.31168831168833,
+                                         304.7142857142857,
+                                         305.7142857142857,
+                                         311.7142857142857,
+                                         312.7142857142857,
+                                         315.7142857142857,
+                                         316.7142857142857,
+                                         197.,
+                                         198.,
+                                         201.,
+                                         202.,
+                                         209.,
+                                         210.,
+                                         216.,
+                                         217.,
+                                         220.,
+                                         221.,
+                                         287.,
+                                         288.,
+                                         291.,
+                                         292.,
+                                         299.,
+                                         300.,
+                                         306.,
+                                         307.,
+                                         310.,
+                                         311.,
+                                         291.3636363636364,
+                                         292.3636363636364,
+                                         282.6694214876033,
+                                         283.6694214876033,
+                                         273.74380165289256,
+                                         274.74380165289256,
+                                         263.8181818181818,
+                                         264.8181818181818,
+                                         267.8181818181818,
+                                         268.8181818181818,
+                                         283.57142857142856,
+                                         284.57142857142856,
+                                         267.6233766233766,
+                                         268.6233766233766,
+                                         249.02597402597402,
+                                         250.02597402597402,
+                                         229.42857142857142,
+                                         230.42857142857142,
+                                         233.42857142857142,
+                                         234.42857142857142,
+                                         261.,
+                                         262.,
+                                         265.,
+                                         266.,
+                                         273.,
+                                         274.,
+                                         280.,
+                                         281.,
+                                         284.,
+                                         285.,
+                                         304.45454545454544,
+                                         305.45454545454544,
+                                         308.45454545454544,
+                                         309.45454545454544,
+                                         303.7603305785124,
+                                         304.7603305785124,
+                                         295.5272727272727,
+                                         296.5272727272727,
+                                         280.90909090909093,
+                                         281.90909090909093,
+                                         262.27272727272725,
+                                         263.27272727272725,
+                                         266.27272727272725,
+                                         267.27272727272725,
+                                         261.57851239669424,
+                                         262.57851239669424,
+                                         253.34545454545454,
+                                         254.34545454545454,
+                                         238.72727272727272,
+                                         239.72727272727272,
+                                         201.28571428571428,
+                                         202.28571428571428,
+                                         205.28571428571428,
+                                         206.28571428571428,
+                                         193.33766233766235,
+                                         194.33766233766235,
+                                         176.4,
+                                         177.4,
+                                         151.14285714285714,
+                                         152.14285714285714};
+  const std::array<int, 4> in_shape = {{3, 16, 18, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -832,8 +3826,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {191.              , 192.              , 199.              , 200.              , 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 255.              , 256.              , 263.              , 264.              , 293.21487603305786, 294.21487603305786, 284.2892561983471 , 285.2892561983471 , 319.              , 320.              , 314.3057851239669 , 315.3057851239669 , 276.8181818181818 , 277.8181818181818 , 272.12396694214874, 273.12396694214874};
-  const std::array<int, 4> in_shape = {{ 3, 16, 18, 2 }};
+  const std::vector<DataType> exp_out = {191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         255.,
+                                         256.,
+                                         263.,
+                                         264.,
+                                         293.21487603305786,
+                                         294.21487603305786,
+                                         284.2892561983471,
+                                         285.2892561983471,
+                                         319.,
+                                         320.,
+                                         314.3057851239669,
+                                         315.3057851239669,
+                                         276.8181818181818,
+                                         277.8181818181818,
+                                         272.12396694214874,
+                                         273.12396694214874};
+  const std::array<int, 4> in_shape = {{3, 16, 18, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -841,8 +3858,247 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {219.28571428571428, 220.28571428571428, 221.28571428571428, 222.28571428571428, 220.63636363636363, 221.63636363636363, 222.63636363636363, 223.63636363636363, 225.              , 226.              , 227.              , 228.              , 239.              , 240.              , 241.              , 242.              , 247.              , 248.              , 249.              , 250.              , 225.57142857142858, 226.57142857142858, 227.57142857142858, 228.57142857142858, 228.73553719008265, 229.73553719008265, 230.73553719008265, 231.73553719008265, 236.27272727272728, 237.27272727272728, 238.27272727272728, 239.27272727272728, 250.27272727272728, 251.27272727272728, 252.27272727272728, 253.27272727272728, 258.27272727272725, 259.27272727272725, 260.27272727272725, 261.27272727272725, 260.8961038961039 , 261.8961038961039 , 262.8961038961039 , 263.8961038961039 , 254.38842975206612, 255.38842975206612, 256.3884297520661 , 257.3884297520661 , 245.              , 246.              , 247.              , 248.              , 259.              , 260.              , 261.              , 262.              , 267.              , 268.              , 269.              , 270.              , 260.51020408163265, 261.51020408163265, 262.51020408163265, 263.51020408163265, 253.3116883116883 , 254.3116883116883 , 255.3116883116883 , 256.31168831168833, 242.71428571428572, 243.71428571428572, 244.71428571428572, 245.71428571428572, 256.7142857142857 , 257.7142857142857 , 258.7142857142857 , 259.7142857142857 , 264.7142857142857 , 265.7142857142857 , 266.7142857142857 , 267.7142857142857 , 255.85714285714286, 256.85714285714283, 257.85714285714283, 258.85714285714283, 243.9090909090909 , 244.9090909090909 , 245.9090909090909 , 246.9090909090909 , 236.63636363636363, 237.63636363636363, 238.63636363636363, 239.63636363636363, 239.              , 240.              , 241.              , 242.              , 247.              , 248.              , 249.              , 250.              , 287.0779220779221 , 288.0779220779221 , 289.0779220779221 , 290.0779220779221 , 280.5702479338843 , 281.5702479338843 , 282.5702479338843 , 283.5702479338843 , 279.64462809917353, 280.64462809917353, 281.64462809917353, 282.64462809917353, 285.1818181818182 , 286.1818181818182 , 287.1818181818182 , 288.1818181818182 , 293.1818181818182 , 294.1818181818182 , 295.1818181818182 , 296.1818181818182 , 249.25974025974025, 250.25974025974025, 251.25974025974025, 252.25974025974025, 230.05785123966942, 231.05785123966942, 232.05785123966942, 233.05785123966942, 212.20661157024793, 213.20661157024793, 214.20661157024793, 215.20661157024793, 200.8181818181818 , 201.8181818181818 , 202.8181818181818 , 203.8181818181818 , 208.8181818181818 , 209.8181818181818 , 210.8181818181818 , 211.8181818181818 , 273.57142857142856, 274.57142857142856, 275.57142857142856, 276.57142857142856, 261.6233766233766 , 262.6233766233766 , 263.6233766233766 , 264.6233766233766 , 251.02597402597402, 252.02597402597402, 253.02597402597402, 254.02597402597402, 238.42857142857142, 239.42857142857142, 240.42857142857142, 241.42857142857142, 246.42857142857142, 247.42857142857142, 248.42857142857142, 249.42857142857142, 265.              , 266.              , 267.              , 268.              , 267.1818181818182 , 268.1818181818182 , 269.1818181818182 , 270.1818181818182 , 259.90909090909093, 260.90909090909093, 261.90909090909093, 262.90909090909093, 251.8             , 252.8             , 253.8             , 254.8             , 247.              , 248.              , 249.              , 250.              , 282.09090909090907, 283.09090909090907, 284.09090909090907, 285.09090909090907, 285.8595041322314 , 286.8595041322314 , 287.8595041322314 , 288.8595041322314 , 272.2396694214876 , 273.2396694214876 , 274.2396694214876 , 275.2396694214876 , 254.92727272727274, 255.92727272727274, 256.92727272727274, 257.92727272727274, 235.              , 236.              , 237.              , 238.              , 244.27272727272728, 245.27272727272728, 246.27272727272728, 247.27272727272728, 252.27272727272728, 253.27272727272728, 254.27272727272728, 255.27272727272728, 255.5785123966942 , 256.57851239669424, 257.57851239669424, 258.57851239669424, 254.34545454545454, 255.34545454545454, 256.3454545454546 , 257.3454545454546 , 243.72727272727272, 244.72727272727272, 245.72727272727272, 246.72727272727272, 255.28571428571428, 256.2857142857143 , 257.2857142857143 , 258.2857142857143 , 263.2857142857143 , 264.2857142857143 , 265.2857142857143 , 266.2857142857143 , 259.3376623376623 , 260.3376623376623 , 261.3376623376623 , 262.3376623376623 , 249.4             , 250.4             , 251.4             , 252.4             , 228.14285714285714, 229.14285714285714, 230.14285714285714, 231.14285714285714};
-  const std::array<int, 4> in_shape = {{ 3, 16, 18, 4 }};
+  const std::vector<DataType> exp_out = {219.28571428571428,
+                                         220.28571428571428,
+                                         221.28571428571428,
+                                         222.28571428571428,
+                                         220.63636363636363,
+                                         221.63636363636363,
+                                         222.63636363636363,
+                                         223.63636363636363,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         225.57142857142858,
+                                         226.57142857142858,
+                                         227.57142857142858,
+                                         228.57142857142858,
+                                         228.73553719008265,
+                                         229.73553719008265,
+                                         230.73553719008265,
+                                         231.73553719008265,
+                                         236.27272727272728,
+                                         237.27272727272728,
+                                         238.27272727272728,
+                                         239.27272727272728,
+                                         250.27272727272728,
+                                         251.27272727272728,
+                                         252.27272727272728,
+                                         253.27272727272728,
+                                         258.27272727272725,
+                                         259.27272727272725,
+                                         260.27272727272725,
+                                         261.27272727272725,
+                                         260.8961038961039,
+                                         261.8961038961039,
+                                         262.8961038961039,
+                                         263.8961038961039,
+                                         254.38842975206612,
+                                         255.38842975206612,
+                                         256.3884297520661,
+                                         257.3884297520661,
+                                         245.,
+                                         246.,
+                                         247.,
+                                         248.,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         260.51020408163265,
+                                         261.51020408163265,
+                                         262.51020408163265,
+                                         263.51020408163265,
+                                         253.3116883116883,
+                                         254.3116883116883,
+                                         255.3116883116883,
+                                         256.31168831168833,
+                                         242.71428571428572,
+                                         243.71428571428572,
+                                         244.71428571428572,
+                                         245.71428571428572,
+                                         256.7142857142857,
+                                         257.7142857142857,
+                                         258.7142857142857,
+                                         259.7142857142857,
+                                         264.7142857142857,
+                                         265.7142857142857,
+                                         266.7142857142857,
+                                         267.7142857142857,
+                                         255.85714285714286,
+                                         256.85714285714283,
+                                         257.85714285714283,
+                                         258.85714285714283,
+                                         243.9090909090909,
+                                         244.9090909090909,
+                                         245.9090909090909,
+                                         246.9090909090909,
+                                         236.63636363636363,
+                                         237.63636363636363,
+                                         238.63636363636363,
+                                         239.63636363636363,
+                                         239.,
+                                         240.,
+                                         241.,
+                                         242.,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         287.0779220779221,
+                                         288.0779220779221,
+                                         289.0779220779221,
+                                         290.0779220779221,
+                                         280.5702479338843,
+                                         281.5702479338843,
+                                         282.5702479338843,
+                                         283.5702479338843,
+                                         279.64462809917353,
+                                         280.64462809917353,
+                                         281.64462809917353,
+                                         282.64462809917353,
+                                         285.1818181818182,
+                                         286.1818181818182,
+                                         287.1818181818182,
+                                         288.1818181818182,
+                                         293.1818181818182,
+                                         294.1818181818182,
+                                         295.1818181818182,
+                                         296.1818181818182,
+                                         249.25974025974025,
+                                         250.25974025974025,
+                                         251.25974025974025,
+                                         252.25974025974025,
+                                         230.05785123966942,
+                                         231.05785123966942,
+                                         232.05785123966942,
+                                         233.05785123966942,
+                                         212.20661157024793,
+                                         213.20661157024793,
+                                         214.20661157024793,
+                                         215.20661157024793,
+                                         200.8181818181818,
+                                         201.8181818181818,
+                                         202.8181818181818,
+                                         203.8181818181818,
+                                         208.8181818181818,
+                                         209.8181818181818,
+                                         210.8181818181818,
+                                         211.8181818181818,
+                                         273.57142857142856,
+                                         274.57142857142856,
+                                         275.57142857142856,
+                                         276.57142857142856,
+                                         261.6233766233766,
+                                         262.6233766233766,
+                                         263.6233766233766,
+                                         264.6233766233766,
+                                         251.02597402597402,
+                                         252.02597402597402,
+                                         253.02597402597402,
+                                         254.02597402597402,
+                                         238.42857142857142,
+                                         239.42857142857142,
+                                         240.42857142857142,
+                                         241.42857142857142,
+                                         246.42857142857142,
+                                         247.42857142857142,
+                                         248.42857142857142,
+                                         249.42857142857142,
+                                         265.,
+                                         266.,
+                                         267.,
+                                         268.,
+                                         267.1818181818182,
+                                         268.1818181818182,
+                                         269.1818181818182,
+                                         270.1818181818182,
+                                         259.90909090909093,
+                                         260.90909090909093,
+                                         261.90909090909093,
+                                         262.90909090909093,
+                                         251.8,
+                                         252.8,
+                                         253.8,
+                                         254.8,
+                                         247.,
+                                         248.,
+                                         249.,
+                                         250.,
+                                         282.09090909090907,
+                                         283.09090909090907,
+                                         284.09090909090907,
+                                         285.09090909090907,
+                                         285.8595041322314,
+                                         286.8595041322314,
+                                         287.8595041322314,
+                                         288.8595041322314,
+                                         272.2396694214876,
+                                         273.2396694214876,
+                                         274.2396694214876,
+                                         275.2396694214876,
+                                         254.92727272727274,
+                                         255.92727272727274,
+                                         256.92727272727274,
+                                         257.92727272727274,
+                                         235.,
+                                         236.,
+                                         237.,
+                                         238.,
+                                         244.27272727272728,
+                                         245.27272727272728,
+                                         246.27272727272728,
+                                         247.27272727272728,
+                                         252.27272727272728,
+                                         253.27272727272728,
+                                         254.27272727272728,
+                                         255.27272727272728,
+                                         255.5785123966942,
+                                         256.57851239669424,
+                                         257.57851239669424,
+                                         258.57851239669424,
+                                         254.34545454545454,
+                                         255.34545454545454,
+                                         256.3454545454546,
+                                         257.3454545454546,
+                                         243.72727272727272,
+                                         244.72727272727272,
+                                         245.72727272727272,
+                                         246.72727272727272,
+                                         255.28571428571428,
+                                         256.2857142857143,
+                                         257.2857142857143,
+                                         258.2857142857143,
+                                         263.2857142857143,
+                                         264.2857142857143,
+                                         265.2857142857143,
+                                         266.2857142857143,
+                                         259.3376623376623,
+                                         260.3376623376623,
+                                         261.3376623376623,
+                                         262.3376623376623,
+                                         249.4,
+                                         250.4,
+                                         251.4,
+                                         252.4,
+                                         228.14285714285714,
+                                         229.14285714285714,
+                                         230.14285714285714,
+                                         231.14285714285714};
+  const std::array<int, 4> in_shape = {{3, 16, 18, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -850,8 +4106,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x16x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 255.11570247933884, 256.11570247933884, 257.11570247933884, 258.11570247933884, 254.1900826446281 , 255.1900826446281 , 256.1900826446281 , 257.1900826446281 , 251.1487603305785 , 252.1487603305785 , 253.1487603305785 , 254.1487603305785 , 233.29752066115702, 234.29752066115702, 235.29752066115702, 236.29752066115702, 306.9504132231405 , 307.9504132231405 , 308.9504132231405 , 309.9504132231405 , 293.3305785123967 , 294.3305785123967 , 295.3305785123967 , 296.3305785123967 , 226.8181818181818 , 227.8181818181818 , 228.8181818181818 , 229.8181818181818 , 230.12396694214877, 231.12396694214877, 232.12396694214877, 233.12396694214877};
-  const std::array<int, 4> in_shape = {{ 3, 16, 18, 4 }};
+  const std::vector<DataType> exp_out = {
+      203.28099173553719, 204.28099173553719, 205.28099173553719,
+      206.28099173553719, 210.8181818181818,  211.8181818181818,
+      212.8181818181818,  213.8181818181818,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      266.09090909090907, 267.09090909090907, 268.09090909090907,
+      269.09090909090907, 255.11570247933884, 256.11570247933884,
+      257.11570247933884, 258.11570247933884, 254.1900826446281,
+      255.1900826446281,  256.1900826446281,  257.1900826446281,
+      251.1487603305785,  252.1487603305785,  253.1487603305785,
+      254.1487603305785,  233.29752066115702, 234.29752066115702,
+      235.29752066115702, 236.29752066115702, 306.9504132231405,
+      307.9504132231405,  308.9504132231405,  309.9504132231405,
+      293.3305785123967,  294.3305785123967,  295.3305785123967,
+      296.3305785123967,  226.8181818181818,  227.8181818181818,
+      228.8181818181818,  229.8181818181818,  230.12396694214877,
+      231.12396694214877, 232.12396694214877, 233.12396694214877};
+  const std::array<int, 4> in_shape = {{3, 16, 18, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -859,8 +4131,67 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x16x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 49.              ,  51.              ,  55.              ,  57.              ,  79.              ,  81.              ,  85.              ,  87.              , 139.              , 141.              , 145.              , 147.              , 191.5             , 193.5             , 197.5             , 199.5             , 221.5             , 223.5             , 227.5             , 229.5             , 319.              , 321.              , 325.              , 327.              , 349.              , 351.              , 355.              , 357.              , 409.              , 411.              , 415.              , 417.              , 373.72857142857146, 370.40909090909093, 365.1             , 367.1             , 345.2142857142857 , 338.3484848484849 , 326.8333333333333 , 328.8333333333333 ,  77.              ,  79.              ,  83.              ,  85.              , 107.              , 109.              , 113.              , 115.              , 167.              , 169.              , 173.              , 175.              , 219.5             , 221.5             , 225.5             , 227.5             , 249.5             , 251.5             , 255.5             , 257.5             };
-  const std::array<int, 4> in_shape = {{ 3, 18, 15, 1 }};
+  const std::vector<DataType> exp_out = {49.,
+                                         51.,
+                                         55.,
+                                         57.,
+                                         79.,
+                                         81.,
+                                         85.,
+                                         87.,
+                                         139.,
+                                         141.,
+                                         145.,
+                                         147.,
+                                         191.5,
+                                         193.5,
+                                         197.5,
+                                         199.5,
+                                         221.5,
+                                         223.5,
+                                         227.5,
+                                         229.5,
+                                         319.,
+                                         321.,
+                                         325.,
+                                         327.,
+                                         349.,
+                                         351.,
+                                         355.,
+                                         357.,
+                                         409.,
+                                         411.,
+                                         415.,
+                                         417.,
+                                         373.72857142857146,
+                                         370.40909090909093,
+                                         365.1,
+                                         367.1,
+                                         345.2142857142857,
+                                         338.3484848484849,
+                                         326.8333333333333,
+                                         328.8333333333333,
+                                         77.,
+                                         79.,
+                                         83.,
+                                         85.,
+                                         107.,
+                                         109.,
+                                         113.,
+                                         115.,
+                                         167.,
+                                         169.,
+                                         173.,
+                                         175.,
+                                         219.5,
+                                         221.5,
+                                         225.5,
+                                         227.5,
+                                         249.5,
+                                         251.5,
+                                         255.5,
+                                         257.5};
+  const std::array<int, 4> in_shape = {{3, 18, 15, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -868,8 +4199,9 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x15x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 81.,  85., 141., 145., 351., 355., 411., 415., 109., 113., 169., 173.};
-  const std::array<int, 4> in_shape = {{ 3, 18, 15, 1 }};
+  const std::vector<DataType> exp_out = {81.,  85.,  141., 145., 351., 355.,
+                                         411., 415., 109., 113., 169., 173.};
+  const std::array<int, 4> in_shape = {{3, 18, 15, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -877,8 +4209,127 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x15x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 97.              ,  98.              , 101.              , 102.              , 109.              , 110.              , 113.              , 114.              , 157.              , 158.              , 161.              , 162.              , 169.              , 170.              , 173.              , 174.              , 277.              , 278.              , 281.              , 282.              , 289.              , 290.              , 293.              , 294.              , 338.1142857142857 , 339.1142857142857 , 339.45454545454544, 340.45454545454544, 342.8             , 343.8             , 346.8             , 347.8             , 368.85714285714283, 369.85714285714283, 368.42424242424244, 369.42424242424244, 368.6666666666667 , 369.6666666666667 , 372.6666666666667 , 373.6666666666667 , 125.              , 126.              , 129.              , 130.              , 137.              , 138.              , 141.              , 142.              , 185.              , 186.              , 189.              , 190.              , 197.              , 198.              , 201.              , 202.              , 305.              , 306.              , 309.              , 310.              , 317.              , 318.              , 321.              , 322.              , 322.22857142857146, 323.22857142857146, 320.90909090909093, 321.90909090909093, 319.6             , 320.6             , 323.6             , 324.6             , 323.7142857142857 , 324.7142857142857 , 318.8484848484849 , 319.8484848484849 , 311.3333333333333 , 312.3333333333333 , 315.3333333333333 , 316.3333333333333 , 153.              , 154.              , 157.              , 158.              , 165.              , 166.              , 169.              , 170.              , 213.              , 214.              , 217.              , 218.              , 225.              , 226.              , 229.              , 230.              , 333.              , 334.              , 337.              , 338.              , 345.              , 346.              , 349.              , 350.              , 306.34285714285716, 307.34285714285716, 302.3636363636364 , 303.3636363636364 , 296.4             , 297.4             , 300.4             , 301.4             , 278.57142857142856, 279.57142857142856, 269.27272727272725, 270.27272727272725, 254.              , 255.              , 258.              , 259.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 15, 2 }};
+  const std::vector<DataType> exp_out = {97.,
+                                         98.,
+                                         101.,
+                                         102.,
+                                         109.,
+                                         110.,
+                                         113.,
+                                         114.,
+                                         157.,
+                                         158.,
+                                         161.,
+                                         162.,
+                                         169.,
+                                         170.,
+                                         173.,
+                                         174.,
+                                         277.,
+                                         278.,
+                                         281.,
+                                         282.,
+                                         289.,
+                                         290.,
+                                         293.,
+                                         294.,
+                                         338.1142857142857,
+                                         339.1142857142857,
+                                         339.45454545454544,
+                                         340.45454545454544,
+                                         342.8,
+                                         343.8,
+                                         346.8,
+                                         347.8,
+                                         368.85714285714283,
+                                         369.85714285714283,
+                                         368.42424242424244,
+                                         369.42424242424244,
+                                         368.6666666666667,
+                                         369.6666666666667,
+                                         372.6666666666667,
+                                         373.6666666666667,
+                                         125.,
+                                         126.,
+                                         129.,
+                                         130.,
+                                         137.,
+                                         138.,
+                                         141.,
+                                         142.,
+                                         185.,
+                                         186.,
+                                         189.,
+                                         190.,
+                                         197.,
+                                         198.,
+                                         201.,
+                                         202.,
+                                         305.,
+                                         306.,
+                                         309.,
+                                         310.,
+                                         317.,
+                                         318.,
+                                         321.,
+                                         322.,
+                                         322.22857142857146,
+                                         323.22857142857146,
+                                         320.90909090909093,
+                                         321.90909090909093,
+                                         319.6,
+                                         320.6,
+                                         323.6,
+                                         324.6,
+                                         323.7142857142857,
+                                         324.7142857142857,
+                                         318.8484848484849,
+                                         319.8484848484849,
+                                         311.3333333333333,
+                                         312.3333333333333,
+                                         315.3333333333333,
+                                         316.3333333333333,
+                                         153.,
+                                         154.,
+                                         157.,
+                                         158.,
+                                         165.,
+                                         166.,
+                                         169.,
+                                         170.,
+                                         213.,
+                                         214.,
+                                         217.,
+                                         218.,
+                                         225.,
+                                         226.,
+                                         229.,
+                                         230.,
+                                         333.,
+                                         334.,
+                                         337.,
+                                         338.,
+                                         345.,
+                                         346.,
+                                         349.,
+                                         350.,
+                                         306.34285714285716,
+                                         307.34285714285716,
+                                         302.3636363636364,
+                                         303.3636363636364,
+                                         296.4,
+                                         297.4,
+                                         300.4,
+                                         301.4,
+                                         278.57142857142856,
+                                         279.57142857142856,
+                                         269.27272727272725,
+                                         270.27272727272725,
+                                         254.,
+                                         255.,
+                                         258.,
+                                         259.};
+  const std::array<int, 4> in_shape = {{3, 18, 15, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -886,8 +4337,10 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x15x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {161., 162., 169., 170., 281., 282., 289., 290., 189., 190., 197., 198., 309., 310., 317., 318., 217., 218., 225., 226., 337., 338., 345., 346.};
-  const std::array<int, 4> in_shape = {{ 3, 18, 15, 2 }};
+  const std::vector<DataType> exp_out = {
+      161., 162., 169., 170., 281., 282., 289., 290., 189., 190., 197., 198.,
+      309., 310., 317., 318., 217., 218., 225., 226., 337., 338., 345., 346.};
+  const std::array<int, 4> in_shape = {{3, 18, 15, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -895,8 +4348,247 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x15x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {193.              , 194.              , 195.              , 196.              , 201.              , 202.              , 203.              , 204.              , 217.              , 218.              , 219.              , 220.              , 225.              , 226.              , 227.              , 228.              , 219.9090909090909 , 220.9090909090909 , 221.9090909090909 , 222.9090909090909 , 215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 273.72727272727275, 274.72727272727275, 275.72727272727275, 276.72727272727275, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 259.1818181818182 , 260.1818181818182 , 261.1818181818182 , 262.1818181818182 , 258.3142857142857 , 259.3142857142857 , 260.3142857142857 , 261.3142857142857 , 249.6909090909091 , 250.6909090909091 , 251.6909090909091 , 252.6909090909091 , 242.4181818181818 , 243.4181818181818 , 244.4181818181818 , 245.4181818181818 , 231.8             , 232.8             , 233.8             , 234.8             , 297.85714285714283, 298.85714285714283, 299.85714285714283, 300.85714285714283, 301.42424242424244, 302.42424242424244, 303.42424242424244, 304.42424242424244, 309.6666666666667 , 310.6666666666667 , 311.6666666666667 , 312.6666666666667 , 317.6666666666667 , 318.6666666666667 , 319.6666666666667 , 320.6666666666667 , 249.              , 250.              , 251.              , 252.              , 257.              , 258.              , 259.              , 260.              , 273.              , 274.              , 275.              , 276.              , 281.              , 282.              , 283.              , 284.              , 229.36363636363637, 230.36363636363637, 231.36363636363637, 232.36363636363637, 228.900826446281  , 229.900826446281  , 230.900826446281  , 231.900826446281  , 227.97520661157026, 228.97520661157026, 229.97520661157026, 230.97520661157026, 221.46753246753246, 222.46753246753246, 223.46753246753246, 224.46753246753246, 283.1818181818182 , 284.1818181818182 , 285.1818181818182 , 286.1818181818182 , 282.7190082644628 , 283.7190082644628 , 284.7190082644628 , 285.7190082644628 , 281.79338842975204, 282.79338842975204, 283.79338842975204, 284.79338842975204, 275.2857142857143 , 276.2857142857143 , 277.2857142857143 , 278.2857142857143 , 219.22857142857143, 220.22857142857143, 221.22857142857143, 222.22857142857143, 221.9090909090909 , 222.9090909090909 , 223.9090909090909 , 224.9090909090909 , 228.6             , 229.6             , 230.6             , 231.6             , 236.6             , 237.6             , 238.6             , 239.6             , 280.7142857142857 , 281.7142857142857 , 282.7142857142857 , 283.7142857142857 , 279.8484848484849 , 280.8484848484849 , 281.8484848484849 , 282.8484848484849 , 280.3333333333333 , 281.3333333333333 , 282.3333333333333 , 283.3333333333333 , 288.3333333333333 , 289.3333333333333 , 290.3333333333333 , 291.3333333333333 , 305.              , 306.              , 307.              , 308.              , 306.35064935064935, 307.35064935064935, 308.35064935064935, 309.35064935064935, 295.75324675324674, 296.75324675324674, 297.75324675324674, 298.75324675324674, 284.7551020408163 , 285.7551020408163 , 286.7551020408163 , 287.7551020408163 , 238.8181818181818 , 239.8181818181818 , 240.8181818181818 , 241.8181818181818 , 242.58677685950414, 243.58677685950414, 244.58677685950414, 245.58677685950414, 241.6611570247934 , 242.6611570247934 , 243.6611570247934 , 244.6611570247934 , 237.57142857142858, 238.57142857142858, 239.57142857142858, 240.57142857142858, 292.6363636363636 , 293.6363636363636 , 294.6363636363636 , 295.6363636363636 , 296.40495867768595, 297.40495867768595, 298.40495867768595, 299.40495867768595, 295.4793388429752 , 296.4793388429752 , 297.4793388429752 , 298.4793388429752 , 291.38961038961037, 292.38961038961037, 293.38961038961037, 294.38961038961037, 231.34285714285716, 232.34285714285716, 233.34285714285716, 234.34285714285716, 231.36363636363637, 232.36363636363637, 233.36363636363637, 234.36363636363637, 233.4             , 234.4             , 235.4             , 236.4             , 241.4             , 242.4             , 243.4             , 244.4             , 263.57142857142856, 264.57142857142856, 265.57142857142856, 266.57142857142856, 258.27272727272725, 259.27272727272725, 260.27272727272725, 261.27272727272725, 251.              , 252.              , 253.              , 254.              , 259.              , 260.              , 261.              , 262.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 15, 4 }};
+  const std::vector<DataType> exp_out = {193.,
+                                         194.,
+                                         195.,
+                                         196.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         225.,
+                                         226.,
+                                         227.,
+                                         228.,
+                                         219.9090909090909,
+                                         220.9090909090909,
+                                         221.9090909090909,
+                                         222.9090909090909,
+                                         215.21487603305786,
+                                         216.21487603305786,
+                                         217.21487603305786,
+                                         218.21487603305786,
+                                         214.28925619834712,
+                                         215.28925619834712,
+                                         216.28925619834712,
+                                         217.28925619834712,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         273.72727272727275,
+                                         274.72727272727275,
+                                         275.72727272727275,
+                                         276.72727272727275,
+                                         269.0330578512397,
+                                         270.0330578512397,
+                                         271.0330578512397,
+                                         272.0330578512397,
+                                         268.10743801652893,
+                                         269.10743801652893,
+                                         270.10743801652893,
+                                         271.10743801652893,
+                                         259.1818181818182,
+                                         260.1818181818182,
+                                         261.1818181818182,
+                                         262.1818181818182,
+                                         258.3142857142857,
+                                         259.3142857142857,
+                                         260.3142857142857,
+                                         261.3142857142857,
+                                         249.6909090909091,
+                                         250.6909090909091,
+                                         251.6909090909091,
+                                         252.6909090909091,
+                                         242.4181818181818,
+                                         243.4181818181818,
+                                         244.4181818181818,
+                                         245.4181818181818,
+                                         231.8,
+                                         232.8,
+                                         233.8,
+                                         234.8,
+                                         297.85714285714283,
+                                         298.85714285714283,
+                                         299.85714285714283,
+                                         300.85714285714283,
+                                         301.42424242424244,
+                                         302.42424242424244,
+                                         303.42424242424244,
+                                         304.42424242424244,
+                                         309.6666666666667,
+                                         310.6666666666667,
+                                         311.6666666666667,
+                                         312.6666666666667,
+                                         317.6666666666667,
+                                         318.6666666666667,
+                                         319.6666666666667,
+                                         320.6666666666667,
+                                         249.,
+                                         250.,
+                                         251.,
+                                         252.,
+                                         257.,
+                                         258.,
+                                         259.,
+                                         260.,
+                                         273.,
+                                         274.,
+                                         275.,
+                                         276.,
+                                         281.,
+                                         282.,
+                                         283.,
+                                         284.,
+                                         229.36363636363637,
+                                         230.36363636363637,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         228.900826446281,
+                                         229.900826446281,
+                                         230.900826446281,
+                                         231.900826446281,
+                                         227.97520661157026,
+                                         228.97520661157026,
+                                         229.97520661157026,
+                                         230.97520661157026,
+                                         221.46753246753246,
+                                         222.46753246753246,
+                                         223.46753246753246,
+                                         224.46753246753246,
+                                         283.1818181818182,
+                                         284.1818181818182,
+                                         285.1818181818182,
+                                         286.1818181818182,
+                                         282.7190082644628,
+                                         283.7190082644628,
+                                         284.7190082644628,
+                                         285.7190082644628,
+                                         281.79338842975204,
+                                         282.79338842975204,
+                                         283.79338842975204,
+                                         284.79338842975204,
+                                         275.2857142857143,
+                                         276.2857142857143,
+                                         277.2857142857143,
+                                         278.2857142857143,
+                                         219.22857142857143,
+                                         220.22857142857143,
+                                         221.22857142857143,
+                                         222.22857142857143,
+                                         221.9090909090909,
+                                         222.9090909090909,
+                                         223.9090909090909,
+                                         224.9090909090909,
+                                         228.6,
+                                         229.6,
+                                         230.6,
+                                         231.6,
+                                         236.6,
+                                         237.6,
+                                         238.6,
+                                         239.6,
+                                         280.7142857142857,
+                                         281.7142857142857,
+                                         282.7142857142857,
+                                         283.7142857142857,
+                                         279.8484848484849,
+                                         280.8484848484849,
+                                         281.8484848484849,
+                                         282.8484848484849,
+                                         280.3333333333333,
+                                         281.3333333333333,
+                                         282.3333333333333,
+                                         283.3333333333333,
+                                         288.3333333333333,
+                                         289.3333333333333,
+                                         290.3333333333333,
+                                         291.3333333333333,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         306.35064935064935,
+                                         307.35064935064935,
+                                         308.35064935064935,
+                                         309.35064935064935,
+                                         295.75324675324674,
+                                         296.75324675324674,
+                                         297.75324675324674,
+                                         298.75324675324674,
+                                         284.7551020408163,
+                                         285.7551020408163,
+                                         286.7551020408163,
+                                         287.7551020408163,
+                                         238.8181818181818,
+                                         239.8181818181818,
+                                         240.8181818181818,
+                                         241.8181818181818,
+                                         242.58677685950414,
+                                         243.58677685950414,
+                                         244.58677685950414,
+                                         245.58677685950414,
+                                         241.6611570247934,
+                                         242.6611570247934,
+                                         243.6611570247934,
+                                         244.6611570247934,
+                                         237.57142857142858,
+                                         238.57142857142858,
+                                         239.57142857142858,
+                                         240.57142857142858,
+                                         292.6363636363636,
+                                         293.6363636363636,
+                                         294.6363636363636,
+                                         295.6363636363636,
+                                         296.40495867768595,
+                                         297.40495867768595,
+                                         298.40495867768595,
+                                         299.40495867768595,
+                                         295.4793388429752,
+                                         296.4793388429752,
+                                         297.4793388429752,
+                                         298.4793388429752,
+                                         291.38961038961037,
+                                         292.38961038961037,
+                                         293.38961038961037,
+                                         294.38961038961037,
+                                         231.34285714285716,
+                                         232.34285714285716,
+                                         233.34285714285716,
+                                         234.34285714285716,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         233.36363636363637,
+                                         234.36363636363637,
+                                         233.4,
+                                         234.4,
+                                         235.4,
+                                         236.4,
+                                         241.4,
+                                         242.4,
+                                         243.4,
+                                         244.4,
+                                         263.57142857142856,
+                                         264.57142857142856,
+                                         265.57142857142856,
+                                         266.57142857142856,
+                                         258.27272727272725,
+                                         259.27272727272725,
+                                         260.27272727272725,
+                                         261.27272727272725,
+                                         251.,
+                                         252.,
+                                         253.,
+                                         254.,
+                                         259.,
+                                         260.,
+                                         261.,
+                                         262.};
+  const std::array<int, 4> in_shape = {{3, 18, 15, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -904,8 +4596,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x15x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {215.21487603305786, 216.21487603305786, 217.21487603305786, 218.21487603305786, 214.28925619834712, 215.28925619834712, 216.28925619834712, 217.28925619834712, 269.0330578512397 , 270.0330578512397 , 271.0330578512397 , 272.0330578512397 , 268.10743801652893, 269.10743801652893, 270.10743801652893, 271.10743801652893, 228.900826446281  , 229.900826446281  , 230.900826446281  , 231.900826446281  , 227.97520661157026, 228.97520661157026, 229.97520661157026, 230.97520661157026, 282.7190082644628 , 283.7190082644628 , 284.7190082644628 , 285.7190082644628 , 281.79338842975204, 282.79338842975204, 283.79338842975204, 284.79338842975204, 242.58677685950414, 243.58677685950414, 244.58677685950414, 245.58677685950414, 241.6611570247934 , 242.6611570247934 , 243.6611570247934 , 244.6611570247934 , 296.40495867768595, 297.40495867768595, 298.40495867768595, 299.40495867768595, 295.4793388429752 , 296.4793388429752 , 297.4793388429752 , 298.4793388429752 };
-  const std::array<int, 4> in_shape = {{ 3, 18, 15, 4 }};
+  const std::vector<DataType> exp_out = {
+      215.21487603305786, 216.21487603305786, 217.21487603305786,
+      218.21487603305786, 214.28925619834712, 215.28925619834712,
+      216.28925619834712, 217.28925619834712, 269.0330578512397,
+      270.0330578512397,  271.0330578512397,  272.0330578512397,
+      268.10743801652893, 269.10743801652893, 270.10743801652893,
+      271.10743801652893, 228.900826446281,   229.900826446281,
+      230.900826446281,   231.900826446281,   227.97520661157026,
+      228.97520661157026, 229.97520661157026, 230.97520661157026,
+      282.7190082644628,  283.7190082644628,  284.7190082644628,
+      285.7190082644628,  281.79338842975204, 282.79338842975204,
+      283.79338842975204, 284.79338842975204, 242.58677685950414,
+      243.58677685950414, 244.58677685950414, 245.58677685950414,
+      241.6611570247934,  242.6611570247934,  243.6611570247934,
+      244.6611570247934,  296.40495867768595, 297.40495867768595,
+      298.40495867768595, 299.40495867768595, 295.4793388429752,
+      296.4793388429752,  297.4793388429752,  298.4793388429752};
+  const std::array<int, 4> in_shape = {{3, 18, 15, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -913,8 +4621,67 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x15x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 52.5             ,  55.              ,  59.              ,  61.              ,  84.5             ,  87.              ,  91.              ,  93.              , 148.5             , 151.              , 155.              , 157.              , 204.5             , 207.              , 211.              , 213.              , 236.5             , 239.              , 243.              , 245.              , 340.5             , 343.              , 347.              , 349.              , 372.5             , 375.              , 379.              , 381.              , 389.95454545454544, 392.45454545454544, 396.45454545454544, 398.45454545454544, 287.7             , 290.2             , 294.2             , 296.2             , 183.16666666666666, 185.66666666666666, 189.66666666666666, 191.66666666666666, 116.5             , 119.              , 123.              , 125.              , 148.5             , 151.              , 155.              , 157.              , 212.5             , 215.              , 219.              , 221.              , 268.5             , 271.              , 275.              , 277.              , 300.5             , 303.              , 307.              , 309.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 16, 1 }};
+  const std::vector<DataType> exp_out = {52.5,
+                                         55.,
+                                         59.,
+                                         61.,
+                                         84.5,
+                                         87.,
+                                         91.,
+                                         93.,
+                                         148.5,
+                                         151.,
+                                         155.,
+                                         157.,
+                                         204.5,
+                                         207.,
+                                         211.,
+                                         213.,
+                                         236.5,
+                                         239.,
+                                         243.,
+                                         245.,
+                                         340.5,
+                                         343.,
+                                         347.,
+                                         349.,
+                                         372.5,
+                                         375.,
+                                         379.,
+                                         381.,
+                                         389.95454545454544,
+                                         392.45454545454544,
+                                         396.45454545454544,
+                                         398.45454545454544,
+                                         287.7,
+                                         290.2,
+                                         294.2,
+                                         296.2,
+                                         183.16666666666666,
+                                         185.66666666666666,
+                                         189.66666666666666,
+                                         191.66666666666666,
+                                         116.5,
+                                         119.,
+                                         123.,
+                                         125.,
+                                         148.5,
+                                         151.,
+                                         155.,
+                                         157.,
+                                         212.5,
+                                         215.,
+                                         219.,
+                                         221.,
+                                         268.5,
+                                         271.,
+                                         275.,
+                                         277.,
+                                         300.5,
+                                         303.,
+                                         307.,
+                                         309.};
+  const std::array<int, 4> in_shape = {{3, 18, 16, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -922,8 +4689,19 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x16x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 86.              ,  90.              , 150.              , 154.              , 374.              , 378.              , 391.45454545454544, 395.45454545454544, 150.              , 154.              , 214.              , 218.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 16, 1 }};
+  const std::vector<DataType> exp_out = {86.,
+                                         90.,
+                                         150.,
+                                         154.,
+                                         374.,
+                                         378.,
+                                         391.45454545454544,
+                                         395.45454545454544,
+                                         150.,
+                                         154.,
+                                         214.,
+                                         218.};
+  const std::array<int, 4> in_shape = {{3, 18, 16, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -931,8 +4709,127 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x16x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {104.              , 105.              , 109.              , 110.              , 117.              , 118.              , 121.              , 122.              , 168.              , 169.              , 173.              , 174.              , 181.              , 182.              , 185.              , 186.              , 296.              , 297.              , 301.              , 302.              , 309.              , 310.              , 313.              , 314.              , 305.6             , 306.6             , 310.6             , 311.6             , 318.6             , 319.6             , 322.6             , 323.6             , 301.3333333333333 , 302.3333333333333 , 306.3333333333333 , 307.3333333333333 , 314.3333333333333 , 315.3333333333333 , 318.3333333333333 , 319.3333333333333 , 168.              , 169.              , 173.              , 174.              , 181.              , 182.              , 185.              , 186.              , 232.              , 233.              , 237.              , 238.              , 245.              , 246.              , 249.              , 250.              , 313.45454545454544, 314.45454545454544, 318.45454545454544, 319.45454545454544, 326.45454545454544, 327.45454545454544, 330.45454545454544, 331.45454545454544, 267.2             , 268.2             , 272.2             , 273.2             , 280.2             , 281.2             , 284.2             , 285.2             , 194.66666666666666, 195.66666666666666, 199.66666666666666, 200.66666666666666, 207.66666666666666, 208.66666666666666, 211.66666666666666, 212.66666666666666, 232.              , 233.              , 237.              , 238.              , 245.              , 246.              , 249.              , 250.              , 296.              , 297.              , 301.              , 302.              , 309.              , 310.              , 313.              , 314.              , 284.3636363636364 , 285.3636363636364 , 289.3636363636364 , 290.3636363636364 , 297.3636363636364 , 298.3636363636364 , 301.3636363636364 , 302.3636363636364 , 228.8             , 229.8             , 233.8             , 234.8             , 241.8             , 242.8             , 245.8             , 246.8             ,  88.              ,  89.              ,  93.              ,  94.              , 101.              , 102.              , 105.              , 106.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 16, 2 }};
+  const std::vector<DataType> exp_out = {104.,
+                                         105.,
+                                         109.,
+                                         110.,
+                                         117.,
+                                         118.,
+                                         121.,
+                                         122.,
+                                         168.,
+                                         169.,
+                                         173.,
+                                         174.,
+                                         181.,
+                                         182.,
+                                         185.,
+                                         186.,
+                                         296.,
+                                         297.,
+                                         301.,
+                                         302.,
+                                         309.,
+                                         310.,
+                                         313.,
+                                         314.,
+                                         305.6,
+                                         306.6,
+                                         310.6,
+                                         311.6,
+                                         318.6,
+                                         319.6,
+                                         322.6,
+                                         323.6,
+                                         301.3333333333333,
+                                         302.3333333333333,
+                                         306.3333333333333,
+                                         307.3333333333333,
+                                         314.3333333333333,
+                                         315.3333333333333,
+                                         318.3333333333333,
+                                         319.3333333333333,
+                                         168.,
+                                         169.,
+                                         173.,
+                                         174.,
+                                         181.,
+                                         182.,
+                                         185.,
+                                         186.,
+                                         232.,
+                                         233.,
+                                         237.,
+                                         238.,
+                                         245.,
+                                         246.,
+                                         249.,
+                                         250.,
+                                         313.45454545454544,
+                                         314.45454545454544,
+                                         318.45454545454544,
+                                         319.45454545454544,
+                                         326.45454545454544,
+                                         327.45454545454544,
+                                         330.45454545454544,
+                                         331.45454545454544,
+                                         267.2,
+                                         268.2,
+                                         272.2,
+                                         273.2,
+                                         280.2,
+                                         281.2,
+                                         284.2,
+                                         285.2,
+                                         194.66666666666666,
+                                         195.66666666666666,
+                                         199.66666666666666,
+                                         200.66666666666666,
+                                         207.66666666666666,
+                                         208.66666666666666,
+                                         211.66666666666666,
+                                         212.66666666666666,
+                                         232.,
+                                         233.,
+                                         237.,
+                                         238.,
+                                         245.,
+                                         246.,
+                                         249.,
+                                         250.,
+                                         296.,
+                                         297.,
+                                         301.,
+                                         302.,
+                                         309.,
+                                         310.,
+                                         313.,
+                                         314.,
+                                         284.3636363636364,
+                                         285.3636363636364,
+                                         289.3636363636364,
+                                         290.3636363636364,
+                                         297.3636363636364,
+                                         298.3636363636364,
+                                         301.3636363636364,
+                                         302.3636363636364,
+                                         228.8,
+                                         229.8,
+                                         233.8,
+                                         234.8,
+                                         241.8,
+                                         242.8,
+                                         245.8,
+                                         246.8,
+                                         88.,
+                                         89.,
+                                         93.,
+                                         94.,
+                                         101.,
+                                         102.,
+                                         105.,
+                                         106.};
+  const std::array<int, 4> in_shape = {{3, 18, 16, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -940,8 +4837,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x16x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {171.              , 172.              , 179.              , 180.              , 299.              , 300.              , 307.              , 308.              , 235.              , 236.              , 243.              , 244.              , 316.45454545454544, 317.45454545454544, 324.45454545454544, 325.45454545454544, 299.              , 300.              , 307.              , 308.              , 287.3636363636364 , 288.3636363636364 , 295.3636363636364 , 296.3636363636364 };
-  const std::array<int, 4> in_shape = {{ 3, 18, 16, 2 }};
+  const std::vector<DataType> exp_out = {171.,
+                                         172.,
+                                         179.,
+                                         180.,
+                                         299.,
+                                         300.,
+                                         307.,
+                                         308.,
+                                         235.,
+                                         236.,
+                                         243.,
+                                         244.,
+                                         316.45454545454544,
+                                         317.45454545454544,
+                                         324.45454545454544,
+                                         325.45454545454544,
+                                         299.,
+                                         300.,
+                                         307.,
+                                         308.,
+                                         287.3636363636364,
+                                         288.3636363636364,
+                                         295.3636363636364,
+                                         296.3636363636364};
+  const std::array<int, 4> in_shape = {{3, 18, 16, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -949,8 +4869,247 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x16x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {207.              , 208.              , 209.              , 210.              , 217.              , 218.              , 219.              , 220.              , 233.              , 234.              , 235.              , 236.              , 241.              , 242.              , 243.              , 244.              , 195.36363636363637, 196.36363636363637, 197.36363636363637, 198.36363636363637, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 221.36363636363637, 222.36363636363637, 223.36363636363637, 224.36363636363637, 229.36363636363637, 230.36363636363637, 231.36363636363637, 232.36363636363637, 265.1818181818182 , 266.1818181818182 , 267.1818181818182 , 268.1818181818182 , 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 291.1818181818182 , 292.1818181818182 , 293.1818181818182 , 294.1818181818182 , 299.1818181818182 , 300.1818181818182 , 301.1818181818182 , 302.1818181818182 , 200.6             , 201.6             , 202.6             , 203.6             , 210.6             , 211.6             , 212.6             , 213.6             , 226.6             , 227.6             , 228.6             , 229.6             , 234.6             , 235.6             , 236.6             , 237.6             , 260.3333333333333 , 261.3333333333333 , 262.3333333333333 , 263.3333333333333 , 270.3333333333333 , 271.3333333333333 , 272.3333333333333 , 273.3333333333333 , 286.3333333333333 , 287.3333333333333 , 288.3333333333333 , 289.3333333333333 , 294.3333333333333 , 295.3333333333333 , 296.3333333333333 , 297.3333333333333 , 261.85714285714283, 262.85714285714283, 263.85714285714283, 264.85714285714283, 271.85714285714283, 272.85714285714283, 273.85714285714283, 274.85714285714283, 287.85714285714283, 288.85714285714283, 289.85714285714283, 290.85714285714283, 295.85714285714283, 296.85714285714283, 297.85714285714283, 298.85714285714283, 230.27272727272728, 231.27272727272728, 232.27272727272728, 233.27272727272728, 240.27272727272728, 241.27272727272728, 242.27272727272728, 243.27272727272728, 256.27272727272725, 257.27272727272725, 258.27272727272725, 259.27272727272725, 264.27272727272725, 265.27272727272725, 266.27272727272725, 267.27272727272725, 253.54545454545453, 254.54545454545453, 255.54545454545453, 256.54545454545456, 263.54545454545456, 264.54545454545456, 265.54545454545456, 266.54545454545456, 279.54545454545456, 280.54545454545456, 281.54545454545456, 282.54545454545456, 287.54545454545456, 288.54545454545456, 289.54545454545456, 290.54545454545456, 226.2             , 227.2             , 228.2             , 229.2             , 236.2             , 237.2             , 238.2             , 239.2             , 252.2             , 253.2             , 254.2             , 255.2             , 260.2             , 261.2             , 262.2             , 263.2             , 217.66666666666666, 218.66666666666666, 219.66666666666666, 220.66666666666666, 227.66666666666666, 228.66666666666666, 229.66666666666666, 230.66666666666666, 243.66666666666666, 244.66666666666666, 245.66666666666666, 246.66666666666666, 251.66666666666666, 252.66666666666666, 253.66666666666666, 254.66666666666666, 243.57142857142858, 244.57142857142858, 245.57142857142858, 246.57142857142858, 253.57142857142858, 254.57142857142858, 255.57142857142858, 256.57142857142856, 269.57142857142856, 270.57142857142856, 271.57142857142856, 272.57142857142856, 277.57142857142856, 278.57142857142856, 279.57142857142856, 280.57142857142856, 265.1818181818182 , 266.1818181818182 , 267.1818181818182 , 268.1818181818182 , 275.1818181818182 , 276.1818181818182 , 277.1818181818182 , 278.1818181818182 , 291.1818181818182 , 292.1818181818182 , 293.1818181818182 , 294.1818181818182 , 299.1818181818182 , 300.1818181818182 , 301.1818181818182 , 302.1818181818182 , 195.36363636363637, 196.36363636363637, 197.36363636363637, 198.36363636363637, 205.36363636363637, 206.36363636363637, 207.36363636363637, 208.36363636363637, 221.36363636363637, 222.36363636363637, 223.36363636363637, 224.36363636363637, 229.36363636363637, 230.36363636363637, 231.36363636363637, 232.36363636363637, 251.8             , 252.8             , 253.8             , 254.8             , 261.8             , 262.8             , 263.8             , 264.8             , 277.8             , 278.8             , 279.8             , 280.8             , 285.8             , 286.8             , 287.8             , 288.8             , 175.              , 176.              , 177.              , 178.              , 185.              , 186.              , 187.              , 188.              , 201.              , 202.              , 203.              , 204.              , 209.              , 210.              , 211.              , 212.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 16, 4 }};
+  const std::vector<DataType> exp_out = {207.,
+                                         208.,
+                                         209.,
+                                         210.,
+                                         217.,
+                                         218.,
+                                         219.,
+                                         220.,
+                                         233.,
+                                         234.,
+                                         235.,
+                                         236.,
+                                         241.,
+                                         242.,
+                                         243.,
+                                         244.,
+                                         195.36363636363637,
+                                         196.36363636363637,
+                                         197.36363636363637,
+                                         198.36363636363637,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         221.36363636363637,
+                                         222.36363636363637,
+                                         223.36363636363637,
+                                         224.36363636363637,
+                                         229.36363636363637,
+                                         230.36363636363637,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         265.1818181818182,
+                                         266.1818181818182,
+                                         267.1818181818182,
+                                         268.1818181818182,
+                                         275.1818181818182,
+                                         276.1818181818182,
+                                         277.1818181818182,
+                                         278.1818181818182,
+                                         291.1818181818182,
+                                         292.1818181818182,
+                                         293.1818181818182,
+                                         294.1818181818182,
+                                         299.1818181818182,
+                                         300.1818181818182,
+                                         301.1818181818182,
+                                         302.1818181818182,
+                                         200.6,
+                                         201.6,
+                                         202.6,
+                                         203.6,
+                                         210.6,
+                                         211.6,
+                                         212.6,
+                                         213.6,
+                                         226.6,
+                                         227.6,
+                                         228.6,
+                                         229.6,
+                                         234.6,
+                                         235.6,
+                                         236.6,
+                                         237.6,
+                                         260.3333333333333,
+                                         261.3333333333333,
+                                         262.3333333333333,
+                                         263.3333333333333,
+                                         270.3333333333333,
+                                         271.3333333333333,
+                                         272.3333333333333,
+                                         273.3333333333333,
+                                         286.3333333333333,
+                                         287.3333333333333,
+                                         288.3333333333333,
+                                         289.3333333333333,
+                                         294.3333333333333,
+                                         295.3333333333333,
+                                         296.3333333333333,
+                                         297.3333333333333,
+                                         261.85714285714283,
+                                         262.85714285714283,
+                                         263.85714285714283,
+                                         264.85714285714283,
+                                         271.85714285714283,
+                                         272.85714285714283,
+                                         273.85714285714283,
+                                         274.85714285714283,
+                                         287.85714285714283,
+                                         288.85714285714283,
+                                         289.85714285714283,
+                                         290.85714285714283,
+                                         295.85714285714283,
+                                         296.85714285714283,
+                                         297.85714285714283,
+                                         298.85714285714283,
+                                         230.27272727272728,
+                                         231.27272727272728,
+                                         232.27272727272728,
+                                         233.27272727272728,
+                                         240.27272727272728,
+                                         241.27272727272728,
+                                         242.27272727272728,
+                                         243.27272727272728,
+                                         256.27272727272725,
+                                         257.27272727272725,
+                                         258.27272727272725,
+                                         259.27272727272725,
+                                         264.27272727272725,
+                                         265.27272727272725,
+                                         266.27272727272725,
+                                         267.27272727272725,
+                                         253.54545454545453,
+                                         254.54545454545453,
+                                         255.54545454545453,
+                                         256.54545454545456,
+                                         263.54545454545456,
+                                         264.54545454545456,
+                                         265.54545454545456,
+                                         266.54545454545456,
+                                         279.54545454545456,
+                                         280.54545454545456,
+                                         281.54545454545456,
+                                         282.54545454545456,
+                                         287.54545454545456,
+                                         288.54545454545456,
+                                         289.54545454545456,
+                                         290.54545454545456,
+                                         226.2,
+                                         227.2,
+                                         228.2,
+                                         229.2,
+                                         236.2,
+                                         237.2,
+                                         238.2,
+                                         239.2,
+                                         252.2,
+                                         253.2,
+                                         254.2,
+                                         255.2,
+                                         260.2,
+                                         261.2,
+                                         262.2,
+                                         263.2,
+                                         217.66666666666666,
+                                         218.66666666666666,
+                                         219.66666666666666,
+                                         220.66666666666666,
+                                         227.66666666666666,
+                                         228.66666666666666,
+                                         229.66666666666666,
+                                         230.66666666666666,
+                                         243.66666666666666,
+                                         244.66666666666666,
+                                         245.66666666666666,
+                                         246.66666666666666,
+                                         251.66666666666666,
+                                         252.66666666666666,
+                                         253.66666666666666,
+                                         254.66666666666666,
+                                         243.57142857142858,
+                                         244.57142857142858,
+                                         245.57142857142858,
+                                         246.57142857142858,
+                                         253.57142857142858,
+                                         254.57142857142858,
+                                         255.57142857142858,
+                                         256.57142857142856,
+                                         269.57142857142856,
+                                         270.57142857142856,
+                                         271.57142857142856,
+                                         272.57142857142856,
+                                         277.57142857142856,
+                                         278.57142857142856,
+                                         279.57142857142856,
+                                         280.57142857142856,
+                                         265.1818181818182,
+                                         266.1818181818182,
+                                         267.1818181818182,
+                                         268.1818181818182,
+                                         275.1818181818182,
+                                         276.1818181818182,
+                                         277.1818181818182,
+                                         278.1818181818182,
+                                         291.1818181818182,
+                                         292.1818181818182,
+                                         293.1818181818182,
+                                         294.1818181818182,
+                                         299.1818181818182,
+                                         300.1818181818182,
+                                         301.1818181818182,
+                                         302.1818181818182,
+                                         195.36363636363637,
+                                         196.36363636363637,
+                                         197.36363636363637,
+                                         198.36363636363637,
+                                         205.36363636363637,
+                                         206.36363636363637,
+                                         207.36363636363637,
+                                         208.36363636363637,
+                                         221.36363636363637,
+                                         222.36363636363637,
+                                         223.36363636363637,
+                                         224.36363636363637,
+                                         229.36363636363637,
+                                         230.36363636363637,
+                                         231.36363636363637,
+                                         232.36363636363637,
+                                         251.8,
+                                         252.8,
+                                         253.8,
+                                         254.8,
+                                         261.8,
+                                         262.8,
+                                         263.8,
+                                         264.8,
+                                         277.8,
+                                         278.8,
+                                         279.8,
+                                         280.8,
+                                         285.8,
+                                         286.8,
+                                         287.8,
+                                         288.8,
+                                         175.,
+                                         176.,
+                                         177.,
+                                         178.,
+                                         185.,
+                                         186.,
+                                         187.,
+                                         188.,
+                                         201.,
+                                         202.,
+                                         203.,
+                                         204.,
+                                         209.,
+                                         210.,
+                                         211.,
+                                         212.};
+  const std::array<int, 4> in_shape = {{3, 18, 16, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -958,8 +5117,24 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x16x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 236.27272727272728, 237.27272727272728, 238.27272727272728, 239.27272727272728, 252.27272727272728, 253.27272727272728, 254.27272727272728, 255.27272727272728, 259.54545454545456, 260.54545454545456, 261.54545454545456, 262.54545454545456, 275.54545454545456, 276.54545454545456, 277.54545454545456, 278.54545454545456, 271.1818181818182 , 272.1818181818182 , 273.1818181818182 , 274.1818181818182 , 287.1818181818182 , 288.1818181818182 , 289.1818181818182 , 290.1818181818182 , 201.36363636363637, 202.36363636363637, 203.36363636363637, 204.36363636363637, 217.36363636363637, 218.36363636363637, 219.36363636363637, 220.36363636363637};
-  const std::array<int, 4> in_shape = {{ 3, 18, 16, 4 }};
+  const std::vector<DataType> exp_out = {
+      201.36363636363637, 202.36363636363637, 203.36363636363637,
+      204.36363636363637, 217.36363636363637, 218.36363636363637,
+      219.36363636363637, 220.36363636363637, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182,  236.27272727272728, 237.27272727272728,
+      238.27272727272728, 239.27272727272728, 252.27272727272728,
+      253.27272727272728, 254.27272727272728, 255.27272727272728,
+      259.54545454545456, 260.54545454545456, 261.54545454545456,
+      262.54545454545456, 275.54545454545456, 276.54545454545456,
+      277.54545454545456, 278.54545454545456, 271.1818181818182,
+      272.1818181818182,  273.1818181818182,  274.1818181818182,
+      287.1818181818182,  288.1818181818182,  289.1818181818182,
+      290.1818181818182,  201.36363636363637, 202.36363636363637,
+      203.36363636363637, 204.36363636363637, 217.36363636363637,
+      218.36363636363637, 219.36363636363637, 220.36363636363637};
+  const std::array<int, 4> in_shape = {{3, 18, 16, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -967,8 +5142,82 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x16x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 58.              ,  60.              ,  64.              ,  67.5             ,  69.5             ,  94.              ,  96.              , 100.              , 103.5             , 105.5             , 166.              , 168.              , 172.              , 175.5             , 177.5             , 229.              , 231.              , 235.              , 238.5             , 240.5             , 265.              , 267.              , 271.              , 274.5             , 276.5             , 382.              , 384.              , 388.              , 391.5             , 393.5             , 418.              , 407.3057851239669 , 394.3801652892562 , 380.95454545454544, 382.95454545454544, 303.8181818181818 , 293.12396694214874, 280.198347107438  , 266.77272727272725, 268.77272727272725, 194.6             , 182.63636363636363, 168.01818181818183, 152.9             , 154.9             ,  77.              ,  79.              ,  83.              ,  86.5             ,  88.5             , 194.              , 196.              , 200.              , 203.5             , 205.5             , 230.              , 232.              , 236.              , 239.5             , 241.5             , 302.              , 304.              , 308.              , 311.5             , 313.5             , 365.              , 367.              , 371.              , 374.5             , 376.5             , 401.              , 403.              , 407.              , 410.5             , 412.5             };
-  const std::array<int, 4> in_shape = {{ 3, 18, 18, 1 }};
+  const std::vector<DataType> exp_out = {58.,
+                                         60.,
+                                         64.,
+                                         67.5,
+                                         69.5,
+                                         94.,
+                                         96.,
+                                         100.,
+                                         103.5,
+                                         105.5,
+                                         166.,
+                                         168.,
+                                         172.,
+                                         175.5,
+                                         177.5,
+                                         229.,
+                                         231.,
+                                         235.,
+                                         238.5,
+                                         240.5,
+                                         265.,
+                                         267.,
+                                         271.,
+                                         274.5,
+                                         276.5,
+                                         382.,
+                                         384.,
+                                         388.,
+                                         391.5,
+                                         393.5,
+                                         418.,
+                                         407.3057851239669,
+                                         394.3801652892562,
+                                         380.95454545454544,
+                                         382.95454545454544,
+                                         303.8181818181818,
+                                         293.12396694214874,
+                                         280.198347107438,
+                                         266.77272727272725,
+                                         268.77272727272725,
+                                         194.6,
+                                         182.63636363636363,
+                                         168.01818181818183,
+                                         152.9,
+                                         154.9,
+                                         77.,
+                                         79.,
+                                         83.,
+                                         86.5,
+                                         88.5,
+                                         194.,
+                                         196.,
+                                         200.,
+                                         203.5,
+                                         205.5,
+                                         230.,
+                                         232.,
+                                         236.,
+                                         239.5,
+                                         241.5,
+                                         302.,
+                                         304.,
+                                         308.,
+                                         311.5,
+                                         313.5,
+                                         365.,
+                                         367.,
+                                         371.,
+                                         374.5,
+                                         376.5,
+                                         401.,
+                                         403.,
+                                         407.,
+                                         410.5,
+                                         412.5};
+  const std::array<int, 4> in_shape = {{3, 18, 18, 1}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -976,8 +5225,19 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x18x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 96.              , 100.              , 168.              , 172.              , 407.3057851239669 , 394.3801652892562 , 293.12396694214874, 280.198347107438  , 232.              , 236.              , 304.              , 308.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 18, 1 }};
+  const std::vector<DataType> exp_out = {96.,
+                                         100.,
+                                         168.,
+                                         172.,
+                                         407.3057851239669,
+                                         394.3801652892562,
+                                         293.12396694214874,
+                                         280.198347107438,
+                                         232.,
+                                         236.,
+                                         304.,
+                                         308.};
+  const std::array<int, 4> in_shape = {{3, 18, 18, 1}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -985,8 +5245,157 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x18x1) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {115.              , 116.              , 119.              , 120.              , 127.              , 128.              , 134.              , 135.              , 138.              , 139.              , 187.              , 188.              , 191.              , 192.              , 199.              , 200.              , 206.              , 207.              , 210.              , 211.              , 311.05194805194805, 312.05194805194805, 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 303.45454545454544, 304.45454545454544, 307.45454545454544, 308.45454545454544, 281.45714285714286, 282.45714285714286, 274.8181818181818 , 275.8181818181818 , 264.2             , 265.2             , 271.2             , 272.2             , 275.2             , 276.2             , 236.42857142857142, 237.42857142857142, 222.6969696969697 , 223.6969696969697 , 199.66666666666666, 200.66666666666666, 206.66666666666666, 207.66666666666666, 210.66666666666666, 211.66666666666666, 251.              , 252.              , 255.              , 256.              , 263.              , 264.              , 270.              , 271.              , 274.              , 275.              , 323.              , 324.              , 314.3057851239669 , 315.3057851239669 , 305.3801652892562 , 306.3801652892562 , 295.45454545454544, 296.45454545454544, 299.45454545454544, 300.45454545454544, 280.8181818181818 , 281.8181818181818 , 272.12396694214874, 273.12396694214874, 263.198347107438  , 264.198347107438  , 253.27272727272728, 254.27272727272728, 257.27272727272725, 258.27272727272725, 234.6             , 235.6             , 224.63636363636363, 225.63636363636363, 214.01818181818183, 215.01818181818183, 202.4             , 203.4             , 206.4             , 207.4             , 153.              , 154.              , 157.              , 158.              , 165.              , 166.              , 172.              , 173.              , 176.              , 177.              , 387.              , 388.              , 391.              , 392.              , 379.05194805194805, 380.05194805194805, 362.1142857142857 , 363.1142857142857 , 336.85714285714283, 337.85714285714283, 272.8181818181818 , 273.8181818181818 , 276.8181818181818 , 277.8181818181818 , 272.12396694214874, 273.12396694214874, 263.8909090909091 , 264.8909090909091 , 249.27272727272728, 250.27272727272728, 230.63636363636363, 231.63636363636363, 234.63636363636363, 235.63636363636363, 229.94214876033058, 230.94214876033058, 221.70909090909092, 222.70909090909092, 207.0909090909091 , 208.0909090909091 , 217.              , 218.              , 221.              , 222.              , 229.              , 230.              , 236.              , 237.              , 240.              , 241.              , 289.              , 290.              , 293.              , 294.              , 301.              , 302.              , 308.              , 309.              , 312.              , 313.              };
-  const std::array<int, 4> in_shape = {{ 3, 18, 18, 2 }};
+  const std::vector<DataType> exp_out = {115.,
+                                         116.,
+                                         119.,
+                                         120.,
+                                         127.,
+                                         128.,
+                                         134.,
+                                         135.,
+                                         138.,
+                                         139.,
+                                         187.,
+                                         188.,
+                                         191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         206.,
+                                         207.,
+                                         210.,
+                                         211.,
+                                         311.05194805194805,
+                                         312.05194805194805,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         303.45454545454544,
+                                         304.45454545454544,
+                                         307.45454545454544,
+                                         308.45454545454544,
+                                         281.45714285714286,
+                                         282.45714285714286,
+                                         274.8181818181818,
+                                         275.8181818181818,
+                                         264.2,
+                                         265.2,
+                                         271.2,
+                                         272.2,
+                                         275.2,
+                                         276.2,
+                                         236.42857142857142,
+                                         237.42857142857142,
+                                         222.6969696969697,
+                                         223.6969696969697,
+                                         199.66666666666666,
+                                         200.66666666666666,
+                                         206.66666666666666,
+                                         207.66666666666666,
+                                         210.66666666666666,
+                                         211.66666666666666,
+                                         251.,
+                                         252.,
+                                         255.,
+                                         256.,
+                                         263.,
+                                         264.,
+                                         270.,
+                                         271.,
+                                         274.,
+                                         275.,
+                                         323.,
+                                         324.,
+                                         314.3057851239669,
+                                         315.3057851239669,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         295.45454545454544,
+                                         296.45454545454544,
+                                         299.45454545454544,
+                                         300.45454545454544,
+                                         280.8181818181818,
+                                         281.8181818181818,
+                                         272.12396694214874,
+                                         273.12396694214874,
+                                         263.198347107438,
+                                         264.198347107438,
+                                         253.27272727272728,
+                                         254.27272727272728,
+                                         257.27272727272725,
+                                         258.27272727272725,
+                                         234.6,
+                                         235.6,
+                                         224.63636363636363,
+                                         225.63636363636363,
+                                         214.01818181818183,
+                                         215.01818181818183,
+                                         202.4,
+                                         203.4,
+                                         206.4,
+                                         207.4,
+                                         153.,
+                                         154.,
+                                         157.,
+                                         158.,
+                                         165.,
+                                         166.,
+                                         172.,
+                                         173.,
+                                         176.,
+                                         177.,
+                                         387.,
+                                         388.,
+                                         391.,
+                                         392.,
+                                         379.05194805194805,
+                                         380.05194805194805,
+                                         362.1142857142857,
+                                         363.1142857142857,
+                                         336.85714285714283,
+                                         337.85714285714283,
+                                         272.8181818181818,
+                                         273.8181818181818,
+                                         276.8181818181818,
+                                         277.8181818181818,
+                                         272.12396694214874,
+                                         273.12396694214874,
+                                         263.8909090909091,
+                                         264.8909090909091,
+                                         249.27272727272728,
+                                         250.27272727272728,
+                                         230.63636363636363,
+                                         231.63636363636363,
+                                         234.63636363636363,
+                                         235.63636363636363,
+                                         229.94214876033058,
+                                         230.94214876033058,
+                                         221.70909090909092,
+                                         222.70909090909092,
+                                         207.0909090909091,
+                                         208.0909090909091,
+                                         217.,
+                                         218.,
+                                         221.,
+                                         222.,
+                                         229.,
+                                         230.,
+                                         236.,
+                                         237.,
+                                         240.,
+                                         241.,
+                                         289.,
+                                         290.,
+                                         293.,
+                                         294.,
+                                         301.,
+                                         302.,
+                                         308.,
+                                         309.,
+                                         312.,
+                                         313.};
+  const std::array<int, 4> in_shape = {{3, 18, 18, 2}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -994,8 +5403,31 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x18x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {191.              , 192.              , 199.              , 200.              , 305.3801652892562 , 306.3801652892562 , 296.45454545454544, 297.45454545454544, 314.3057851239669 , 315.3057851239669 , 305.3801652892562 , 306.3801652892562 , 272.12396694214874, 273.12396694214874, 263.198347107438  , 264.198347107438  , 276.8181818181818 , 277.8181818181818 , 272.12396694214874, 273.12396694214874, 234.63636363636363, 235.63636363636363, 229.94214876033058, 230.94214876033058};
-  const std::array<int, 4> in_shape = {{ 3, 18, 18, 2 }};
+  const std::vector<DataType> exp_out = {191.,
+                                         192.,
+                                         199.,
+                                         200.,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         296.45454545454544,
+                                         297.45454545454544,
+                                         314.3057851239669,
+                                         315.3057851239669,
+                                         305.3801652892562,
+                                         306.3801652892562,
+                                         272.12396694214874,
+                                         273.12396694214874,
+                                         263.198347107438,
+                                         264.198347107438,
+                                         276.8181818181818,
+                                         277.8181818181818,
+                                         272.12396694214874,
+                                         273.12396694214874,
+                                         234.63636363636363,
+                                         235.63636363636363,
+                                         229.94214876033058,
+                                         230.94214876033058};
+  const std::array<int, 4> in_shape = {{3, 18, 18, 2}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1003,8 +5435,307 @@ TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x18x2) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {229.              , 230.              , 231.              , 232.              , 237.              , 238.              , 239.              , 240.              , 253.              , 254.              , 255.              , 256.              , 267.              , 268.              , 269.              , 270.              , 275.              , 276.              , 277.              , 278.              , 200.11688311688312, 201.11688311688312, 202.11688311688312, 203.11688311688312, 203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 224.8181818181818 , 225.8181818181818 , 226.8181818181818 , 227.8181818181818 , 232.8181818181818 , 233.8181818181818 , 234.8181818181818 , 235.8181818181818 , 281.987012987013  , 282.987012987013  , 283.987012987013  , 284.987012987013  , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 280.09090909090907, 281.09090909090907, 282.09090909090907, 283.09090909090907, 288.09090909090907, 289.09090909090907, 290.09090909090907, 291.09090909090907, 225.45714285714286, 226.45714285714286, 227.45714285714286, 228.45714285714286, 222.8181818181818 , 223.8181818181818 , 224.8181818181818 , 225.8181818181818 , 220.2             , 221.2             , 222.2             , 223.2             , 234.2             , 235.2             , 236.2             , 237.2             , 242.2             , 243.2             , 244.2             , 245.2             , 252.42857142857142, 253.42857142857142, 254.42857142857142, 255.42857142857142, 242.6969696969697 , 243.6969696969697 , 244.6969696969697 , 245.6969696969697 , 227.66666666666666, 228.66666666666666, 229.66666666666666, 230.66666666666666, 241.66666666666666, 242.66666666666666, 243.66666666666666, 244.66666666666666, 249.66666666666666, 250.66666666666666, 251.66666666666666, 252.66666666666666, 271.1224489795918 , 272.1224489795918 , 273.1224489795918 , 274.1224489795918 , 256.3246753246753 , 257.3246753246753 , 258.3246753246753 , 259.3246753246753 , 245.72727272727272, 246.72727272727272, 247.72727272727272, 248.72727272727272, 246.42857142857142, 247.42857142857142, 248.42857142857142, 249.42857142857142, 254.42857142857142, 255.42857142857142, 256.42857142857144, 257.42857142857144, 312.53246753246754, 313.53246753246754, 314.53246753246754, 315.53246753246754, 293.3305785123967 , 294.3305785123967 , 295.3305785123967 , 296.3305785123967 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 264.09090909090907, 265.09090909090907, 266.09090909090907, 267.09090909090907, 272.09090909090907, 273.09090909090907, 274.09090909090907, 275.09090909090907, 234.8181818181818 , 235.8181818181818 , 236.8181818181818 , 237.8181818181818 , 230.12396694214877, 231.12396694214877, 232.12396694214877, 233.12396694214877, 229.19834710743802, 230.19834710743802, 231.19834710743802, 232.19834710743802, 226.27272727272728, 227.27272727272728, 228.27272727272728, 229.27272727272728, 234.27272727272728, 235.27272727272728, 236.27272727272728, 237.27272727272728, 314.6             , 315.6             , 316.6             , 317.6             , 303.9818181818182 , 304.9818181818182 , 305.9818181818182 , 306.9818181818182 , 282.74545454545455, 283.74545454545455, 284.74545454545455, 285.74545454545455, 260.44            , 261.44            , 262.44            , 263.44            , 258.2             , 259.2             , 260.2             , 261.2             , 305.              , 306.              , 307.              , 308.              , 305.24242424242425, 306.24242424242425, 307.24242424242425, 308.24242424242425, 290.2121212121212 , 291.2121212121212 , 292.2121212121212 , 293.2121212121212 , 274.73333333333335, 275.73333333333335, 276.73333333333335, 277.73333333333335, 265.6666666666667 , 266.6666666666667 , 267.6666666666667 , 268.6666666666667 , 261.              , 262.              , 263.              , 264.              , 269.              , 270.              , 271.              , 272.              , 265.05194805194805, 266.05194805194805, 267.05194805194805, 268.05194805194805, 255.11428571428573, 256.1142857142857 , 257.1142857142857 , 258.1142857142857 , 233.85714285714286, 234.85714285714286, 235.85714285714286, 236.85714285714286, 218.8181818181818 , 219.8181818181818 , 220.8181818181818 , 221.8181818181818 , 226.8181818181818 , 227.8181818181818 , 228.8181818181818 , 229.8181818181818 , 230.12396694214877, 231.12396694214877, 232.12396694214877, 233.12396694214877, 228.8909090909091 , 229.8909090909091 , 230.8909090909091 , 231.8909090909091 , 218.27272727272728, 219.27272727272728, 220.27272727272728, 221.27272727272728, 274.09090909090907, 275.09090909090907, 276.09090909090907, 277.09090909090907, 282.09090909090907, 283.09090909090907, 284.09090909090907, 285.09090909090907, 281.1652892561983 , 282.1652892561983 , 283.1652892561983 , 284.1652892561983 , 265.54545454545456, 266.54545454545456, 267.54545454545456, 268.54545454545456, 242.5151515151515 , 243.5151515151515 , 244.5151515151515 , 245.5151515151515 , 228.2             , 229.2             , 230.2             , 231.2             , 236.2             , 237.2             , 238.2             , 239.2             , 247.54545454545453, 248.54545454545453, 249.54545454545453, 250.54545454545453, 245.72            , 246.72            , 247.72            , 248.72            , 240.06666666666666, 241.06666666666666, 242.06666666666666, 243.06666666666666, 235.66666666666666, 236.66666666666666, 237.66666666666666, 238.66666666666666, 243.66666666666666, 244.66666666666666, 245.66666666666666, 246.66666666666666, 251.9090909090909 , 252.9090909090909 , 253.9090909090909 , 254.9090909090909 , 239.53333333333333, 240.53333333333333, 241.53333333333333, 242.53333333333333, 224.77777777777777, 225.77777777777777, 226.77777777777777, 227.77777777777777};
-  const std::array<int, 4> in_shape = {{ 3, 18, 18, 4 }};
+  const std::vector<DataType> exp_out = {229.,
+                                         230.,
+                                         231.,
+                                         232.,
+                                         237.,
+                                         238.,
+                                         239.,
+                                         240.,
+                                         253.,
+                                         254.,
+                                         255.,
+                                         256.,
+                                         267.,
+                                         268.,
+                                         269.,
+                                         270.,
+                                         275.,
+                                         276.,
+                                         277.,
+                                         278.,
+                                         200.11688311688312,
+                                         201.11688311688312,
+                                         202.11688311688312,
+                                         203.11688311688312,
+                                         203.28099173553719,
+                                         204.28099173553719,
+                                         205.28099173553719,
+                                         206.28099173553719,
+                                         210.8181818181818,
+                                         211.8181818181818,
+                                         212.8181818181818,
+                                         213.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         226.8181818181818,
+                                         227.8181818181818,
+                                         232.8181818181818,
+                                         233.8181818181818,
+                                         234.8181818181818,
+                                         235.8181818181818,
+                                         281.987012987013,
+                                         282.987012987013,
+                                         283.987012987013,
+                                         284.987012987013,
+                                         275.4793388429752,
+                                         276.4793388429752,
+                                         277.4793388429752,
+                                         278.4793388429752,
+                                         266.09090909090907,
+                                         267.09090909090907,
+                                         268.09090909090907,
+                                         269.09090909090907,
+                                         280.09090909090907,
+                                         281.09090909090907,
+                                         282.09090909090907,
+                                         283.09090909090907,
+                                         288.09090909090907,
+                                         289.09090909090907,
+                                         290.09090909090907,
+                                         291.09090909090907,
+                                         225.45714285714286,
+                                         226.45714285714286,
+                                         227.45714285714286,
+                                         228.45714285714286,
+                                         222.8181818181818,
+                                         223.8181818181818,
+                                         224.8181818181818,
+                                         225.8181818181818,
+                                         220.2,
+                                         221.2,
+                                         222.2,
+                                         223.2,
+                                         234.2,
+                                         235.2,
+                                         236.2,
+                                         237.2,
+                                         242.2,
+                                         243.2,
+                                         244.2,
+                                         245.2,
+                                         252.42857142857142,
+                                         253.42857142857142,
+                                         254.42857142857142,
+                                         255.42857142857142,
+                                         242.6969696969697,
+                                         243.6969696969697,
+                                         244.6969696969697,
+                                         245.6969696969697,
+                                         227.66666666666666,
+                                         228.66666666666666,
+                                         229.66666666666666,
+                                         230.66666666666666,
+                                         241.66666666666666,
+                                         242.66666666666666,
+                                         243.66666666666666,
+                                         244.66666666666666,
+                                         249.66666666666666,
+                                         250.66666666666666,
+                                         251.66666666666666,
+                                         252.66666666666666,
+                                         271.1224489795918,
+                                         272.1224489795918,
+                                         273.1224489795918,
+                                         274.1224489795918,
+                                         256.3246753246753,
+                                         257.3246753246753,
+                                         258.3246753246753,
+                                         259.3246753246753,
+                                         245.72727272727272,
+                                         246.72727272727272,
+                                         247.72727272727272,
+                                         248.72727272727272,
+                                         246.42857142857142,
+                                         247.42857142857142,
+                                         248.42857142857142,
+                                         249.42857142857142,
+                                         254.42857142857142,
+                                         255.42857142857142,
+                                         256.42857142857144,
+                                         257.42857142857144,
+                                         312.53246753246754,
+                                         313.53246753246754,
+                                         314.53246753246754,
+                                         315.53246753246754,
+                                         293.3305785123967,
+                                         294.3305785123967,
+                                         295.3305785123967,
+                                         296.3305785123967,
+                                         275.4793388429752,
+                                         276.4793388429752,
+                                         277.4793388429752,
+                                         278.4793388429752,
+                                         264.09090909090907,
+                                         265.09090909090907,
+                                         266.09090909090907,
+                                         267.09090909090907,
+                                         272.09090909090907,
+                                         273.09090909090907,
+                                         274.09090909090907,
+                                         275.09090909090907,
+                                         234.8181818181818,
+                                         235.8181818181818,
+                                         236.8181818181818,
+                                         237.8181818181818,
+                                         230.12396694214877,
+                                         231.12396694214877,
+                                         232.12396694214877,
+                                         233.12396694214877,
+                                         229.19834710743802,
+                                         230.19834710743802,
+                                         231.19834710743802,
+                                         232.19834710743802,
+                                         226.27272727272728,
+                                         227.27272727272728,
+                                         228.27272727272728,
+                                         229.27272727272728,
+                                         234.27272727272728,
+                                         235.27272727272728,
+                                         236.27272727272728,
+                                         237.27272727272728,
+                                         314.6,
+                                         315.6,
+                                         316.6,
+                                         317.6,
+                                         303.9818181818182,
+                                         304.9818181818182,
+                                         305.9818181818182,
+                                         306.9818181818182,
+                                         282.74545454545455,
+                                         283.74545454545455,
+                                         284.74545454545455,
+                                         285.74545454545455,
+                                         260.44,
+                                         261.44,
+                                         262.44,
+                                         263.44,
+                                         258.2,
+                                         259.2,
+                                         260.2,
+                                         261.2,
+                                         305.,
+                                         306.,
+                                         307.,
+                                         308.,
+                                         305.24242424242425,
+                                         306.24242424242425,
+                                         307.24242424242425,
+                                         308.24242424242425,
+                                         290.2121212121212,
+                                         291.2121212121212,
+                                         292.2121212121212,
+                                         293.2121212121212,
+                                         274.73333333333335,
+                                         275.73333333333335,
+                                         276.73333333333335,
+                                         277.73333333333335,
+                                         265.6666666666667,
+                                         266.6666666666667,
+                                         267.6666666666667,
+                                         268.6666666666667,
+                                         261.,
+                                         262.,
+                                         263.,
+                                         264.,
+                                         269.,
+                                         270.,
+                                         271.,
+                                         272.,
+                                         265.05194805194805,
+                                         266.05194805194805,
+                                         267.05194805194805,
+                                         268.05194805194805,
+                                         255.11428571428573,
+                                         256.1142857142857,
+                                         257.1142857142857,
+                                         258.1142857142857,
+                                         233.85714285714286,
+                                         234.85714285714286,
+                                         235.85714285714286,
+                                         236.85714285714286,
+                                         218.8181818181818,
+                                         219.8181818181818,
+                                         220.8181818181818,
+                                         221.8181818181818,
+                                         226.8181818181818,
+                                         227.8181818181818,
+                                         228.8181818181818,
+                                         229.8181818181818,
+                                         230.12396694214877,
+                                         231.12396694214877,
+                                         232.12396694214877,
+                                         233.12396694214877,
+                                         228.8909090909091,
+                                         229.8909090909091,
+                                         230.8909090909091,
+                                         231.8909090909091,
+                                         218.27272727272728,
+                                         219.27272727272728,
+                                         220.27272727272728,
+                                         221.27272727272728,
+                                         274.09090909090907,
+                                         275.09090909090907,
+                                         276.09090909090907,
+                                         277.09090909090907,
+                                         282.09090909090907,
+                                         283.09090909090907,
+                                         284.09090909090907,
+                                         285.09090909090907,
+                                         281.1652892561983,
+                                         282.1652892561983,
+                                         283.1652892561983,
+                                         284.1652892561983,
+                                         265.54545454545456,
+                                         266.54545454545456,
+                                         267.54545454545456,
+                                         268.54545454545456,
+                                         242.5151515151515,
+                                         243.5151515151515,
+                                         244.5151515151515,
+                                         245.5151515151515,
+                                         228.2,
+                                         229.2,
+                                         230.2,
+                                         231.2,
+                                         236.2,
+                                         237.2,
+                                         238.2,
+                                         239.2,
+                                         247.54545454545453,
+                                         248.54545454545453,
+                                         249.54545454545453,
+                                         250.54545454545453,
+                                         245.72,
+                                         246.72,
+                                         247.72,
+                                         248.72,
+                                         240.06666666666666,
+                                         241.06666666666666,
+                                         242.06666666666666,
+                                         243.06666666666666,
+                                         235.66666666666666,
+                                         236.66666666666666,
+                                         237.66666666666666,
+                                         238.66666666666666,
+                                         243.66666666666666,
+                                         244.66666666666666,
+                                         245.66666666666666,
+                                         246.66666666666666,
+                                         251.9090909090909,
+                                         252.9090909090909,
+                                         253.9090909090909,
+                                         254.9090909090909,
+                                         239.53333333333333,
+                                         240.53333333333333,
+                                         241.53333333333333,
+                                         242.53333333333333,
+                                         224.77777777777777,
+                                         225.77777777777777,
+                                         226.77777777777777,
+                                         227.77777777777777};
+  const std::array<int, 4> in_shape = {{3, 18, 18, 4}};
   const auto padding = PaddingMode::SAME;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
@@ -1012,11 +5743,26 @@ TYPED_TEST(AvgWindow11Stride4Forward, SAME3x18x18x4) {
 }
 TYPED_TEST(AvgWindow11Stride4Forward, VALID3x18x18x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {203.28099173553719, 204.28099173553719, 205.28099173553719, 206.28099173553719, 210.8181818181818 , 211.8181818181818 , 212.8181818181818 , 213.8181818181818 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 266.09090909090907, 267.09090909090907, 268.09090909090907, 269.09090909090907, 293.3305785123967 , 294.3305785123967 , 295.3305785123967 , 296.3305785123967 , 275.4793388429752 , 276.4793388429752 , 277.4793388429752 , 278.4793388429752 , 230.12396694214877, 231.12396694214877, 232.12396694214877, 233.12396694214877, 229.19834710743802, 230.19834710743802, 231.19834710743802, 232.19834710743802, 226.8181818181818 , 227.8181818181818 , 228.8181818181818 , 229.8181818181818 , 230.12396694214877, 231.12396694214877, 232.12396694214877, 233.12396694214877, 282.09090909090907, 283.09090909090907, 284.09090909090907, 285.09090909090907, 281.1652892561983 , 282.1652892561983 , 283.1652892561983 , 284.1652892561983 };
-  const std::array<int, 4> in_shape = {{ 3, 18, 18, 4 }};
+  const std::vector<DataType> exp_out = {
+      203.28099173553719, 204.28099173553719, 205.28099173553719,
+      206.28099173553719, 210.8181818181818,  211.8181818181818,
+      212.8181818181818,  213.8181818181818,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      266.09090909090907, 267.09090909090907, 268.09090909090907,
+      269.09090909090907, 293.3305785123967,  294.3305785123967,
+      295.3305785123967,  296.3305785123967,  275.4793388429752,
+      276.4793388429752,  277.4793388429752,  278.4793388429752,
+      230.12396694214877, 231.12396694214877, 232.12396694214877,
+      233.12396694214877, 229.19834710743802, 230.19834710743802,
+      231.19834710743802, 232.19834710743802, 226.8181818181818,
+      227.8181818181818,  228.8181818181818,  229.8181818181818,
+      230.12396694214877, 231.12396694214877, 232.12396694214877,
+      233.12396694214877, 282.09090909090907, 283.09090909090907,
+      284.09090909090907, 285.09090909090907, 281.1652892561983,
+      282.1652892561983,  283.1652892561983,  284.1652892561983};
+  const std::array<int, 4> in_shape = {{3, 18, 18, 4}};
   const auto padding = PaddingMode::VALID;
   const auto params = getPoolingParams<11, 4>(in_shape, padding);
   const DataType max_input_val = 512.0;
   this->test_pool(exp_out, params, max_input_val);
 }
-

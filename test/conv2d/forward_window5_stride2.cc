@@ -46,14 +46,15 @@ using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
 
 using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
-
 template <typename Pair>
 using ForwardWindow5Stride2 = WindowStrideTest<Pair, 5, 2>;
 TYPED_TEST_SUITE(ForwardWindow5Stride2, GTestTypeTriples);
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1755.,  3080.,  3620.,  2205.,  4420.,  7325.,  7975.,  4660.,  7360., 11875., 12525.,  7180.,  3213.,  4940.,  5180.,  2799.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      1755., 3080.,  3620.,  2205., 4420., 7325., 7975., 4660.,
+      7360., 11875., 12525., 7180., 3213., 4940., 5180., 2799.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -61,8 +62,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7325.,  7975., 11875., 12525.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {7325., 7975., 11875., 12525.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -70,8 +71,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3429.,  3510.,  6010.,  6160.,  7060.,  7240.,  4293.,  4410.,  8600.,  8840., 14225., 14650., 15475., 15950.,  9020.,  9320., 14270., 14720., 22975., 23750., 24225., 25050., 13850., 14360.,  6093.,  6426.,  9310.,  9880.,  9760., 10360.,  5229.,  5598.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      3429.,  3510.,  6010.,  6160.,  7060.,  7240.,  4293.,  4410.,
+      8600.,  8840.,  14225., 14650., 15475., 15950., 9020.,  9320.,
+      14270., 14720., 22975., 23750., 24225., 25050., 13850., 14360.,
+      6093.,  6426.,  9310.,  9880.,  9760.,  10360., 5229.,  5598.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -79,8 +84,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {14225., 14650., 15475., 15950., 22975., 23750., 24225., 25050.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {14225., 14650., 15475., 15950.,
+                                         22975., 23750., 24225., 25050.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -88,8 +94,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1977.,  2058.,  2139.,  2220.,  3742.,  3892.,  4042.,  4192.,  4660.,  4840.,  5020.,  5200.,  2901.,  3018.,  3135.,  3252.,  6784.,  7024.,  7264.,  7504., 11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556.,  7692.,  7992.,  8292.,  8592., 12538., 12988., 13438., 13888., 20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692., 12662., 13172., 13682., 14192., 11853., 12186., 12519., 12852., 18050., 18620., 19190., 19760., 18920., 19520., 20120., 20720., 10089., 10458., 10827., 11196.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      1977.,  2058.,  2139.,  2220.,  3742.,  3892.,  4042.,  4192.,
+      4660.,  4840.,  5020.,  5200.,  2901.,  3018.,  3135.,  3252.,
+      6784.,  7024.,  7264.,  7504.,  11833., 12258., 12683., 13108.,
+      13131., 13606., 14081., 14556., 7692.,  7992.,  8292.,  8592.,
+      12538., 12988., 13438., 13888., 20919., 21694., 22469., 23244.,
+      22217., 23042., 23867., 24692., 12662., 13172., 13682., 14192.,
+      11853., 12186., 12519., 12852., 18050., 18620., 19190., 19760.,
+      18920., 19520., 20120., 20720., 10089., 10458., 10827., 11196.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -97,8 +111,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556., 20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556.,
+      20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -106,8 +122,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3017.,  4871.,  5483.,  3925.,  8395., 11141.,  9201.,  5135.,  9351., 13177., 11141.,  4939.,  6165.,  9547.,  8687.,  4353.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      3017., 4871.,  5483.,  3925., 8395., 11141., 9201., 5135.,
+      9351., 13177., 11141., 4939., 6165., 9547.,  8687., 4353.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -115,8 +133,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11141.,  9201., 13177., 11141.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {11141., 9201., 13177., 11141.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -124,8 +142,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5015.,  5266.,  6245.,  6638.,  5685.,  6070.,  3871.,  4138.,  8037.,  8534., 13215., 13994., 11183., 11906.,  7165.,  7582.,  9365.,  9934., 13327., 14226., 13215., 13994.,  7789.,  8214.,  6111.,  6474.,  8477.,  9078.,  7085.,  7614.,  4455.,  4706.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5015., 5266., 6245.,  6638.,  5685.,  6070.,  3871., 4138.,
+      8037., 8534., 13215., 13994., 11183., 11906., 7165., 7582.,
+      9365., 9934., 13327., 14226., 13215., 13994., 7789., 8214.,
+      6111., 6474., 8477.,  9078.,  7085.,  7614.,  4455., 4706.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -133,8 +155,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906.,
+                                         13327., 14226., 13215., 13994.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -142,8 +165,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5203.,  5454.,  5705.,  5956.,  5441.,  5834.,  6227.,  6620.,  6377.,  6762.,  7147.,  7532.,  3667.,  3934.,  4201.,  4468.,  6841.,  7338.,  7835.,  8332., 12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164.,  6489.,  6906.,  7323.,  7740.,  9169.,  9738., 10307., 10876., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.,  5681.,  6106.,  6531.,  6956.,  4979.,  5342.,  5705.,  6068.,  9153.,  9754., 10355., 10956.,  6697.,  7226.,  7755.,  8284.,  5203.,  5454.,  5705.,  5956.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5203.,  5454.,  5705.,  5956.,  5441.,  5834.,  6227.,  6620.,
+      6377.,  6762.,  7147.,  7532.,  3667.,  3934.,  4201.,  4468.,
+      6841.,  7338.,  7835.,  8332.,  12979., 13758., 14537., 15316.,
+      9995.,  10718., 11441., 12164., 6489.,  6906.,  7323.,  7740.,
+      9169.,  9738.,  10307., 10876., 12059., 12958., 13857., 14756.,
+      12979., 13758., 14537., 15316., 5681.,  6106.,  6531.,  6956.,
+      4979.,  5342.,  5705.,  6068.,  9153.,  9754.,  10355., 10956.,
+      6697.,  7226.,  7755.,  8284.,  5203.,  5454.,  5705.,  5956.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -151,8 +182,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -160,8 +193,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9758., 15666., 14754., 10670., 18658., 26254., 24478., 13778., 18674., 30718., 26254., 14946., 10670., 18466., 18194.,  7550.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      9758.,  15666., 14754., 10670., 18658., 26254., 24478., 13778.,
+      18674., 30718., 26254., 14946., 10670., 18466., 18194., 7550.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -170,7 +205,7 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x4x1) {
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x4x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -178,8 +213,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9250.,  9724., 12638., 13412., 14814., 15684.,  9858., 10524., 18142., 19204., 25634., 27164., 22178., 23612., 13886., 14756., 21086., 22308., 30114., 31996., 25634., 27164., 12222., 12996.,  9858., 10524., 19646., 20868., 16190., 17252.,  9250.,  9724.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      9250.,  9724.,  12638., 13412., 14814., 15684., 9858.,  10524.,
+      18142., 19204., 25634., 27164., 22178., 23612., 13886., 14756.,
+      21086., 22308., 30114., 31996., 25634., 27164., 12222., 12996.,
+      9858.,  10524., 19646., 20868., 16190., 17252., 9250.,  9724.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -187,8 +226,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612.,
+                                         30114., 31996., 25634., 27164.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -196,8 +236,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2154., 2436., 2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160., 2154., 2436., 2718., 3000., 3702., 4188., 4674., 5160., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 3702., 4188., 4674., 5160., 3926., 4444., 4962., 5480., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 3926., 4444., 4962., 5480., 2154., 2436., 2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160., 2154., 2436., 2718., 3000.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      2154., 2436., 2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188.,
+      4674., 5160., 2154., 2436., 2718., 3000., 3702., 4188., 4674., 5160.,
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 3702., 4188.,
+      4674., 5160., 3926., 4444., 4962., 5480., 6506., 7364., 8222., 9080.,
+      6282., 7108., 7934., 8760., 3926., 4444., 4962., 5480., 2154., 2436.,
+      2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160.,
+      2154., 2436., 2718., 3000.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -205,8 +252,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.,
+      6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.};
+  const std::array<int, 4> in_shape = {{1, 7, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -214,8 +263,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2666.,  3670.,  4210.,  2541.,  6620.,  8550.,  9200.,  5350., 10940., 13750., 14400.,  8230.,  4670.,  5710.,  5950.,  3207.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      2666.,  3670.,  4210.,  2541., 6620., 8550., 9200., 5350.,
+      10940., 13750., 14400., 8230., 4670., 5710., 5950., 3207.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -223,8 +274,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8225.,  8875., 13425., 14075.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {8225., 8875., 13425., 14075.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -232,8 +283,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5206.,  5332.,  7160.,  7340.,  8210.,  8420.,  4947.,  5082., 12870., 13240., 16600., 17100., 17850., 18400., 10355., 10700., 21190., 21880., 26600., 27500., 27850., 28800., 15875., 16460.,  8830.,  9340., 10760., 11420., 11210., 11900.,  5991.,  6414.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      5206.,  5332.,  7160.,  7340.,  8210.,  8420.,  4947.,  5082.,
+      12870., 13240., 16600., 17100., 17850., 18400., 10355., 10700.,
+      21190., 21880., 26600., 27500., 27850., 28800., 15875., 16460.,
+      8830.,  9340.,  10760., 11420., 11210., 11900., 5991.,  6414.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -241,8 +296,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750.,
+                                         25975., 26850., 27225., 28150.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -250,8 +306,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2862.,  2988.,  3114.,  3240.,  4540.,  4720.,  4900.,  5080.,  5458.,  5668.,  5878.,  6088.,  3359.,  3494.,  3629.,  3764.,  9754., 10124., 10494., 10864., 13884., 14384., 14884., 15384., 15182., 15732., 16282., 16832.,  8845.,  9190.,  9535.,  9880., 17882., 18572., 19262., 19952., 24268., 25168., 26068., 26968., 25566., 26516., 27466., 28416., 14525., 15110., 15695., 16280., 17150., 17660., 18170., 18680., 20860., 21520., 22180., 22840., 21730., 22420., 23110., 23800., 11559., 11982., 12405., 12828.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      2862.,  2988.,  3114.,  3240.,  4540.,  4720.,  4900.,  5080.,
+      5458.,  5668.,  5878.,  6088.,  3359.,  3494.,  3629.,  3764.,
+      9754.,  10124., 10494., 10864., 13884., 14384., 14884., 15384.,
+      15182., 15732., 16282., 16832., 8845.,  9190.,  9535.,  9880.,
+      17882., 18572., 19262., 19952., 24268., 25168., 26068., 26968.,
+      25566., 26516., 27466., 28416., 14525., 15110., 15695., 16280.,
+      17150., 17660., 18170., 18680., 20860., 21520., 22180., 22840.,
+      21730., 22420., 23110., 23800., 11559., 11982., 12405., 12828.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -259,8 +323,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -268,8 +334,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2340.,  5243.,  7199.,  4913.,  5364.,  9463., 12259.,  7621.,  5364.,  9463., 12259.,  7621.,  4020.,  6215.,  8075.,  4629.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      2340., 5243., 7199.,  4913., 5364., 9463., 12259., 7621.,
+      5364., 9463., 12259., 7621., 4020., 6215., 8075.,  4629.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -277,8 +345,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8065., 10861.,  8065., 10861.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {8065., 10861., 8065., 10861.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -286,8 +354,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2812.,  3048.,  5717.,  6102.,  7717.,  8222.,  5135.,  5474.,  5780.,  6216., 10455., 11150., 13543., 14438., 10293., 10890.,  5780.,  6216., 10455., 11150., 13543., 14438., 10293., 10890.,  3772.,  4008.,  6253.,  6638.,  8061.,  8566.,  6327.,  6666.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      2812., 3048., 5717.,  6102.,  7717.,  8222.,  5135.,  5474.,
+      5780., 6216., 10455., 11150., 13543., 14438., 10293., 10890.,
+      5780., 6216., 10455., 11150., 13543., 14438., 10293., 10890.,
+      3772., 4008., 6253.,  6638.,  8061.,  8566.,  6327.,  6666.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -295,8 +367,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {8911., 9506., 11999., 12794.,
+                                         8911., 9506., 11999., 12794.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -304,8 +377,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3660.,  3896.,  4132.,  4368.,  6313.,  6698.,  7083.,  7468.,  8145.,  8650.,  9155.,  9660.,  4587.,  4926.,  5265.,  5604.,  6548.,  6984.,  7420.,  7856., 10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204.,  8981.,  9578., 10175., 10772.,  6548.,  6984.,  7420.,  7856., 10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204.,  8981.,  9578., 10175., 10772.,  3404.,  3640.,  3876.,  4112.,  5433.,  5818.,  6203.,  6588.,  7137.,  7642.,  8147.,  8652.,  5659.,  5998.,  6337.,  6676.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      3660.,  3896.,  4132.,  4368.,  6313.,  6698.,  7083.,  7468.,
+      8145.,  8650.,  9155.,  9660.,  4587.,  4926.,  5265.,  5604.,
+      6548.,  6984.,  7420.,  7856.,  10615., 11310., 12005., 12700.,
+      13519., 14414., 15309., 16204., 8981.,  9578.,  10175., 10772.,
+      6548.,  6984.,  7420.,  7856.,  10615., 11310., 12005., 12700.,
+      13519., 14414., 15309., 16204., 8981.,  9578.,  10175., 10772.,
+      3404.,  3640.,  3876.,  4112.,  5433.,  5818.,  6203.,  6588.,
+      7137.,  7642.,  8147.,  8652.,  5659.,  5998.,  6337.,  6676.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -313,8 +394,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -322,8 +405,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306.,
+      5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -332,7 +417,7 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x4x1) {
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x4x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -340,8 +425,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652.,
+      3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -349,8 +438,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068.,
+                                         16802., 17852., 29218., 31068.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -358,8 +448,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      3096., 3504., 3912., 4320.,  3702., 4188., 4674., 5160.,  4374., 4956.,
+      5538., 6120., 2826., 3204.,  3582., 3960., 5160., 5840.,  6520., 7200.,
+      6170., 6980., 7790., 8600.,  7290., 8260., 9230., 10200., 4710., 5340.,
+      5970., 6600., 5160., 5840.,  6520., 7200., 6170., 6980.,  7790., 8600.,
+      7290., 8260., 9230., 10200., 4710., 5340., 5970., 6600.,  3096., 3504.,
+      3912., 4320., 3702., 4188.,  4674., 5160., 4374., 4956.,  5538., 6120.,
+      2826., 3204., 3582., 3960.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -367,8 +464,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.,
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
+  const std::array<int, 4> in_shape = {{1, 7, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -376,8 +475,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3190.,  4310.,  4850.,  5390.,  3213.,  8100., 10350., 11000., 11650.,  6730., 13500., 16850., 17500., 18150., 10330.,  5770.,  7010.,  7250.,  7490.,  4023.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {3190.,  4310.,  4850.,  5390.,  3213.,
+                                         8100.,  10350., 11000., 11650., 6730.,
+                                         13500., 16850., 17500., 18150., 10330.,
+                                         5770.,  7010.,  7250.,  7490.,  4023.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -385,8 +487,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10025., 10675., 11325., 16525., 17175., 17825.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {10025., 10675., 11325.,
+                                         16525., 17175., 17825.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -394,8 +497,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6230.,  6380.,  8410.,  8620.,  9460.,  9700., 10510., 10780.,  6255.,  6426., 15750., 16200., 20100., 20700., 21350., 22000., 22600., 23300., 13025., 13460., 26150., 27000., 26456., 27428., 22074., 22968., 20700., 21580., 11669., 12212., 10910., 11540.,  9626., 10308.,  7004.,  7588.,  6110.,  6660.,  3099.,  3438.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      6230.,  6380.,  8410.,  8620.,  9460.,  9700.,  10510., 10780.,
+      6255.,  6426.,  15750., 16200., 20100., 20700., 21350., 22000.,
+      22600., 23300., 13025., 13460., 26150., 27000., 26456., 27428.,
+      22074., 22968., 20700., 21580., 11669., 12212., 10910., 11540.,
+      9626.,  10308., 7004.,  7588.,  6110.,  6660.,  3099.,  3438.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -403,8 +511,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201., 25134., 20075., 20930.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350.,
+                                         21975., 22650., 28839., 29850.,
+                                         24201., 25134., 20075., 20930.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -412,8 +522,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3350.,  3500.,  3650.,  3800.,  5218.,  5428.,  5638.,  5848.,  6136.,  6376.,  6616.,  6856.,  7054.,  7324.,  7594.,  7864.,  4275.,  4446.,  4617.,  4788., 11850., 12300., 12750., 13200., 16688., 17288., 17888., 18488., 17986., 18636., 19286., 19936., 19284., 19984., 20684., 21384., 11151., 11586., 12021., 12456., 22010., 22860., 23710., 24560., 25700., 26672., 27644., 28616., 24054., 24948., 25842., 26736., 24264., 25144., 26024., 26904., 14219., 14762., 15305., 15848., 21190., 21820., 22450., 23080., 18570., 19252., 19934., 20616., 13424., 14008., 14592., 15176., 11670., 12220., 12770., 13320.,  5859.,  6198.,  6537.,  6876.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      3350.,  3500.,  3650.,  3800.,  5218.,  5428.,  5638.,  5848.,  6136.,
+      6376.,  6616.,  6856.,  7054.,  7324.,  7594.,  7864.,  4275.,  4446.,
+      4617.,  4788.,  11850., 12300., 12750., 13200., 16688., 17288., 17888.,
+      18488., 17986., 18636., 19286., 19936., 19284., 19984., 20684., 21384.,
+      11151., 11586., 12021., 12456., 22010., 22860., 23710., 24560., 25700.,
+      26672., 27644., 28616., 24054., 24948., 25842., 26736., 24264., 25144.,
+      26024., 26904., 14219., 14762., 15305., 15848., 21190., 21820., 22450.,
+      23080., 18570., 19252., 19934., 20616., 13424., 14008., 14592., 15176.,
+      11670., 12220., 12770., 13320., 5859.,  6198.,  6537.,  6876.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -421,8 +540,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212.,
+      18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940.,
+      24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -430,8 +552,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3412.,  6719.,  7843.,  9479.,  4553.,  9044., 14319., 12731., 11559.,  6065., 10740., 11559., 12019., 10559.,  5401.,  8356.,  7707.,  6431.,  5827.,  3261.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {3412.,  6719.,  7843.,  9479.,  4553.,
+                                         9044.,  14319., 12731., 11559., 6065.,
+                                         10740., 11559., 12019., 10559., 5401.,
+                                         8356.,  7707.,  6431.,  5827.,  3261.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -439,8 +564,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357., 10921.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {13017., 12453., 12017.,
+                                         12017., 11357., 10921.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -448,8 +574,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4348.,  4680.,  7781.,  8286.,  8245.,  8742.,  9733., 10222.,  5231.,  5522.,  9364.,  9992., 15159., 15998., 15815., 16662., 13271., 14062.,  6053.,  6498., 13204., 13896., 13271., 14062., 11879., 12678., 10743., 11550.,  6725.,  7218.,  7612.,  8072.,  7037.,  7574.,  6797.,  7326.,  5917.,  6374.,  4439.,  4698.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      4348.,  4680.,  7781.,  8286.,  8245.,  8742.,  9733.,  10222.,
+      5231.,  5522.,  9364.,  9992.,  15159., 15998., 15815., 16662.,
+      13271., 14062., 6053.,  6498.,  13204., 13896., 13271., 14062.,
+      11879., 12678., 10743., 11550., 6725.,  7218.,  7612.,  8072.,
+      7037.,  7574.,  6797.,  7326.,  5917.,  6374.,  4439.,  4698.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -457,8 +588,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210.,
+                                         15311., 16130., 15311., 16130.,
+                                         11743., 12506., 10607., 11378.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -466,8 +599,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5100.,  5432.,  5764.,  6096.,  8017.,  8522.,  9027.,  9532.,  6905.,  7402.,  7899.,  8396.,  7841.,  8330.,  8819.,  9308.,  3803.,  4094.,  4385.,  4676.,  8404.,  9032.,  9660., 10288., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,  5773.,  6218.,  6663.,  7108., 11412., 12104., 12796., 13488., 11031., 11822., 12613., 13404., 11311., 12110., 12909., 13708., 12103., 12910., 13717., 14524.,  7069.,  7562.,  8055.,  8548.,  6764.,  7224.,  7684.,  8144.,  7617.,  8154.,  8691.,  9228.,  7401.,  7930.,  8459.,  8988.,  5969.,  6426.,  6883.,  7340.,  3755.,  4014.,  4273.,  4532.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      5100.,  5432.,  5764.,  6096.,  8017.,  8522.,  9027.,  9532.,  6905.,
+      7402.,  7899.,  8396.,  7841.,  8330.,  8819.,  9308.,  3803.,  4094.,
+      4385.,  4676.,  8404.,  9032.,  9660.,  10288., 12711., 13550., 14389.,
+      15228., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,
+      5773.,  6218.,  6663.,  7108.,  11412., 12104., 12796., 13488., 11031.,
+      11822., 12613., 13404., 11311., 12110., 12909., 13708., 12103., 12910.,
+      13717., 14524., 7069.,  7562.,  8055.,  8548.,  6764.,  7224.,  7684.,
+      8144.,  7617.,  8154.,  8691.,  9228.,  7401.,  7930.,  8459.,  8988.,
+      5969.,  6426.,  6883.,  7340.,  3755.,  4014.,  4273.,  4532.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -475,8 +617,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164.,
+      12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980.,
+      10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -484,8 +629,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13320., 19154., 17922., 16370.,  8350., 18008., 27174., 30646., 26310., 14506., 25304., 26310., 24534., 27174., 18506., 14088., 16482., 18578., 13186.,  7502.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {13320., 19154., 17922., 16370., 8350.,
+                                         18008., 27174., 30646., 26310., 14506.,
+                                         25304., 26310., 24534., 27174., 18506.,
+                                         14088., 16482., 18578., 13186., 7502.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -493,8 +641,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214., 23998.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {23998., 26446., 29086.,
+                                         29086., 23214., 23998.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -502,8 +651,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13176., 13968., 17758., 18852., 15326., 16388., 16478., 17380.,  7426.,  7932., 17096., 18288., 27362., 29004., 30050., 31852., 25570., 27276., 13182., 14164., 25288., 26736., 25570., 27276., 22114., 23724., 27362., 29004., 17022., 18068., 12152., 12944., 16830., 17924., 17982., 19044., 12478., 13380.,  7586.,  8092.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      13176., 13968., 17758., 18852., 15326., 16388., 16478., 17380.,
+      7426.,  7932.,  17096., 18288., 27362., 29004., 30050., 31852.,
+      25570., 27276., 13182., 14164., 25288., 26736., 25570., 27276.,
+      22114., 23724., 27362., 29004., 17022., 18068., 12152., 12944.,
+      16830., 17924., 17982., 19044., 12478., 13380., 7586.,  8092.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -511,8 +665,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596.,
+                                         29090., 30780., 29090., 30780.,
+                                         21538., 23132., 23202., 24700.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -520,8 +676,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11864., 12656., 13448., 14240., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328.,  6410.,  6916.,  7422.,  7928., 18024., 19216., 20408., 21600., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 13414., 14396., 15378., 16360., 21864., 23312., 24760., 26208., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 14886., 15932., 16978., 18024., 11864., 12656., 13448., 14240., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328.,  6410.,  6916.,  7422.,  7928.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      11864., 12656., 13448., 14240., 15990., 17084., 18178., 19272., 15254.,
+      16316., 17378., 18440., 13622., 14524., 15426., 16328., 6410.,  6916.,
+      7422.,  7928.,  18024., 19216., 20408., 21600., 25178., 26820., 28462.,
+      30104., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744.,
+      13414., 14396., 15378., 16360., 21864., 23312., 24760., 26208., 25626.,
+      27332., 29038., 30744., 22906., 24516., 26126., 27736., 25178., 26820.,
+      28462., 30104., 14886., 15932., 16978., 18024., 11864., 12656., 13448.,
+      14240., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,
+      13622., 14524., 15426., 16328., 6410.,  6916.,  7422.,  7928.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -529,8 +694,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x7x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.};
-  const std::array<int, 4> in_shape = {{ 1, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240.,
+      26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608.,
+      23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.};
+  const std::array<int, 4> in_shape = {{1, 7, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -538,8 +706,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x7x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3008.,  5100.,  5720.,  3404.,  5890.,  9600., 10250.,  5920.,  8830., 14150., 14800.,  8440.,  3780.,  5780.,  6020.,  3240.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      3008., 5100.,  5720.,  3404., 5890., 9600., 10250., 5920.,
+      8830., 14150., 14800., 8440., 3780., 5780., 6020.,  3240.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -547,8 +717,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7325.,  7975., 11875., 12525.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {7325., 7975., 11875., 12525.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -556,8 +726,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5866.,  6016.,  9930., 10200., 11130., 11440.,  6610.,  6808., 11435., 11780., 18600., 19200., 19850., 20500., 11435., 11840., 17105., 17660., 27350., 28300., 28600., 29600., 16265., 16880.,  7164.,  7560., 10885., 11560., 11335., 12040.,  6048.,  6480.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      5866.,  6016.,  9930.,  10200., 11130., 11440., 6610.,  6808.,
+      11435., 11780., 18600., 19200., 19850., 20500., 11435., 11840.,
+      17105., 17660., 27350., 28300., 28600., 29600., 16265., 16880.,
+      7164.,  7560.,  10885., 11560., 11335., 12040., 6048.,  6480.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -565,8 +739,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {14225., 14650., 15475., 15950., 22975., 23750., 24225., 25050.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {14225., 14650., 15475., 15950.,
+                                         22975., 23750., 24225., 25050.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -574,8 +749,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4094.,  4244.,  4394.,  4544.,  7430.,  7700.,  7970.,  8240.,  8638.,  8948.,  9258.,  9568.,  5214.,  5412.,  5610.,  5808.,  9661., 10006., 10351., 10696., 16376., 16976., 17576., 18176., 17674., 18324., 18974., 19624., 10177., 10582., 10987., 11392., 15415., 15970., 16525., 17080., 25462., 26412., 27362., 28312., 26760., 27760., 28760., 29760., 15147., 15762., 16377., 16992., 13932., 14328., 14724., 15120., 21095., 21770., 22445., 23120., 21965., 22670., 23375., 24080., 11664., 12096., 12528., 12960.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      4094.,  4244.,  4394.,  4544.,  7430.,  7700.,  7970.,  8240.,
+      8638.,  8948.,  9258.,  9568.,  5214.,  5412.,  5610.,  5808.,
+      9661.,  10006., 10351., 10696., 16376., 16976., 17576., 18176.,
+      17674., 18324., 18974., 19624., 10177., 10582., 10987., 11392.,
+      15415., 15970., 16525., 17080., 25462., 26412., 27362., 28312.,
+      26760., 27760., 28760., 29760., 15147., 15762., 16377., 16992.,
+      13932., 14328., 14724., 15120., 21095., 21770., 22445., 23120.,
+      21965., 22670., 23375., 24080., 11664., 12096., 12528., 12960.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -583,8 +766,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556., 20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556.,
+      20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -592,8 +777,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5140., 10252., 10716.,  6500.,  6953., 11007., 11627.,  5597.,  6437., 10803., 11007.,  6169.,  3855.,  6745.,  7357.,  3883.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5140., 10252., 10716., 6500., 6953., 11007., 11627., 5597.,
+      6437., 10803., 11007., 6169., 3855., 6745.,  7357.,  3883.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -601,8 +788,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11141.,  9201., 13177., 11141.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {11141., 9201., 13177., 11141.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -610,8 +797,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5020.,  5352.,  9492., 10040., 10132., 10712.,  7356.,  7752.,  7933.,  8466., 13015., 13854., 12007., 12790.,  6517.,  6970.,  6445.,  6922., 12871., 13702., 13015., 13854.,  6629.,  7090.,  3287.,  3518.,  6997.,  7442.,  8421.,  8922.,  4863.,  5174.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5020., 5352., 9492.,  10040., 10132., 10712., 7356., 7752.,
+      7933., 8466., 13015., 13854., 12007., 12790., 6517., 6970.,
+      6445., 6922., 12871., 13702., 13015., 13854., 6629., 7090.,
+      3287., 3518., 6997.,  7442.,  8421.,  8922.,  4863., 5174.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -619,8 +810,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906.,
+                                         13327., 14226., 13215., 13994.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -628,8 +820,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,  9096.,  9676., 10256.,  5868.,  6264.,  6660.,  7056.,  8517.,  9050.,  9583., 10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637., 13420.,  6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820., 12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524.,  6397.,  6858.,  7319.,  7780.,  3175.,  3406.,  3637.,  3868.,  6221.,  6666.,  7111.,  7556.,  7221.,  7722.,  8223.,  8724.,  4423.,  4734.,  5045.,  5356.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,
+      8516.,  9096.,  9676.,  10256., 5868.,  6264.,  6660.,  7056.,
+      8517.,  9050.,  9583.,  10116., 12007., 12846., 13685., 14524.,
+      11071., 11854., 12637., 13420., 6181.,  6634.,  7087.,  7540.,
+      7389.,  7866.,  8343.,  8820.,  12751., 13582., 14413., 15244.,
+      12007., 12846., 13685., 14524., 6397.,  6858.,  7319.,  7780.,
+      3175.,  3406.,  3637.,  3868.,  6221.,  6666.,  7111.,  7556.,
+      7221.,  7722.,  8223.,  8724.,  4423.,  4734.,  5045.,  5356.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -637,8 +837,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -646,8 +848,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178., 29398., 27622., 16010.,  8262., 17098., 19514., 11350.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154.,
+      17178., 29398., 27622., 16010., 8262.,  17098., 19514., 11350.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -656,7 +860,7 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x4x1) {
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x4x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -664,8 +868,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124.,  7746.,  8268., 16510., 17620., 18174., 19380., 10466., 11180.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224.,
+      19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508.,
+      17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124.,
+      7746.,  8268.,  16510., 17620., 18174., 19380., 10466., 11180.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -673,8 +881,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612.,
+                                         30114., 31996., 25634., 27164.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -682,8 +891,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696.,  7546.,  8068.,  8590.,  9112., 16358., 17468., 18578., 19688., 16518., 17724., 18930., 20136.,  8890.,  9604., 10318., 11032.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912.,
+      16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752.,
+      16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336.,
+      19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584.,
+      16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344.,
+      24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696.,
+      7546.,  8068.,  8590.,  9112.,  16358., 17468., 18578., 19688.,
+      16518., 17724., 18930., 20136., 8890.,  9604.,  10318., 11032.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -691,8 +908,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.,
+      6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.};
+  const std::array<int, 4> in_shape = {{1, 8, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -700,8 +919,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4532.,  6000.,  6620.,  3914.,  8780., 11150., 11800.,  6790., 13100., 16350., 17000.,  9670.,  5486.,  6670.,  6910.,  3711.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      4532.,  6000.,  6620.,  3914., 8780., 11150., 11800., 6790.,
+      13100., 16350., 17000., 9670., 5486., 6670.,  6910.,  3711.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -709,8 +930,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8225.,  8875., 13425., 14075.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {8225., 8875., 13425., 14075.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -718,8 +939,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348.,
+      4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172.,
+      3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724.,
+      4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -727,8 +952,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750.,
+                                         25975., 26850., 27225., 28150.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -736,8 +962,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016.,
+      6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264.,
+      5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630.,
+      4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704.,
+      7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804.,
+      4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976.,
+      3183., 3390., 3597., 3804.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -745,8 +978,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -754,8 +989,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7648., 11144., 13720., 8216., 8756., 12519., 15315., 8853.,
+      8756., 12519., 15315., 8853., 6132., 8695.,  10555., 5925.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -763,8 +1000,8 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8065., 10861.,  8065., 10861.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {8065., 10861., 8065., 10861.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -772,8 +1009,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7312., 7712., 10820., 11440., 13508., 14288., 9516.,  10032.,
+      9364., 9928., 13335., 14190., 16423., 17478., 10613., 11306.,
+      9364., 9928., 13335., 14190., 16423., 17478., 10613., 11306.,
+      5820., 6184., 7981.,  8526.,  9789.,  10454., 5751.,  6186.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -781,8 +1022,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {8911., 9506., 11999., 12794.,
+                                         8911., 9506., 11999., 12794.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -790,8 +1032,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      6032.,  6432.,  6832.,  7232.,  9084.,  9704.,  10324., 10944.,
+      11484., 12264., 13044., 13824., 7508.,  8024.,  8540.,  9056.,
+      8468.,  9032.,  9596.,  10160., 12119., 12974., 13829., 14684.,
+      15023., 16078., 17133., 18188., 9525.,  10218., 10911., 11604.,
+      8468.,  9032.,  9596.,  10160., 12119., 12974., 13829., 14684.,
+      15023., 16078., 17133., 18188., 9525.,  10218., 10911., 11604.,
+      5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,
+      9409.,  10074., 10739., 11404., 6459.,  6894.,  7329.,  7764.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -799,8 +1049,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -808,8 +1060,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306.,
+      5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -818,7 +1072,7 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x4x1) {
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x4x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -826,8 +1080,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652.,
+      3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -835,8 +1093,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068.,
+                                         16802., 17852., 29218., 31068.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -844,8 +1103,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4128., 4672., 5216., 5760.,  4936., 5584., 6232., 6880.,  5832., 6608.,
+      7384., 8160., 3768., 4272.,  4776., 5280., 5160., 5840.,  6520., 7200.,
+      6170., 6980., 7790., 8600.,  7290., 8260., 9230., 10200., 4710., 5340.,
+      5970., 6600., 5160., 5840.,  6520., 7200., 6170., 6980.,  7790., 8600.,
+      7290., 8260., 9230., 10200., 4710., 5340., 5970., 6600.,  3096., 3504.,
+      3912., 4320., 3702., 4188.,  4674., 5160., 4374., 4956.,  5538., 6120.,
+      2826., 3204., 3582., 3960.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -853,8 +1119,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.,
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
+  const std::array<int, 4> in_shape = {{1, 8, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -862,8 +1130,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5500.,  7180.,  7800.,  8420.,  4934., 10800., 13600., 14250., 14900.,  8530., 16200., 20100., 20750., 21400., 12130.,  6790.,  8210.,  8450.,  8690.,  4653.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {5500.,  7180.,  7800.,  8420.,  4934.,
+                                         10800., 13600., 14250., 14900., 8530.,
+                                         16200., 20100., 20750., 21400., 12130.,
+                                         6790.,  8210.,  8450.,  8690.,  4653.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -871,8 +1142,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10025., 10675., 11325., 16525., 17175., 17825.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {10025., 10675., 11325.,
+                                         16525., 17175., 17825.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -880,8 +1152,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840.,  9580.,  9868., 20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800., 16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750., 16560.,  8783.,  9284.,  6174.,  6668.,  5156.,  5668.,  3814.,  4228.,  3560.,  3940.,  1773.,  2010.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840.,
+      9580.,  9868.,  20950., 21600., 26350., 27200., 27600., 28500.,
+      28850., 29800., 16475., 17060., 19574., 20368., 19586., 20488.,
+      16484., 17308., 15750., 16560., 8783.,  9284.,  6174.,  6668.,
+      5156.,  5668.,  3814.,  4228.,  3560.,  3940.,  1773.,  2010.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -889,8 +1166,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201., 25134., 20075., 20930.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350.,
+                                         21975., 22650., 28839., 29850.,
+                                         24201., 25134., 20075., 20930.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -898,8 +1177,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7080.,  7360.,  7640.,  7920., 10428., 10808., 11188., 11568., 11636., 12056., 12476., 12896., 12844., 13304., 13764., 14224.,  7608.,  7896.,  8184.,  8472., 16930., 17580., 18230., 18880., 23178., 24028., 24878., 25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624., 14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750., 27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868., 26678., 27488., 13481., 13982., 14483., 14984., 11854., 12348., 12842., 13336.,  9800., 10312., 10824., 11336.,  7214.,  7628.,  8042.,  8456.,  6740.,  7120.,  7500.,  7880.,  3309.,  3546.,  3783.,  4020.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      7080.,  7360.,  7640.,  7920.,  10428., 10808., 11188., 11568., 11636.,
+      12056., 12476., 12896., 12844., 13304., 13764., 14224., 7608.,  7896.,
+      8184.,  8472.,  16930., 17580., 18230., 18880., 23178., 24028., 24878.,
+      25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624.,
+      14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750.,
+      27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868.,
+      26678., 27488., 13481., 13982., 14483., 14984., 11854., 12348., 12842.,
+      13336., 9800.,  10312., 10824., 11336., 7214.,  7628.,  8042.,  8456.,
+      6740.,  7120.,  7500.,  7880.,  3309.,  3546.,  3783.,  4020.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -907,8 +1195,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212.,
+      18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940.,
+      24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -916,8 +1207,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8064., 10864.,  9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,  7653.,  8260., 11939., 14319., 12731.,  6861.,  7828.,  8367.,  8371.,  9495.,  5433.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {8064., 10864., 9184.,  8624.,  4928.,
+                                         8100., 10219., 10551., 11939., 7653.,
+                                         8260., 11939., 14319., 12731., 6861.,
+                                         7828., 8367.,  8371.,  9495.,  5433.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -925,8 +1219,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357., 10921.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {13017., 12453., 12017.,
+                                         12017., 11357., 10921.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -934,8 +1229,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8336.,  8800.,  9764., 10368.,  8228.,  8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114.,  7100.,  7528.,  9677., 10174.,  7901.,  8390.,  8301.,  8846.,  4839.,  5202.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8336.,  8800.,  9764.,  10368., 8228.,  8800.,  8868.,  9472.,
+      6924.,  7296.,  8724.,  9384.,  11783., 12662., 12183., 13070.,
+      12711., 13542., 10229., 10698., 9492.,  10216., 12711., 13542.,
+      15159., 15998., 15815., 16662., 8597.,  9114.,  7100.,  7528.,
+      9677.,  10174., 7901.,  8390.,  8301.,  8846.,  4839.,  5202.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -943,8 +1243,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210.,
+                                         15311., 16130., 15311., 16130.,
+                                         11743., 12506., 10607., 11378.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -952,8 +1254,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988., 10592.,  9068.,  9640., 10212., 10784.,  9548., 10152., 10756., 11360.,  5540.,  5912.,  6284.,  6656.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,  7568.,  8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,  7833.,  8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988.,  10592., 9068.,
+      9640.,  10212., 10784., 9548.,  10152., 10756., 11360., 5540.,  5912.,
+      6284.,  6656.,  9908.,  10568., 11228., 11888., 13087., 13966., 14845.,
+      15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,
+      7957.,  8426.,  8895.,  9364.,  10868., 11592., 12316., 13040., 10895.,
+      11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838.,
+      14685., 15532., 6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,
+      7568.,  8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,
+      7833.,  8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -961,8 +1272,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164.,
+      12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980.,
+      10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -970,8 +1284,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 14152., 18578., 13186., 15602., 11742.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16992., 22184., 23464., 25256., 15640., 20632., 30646.,
+      26310., 24534., 18650., 19608., 24534., 27174., 30646.,
+      17850., 14152., 18578., 13186., 15602., 11742.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -979,8 +1296,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214., 23998.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {23998., 26446., 29086.,
+                                         29086., 23214., 23998.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -988,8 +1306,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976.,
+      11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276.,
+      22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724.,
+      27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120.,
+      17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -997,8 +1320,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596.,
+                                         29090., 30780., 29090., 30780.,
+                                         21538., 23132., 23202., 24700.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1006,8 +1331,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776.,  9578., 10244., 10910., 11576.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192.,
+      22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936.,
+      14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902.,
+      31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736.,
+      14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906.,
+      24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100.,
+      29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624.,
+      16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328.,
+      13782., 14780., 15778., 16776., 9578.,  10244., 10910., 11576.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1015,8 +1349,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x8x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.};
-  const std::array<int, 4> in_shape = {{ 1, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240.,
+      26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608.,
+      23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.};
+  const std::array<int, 4> in_shape = {{1, 8, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1024,8 +1361,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x8x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3008.,  5100.,  5720.,  3404.,  5890.,  9600., 10250.,  5920.,  8830., 14150., 14800.,  8440., 11770., 18700., 19350., 10960.,  4914.,  7460.,  7700.,  4122.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {3008.,  5100.,  5720.,  3404.,  5890.,
+                                         9600.,  10250., 5920.,  8830.,  14150.,
+                                         14800., 8440.,  11770., 18700., 19350.,
+                                         10960., 4914.,  7460.,  7700.,  4122.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -1033,8 +1373,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7325.,  7975., 11875., 12525., 16425., 17075.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {7325.,  7975.,  11875.,
+                                         12525., 16425., 17075.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -1042,8 +1383,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5866.,  6016.,  9930., 10200., 11130., 11440.,  6610.,  6808., 11435., 11780., 18600., 19200., 19850., 20500., 11435., 11840., 17105., 17660., 27350., 28300., 28600., 29600., 16265., 16880., 16631., 17268., 24324., 25368., 22950., 23980., 12839., 13472.,  5722.,  6116.,  7379.,  8008.,  6485.,  7080.,  3270.,  3636.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      5866.,  6016.,  9930.,  10200., 11130., 11440., 6610.,  6808.,
+      11435., 11780., 18600., 19200., 19850., 20500., 11435., 11840.,
+      17105., 17660., 27350., 28300., 28600., 29600., 16265., 16880.,
+      16631., 17268., 24324., 25368., 22950., 23980., 12839., 13472.,
+      5722.,  6116.,  7379.,  8008.,  6485.,  7080.,  3270.,  3636.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1051,8 +1397,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5585., 5978., 5363., 5742., 6335., 6758., 5345., 5754., 5293., 5746., 5583., 6022.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {5585., 5978., 5363., 5742.,
+                                         6335., 6758., 5345., 5754.,
+                                         5293., 5746., 5583., 6022.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1060,8 +1408,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4094.,  4244.,  4394.,  4544.,  7430.,  7700.,  7970.,  8240.,  8638.,  8948.,  9258.,  9568.,  5214.,  5412.,  5610.,  5808.,  9661., 10006., 10351., 10696., 16376., 16976., 17576., 18176., 17674., 18324., 18974., 19624., 10177., 10582., 10987., 11392., 15415., 15970., 16525., 17080., 25462., 26412., 27362., 28312., 26760., 27760., 28760., 29760., 15147., 15762., 16377., 16992., 17201., 17838., 18475., 19112., 27636., 28680., 29724., 30768., 27846., 28876., 29906., 30936., 16085., 16718., 17351., 17984., 11050., 11444., 11838., 12232., 14129., 14758., 15387., 16016., 12375., 12970., 13565., 14160.,  6174.,  6540.,  6906.,  7272.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      4094.,  4244.,  4394.,  4544.,  7430.,  7700.,  7970.,  8240.,  8638.,
+      8948.,  9258.,  9568.,  5214.,  5412.,  5610.,  5808.,  9661.,  10006.,
+      10351., 10696., 16376., 16976., 17576., 18176., 17674., 18324., 18974.,
+      19624., 10177., 10582., 10987., 11392., 15415., 15970., 16525., 17080.,
+      25462., 26412., 27362., 28312., 26760., 27760., 28760., 29760., 15147.,
+      15762., 16377., 16992., 17201., 17838., 18475., 19112., 27636., 28680.,
+      29724., 30768., 27846., 28876., 29906., 30936., 16085., 16718., 17351.,
+      17984., 11050., 11444., 11838., 12232., 14129., 14758., 15387., 16016.,
+      12375., 12970., 13565., 14160., 6174.,  6540.,  6906.,  7272.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1069,8 +1426,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6585., 6978., 7371., 7764., 5579., 5958., 6337., 6716., 6071., 6494., 6917., 7340., 5577., 5986., 6395., 6804., 6069., 6522., 6975., 7428., 6087., 6526., 6965., 7404.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      6585., 6978., 7371., 7764., 5579., 5958., 6337., 6716.,
+      6071., 6494., 6917., 7340., 5577., 5986., 6395., 6804.,
+      6069., 6522., 6975., 7428., 6087., 6526., 6965., 7404.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1078,8 +1438,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5140., 10252., 10716.,  6500.,  6953., 11007., 11627.,  5597.,  6437., 10803., 11007.,  6169.,  5537.,  9863., 10803.,  6453.,  4227.,  6261.,  6745.,  3903.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {5140.,  10252., 10716., 6500., 6953.,
+                                         11007., 11627., 5597.,  6437., 10803.,
+                                         11007., 6169.,  5537.,  9863., 10803.,
+                                         6453.,  4227.,  6261.,  6745., 3903.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1087,8 +1450,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11141.,  9201., 13177., 11141., 13101., 13177.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {11141., 9201.,  13177.,
+                                         11141., 13101., 13177.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1096,8 +1460,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5020.,  5352.,  9492., 10040., 10132., 10712.,  7356.,  7752.,  7933.,  8466., 13015., 13854., 12007., 12790.,  6517.,  6970.,  6445.,  6922., 12871., 13702., 13015., 13854.,  6629.,  7090.,  6237.,  6658., 11319., 12078., 12871., 13702.,  8149.,  8682.,  3271.,  3494.,  5829.,  6218.,  6997.,  7442.,  5679.,  5982.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5020., 5352., 9492.,  10040., 10132., 10712., 7356., 7752.,
+      7933., 8466., 13015., 13854., 12007., 12790., 6517., 6970.,
+      6445., 6922., 12871., 13702., 13015., 13854., 6629., 7090.,
+      6237., 6658., 11319., 12078., 12871., 13702., 8149., 8682.,
+      3271., 3494., 5829.,  6218.,  6997.,  7442.,  5679., 5982.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1105,8 +1474,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994., 13439., 14330., 13327., 14226.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906.,
+                                         13327., 14226., 13215., 13994.,
+                                         13439., 14330., 13327., 14226.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1114,8 +1485,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,  9096.,  9676., 10256.,  5868.,  6264.,  6660.,  7056.,  8517.,  9050.,  9583., 10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637., 13420.,  6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820., 12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524.,  6397.,  6858.,  7319.,  7780.,  6773.,  7194.,  7615.,  8036., 10743., 11502., 12261., 13020., 12751., 13582., 14413., 15244.,  7317.,  7850.,  8383.,  8916.,  2383.,  2606.,  2829.,  3052.,  5733.,  6122.,  6511.,  6900.,  6221.,  6666.,  7111.,  7556.,  5039.,  5342.,  5645.,  5948.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,
+      9096.,  9676.,  10256., 5868.,  6264.,  6660.,  7056.,  8517.,  9050.,
+      9583.,  10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637.,
+      13420., 6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820.,
+      12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524., 6397.,
+      6858.,  7319.,  7780.,  6773.,  7194.,  7615.,  8036.,  10743., 11502.,
+      12261., 13020., 12751., 13582., 14413., 15244., 7317.,  7850.,  8383.,
+      8916.,  2383.,  2606.,  2829.,  3052.,  5733.,  6122.,  6511.,  6900.,
+      6221.,  6666.,  7111.,  7556.,  5039.,  5342.,  5645.,  5948.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1123,8 +1503,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316., 13315., 14206., 15097., 15988., 12059., 12958., 13857., 14756.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.,
+      13315., 14206., 15097., 15988., 12059., 12958., 13857., 14756.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1132,8 +1515,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178., 29398., 27622., 16010., 12842., 24070., 29398., 19674.,  5814., 10970., 17098., 12870.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11912., 19448., 18680., 15560., 19850., 27622., 23158.,
+      12154., 17178., 29398., 27622., 16010., 12842., 24070.,
+      29398., 19674., 5814.,  10970., 17098., 12870.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1141,8 +1527,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254., 25710., 30718.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {26254., 24478., 30718.,
+                                         26254., 25710., 30718.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1150,8 +1537,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124., 12446., 13204., 23266., 24844., 29538., 31404., 17150., 18356.,  4034.,  4396., 11774., 12532., 16510., 17620., 13410., 14220.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224.,
+      19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508.,
+      17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124.,
+      12446., 13204., 23266., 24844., 29538., 31404., 17150., 18356.,
+      4034.,  4396.,  11774., 12532., 16510., 17620., 13410., 14220.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1159,8 +1551,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164., 28450., 30172., 30114., 31996.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612.,
+                                         30114., 31996., 25634., 27164.,
+                                         28450., 30172., 30114., 31996.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1168,8 +1562,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696., 10310., 11068., 11826., 12584., 22682., 24260., 25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724., 18930., 20136.,  4378.,  4740.,  5102.,  5464., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 11610., 12420., 13230., 14040.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552.,
+      17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724.,
+      18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350.,
+      23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688.,
+      26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942.,
+      12860., 13778., 14696., 10310., 11068., 11826., 12584., 22682., 24260.,
+      25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724., 18930.,
+      20136., 4378.,  4740.,  5102.,  5464.,  10310., 11068., 11826., 12584.,
+      16358., 17468., 18578., 19688., 11610., 12420., 13230., 14040.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1177,8 +1580,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.,
+      6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.,
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.};
+  const std::array<int, 4> in_shape = {{1, 10, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -1186,8 +1592,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4532.,  6000.,  6620.,  3914.,  8780., 11150., 11800.,  6790., 13100., 16350., 17000.,  9670., 17420., 21550., 22200., 12550.,  7118.,  8590.,  8830.,  4719.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {4532.,  6000.,  6620.,  3914.,  8780.,
+                                         11150., 11800., 6790.,  13100., 16350.,
+                                         17000., 9670.,  17420., 21550., 22200.,
+                                         12550., 7118.,  8590.,  8830.,  4719.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -1195,8 +1604,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8225.,  8875., 13425., 14075., 18625., 19275.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {8225.,  8875.,  13425.,
+                                         14075., 18625., 19275.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -1204,8 +1614,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 1918., 2076., 2560., 2780., 3010., 3260., 1599., 1758.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144.,
+      6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756.,
+      5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408.,
+      3899., 4172., 1918., 2076., 2560., 2780., 3010., 3260., 1599., 1758.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1213,8 +1627,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150., 21575., 22530., 22825., 23830.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750.,
+                                         25975., 26850., 27225., 28150.,
+                                         21575., 22530., 22825., 23830.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1222,8 +1638,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 2110., 2268., 2426., 2584., 2628., 2848., 3068., 3288., 3050., 3300., 3550., 3800., 1599., 1758., 1917., 2076.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016.,
+      6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264.,
+      5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630.,
+      4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704.,
+      7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716.,
+      4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872.,
+      4357., 4630., 4903., 5176., 2110., 2268., 2426., 2584., 2628., 2848.,
+      3068., 3288., 3050., 3300., 3550., 3800., 1599., 1758., 1917., 2076.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1231,8 +1655,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692., 26003., 26958., 27913., 28868., 27301., 28306., 29311., 30316.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.,
+      26003., 26958., 27913., 28868., 27301., 28306., 29311., 30316.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1240,8 +1667,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {7648.,  11144., 13720., 8216.,  8756.,
+                                         12519., 15315., 8853.,  8756.,  12519.,
+                                         15315., 8853.,  8756.,  12519., 15315.,
+                                         8853.,  6132.,  8695.,  10555., 5925.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1249,8 +1679,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8065., 10861.,  8065., 10861.,  8065., 10861.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {8065.,  10861., 8065.,
+                                         10861., 8065.,  10861.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1258,8 +1689,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7312., 7712., 10820., 11440., 13508., 14288., 9516.,  10032.,
+      9364., 9928., 13335., 14190., 16423., 17478., 10613., 11306.,
+      9364., 9928., 13335., 14190., 16423., 17478., 10613., 11306.,
+      9364., 9928., 13335., 14190., 16423., 17478., 10613., 11306.,
+      5820., 6184., 7981.,  8526.,  9789.,  10454., 5751.,  6186.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1267,8 +1703,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {8911., 9506., 11999., 12794.,
+                                         8911., 9506., 11999., 12794.,
+                                         8911., 9506., 11999., 12794.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1276,8 +1714,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      6032.,  6432.,  6832.,  7232.,  9084.,  9704.,  10324., 10944., 11484.,
+      12264., 13044., 13824., 7508.,  8024.,  8540.,  9056.,  8468.,  9032.,
+      9596.,  10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133.,
+      18188., 9525.,  10218., 10911., 11604., 8468.,  9032.,  9596.,  10160.,
+      12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188., 9525.,
+      10218., 10911., 11604., 8468.,  9032.,  9596.,  10160., 12119., 12974.,
+      13829., 14684., 15023., 16078., 17133., 18188., 9525.,  10218., 10911.,
+      11604., 5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,
+      9409.,  10074., 10739., 11404., 6459.,  6894.,  7329.,  7764.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1285,8 +1732,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1294,8 +1744,10 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790.,
+      7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1303,8 +1755,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230., 16478., 29230.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {16478., 29230., 16478.,
+                                         29230., 16478., 29230.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1312,8 +1765,12 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308.,
+      7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620.,
+      5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1321,8 +1778,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068.,
+                                         16802., 17852., 29218., 31068.,
+                                         16802., 17852., 29218., 31068.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1330,8 +1789,16 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4128., 4672., 5216., 5760.,  4936., 5584., 6232., 6880.,  5832., 6608.,
+      7384., 8160., 3768., 4272.,  4776., 5280., 5160., 5840.,  6520., 7200.,
+      6170., 6980., 7790., 8600.,  7290., 8260., 9230., 10200., 4710., 5340.,
+      5970., 6600., 5160., 5840.,  6520., 7200., 6170., 6980.,  7790., 8600.,
+      7290., 8260., 9230., 10200., 4710., 5340., 5970., 6600.,  5160., 5840.,
+      6520., 7200., 6170., 6980.,  7790., 8600., 7290., 8260.,  9230., 10200.,
+      4710., 5340., 5970., 6600.,  3096., 3504., 3912., 4320.,  3702., 4188.,
+      4674., 5160., 4374., 4956.,  5538., 6120., 2826., 3204.,  3582., 3960.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1339,8 +1806,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.,
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.,
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
+  const std::array<int, 4> in_shape = {{1, 10, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -1348,8 +1818,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5500.,  7180.,  7800.,  8420.,  4934., 10800., 13600., 14250., 14900.,  8530., 16200., 20100., 20750., 21400., 12130., 21600., 26600., 27250., 27900., 15730.,  8830., 10610., 10850., 11090.,  5913.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      5500.,  7180.,  7800.,  8420.,  4934.,  10800., 13600., 14250., 14900.,
+      8530.,  16200., 20100., 20750., 21400., 12130., 21600., 26600., 27250.,
+      27900., 15730., 8830.,  10610., 10850., 11090., 5913.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 2048.0;
@@ -1357,8 +1830,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10025., 10675., 11325., 16525., 17175., 17825., 23025., 23675., 24325.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {10025., 10675., 11325., 16525., 17175.,
+                                         17825., 23025., 23675., 24325.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 2048.0;
@@ -1366,8 +1840,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840.,  9580.,  9868., 20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800., 16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750., 16560.,  8783.,  9284., 14102., 14784., 15446., 16208., 14904., 15588., 15450., 16120.,  8771.,  9188.,  4382.,  4604.,  5560.,  5860.,  6010.,  6340.,  6460.,  6820.,  3537.,  3762.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840., 9580.,
+      9868.,  20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800.,
+      16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750.,
+      16560., 8783.,  9284.,  14102., 14784., 15446., 16208., 14904., 15588.,
+      15450., 16120., 8771.,  9188.,  4382.,  4604.,  5560.,  5860.,  6010.,
+      6340.,  6460.,  6820.,  3537.,  3762.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1375,8 +1855,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201., 25134., 20075., 20930., 17019., 17890., 14941., 15734., 13375., 14090.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201.,
+      25134., 20075., 20930., 17019., 17890., 14941., 15734., 13375., 14090.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1384,8 +1866,20 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7080.,  7360.,  7640.,  7920., 10428., 10808., 11188., 11568., 11636., 12056., 12476., 12896., 12844., 13304., 13764., 14224.,  7608.,  7896.,  8184.,  8472., 16930., 17580., 18230., 18880., 23178., 24028., 24878., 25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624., 14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750., 27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868., 26678., 27488., 13481., 13982., 14483., 14984., 15490., 16172., 16854., 17536., 15282., 16044., 16806., 17568., 13124., 13808., 14492., 15176., 13078., 13748., 14418., 15088.,  7141.,  7558.,  7975.,  8392.,  8542.,  8764.,  8986.,  9208., 10820., 11120., 11420., 11720., 11690., 12020., 12350., 12680., 12560., 12920., 13280., 13640.,  6849.,  7074.,  7299.,  7524.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      7080.,  7360.,  7640.,  7920.,  10428., 10808., 11188., 11568., 11636.,
+      12056., 12476., 12896., 12844., 13304., 13764., 14224., 7608.,  7896.,
+      8184.,  8472.,  16930., 17580., 18230., 18880., 23178., 24028., 24878.,
+      25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624.,
+      14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750.,
+      27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868.,
+      26678., 27488., 13481., 13982., 14483., 14984., 15490., 16172., 16854.,
+      17536., 15282., 16044., 16806., 17568., 13124., 13808., 14492., 15176.,
+      13078., 13748., 14418., 15088., 7141.,  7558.,  7975.,  8392.,  8542.,
+      8764.,  8986.,  9208.,  10820., 11120., 11420., 11720., 11690., 12020.,
+      12350., 12680., 12560., 12920., 13280., 13640., 6849.,  7074.,  7299.,
+      7524.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1393,8 +1887,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180., 24655., 25526., 26397., 27268., 19425., 20218., 21011., 21804., 15219., 15934., 16649., 17364.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635.,
+      19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682.,
+      26615., 27548., 23615., 24470., 25325., 26180., 24655., 25526., 26397.,
+      27268., 19425., 20218., 21011., 21804., 15219., 15934., 16649., 17364.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1402,8 +1900,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8064., 10864.,  9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,  7653.,  8260., 11939., 14319., 12731.,  6861., 10916., 12731., 11559., 12019.,  6997.,  6772.,  9495.,  7707.,  6431.,  2865.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8064.,  10864., 9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,
+      7653.,  8260.,  11939., 14319., 12731., 6861., 10916., 12731., 11559.,
+      12019., 6997.,  6772.,  9495.,  7707.,  6431., 2865.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1411,8 +1912,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357., 10921., 10921., 10325.,  9633.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357.,
+                                         10921., 10921., 10325., 9633.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1420,8 +1922,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8336.,  8800.,  9764., 10368.,  8228.,  8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114., 11284., 11944., 15815., 16662., 13271., 14062., 11879., 12678.,  6837.,  7338.,  6076.,  6440.,  8301.,  8846.,  7037.,  7574.,  6797.,  7326.,  4359.,  4674.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8336.,  8800.,  9764., 10368., 8228.,  8800.,  8868.,  9472.,  6924.,
+      7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542.,
+      10229., 10698., 9492., 10216., 12711., 13542., 15159., 15998., 15815.,
+      16662., 8597.,  9114., 11284., 11944., 15815., 16662., 13271., 14062.,
+      11879., 12678., 6837., 7338.,  6076.,  6440.,  8301.,  8846.,  7037.,
+      7574.,  6797.,  7326., 4359.,  4674.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1429,8 +1937,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378., 10607., 11378., 11135., 11978., 11535., 12386.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743.,
+      12506., 10607., 11378., 10607., 11378., 11135., 11978., 11535., 12386.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1438,8 +1948,20 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988., 10592.,  9068.,  9640., 10212., 10784.,  9548., 10152., 10756., 11360.,  5540.,  5912.,  6284.,  6656.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  9908., 10568., 11228., 11888., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404., 11311., 12110., 12909., 13708.,  7285.,  7786.,  8287.,  8788.,  5324.,  5688.,  6052.,  6416.,  7833.,  8378.,  8923.,  9468.,  7617.,  8154.,  8691.,  9228.,  7401.,  7930.,  8459.,  8988.,  4563.,  4878.,  5193.,  5508.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988.,  10592., 9068.,
+      9640.,  10212., 10784., 9548.,  10152., 10756., 11360., 5540.,  5912.,
+      6284.,  6656.,  9908.,  10568., 11228., 11888., 13087., 13966., 14845.,
+      15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,
+      7957.,  8426.,  8895.,  9364.,  10868., 11592., 12316., 13040., 10895.,
+      11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838.,
+      14685., 15532., 6693.,  7210.,  7727.,  8244.,  9908.,  10568., 11228.,
+      11888., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,
+      11311., 12110., 12909., 13708., 7285.,  7786.,  8287.,  8788.,  5324.,
+      5688.,  6052.,  6416.,  7833.,  8378.,  8923.,  9468.,  7617.,  8154.,
+      8691.,  9228.,  7401.,  7930.,  8459.,  8988.,  4563.,  4878.,  5193.,
+      5508.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1447,8 +1969,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523.,
+      13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326.,
+      12089., 12852., 11355., 12126., 12897., 13668., 11355., 12126., 12897.,
+      13668., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1456,8 +1982,11 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310., 24534., 18650.,  9928., 15602., 16482., 18578.,  7998.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534.,
+      18650., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310.,
+      24534., 18650., 9928.,  15602., 16482., 18578., 7998.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1465,8 +1994,9 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214.,
+                                         23998., 23998., 26446., 29086.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1474,8 +2004,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140., 16830., 17924., 17982., 19044.,  8482.,  9084.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512.,
+      12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724.,
+      17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050.,
+      31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276.,
+      22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140., 16830.,
+      17924., 17982., 19044., 8482.,  9084.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1483,8 +2019,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538.,
+      23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1492,8 +2030,20 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576.,  9944., 10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,  9130.,  9732., 10334., 10936.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192.,
+      22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936.,
+      14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902.,
+      31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736.,
+      14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906.,
+      24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100.,
+      29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584.,
+      23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744.,
+      22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 9944.,
+      10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084.,
+      18178., 19272., 15254., 16316., 17378., 18440., 9130.,  9732.,  10334.,
+      10936.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1501,8 +2051,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME1x10x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.};
-  const std::array<int, 4> in_shape = {{ 1, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538.,
+      28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412.,
+      27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142.,
+      27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.};
+  const std::array<int, 4> in_shape = {{1, 10, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1510,8 +2064,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID1x10x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1755.,  3080.,  3620.,  2205.,  4420.,  7325.,  7975.,  4660.,  7360., 11875., 12525.,  7180.,  3213.,  4940.,  5180.,  2799., 10134., 16310., 16850.,  9702., 14710., 23250., 23900., 13480., 17650., 27800., 28450., 16000.,  7182., 10820., 11060.,  5886., 18513., 29540., 30080., 17199., 21800., 29959., 25105., 13852.,  9508., 12109.,  9815.,  5236.,  1679.,  1724.,  1580.,   909.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      1755.,  3080.,  3620.,  2205.,  4420.,  7325.,  7975.,  4660.,
+      7360.,  11875., 12525., 7180.,  3213.,  4940.,  5180.,  2799.,
+      10134., 16310., 16850., 9702.,  14710., 23250., 23900., 13480.,
+      17650., 27800., 28450., 16000., 7182.,  10820., 11060., 5886.,
+      18513., 29540., 30080., 17199., 21800., 29959., 25105., 13852.,
+      9508.,  12109., 9815.,  5236.,  1679.,  1724.,  1580.,  909.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 128.0;
@@ -1519,8 +2079,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7325.,  7975., 11875., 12525., 23250., 23900., 27800., 28450., 29959., 25105., 12109.,  9815.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {7325.,  7975.,  11875., 12525.,
+                                         23250., 23900., 27800., 28450.,
+                                         29959., 25105., 12109., 9815.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 128.0;
@@ -1528,8 +2090,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3429.,  3510.,  6010.,  6160.,  7060.,  7240.,  4293.,  4410.,  8600.,  8840., 14225., 14650., 15475., 15950.,  9020.,  9320., 14270., 14720., 22975., 23750., 24225., 25050., 13850., 14360.,  6093.,  6426.,  9310.,  9880.,  9760., 10360.,  5229.,  5598., 13602., 13996., 19959., 20588., 18385., 18980., 10590., 10956.,  8733.,  9196., 12594., 13348., 12500., 13240.,  6917.,  7376.,  8515.,  8804., 13664., 14128., 14850., 15300.,  8675.,  8960.,  3798.,  3996.,  5935.,  6280.,  6385.,  6760.,  3474.,  3708., 14751., 15138., 23860., 24520., 24910., 25600., 14391., 14814., 19234., 19920., 26451., 27534., 22325., 23330., 12494., 13112., 10056., 10568., 13441., 14234., 11875., 12590.,  6572.,  7016.,  2271.,  2462.,  2816.,  3064.,  3010.,  3160.,  1719.,  1818.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      3429.,  3510.,  6010.,  6160.,  7060.,  7240.,  4293.,  4410.,  8600.,
+      8840.,  14225., 14650., 15475., 15950., 9020.,  9320.,  14270., 14720.,
+      22975., 23750., 24225., 25050., 13850., 14360., 6093.,  6426.,  9310.,
+      9880.,  9760.,  10360., 5229.,  5598.,  13602., 13996., 19959., 20588.,
+      18385., 18980., 10590., 10956., 8733.,  9196.,  12594., 13348., 12500.,
+      13240., 6917.,  7376.,  8515.,  8804.,  13664., 14128., 14850., 15300.,
+      8675.,  8960.,  3798.,  3996.,  5935.,  6280.,  6385.,  6760.,  3474.,
+      3708.,  14751., 15138., 23860., 24520., 24910., 25600., 14391., 14814.,
+      19234., 19920., 26451., 27534., 22325., 23330., 12494., 13112., 10056.,
+      10568., 13441., 14234., 11875., 12590., 6572.,  7016.,  2271.,  2462.,
+      2816.,  3064.,  3010.,  3160.,  1719.,  1818.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1537,8 +2110,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {14225., 14650., 15475., 15950., 22975., 23750., 24225., 25050., 12594., 13348., 12500., 13240., 13664., 14128., 14850., 15300., 26451., 27534., 22325., 23330., 13441., 14234., 11875., 12590.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      14225., 14650., 15475., 15950., 22975., 23750., 24225., 25050.,
+      12594., 13348., 12500., 13240., 13664., 14128., 14850., 15300.,
+      26451., 27534., 22325., 23330., 13441., 14234., 11875., 12590.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1546,8 +2122,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 1977.,  2058.,  2139.,  2220.,  3742.,  3892.,  4042.,  4192.,  4660.,  4840.,  5020.,  5200.,  2901.,  3018.,  3135.,  3252.,  6784.,  7024.,  7264.,  7504., 11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556.,  7692.,  7992.,  8292.,  8592., 12538., 12988., 13438., 13888., 20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692., 12662., 13172., 13682., 14192., 11853., 12186., 12519., 12852., 18050., 18620., 19190., 19760., 18920., 19520., 20120., 20720., 10089., 10458., 10827., 11196., 11386., 11780., 12174., 12568., 19321., 19950., 20579., 21208., 19151., 19746., 20341., 20936., 11854., 12220., 12586., 12952., 12587., 13050., 13513., 13976., 16882., 17636., 18390., 19144., 15556., 16296., 17036., 17776.,  8127.,  8586.,  9045.,  9504.,  6949.,  7238.,  7527.,  7816., 11248., 11712., 12176., 12640., 12482., 12932., 13382., 13832.,  7337.,  7622.,  7907.,  8192.,  7398.,  7596.,  7794.,  7992., 11525., 11870., 12215., 12560., 12395., 12770., 13145., 13520.,  6714.,  6948.,  7182.,  7416., 11259., 11646., 12033., 12420., 19348., 20008., 20668., 21328., 20266., 20956., 21646., 22336., 11911., 12334., 12757., 13180., 18646., 19332., 20018., 20704., 28331., 29414., 30497., 31580., 27197., 28202., 29207., 30212., 15730., 16348., 16966., 17584., 15568., 16080., 16592., 17104., 19113., 19906., 20699., 21492., 14907., 15622., 16337., 17052.,  7772.,  8216.,  8660.,  9104.,  4351.,  4542.,  4733.,  4924.,  5384.,  5632.,  5880.,  6128.,  5870.,  6020.,  6170.,  6320.,  3339.,  3438.,  3537.,  3636.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      1977.,  2058.,  2139.,  2220.,  3742.,  3892.,  4042.,  4192.,  4660.,
+      4840.,  5020.,  5200.,  2901.,  3018.,  3135.,  3252.,  6784.,  7024.,
+      7264.,  7504.,  11833., 12258., 12683., 13108., 13131., 13606., 14081.,
+      14556., 7692.,  7992.,  8292.,  8592.,  12538., 12988., 13438., 13888.,
+      20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692., 12662.,
+      13172., 13682., 14192., 11853., 12186., 12519., 12852., 18050., 18620.,
+      19190., 19760., 18920., 19520., 20120., 20720., 10089., 10458., 10827.,
+      11196., 11386., 11780., 12174., 12568., 19321., 19950., 20579., 21208.,
+      19151., 19746., 20341., 20936., 11854., 12220., 12586., 12952., 12587.,
+      13050., 13513., 13976., 16882., 17636., 18390., 19144., 15556., 16296.,
+      17036., 17776., 8127.,  8586.,  9045.,  9504.,  6949.,  7238.,  7527.,
+      7816.,  11248., 11712., 12176., 12640., 12482., 12932., 13382., 13832.,
+      7337.,  7622.,  7907.,  8192.,  7398.,  7596.,  7794.,  7992.,  11525.,
+      11870., 12215., 12560., 12395., 12770., 13145., 13520., 6714.,  6948.,
+      7182.,  7416.,  11259., 11646., 12033., 12420., 19348., 20008., 20668.,
+      21328., 20266., 20956., 21646., 22336., 11911., 12334., 12757., 13180.,
+      18646., 19332., 20018., 20704., 28331., 29414., 30497., 31580., 27197.,
+      28202., 29207., 30212., 15730., 16348., 16966., 17584., 15568., 16080.,
+      16592., 17104., 19113., 19906., 20699., 21492., 14907., 15622., 16337.,
+      17052., 7772.,  8216.,  8660.,  9104.,  4351.,  4542.,  4733.,  4924.,
+      5384.,  5632.,  5880.,  6128.,  5870.,  6020.,  6170.,  6320.,  3339.,
+      3438.,  3537.,  3636.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1555,8 +2153,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556., 20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692., 16882., 17636., 18390., 19144., 15556., 16296., 17036., 17776., 11248., 11712., 12176., 12640., 12482., 12932., 13382., 13832., 28331., 29414., 30497., 31580., 27197., 28202., 29207., 30212., 19113., 19906., 20699., 21492., 14907., 15622., 16337., 17052.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556.,
+      20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692.,
+      16882., 17636., 18390., 19144., 15556., 16296., 17036., 17776.,
+      11248., 11712., 12176., 12640., 12482., 12932., 13382., 13832.,
+      28331., 29414., 30497., 31580., 27197., 28202., 29207., 30212.,
+      19113., 19906., 20699., 21492., 14907., 15622., 16337., 17052.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1564,8 +2168,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3017.,  4871.,  5483.,  3925.,  8395., 11141.,  9201.,  5135.,  9351., 13177., 11141.,  4939.,  6165.,  9547.,  8687.,  4353.,  2607.,  5113.,  6461.,  4491.,  7517., 10043.,  9863.,  5905.,  9753., 12591., 10043.,  4973.,  6795.,  9997.,  7633.,  3335.,  2325.,  5483.,  7439.,  5057.,  5647.,  9201., 10653.,  6675.,  8395., 11141.,  9201.,  5135.,  6817.,  8687.,  6835.,  2445.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      3017., 4871.,  5483.,  3925., 8395., 11141., 9201.,  5135.,
+      9351., 13177., 11141., 4939., 6165., 9547.,  8687.,  4353.,
+      2607., 5113.,  6461.,  4491., 7517., 10043., 9863.,  5905.,
+      9753., 12591., 10043., 4973., 6795., 9997.,  7633.,  3335.,
+      2325., 5483.,  7439.,  5057., 5647., 9201.,  10653., 6675.,
+      8395., 11141., 9201.,  5135., 6817., 8687.,  6835.,  2445.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1573,8 +2183,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11141.,  9201., 13177., 11141., 10043.,  9863., 12591., 10043.,  9201., 10653., 11141.,  9201.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {11141., 9201.,  13177., 11141.,
+                                         10043., 9863.,  12591., 10043.,
+                                         9201.,  10653., 11141., 9201.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1582,8 +2194,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5015.,  5266.,  6245.,  6638.,  5685.,  6070.,  3871.,  4138.,  8037.,  8534., 13215., 13994., 11183., 11906.,  7165.,  7582.,  9365.,  9934., 13327., 14226., 13215., 13994.,  7789.,  8214.,  6111.,  6474.,  8477.,  9078.,  7085.,  7614.,  4455.,  4706.,  3711.,  3934.,  5837.,  6226.,  6685.,  7130.,  4455.,  4758.,  7565.,  8058., 11943., 12694., 11319., 12078.,  8133.,  8610.,  9405.,  9970., 13079., 13950., 11943., 12694.,  7349.,  7770.,  6695.,  7094.,  8485.,  9082.,  6197.,  6658.,  4111.,  4334.,  2663.,  2858.,  5685.,  6070.,  7685.,  8190.,  5039.,  5378.,  7221.,  7646., 11183., 11906., 11711., 12506.,  9101.,  9638.,  8037.,  8534., 13215., 13994., 11183., 11906.,  7165.,  7582.,  6127.,  6498.,  7085.,  7614.,  5821.,  6214.,  4023.,  4218.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5015.,  5266.,  6245.,  6638.,  5685.,  6070.,  3871.,  4138.,  8037.,
+      8534.,  13215., 13994., 11183., 11906., 7165.,  7582.,  9365.,  9934.,
+      13327., 14226., 13215., 13994., 7789.,  8214.,  6111.,  6474.,  8477.,
+      9078.,  7085.,  7614.,  4455.,  4706.,  3711.,  3934.,  5837.,  6226.,
+      6685.,  7130.,  4455.,  4758.,  7565.,  8058.,  11943., 12694., 11319.,
+      12078., 8133.,  8610.,  9405.,  9970.,  13079., 13950., 11943., 12694.,
+      7349.,  7770.,  6695.,  7094.,  8485.,  9082.,  6197.,  6658.,  4111.,
+      4334.,  2663.,  2858.,  5685.,  6070.,  7685.,  8190.,  5039.,  5378.,
+      7221.,  7646.,  11183., 11906., 11711., 12506., 9101.,  9638.,  8037.,
+      8534.,  13215., 13994., 11183., 11906., 7165.,  7582.,  6127.,  6498.,
+      7085.,  7614.,  5821.,  6214.,  4023.,  4218.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1591,8 +2214,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994., 11943., 12694., 11319., 12078., 13079., 13950., 11943., 12694., 11183., 11906., 11711., 12506., 13215., 13994., 11183., 11906.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994.,
+      11943., 12694., 11319., 12078., 13079., 13950., 11943., 12694.,
+      11183., 11906., 11711., 12506., 13215., 13994., 11183., 11906.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1600,8 +2226,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5203.,  5454.,  5705.,  5956.,  5441.,  5834.,  6227.,  6620.,  6377.,  6762.,  7147.,  7532.,  3667.,  3934.,  4201.,  4468.,  6841.,  7338.,  7835.,  8332., 12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164.,  6489.,  6906.,  7323.,  7740.,  9169.,  9738., 10307., 10876., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.,  5681.,  6106.,  6531.,  6956.,  4979.,  5342.,  5705.,  6068.,  9153.,  9754., 10355., 10956.,  6697.,  7226.,  7755.,  8284.,  5203.,  5454.,  5705.,  5956.,  4031.,  4254.,  4477.,  4700.,  5653.,  6042.,  6431.,  6820.,  7293.,  7738.,  8183.,  8628.,  4159.,  4462.,  4765.,  5068.,  7053.,  7546.,  8039.,  8532., 10975., 11726., 12477., 13228., 10743., 11502., 12261., 13020.,  7341.,  7818.,  8295.,  8772.,  8357.,  8922.,  9487., 10052., 12103., 12974., 13845., 14716., 10975., 11726., 12477., 13228.,  5829.,  6250.,  6671.,  7092.,  5471.,  5870.,  6269.,  6668.,  8277.,  8874.,  9471., 10068.,  6141.,  6602.,  7063.,  7524.,  4031.,  4254.,  4477.,  4700.,  3371.,  3566.,  3761.,  3956.,  6377.,  6762.,  7147.,  7532.,  8209.,  8714.,  9219.,  9724.,  4651.,  4990.,  5329.,  5668.,  7585.,  8010.,  8435.,  8860.,  9995., 10718., 11441., 12164., 12003., 12798., 13593., 14388.,  8193.,  8730.,  9267.,  9804.,  6841.,  7338.,  7835.,  8332., 12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164.,  6489.,  6906.,  7323.,  7740.,  5771.,  6142.,  6513.,  6884.,  6697.,  7226.,  7755.,  8284.,  6609.,  7002.,  7395.,  7788.,  3371.,  3566.,  3761.,  3956.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5203.,  5454.,  5705.,  5956.,  5441.,  5834.,  6227.,  6620.,  6377.,
+      6762.,  7147.,  7532.,  3667.,  3934.,  4201.,  4468.,  6841.,  7338.,
+      7835.,  8332.,  12979., 13758., 14537., 15316., 9995.,  10718., 11441.,
+      12164., 6489.,  6906.,  7323.,  7740.,  9169.,  9738.,  10307., 10876.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316., 5681.,
+      6106.,  6531.,  6956.,  4979.,  5342.,  5705.,  6068.,  9153.,  9754.,
+      10355., 10956., 6697.,  7226.,  7755.,  8284.,  5203.,  5454.,  5705.,
+      5956.,  4031.,  4254.,  4477.,  4700.,  5653.,  6042.,  6431.,  6820.,
+      7293.,  7738.,  8183.,  8628.,  4159.,  4462.,  4765.,  5068.,  7053.,
+      7546.,  8039.,  8532.,  10975., 11726., 12477., 13228., 10743., 11502.,
+      12261., 13020., 7341.,  7818.,  8295.,  8772.,  8357.,  8922.,  9487.,
+      10052., 12103., 12974., 13845., 14716., 10975., 11726., 12477., 13228.,
+      5829.,  6250.,  6671.,  7092.,  5471.,  5870.,  6269.,  6668.,  8277.,
+      8874.,  9471.,  10068., 6141.,  6602.,  7063.,  7524.,  4031.,  4254.,
+      4477.,  4700.,  3371.,  3566.,  3761.,  3956.,  6377.,  6762.,  7147.,
+      7532.,  8209.,  8714.,  9219.,  9724.,  4651.,  4990.,  5329.,  5668.,
+      7585.,  8010.,  8435.,  8860.,  9995.,  10718., 11441., 12164., 12003.,
+      12798., 13593., 14388., 8193.,  8730.,  9267.,  9804.,  6841.,  7338.,
+      7835.,  8332.,  12979., 13758., 14537., 15316., 9995.,  10718., 11441.,
+      12164., 6489.,  6906.,  7323.,  7740.,  5771.,  6142.,  6513.,  6884.,
+      6697.,  7226.,  7755.,  8284.,  6609.,  7002.,  7395.,  7788.,  3371.,
+      3566.,  3761.,  3956.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1609,8 +2257,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316., 10975., 11726., 12477., 13228., 10743., 11502., 12261., 13020., 12103., 12974., 13845., 14716., 10975., 11726., 12477., 13228.,  9995., 10718., 11441., 12164., 12003., 12798., 13593., 14388., 12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.,
+      10975., 11726., 12477., 13228., 10743., 11502., 12261., 13020.,
+      12103., 12974., 13845., 14716., 10975., 11726., 12477., 13228.,
+      9995.,  10718., 11441., 12164., 12003., 12798., 13593., 14388.,
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1618,8 +2272,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9758., 15666., 14754., 10670., 18658., 26254., 24478., 13778., 18674., 30718., 26254., 14946., 10670., 18466., 18194.,  7550.,  7558., 13002., 18874., 13078., 13882., 23158., 24070., 17770., 19850., 27622., 23158., 12154., 13078., 19514., 14314.,  5094.,  6702., 14754., 19602., 13118., 13714., 24478., 25710., 20418., 18658., 26254., 24478., 13778., 13118., 18194., 11970.,  6030.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      9758.,  15666., 14754., 10670., 18658., 26254., 24478., 13778.,
+      18674., 30718., 26254., 14946., 10670., 18466., 18194., 7550.,
+      7558.,  13002., 18874., 13078., 13882., 23158., 24070., 17770.,
+      19850., 27622., 23158., 12154., 13078., 19514., 14314., 5094.,
+      6702.,  14754., 19602., 13118., 13714., 24478., 25710., 20418.,
+      18658., 26254., 24478., 13778., 13118., 18194., 11970., 6030.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1627,8 +2287,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254., 23158., 24070., 27622., 23158., 24478., 25710., 26254., 24478.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254.,
+                                         23158., 24070., 27622., 23158.,
+                                         24478., 25710., 26254., 24478.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1636,8 +2298,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9250.,  9724., 12638., 13412., 14814., 15684.,  9858., 10524., 18142., 19204., 25634., 27164., 22178., 23612., 13886., 14756., 21086., 22308., 30114., 31996., 25634., 27164., 12222., 12996.,  9858., 10524., 19646., 20868., 16190., 17252.,  9250.,  9724.,  6498.,  6860., 11422., 12180., 18718., 19828., 11970., 12780., 13342., 14260., 21602., 23020., 23266., 24844., 17534., 18644., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 11970., 12780., 18174., 19380., 13182., 14100.,  6498.,  6860.,  6306.,  6684., 14814., 15684., 20062., 21284., 13570., 14396., 13662., 14436., 22178., 23612., 28450., 30172., 18622., 19844., 18142., 19204., 25634., 27164., 22178., 23612., 13886., 14756., 13570., 14396., 16190., 17252., 13246., 14020.,  6306.,  6684.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      9250.,  9724.,  12638., 13412., 14814., 15684., 9858.,  10524., 18142.,
+      19204., 25634., 27164., 22178., 23612., 13886., 14756., 21086., 22308.,
+      30114., 31996., 25634., 27164., 12222., 12996., 9858.,  10524., 19646.,
+      20868., 16190., 17252., 9250.,  9724.,  6498.,  6860.,  11422., 12180.,
+      18718., 19828., 11970., 12780., 13342., 14260., 21602., 23020., 23266.,
+      24844., 17534., 18644., 19870., 21076., 26082., 27852., 21602., 23020.,
+      10750., 11508., 11970., 12780., 18174., 19380., 13182., 14100., 6498.,
+      6860.,  6306.,  6684.,  14814., 15684., 20062., 21284., 13570., 14396.,
+      13662., 14436., 22178., 23612., 28450., 30172., 18622., 19844., 18142.,
+      19204., 25634., 27164., 22178., 23612., 13886., 14756., 13570., 14396.,
+      16190., 17252., 13246., 14020., 6306.,  6684.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1645,8 +2318,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164., 21602., 23020., 23266., 24844., 26082., 27852., 21602., 23020., 22178., 23612., 28450., 30172., 25634., 27164., 22178., 23612.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.,
+      21602., 23020., 23266., 24844., 26082., 27852., 21602., 23020.,
+      22178., 23612., 28450., 30172., 25634., 27164., 22178., 23612.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1654,8 +2330,28 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2154., 2436., 2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160., 2154., 2436., 2718., 3000., 3702., 4188., 4674., 5160., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 3702., 4188., 4674., 5160., 3926., 4444., 4962., 5480., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 3926., 4444., 4962., 5480., 2154., 2436., 2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160., 2154., 2436., 2718., 3000., 2266., 2564., 2862., 3160., 3814., 4316., 4818., 5320., 4038., 4572., 5106., 5640., 2266., 2564., 2862., 3160., 4038., 4572., 5106., 5640., 6394., 7236., 8078., 8920., 6618., 7492., 8366., 9240., 4038., 4572., 5106., 5640., 3814., 4316., 4818., 5320., 6618., 7492., 8366., 9240., 6394., 7236., 8078., 8920., 3814., 4316., 4818., 5320., 2266., 2564., 2862., 3160., 3814., 4316., 4818., 5320., 4038., 4572., 5106., 5640., 2266., 2564., 2862., 3160., 2378., 2692., 3006., 3320., 3702., 4188., 4674., 5160., 3926., 4444., 4962., 5480., 2378., 2692., 3006., 3320., 3926., 4444., 4962., 5480., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 3702., 4188., 4674., 5160., 2378., 2692., 3006., 3320., 3702., 4188., 4674., 5160., 3926., 4444., 4962., 5480., 2378., 2692., 3006., 3320.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      2154., 2436., 2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188.,
+      4674., 5160., 2154., 2436., 2718., 3000., 3702., 4188., 4674., 5160.,
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 3702., 4188.,
+      4674., 5160., 3926., 4444., 4962., 5480., 6506., 7364., 8222., 9080.,
+      6282., 7108., 7934., 8760., 3926., 4444., 4962., 5480., 2154., 2436.,
+      2718., 3000., 3926., 4444., 4962., 5480., 3702., 4188., 4674., 5160.,
+      2154., 2436., 2718., 3000., 2266., 2564., 2862., 3160., 3814., 4316.,
+      4818., 5320., 4038., 4572., 5106., 5640., 2266., 2564., 2862., 3160.,
+      4038., 4572., 5106., 5640., 6394., 7236., 8078., 8920., 6618., 7492.,
+      8366., 9240., 4038., 4572., 5106., 5640., 3814., 4316., 4818., 5320.,
+      6618., 7492., 8366., 9240., 6394., 7236., 8078., 8920., 3814., 4316.,
+      4818., 5320., 2266., 2564., 2862., 3160., 3814., 4316., 4818., 5320.,
+      4038., 4572., 5106., 5640., 2266., 2564., 2862., 3160., 2378., 2692.,
+      3006., 3320., 3702., 4188., 4674., 5160., 3926., 4444., 4962., 5480.,
+      2378., 2692., 3006., 3320., 3926., 4444., 4962., 5480., 6506., 7364.,
+      8222., 9080., 6282., 7108., 7934., 8760., 3926., 4444., 4962., 5480.,
+      3702., 4188., 4674., 5160., 6282., 7108., 7934., 8760., 6506., 7364.,
+      8222., 9080., 3702., 4188., 4674., 5160., 2378., 2692., 3006., 3320.,
+      3702., 4188., 4674., 5160., 3926., 4444., 4962., 5480., 2378., 2692.,
+      3006., 3320.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1663,8 +2359,13 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6394., 7236., 8078., 8920., 6618., 7492., 8366., 9240., 6618., 7492., 8366., 9240., 6394., 7236., 8078., 8920., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364.,
+      8222., 9080., 6282., 7108., 7934., 8760., 6394., 7236., 8078., 8920.,
+      6618., 7492., 8366., 9240., 6618., 7492., 8366., 9240., 6394., 7236.,
+      8078., 8920., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.,
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.};
+  const std::array<int, 4> in_shape = {{3, 7, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -1672,8 +2373,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2666.,  3670.,  4210.,  2541.,  6620.,  8550.,  9200.,  5350., 10940., 13750., 14400.,  8230.,  4670.,  5710.,  5950.,  3207., 15098., 18790., 19330., 11109., 21740., 26750., 27400., 15430., 26060., 31950., 32600., 18310., 10382., 12430., 12670.,  6735., 15498., 19190., 19730., 11229.,  8444., 10390., 11040.,  5926.,  6620.,  8550.,  9200.,  5350.,  3038.,  3790.,  4030.,  2199.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      2666.,  3670.,  4210.,  2541.,  6620.,  8550.,  9200.,  5350.,
+      10940., 13750., 14400., 8230.,  4670.,  5710.,  5950.,  3207.,
+      15098., 18790., 19330., 11109., 21740., 26750., 27400., 15430.,
+      26060., 31950., 32600., 18310., 10382., 12430., 12670., 6735.,
+      15498., 19190., 19730., 11229., 8444.,  10390., 11040., 5926.,
+      6620.,  8550.,  9200.,  5350.,  3038.,  3790.,  4030.,  2199.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 128.0;
@@ -1681,8 +2388,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8225.,  8875., 13425., 14075., 26425., 27075., 31625., 32275., 10065., 10715.,  8225.,  8875.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {8225.,  8875.,  13425., 14075.,
+                                         26425., 27075., 31625., 32275.,
+                                         10065., 10715., 8225.,  8875.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 128.0;
@@ -1690,8 +2399,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5206.,  5332.,  7160.,  7340.,  8210.,  8420.,  4947.,  5082., 12870., 13240., 16600., 17100., 17850., 18400., 10355., 10700., 21190., 21880., 26600., 27500., 27850., 28800., 15875., 16460.,  8830.,  9340., 10760., 11420., 11210., 11900.,  5991.,  6414.,  8406.,  8692., 10960., 11340., 12010., 12420.,  6987.,  7242., 10246., 10712., 13200., 13820., 14450., 15120.,  8171.,  8588., 17030., 17560., 21600., 22300., 22850., 23600., 13115., 13580.,  7294.,  7708.,  8960.,  9500.,  9410.,  9980.,  5055.,  5406., 14166., 14612., 17960., 18540., 19010., 19620., 10947., 11322., 10182., 10744., 13000., 13740., 14250., 15040.,  7907.,  8396., 12870., 13240., 16600., 17100., 17850., 18400., 10355., 10700.,  5758.,  6076.,  7160.,  7580.,  7610.,  8060.,  4119.,  4398.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      5206.,  5332.,  7160.,  7340.,  8210.,  8420.,  4947.,  5082.,  12870.,
+      13240., 16600., 17100., 17850., 18400., 10355., 10700., 21190., 21880.,
+      26600., 27500., 27850., 28800., 15875., 16460., 8830.,  9340.,  10760.,
+      11420., 11210., 11900., 5991.,  6414.,  8406.,  8692.,  10960., 11340.,
+      12010., 12420., 6987.,  7242.,  10246., 10712., 13200., 13820., 14450.,
+      15120., 8171.,  8588.,  17030., 17560., 21600., 22300., 22850., 23600.,
+      13115., 13580., 7294.,  7708.,  8960.,  9500.,  9410.,  9980.,  5055.,
+      5406.,  14166., 14612., 17960., 18540., 19010., 19620., 10947., 11322.,
+      10182., 10744., 13000., 13740., 14250., 15040., 7907.,  8396.,  12870.,
+      13240., 16600., 17100., 17850., 18400., 10355., 10700., 5758.,  6076.,
+      7160.,  7580.,  7610.,  8060.,  4119.,  4398.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1699,8 +2419,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150., 12575., 13170., 13825., 14470., 20975., 21650., 22225., 22950., 12375., 13090., 13625., 14390., 15975., 16450., 17225., 17750.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.,
+      12575., 13170., 13825., 14470., 20975., 21650., 22225., 22950.,
+      12375., 13090., 13625., 14390., 15975., 16450., 17225., 17750.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1708,8 +2431,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2862.,  2988.,  3114.,  3240.,  4540.,  4720.,  4900.,  5080.,  5458.,  5668.,  5878.,  6088.,  3359.,  3494.,  3629.,  3764.,  9754., 10124., 10494., 10864., 13884., 14384., 14884., 15384., 15182., 15732., 16282., 16832.,  8845.,  9190.,  9535.,  9880., 17882., 18572., 19262., 19952., 24268., 25168., 26068., 26968., 25566., 26516., 27466., 28416., 14525., 15110., 15695., 16280., 17150., 17660., 18170., 18680., 20860., 21520., 22180., 22840., 21730., 22420., 23110., 23800., 11559., 11982., 12405., 12828., 13198., 13484., 13770., 14056., 16548., 16928., 17308., 17688., 17466., 17876., 18286., 18696.,  9879., 10134., 10389., 10644.,  8506.,  8972.,  9438.,  9904., 11572., 12192., 12812., 13432., 12870., 13540., 14210., 14880.,  6965.,  7382.,  7799.,  8216., 13818., 14348., 14878., 15408., 19076., 19776., 20476., 21176., 20374., 21124., 21874., 22624., 11685., 12150., 12615., 13080., 14174., 14588., 15002., 15416., 17380., 17920., 18460., 19000., 18250., 18820., 19390., 19960.,  9759., 10110., 10461., 10812., 12270., 12716., 13162., 13608., 18572., 19152., 19732., 20312., 19490., 20100., 20710., 21320., 12047., 12422., 12797., 13172., 12378., 12940., 13502., 14064., 15660., 16400., 17140., 17880., 16958., 17748., 18538., 19328.,  8925.,  9414.,  9903., 10392.,  9754., 10124., 10494., 10864., 13884., 14384., 14884., 15384., 15182., 15732., 16282., 16832.,  8845.,  9190.,  9535.,  9880., 11198., 11516., 11834., 12152., 13900., 14320., 14740., 15160., 14770., 15220., 15670., 16120.,  7959.,  8238.,  8517.,  8796.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      2862.,  2988.,  3114.,  3240.,  4540.,  4720.,  4900.,  5080.,  5458.,
+      5668.,  5878.,  6088.,  3359.,  3494.,  3629.,  3764.,  9754.,  10124.,
+      10494., 10864., 13884., 14384., 14884., 15384., 15182., 15732., 16282.,
+      16832., 8845.,  9190.,  9535.,  9880.,  17882., 18572., 19262., 19952.,
+      24268., 25168., 26068., 26968., 25566., 26516., 27466., 28416., 14525.,
+      15110., 15695., 16280., 17150., 17660., 18170., 18680., 20860., 21520.,
+      22180., 22840., 21730., 22420., 23110., 23800., 11559., 11982., 12405.,
+      12828., 13198., 13484., 13770., 14056., 16548., 16928., 17308., 17688.,
+      17466., 17876., 18286., 18696., 9879.,  10134., 10389., 10644., 8506.,
+      8972.,  9438.,  9904.,  11572., 12192., 12812., 13432., 12870., 13540.,
+      14210., 14880., 6965.,  7382.,  7799.,  8216.,  13818., 14348., 14878.,
+      15408., 19076., 19776., 20476., 21176., 20374., 21124., 21874., 22624.,
+      11685., 12150., 12615., 13080., 14174., 14588., 15002., 15416., 17380.,
+      17920., 18460., 19000., 18250., 18820., 19390., 19960., 9759.,  10110.,
+      10461., 10812., 12270., 12716., 13162., 13608., 18572., 19152., 19732.,
+      20312., 19490., 20100., 20710., 21320., 12047., 12422., 12797., 13172.,
+      12378., 12940., 13502., 14064., 15660., 16400., 17140., 17880., 16958.,
+      17748., 18538., 19328., 8925.,  9414.,  9903.,  10392., 9754.,  10124.,
+      10494., 10864., 13884., 14384., 14884., 15384., 15182., 15732., 16282.,
+      16832., 8845.,  9190.,  9535.,  9880.,  11198., 11516., 11834., 12152.,
+      13900., 14320., 14740., 15160., 14770., 15220., 15670., 16120., 7959.,
+      8238.,  8517.,  8796.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1717,8 +2462,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692., 10923., 11518., 12113., 12708., 12221., 12866., 13511., 14156., 18427., 19102., 19777., 20452., 19725., 20450., 21175., 21900., 15011., 15726., 16441., 17156., 16309., 17074., 17839., 18604., 13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.,
+      10923., 11518., 12113., 12708., 12221., 12866., 13511., 14156.,
+      18427., 19102., 19777., 20452., 19725., 20450., 21175., 21900.,
+      15011., 15726., 16441., 17156., 16309., 17074., 17839., 18604.,
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1726,8 +2477,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2340.,  5243.,  7199.,  4913.,  5364.,  9463., 12259.,  7621.,  5364.,  9463., 12259.,  7621.,  4020.,  6215.,  8075.,  4629.,  7012.,  9899., 11855.,  7105.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.,  2340.,  5243.,  7199.,  4913.,  5364.,  9463., 12259.,  7621.,  5364.,  9463., 12259.,  7621.,  4020.,  6215.,  8075.,  4629.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      2340., 5243.,  7199.,  4913., 5364., 9463.,  12259., 7621.,
+      5364., 9463.,  12259., 7621., 4020., 6215.,  8075.,  4629.,
+      7012., 9899.,  11855., 7105., 8756., 12519., 15315., 8853.,
+      8756., 12519., 15315., 8853., 6132., 8695.,  10555., 5925.,
+      2340., 5243.,  7199.,  4913., 5364., 9463.,  12259., 7621.,
+      5364., 9463.,  12259., 7621., 4020., 6215.,  8075.,  4629.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1735,8 +2492,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8065., 10861.,  8065., 10861., 11121., 13917., 11121., 13917.,  8065., 10861.,  8065., 10861.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {8065.,  10861., 8065.,  10861.,
+                                         11121., 13917., 11121., 13917.,
+                                         8065.,  10861., 8065.,  10861.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1744,8 +2503,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 2812.,  3048.,  5717.,  6102.,  7717.,  8222.,  5135.,  5474.,  5780.,  6216., 10455., 11150., 13543., 14438., 10293., 10890.,  5780.,  6216., 10455., 11150., 13543., 14438., 10293., 10890.,  3772.,  4008.,  6253.,  6638.,  8061.,  8566.,  6327.,  6666.,  6908.,  7272.,  9749., 10294., 11749., 12414.,  7375.,  7810.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.,  2812.,  3048.,  5717.,  6102.,  7717.,  8222.,  5135.,  5474.,  5780.,  6216., 10455., 11150., 13543., 14438., 10293., 10890.,  5780.,  6216., 10455., 11150., 13543., 14438., 10293., 10890.,  3772.,  4008.,  6253.,  6638.,  8061.,  8566.,  6327.,  6666.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      2812.,  3048.,  5717.,  6102.,  7717.,  8222.,  5135.,  5474.,  5780.,
+      6216.,  10455., 11150., 13543., 14438., 10293., 10890., 5780.,  6216.,
+      10455., 11150., 13543., 14438., 10293., 10890., 3772.,  4008.,  6253.,
+      6638.,  8061.,  8566.,  6327.,  6666.,  6908.,  7272.,  9749.,  10294.,
+      11749., 12414., 7375.,  7810.,  9364.,  9928.,  13335., 14190., 16423.,
+      17478., 10613., 11306., 9364.,  9928.,  13335., 14190., 16423., 17478.,
+      10613., 11306., 5820.,  6184.,  7981.,  8526.,  9789.,  10454., 5751.,
+      6186.,  2812.,  3048.,  5717.,  6102.,  7717.,  8222.,  5135.,  5474.,
+      5780.,  6216.,  10455., 11150., 13543., 14438., 10293., 10890., 5780.,
+      6216.,  10455., 11150., 13543., 14438., 10293., 10890., 3772.,  4008.,
+      6253.,  6638.,  8061.,  8566.,  6327.,  6666.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1753,8 +2523,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794., 11791., 12546., 14879., 15834., 11791., 12546., 14879., 15834.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      8911.,  9506.,  11999., 12794., 8911.,  9506.,  11999., 12794.,
+      11791., 12546., 14879., 15834., 11791., 12546., 14879., 15834.,
+      8911.,  9506.,  11999., 12794., 8911.,  9506.,  11999., 12794.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1762,8 +2535,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3660.,  3896.,  4132.,  4368.,  6313.,  6698.,  7083.,  7468.,  8145.,  8650.,  9155.,  9660.,  4587.,  4926.,  5265.,  5604.,  6548.,  6984.,  7420.,  7856., 10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204.,  8981.,  9578., 10175., 10772.,  6548.,  6984.,  7420.,  7856., 10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204.,  8981.,  9578., 10175., 10772.,  3404.,  3640.,  3876.,  4112.,  5433.,  5818.,  6203.,  6588.,  7137.,  7642.,  8147.,  8652.,  5659.,  5998.,  6337.,  6676.,  5580.,  5944.,  6308.,  6672.,  8073.,  8618.,  9163.,  9708.,  9905., 10570., 11235., 11900.,  5899.,  6334.,  6769.,  7204.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.,  3660.,  3896.,  4132.,  4368.,  6313.,  6698.,  7083.,  7468.,  8145.,  8650.,  9155.,  9660.,  4587.,  4926.,  5265.,  5604.,  6548.,  6984.,  7420.,  7856., 10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204.,  8981.,  9578., 10175., 10772.,  6548.,  6984.,  7420.,  7856., 10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204.,  8981.,  9578., 10175., 10772.,  3404.,  3640.,  3876.,  4112.,  5433.,  5818.,  6203.,  6588.,  7137.,  7642.,  8147.,  8652.,  5659.,  5998.,  6337.,  6676.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      3660.,  3896.,  4132.,  4368.,  6313.,  6698.,  7083.,  7468.,  8145.,
+      8650.,  9155.,  9660.,  4587.,  4926.,  5265.,  5604.,  6548.,  6984.,
+      7420.,  7856.,  10615., 11310., 12005., 12700., 13519., 14414., 15309.,
+      16204., 8981.,  9578.,  10175., 10772., 6548.,  6984.,  7420.,  7856.,
+      10615., 11310., 12005., 12700., 13519., 14414., 15309., 16204., 8981.,
+      9578.,  10175., 10772., 3404.,  3640.,  3876.,  4112.,  5433.,  5818.,
+      6203.,  6588.,  7137.,  7642.,  8147.,  8652.,  5659.,  5998.,  6337.,
+      6676.,  5580.,  5944.,  6308.,  6672.,  8073.,  8618.,  9163.,  9708.,
+      9905.,  10570., 11235., 11900., 5899.,  6334.,  6769.,  7204.,  8468.,
+      9032.,  9596.,  10160., 12119., 12974., 13829., 14684., 15023., 16078.,
+      17133., 18188., 9525.,  10218., 10911., 11604., 8468.,  9032.,  9596.,
+      10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,
+      9525.,  10218., 10911., 11604., 5324.,  5688.,  6052.,  6416.,  7705.,
+      8250.,  8795.,  9340.,  9409.,  10074., 10739., 11404., 6459.,  6894.,
+      7329.,  7764.,  3660.,  3896.,  4132.,  4368.,  6313.,  6698.,  7083.,
+      7468.,  8145.,  8650.,  9155.,  9660.,  4587.,  4926.,  5265.,  5604.,
+      6548.,  6984.,  7420.,  7856.,  10615., 11310., 12005., 12700., 13519.,
+      14414., 15309., 16204., 8981.,  9578.,  10175., 10772., 6548.,  6984.,
+      7420.,  7856.,  10615., 11310., 12005., 12700., 13519., 14414., 15309.,
+      16204., 8981.,  9578.,  10175., 10772., 3404.,  3640.,  3876.,  4112.,
+      5433.,  5818.,  6203.,  6588.,  7137.,  7642.,  8147.,  8652.,  5659.,
+      5998.,  6337.,  6676.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1771,8 +2566,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452., 10667., 11422., 12177., 12932., 13571., 14526., 15481., 16436., 10667., 11422., 12177., 12932., 13571., 14526., 15481., 16436.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      9163.,  9758.,  10353., 10948., 12067., 12862., 13657., 14452.,
+      9163.,  9758.,  10353., 10948., 12067., 12862., 13657., 14452.,
+      10667., 11422., 12177., 12932., 13571., 14526., 15481., 16436.,
+      10667., 11422., 12177., 12932., 13571., 14526., 15481., 16436.,
+      9163.,  9758.,  10353., 10948., 12067., 12862., 13657., 14452.,
+      9163.,  9758.,  10353., 10948., 12067., 12862., 13657., 14452.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1780,8 +2581,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470., 3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470., 3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306., 5816., 6790.,
+      7958., 5306., 3208., 4242., 4354., 3470., 3720., 3938., 5330., 2878.,
+      5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242.,
+      4354., 3470., 3720., 3938., 5330., 2878., 5816., 6790., 7958., 5306.,
+      5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1789,8 +2595,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230.,
+                                         16478., 29230., 16478., 29230.,
+                                         16478., 29230., 16478., 29230.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1798,8 +2606,18 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308.,
+      7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028.,
+      2946., 3324., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292.,
+      4446., 5028., 2946., 3324., 3256., 3664., 3806., 4292., 4446., 5028.,
+      2946., 3324., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664.,
+      3806., 4292., 4446., 5028., 2946., 3324.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1807,8 +2625,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.,
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.,
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1816,8 +2637,28 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      3096., 3504.,  3912., 4320.,  3702., 4188.,  4674., 5160.,  4374., 4956.,
+      5538., 6120.,  2826., 3204.,  3582., 3960.,  5160., 5840.,  6520., 7200.,
+      6170., 6980.,  7790., 8600.,  7290., 8260.,  9230., 10200., 4710., 5340.,
+      5970., 6600.,  5160., 5840.,  6520., 7200.,  6170., 6980.,  7790., 8600.,
+      7290., 8260.,  9230., 10200., 4710., 5340.,  5970., 6600.,  3096., 3504.,
+      3912., 4320.,  3702., 4188.,  4674., 5160.,  4374., 4956.,  5538., 6120.,
+      2826., 3204.,  3582., 3960.,  3096., 3504.,  3912., 4320.,  3702., 4188.,
+      4674., 5160.,  4374., 4956.,  5538., 6120.,  2826., 3204.,  3582., 3960.,
+      5160., 5840.,  6520., 7200.,  6170., 6980.,  7790., 8600.,  7290., 8260.,
+      9230., 10200., 4710., 5340.,  5970., 6600.,  5160., 5840.,  6520., 7200.,
+      6170., 6980.,  7790., 8600.,  7290., 8260.,  9230., 10200., 4710., 5340.,
+      5970., 6600.,  3096., 3504.,  3912., 4320.,  3702., 4188.,  4674., 5160.,
+      4374., 4956.,  5538., 6120.,  2826., 3204.,  3582., 3960.,  3096., 3504.,
+      3912., 4320.,  3702., 4188.,  4674., 5160.,  4374., 4956.,  5538., 6120.,
+      2826., 3204.,  3582., 3960.,  5160., 5840.,  6520., 7200.,  6170., 6980.,
+      7790., 8600.,  7290., 8260.,  9230., 10200., 4710., 5340.,  5970., 6600.,
+      5160., 5840.,  6520., 7200.,  6170., 6980.,  7790., 8600.,  7290., 8260.,
+      9230., 10200., 4710., 5340.,  5970., 6600.,  3096., 3504.,  3912., 4320.,
+      3702., 4188.,  4674., 5160.,  4374., 4956.,  5538., 6120.,  2826., 3204.,
+      3582., 3960.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -1825,8 +2666,13 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340.,
+      7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800.,
+      6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620.,
+      8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.,
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
+  const std::array<int, 4> in_shape = {{3, 7, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -1834,8 +2680,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3190.,  4310.,  4850.,  5390.,  3213.,  8100., 10350., 11000., 11650.,  6730., 13500., 13714., 11484., 10790.,  6106.,  5770.,  5154.,  3794.,  3330.,  1719.,  4522.,  5930.,  6470.,  7010.,  4131.,  9720., 12300., 12950., 13600.,  7810.,  9104., 11440., 12090., 10244.,  4946.,  2926.,  3570.,  3810.,  2834.,  1137.,  5854.,  7550.,  8090.,  8630.,  5049., 11340., 14250., 14900., 15550.,  8890.,  8228.,  8654.,  8280.,  8930.,  5002.,  2322.,  2114.,  1970.,  2210.,  1131.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      3190.,  4310.,  4850.,  5390.,  3213.,  8100.,  10350., 11000., 11650.,
+      6730.,  13500., 13714., 11484., 10790., 6106.,  5770.,  5154.,  3794.,
+      3330.,  1719.,  4522.,  5930.,  6470.,  7010.,  4131.,  9720.,  12300.,
+      12950., 13600., 7810.,  9104.,  11440., 12090., 10244., 4946.,  2926.,
+      3570.,  3810.,  2834.,  1137.,  5854.,  7550.,  8090.,  8630.,  5049.,
+      11340., 14250., 14900., 15550., 8890.,  8228.,  8654.,  8280.,  8930.,
+      5002.,  2322.,  2114.,  1970.,  2210.,  1131.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1843,8 +2696,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10025., 10675., 11325., 14925., 12567., 10465., 11975., 12625., 13275., 11115., 11765., 11135., 13925., 14575., 15225.,  9417.,  7955.,  8605.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10025., 10675., 11325., 14925., 12567., 10465., 11975., 12625., 13275.,
+      11115., 11765., 11135., 13925., 14575., 15225., 9417.,  7955.,  8605.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1852,8 +2707,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6230.,  6380.,  8410.,  8620.,  9460.,  9700., 10510., 10780.,  6255.,  6426., 15750., 16200., 20100., 20700., 21350., 22000., 22600., 23300., 13025., 13460., 26150., 27000., 26456., 27428., 22074., 22968., 20700., 21580., 11669., 12212., 10910., 11540.,  9626., 10308.,  7004.,  7588.,  6110.,  6660.,  3099.,  3438.,  8822.,  9044., 11560., 11860., 12610., 12940., 13660., 14020.,  8037.,  8262., 18870., 19440., 23850., 24600., 25100., 25900., 26350., 27200., 15095., 15620., 17494., 18208., 21950., 22880., 23200., 24180., 19586., 20488.,  9387.,  9892.,  5406.,  5852.,  6560.,  7140.,  7010.,  7620.,  5156.,  5668.,  2009.,  2274., 11414., 11708., 14710., 15100., 15760., 16180., 16810., 17260.,  9819., 10098., 21990., 22680., 27600., 28500., 28850., 29800., 30100., 31100., 17165., 17780., 15750., 16456., 16484., 17308., 15750., 16560., 17000., 17860.,  9473., 10004.,  4254.,  4644.,  3814.,  4228.,  3560.,  3940.,  4010.,  4420.,  2007.,  2262.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      6230.,  6380.,  8410.,  8620.,  9460.,  9700.,  10510., 10780., 6255.,
+      6426.,  15750., 16200., 20100., 20700., 21350., 22000., 22600., 23300.,
+      13025., 13460., 26150., 27000., 26456., 27428., 22074., 22968., 20700.,
+      21580., 11669., 12212., 10910., 11540., 9626.,  10308., 7004.,  7588.,
+      6110.,  6660.,  3099.,  3438.,  8822.,  9044.,  11560., 11860., 12610.,
+      12940., 13660., 14020., 8037.,  8262.,  18870., 19440., 23850., 24600.,
+      25100., 25900., 26350., 27200., 15095., 15620., 17494., 18208., 21950.,
+      22880., 23200., 24180., 19586., 20488., 9387.,  9892.,  5406.,  5852.,
+      6560.,  7140.,  7010.,  7620.,  5156.,  5668.,  2009.,  2274.,  11414.,
+      11708., 14710., 15100., 15760., 16180., 16810., 17260., 9819.,  10098.,
+      21990., 22680., 27600., 28500., 28850., 29800., 30100., 31100., 17165.,
+      17780., 15750., 16456., 16484., 17308., 15750., 16560., 17000., 17860.,
+      9473.,  10004., 4254.,  4644.,  3814.,  4228.,  3560.,  3940.,  4010.,
+      4420.,  2007.,  2262.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1861,8 +2730,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201., 25134., 20075., 20930., 23225., 23950., 24475., 25250., 25725., 26550., 21325., 22230., 22575., 23530., 21329., 22270., 26975., 27850., 28225., 29150., 29475., 30450., 17971., 18834., 15125., 15910., 16375., 17210.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201.,
+      25134., 20075., 20930., 23225., 23950., 24475., 25250., 25725., 26550.,
+      21325., 22230., 22575., 23530., 21329., 22270., 26975., 27850., 28225.,
+      29150., 29475., 30450., 17971., 18834., 15125., 15910., 16375., 17210.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1870,8 +2743,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3350.,  3500.,  3650.,  3800.,  5218.,  5428.,  5638.,  5848.,  6136.,  6376.,  6616.,  6856.,  7054.,  7324.,  7594.,  7864.,  4275.,  4446.,  4617.,  4788., 11850., 12300., 12750., 13200., 16688., 17288., 17888., 18488., 17986., 18636., 19286., 19936., 19284., 19984., 20684., 21384., 11151., 11586., 12021., 12456., 22010., 22860., 23710., 24560., 25700., 26672., 27644., 28616., 24054., 24948., 25842., 26736., 24264., 25144., 26024., 26904., 14219., 14762., 15305., 15848., 21190., 21820., 22450., 23080., 18570., 19252., 19934., 20616., 13424., 14008., 14592., 15176., 11670., 12220., 12770., 13320.,  5859.,  6198.,  6537.,  6876.,  5390.,  5612.,  5834.,  6056.,  7972.,  8272.,  8572.,  8872.,  8890.,  9220.,  9550.,  9880.,  9808., 10168., 10528., 10888.,  5865.,  6090.,  6315.,  6540., 14898., 15468., 16038., 16608., 20582., 21332., 22082., 22832., 21880., 22680., 23480., 24280., 23178., 24028., 24878., 25728., 13281., 13806., 14331., 14856., 18146., 18860., 19574., 20288., 25562., 26492., 27422., 28352., 26860., 27840., 28820., 29800., 26750., 27652., 28554., 29456., 15965., 16470., 16975., 17480., 10366., 10812., 11258., 11704., 12540., 13120., 13700., 14280., 13410., 14020., 14630., 15240.,  9800., 10312., 10824., 11336.,  3753.,  4018.,  4283.,  4548.,  7430.,  7724.,  8018.,  8312., 10726., 11116., 11506., 11896., 11644., 12064., 12484., 12904., 12562., 13012., 13462., 13912.,  7455.,  7734.,  8013.,  8292., 17946., 18636., 19326., 20016., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624., 27072., 28072., 29072., 30072., 15411., 16026., 16641., 17256., 19786., 20492., 21198., 21904., 27664., 28488., 29312., 30136., 25058., 25868., 26678., 27488., 26356., 27216., 28076., 28936., 14191., 14722., 15253., 15784.,  8118.,  8508.,  8898.,  9288.,  7214.,  7628.,  8042.,  8456.,  6740.,  7120.,  7500.,  7880.,  7610.,  8020.,  8430.,  8840.,  3759.,  4014.,  4269.,  4524.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      3350.,  3500.,  3650.,  3800.,  5218.,  5428.,  5638.,  5848.,  6136.,
+      6376.,  6616.,  6856.,  7054.,  7324.,  7594.,  7864.,  4275.,  4446.,
+      4617.,  4788.,  11850., 12300., 12750., 13200., 16688., 17288., 17888.,
+      18488., 17986., 18636., 19286., 19936., 19284., 19984., 20684., 21384.,
+      11151., 11586., 12021., 12456., 22010., 22860., 23710., 24560., 25700.,
+      26672., 27644., 28616., 24054., 24948., 25842., 26736., 24264., 25144.,
+      26024., 26904., 14219., 14762., 15305., 15848., 21190., 21820., 22450.,
+      23080., 18570., 19252., 19934., 20616., 13424., 14008., 14592., 15176.,
+      11670., 12220., 12770., 13320., 5859.,  6198.,  6537.,  6876.,  5390.,
+      5612.,  5834.,  6056.,  7972.,  8272.,  8572.,  8872.,  8890.,  9220.,
+      9550.,  9880.,  9808.,  10168., 10528., 10888., 5865.,  6090.,  6315.,
+      6540.,  14898., 15468., 16038., 16608., 20582., 21332., 22082., 22832.,
+      21880., 22680., 23480., 24280., 23178., 24028., 24878., 25728., 13281.,
+      13806., 14331., 14856., 18146., 18860., 19574., 20288., 25562., 26492.,
+      27422., 28352., 26860., 27840., 28820., 29800., 26750., 27652., 28554.,
+      29456., 15965., 16470., 16975., 17480., 10366., 10812., 11258., 11704.,
+      12540., 13120., 13700., 14280., 13410., 14020., 14630., 15240., 9800.,
+      10312., 10824., 11336., 3753.,  4018.,  4283.,  4548.,  7430.,  7724.,
+      8018.,  8312.,  10726., 11116., 11506., 11896., 11644., 12064., 12484.,
+      12904., 12562., 13012., 13462., 13912., 7455.,  7734.,  8013.,  8292.,
+      17946., 18636., 19326., 20016., 24476., 25376., 26276., 27176., 25774.,
+      26724., 27674., 28624., 27072., 28072., 29072., 30072., 15411., 16026.,
+      16641., 17256., 19786., 20492., 21198., 21904., 27664., 28488., 29312.,
+      30136., 25058., 25868., 26678., 27488., 26356., 27216., 28076., 28936.,
+      14191., 14722., 15253., 15784., 8118.,  8508.,  8898.,  9288.,  7214.,
+      7628.,  8042.,  8456.,  6740.,  7120.,  7500.,  7880.,  7610.,  8020.,
+      8430.,  8840.,  3759.,  4014.,  4269.,  4524.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -1879,8 +2779,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180., 19933., 20658., 21383., 22108., 21231., 22006., 22781., 23556., 22529., 23354., 24179., 25004., 24913., 25818., 26723., 27628., 26211., 27166., 28121., 29076., 26677., 27618., 28559., 29500., 23827., 24702., 25577., 26452., 25125., 26050., 26975., 27900., 26423., 27398., 28373., 29348., 27079., 27942., 28805., 29668., 24409., 25194., 25979., 26764., 25707., 26542., 27377., 28212.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635.,
+      19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682.,
+      26615., 27548., 23615., 24470., 25325., 26180., 19933., 20658., 21383.,
+      22108., 21231., 22006., 22781., 23556., 22529., 23354., 24179., 25004.,
+      24913., 25818., 26723., 27628., 26211., 27166., 28121., 29076., 26677.,
+      27618., 28559., 29500., 23827., 24702., 25577., 26452., 25125., 26050.,
+      26975., 27900., 26423., 27398., 28373., 29348., 27079., 27942., 28805.,
+      29668., 24409., 25194., 25979., 26764., 25707., 26542., 27377., 28212.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -1888,8 +2796,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3412.,  6719.,  7843.,  9479.,  4553.,  9044., 14319., 12731., 11559.,  6065., 10740., 11559., 12019., 10559.,  5401.,  8356.,  7707.,  6431.,  5827.,  3261.,  6628.,  9419.,  9263.,  9619.,  5741.,  8964., 12019., 10559., 10219.,  5565.,  8100., 10219., 10551., 11939.,  7653.,  5236.,  7111.,  8875.,  8367.,  4225.,  7284.,  7319.,  6139.,  6719.,  4625.,  7156., 10551., 11939., 14319.,  7177.,  9044., 14319., 12731., 11559.,  6065.,  7044.,  8371.,  9495.,  7707.,  3269.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      3412.,  6719.,  7843.,  9479.,  4553.,  9044.,  14319., 12731., 11559.,
+      6065.,  10740., 11559., 12019., 10559., 5401.,  8356.,  7707.,  6431.,
+      5827.,  3261.,  6628.,  9419.,  9263.,  9619.,  5741.,  8964.,  12019.,
+      10559., 10219., 5565.,  8100.,  10219., 10551., 11939., 7653.,  5236.,
+      7111.,  8875.,  8367.,  4225.,  7284.,  7319.,  6139.,  6719.,  4625.,
+      7156.,  10551., 11939., 14319., 7177.,  9044.,  14319., 12731., 11559.,
+      6065.,  7044.,  8371.,  9495.,  7707.,  3269.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1897,8 +2812,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357., 10921., 11357., 10921., 10325., 10325.,  9633., 11117.,  9633., 11117., 13017., 13017., 12453., 12017.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13017., 12453., 12017., 12017., 11357., 10921., 11357., 10921., 10325.,
+      10325., 9633.,  11117., 9633.,  11117., 13017., 13017., 12453., 12017.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1906,8 +2823,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4348.,  4680.,  7781.,  8286.,  8245.,  8742.,  9733., 10222.,  5231.,  5522.,  9364.,  9992., 15159., 15998., 15815., 16662., 13271., 14062.,  6053.,  6498., 13204., 13896., 13271., 14062., 11879., 12678., 10743., 11550.,  6725.,  7218.,  7612.,  8072.,  7037.,  7574.,  6797.,  7326.,  5917.,  6374.,  4439.,  4698.,  6908.,  7272.,  9813., 10358.,  9765., 10302.,  8693.,  9222.,  4511.,  4826., 10004., 10600., 11879., 12678., 10743., 11550., 11783., 12662.,  8021.,  8570.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  5052.,  5416.,  6701.,  7150.,  8381.,  8886.,  9677., 10174.,  4039.,  4322.,  6396.,  6792.,  6469.,  6926.,  6421.,  6870.,  7781.,  8286.,  5327.,  5666.,  9108.,  9800., 12183., 13070., 12711., 13542., 15159., 15998., 10245., 10770.,  9364.,  9992., 15159., 15998., 15815., 16662., 13271., 14062.,  6053.,  6498.,  8124.,  8520.,  7901.,  8390.,  8301.,  8846.,  7037.,  7574.,  3895.,  4202.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      4348.,  4680.,  7781.,  8286.,  8245.,  8742.,  9733.,  10222., 5231.,
+      5522.,  9364.,  9992.,  15159., 15998., 15815., 16662., 13271., 14062.,
+      6053.,  6498.,  13204., 13896., 13271., 14062., 11879., 12678., 10743.,
+      11550., 6725.,  7218.,  7612.,  8072.,  7037.,  7574.,  6797.,  7326.,
+      5917.,  6374.,  4439.,  4698.,  6908.,  7272.,  9813.,  10358., 9765.,
+      10302., 8693.,  9222.,  4511.,  4826.,  10004., 10600., 11879., 12678.,
+      10743., 11550., 11783., 12662., 8021.,  8570.,  8724.,  9384.,  11783.,
+      12662., 12183., 13070., 12711., 13542., 10229., 10698., 5052.,  5416.,
+      6701.,  7150.,  8381.,  8886.,  9677.,  10174., 4039.,  4322.,  6396.,
+      6792.,  6469.,  6926.,  6421.,  6870.,  7781.,  8286.,  5327.,  5666.,
+      9108.,  9800.,  12183., 13070., 12711., 13542., 15159., 15998., 10245.,
+      10770., 9364.,  9992.,  15159., 15998., 15815., 16662., 13271., 14062.,
+      6053.,  6498.,  8124.,  8520.,  7901.,  8390.,  8301.,  8846.,  7037.,
+      7574.,  3895.,  4202.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1915,8 +2846,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378., 11743., 12506., 10607., 11378., 11135., 11978., 11135., 11978., 11535., 12386., 12191., 13050., 11535., 12386., 12191., 13050., 13743., 14546., 13743., 14546., 14399., 15210., 15311., 16130.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743.,
+      12506., 10607., 11378., 11743., 12506., 10607., 11378., 11135., 11978.,
+      11135., 11978., 11535., 12386., 12191., 13050., 11535., 12386., 12191.,
+      13050., 13743., 14546., 13743., 14546., 14399., 15210., 15311., 16130.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1924,8 +2859,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5100.,  5432.,  5764.,  6096.,  8017.,  8522.,  9027.,  9532.,  6905.,  7402.,  7899.,  8396.,  7841.,  8330.,  8819.,  9308.,  3803.,  4094.,  4385.,  4676.,  8404.,  9032.,  9660., 10288., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,  5773.,  6218.,  6663.,  7108., 11412., 12104., 12796., 13488., 11031., 11822., 12613., 13404., 11311., 12110., 12909., 13708., 12103., 12910., 13717., 14524.,  7069.,  7562.,  8055.,  8548.,  6764.,  7224.,  7684.,  8144.,  7617.,  8154.,  8691.,  9228.,  7401.,  7930.,  8459.,  8988.,  5969.,  6426.,  6883.,  7340.,  3755.,  4014.,  4273.,  4532.,  5580.,  5944.,  6308.,  6672.,  7945.,  8490.,  9035.,  9580.,  7857.,  8394.,  8931.,  9468.,  7769.,  8298.,  8827.,  9356.,  4643.,  4958.,  5273.,  5588.,  8948.,  9544., 10140., 10736., 11311., 12110., 12909., 13708., 12103., 12910., 13717., 14524., 13087., 13966., 14845., 15724.,  7557.,  8106.,  8655.,  9204.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364.,  5324.,  5688.,  6052.,  6416.,  5753.,  6202.,  6651.,  7100.,  7265.,  7770.,  8275.,  8780.,  8073.,  8570.,  9067.,  9564.,  3955.,  4238.,  4521.,  4804.,  6060.,  6456.,  6852.,  7248.,  7489.,  7946.,  8403.,  8860.,  7401.,  7850.,  8299.,  8748.,  8017.,  8522.,  9027.,  9532.,  4459.,  4798.,  5137.,  5476., 10388., 11080., 11772., 12464., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228.,  7933.,  8458.,  8983.,  9508.,  8404.,  9032.,  9660., 10288., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,  5773.,  6218.,  6663.,  7108.,  6828.,  7224.,  7620.,  8016.,  6833.,  7322.,  7811.,  8300.,  7833.,  8378.,  8923.,  9468.,  7617.,  8154.,  8691.,  9228.,  4667.,  4974.,  5281.,  5588.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      5100.,  5432.,  5764.,  6096.,  8017.,  8522.,  9027.,  9532.,  6905.,
+      7402.,  7899.,  8396.,  7841.,  8330.,  8819.,  9308.,  3803.,  4094.,
+      4385.,  4676.,  8404.,  9032.,  9660.,  10288., 12711., 13550., 14389.,
+      15228., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,
+      5773.,  6218.,  6663.,  7108.,  11412., 12104., 12796., 13488., 11031.,
+      11822., 12613., 13404., 11311., 12110., 12909., 13708., 12103., 12910.,
+      13717., 14524., 7069.,  7562.,  8055.,  8548.,  6764.,  7224.,  7684.,
+      8144.,  7617.,  8154.,  8691.,  9228.,  7401.,  7930.,  8459.,  8988.,
+      5969.,  6426.,  6883.,  7340.,  3755.,  4014.,  4273.,  4532.,  5580.,
+      5944.,  6308.,  6672.,  7945.,  8490.,  9035.,  9580.,  7857.,  8394.,
+      8931.,  9468.,  7769.,  8298.,  8827.,  9356.,  4643.,  4958.,  5273.,
+      5588.,  8948.,  9544.,  10140., 10736., 11311., 12110., 12909., 13708.,
+      12103., 12910., 13717., 14524., 13087., 13966., 14845., 15724., 7557.,
+      8106.,  8655.,  9204.,  9908.,  10568., 11228., 11888., 13087., 13966.,
+      14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557.,
+      13388., 7957.,  8426.,  8895.,  9364.,  5324.,  5688.,  6052.,  6416.,
+      5753.,  6202.,  6651.,  7100.,  7265.,  7770.,  8275.,  8780.,  8073.,
+      8570.,  9067.,  9564.,  3955.,  4238.,  4521.,  4804.,  6060.,  6456.,
+      6852.,  7248.,  7489.,  7946.,  8403.,  8860.,  7401.,  7850.,  8299.,
+      8748.,  8017.,  8522.,  9027.,  9532.,  4459.,  4798.,  5137.,  5476.,
+      10388., 11080., 11772., 12464., 12855., 13742., 14629., 15516., 10895.,
+      11726., 12557., 13388., 12711., 13550., 14389., 15228., 7933.,  8458.,
+      8983.,  9508.,  8404.,  9032.,  9660.,  10288., 12711., 13550., 14389.,
+      15228., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,
+      5773.,  6218.,  6663.,  7108.,  6828.,  7224.,  7620.,  8016.,  6833.,
+      7322.,  7811.,  8300.,  7833.,  8378.,  8923.,  9468.,  7617.,  8154.,
+      8691.,  9228.,  4667.,  4974.,  5281.,  5588.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1933,8 +2895,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684., 11363., 12222., 13081., 13940., 13131., 13982., 14833., 15684., 11363., 12222., 13081., 13940., 11451., 12254., 13057., 13860., 11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523.,
+      13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326.,
+      12089., 12852., 11355., 12126., 12897., 13668., 10563., 11326., 12089.,
+      12852., 11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892.,
+      13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684., 11363.,
+      12222., 13081., 13940., 13131., 13982., 14833., 15684., 11363., 12222.,
+      13081., 13940., 11451., 12254., 13057., 13860., 11451., 12254., 13057.,
+      13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1942,8 +2912,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13320., 19154., 17922., 16370.,  8350., 18008., 27174., 30646., 26310., 14506., 25304., 26310., 24534., 27174., 18506., 14088., 16482., 18578., 13186.,  7502., 11208., 16482., 19154., 17922., 11662., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310., 24534., 18650.,  9928., 15602., 16482., 18578.,  7998., 12296., 16370., 16482., 19154., 10366., 25304., 26310., 24534., 27174., 18506., 18008., 27174., 30646., 26310., 14506., 15112., 13186., 15602., 16482., 12078.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      13320., 19154., 17922., 16370., 8350.,  18008., 27174., 30646., 26310.,
+      14506., 25304., 26310., 24534., 27174., 18506., 14088., 16482., 18578.,
+      13186., 7502.,  11208., 16482., 19154., 17922., 11662., 19608., 24534.,
+      27174., 30646., 17850., 20632., 30646., 26310., 24534., 18650., 9928.,
+      15602., 16482., 18578., 7998.,  12296., 16370., 16482., 19154., 10366.,
+      25304., 26310., 24534., 27174., 18506., 18008., 27174., 30646., 26310.,
+      14506., 15112., 13186., 15602., 16482., 12078.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1951,8 +2928,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214., 23998., 23214., 23998., 26446., 26446., 29086., 23214., 29086., 23214., 23998., 23998., 26446., 29086.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23998., 26446., 29086., 29086., 23214., 23998., 23214., 23998., 26446.,
+      26446., 29086., 23214., 29086., 23214., 23998., 23998., 26446., 29086.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1960,8 +2939,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13176., 13968., 17758., 18852., 15326., 16388., 16478., 17380.,  7426.,  7932., 17096., 18288., 27362., 29004., 30050., 31852., 25570., 27276., 13182., 14164., 25288., 26736., 25570., 27276., 22114., 23724., 27362., 29004., 17022., 18068., 12152., 12944., 16830., 17924., 17982., 19044., 12478., 13380.,  7586.,  8092., 11128., 11792., 16606., 17604., 17758., 18852., 15326., 16388., 10882., 11484., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140., 16830., 17924., 17982., 19044.,  8482.,  9084., 11128., 11920., 16478., 17380., 16606., 17604., 17758., 18852.,  9218.,  9916., 25288., 26736., 25570., 27276., 22114., 23724., 27362., 29004., 17022., 18068., 17096., 18288., 27362., 29004., 30050., 31852., 25570., 27276., 13182., 14164., 14200., 14992., 12478., 13380., 14142., 15140., 16830., 17924., 12450., 13148.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      13176., 13968., 17758., 18852., 15326., 16388., 16478., 17380., 7426.,
+      7932.,  17096., 18288., 27362., 29004., 30050., 31852., 25570., 27276.,
+      13182., 14164., 25288., 26736., 25570., 27276., 22114., 23724., 27362.,
+      29004., 17022., 18068., 12152., 12944., 16830., 17924., 17982., 19044.,
+      12478., 13380., 7586.,  8092.,  11128., 11792., 16606., 17604., 17758.,
+      18852., 15326., 16388., 10882., 11484., 21192., 22512., 22114., 23724.,
+      27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512., 30050.,
+      31852., 25570., 27276., 22114., 23724., 17406., 18356., 10104., 10768.,
+      14142., 15140., 16830., 17924., 17982., 19044., 8482.,  9084.,  11128.,
+      11920., 16478., 17380., 16606., 17604., 17758., 18852., 9218.,  9916.,
+      25288., 26736., 25570., 27276., 22114., 23724., 27362., 29004., 17022.,
+      18068., 17096., 18288., 27362., 29004., 30050., 31852., 25570., 27276.,
+      13182., 14164., 14200., 14992., 12478., 13380., 14142., 15140., 16830.,
+      17924., 12450., 13148.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1969,8 +2962,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 21538., 23132., 23202., 24700., 27938., 29596., 27938., 29596., 29090., 30780., 21538., 23132., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538.,
+      23132., 23202., 24700., 21538., 23132., 23202., 24700., 27938., 29596.,
+      27938., 29596., 29090., 30780., 21538., 23132., 29090., 30780., 21538.,
+      23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1978,8 +2975,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11864., 12656., 13448., 14240., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328.,  6410.,  6916.,  7422.,  7928., 18024., 19216., 20408., 21600., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 13414., 14396., 15378., 16360., 21864., 23312., 24760., 26208., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 14886., 15932., 16978., 18024., 11864., 12656., 13448., 14240., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328.,  6410.,  6916.,  7422.,  7928.,  9944., 10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,  9130.,  9732., 10334., 10936., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576.,  9944., 10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,  9130.,  9732., 10334., 10936., 11864., 12656., 13448., 14240., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272.,  9802., 10500., 11198., 11896., 21864., 23312., 24760., 26208., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 14886., 15932., 16978., 18024., 18024., 19216., 20408., 21600., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 13414., 14396., 15378., 16360., 11864., 12656., 13448., 14240., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272.,  9802., 10500., 11198., 11896.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      11864., 12656., 13448., 14240., 15990., 17084., 18178., 19272., 15254.,
+      16316., 17378., 18440., 13622., 14524., 15426., 16328., 6410.,  6916.,
+      7422.,  7928.,  18024., 19216., 20408., 21600., 25178., 26820., 28462.,
+      30104., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744.,
+      13414., 14396., 15378., 16360., 21864., 23312., 24760., 26208., 25626.,
+      27332., 29038., 30744., 22906., 24516., 26126., 27736., 25178., 26820.,
+      28462., 30104., 14886., 15932., 16978., 18024., 11864., 12656., 13448.,
+      14240., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,
+      13622., 14524., 15426., 16328., 6410.,  6916.,  7422.,  7928.,  9944.,
+      10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084.,
+      18178., 19272., 15254., 16316., 17378., 18440., 9130.,  9732.,  10334.,
+      10936., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736.,
+      25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094.,
+      18236., 19378., 20520., 19944., 21264., 22584., 23904., 26298., 28100.,
+      29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126.,
+      27736., 14726., 15676., 16626., 17576., 9944.,  10608., 11272., 11936.,
+      13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272., 15254.,
+      16316., 17378., 18440., 9130.,  9732.,  10334., 10936., 11864., 12656.,
+      13448., 14240., 13622., 14524., 15426., 16328., 13782., 14780., 15778.,
+      16776., 15990., 17084., 18178., 19272., 9802.,  10500., 11198., 11896.,
+      21864., 23312., 24760., 26208., 25626., 27332., 29038., 30744., 22906.,
+      24516., 26126., 27736., 25178., 26820., 28462., 30104., 14886., 15932.,
+      16978., 18024., 18024., 19216., 20408., 21600., 25178., 26820., 28462.,
+      30104., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744.,
+      13414., 14396., 15378., 16360., 11864., 12656., 13448., 14240., 13622.,
+      14524., 15426., 16328., 13782., 14780., 15778., 16776., 15990., 17084.,
+      18178., 19272., 9802.,  10500., 11198., 11896.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -1987,8 +3011,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x7x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.};
-  const std::array<int, 4> in_shape = {{ 3, 7, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538.,
+      28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412.,
+      27006., 28600., 23146., 24644., 26142., 27640., 23818., 25412., 27006.,
+      28600., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240.,
+      24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 23818.,
+      25412., 27006., 28600., 26538., 28228., 29918., 31608., 23818., 25412.,
+      27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142.,
+      27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.};
+  const std::array<int, 4> in_shape = {{3, 7, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -1996,8 +3028,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x7x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3008.,  5100.,  5720.,  3404.,  5890.,  9600., 10250.,  5920.,  8830., 14150., 14800.,  8440.,  3780.,  5780.,  6020.,  3240.,  3984.,  5884.,  5800.,  3356.,  4402.,  7064.,  7650.,  4480.,  7150., 11550., 12200.,  7000.,  3132.,  4820.,  5060.,  2736.,  6624.,  8972.,  7480.,  4268.,  4386.,  6192.,  6010.,  3424.,  5470.,  8950.,  9600.,  5560.,  2484.,  3860.,  4100.,  2232.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      3008.,  5100., 5720., 3404., 5890., 9600.,  10250., 5920., 8830., 14150.,
+      14800., 8440., 3780., 5780., 6020., 3240.,  3984.,  5884., 5800., 3356.,
+      4402.,  7064., 7650., 4480., 7150., 11550., 12200., 7000., 3132., 4820.,
+      5060.,  2736., 6624., 8972., 7480., 4268.,  4386.,  6192., 6010., 3424.,
+      5470.,  8950., 9600., 5560., 2484., 3860.,  4100.,  2232.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2005,8 +3042,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7325.,  7975., 11875., 12525., 25525., 26175., 30075., 30725., 12109.,  9815.,  7059.,  7325.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {7325.,  7975.,  11875., 12525.,
+                                         25525., 26175., 30075., 30725.,
+                                         12109., 9815.,  7059.,  7325.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 128.0;
@@ -2014,8 +3053,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5866.,  6016.,  9930., 10200., 11130., 11440.,  6610.,  6808., 11435., 11780., 18600., 19200., 19850., 20500., 11435., 11840., 17105., 17660., 27350., 28300., 28600., 29600., 16265., 16880.,  7164.,  7560., 10885., 11560., 11335., 12040.,  6048.,  6480.,  7658.,  7968., 11274., 11768., 11130., 11600.,  6418.,  6712.,  8515.,  8804., 13664., 14128., 14850., 15300.,  8675.,  8960., 13865., 14300., 22350., 23100., 23600., 24400., 13505., 14000.,  5940.,  6264.,  9085.,  9640.,  9535., 10120.,  5112.,  5472., 12778., 13248., 17226., 17944., 14330., 14960.,  8146.,  8536.,  8347.,  8772., 11736., 12384., 11450., 12020.,  6491.,  6848., 10625., 10940., 17350., 17900., 18600., 19200., 10745., 11120.,  4716.,  4968.,  7285.,  7720.,  7735.,  8200.,  4176.,  4464.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      5866.,  6016.,  9930.,  10200., 11130., 11440., 6610.,  6808.,  11435.,
+      11780., 18600., 19200., 19850., 20500., 11435., 11840., 17105., 17660.,
+      27350., 28300., 28600., 29600., 16265., 16880., 7164.,  7560.,  10885.,
+      11560., 11335., 12040., 6048.,  6480.,  7658.,  7968.,  11274., 11768.,
+      11130., 11600., 6418.,  6712.,  8515.,  8804.,  13664., 14128., 14850.,
+      15300., 8675.,  8960.,  13865., 14300., 22350., 23100., 23600., 24400.,
+      13505., 14000., 5940.,  6264.,  9085.,  9640.,  9535.,  10120., 5112.,
+      5472.,  12778., 13248., 17226., 17944., 14330., 14960., 8146.,  8536.,
+      8347.,  8772.,  11736., 12384., 11450., 12020., 6491.,  6848.,  10625.,
+      10940., 17350., 17900., 18600., 19200., 10745., 11120., 4716.,  4968.,
+      7285.,  7720.,  7735.,  8200.,  4176.,  4464.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2023,8 +3073,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {14225., 14650., 15475., 15950., 22975., 23750., 24225., 25050., 11529., 12138., 12075., 12670., 17975., 18550., 19225., 19850., 13441., 14234., 11875., 12590., 13231., 13734., 14225., 14650.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      14225., 14650., 15475., 15950., 22975., 23750., 24225., 25050.,
+      11529., 12138., 12075., 12670., 17975., 18550., 19225., 19850.,
+      13441., 14234., 11875., 12590., 13231., 13734., 14225., 14650.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2032,8 +3085,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4094.,  4244.,  4394.,  4544.,  7430.,  7700.,  7970.,  8240.,  8638.,  8948.,  9258.,  9568.,  5214.,  5412.,  5610.,  5808.,  9661., 10006., 10351., 10696., 16376., 16976., 17576., 18176., 17674., 18324., 18974., 19624., 10177., 10582., 10987., 11392., 15415., 15970., 16525., 17080., 25462., 26412., 27362., 28312., 26760., 27760., 28760., 29760., 15147., 15762., 16377., 16992., 13932., 14328., 14724., 15120., 21095., 21770., 22445., 23120., 21965., 22670., 23375., 24080., 11664., 12096., 12528., 12960., 10590., 10900., 11210., 11520., 14502., 14996., 15490., 15984., 13086., 13556., 14026., 14496.,  7294.,  7588.,  7882.,  8176.,  6949.,  7238.,  7527.,  7816., 11248., 11712., 12176., 12640., 12482., 12932., 13382., 13832.,  7337.,  7622.,  7907.,  8192., 12127., 12562., 12997., 13432., 20270., 21020., 21770., 22520., 21568., 22368., 23168., 23968., 12307., 12802., 13297., 13792., 11556., 11880., 12204., 12528., 17615., 18170., 18725., 19280., 18485., 19070., 19655., 20240.,  9864., 10224., 10584., 10944., 15550., 16020., 16490., 16960., 26694., 27412., 28130., 28848., 23934., 24564., 25194., 25824., 13214., 13604., 13994., 14384.,  9549.,  9974., 10399., 10824., 11816., 12464., 13112., 13760., 10170., 10740., 11310., 11880.,  5457.,  5814.,  6171.,  6528.,  8839.,  9154.,  9469.,  9784., 15078., 15628., 16178., 16728., 16376., 16976., 17576., 18176.,  9467.,  9842., 10217., 10592.,  9180.,  9432.,  9684.,  9936., 14135., 14570., 15005., 15440., 15005., 15470., 15935., 16400.,  8064.,  8352.,  8640.,  8928.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      4094.,  4244.,  4394.,  4544.,  7430.,  7700.,  7970.,  8240.,  8638.,
+      8948.,  9258.,  9568.,  5214.,  5412.,  5610.,  5808.,  9661.,  10006.,
+      10351., 10696., 16376., 16976., 17576., 18176., 17674., 18324., 18974.,
+      19624., 10177., 10582., 10987., 11392., 15415., 15970., 16525., 17080.,
+      25462., 26412., 27362., 28312., 26760., 27760., 28760., 29760., 15147.,
+      15762., 16377., 16992., 13932., 14328., 14724., 15120., 21095., 21770.,
+      22445., 23120., 21965., 22670., 23375., 24080., 11664., 12096., 12528.,
+      12960., 10590., 10900., 11210., 11520., 14502., 14996., 15490., 15984.,
+      13086., 13556., 14026., 14496., 7294.,  7588.,  7882.,  8176.,  6949.,
+      7238.,  7527.,  7816.,  11248., 11712., 12176., 12640., 12482., 12932.,
+      13382., 13832., 7337.,  7622.,  7907.,  8192.,  12127., 12562., 12997.,
+      13432., 20270., 21020., 21770., 22520., 21568., 22368., 23168., 23968.,
+      12307., 12802., 13297., 13792., 11556., 11880., 12204., 12528., 17615.,
+      18170., 18725., 19280., 18485., 19070., 19655., 20240., 9864.,  10224.,
+      10584., 10944., 15550., 16020., 16490., 16960., 26694., 27412., 28130.,
+      28848., 23934., 24564., 25194., 25824., 13214., 13604., 13994., 14384.,
+      9549.,  9974.,  10399., 10824., 11816., 12464., 13112., 13760., 10170.,
+      10740., 11310., 11880., 5457.,  5814.,  6171.,  6528.,  8839.,  9154.,
+      9469.,  9784.,  15078., 15628., 16178., 16728., 16376., 16976., 17576.,
+      18176., 9467.,  9842.,  10217., 10592., 9180.,  9432.,  9684.,  9936.,
+      14135., 14570., 15005., 15440., 15005., 15470., 15935., 16400., 8064.,
+      8352.,  8640.,  8928.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2041,8 +3116,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556., 20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692., 10865., 11474., 12083., 12692., 10819., 11414., 12009., 12604., 15727., 16302., 16877., 17452., 17025., 17650., 18275., 18900., 19113., 19906., 20699., 21492., 14907., 15622., 16337., 17052., 10919., 11422., 11925., 12428., 11833., 12258., 12683., 13108.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      11833., 12258., 12683., 13108., 13131., 13606., 14081., 14556.,
+      20919., 21694., 22469., 23244., 22217., 23042., 23867., 24692.,
+      10865., 11474., 12083., 12692., 10819., 11414., 12009., 12604.,
+      15727., 16302., 16877., 17452., 17025., 17650., 18275., 18900.,
+      19113., 19906., 20699., 21492., 14907., 15622., 16337., 17052.,
+      10919., 11422., 11925., 12428., 11833., 12258., 12683., 13108.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2050,8 +3131,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5140., 10252., 10716.,  6500.,  6953., 11007., 11627.,  5597.,  6437., 10803., 11007.,  6169.,  3855.,  6745.,  7357.,  3883.,  7252.,  9548.,  9148.,  5604.,  9753., 12591., 10043.,  4973.,  9077., 14019., 12591.,  6409.,  5535.,  9225.,  9997.,  5595.,  5140., 10252., 10716.,  6500.,  6953., 11007., 11627.,  5597.,  6437., 10803., 11007.,  6169.,  3855.,  6745.,  7357.,  3883.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5140., 10252., 10716., 6500., 6953., 11007., 11627., 5597.,
+      6437., 10803., 11007., 6169., 3855., 6745.,  7357.,  3883.,
+      7252., 9548.,  9148.,  5604., 9753., 12591., 10043., 4973.,
+      9077., 14019., 12591., 6409., 5535., 9225.,  9997.,  5595.,
+      5140., 10252., 10716., 6500., 6953., 11007., 11627., 5597.,
+      6437., 10803., 11007., 6169., 3855., 6745.,  7357.,  3883.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2059,8 +3146,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11141.,  9201., 13177., 11141., 11189., 12929., 11081., 11189., 11141.,  9201., 13177., 11141.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {11141., 9201.,  13177., 11141.,
+                                         11189., 12929., 11081., 11189.,
+                                         11141., 9201.,  13177., 11141.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2068,8 +3157,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5020.,  5352.,  9492., 10040., 10132., 10712.,  7356.,  7752.,  7933.,  8466., 13015., 13854., 12007., 12790.,  6517.,  6970.,  6445.,  6922., 12871., 13702., 13015., 13854.,  6629.,  7090.,  3287.,  3518.,  6997.,  7442.,  8421.,  8922.,  4863.,  5174.,  7068.,  7528., 11028., 11704., 10004., 10648.,  7612.,  8008.,  9405.,  9970., 13079., 13950., 11943., 12694.,  7349.,  7770.,  9581., 10154., 14087., 15014., 13079., 13950.,  9125.,  9618.,  5527.,  5854.,  8725.,  9330.,  8485.,  9082.,  5183.,  5526.,  5020.,  5352.,  9492., 10040., 10132., 10712.,  7356.,  7752.,  7933.,  8466., 13015., 13854., 12007., 12790.,  6517.,  6970.,  6445.,  6922., 12871., 13702., 13015., 13854.,  6629.,  7090.,  3287.,  3518.,  6997.,  7442.,  8421.,  8922.,  4863.,  5174.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5020.,  5352.,  9492.,  10040., 10132., 10712., 7356.,  7752.,  7933.,
+      8466.,  13015., 13854., 12007., 12790., 6517.,  6970.,  6445.,  6922.,
+      12871., 13702., 13015., 13854., 6629.,  7090.,  3287.,  3518.,  6997.,
+      7442.,  8421.,  8922.,  4863.,  5174.,  7068.,  7528.,  11028., 11704.,
+      10004., 10648., 7612.,  8008.,  9405.,  9970.,  13079., 13950., 11943.,
+      12694., 7349.,  7770.,  9581.,  10154., 14087., 15014., 13079., 13950.,
+      9125.,  9618.,  5527.,  5854.,  8725.,  9330.,  8485.,  9082.,  5183.,
+      5526.,  5020.,  5352.,  9492.,  10040., 10132., 10712., 7356.,  7752.,
+      7933.,  8466.,  13015., 13854., 12007., 12790., 6517.,  6970.,  6445.,
+      6922.,  12871., 13702., 13015., 13854., 6629.,  7090.,  3287.,  3518.,
+      6997.,  7442.,  8421.,  8922.,  4863.,  5174.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2077,8 +3177,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994., 12255., 13066., 13423., 14242., 14287., 15154., 12255., 13066., 13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994.,
+      12255., 13066., 13423., 14242., 14287., 15154., 12255., 13066.,
+      13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2086,8 +3189,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,  9096.,  9676., 10256.,  5868.,  6264.,  6660.,  7056.,  8517.,  9050.,  9583., 10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637., 13420.,  6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820., 12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524.,  6397.,  6858.,  7319.,  7780.,  3175.,  3406.,  3637.,  3868.,  6221.,  6666.,  7111.,  7556.,  7221.,  7722.,  8223.,  8724.,  4423.,  4734.,  5045.,  5356.,  6572.,  7032.,  7492.,  7952.,  9956., 10632., 11308., 11984.,  9220.,  9864., 10508., 11152.,  6380.,  6776.,  7172.,  7568.,  8357.,  8922.,  9487., 10052., 12103., 12974., 13845., 14716., 10975., 11726., 12477., 13228.,  5829.,  6250.,  6671.,  7092.,  8445.,  9018.,  9591., 10164., 13039., 13966., 14893., 15820., 12103., 12974., 13845., 14716.,  7261.,  7754.,  8247.,  8740.,  4487.,  4814.,  5141.,  5468.,  8493.,  9098.,  9703., 10308.,  8277.,  8874.,  9471., 10068.,  5031.,  5374.,  5717.,  6060.,  4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,  9096.,  9676., 10256.,  5868.,  6264.,  6660.,  7056.,  8517.,  9050.,  9583., 10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637., 13420.,  6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820., 12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524.,  6397.,  6858.,  7319.,  7780.,  3175.,  3406.,  3637.,  3868.,  6221.,  6666.,  7111.,  7556.,  7221.,  7722.,  8223.,  8724.,  4423.,  4734.,  5045.,  5356.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,
+      9096.,  9676.,  10256., 5868.,  6264.,  6660.,  7056.,  8517.,  9050.,
+      9583.,  10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637.,
+      13420., 6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820.,
+      12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524., 6397.,
+      6858.,  7319.,  7780.,  3175.,  3406.,  3637.,  3868.,  6221.,  6666.,
+      7111.,  7556.,  7221.,  7722.,  8223.,  8724.,  4423.,  4734.,  5045.,
+      5356.,  6572.,  7032.,  7492.,  7952.,  9956.,  10632., 11308., 11984.,
+      9220.,  9864.,  10508., 11152., 6380.,  6776.,  7172.,  7568.,  8357.,
+      8922.,  9487.,  10052., 12103., 12974., 13845., 14716., 10975., 11726.,
+      12477., 13228., 5829.,  6250.,  6671.,  7092.,  8445.,  9018.,  9591.,
+      10164., 13039., 13966., 14893., 15820., 12103., 12974., 13845., 14716.,
+      7261.,  7754.,  8247.,  8740.,  4487.,  4814.,  5141.,  5468.,  8493.,
+      9098.,  9703.,  10308., 8277.,  8874.,  9471.,  10068., 5031.,  5374.,
+      5717.,  6060.,  4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,
+      9680.,  8516.,  9096.,  9676.,  10256., 5868.,  6264.,  6660.,  7056.,
+      8517.,  9050.,  9583.,  10116., 12007., 12846., 13685., 14524., 11071.,
+      11854., 12637., 13420., 6181.,  6634.,  7087.,  7540.,  7389.,  7866.,
+      8343.,  8820.,  12751., 13582., 14413., 15244., 12007., 12846., 13685.,
+      14524., 6397.,  6858.,  7319.,  7780.,  3175.,  3406.,  3637.,  3868.,
+      6221.,  6666.,  7111.,  7556.,  7221.,  7722.,  8223.,  8724.,  4423.,
+      4734.,  5045.,  5356.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2095,8 +3220,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316., 11027., 11838., 12649., 13460., 12331., 13150., 13969., 14788., 14011., 14878., 15745., 16612., 11027., 11838., 12649., 13460., 12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.,
+      11027., 11838., 12649., 13460., 12331., 13150., 13969., 14788.,
+      14011., 14878., 15745., 16612., 11027., 11838., 12649., 13460.,
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164.,
+      12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2104,8 +3235,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178., 29398., 27622., 16010.,  8262., 17098., 19514., 11350., 11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178., 29398., 27622., 16010.,  8262., 17098., 19514., 11350., 11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178., 29398., 27622., 16010.,  8262., 17098., 19514., 11350.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154.,
+      17178., 29398., 27622., 16010., 8262.,  17098., 19514., 11350.,
+      11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154.,
+      17178., 29398., 27622., 16010., 8262.,  17098., 19514., 11350.,
+      11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154.,
+      17178., 29398., 27622., 16010., 8262.,  17098., 19514., 11350.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2113,8 +3250,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254., 26254., 24478., 30718., 26254., 26254., 24478., 30718., 26254.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254.,
+                                         26254., 24478., 30718., 26254.,
+                                         26254., 24478., 30718., 26254.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2122,8 +3261,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124.,  7746.,  8268., 16510., 17620., 18174., 19380., 10466., 11180., 11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124.,  7746.,  8268., 16510., 17620., 18174., 19380., 10466., 11180., 11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124.,  7746.,  8268., 16510., 17620., 18174., 19380., 10466., 11180.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870.,
+      21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804.,
+      29538., 31404., 26082., 27852., 14206., 15124., 7746.,  8268.,  16510.,
+      17620., 18174., 19380., 10466., 11180., 11384., 12176., 17352., 18480.,
+      16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602.,
+      23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852.,
+      14206., 15124., 7746.,  8268.,  16510., 17620., 18174., 19380., 10466.,
+      11180., 11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224.,
+      19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694.,
+      18804., 29538., 31404., 26082., 27852., 14206., 15124., 7746.,  8268.,
+      16510., 17620., 18174., 19380., 10466., 11180.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2131,8 +3281,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164., 25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164., 25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.,
+      25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.,
+      25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2140,8 +3293,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696.,  7546.,  8068.,  8590.,  9112., 16358., 17468., 18578., 19688., 16518., 17724., 18930., 20136.,  8890.,  9604., 10318., 11032., 10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696.,  7546.,  8068.,  8590.,  9112., 16358., 17468., 18578., 19688., 16518., 17724., 18930., 20136.,  8890.,  9604., 10318., 11032., 10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696.,  7546.,  8068.,  8590.,  9112., 16358., 17468., 18578., 19688., 16518., 17724., 18930., 20136.,  8890.,  9604., 10318., 11032.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552.,
+      17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724.,
+      18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350.,
+      23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688.,
+      26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942.,
+      12860., 13778., 14696., 7546.,  8068.,  8590.,  9112.,  16358., 17468.,
+      18578., 19688., 16518., 17724., 18930., 20136., 8890.,  9604.,  10318.,
+      11032., 10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912.,
+      16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518.,
+      17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932.,
+      22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578.,
+      19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336.,
+      11942., 12860., 13778., 14696., 7546.,  8068.,  8590.,  9112.,  16358.,
+      17468., 18578., 19688., 16518., 17724., 18930., 20136., 8890.,  9604.,
+      10318., 11032., 10328., 11120., 11912., 12704., 15528., 16656., 17784.,
+      18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752.,
+      16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514.,
+      20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468.,
+      18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566.,
+      29336., 11942., 12860., 13778., 14696., 7546.,  8068.,  8590.,  9112.,
+      16358., 17468., 18578., 19688., 16518., 17724., 18930., 20136., 8890.,
+      9604.,  10318., 11032.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2149,8 +3324,13 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364.,
+      8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760.,
+      6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108.,
+      7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.,
+      6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760.};
+  const std::array<int, 4> in_shape = {{3, 8, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -2158,8 +3338,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4532.,  6000.,  6620.,  3914.,  8780., 11150., 11800.,  6790., 13100., 16350., 17000.,  9670.,  5486.,  6670.,  6910.,  3711.,  4532.,  6000.,  6620.,  3914.,  8780., 11150., 11800.,  6790., 13100., 16350., 17000.,  9670.,  5486.,  6670.,  6910.,  3711.,  4532.,  6000.,  6620.,  3914.,  8780., 11150., 11800.,  6790., 13100., 16350., 17000.,  9670.,  5486.,  6670.,  6910.,  3711.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      4532.,  6000.,  6620.,  3914., 8780., 11150., 11800., 6790.,
+      13100., 16350., 17000., 9670., 5486., 6670.,  6910.,  3711.,
+      4532.,  6000.,  6620.,  3914., 8780., 11150., 11800., 6790.,
+      13100., 16350., 17000., 9670., 5486., 6670.,  6910.,  3711.,
+      4532.,  6000.,  6620.,  3914., 8780., 11150., 11800., 6790.,
+      13100., 16350., 17000., 9670., 5486., 6670.,  6910.,  3711.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2167,8 +3353,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8225.,  8875., 13425., 14075.,  8225.,  8875., 13425., 14075.,  8225.,  8875., 13425., 14075.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {8225., 8875., 13425., 14075.,
+                                         8225., 8875., 13425., 14075.,
+                                         8225., 8875., 13425., 14075.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2176,8 +3364,18 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390., 3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390., 3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144.,
+      6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756.,
+      5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140.,
+      3183., 3390., 3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348.,
+      4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056.,
+      5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660.,
+      5810., 6140., 3183., 3390., 3072., 3304., 4576., 4896., 5200., 5560.,
+      3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172.,
+      3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444.,
+      5360., 5660., 5810., 6140., 3183., 3390.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2185,8 +3383,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150., 15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150., 15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.,
+      15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.,
+      15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2194,8 +3395,28 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804., 3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804., 3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016.,
+      6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264.,
+      5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630.,
+      4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704.,
+      7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804.,
+      4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976.,
+      3183., 3390., 3597., 3804., 3448., 3680., 3912., 4144., 5024., 5344.,
+      5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552.,
+      4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012.,
+      7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648.,
+      6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662.,
+      4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864., 5164., 5464.,
+      4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804., 3448., 3680.,
+      3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736.,
+      3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240.,
+      6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176.,
+      4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556.,
+      8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248.,
+      4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390.,
+      3597., 3804.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2203,8 +3424,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692., 13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692., 13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.,
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.,
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.,
+      23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2212,8 +3439,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.,  7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.,  7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7648., 11144., 13720., 8216., 8756., 12519., 15315., 8853.,
+      8756., 12519., 15315., 8853., 6132., 8695.,  10555., 5925.,
+      7648., 11144., 13720., 8216., 8756., 12519., 15315., 8853.,
+      8756., 12519., 15315., 8853., 6132., 8695.,  10555., 5925.,
+      7648., 11144., 13720., 8216., 8756., 12519., 15315., 8853.,
+      8756., 12519., 15315., 8853., 6132., 8695.,  10555., 5925.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2221,8 +3454,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {8065., 10861., 8065., 10861.,
+                                         8065., 10861., 8065., 10861.,
+                                         8065., 10861., 8065., 10861.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2230,8 +3465,19 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.,  7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.,  7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7312.,  7712.,  10820., 11440., 13508., 14288., 9516.,  10032., 9364.,
+      9928.,  13335., 14190., 16423., 17478., 10613., 11306., 9364.,  9928.,
+      13335., 14190., 16423., 17478., 10613., 11306., 5820.,  6184.,  7981.,
+      8526.,  9789.,  10454., 5751.,  6186.,  7312.,  7712.,  10820., 11440.,
+      13508., 14288., 9516.,  10032., 9364.,  9928.,  13335., 14190., 16423.,
+      17478., 10613., 11306., 9364.,  9928.,  13335., 14190., 16423., 17478.,
+      10613., 11306., 5820.,  6184.,  7981.,  8526.,  9789.,  10454., 5751.,
+      6186.,  7312.,  7712.,  10820., 11440., 13508., 14288., 9516.,  10032.,
+      9364.,  9928.,  13335., 14190., 16423., 17478., 10613., 11306., 9364.,
+      9928.,  13335., 14190., 16423., 17478., 10613., 11306., 5820.,  6184.,
+      7981.,  8526.,  9789.,  10454., 5751.,  6186.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2239,8 +3485,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      8911., 9506., 11999., 12794., 8911., 9506., 11999., 12794.,
+      8911., 9506., 11999., 12794., 8911., 9506., 11999., 12794.,
+      8911., 9506., 11999., 12794., 8911., 9506., 11999., 12794.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2248,8 +3497,30 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.,  6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.,  6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      6032.,  6432.,  6832.,  7232.,  9084.,  9704.,  10324., 10944., 11484.,
+      12264., 13044., 13824., 7508.,  8024.,  8540.,  9056.,  8468.,  9032.,
+      9596.,  10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133.,
+      18188., 9525.,  10218., 10911., 11604., 8468.,  9032.,  9596.,  10160.,
+      12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188., 9525.,
+      10218., 10911., 11604., 5324.,  5688.,  6052.,  6416.,  7705.,  8250.,
+      8795.,  9340.,  9409.,  10074., 10739., 11404., 6459.,  6894.,  7329.,
+      7764.,  6032.,  6432.,  6832.,  7232.,  9084.,  9704.,  10324., 10944.,
+      11484., 12264., 13044., 13824., 7508.,  8024.,  8540.,  9056.,  8468.,
+      9032.,  9596.,  10160., 12119., 12974., 13829., 14684., 15023., 16078.,
+      17133., 18188., 9525.,  10218., 10911., 11604., 8468.,  9032.,  9596.,
+      10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,
+      9525.,  10218., 10911., 11604., 5324.,  5688.,  6052.,  6416.,  7705.,
+      8250.,  8795.,  9340.,  9409.,  10074., 10739., 11404., 6459.,  6894.,
+      7329.,  7764.,  6032.,  6432.,  6832.,  7232.,  9084.,  9704.,  10324.,
+      10944., 11484., 12264., 13044., 13824., 7508.,  8024.,  8540.,  9056.,
+      8468.,  9032.,  9596.,  10160., 12119., 12974., 13829., 14684., 15023.,
+      16078., 17133., 18188., 9525.,  10218., 10911., 11604., 8468.,  9032.,
+      9596.,  10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133.,
+      18188., 9525.,  10218., 10911., 11604., 5324.,  5688.,  6052.,  6416.,
+      7705.,  8250.,  8795.,  9340.,  9409.,  10074., 10739., 11404., 6459.,
+      6894.,  7329.,  7764.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2257,8 +3528,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.,
+      9163., 9758., 10353., 10948., 12067., 12862., 13657., 14452.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2266,8 +3543,13 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470., 4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470., 4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790.,
+      7958., 5306., 3208., 4242., 4354., 3470., 4704., 5608., 6696., 4344.,
+      5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242.,
+      4354., 3470., 4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306.,
+      5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -2275,8 +3557,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230.,
+                                         16478., 29230., 16478., 29230.,
+                                         16478., 29230., 16478., 29230.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2284,8 +3568,18 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308.,
+      7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028.,
+      2946., 3324., 4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292.,
+      4446., 5028., 2946., 3324., 4512., 5056., 5384., 6032., 6408., 7184.,
+      4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652.,
+      5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664.,
+      3806., 4292., 4446., 5028., 2946., 3324.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -2293,8 +3587,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.,
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.,
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2302,8 +3599,28 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4128., 4672.,  5216., 5760.,  4936., 5584.,  6232., 6880.,  5832., 6608.,
+      7384., 8160.,  3768., 4272.,  4776., 5280.,  5160., 5840.,  6520., 7200.,
+      6170., 6980.,  7790., 8600.,  7290., 8260.,  9230., 10200., 4710., 5340.,
+      5970., 6600.,  5160., 5840.,  6520., 7200.,  6170., 6980.,  7790., 8600.,
+      7290., 8260.,  9230., 10200., 4710., 5340.,  5970., 6600.,  3096., 3504.,
+      3912., 4320.,  3702., 4188.,  4674., 5160.,  4374., 4956.,  5538., 6120.,
+      2826., 3204.,  3582., 3960.,  4128., 4672.,  5216., 5760.,  4936., 5584.,
+      6232., 6880.,  5832., 6608.,  7384., 8160.,  3768., 4272.,  4776., 5280.,
+      5160., 5840.,  6520., 7200.,  6170., 6980.,  7790., 8600.,  7290., 8260.,
+      9230., 10200., 4710., 5340.,  5970., 6600.,  5160., 5840.,  6520., 7200.,
+      6170., 6980.,  7790., 8600.,  7290., 8260.,  9230., 10200., 4710., 5340.,
+      5970., 6600.,  3096., 3504.,  3912., 4320.,  3702., 4188.,  4674., 5160.,
+      4374., 4956.,  5538., 6120.,  2826., 3204.,  3582., 3960.,  4128., 4672.,
+      5216., 5760.,  4936., 5584.,  6232., 6880.,  5832., 6608.,  7384., 8160.,
+      3768., 4272.,  4776., 5280.,  5160., 5840.,  6520., 7200.,  6170., 6980.,
+      7790., 8600.,  7290., 8260.,  9230., 10200., 4710., 5340.,  5970., 6600.,
+      5160., 5840.,  6520., 7200.,  6170., 6980.,  7790., 8600.,  7290., 8260.,
+      9230., 10200., 4710., 5340.,  5970., 6600.,  3096., 3504.,  3912., 4320.,
+      3702., 4188.,  4674., 5160.,  4374., 4956.,  5538., 6120.,  2826., 3204.,
+      3582., 3960.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -2311,8 +3628,13 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340.,
+      7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800.,
+      6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620.,
+      8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.,
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
+  const std::array<int, 4> in_shape = {{3, 8, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -2320,8 +3642,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5500.,  7180.,  7800.,  8420.,  4934., 10800., 13600., 14250., 14900.,  8530., 10184., 10244.,  8654.,  8280.,  4642.,  3334.,  2834.,  2114.,  1970.,  1005.,  9596., 12140., 12760., 13380.,  7718.,  9104., 11440., 12090., 10244.,  4946.,  6312.,  8020.,  8670.,  8104.,  4258.,  1894.,  2450.,  2690.,  2930.,  1629., 10556., 11084., 10360., 10980.,  6278.,  6832.,  7424.,  7370.,  8020.,  4498.,  7880.,  9764., 10350., 11000.,  6370.,  3526.,  4370.,  4610.,  4850.,  2637.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      5500.,  7180.,  7800.,  8420.,  4934.,  10800., 13600., 14250., 14900.,
+      8530.,  10184., 10244., 8654.,  8280.,  4642.,  3334.,  2834.,  2114.,
+      1970.,  1005.,  9596.,  12140., 12760., 13380., 7718.,  9104.,  11440.,
+      12090., 10244., 4946.,  6312.,  8020.,  8670.,  8104.,  4258.,  1894.,
+      2450.,  2690.,  2930.,  1629.,  10556., 11084., 10360., 10980., 6278.,
+      6832.,  7424.,  7370.,  8020.,  4498.,  7880.,  9764.,  10350., 11000.,
+      6370.,  3526.,  4370.,  4610.,  4850.,  2637.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2329,8 +3658,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10025., 10675., 11325., 14925., 12567., 10465., 15225., 15875., 14925.,  8605.,  9255.,  8945.,  9417.,  7955.,  8605.,  7917.,  7735.,  8385.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10025., 10675., 11325., 14925., 12567., 10465., 15225., 15875., 14925.,
+      8605.,  9255.,  8945.,  9417.,  7955.,  8605.,  7917.,  7735.,  8385.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2338,8 +3669,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840.,  9580.,  9868., 20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800., 16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750., 16560.,  8783.,  9284.,  6174.,  6668.,  5156.,  5668.,  3814.,  4228.,  3560.,  3940.,  1773.,  2010., 18656., 19192., 23580., 24280., 24780., 25520., 25980., 26760., 14956., 15436., 17494., 18208., 21950., 22880., 23200., 24180., 19586., 20488.,  9387.,  9892., 12022., 12624., 15250., 16040., 16500., 17340., 15446., 16208.,  8095.,  8516.,  3614.,  3788.,  4660.,  4900.,  5110.,  5380.,  5560.,  5860.,  3069.,  3258., 20448., 21112., 21404., 22168., 19980., 20720., 21180., 21960., 12076., 12556., 13014., 13664., 14094., 14848., 14000., 14740., 15250., 16040.,  8507.,  8996., 15222., 15760., 18914., 19528., 20100., 20700., 21350., 22000., 12335., 12740.,  6686.,  7052.,  8260.,  8740.,  8710.,  9220.,  9160.,  9700.,  4941.,  5274.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840., 9580.,
+      9868.,  20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800.,
+      16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750.,
+      16560., 8783.,  9284.,  6174.,  6668.,  5156.,  5668.,  3814.,  4228.,
+      3560.,  3940.,  1773.,  2010.,  18656., 19192., 23580., 24280., 24780.,
+      25520., 25980., 26760., 14956., 15436., 17494., 18208., 21950., 22880.,
+      23200., 24180., 19586., 20488., 9387.,  9892.,  12022., 12624., 15250.,
+      16040., 16500., 17340., 15446., 16208., 8095.,  8516.,  3614.,  3788.,
+      4660.,  4900.,  5110.,  5380.,  5560.,  5860.,  3069.,  3258.,  20448.,
+      21112., 21404., 22168., 19980., 20720., 21180., 21960., 12076., 12556.,
+      13014., 13664., 14094., 14848., 14000., 14740., 15250., 16040., 8507.,
+      8996.,  15222., 15760., 18914., 19528., 20100., 20700., 21350., 22000.,
+      12335., 12740., 6686.,  7052.,  8260.,  8740.,  8710.,  9220.,  9160.,
+      9700.,  4941.,  5274.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2347,8 +3692,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201., 25134., 20075., 20930., 29475., 30450., 30725., 31750., 28839., 29850., 16375., 17210., 17625., 18510., 17019., 17890., 17971., 18834., 15125., 15910., 16375., 17210., 15111., 15834., 14825., 15470., 16075., 16770.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201.,
+      25134., 20075., 20930., 29475., 30450., 30725., 31750., 28839., 29850.,
+      16375., 17210., 17625., 18510., 17019., 17890., 17971., 18834., 15125.,
+      15910., 16375., 17210., 15111., 15834., 14825., 15470., 16075., 16770.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2356,8 +3705,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7080.,  7360.,  7640.,  7920., 10428., 10808., 11188., 11568., 11636., 12056., 12476., 12896., 12844., 13304., 13764., 14224.,  7608.,  7896.,  8184.,  8472., 16930., 17580., 18230., 18880., 23178., 24028., 24878., 25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624., 14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750., 27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868., 26678., 27488., 13481., 13982., 14483., 14984., 11854., 12348., 12842., 13336.,  9800., 10312., 10824., 11336.,  7214.,  7628.,  8042.,  8456.,  6740.,  7120.,  7500.,  7880.,  3309.,  3546.,  3783.,  4020., 14504., 15040., 15576., 16112., 20092., 20792., 21492., 22192., 21300., 22040., 22780., 23520., 22508., 23288., 24068., 24848., 13048., 13528., 14008., 14488., 18146., 18860., 19574., 20288., 25562., 26492., 27422., 28352., 26860., 27840., 28820., 29800., 26750., 27652., 28554., 29456., 15965., 16470., 16975., 17480., 13458., 14060., 14662., 15264., 17166., 17956., 18746., 19536., 18464., 19304., 20144., 20984., 15282., 16044., 16806., 17568.,  7065.,  7486.,  7907.,  8328.,  7054.,  7228.,  7402.,  7576.,  9080.,  9320.,  9560.,  9800.,  9950., 10220., 10490., 10760., 10820., 11120., 11420., 11720.,  5949.,  6138.,  6327.,  6516., 17960., 18624., 19288., 19952., 22844., 23608., 24372., 25136., 22964., 23704., 24444., 25184., 24172., 24952., 25732., 26512., 14456., 14936., 15416., 15896., 17442., 18092., 18742., 19392., 17194., 17948., 18702., 19456., 15868., 16608., 17348., 18088., 17166., 17956., 18746., 19536.,  9101.,  9590., 10079., 10568., 11730., 12268., 12806., 13344., 15454., 16068., 16682., 17296., 16688., 17288., 17888., 18488., 17986., 18636., 19286., 19936., 10441., 10846., 11251., 11656., 13006., 13372., 13738., 14104., 16040., 16520., 17000., 17480., 16910., 17420., 17930., 18440., 17780., 18320., 18860., 19400.,  9549.,  9882., 10215., 10548.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      7080.,  7360.,  7640.,  7920.,  10428., 10808., 11188., 11568., 11636.,
+      12056., 12476., 12896., 12844., 13304., 13764., 14224., 7608.,  7896.,
+      8184.,  8472.,  16930., 17580., 18230., 18880., 23178., 24028., 24878.,
+      25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624.,
+      14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750.,
+      27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868.,
+      26678., 27488., 13481., 13982., 14483., 14984., 11854., 12348., 12842.,
+      13336., 9800.,  10312., 10824., 11336., 7214.,  7628.,  8042.,  8456.,
+      6740.,  7120.,  7500.,  7880.,  3309.,  3546.,  3783.,  4020.,  14504.,
+      15040., 15576., 16112., 20092., 20792., 21492., 22192., 21300., 22040.,
+      22780., 23520., 22508., 23288., 24068., 24848., 13048., 13528., 14008.,
+      14488., 18146., 18860., 19574., 20288., 25562., 26492., 27422., 28352.,
+      26860., 27840., 28820., 29800., 26750., 27652., 28554., 29456., 15965.,
+      16470., 16975., 17480., 13458., 14060., 14662., 15264., 17166., 17956.,
+      18746., 19536., 18464., 19304., 20144., 20984., 15282., 16044., 16806.,
+      17568., 7065.,  7486.,  7907.,  8328.,  7054.,  7228.,  7402.,  7576.,
+      9080.,  9320.,  9560.,  9800.,  9950.,  10220., 10490., 10760., 10820.,
+      11120., 11420., 11720., 5949.,  6138.,  6327.,  6516.,  17960., 18624.,
+      19288., 19952., 22844., 23608., 24372., 25136., 22964., 23704., 24444.,
+      25184., 24172., 24952., 25732., 26512., 14456., 14936., 15416., 15896.,
+      17442., 18092., 18742., 19392., 17194., 17948., 18702., 19456., 15868.,
+      16608., 17348., 18088., 17166., 17956., 18746., 19536., 9101.,  9590.,
+      10079., 10568., 11730., 12268., 12806., 13344., 15454., 16068., 16682.,
+      17296., 16688., 17288., 17888., 18488., 17986., 18636., 19286., 19936.,
+      10441., 10846., 11251., 11656., 13006., 13372., 13738., 14104., 16040.,
+      16520., 17000., 17480., 16910., 17420., 17930., 18440., 17780., 18320.,
+      18860., 19400., 9549.,  9882.,  10215., 10548.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2365,8 +3741,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180., 26423., 27398., 28373., 29348., 27721., 28746., 29771., 30796., 26907., 27918., 28929., 29940., 25707., 26542., 27377., 28212., 27005., 27890., 28775., 29660., 24655., 25526., 26397., 27268., 27079., 27942., 28805., 29668., 24409., 25194., 25979., 26764., 25707., 26542., 27377., 28212., 14075., 14798., 15521., 16244., 12429., 13074., 13719., 14364., 13727., 14422., 15117., 15812.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635.,
+      19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682.,
+      26615., 27548., 23615., 24470., 25325., 26180., 26423., 27398., 28373.,
+      29348., 27721., 28746., 29771., 30796., 26907., 27918., 28929., 29940.,
+      25707., 26542., 27377., 28212., 27005., 27890., 28775., 29660., 24655.,
+      25526., 26397., 27268., 27079., 27942., 28805., 29668., 24409., 25194.,
+      25979., 26764., 25707., 26542., 27377., 28212., 14075., 14798., 15521.,
+      16244., 12429., 13074., 13719., 14364., 13727., 14422., 15117., 15812.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2374,8 +3758,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8064., 10864.,  9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,  7653.,  8260., 11939., 14319., 12731.,  6861.,  7828.,  8367.,  8371.,  9495.,  5433.,  8064., 10864.,  9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,  7653.,  8260., 11939., 14319., 12731.,  6861.,  7828.,  8367.,  8371.,  9495.,  5433.,  8064., 10864.,  9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,  7653.,  8260., 11939., 14319., 12731.,  6861.,  7828.,  8367.,  8371.,  9495.,  5433.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8064.,  10864., 9184.,  8624.,  4928.,  8100.,  10219., 10551., 11939.,
+      7653.,  8260.,  11939., 14319., 12731., 6861.,  7828.,  8367.,  8371.,
+      9495.,  5433.,  8064.,  10864., 9184.,  8624.,  4928.,  8100.,  10219.,
+      10551., 11939., 7653.,  8260.,  11939., 14319., 12731., 6861.,  7828.,
+      8367.,  8371.,  9495.,  5433.,  8064.,  10864., 9184.,  8624.,  4928.,
+      8100.,  10219., 10551., 11939., 7653.,  8260.,  11939., 14319., 12731.,
+      6861.,  7828.,  8367.,  8371.,  9495.,  5433.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2383,8 +3774,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357., 10921., 13017., 12453., 12017., 12017., 11357., 10921., 13017., 12453., 12017., 12017., 11357., 10921.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13017., 12453., 12017., 12017., 11357., 10921., 13017., 12453., 12017.,
+      12017., 11357., 10921., 13017., 12453., 12017., 12017., 11357., 10921.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2392,8 +3785,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8336.,  8800.,  9764., 10368.,  8228.,  8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114.,  7100.,  7528.,  9677., 10174.,  7901.,  8390.,  8301.,  8846.,  4839.,  5202.,  8336.,  8800.,  9764., 10368.,  8228.,  8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114.,  7100.,  7528.,  9677., 10174.,  7901.,  8390.,  8301.,  8846.,  4839.,  5202.,  8336.,  8800.,  9764., 10368.,  8228.,  8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114.,  7100.,  7528.,  9677., 10174.,  7901.,  8390.,  8301.,  8846.,  4839.,  5202.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8336.,  8800.,  9764.,  10368., 8228.,  8800.,  8868.,  9472.,  6924.,
+      7296.,  8724.,  9384.,  11783., 12662., 12183., 13070., 12711., 13542.,
+      10229., 10698., 9492.,  10216., 12711., 13542., 15159., 15998., 15815.,
+      16662., 8597.,  9114.,  7100.,  7528.,  9677.,  10174., 7901.,  8390.,
+      8301.,  8846.,  4839.,  5202.,  8336.,  8800.,  9764.,  10368., 8228.,
+      8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384.,  11783., 12662.,
+      12183., 13070., 12711., 13542., 10229., 10698., 9492.,  10216., 12711.,
+      13542., 15159., 15998., 15815., 16662., 8597.,  9114.,  7100.,  7528.,
+      9677.,  10174., 7901.,  8390.,  8301.,  8846.,  4839.,  5202.,  8336.,
+      8800.,  9764.,  10368., 8228.,  8800.,  8868.,  9472.,  6924.,  7296.,
+      8724.,  9384.,  11783., 12662., 12183., 13070., 12711., 13542., 10229.,
+      10698., 9492.,  10216., 12711., 13542., 15159., 15998., 15815., 16662.,
+      8597.,  9114.,  7100.,  7528.,  9677.,  10174., 7901.,  8390.,  8301.,
+      8846.,  4839.,  5202.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2401,8 +3808,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378., 13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378., 13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743.,
+      12506., 10607., 11378., 13743., 14546., 14399., 15210., 15311., 16130.,
+      15311., 16130., 11743., 12506., 10607., 11378., 13743., 14546., 14399.,
+      15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2410,8 +3821,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988., 10592.,  9068.,  9640., 10212., 10784.,  9548., 10152., 10756., 11360.,  5540.,  5912.,  6284.,  6656.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,  7568.,  8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,  7833.,  8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.,  6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988., 10592.,  9068.,  9640., 10212., 10784.,  9548., 10152., 10756., 11360.,  5540.,  5912.,  6284.,  6656.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,  7568.,  8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,  7833.,  8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.,  6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988., 10592.,  9068.,  9640., 10212., 10784.,  9548., 10152., 10756., 11360.,  5540.,  5912.,  6284.,  6656.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,  7568.,  8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,  7833.,  8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988.,  10592., 9068.,
+      9640.,  10212., 10784., 9548.,  10152., 10756., 11360., 5540.,  5912.,
+      6284.,  6656.,  9908.,  10568., 11228., 11888., 13087., 13966., 14845.,
+      15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,
+      7957.,  8426.,  8895.,  9364.,  10868., 11592., 12316., 13040., 10895.,
+      11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838.,
+      14685., 15532., 6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,
+      7568.,  8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,
+      7833.,  8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.,  6992.,
+      7456.,  7920.,  8384.,  8780.,  9384.,  9988.,  10592., 9068.,  9640.,
+      10212., 10784., 9548.,  10152., 10756., 11360., 5540.,  5912.,  6284.,
+      6656.,  9908.,  10568., 11228., 11888., 13087., 13966., 14845., 15724.,
+      12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388., 7957.,
+      8426.,  8895.,  9364.,  10868., 11592., 12316., 13040., 10895., 11726.,
+      12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685.,
+      15532., 6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,  7568.,
+      8073.,  8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,  7833.,
+      8378.,  8923.,  9468.,  5475.,  5838.,  6201.,  6564.,  6992.,  7456.,
+      7920.,  8384.,  8780.,  9384.,  9988.,  10592., 9068.,  9640.,  10212.,
+      10784., 9548.,  10152., 10756., 11360., 5540.,  5912.,  6284.,  6656.,
+      9908.,  10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855.,
+      13742., 14629., 15516., 10895., 11726., 12557., 13388., 7957.,  8426.,
+      8895.,  9364.,  10868., 11592., 12316., 13040., 10895., 11726., 12557.,
+      13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,
+      6693.,  7210.,  7727.,  8244.,  6284.,  6712.,  7140.,  7568.,  8073.,
+      8570.,  9067.,  9564.,  6833.,  7322.,  7811.,  8300.,  7833.,  8378.,
+      8923.,  9468.,  5475.,  5838.,  6201.,  6564.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2419,8 +3857,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523.,
+      13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326.,
+      12089., 12852., 11355., 12126., 12897., 13668., 11451., 12254., 13057.,
+      13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980.,
+      12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355.,
+      12126., 12897., 13668., 11451., 12254., 13057., 13860., 11731., 12542.,
+      13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161.,
+      14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2428,8 +3874,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 14152., 18578., 13186., 15602., 11742., 16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 14152., 18578., 13186., 15602., 11742., 16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 14152., 18578., 13186., 15602., 11742.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534.,
+      18650., 19608., 24534., 27174., 30646., 17850., 14152., 18578., 13186.,
+      15602., 11742., 16992., 22184., 23464., 25256., 15640., 20632., 30646.,
+      26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 14152.,
+      18578., 13186., 15602., 11742., 16992., 22184., 23464., 25256., 15640.,
+      20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646.,
+      17850., 14152., 18578., 13186., 15602., 11742.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2437,8 +3890,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086.,
+      29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2446,8 +3901,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476., 17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476., 17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512.,
+      12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724.,
+      17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050.,
+      31852., 15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380.,
+      14142., 15140., 11810., 12476., 17056., 18112., 19528., 20880., 23112.,
+      24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852.,
+      25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114.,
+      23724., 27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120.,
+      17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476., 17056.,
+      18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336.,
+      21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406.,
+      18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852.,
+      15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380., 14142.,
+      15140., 11810., 12476.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2455,8 +3924,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538.,
+      23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.,
+      29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938.,
+      29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2464,8 +3937,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776.,  9578., 10244., 10910., 11576., 16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776.,  9578., 10244., 10910., 11576., 16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776.,  9578., 10244., 10910., 11576.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192.,
+      22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936.,
+      14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902.,
+      31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736.,
+      14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906.,
+      24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100.,
+      29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624.,
+      16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328.,
+      13782., 14780., 15778., 16776., 9578.,  10244., 10910., 11576., 16160.,
+      17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544.,
+      23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760.,
+      15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704.,
+      25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726.,
+      15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516.,
+      26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902.,
+      31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544.,
+      15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782.,
+      14780., 15778., 16776., 9578.,  10244., 10910., 11576., 16160., 17216.,
+      18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896.,
+      25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584.,
+      19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626.,
+      27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676.,
+      16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126.,
+      27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704.,
+      17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544., 15254.,
+      16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782., 14780.,
+      15778., 16776., 9578.,  10244., 10910., 11576.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2473,8 +3973,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x8x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.};
-  const std::array<int, 4> in_shape = {{ 3, 8, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538.,
+      28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412.,
+      27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142.,
+      27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.,
+      26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146.,
+      24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924.,
+      27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918.,
+      31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.};
+  const std::array<int, 4> in_shape = {{3, 8, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2482,8 +3990,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x8x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 3008.,  5100.,  5720.,  3404.,  5890.,  9600., 10250.,  5920.,  8830., 14150., 14800.,  8440.,  8634., 12684., 11990.,  6736.,  3058.,  4004.,  3540.,  1818.,  4196.,  6960.,  7580.,  4448.,  7150., 11550., 12200.,  7000., 10090., 16100., 16750.,  9520.,  7142.,  9642.,  8180.,  4552.,  2072.,  2292.,  1700.,   852.,  5384.,  8820.,  9440.,  5492.,  8410., 13500., 14150.,  8080., 11350., 14914., 12684.,  6376.,  6034.,  7624.,  6674.,  3328.,  1470.,  1604.,  1524.,   846.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      3008.,  5100.,  5720.,  3404.,  5890.,  9600.,  10250., 5920.,  8830.,
+      14150., 14800., 8440.,  8634.,  12684., 11990., 6736.,  3058.,  4004.,
+      3540.,  1818.,  4196.,  6960.,  7580.,  4448.,  7150.,  11550., 12200.,
+      7000.,  10090., 16100., 16750., 9520.,  7142.,  9642.,  8180.,  4552.,
+      2072.,  2292.,  1700.,  852.,   5384.,  8820.,  9440.,  5492.,  8410.,
+      13500., 14150., 8080.,  11350., 14914., 12684., 6376.,  6034.,  7624.,
+      6674.,  3328.,  1470.,  1604.,  1524.,  846.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2491,8 +4006,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7325.,  7975., 11875., 12525., 16425., 17075.,  9275.,  9925., 13825., 14475., 13767., 11665., 11225., 11875., 15775., 16425., 10469.,  8879.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      7325.,  7975.,  11875., 12525., 16425., 17075., 9275.,  9925.,  13825.,
+      14475., 13767., 11665., 11225., 11875., 15775., 16425., 10469., 8879.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2500,8 +4017,20 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2122., 2272., 3850., 4120., 4474., 4784., 2706., 2904., 3563., 3812., 6184., 6592., 6602., 6996., 3115., 3328., 3473., 3740., 5014., 5452., 4664., 5088., 2249., 2480., 3127., 3348., 5348., 5720., 5734., 6124., 3495., 3744., 2618., 2788., 3507., 3784., 3285., 3560., 1734., 1908., 3274., 3496., 5722., 6112., 5322., 5688., 2994., 3200., 4361., 4604., 6926., 7356., 5808., 6224., 2689., 2928., 3119., 3380., 5244., 5704., 5406., 5852., 3103., 3360., 3765., 4012., 6602., 6996., 6252., 6632., 3485., 3728., 2128., 2288., 2553., 2792., 2235., 2440., 1188., 1320., 2986., 3184., 5514., 5864., 5914., 6272., 3666., 3880., 3047., 3284., 4948., 5368., 5014., 5452., 2647., 2912., 3725., 3980., 5442., 5828., 5348., 5720., 3125., 3344., 4787., 5060., 5808., 6224., 4946., 5348., 2387., 2624., 2022., 2172., 2623., 2824., 2817., 2984., 1602., 1692.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      2122., 2272., 3850., 4120., 4474., 4784., 2706., 2904., 3563., 3812.,
+      6184., 6592., 6602., 6996., 3115., 3328., 3473., 3740., 5014., 5452.,
+      4664., 5088., 2249., 2480., 3127., 3348., 5348., 5720., 5734., 6124.,
+      3495., 3744., 2618., 2788., 3507., 3784., 3285., 3560., 1734., 1908.,
+      3274., 3496., 5722., 6112., 5322., 5688., 2994., 3200., 4361., 4604.,
+      6926., 7356., 5808., 6224., 2689., 2928., 3119., 3380., 5244., 5704.,
+      5406., 5852., 3103., 3360., 3765., 4012., 6602., 6996., 6252., 6632.,
+      3485., 3728., 2128., 2288., 2553., 2792., 2235., 2440., 1188., 1320.,
+      2986., 3184., 5514., 5864., 5914., 6272., 3666., 3880., 3047., 3284.,
+      4948., 5368., 5014., 5452., 2647., 2912., 3725., 3980., 5442., 5828.,
+      5348., 5720., 3125., 3344., 4787., 5060., 5808., 6224., 4946., 5348.,
+      2387., 2624., 2022., 2172., 2623., 2824., 2817., 2984., 1602., 1692.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2509,8 +4038,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5585., 5978., 5363., 5742., 6335., 6758., 5345., 5754., 5293., 5746., 5583., 6022., 6071., 6486., 6361., 6762., 5285., 5730., 4807., 5238., 5363., 5742., 5397., 5762., 6589., 6994., 6335., 6758., 4907., 5342., 5293., 5746., 6361., 6762., 6907., 7294.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      5585., 5978., 5363., 5742., 6335., 6758., 5345., 5754., 5293.,
+      5746., 5583., 6022., 6071., 6486., 6361., 6762., 5285., 5730.,
+      4807., 5238., 5363., 5742., 5397., 5762., 6589., 6994., 6335.,
+      6758., 4907., 5342., 5293., 5746., 6361., 6762., 6907., 7294.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2518,8 +4051,32 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2302., 2452., 2602., 2752., 4230., 4500., 4770., 5040., 4862., 5172., 5482., 5792., 3358., 3556., 3754., 3952., 3421., 3670., 3919., 4168., 5752., 6160., 6568., 6976., 6026., 6420., 6814., 7208., 3393., 3606., 3819., 4032., 3607., 3874., 4141., 4408., 6518., 6956., 7394., 7832., 6280., 6704., 7128., 7552., 2923., 3154., 3385., 3616., 3345., 3566., 3787., 4008., 5268., 5640., 6012., 6384., 5446., 5836., 6226., 6616., 3605., 3854., 4103., 4352., 2250., 2420., 2590., 2760., 3569., 3846., 4123., 4400., 3703., 3978., 4253., 4528., 2814., 2988., 3162., 3336., 3382., 3604., 3826., 4048., 6126., 6516., 6906., 7296., 5798., 6164., 6530., 6896., 3158., 3364., 3570., 3776., 3871., 4114., 4357., 4600., 6510., 6940., 7370., 7800., 5760., 6176., 6592., 7008., 3795., 4034., 4273., 4512., 3801., 4062., 4323., 4584., 6252., 6712., 7172., 7632., 6014., 6460., 6906., 7352., 3837., 4094., 4351., 4608., 3443., 3690., 3937., 4184., 6026., 6420., 6814., 7208., 5788., 6168., 6548., 6928., 3847., 4090., 4333., 4576., 2368., 2528., 2688., 2848., 3427., 3666., 3905., 4144., 2377., 2582., 2787., 2992., 1188., 1320., 1452., 1584., 2702., 2900., 3098., 3296., 5046., 5396., 5746., 6096., 5262., 5620., 5978., 6336., 3726., 3940., 4154., 4368., 3169., 3406., 3643., 3880., 5956., 6376., 6796., 7216., 6518., 6956., 7394., 7832., 3941., 4206., 4471., 4736., 3867., 4122., 4377., 4632., 6018., 6404., 6790., 7176., 5268., 5640., 6012., 6384., 3151., 3370., 3589., 3808., 4309., 4582., 4855., 5128., 5760., 6176., 6592., 7008., 5522., 5924., 6326., 6728., 3961., 4198., 4435., 4672., 2230., 2380., 2530., 2680., 2261., 2462., 2663., 2864., 2235., 2402., 2569., 2736., 1482., 1572., 1662., 1752.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      2302., 2452., 2602., 2752., 4230., 4500., 4770., 5040., 4862., 5172.,
+      5482., 5792., 3358., 3556., 3754., 3952., 3421., 3670., 3919., 4168.,
+      5752., 6160., 6568., 6976., 6026., 6420., 6814., 7208., 3393., 3606.,
+      3819., 4032., 3607., 3874., 4141., 4408., 6518., 6956., 7394., 7832.,
+      6280., 6704., 7128., 7552., 2923., 3154., 3385., 3616., 3345., 3566.,
+      3787., 4008., 5268., 5640., 6012., 6384., 5446., 5836., 6226., 6616.,
+      3605., 3854., 4103., 4352., 2250., 2420., 2590., 2760., 3569., 3846.,
+      4123., 4400., 3703., 3978., 4253., 4528., 2814., 2988., 3162., 3336.,
+      3382., 3604., 3826., 4048., 6126., 6516., 6906., 7296., 5798., 6164.,
+      6530., 6896., 3158., 3364., 3570., 3776., 3871., 4114., 4357., 4600.,
+      6510., 6940., 7370., 7800., 5760., 6176., 6592., 7008., 3795., 4034.,
+      4273., 4512., 3801., 4062., 4323., 4584., 6252., 6712., 7172., 7632.,
+      6014., 6460., 6906., 7352., 3837., 4094., 4351., 4608., 3443., 3690.,
+      3937., 4184., 6026., 6420., 6814., 7208., 5788., 6168., 6548., 6928.,
+      3847., 4090., 4333., 4576., 2368., 2528., 2688., 2848., 3427., 3666.,
+      3905., 4144., 2377., 2582., 2787., 2992., 1188., 1320., 1452., 1584.,
+      2702., 2900., 3098., 3296., 5046., 5396., 5746., 6096., 5262., 5620.,
+      5978., 6336., 3726., 3940., 4154., 4368., 3169., 3406., 3643., 3880.,
+      5956., 6376., 6796., 7216., 6518., 6956., 7394., 7832., 3941., 4206.,
+      4471., 4736., 3867., 4122., 4377., 4632., 6018., 6404., 6790., 7176.,
+      5268., 5640., 6012., 6384., 3151., 3370., 3589., 3808., 4309., 4582.,
+      4855., 5128., 5760., 6176., 6592., 7008., 5522., 5924., 6326., 6728.,
+      3961., 4198., 4435., 4672., 2230., 2380., 2530., 2680., 2261., 2462.,
+      2663., 2864., 2235., 2402., 2569., 2736., 1482., 1572., 1662., 1752.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2527,8 +4084,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6585., 6978., 7371., 7764., 5579., 5958., 6337., 6716., 6071., 6494., 6917., 7340., 5577., 5986., 6395., 6804., 6069., 6522., 6975., 7428., 6087., 6526., 6965., 7404., 5807., 6222., 6637., 7052., 5825., 6226., 6627., 7028., 6317., 6762., 7207., 7652., 6847., 7278., 7709., 8140., 5579., 5958., 6337., 6716., 5085., 5450., 5815., 6180., 6149., 6554., 6959., 7364., 6071., 6494., 6917., 7340., 5891., 6326., 6761., 7196., 6069., 6522., 6975., 7428., 5825., 6226., 6627., 7028., 6355., 6742., 7129., 7516.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 1 }};
+  const std::vector<DataType> exp_out = {
+      6585., 6978., 7371., 7764., 5579., 5958., 6337., 6716., 6071.,
+      6494., 6917., 7340., 5577., 5986., 6395., 6804., 6069., 6522.,
+      6975., 7428., 6087., 6526., 6965., 7404., 5807., 6222., 6637.,
+      7052., 5825., 6226., 6627., 7028., 6317., 6762., 7207., 7652.,
+      6847., 7278., 7709., 8140., 5579., 5958., 6337., 6716., 5085.,
+      5450., 5815., 6180., 6149., 6554., 6959., 7364., 6071., 6494.,
+      6917., 7340., 5891., 6326., 6761., 7196., 6069., 6522., 6975.,
+      7428., 5825., 6226., 6627., 7028., 6355., 6742., 7129., 7516.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2536,8 +4101,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5140., 10252., 10716.,  6500.,  6953., 11007., 11627.,  5597.,  6437., 10803., 11007.,  6169.,  5537.,  9863., 10803.,  6453.,  4227.,  6261.,  6745.,  3903.,  9316., 12220.,  9548.,  4756.,  9077., 14019., 12591.,  6409.,  7313., 12311., 14019.,  8101.,  6125., 11627., 12311.,  7137.,  5127.,  7105.,  7365.,  4227.,  5812.,  9868.,  9852.,  5700.,  5537.,  9863., 10803.,  6453.,  7517., 10043.,  9863.,  5905.,  9753., 12591., 10043.,  4973.,  6795.,  9997.,  7633.,  3335.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5140.,  10252., 10716., 6500.,  6953.,  11007., 11627., 5597.,  6437.,
+      10803., 11007., 6169.,  5537.,  9863.,  10803., 6453.,  4227.,  6261.,
+      6745.,  3903.,  9316.,  12220., 9548.,  4756.,  9077.,  14019., 12591.,
+      6409.,  7313.,  12311., 14019., 8101.,  6125.,  11627., 12311., 7137.,
+      5127.,  7105.,  7365.,  4227.,  5812.,  9868.,  9852.,  5700.,  5537.,
+      9863.,  10803., 6453.,  7517.,  10043., 9863.,  5905.,  9753.,  12591.,
+      10043., 4973.,  6795.,  9997.,  7633.,  3335.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2545,8 +4117,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11141.,  9201., 13177., 11141., 13101., 13177., 11081., 11189., 10653., 11081.,  9201., 10653., 13101., 13177., 12929., 13101., 11189., 12929.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      11141., 9201., 13177., 11141., 13101., 13177., 11081., 11189., 10653.,
+      11081., 9201., 10653., 13101., 13177., 12929., 13101., 11189., 12929.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2554,8 +4128,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5020.,  5352.,  9492., 10040., 10132., 10712.,  7356.,  7752.,  7933.,  8466., 13015., 13854., 12007., 12790.,  6517.,  6970.,  6445.,  6922., 12871., 13702., 13015., 13854.,  6629.,  7090.,  6237.,  6658., 11319., 12078., 12871., 13702.,  8149.,  8682.,  3271.,  3494.,  5829.,  6218.,  6997.,  7442.,  5679.,  5982.,  8604.,  9096., 12436., 13208., 11028., 11704.,  6972.,  7336.,  9581., 10154., 14087., 15014., 13079., 13950.,  9125.,  9618.,  7709.,  8162., 13047., 13902., 14087., 15014.,  9365.,  9930.,  6861.,  7322., 12007., 12790., 13047., 13902.,  8453.,  9026.,  5239.,  5550.,  8181.,  8674.,  6917.,  7402.,  3999.,  4326.,  5276.,  5672., 11156., 11832., 10900., 11544.,  5820.,  6152.,  6237.,  6658., 11319., 12078., 12871., 13702.,  8149.,  8682.,  7565.,  8058., 11943., 12694., 11319., 12078.,  8133.,  8610.,  9405.,  9970., 13079., 13950., 11943., 12694.,  7349.,  7770.,  6695.,  7094.,  8485.,  9082.,  6197.,  6658.,  4111.,  4334.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      5020.,  5352.,  9492.,  10040., 10132., 10712., 7356.,  7752.,  7933.,
+      8466.,  13015., 13854., 12007., 12790., 6517.,  6970.,  6445.,  6922.,
+      12871., 13702., 13015., 13854., 6629.,  7090.,  6237.,  6658.,  11319.,
+      12078., 12871., 13702., 8149.,  8682.,  3271.,  3494.,  5829.,  6218.,
+      6997.,  7442.,  5679.,  5982.,  8604.,  9096.,  12436., 13208., 11028.,
+      11704., 6972.,  7336.,  9581.,  10154., 14087., 15014., 13079., 13950.,
+      9125.,  9618.,  7709.,  8162.,  13047., 13902., 14087., 15014., 9365.,
+      9930.,  6861.,  7322.,  12007., 12790., 13047., 13902., 8453.,  9026.,
+      5239.,  5550.,  8181.,  8674.,  6917.,  7402.,  3999.,  4326.,  5276.,
+      5672.,  11156., 11832., 10900., 11544., 5820.,  6152.,  6237.,  6658.,
+      11319., 12078., 12871., 13702., 8149.,  8682.,  7565.,  8058.,  11943.,
+      12694., 11319., 12078., 8133.,  8610.,  9405.,  9970.,  13079., 13950.,
+      11943., 12694., 7349.,  7770.,  6695.,  7094.,  8485.,  9082.,  6197.,
+      6658.,  4111.,  4334.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2563,8 +4151,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994., 13439., 14330., 13327., 14226., 14287., 15154., 12255., 13066., 11711., 12506., 14287., 15154., 11183., 11906., 11711., 12506., 13439., 14330., 13327., 14226., 13423., 14242., 13439., 14330., 12255., 13066., 13423., 14242.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      13215., 13994., 11183., 11906., 13327., 14226., 13215., 13994., 13439.,
+      14330., 13327., 14226., 14287., 15154., 12255., 13066., 11711., 12506.,
+      14287., 15154., 11183., 11906., 11711., 12506., 13439., 14330., 13327.,
+      14226., 13423., 14242., 13439., 14330., 12255., 13066., 13423., 14242.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2572,8 +4164,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,  9096.,  9676., 10256.,  5868.,  6264.,  6660.,  7056.,  8517.,  9050.,  9583., 10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637., 13420.,  6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820., 12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524.,  6397.,  6858.,  7319.,  7780.,  6773.,  7194.,  7615.,  8036., 10743., 11502., 12261., 13020., 12751., 13582., 14413., 15244.,  7317.,  7850.,  8383.,  8916.,  2383.,  2606.,  2829.,  3052.,  5733.,  6122.,  6511.,  6900.,  6221.,  6666.,  7111.,  7556.,  5039.,  5342.,  5645.,  5948.,  7052.,  7544.,  8036.,  8528., 11396., 12168., 12940., 13712.,  9956., 10632., 11308., 11984.,  5132.,  5496.,  5860.,  6224.,  8445.,  9018.,  9591., 10164., 13039., 13966., 14893., 15820., 12103., 12974., 13845., 14716.,  7261.,  7754.,  8247.,  8740.,  6613.,  7066.,  7519.,  7972., 12055., 12910., 13765., 14620., 13039., 13966., 14893., 15820.,  7669.,  8234.,  8799.,  9364.,  6701.,  7162.,  7623.,  8084., 11071., 11854., 12637., 13420., 12055., 12910., 13765., 14620.,  7885.,  8458.,  9031.,  9604.,  4439.,  4750.,  5061.,  5372.,  7005.,  7498.,  7991.,  8484.,  6789.,  7274.,  7759.,  8244.,  4727.,  5054.,  5381.,  5708.,  6124.,  6520.,  6916.,  7312., 10724., 11400., 12076., 12752.,  9476., 10120., 10764., 11408.,  4908.,  5240.,  5572.,  5904.,  6773.,  7194.,  7615.,  8036., 10743., 11502., 12261., 13020., 12751., 13582., 14413., 15244.,  7317.,  7850.,  8383.,  8916.,  7053.,  7546.,  8039.,  8532., 10975., 11726., 12477., 13228., 10743., 11502., 12261., 13020.,  7341.,  7818.,  8295.,  8772.,  8357.,  8922.,  9487., 10052., 12103., 12974., 13845., 14716., 10975., 11726., 12477., 13228.,  5829.,  6250.,  6671.,  7092.,  5471.,  5870.,  6269.,  6668.,  8277.,  8874.,  9471., 10068.,  6141.,  6602.,  7063.,  7524.,  4031.,  4254.,  4477.,  4700.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      4652.,  4984.,  5316.,  5648.,  8036.,  8584.,  9132.,  9680.,  8516.,
+      9096.,  9676.,  10256., 5868.,  6264.,  6660.,  7056.,  8517.,  9050.,
+      9583.,  10116., 12007., 12846., 13685., 14524., 11071., 11854., 12637.,
+      13420., 6181.,  6634.,  7087.,  7540.,  7389.,  7866.,  8343.,  8820.,
+      12751., 13582., 14413., 15244., 12007., 12846., 13685., 14524., 6397.,
+      6858.,  7319.,  7780.,  6773.,  7194.,  7615.,  8036.,  10743., 11502.,
+      12261., 13020., 12751., 13582., 14413., 15244., 7317.,  7850.,  8383.,
+      8916.,  2383.,  2606.,  2829.,  3052.,  5733.,  6122.,  6511.,  6900.,
+      6221.,  6666.,  7111.,  7556.,  5039.,  5342.,  5645.,  5948.,  7052.,
+      7544.,  8036.,  8528.,  11396., 12168., 12940., 13712., 9956.,  10632.,
+      11308., 11984., 5132.,  5496.,  5860.,  6224.,  8445.,  9018.,  9591.,
+      10164., 13039., 13966., 14893., 15820., 12103., 12974., 13845., 14716.,
+      7261.,  7754.,  8247.,  8740.,  6613.,  7066.,  7519.,  7972.,  12055.,
+      12910., 13765., 14620., 13039., 13966., 14893., 15820., 7669.,  8234.,
+      8799.,  9364.,  6701.,  7162.,  7623.,  8084.,  11071., 11854., 12637.,
+      13420., 12055., 12910., 13765., 14620., 7885.,  8458.,  9031.,  9604.,
+      4439.,  4750.,  5061.,  5372.,  7005.,  7498.,  7991.,  8484.,  6789.,
+      7274.,  7759.,  8244.,  4727.,  5054.,  5381.,  5708.,  6124.,  6520.,
+      6916.,  7312.,  10724., 11400., 12076., 12752., 9476.,  10120., 10764.,
+      11408., 4908.,  5240.,  5572.,  5904.,  6773.,  7194.,  7615.,  8036.,
+      10743., 11502., 12261., 13020., 12751., 13582., 14413., 15244., 7317.,
+      7850.,  8383.,  8916.,  7053.,  7546.,  8039.,  8532.,  10975., 11726.,
+      12477., 13228., 10743., 11502., 12261., 13020., 7341.,  7818.,  8295.,
+      8772.,  8357.,  8922.,  9487.,  10052., 12103., 12974., 13845., 14716.,
+      10975., 11726., 12477., 13228., 5829.,  6250.,  6671.,  7092.,  5471.,
+      5870.,  6269.,  6668.,  8277.,  8874.,  9471.,  10068., 6141.,  6602.,
+      7063.,  7524.,  4031.,  4254.,  4477.,  4700.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2581,8 +4200,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {12979., 13758., 14537., 15316.,  9995., 10718., 11441., 12164., 12059., 12958., 13857., 14756., 12979., 13758., 14537., 15316., 13315., 14206., 15097., 15988., 12059., 12958., 13857., 14756., 14011., 14878., 15745., 16612., 11027., 11838., 12649., 13460., 12003., 12798., 13593., 14388., 14011., 14878., 15745., 16612.,  9995., 10718., 11441., 12164., 12003., 12798., 13593., 14388., 13315., 14206., 15097., 15988., 12059., 12958., 13857., 14756., 12331., 13150., 13969., 14788., 13315., 14206., 15097., 15988., 11027., 11838., 12649., 13460., 12331., 13150., 13969., 14788.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 2 }};
+  const std::vector<DataType> exp_out = {
+      12979., 13758., 14537., 15316., 9995.,  10718., 11441., 12164., 12059.,
+      12958., 13857., 14756., 12979., 13758., 14537., 15316., 13315., 14206.,
+      15097., 15988., 12059., 12958., 13857., 14756., 14011., 14878., 15745.,
+      16612., 11027., 11838., 12649., 13460., 12003., 12798., 13593., 14388.,
+      14011., 14878., 15745., 16612., 9995.,  10718., 11441., 12164., 12003.,
+      12798., 13593., 14388., 13315., 14206., 15097., 15988., 12059., 12958.,
+      13857., 14756., 12331., 13150., 13969., 14788., 13315., 14206., 15097.,
+      15988., 11027., 11838., 12649., 13460., 12331., 13150., 13969., 14788.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2590,8 +4217,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178., 29398., 27622., 16010., 12842., 24070., 29398., 19674.,  5814., 10970., 17098., 12870., 17928., 25272., 19448., 10568., 17178., 29398., 27622., 16010., 12842., 24070., 29398., 19674., 13882., 23158., 24070., 17770., 12838., 14314., 10970.,  8310., 12424., 26552., 25272., 15048., 12842., 24070., 29398., 19674., 13882., 23158., 24070., 17770., 19850., 27622., 23158., 12154., 13078., 19514., 14314.,  5094.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11912., 19448., 18680., 15560., 19850., 27622., 23158., 12154., 17178.,
+      29398., 27622., 16010., 12842., 24070., 29398., 19674., 5814.,  10970.,
+      17098., 12870., 17928., 25272., 19448., 10568., 17178., 29398., 27622.,
+      16010., 12842., 24070., 29398., 19674., 13882., 23158., 24070., 17770.,
+      12838., 14314., 10970., 8310.,  12424., 26552., 25272., 15048., 12842.,
+      24070., 29398., 19674., 13882., 23158., 24070., 17770., 19850., 27622.,
+      23158., 12154., 13078., 19514., 14314., 5094.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2599,8 +4233,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {26254., 24478., 30718., 26254., 25710., 30718., 30718., 26254., 25710., 30718., 24478., 25710., 25710., 30718., 24478., 25710., 26254., 24478.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      26254., 24478., 30718., 26254., 25710., 30718., 30718., 26254., 25710.,
+      30718., 24478., 25710., 25710., 30718., 24478., 25710., 26254., 24478.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2608,8 +4244,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124., 12446., 13204., 23266., 24844., 29538., 31404., 17150., 18356.,  4034.,  4396., 11774., 12532., 16510., 17620., 13410., 14220., 17016., 18064., 23496., 25008., 17352., 18480.,  7800.,  8336., 17694., 18804., 29538., 31404., 26082., 27852., 14206., 15124., 12446., 13204., 23266., 24844., 29538., 31404., 17150., 18356., 13342., 14260., 21602., 23020., 23266., 24844., 17534., 18644., 10562., 11276., 13182., 14100., 11774., 12532.,  8674.,  9196., 12408., 13200., 25032., 26544., 23496., 25008., 12408., 13200., 12446., 13204., 23266., 24844., 29538., 31404., 17150., 18356., 13342., 14260., 21602., 23020., 23266., 24844., 17534., 18644., 19870., 21076., 26082., 27852., 21602., 23020., 10750., 11508., 11970., 12780., 18174., 19380., 13182., 14100.,  6498.,  6860.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      11384., 12176., 17352., 18480., 16840., 17968., 13432., 14224., 19870.,
+      21076., 26082., 27852., 21602., 23020., 10750., 11508., 17694., 18804.,
+      29538., 31404., 26082., 27852., 14206., 15124., 12446., 13204., 23266.,
+      24844., 29538., 31404., 17150., 18356., 4034.,  4396.,  11774., 12532.,
+      16510., 17620., 13410., 14220., 17016., 18064., 23496., 25008., 17352.,
+      18480., 7800.,  8336.,  17694., 18804., 29538., 31404., 26082., 27852.,
+      14206., 15124., 12446., 13204., 23266., 24844., 29538., 31404., 17150.,
+      18356., 13342., 14260., 21602., 23020., 23266., 24844., 17534., 18644.,
+      10562., 11276., 13182., 14100., 11774., 12532., 8674.,  9196.,  12408.,
+      13200., 25032., 26544., 23496., 25008., 12408., 13200., 12446., 13204.,
+      23266., 24844., 29538., 31404., 17150., 18356., 13342., 14260., 21602.,
+      23020., 23266., 24844., 17534., 18644., 19870., 21076., 26082., 27852.,
+      21602., 23020., 10750., 11508., 11970., 12780., 18174., 19380., 13182.,
+      14100., 6498.,  6860.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2617,8 +4267,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164., 28450., 30172., 30114., 31996., 30114., 31996., 25634., 27164., 28450., 30172., 30114., 31996., 22178., 23612., 28450., 30172., 28450., 30172., 30114., 31996., 22178., 23612., 28450., 30172., 25634., 27164., 22178., 23612.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      25634., 27164., 22178., 23612., 30114., 31996., 25634., 27164., 28450.,
+      30172., 30114., 31996., 30114., 31996., 25634., 27164., 28450., 30172.,
+      30114., 31996., 22178., 23612., 28450., 30172., 28450., 30172., 30114.,
+      31996., 22178., 23612., 28450., 30172., 25634., 27164., 22178., 23612.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2626,8 +4280,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552., 17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696., 10310., 11068., 11826., 12584., 22682., 24260., 25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724., 18930., 20136.,  4378.,  4740.,  5102.,  5464., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688., 11610., 12420., 13230., 14040., 15192., 16240., 17288., 18336., 21288., 22800., 24312., 25824., 15528., 16656., 17784., 18912.,  7512.,  8048.,  8584.,  9120., 16358., 17468., 18578., 19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942., 12860., 13778., 14696., 10310., 11068., 11826., 12584., 22682., 24260., 25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724., 18930., 20136., 11942., 12860., 13778., 14696., 19514., 20932., 22350., 23768., 22682., 24260., 25838., 27416., 16358., 17468., 18578., 19688.,  8890.,  9604., 10318., 11032., 11942., 12860., 13778., 14696., 10310., 11068., 11826., 12584.,  7546.,  8068.,  8590.,  9112., 12376., 13168., 13960., 14752., 22312., 23824., 25336., 26848., 21288., 22800., 24312., 25824., 10328., 11120., 11912., 12704., 10310., 11068., 11826., 12584., 22682., 24260., 25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724., 18930., 20136., 11942., 12860., 13778., 14696., 19514., 20932., 22350., 23768., 22682., 24260., 25838., 27416., 16358., 17468., 18578., 19688., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 11610., 12420., 13230., 14040., 16518., 17724., 18930., 20136., 11942., 12860., 13778., 14696.,  4378.,  4740.,  5102.,  5464.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      10328., 11120., 11912., 12704., 15528., 16656., 17784., 18912., 16552.,
+      17680., 18808., 19936., 12376., 13168., 13960., 14752., 16518., 17724.,
+      18930., 20136., 24026., 25796., 27566., 29336., 19514., 20932., 22350.,
+      23768., 10310., 11068., 11826., 12584., 16358., 17468., 18578., 19688.,
+      26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336., 11942.,
+      12860., 13778., 14696., 10310., 11068., 11826., 12584., 22682., 24260.,
+      25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724., 18930.,
+      20136., 4378.,  4740.,  5102.,  5464.,  10310., 11068., 11826., 12584.,
+      16358., 17468., 18578., 19688., 11610., 12420., 13230., 14040., 15192.,
+      16240., 17288., 18336., 21288., 22800., 24312., 25824., 15528., 16656.,
+      17784., 18912., 7512.,  8048.,  8584.,  9120.,  16358., 17468., 18578.,
+      19688., 26746., 28612., 30478., 32344., 24026., 25796., 27566., 29336.,
+      11942., 12860., 13778., 14696., 10310., 11068., 11826., 12584., 22682.,
+      24260., 25838., 27416., 26746., 28612., 30478., 32344., 16518., 17724.,
+      18930., 20136., 11942., 12860., 13778., 14696., 19514., 20932., 22350.,
+      23768., 22682., 24260., 25838., 27416., 16358., 17468., 18578., 19688.,
+      8890.,  9604.,  10318., 11032., 11942., 12860., 13778., 14696., 10310.,
+      11068., 11826., 12584., 7546.,  8068.,  8590.,  9112.,  12376., 13168.,
+      13960., 14752., 22312., 23824., 25336., 26848., 21288., 22800., 24312.,
+      25824., 10328., 11120., 11912., 12704., 10310., 11068., 11826., 12584.,
+      22682., 24260., 25838., 27416., 26746., 28612., 30478., 32344., 16518.,
+      17724., 18930., 20136., 11942., 12860., 13778., 14696., 19514., 20932.,
+      22350., 23768., 22682., 24260., 25838., 27416., 16358., 17468., 18578.,
+      19688., 16518., 17724., 18930., 20136., 24026., 25796., 27566., 29336.,
+      19514., 20932., 22350., 23768., 10310., 11068., 11826., 12584., 11610.,
+      12420., 13230., 14040., 16518., 17724., 18930., 20136., 11942., 12860.,
+      13778., 14696., 4378.,  4740.,  5102.,  5464.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2635,8 +4316,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 7, 4 }};
+  const std::vector<DataType> exp_out = {
+      6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080., 6506.,
+      7364., 8222., 9080., 6282., 7108., 7934., 8760., 6282., 7108.,
+      7934., 8760., 6506., 7364., 8222., 9080., 6506., 7364., 8222.,
+      9080., 6282., 7108., 7934., 8760., 6282., 7108., 7934., 8760.,
+      6506., 7364., 8222., 9080., 6506., 7364., 8222., 9080., 6282.,
+      7108., 7934., 8760., 6282., 7108., 7934., 8760., 6506., 7364.,
+      8222., 9080., 6506., 7364., 8222., 9080., 6282., 7108., 7934.,
+      8760., 6282., 7108., 7934., 8760., 6506., 7364., 8222., 9080.};
+  const std::array<int, 4> in_shape = {{3, 10, 7, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -2644,8 +4333,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x7x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4532.,  6000.,  6620.,  3914.,  8780., 11150., 11800.,  6790., 13100., 16350., 17000.,  9670.,  6668.,  8430.,  9080.,  5062.,  1486.,  1870.,  2110.,  1071.,  8628., 10960., 11580.,  6698., 13100., 16350., 17000.,  9670.,  6668.,  8430.,  9080.,  5062.,  5356.,  6910.,  7560.,  4294.,  2222.,  2830.,  3070.,  1695., 12724., 15920., 16540.,  9482.,  6668.,  8430.,  9080.,  5062.,  5356.,  6910.,  7560.,  4294.,  8780., 11150., 11800.,  6790.,  3854.,  4750.,  4990.,  2703.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      4532.,  6000.,  6620., 3914.,  8780.,  11150., 11800., 6790.,  13100.,
+      16350., 17000., 9670., 6668.,  8430.,  9080.,  5062.,  1486.,  1870.,
+      2110.,  1071.,  8628., 10960., 11580., 6698.,  13100., 16350., 17000.,
+      9670.,  6668.,  8430., 9080.,  5062.,  5356.,  6910.,  7560.,  4294.,
+      2222.,  2830.,  3070., 1695.,  12724., 15920., 16540., 9482.,  6668.,
+      8430.,  9080.,  5062., 5356.,  6910.,  7560.,  4294.,  8780.,  11150.,
+      11800., 6790.,  3854., 4750.,  4990.,  2703.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2653,8 +4349,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8225.,  8875., 13425., 14075., 11265., 11915., 13425., 14075., 11265., 11915.,  6545.,  7195., 11265., 11915.,  6545.,  7195.,  8225.,  8875.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      8225.,  8875., 13425., 14075., 11265., 11915., 13425., 14075., 11265.,
+      11915., 6545., 7195.,  11265., 11915., 6545.,  7195.,  8225.,  8875.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2662,8 +4360,20 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 1918., 2076., 2560., 2780., 3010., 3260., 1599., 1758., 4608., 4840., 5984., 6304., 6608., 6968., 3760., 3988., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390., 3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408., 3899., 4172., 1918., 2076., 2560., 2780., 3010., 3260., 1599., 1758.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144.,
+      6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756.,
+      5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408.,
+      3899., 4172., 1918., 2076., 2560., 2780., 3010., 3260., 1599., 1758.,
+      4608., 4840., 5984., 6304., 6608., 6968., 3760., 3988., 3718., 4056.,
+      5296., 5756., 5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684.,
+      6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756., 5970., 6480.,
+      3403., 3724., 4222., 4444., 5360., 5660., 5810., 6140., 3183., 3390.,
+      3072., 3304., 4576., 4896., 5200., 5560., 3120., 3348., 4870., 5144.,
+      6304., 6684., 6978., 7408., 3899., 4172., 3718., 4056., 5296., 5756.,
+      5970., 6480., 3403., 3724., 4870., 5144., 6304., 6684., 6978., 7408.,
+      3899., 4172., 1918., 2076., 2560., 2780., 3010., 3260., 1599., 1758.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2671,8 +4381,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150., 21575., 22530., 22825., 23830., 25975., 26850., 27225., 28150., 21575., 22530., 22825., 23830., 12375., 13090., 13625., 14390., 21575., 22530., 22825., 23830., 12375., 13090., 13625., 14390., 15975., 16450., 17225., 17750.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      15975., 16450., 17225., 17750., 25975., 26850., 27225., 28150., 21575.,
+      22530., 22825., 23830., 25975., 26850., 27225., 28150., 21575., 22530.,
+      22825., 23830., 12375., 13090., 13625., 14390., 21575., 22530., 22825.,
+      23830., 12375., 13090., 13625., 14390., 15975., 16450., 17225., 17750.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2680,8 +4394,32 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 2110., 2268., 2426., 2584., 2628., 2848., 3068., 3288., 3050., 3300., 3550., 3800., 1599., 1758., 1917., 2076., 3960., 4192., 4424., 4656., 5280., 5600., 5920., 6240., 5912., 6272., 6632., 6992., 4124., 4352., 4580., 4808., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864., 5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804., 3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016., 6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 2110., 2268., 2426., 2584., 2628., 2848., 3068., 3288., 3050., 3300., 3550., 3800., 1599., 1758., 1917., 2076.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016.,
+      6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264.,
+      5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630.,
+      4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704.,
+      7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716.,
+      4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872.,
+      4357., 4630., 4903., 5176., 2110., 2268., 2426., 2584., 2628., 2848.,
+      3068., 3288., 3050., 3300., 3550., 3800., 1599., 1758., 1917., 2076.,
+      3960., 4192., 4424., 4656., 5280., 5600., 5920., 6240., 5912., 6272.,
+      6632., 6992., 4124., 4352., 4580., 4808., 4634., 4972., 5310., 5648.,
+      6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576., 4341., 4662.,
+      4983., 5304., 4442., 4716., 4990., 5264., 5860., 6240., 6620., 7000.,
+      6582., 7012., 7442., 7872., 4357., 4630., 4903., 5176., 4634., 4972.,
+      5310., 5648., 6324., 6784., 7244., 7704., 7046., 7556., 8066., 8576.,
+      4341., 4662., 4983., 5304., 3582., 3804., 4026., 4248., 4564., 4864.,
+      5164., 5464., 4986., 5316., 5646., 5976., 3183., 3390., 3597., 3804.,
+      3448., 3680., 3912., 4144., 5024., 5344., 5664., 5984., 5656., 6016.,
+      6376., 6736., 3868., 4096., 4324., 4552., 4442., 4716., 4990., 5264.,
+      5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872., 4357., 4630.,
+      4903., 5176., 4634., 4972., 5310., 5648., 6324., 6784., 7244., 7704.,
+      7046., 7556., 8066., 8576., 4341., 4662., 4983., 5304., 4442., 4716.,
+      4990., 5264., 5860., 6240., 6620., 7000., 6582., 7012., 7442., 7872.,
+      4357., 4630., 4903., 5176., 2110., 2268., 2426., 2584., 2628., 2848.,
+      3068., 3288., 3050., 3300., 3550., 3800., 1599., 1758., 1917., 2076.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2689,8 +4427,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692., 26003., 26958., 27913., 28868., 27301., 28306., 29311., 30316., 23619., 24494., 25369., 26244., 24917., 25842., 26767., 27692., 26003., 26958., 27913., 28868., 27301., 28306., 29311., 30316., 15011., 15726., 16441., 17156., 16309., 17074., 17839., 18604., 26003., 26958., 27913., 28868., 27301., 28306., 29311., 30316., 15011., 15726., 16441., 17156., 16309., 17074., 17839., 18604., 13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 1 }};
+  const std::vector<DataType> exp_out = {
+      13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108., 23619.,
+      24494., 25369., 26244., 24917., 25842., 26767., 27692., 26003., 26958.,
+      27913., 28868., 27301., 28306., 29311., 30316., 23619., 24494., 25369.,
+      26244., 24917., 25842., 26767., 27692., 26003., 26958., 27913., 28868.,
+      27301., 28306., 29311., 30316., 15011., 15726., 16441., 17156., 16309.,
+      17074., 17839., 18604., 26003., 26958., 27913., 28868., 27301., 28306.,
+      29311., 30316., 15011., 15726., 16441., 17156., 16309., 17074., 17839.,
+      18604., 13235., 13710., 14185., 14660., 14533., 15058., 15583., 16108.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2698,8 +4444,15 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.,  7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.,  7648., 11144., 13720.,  8216.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  8756., 12519., 15315.,  8853.,  6132.,  8695., 10555.,  5925.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7648.,  11144., 13720., 8216.,  8756.,  12519., 15315., 8853.,  8756.,
+      12519., 15315., 8853.,  8756.,  12519., 15315., 8853.,  6132.,  8695.,
+      10555., 5925.,  7648.,  11144., 13720., 8216.,  8756.,  12519., 15315.,
+      8853.,  8756.,  12519., 15315., 8853.,  8756.,  12519., 15315., 8853.,
+      6132.,  8695.,  10555., 5925.,  7648.,  11144., 13720., 8216.,  8756.,
+      12519., 15315., 8853.,  8756.,  12519., 15315., 8853.,  8756.,  12519.,
+      15315., 8853.,  6132.,  8695.,  10555., 5925.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2707,8 +4460,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.,  8065., 10861.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      8065.,  10861., 8065.,  10861., 8065.,  10861., 8065.,  10861., 8065.,
+      10861., 8065.,  10861., 8065.,  10861., 8065.,  10861., 8065.,  10861.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2716,8 +4471,22 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.,  7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.,  7312.,  7712., 10820., 11440., 13508., 14288.,  9516., 10032.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  9364.,  9928., 13335., 14190., 16423., 17478., 10613., 11306.,  5820.,  6184.,  7981.,  8526.,  9789., 10454.,  5751.,  6186.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      7312.,  7712.,  10820., 11440., 13508., 14288., 9516.,  10032., 9364.,
+      9928.,  13335., 14190., 16423., 17478., 10613., 11306., 9364.,  9928.,
+      13335., 14190., 16423., 17478., 10613., 11306., 9364.,  9928.,  13335.,
+      14190., 16423., 17478., 10613., 11306., 5820.,  6184.,  7981.,  8526.,
+      9789.,  10454., 5751.,  6186.,  7312.,  7712.,  10820., 11440., 13508.,
+      14288., 9516.,  10032., 9364.,  9928.,  13335., 14190., 16423., 17478.,
+      10613., 11306., 9364.,  9928.,  13335., 14190., 16423., 17478., 10613.,
+      11306., 9364.,  9928.,  13335., 14190., 16423., 17478., 10613., 11306.,
+      5820.,  6184.,  7981.,  8526.,  9789.,  10454., 5751.,  6186.,  7312.,
+      7712.,  10820., 11440., 13508., 14288., 9516.,  10032., 9364.,  9928.,
+      13335., 14190., 16423., 17478., 10613., 11306., 9364.,  9928.,  13335.,
+      14190., 16423., 17478., 10613., 11306., 9364.,  9928.,  13335., 14190.,
+      16423., 17478., 10613., 11306., 5820.,  6184.,  7981.,  8526.,  9789.,
+      10454., 5751.,  6186.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2725,8 +4494,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.,  8911.,  9506., 11999., 12794.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      8911.,  9506.,  11999., 12794., 8911.,  9506.,  11999., 12794., 8911.,
+      9506.,  11999., 12794., 8911.,  9506.,  11999., 12794., 8911.,  9506.,
+      11999., 12794., 8911.,  9506.,  11999., 12794., 8911.,  9506.,  11999.,
+      12794., 8911.,  9506.,  11999., 12794., 8911.,  9506.,  11999., 12794.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2734,8 +4507,35 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.,  6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.,  6032.,  6432.,  6832.,  7232.,  9084.,  9704., 10324., 10944., 11484., 12264., 13044., 13824.,  7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  8468.,  9032.,  9596., 10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,  9525., 10218., 10911., 11604.,  5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409., 10074., 10739., 11404.,  6459.,  6894.,  7329.,  7764.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      6032.,  6432.,  6832.,  7232.,  9084.,  9704.,  10324., 10944., 11484.,
+      12264., 13044., 13824., 7508.,  8024.,  8540.,  9056.,  8468.,  9032.,
+      9596.,  10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133.,
+      18188., 9525.,  10218., 10911., 11604., 8468.,  9032.,  9596.,  10160.,
+      12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188., 9525.,
+      10218., 10911., 11604., 8468.,  9032.,  9596.,  10160., 12119., 12974.,
+      13829., 14684., 15023., 16078., 17133., 18188., 9525.,  10218., 10911.,
+      11604., 5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,
+      9409.,  10074., 10739., 11404., 6459.,  6894.,  7329.,  7764.,  6032.,
+      6432.,  6832.,  7232.,  9084.,  9704.,  10324., 10944., 11484., 12264.,
+      13044., 13824., 7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596.,
+      10160., 12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188.,
+      9525.,  10218., 10911., 11604., 8468.,  9032.,  9596.,  10160., 12119.,
+      12974., 13829., 14684., 15023., 16078., 17133., 18188., 9525.,  10218.,
+      10911., 11604., 8468.,  9032.,  9596.,  10160., 12119., 12974., 13829.,
+      14684., 15023., 16078., 17133., 18188., 9525.,  10218., 10911., 11604.,
+      5324.,  5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409.,
+      10074., 10739., 11404., 6459.,  6894.,  7329.,  7764.,  6032.,  6432.,
+      6832.,  7232.,  9084.,  9704.,  10324., 10944., 11484., 12264., 13044.,
+      13824., 7508.,  8024.,  8540.,  9056.,  8468.,  9032.,  9596.,  10160.,
+      12119., 12974., 13829., 14684., 15023., 16078., 17133., 18188., 9525.,
+      10218., 10911., 11604., 8468.,  9032.,  9596.,  10160., 12119., 12974.,
+      13829., 14684., 15023., 16078., 17133., 18188., 9525.,  10218., 10911.,
+      11604., 8468.,  9032.,  9596.,  10160., 12119., 12974., 13829., 14684.,
+      15023., 16078., 17133., 18188., 9525.,  10218., 10911., 11604., 5324.,
+      5688.,  6052.,  6416.,  7705.,  8250.,  8795.,  9340.,  9409.,  10074.,
+      10739., 11404., 6459.,  6894.,  7329.,  7764.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2743,8 +4543,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.,  9163.,  9758., 10353., 10948., 12067., 12862., 13657., 14452.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 2 }};
+  const std::vector<DataType> exp_out = {
+      9163.,  9758.,  10353., 10948., 12067., 12862., 13657., 14452., 9163.,
+      9758.,  10353., 10948., 12067., 12862., 13657., 14452., 9163.,  9758.,
+      10353., 10948., 12067., 12862., 13657., 14452., 9163.,  9758.,  10353.,
+      10948., 12067., 12862., 13657., 14452., 9163.,  9758.,  10353., 10948.,
+      12067., 12862., 13657., 14452., 9163.,  9758.,  10353., 10948., 12067.,
+      12862., 13657., 14452., 9163.,  9758.,  10353., 10948., 12067., 12862.,
+      13657., 14452., 9163.,  9758.,  10353., 10948., 12067., 12862., 13657.,
+      14452., 9163.,  9758.,  10353., 10948., 12067., 12862., 13657., 14452.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2752,8 +4560,14 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470., 4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470., 4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790.,
+      7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.,
+      4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790.,
+      7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.,
+      4704., 5608., 6696., 4344., 5816., 6790., 7958., 5306., 5816., 6790.,
+      7958., 5306., 5816., 6790., 7958., 5306., 3208., 4242., 4354., 3470.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -2761,8 +4575,10 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478.,
+      29230., 16478., 29230., 16478., 29230., 16478., 29230., 16478., 29230.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2770,8 +4586,20 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324., 4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620., 5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308.,
+      7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620.,
+      5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.,
+      4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308.,
+      7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620.,
+      5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.,
+      4512., 5056., 5384., 6032., 6408., 7184., 4152., 4656., 5512., 6192.,
+      6498., 7308., 7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308.,
+      7650., 8620., 5022., 5652., 5512., 6192., 6498., 7308., 7650., 8620.,
+      5022., 5652., 3256., 3664., 3806., 4292., 4446., 5028., 2946., 3324.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -2779,8 +4607,12 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802.,
+      17852., 29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852.,
+      29218., 31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218.,
+      31068., 16802., 17852., 29218., 31068., 16802., 17852., 29218., 31068.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2788,8 +4620,32 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.,  4128.,  4672.,  5216.,  5760.,  4936.,  5584.,  6232.,  6880.,  5832.,  6608.,  7384.,  8160.,  3768.,  4272.,  4776.,  5280.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  5160.,  5840.,  6520.,  7200.,  6170.,  6980.,  7790.,  8600.,  7290.,  8260.,  9230., 10200.,  4710.,  5340.,  5970.,  6600.,  3096.,  3504.,  3912.,  4320.,  3702.,  4188.,  4674.,  5160.,  4374.,  4956.,  5538.,  6120.,  2826.,  3204.,  3582.,  3960.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      4128., 4672., 5216., 5760.,  4936., 5584., 6232., 6880.,  5832., 6608.,
+      7384., 8160., 3768., 4272.,  4776., 5280., 5160., 5840.,  6520., 7200.,
+      6170., 6980., 7790., 8600.,  7290., 8260., 9230., 10200., 4710., 5340.,
+      5970., 6600., 5160., 5840.,  6520., 7200., 6170., 6980.,  7790., 8600.,
+      7290., 8260., 9230., 10200., 4710., 5340., 5970., 6600.,  5160., 5840.,
+      6520., 7200., 6170., 6980.,  7790., 8600., 7290., 8260.,  9230., 10200.,
+      4710., 5340., 5970., 6600.,  3096., 3504., 3912., 4320.,  3702., 4188.,
+      4674., 5160., 4374., 4956.,  5538., 6120., 2826., 3204.,  3582., 3960.,
+      4128., 4672., 5216., 5760.,  4936., 5584., 6232., 6880.,  5832., 6608.,
+      7384., 8160., 3768., 4272.,  4776., 5280., 5160., 5840.,  6520., 7200.,
+      6170., 6980., 7790., 8600.,  7290., 8260., 9230., 10200., 4710., 5340.,
+      5970., 6600., 5160., 5840.,  6520., 7200., 6170., 6980.,  7790., 8600.,
+      7290., 8260., 9230., 10200., 4710., 5340., 5970., 6600.,  5160., 5840.,
+      6520., 7200., 6170., 6980.,  7790., 8600., 7290., 8260.,  9230., 10200.,
+      4710., 5340., 5970., 6600.,  3096., 3504., 3912., 4320.,  3702., 4188.,
+      4674., 5160., 4374., 4956.,  5538., 6120., 2826., 3204.,  3582., 3960.,
+      4128., 4672., 5216., 5760.,  4936., 5584., 6232., 6880.,  5832., 6608.,
+      7384., 8160., 3768., 4272.,  4776., 5280., 5160., 5840.,  6520., 7200.,
+      6170., 6980., 7790., 8600.,  7290., 8260., 9230., 10200., 4710., 5340.,
+      5970., 6600., 5160., 5840.,  6520., 7200., 6170., 6980.,  7790., 8600.,
+      7290., 8260., 9230., 10200., 4710., 5340., 5970., 6600.,  5160., 5840.,
+      6520., 7200., 6170., 6980.,  7790., 8600., 7290., 8260.,  9230., 10200.,
+      4710., 5340., 5970., 6600.,  3096., 3504., 3912., 4320.,  3702., 4188.,
+      4674., 5160., 4374., 4956.,  5538., 6120., 2826., 3204.,  3582., 3960.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 16.0;
@@ -2797,8 +4653,16 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 8, 4 }};
+  const std::vector<DataType> exp_out = {
+      5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610.,
+      6340., 7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340.,
+      7070., 7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070.,
+      7800., 6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800.,
+      6730., 7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730.,
+      7620., 8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620.,
+      8510., 9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510.,
+      9400., 5610., 6340., 7070., 7800., 6730., 7620., 8510., 9400.};
+  const std::array<int, 4> in_shape = {{3, 10, 8, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 16.0;
@@ -2806,8 +4670,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x8x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 5500.,  7180.,  7800.,  8420.,  4934., 10800., 13600., 14250., 14900.,  8530., 10184., 10244.,  8654.,  8280.,  4642.,  7392.,  8104.,  7794.,  8060.,  4594.,  2302.,  2930.,  3170.,  3410.,  1881.,  8700., 10980., 11600.,  9724.,  4734.,  6312.,  8020.,  8670.,  8104.,  4258.,  8640., 11000., 11650., 12300.,  7090., 10904., 11484., 10790., 11440.,  6466.,  4118.,  3794.,  3330.,  3570.,  1845.,  7548.,  9660., 10280., 10900.,  6326., 12960., 16200., 13714., 11484.,  5746.,  7608.,  9580.,  8374.,  7424.,  3778.,  7376.,  9360.,  9434.,  9764.,  5650.,  3118.,  3890.,  4130.,  4370.,  2385.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      5500.,  7180.,  7800.,  8420.,  4934.,  10800., 13600., 14250., 14900.,
+      8530.,  10184., 10244., 8654.,  8280.,  4642.,  7392.,  8104.,  7794.,
+      8060.,  4594.,  2302.,  2930.,  3170.,  3410.,  1881.,  8700.,  10980.,
+      11600., 9724.,  4734.,  6312.,  8020.,  8670.,  8104.,  4258.,  8640.,
+      11000., 11650., 12300., 7090.,  10904., 11484., 10790., 11440., 6466.,
+      4118.,  3794.,  3330.,  3570.,  1845.,  7548.,  9660.,  10280., 10900.,
+      6326.,  12960., 16200., 13714., 11484., 5746.,  7608.,  9580.,  8374.,
+      7424.,  3778.,  7376.,  9360.,  9434.,  9764.,  5650.,  3118.,  3890.,
+      4130.,  4370.,  2385.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2815,8 +4688,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10025., 10675., 11325., 14925., 12567., 10465.,  8945.,  7867.,  7045.,  8605.,  9255.,  8945.,  8385.,  9035.,  9365., 13925., 14575., 15225., 12625., 13275., 13925., 11765., 11135.,  9417.,  8345.,  8355.,  7917.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10025., 10675., 11325., 14925., 12567., 10465., 8945.,  7867.,  7045.,
+      8605.,  9255.,  8945.,  8385.,  9035.,  9365.,  13925., 14575., 15225.,
+      12625., 13275., 13925., 11765., 11135., 9417.,  8345.,  8355.,  7917.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2824,8 +4700,25 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x1x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840.,  9580.,  9868., 20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800., 16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750., 16560.,  8783.,  9284., 14102., 14784., 15446., 16208., 14904., 15588., 15450., 16120.,  8771.,  9188.,  4382.,  4604.,  5560.,  5860.,  6010.,  6340.,  6460.,  6820.,  3537.,  3762., 16800., 17400., 21180., 21960., 22380., 23200., 18716., 19448.,  9068.,  9468., 12022., 12624., 15250., 16040., 16500., 17340., 15446., 16208.,  8095.,  8516., 16790., 17280., 21350., 22000., 22600., 23300., 23850., 24600., 13715., 14180., 21046., 21808., 22074., 22968., 20700., 21580., 21950., 22880., 12359., 12932.,  7710.,  8236.,  7004.,  7588.,  6110.,  6660.,  6560.,  7140.,  3333.,  3690., 14688., 15096., 18780., 19320., 19980., 20560., 21180., 21800., 12268., 12652., 25110., 25920., 31350., 32400., 26456., 27428., 22074., 22968., 10979., 11492., 14518., 15216., 18250., 19160., 15916., 16748., 14094., 14848.,  7127.,  7556., 14166., 14752., 17950., 18720., 18176., 18868., 18914., 19528., 10955., 11300.,  5918.,  6236.,  7360.,  7780.,  7810.,  8260.,  8260.,  8740.,  4473.,  4770.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      10720., 11000., 13980., 14360., 15180., 15600., 16380., 16840., 9580.,
+      9868.,  20950., 21600., 26350., 27200., 27600., 28500., 28850., 29800.,
+      16475., 17060., 19574., 20368., 19586., 20488., 16484., 17308., 15750.,
+      16560., 8783.,  9284.,  14102., 14784., 15446., 16208., 14904., 15588.,
+      15450., 16120., 8771.,  9188.,  4382.,  4604.,  5560.,  5860.,  6010.,
+      6340.,  6460.,  6820.,  3537.,  3762.,  16800., 17400., 21180., 21960.,
+      22380., 23200., 18716., 19448., 9068.,  9468.,  12022., 12624., 15250.,
+      16040., 16500., 17340., 15446., 16208., 8095.,  8516.,  16790., 17280.,
+      21350., 22000., 22600., 23300., 23850., 24600., 13715., 14180., 21046.,
+      21808., 22074., 22968., 20700., 21580., 21950., 22880., 12359., 12932.,
+      7710.,  8236.,  7004.,  7588.,  6110.,  6660.,  6560.,  7140.,  3333.,
+      3690.,  14688., 15096., 18780., 19320., 19980., 20560., 21180., 21800.,
+      12268., 12652., 25110., 25920., 31350., 32400., 26456., 27428., 22074.,
+      22968., 10979., 11492., 14518., 15216., 18250., 19160., 15916., 16748.,
+      14094., 14848., 7127.,  7556.,  14166., 14752., 17950., 18720., 18176.,
+      18868., 18914., 19528., 10955., 11300., 5918.,  6236.,  7360.,  7780.,
+      7810.,  8260.,  8260.,  8740.,  4473.,  4770.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2833,8 +4726,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x1x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201., 25134., 20075., 20930., 17019., 17890., 14941., 15734., 13375., 14090., 16375., 17210., 17625., 18510., 17019., 17890., 16075., 16770., 17325., 18070., 17999., 18730., 26975., 27850., 28225., 29150., 29475., 30450., 24475., 25250., 25725., 26550., 26975., 27850., 22575., 23530., 21329., 22270., 17971., 18834., 15875., 16690., 15909., 16710., 15111., 15834.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      19475., 20050., 20725., 21350., 21975., 22650., 28839., 29850., 24201.,
+      25134., 20075., 20930., 17019., 17890., 14941., 15734., 13375., 14090.,
+      16375., 17210., 17625., 18510., 17019., 17890., 16075., 16770., 17325.,
+      18070., 17999., 18730., 26975., 27850., 28225., 29150., 29475., 30450.,
+      24475., 25250., 25725., 26550., 26975., 27850., 22575., 23530., 21329.,
+      22270., 17971., 18834., 15875., 16690., 15909., 16710., 15111., 15834.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2842,8 +4741,42 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x1x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 7080.,  7360.,  7640.,  7920., 10428., 10808., 11188., 11568., 11636., 12056., 12476., 12896., 12844., 13304., 13764., 14224.,  7608.,  7896.,  8184.,  8472., 16930., 17580., 18230., 18880., 23178., 24028., 24878., 25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624., 14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750., 27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868., 26678., 27488., 13481., 13982., 14483., 14984., 15490., 16172., 16854., 17536., 15282., 16044., 16806., 17568., 13124., 13808., 14492., 15176., 13078., 13748., 14418., 15088.,  7141.,  7558.,  7975.,  8392.,  8542.,  8764.,  8986.,  9208., 10820., 11120., 11420., 11720., 11690., 12020., 12350., 12680., 12560., 12920., 13280., 13640.,  6849.,  7074.,  7299.,  7524., 16872., 17472., 18072., 18672., 24172., 24952., 25732., 26512., 25380., 26200., 27020., 27840., 25180., 25912., 26644., 27376., 15432., 15832., 16232., 16632., 13458., 14060., 14662., 15264., 17166., 17956., 18746., 19536., 18464., 19304., 20144., 20984., 15282., 16044., 16806., 17568.,  7065.,  7486.,  7907.,  8328., 12866., 13356., 13846., 14336., 17986., 18636., 19286., 19936., 19284., 19984., 20684., 21384., 20582., 21332., 22082., 22832., 11861., 12326., 12791., 13256., 19058., 19820., 20582., 21344., 24054., 24948., 25842., 26736., 24264., 25144., 26024., 26904., 25562., 26492., 27422., 28352., 14929., 15502., 16075., 16648., 14894., 15420., 15946., 16472., 13424., 14008., 14592., 15176., 11670., 12220., 12770., 13320., 12540., 13120., 13700., 14280.,  6309.,  6666.,  7023.,  7380., 10792., 11200., 11608., 12016., 15260., 15800., 16340., 16880., 16468., 17048., 17628., 18208., 17676., 18296., 18916., 19536., 10328., 10712., 11096., 11480., 20994., 21804., 22614., 23424., 28370., 29420., 30470., 31520., 25700., 26672., 27644., 28616., 24054., 24948., 25842., 26736., 13509., 14022., 14535., 15048., 22450., 23148., 23846., 24544., 27654., 28564., 29474., 30384., 21912., 22744., 23576., 24408., 17194., 17948., 18702., 19456.,  7681.,  8110.,  8539.,  8968., 11618., 12204., 12790., 13376., 15674., 16444., 17214., 17984., 15052., 15744., 16436., 17128., 15454., 16068., 16682., 17296.,  9021.,  9366.,  9711., 10056., 11518., 11836., 12154., 12472., 14300., 14720., 15140., 15560., 15170., 15620., 16070., 16520., 16040., 16520., 17000., 17480.,  8649.,  8946.,  9243.,  9540.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      7080.,  7360.,  7640.,  7920.,  10428., 10808., 11188., 11568., 11636.,
+      12056., 12476., 12896., 12844., 13304., 13764., 14224., 7608.,  7896.,
+      8184.,  8472.,  16930., 17580., 18230., 18880., 23178., 24028., 24878.,
+      25728., 24476., 25376., 26276., 27176., 25774., 26724., 27674., 28624.,
+      14701., 15286., 15871., 16456., 20178., 20972., 21766., 22560., 26750.,
+      27652., 28554., 29456., 27664., 28488., 29312., 30136., 25058., 25868.,
+      26678., 27488., 13481., 13982., 14483., 14984., 15490., 16172., 16854.,
+      17536., 15282., 16044., 16806., 17568., 13124., 13808., 14492., 15176.,
+      13078., 13748., 14418., 15088., 7141.,  7558.,  7975.,  8392.,  8542.,
+      8764.,  8986.,  9208.,  10820., 11120., 11420., 11720., 11690., 12020.,
+      12350., 12680., 12560., 12920., 13280., 13640., 6849.,  7074.,  7299.,
+      7524.,  16872., 17472., 18072., 18672., 24172., 24952., 25732., 26512.,
+      25380., 26200., 27020., 27840., 25180., 25912., 26644., 27376., 15432.,
+      15832., 16232., 16632., 13458., 14060., 14662., 15264., 17166., 17956.,
+      18746., 19536., 18464., 19304., 20144., 20984., 15282., 16044., 16806.,
+      17568., 7065.,  7486.,  7907.,  8328.,  12866., 13356., 13846., 14336.,
+      17986., 18636., 19286., 19936., 19284., 19984., 20684., 21384., 20582.,
+      21332., 22082., 22832., 11861., 12326., 12791., 13256., 19058., 19820.,
+      20582., 21344., 24054., 24948., 25842., 26736., 24264., 25144., 26024.,
+      26904., 25562., 26492., 27422., 28352., 14929., 15502., 16075., 16648.,
+      14894., 15420., 15946., 16472., 13424., 14008., 14592., 15176., 11670.,
+      12220., 12770., 13320., 12540., 13120., 13700., 14280., 6309.,  6666.,
+      7023.,  7380.,  10792., 11200., 11608., 12016., 15260., 15800., 16340.,
+      16880., 16468., 17048., 17628., 18208., 17676., 18296., 18916., 19536.,
+      10328., 10712., 11096., 11480., 20994., 21804., 22614., 23424., 28370.,
+      29420., 30470., 31520., 25700., 26672., 27644., 28616., 24054., 24948.,
+      25842., 26736., 13509., 14022., 14535., 15048., 22450., 23148., 23846.,
+      24544., 27654., 28564., 29474., 30384., 21912., 22744., 23576., 24408.,
+      17194., 17948., 18702., 19456., 7681.,  8110.,  8539.,  8968.,  11618.,
+      12204., 12790., 13376., 15674., 16444., 17214., 17984., 15052., 15744.,
+      16436., 17128., 15454., 16068., 16682., 17296., 9021.,  9366.,  9711.,
+      10056., 11518., 11836., 12154., 12472., 14300., 14720., 15140., 15560.,
+      15170., 15620., 16070., 16520., 16040., 16520., 17000., 17480., 8649.,
+      8946.,  9243.,  9540.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 64.0;
@@ -2851,8 +4784,20 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x1x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635., 19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682., 26615., 27548., 23615., 24470., 25325., 26180., 24655., 25526., 26397., 27268., 19425., 20218., 21011., 21804., 15219., 15934., 16649., 17364., 25707., 26542., 27377., 28212., 27005., 27890., 28775., 29660., 24655., 25526., 26397., 27268., 13727., 14422., 15117., 15812., 15025., 15770., 16515., 17260., 15235., 15966., 16697., 17428., 23827., 24702., 25577., 26452., 25125., 26050., 26975., 27900., 26423., 27398., 28373., 29348., 21231., 22006., 22781., 23556., 22529., 23354., 24179., 25004., 23827., 24702., 25577., 26452., 26211., 27166., 28121., 29076., 26677., 27618., 28559., 29500., 27079., 27942., 28805., 29668., 17815., 18630., 19445., 20260., 16745., 17546., 18347., 19148., 14075., 14798., 15521., 16244.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 1 }};
+  const std::vector<DataType> exp_out = {
+      16039., 16614., 17189., 17764., 17337., 17962., 18587., 19212., 18635.,
+      19310., 19985., 20660., 26907., 27918., 28929., 29940., 24749., 25682.,
+      26615., 27548., 23615., 24470., 25325., 26180., 24655., 25526., 26397.,
+      27268., 19425., 20218., 21011., 21804., 15219., 15934., 16649., 17364.,
+      25707., 26542., 27377., 28212., 27005., 27890., 28775., 29660., 24655.,
+      25526., 26397., 27268., 13727., 14422., 15117., 15812., 15025., 15770.,
+      16515., 17260., 15235., 15966., 16697., 17428., 23827., 24702., 25577.,
+      26452., 25125., 26050., 26975., 27900., 26423., 27398., 28373., 29348.,
+      21231., 22006., 22781., 23556., 22529., 23354., 24179., 25004., 23827.,
+      24702., 25577., 26452., 26211., 27166., 28121., 29076., 26677., 27618.,
+      28559., 29500., 27079., 27942., 28805., 29668., 17815., 18630., 19445.,
+      20260., 16745., 17546., 18347., 19148., 14075., 14798., 15521., 16244.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 1}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 64.0;
@@ -2860,8 +4805,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x1x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8064., 10864.,  9184.,  8624.,  4928.,  8100., 10219., 10551., 11939.,  7653.,  8260., 11939., 14319., 12731.,  6861., 10916., 12731., 11559., 12019.,  6997.,  6772.,  9495.,  7707.,  6431.,  2865.,  6784.,  8624.,  9824., 11568.,  7520.,  8260., 11939., 14319., 12731.,  6861., 10916., 12731., 11559., 12019.,  6997.,  8964., 12019., 10559., 10219.,  5565.,  6292.,  6431.,  5827.,  7111.,  4137.,  7616., 11568., 13824., 12016.,  6560., 10916., 12731., 11559., 12019.,  6997.,  8964., 12019., 10559., 10219.,  5565.,  8100., 10219., 10551., 11939.,  7653.,  5236.,  7111.,  8875.,  8367.,  4225.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8064.,  10864., 9184.,  8624.,  4928.,  8100.,  10219., 10551., 11939.,
+      7653.,  8260.,  11939., 14319., 12731., 6861.,  10916., 12731., 11559.,
+      12019., 6997.,  6772.,  9495.,  7707.,  6431.,  2865.,  6784.,  8624.,
+      9824.,  11568., 7520.,  8260.,  11939., 14319., 12731., 6861.,  10916.,
+      12731., 11559., 12019., 6997.,  8964.,  12019., 10559., 10219., 5565.,
+      6292.,  6431.,  5827.,  7111.,  4137.,  7616.,  11568., 13824., 12016.,
+      6560.,  10916., 12731., 11559., 12019., 6997.,  8964.,  12019., 10559.,
+      10219., 5565.,  8100.,  10219., 10551., 11939., 7653.,  5236.,  7111.,
+      8875.,  8367.,  4225.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2869,8 +4823,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x2x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13017., 12453., 12017., 12017., 11357., 10921., 10921., 10325.,  9633., 12017., 11357., 10921., 10921., 10325.,  9633.,  9633., 11117., 13017., 10921., 10325.,  9633.,  9633., 11117., 13017., 13017., 12453., 12017.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13017., 12453., 12017., 12017., 11357., 10921., 10921., 10325., 9633.,
+      12017., 11357., 10921., 10921., 10325., 9633.,  9633.,  11117., 13017.,
+      10921., 10325., 9633.,  9633.,  11117., 13017., 13017., 12453., 12017.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2878,8 +4835,25 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x2x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 8336.,  8800.,  9764., 10368.,  8228.,  8800.,  8868.,  9472.,  6924.,  7296.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114., 11284., 11944., 15815., 16662., 13271., 14062., 11879., 12678.,  6837.,  7338.,  6076.,  6440.,  8301.,  8846.,  7037.,  7574.,  6797.,  7326.,  4359.,  4674.,  6288.,  6752.,  8868.,  9472., 10916., 11616., 12068., 12800.,  9996., 10432.,  9492., 10216., 12711., 13542., 15159., 15998., 15815., 16662.,  8597.,  9114., 11284., 11944., 15815., 16662., 13271., 14062., 11879., 12678.,  6837.,  7338., 10004., 10600., 11879., 12678., 10743., 11550., 11783., 12662.,  8021.,  8570.,  6076.,  6504.,  6797.,  7326.,  5917.,  6374.,  6701.,  7150.,  5415.,  5682.,  8336.,  8928., 12068., 12800., 14244., 15008., 14500., 15232.,  8076.,  8512., 11284., 11944., 15815., 16662., 13271., 14062., 11879., 12678.,  6837.,  7338., 10004., 10600., 11879., 12678., 10743., 11550., 11783., 12662.,  8021.,  8570.,  8724.,  9384., 11783., 12662., 12183., 13070., 12711., 13542., 10229., 10698.,  5052.,  5416.,  6701.,  7150.,  8381.,  8886.,  9677., 10174.,  4039.,  4322.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      8336.,  8800.,  9764.,  10368., 8228.,  8800.,  8868.,  9472.,  6924.,
+      7296.,  8724.,  9384.,  11783., 12662., 12183., 13070., 12711., 13542.,
+      10229., 10698., 9492.,  10216., 12711., 13542., 15159., 15998., 15815.,
+      16662., 8597.,  9114.,  11284., 11944., 15815., 16662., 13271., 14062.,
+      11879., 12678., 6837.,  7338.,  6076.,  6440.,  8301.,  8846.,  7037.,
+      7574.,  6797.,  7326.,  4359.,  4674.,  6288.,  6752.,  8868.,  9472.,
+      10916., 11616., 12068., 12800., 9996.,  10432., 9492.,  10216., 12711.,
+      13542., 15159., 15998., 15815., 16662., 8597.,  9114.,  11284., 11944.,
+      15815., 16662., 13271., 14062., 11879., 12678., 6837.,  7338.,  10004.,
+      10600., 11879., 12678., 10743., 11550., 11783., 12662., 8021.,  8570.,
+      6076.,  6504.,  6797.,  7326.,  5917.,  6374.,  6701.,  7150.,  5415.,
+      5682.,  8336.,  8928.,  12068., 12800., 14244., 15008., 14500., 15232.,
+      8076.,  8512.,  11284., 11944., 15815., 16662., 13271., 14062., 11879.,
+      12678., 6837.,  7338.,  10004., 10600., 11879., 12678., 10743., 11550.,
+      11783., 12662., 8021.,  8570.,  8724.,  9384.,  11783., 12662., 12183.,
+      13070., 12711., 13542., 10229., 10698., 5052.,  5416.,  6701.,  7150.,
+      8381.,  8886.,  9677.,  10174., 4039.,  4322.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2887,8 +4861,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x2x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743., 12506., 10607., 11378., 10607., 11378., 11135., 11978., 11535., 12386., 15311., 16130., 11743., 12506., 10607., 11378., 10607., 11378., 11135., 11978., 11535., 12386., 11535., 12386., 12191., 13050., 13743., 14546., 10607., 11378., 11135., 11978., 11535., 12386., 11535., 12386., 12191., 13050., 13743., 14546., 13743., 14546., 14399., 15210., 15311., 16130.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      13743., 14546., 14399., 15210., 15311., 16130., 15311., 16130., 11743.,
+      12506., 10607., 11378., 10607., 11378., 11135., 11978., 11535., 12386.,
+      15311., 16130., 11743., 12506., 10607., 11378., 10607., 11378., 11135.,
+      11978., 11535., 12386., 11535., 12386., 12191., 13050., 13743., 14546.,
+      10607., 11378., 11135., 11978., 11535., 12386., 11535., 12386., 12191.,
+      13050., 13743., 14546., 13743., 14546., 14399., 15210., 15311., 16130.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2896,8 +4876,42 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x2x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = { 6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988., 10592.,  9068.,  9640., 10212., 10784.,  9548., 10152., 10756., 11360.,  5540.,  5912.,  6284.,  6656.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  9908., 10568., 11228., 11888., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404., 11311., 12110., 12909., 13708.,  7285.,  7786.,  8287.,  8788.,  5324.,  5688.,  6052.,  6416.,  7833.,  8378.,  8923.,  9468.,  7617.,  8154.,  8691.,  9228.,  7401.,  7930.,  8459.,  8988.,  4563.,  4878.,  5193.,  5508.,  6992.,  7456.,  7920.,  8384.,  9548., 10152., 10756., 11360., 10732., 11432., 12132., 12832., 10188., 10920., 11652., 12384.,  7524.,  7960.,  8396.,  8832., 10868., 11592., 12316., 13040., 10895., 11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685., 15532.,  6693.,  7210.,  7727.,  8244.,  9908., 10568., 11228., 11888., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404., 11311., 12110., 12909., 13708.,  7285.,  7786.,  8287.,  8788.,  8948.,  9544., 10140., 10736., 11311., 12110., 12909., 13708., 12103., 12910., 13717., 14524., 13087., 13966., 14845., 15724.,  7557.,  8106.,  8655.,  9204.,  6284.,  6712.,  7140.,  7568.,  7401.,  7930.,  8459.,  8988.,  5969.,  6426.,  6883.,  7340.,  5753.,  6202.,  6651.,  7100.,  4675.,  4942.,  5209.,  5476.,  8912.,  9504., 10096., 10688., 10188., 10920., 11652., 12384., 11692., 12456., 13220., 13984., 11468., 12200., 12932., 13664.,  5732.,  6168.,  6604.,  7040.,  9908., 10568., 11228., 11888., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404., 11311., 12110., 12909., 13708.,  7285.,  7786.,  8287.,  8788.,  8948.,  9544., 10140., 10736., 11311., 12110., 12909., 13708., 12103., 12910., 13717., 14524., 13087., 13966., 14845., 15724.,  7557.,  8106.,  8655.,  9204.,  9908., 10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,  7957.,  8426.,  8895.,  9364.,  5324.,  5688.,  6052.,  6416.,  5753.,  6202.,  6651.,  7100.,  7265.,  7770.,  8275.,  8780.,  8073.,  8570.,  9067.,  9564.,  3955.,  4238.,  4521.,  4804.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      6992.,  7456.,  7920.,  8384.,  8780.,  9384.,  9988.,  10592., 9068.,
+      9640.,  10212., 10784., 9548.,  10152., 10756., 11360., 5540.,  5912.,
+      6284.,  6656.,  9908.,  10568., 11228., 11888., 13087., 13966., 14845.,
+      15724., 12855., 13742., 14629., 15516., 10895., 11726., 12557., 13388.,
+      7957.,  8426.,  8895.,  9364.,  10868., 11592., 12316., 13040., 10895.,
+      11726., 12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838.,
+      14685., 15532., 6693.,  7210.,  7727.,  8244.,  9908.,  10568., 11228.,
+      11888., 12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404.,
+      11311., 12110., 12909., 13708., 7285.,  7786.,  8287.,  8788.,  5324.,
+      5688.,  6052.,  6416.,  7833.,  8378.,  8923.,  9468.,  7617.,  8154.,
+      8691.,  9228.,  7401.,  7930.,  8459.,  8988.,  4563.,  4878.,  5193.,
+      5508.,  6992.,  7456.,  7920.,  8384.,  9548.,  10152., 10756., 11360.,
+      10732., 11432., 12132., 12832., 10188., 10920., 11652., 12384., 7524.,
+      7960.,  8396.,  8832.,  10868., 11592., 12316., 13040., 10895., 11726.,
+      12557., 13388., 12711., 13550., 14389., 15228., 12991., 13838., 14685.,
+      15532., 6693.,  7210.,  7727.,  8244.,  9908.,  10568., 11228., 11888.,
+      12991., 13838., 14685., 15532., 11031., 11822., 12613., 13404., 11311.,
+      12110., 12909., 13708., 7285.,  7786.,  8287.,  8788.,  8948.,  9544.,
+      10140., 10736., 11311., 12110., 12909., 13708., 12103., 12910., 13717.,
+      14524., 13087., 13966., 14845., 15724., 7557.,  8106.,  8655.,  9204.,
+      6284.,  6712.,  7140.,  7568.,  7401.,  7930.,  8459.,  8988.,  5969.,
+      6426.,  6883.,  7340.,  5753.,  6202.,  6651.,  7100.,  4675.,  4942.,
+      5209.,  5476.,  8912.,  9504.,  10096., 10688., 10188., 10920., 11652.,
+      12384., 11692., 12456., 13220., 13984., 11468., 12200., 12932., 13664.,
+      5732.,  6168.,  6604.,  7040.,  9908.,  10568., 11228., 11888., 12991.,
+      13838., 14685., 15532., 11031., 11822., 12613., 13404., 11311., 12110.,
+      12909., 13708., 7285.,  7786.,  8287.,  8788.,  8948.,  9544.,  10140.,
+      10736., 11311., 12110., 12909., 13708., 12103., 12910., 13717., 14524.,
+      13087., 13966., 14845., 15724., 7557.,  8106.,  8655.,  9204.,  9908.,
+      10568., 11228., 11888., 13087., 13966., 14845., 15724., 12855., 13742.,
+      14629., 15516., 10895., 11726., 12557., 13388., 7957.,  8426.,  8895.,
+      9364.,  5324.,  5688.,  6052.,  6416.,  5753.,  6202.,  6651.,  7100.,
+      7265.,  7770.,  8275.,  8780.,  8073.,  8570.,  9067.,  9564.,  3955.,
+      4238.,  4521.,  4804.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2905,8 +4919,20 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x2x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684., 12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355., 12126., 12897., 13668., 11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684., 13131., 13982., 14833., 15684., 11363., 12222., 13081., 13940., 11451., 12254., 13057., 13860., 11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684., 13131., 13982., 14833., 15684., 11363., 12222., 13081., 13940., 11451., 12254., 13057., 13860., 11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 2 }};
+  const std::vector<DataType> exp_out = {
+      11451., 12254., 13057., 13860., 11731., 12542., 13353., 14164., 12523.,
+      13342., 14161., 14980., 12523., 13342., 14161., 14980., 10563., 11326.,
+      12089., 12852., 11355., 12126., 12897., 13668., 11355., 12126., 12897.,
+      13668., 13363., 14206., 15049., 15892., 13131., 13982., 14833., 15684.,
+      12523., 13342., 14161., 14980., 10563., 11326., 12089., 12852., 11355.,
+      12126., 12897., 13668., 11355., 12126., 12897., 13668., 13363., 14206.,
+      15049., 15892., 13131., 13982., 14833., 15684., 13131., 13982., 14833.,
+      15684., 11363., 12222., 13081., 13940., 11451., 12254., 13057., 13860.,
+      11355., 12126., 12897., 13668., 13363., 14206., 15049., 15892., 13131.,
+      13982., 14833., 15684., 13131., 13982., 14833., 15684., 11363., 12222.,
+      13081., 13940., 11451., 12254., 13057., 13860., 11451., 12254., 13057.,
+      13860., 11731., 12542., 13353., 14164., 12523., 13342., 14161., 14980.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 2}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2914,8 +4940,17 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x2x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310., 24534., 18650.,  9928., 15602., 16482., 18578.,  7998., 16992., 25256., 23464., 22184., 17688., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 14152., 18578., 13186., 15602., 11742., 16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310., 24534., 18650.,  9928., 15602., 16482., 18578.,  7998.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16992., 22184., 23464., 25256., 15640., 20632., 30646., 26310., 24534.,
+      18650., 19608., 24534., 27174., 30646., 17850., 20632., 30646., 26310.,
+      24534., 18650., 9928.,  15602., 16482., 18578., 7998.,  16992., 25256.,
+      23464., 22184., 17688., 19608., 24534., 27174., 30646., 17850., 20632.,
+      30646., 26310., 24534., 18650., 19608., 24534., 27174., 30646., 17850.,
+      14152., 18578., 13186., 15602., 11742., 16992., 22184., 23464., 25256.,
+      15640., 20632., 30646., 26310., 24534., 18650., 19608., 24534., 27174.,
+      30646., 17850., 20632., 30646., 26310., 24534., 18650., 9928.,  15602.,
+      16482., 18578., 7998.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2923,8 +4958,11 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x4x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086.,
+      29086., 23214., 23998., 23998., 26446., 29086., 29086., 23214., 23998.,
+      23998., 26446., 29086., 29086., 23214., 23998., 23998., 26446., 29086.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const int features = 1;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2932,8 +4970,25 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x4x1) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140., 16830., 17924., 17982., 19044.,  8482.,  9084., 17056., 18112., 23624., 24976., 21064., 22416., 19528., 20880., 15608., 16432., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 14200., 15120., 17982., 19044., 12478., 13380., 14142., 15140., 11810., 12476., 17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140., 16830., 17924., 17982., 19044.,  8482.,  9084.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976., 11512.,
+      12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114., 23724.,
+      17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004., 30050.,
+      31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570., 27276.,
+      22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140., 16830.,
+      17924., 17982., 19044., 8482.,  9084.,  17056., 18112., 23624., 24976.,
+      21064., 22416., 19528., 20880., 15608., 16432., 21192., 22512., 22114.,
+      23724., 27362., 29004., 30050., 31852., 15614., 16756., 21192., 22512.,
+      30050., 31852., 25570., 27276., 22114., 23724., 17406., 18356., 21192.,
+      22512., 22114., 23724., 27362., 29004., 30050., 31852., 15614., 16756.,
+      14200., 15120., 17982., 19044., 12478., 13380., 14142., 15140., 11810.,
+      12476., 17056., 18112., 19528., 20880., 23112., 24464., 23624., 24976.,
+      11512., 12336., 21192., 22512., 30050., 31852., 25570., 27276., 22114.,
+      23724., 17406., 18356., 21192., 22512., 22114., 23724., 27362., 29004.,
+      30050., 31852., 15614., 16756., 21192., 22512., 30050., 31852., 25570.,
+      27276., 22114., 23724., 17406., 18356., 10104., 10768., 14142., 15140.,
+      16830., 17924., 17982., 19044., 8482.,  9084.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2941,8 +4996,14 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x4x2) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538.,
+      23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.,
+      29090., 30780., 21538., 23132., 23202., 24700., 23202., 24700., 27938.,
+      29596., 29090., 30780., 29090., 30780., 21538., 23132., 23202., 24700.,
+      23202., 24700., 27938., 29596., 29090., 30780., 29090., 30780., 21538.,
+      23132., 23202., 24700., 23202., 24700., 27938., 29596., 29090., 30780.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const int features = 2;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
@@ -2950,8 +5011,42 @@ TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x4x2) {
 }
 TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576.,  9944., 10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,  9130.,  9732., 10334., 10936., 16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 13784., 14704., 15624., 16544., 15254., 16316., 17378., 18440., 13622., 14524., 15426., 16328., 13782., 14780., 15778., 16776.,  9578., 10244., 10910., 11576., 16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576.,  9944., 10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440.,  9130.,  9732., 10334., 10936.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224., 21192.,
+      22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112., 13936.,
+      14760., 15584., 19944., 21264., 22584., 23904., 26298., 28100., 29902.,
+      31704., 25626., 27332., 29038., 30744., 22906., 24516., 26126., 27736.,
+      14726., 15676., 16626., 17576., 19944., 21264., 22584., 23904., 22906.,
+      24516., 26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100.,
+      29902., 31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584.,
+      23904., 26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744.,
+      22906., 24516., 26126., 27736., 14726., 15676., 16626., 17576., 9944.,
+      10608., 11272., 11936., 13782., 14780., 15778., 16776., 15990., 17084.,
+      18178., 19272., 15254., 16316., 17378., 18440., 9130.,  9732.,  10334.,
+      10936., 16160., 17216., 18272., 19328., 20168., 21520., 22872., 24224.,
+      21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224., 13112.,
+      13936., 14760., 15584., 19944., 21264., 22584., 23904., 22906., 24516.,
+      26126., 27736., 25178., 26820., 28462., 30104., 26298., 28100., 29902.,
+      31704., 17094., 18236., 19378., 20520., 19944., 21264., 22584., 23904.,
+      26298., 28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906.,
+      24516., 26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264.,
+      22584., 23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462.,
+      30104., 26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520.,
+      13784., 14704., 15624., 16544., 15254., 16316., 17378., 18440., 13622.,
+      14524., 15426., 16328., 13782., 14780., 15778., 16776., 9578.,  10244.,
+      10910., 11576., 16160., 17216., 18272., 19328., 20168., 21520., 22872.,
+      24224., 21192., 22544., 23896., 25248., 20168., 21520., 22872., 24224.,
+      13112., 13936., 14760., 15584., 19944., 21264., 22584., 23904., 26298.,
+      28100., 29902., 31704., 25626., 27332., 29038., 30744., 22906., 24516.,
+      26126., 27736., 14726., 15676., 16626., 17576., 19944., 21264., 22584.,
+      23904., 22906., 24516., 26126., 27736., 25178., 26820., 28462., 30104.,
+      26298., 28100., 29902., 31704., 17094., 18236., 19378., 20520., 19944.,
+      21264., 22584., 23904., 26298., 28100., 29902., 31704., 25626., 27332.,
+      29038., 30744., 22906., 24516., 26126., 27736., 14726., 15676., 16626.,
+      17576., 9944.,  10608., 11272., 11936., 13782., 14780., 15778., 16776.,
+      15990., 17084., 18178., 19272., 15254., 16316., 17378., 18440., 9130.,
+      9732.,  10334., 10936.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::SAME;
   const DataType max_input_val = 32.0;
@@ -2959,8 +5054,20 @@ TYPED_TEST(ForwardWindow5Stride2, SAME3x10x10x4x4) {
 }
 TYPED_TEST(ForwardWindow5Stride2, VALID3x10x10x4x4) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.};
-  const std::array<int, 4> in_shape = {{ 3, 10, 10, 4 }};
+  const std::vector<DataType> exp_out = {
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538.,
+      28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412.,
+      27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142.,
+      27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.,
+      26538., 28228., 29918., 31608., 23818., 25412., 27006., 28600., 23146.,
+      24644., 26142., 27640., 23146., 24644., 26142., 27640., 24266., 25924.,
+      27582., 29240., 26538., 28228., 29918., 31608., 26538., 28228., 29918.,
+      31608., 23818., 25412., 27006., 28600., 23146., 24644., 26142., 27640.,
+      23146., 24644., 26142., 27640., 24266., 25924., 27582., 29240., 26538.,
+      28228., 29918., 31608., 26538., 28228., 29918., 31608., 23818., 25412.,
+      27006., 28600., 23146., 24644., 26142., 27640., 23146., 24644., 26142.,
+      27640., 24266., 25924., 27582., 29240., 26538., 28228., 29918., 31608.};
+  const std::array<int, 4> in_shape = {{3, 10, 10, 4}};
   const int features = 4;
   const auto padding = sycldnn::PaddingMode::VALID;
   const DataType max_input_val = 32.0;
