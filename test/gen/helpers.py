@@ -49,7 +49,7 @@ COMMENT_TPL = r"""
 
 
 def get_dont_modify_comment(scriptname):
-    tf_version = tf.VERSION
+    tf_version = tf.__version__
     return COMMENT_TPL.format(scriptname=scriptname, tf_version=tf_version)
 
 

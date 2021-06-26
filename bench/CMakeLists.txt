@@ -477,3 +477,46 @@ if(SNN_BENCH_MKLDNN)
   snn_mkl_depthwise_conv2d_bench(xception)
 endif()
 
+snn_object_library(
+  WITH_SYCL
+  TARGET
+    bias_benchmark_functions
+  KERNEL_SOURCES
+    bias/benchmark_functions.cc
+  PUBLIC_LIBRARIES
+    benchmark::benchmark
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+
+function(snn_bias_config_lib modelname)
+  snn_object_library(
+    TARGET
+      ${modelname}_bias_config
+    SOURCES
+      bias/${modelname}.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+endfunction()
+
+snn_bias_config_lib(net)
+
+function(snn_bias_bench modelname)
+  snn_bench(
+    WITH_SYCL
+    TARGET
+      ${modelname}_bias
+    OBJECTS
+      $<TARGET_OBJECTS:bias>
+      $<TARGET_OBJECTS:bias_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_bias_config>
+    PUBLIC_LIBRARIES
+      bench_main
+  )
+endfunction()
+
+snn_bias_bench(net)
+

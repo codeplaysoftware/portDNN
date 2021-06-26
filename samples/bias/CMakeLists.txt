@@ -1,4 +1,4 @@
-# Copyright 2018 Codeplay Software Ltd.
+# Copyright Codeplay Software Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use these files except in compliance with the License.
@@ -11,15 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-cmake_minimum_required(VERSION 3.2.2)
-include(SNNHelpers)
+include(HandleSyclBLAS)
 
-add_subdirectory(conv2d)
-add_subdirectory(depthwise_conv2d)
-add_subdirectory(matmul)
-add_subdirectory(pointwise)
-add_subdirectory(pooling)
-add_subdirectory(bias)
-add_subdirectory(transpose)
-
+set(CMAKE_CXX_STANDARD 14)
+snn_executable(
+  WITH_SYCL
+  TARGET
+   bias_sample
+  KERNEL_SOURCES
+    bias.cc
+  PRIVATE_LIBRARIES
+    sycl_dnn
+    SyclBLAS::SyclBLAS
+)

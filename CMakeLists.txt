@@ -163,6 +163,7 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:depthwise_conv2d>
   $<TARGET_OBJECTS:selector_conv2d>
   $<TARGET_OBJECTS:pooling>
+  $<TARGET_OBJECTS:bias>
   $<TARGET_OBJECTS:pointwise>
   $<TARGET_OBJECTS:matmul>
   $<TARGET_OBJECTS:transpose>
@@ -182,6 +183,7 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:depthwise_conv2d>
   $<TARGET_OBJECTS:selector_conv2d>
   $<TARGET_OBJECTS:pooling>
+  $<TARGET_OBJECTS:bias>
   $<TARGET_OBJECTS:pointwise>
   $<TARGET_OBJECTS:matmul>
   $<TARGET_OBJECTS:transpose>

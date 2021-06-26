@@ -1,4 +1,4 @@
-# Copyright 2018 Codeplay Software Ltd.
+# Copyright Codeplay Software Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use these files except in compliance with the License.
@@ -11,15 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 cmake_minimum_required(VERSION 3.2.2)
+
+include(HandleGTest)
 include(SNNHelpers)
 
-add_subdirectory(conv2d)
-add_subdirectory(depthwise_conv2d)
-add_subdirectory(matmul)
-add_subdirectory(pointwise)
-add_subdirectory(pooling)
-add_subdirectory(bias)
-add_subdirectory(transpose)
-
+snn_test(
+  WITH_SYCL
+  TARGET
+    bias
+  SOURCES
+    test_bias.cc
+  OBJECTS
+    $<TARGET_OBJECTS:bias>
+)

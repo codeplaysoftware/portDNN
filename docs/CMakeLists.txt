@@ -25,7 +25,7 @@ configure_file(Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 
 # Build a list of dependencies. This is rather crude, and won't detect newly
 # added files, but it's the best we can reasonably do with CMake
-file(GLOB_RECURSE DOC_SOURCES ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE DOC_SOURCES "${PROJECT_SOURCE_DIR}/include/*.h")
 list(APPEND DOC_SOURCES
   ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
   ${PROJECT_SOURCE_DIR}/README.md

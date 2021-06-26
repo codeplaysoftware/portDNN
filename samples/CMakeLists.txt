@@ -17,4 +17,5 @@ include(HandleEigen)
 
 add_subdirectory(conv2d)
 add_subdirectory(pooling)
+add_subdirectory(bias)
 

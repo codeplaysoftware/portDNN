@@ -1,0 +1,55 @@
+/*
+ * Copyright Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef SYCLDNN_SRC_BIAS_QUEUE_IMPL_H_
+#define SYCLDNN_SRC_BIAS_QUEUE_IMPL_H_
+
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
+
+#include "sycldnn/bias/params.h"
+
+#include "src/bias/kernels.h"
+#include "src/bias/queue_bias_kernel.h"
+
+#include <CL/sycl.hpp>
+
+namespace sycldnn {
+namespace bias {
+namespace internal {
+
+template <typename T, typename Index, int VectorWidth>
+SNNStatus queue_bias_add(BaseMemObject<T const>& in_mem,
+                         BaseMemObject<T const>& bias_mem,
+                         BaseMemObject<T>& out_mem, BiasParams const& pp,
+                         size_t threads, cl::sycl::queue& queue) {
+  auto event = queue.submit([&](cl::sycl::handler& cgh) {
+    auto input = in_mem.read_accessor(cgh);
+    auto biases = bias_mem.read_accessor(cgh);
+    auto output = out_mem.write_accessor(cgh);
+    BiasOp<T, Index, VectorWidth> bias_add{input, biases, output, pp};
+
+    cgh.parallel_for(cl::sycl::range<1>{threads / VectorWidth}, bias_add);
+  });
+
+  return {event, StatusCode::OK};
+}
+
+}  // namespace internal
+}  // namespace bias
+}  // namespace sycldnn
+
+#endif  // SYCLDNN_SRC_BIAS_QUEUE_IMPL_H_
