@@ -72,13 +72,13 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
 
   /**
    * Allocate a tensor to be used internally.
-   * \param n_bytes The size of the allocation in bytes.
+   * \param n_elems The size of the allocation in number of elements.
    * \return Returns a pointer to allocation, using the internal pointer
    *         representation.
    * */
   template <typename T>
-  internal_pointer_type<T> allocate(size_t n_bytes) {
-    return internal_pointer_type<T>{n_bytes / sizeof(T)};
+  internal_pointer_type<T> allocate(size_t n_elems) {
+    return internal_pointer_type<T>{n_elems};
   }
 
   /**

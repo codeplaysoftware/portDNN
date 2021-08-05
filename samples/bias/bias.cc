@@ -79,9 +79,9 @@ int main() {
   std::vector<float> bias_(16, 0.5);
   std::vector<float> out_(4096, 0.0);
 
-  auto input_ = backend.allocate<float>(in_.size() * sizeof(float));
-  auto biases_ = backend.allocate<float>(bias_.size() * sizeof(float));
-  auto output_ = backend.allocate<float>(out_.size() * sizeof(float));
+  auto input_ = backend.allocate<float>(in_.size());
+  auto biases_ = backend.allocate<float>(bias_.size());
+  auto output_ = backend.allocate<float>(out_.size());
   auto buf_in = input_.get_buffer();
   auto buf_bias = biases_.get_buffer();
   auto buf_out = output_.get_buffer();

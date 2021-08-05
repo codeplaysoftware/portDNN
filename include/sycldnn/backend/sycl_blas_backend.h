@@ -153,8 +153,9 @@ struct SyclBLASBackend final {
   auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
       -> decltype(make_mem_object(
           this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-          n_elems, 0u)) {
-    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+          static_cast<int>(n_elems), 0u)) {
+    return make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
+                           ptr.get_offset());
   }
 
   /** \copydoc get_mem_object */
@@ -162,18 +163,19 @@ struct SyclBLASBackend final {
   auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
       -> decltype(make_mem_object(
           this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-          n_elems, 0u)) {
-    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+          static_cast<int>(n_elems), 0u)) {
+    return make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
+                           ptr.get_offset());
   }
 
   /**
    * Allocate a temporary buffer of the requested size.
-   * \param n_bytes The size of the buffer in bytes.
+   * \param n_elems The size of the buffer in number of elements.
    * \return Returns an internal pointer representing the new allocation.
    */
   template <typename T>
-  internal_pointer_type<T> allocate(size_t n_bytes) {
-    return blas::make_sycl_iterator_buffer<T, size_t>(n_bytes);
+  internal_pointer_type<T> allocate(size_t n_elems) {
+    return blas::make_sycl_iterator_buffer<T, int>(static_cast<int>(n_elems));
   }
 
   /**
