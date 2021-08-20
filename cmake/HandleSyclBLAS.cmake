@@ -26,7 +26,7 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
   set(SyclBLAS_REPO "https://github.com/codeplaysoftware/sycl-blas.git" CACHE STRING
     "SyclBLAS git repository to clone"
   )
-  set(SyclBLAS_GIT_TAG "c5325b8" CACHE STRING
+  set(SyclBLAS_GIT_TAG "4394390" CACHE STRING
     "Git tag, branch or commit to use for the SyclBLAS library"
   )
   set(SyclBLAS_SOURCE_DIR ${sycldnn_BINARY_DIR}/SyclBLAS-src)
