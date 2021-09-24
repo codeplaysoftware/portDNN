@@ -26,7 +26,7 @@
 
 #include "sycldnn/mem_object.h"
 
-#include <sycl_blas.hpp>
+#include <sycl_blas.h>
 
 namespace sycldnn {
 namespace backend {

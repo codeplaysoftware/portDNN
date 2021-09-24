@@ -26,14 +26,14 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
   set(SyclBLAS_REPO "https://github.com/codeplaysoftware/sycl-blas.git" CACHE STRING
     "SyclBLAS git repository to clone"
   )
-  set(SyclBLAS_GIT_TAG "4394390" CACHE STRING
+  set(SyclBLAS_GIT_TAG "06d6e38" CACHE STRING
     "Git tag, branch or commit to use for the SyclBLAS library"
   )
   set(SyclBLAS_SOURCE_DIR ${sycldnn_BINARY_DIR}/SyclBLAS-src)
   set(SyclBLAS_BINARY_DIR ${sycldnn_BINARY_DIR}/SyclBLAS-build)
-  set(SyclBLAS_LIBNAME "")
-  set(SyclBLAS_LIBRARIES "")
-  set(SyclBLAS_BYPRODUCTS ${SyclBLAS_LIBRARIES})
+  set(SyclBLAS_LIBNAME ${CMAKE_SHARED_LIBRARY_PREFIX}sycl_blas${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(SyclBLAS_LIBRARY ${SyclBLAS_BINARY_DIR}/${SyclBLAS_LIBNAME})
+  set(SyclBLAS_BYPRODUCTS ${SyclBLAS_LIBRARY})
   if(CMAKE_CROSSCOMPILING)
     set(cmake_toolchain
       "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
@@ -46,37 +46,57 @@ if(NOT SyclBLAS_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
       SOURCE_DIR        ${SyclBLAS_SOURCE_DIR}
       BINARY_DIR        ${SyclBLAS_BINARY_DIR}
       CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                        -DBUILD_SHARED_LIBS=OFF
+                        -DBUILD_SHARED_LIBS=ON
+                        -DBLAS_ENABLE_TESTING=OFF
+                        -DBLAS_ENABLE_BENCHMARK=OFF
+                        -DBLAS_BUILD_SAMPLES=OFF
+                        -DBLAS_ENABLE_CONST_INPUT=ON
+                        -DComputeCpp_DIR=${ComputeCpp_DIR}
+                        -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
                         ${cmake_toolchain}
-      CONFIGURE_COMMAND ""
-      BUILD_COMMAND     ""
       INSTALL_COMMAND   ""
       TEST_COMMAND      ""
       BUILD_BYPRODUCTS ${SyclBLAS_BYPRODUCTS}
     )
   endif()
+
   set(SyclBLAS_INCLUDE_DIR
     ${SyclBLAS_SOURCE_DIR}/include CACHE PATH
     "The SyclBLAS include directory" FORCE
   )
-  set(SyclBLAS_SRC_DIR
-    ${SyclBLAS_SOURCE_DIR}/src CACHE PATH
-    "The SyclBLAS source directory" FORCE
-  )
+
   set(SyclBLAS_VPTR_INCLUDE_DIR
     ${SyclBLAS_SOURCE_DIR}/external/computecpp-sdk/include CACHE PATH
     "The SyclBLAS virtual pointer include directory" FORCE
   )
-  set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_SRC_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
+  set(SyclBLAS_INCLUDE_DIRS ${SyclBLAS_INCLUDE_DIR} ${SyclBLAS_VPTR_INCLUDE_DIR})
   # Have to explicitly make the include directories to add it to the library
   # target. This will be filled with the headers at build time when the
   # library is downloaded.
   file(MAKE_DIRECTORY ${SyclBLAS_INCLUDE_DIR})
-  file(MAKE_DIRECTORY ${SyclBLAS_SRC_DIR})
   file(MAKE_DIRECTORY ${SyclBLAS_VPTR_INCLUDE_DIR})
 
-  find_package(SyclBLAS)
-  add_dependencies(SyclBLAS::SyclBLAS SyclBLAS_download)
+  if(NOT TARGET SyclBLAS::SyclBLAS)
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(SyclBLAS
+      FOUND_VAR SyclBLAS_FOUND
+      REQUIRED_VARS SyclBLAS_LIBRARY
+                    SyclBLAS_INCLUDE_DIR
+                    SyclBLAS_VPTR_INCLUDE_DIR
+    )
+  
+    mark_as_advanced(SyclBLAS_FOUND
+                    SyclBLAS_LIBRARY
+                    SyclBLAS_VPTR_INCLUDE_DIR
+                    SyclBLAS_INCLUDE_DIR
+    )
+    add_library(SyclBLAS::SyclBLAS SHARED IMPORTED)
+    set_target_properties(SyclBLAS::SyclBLAS PROPERTIES
+      IMPORTED_LOCATION "${SyclBLAS_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${SyclBLAS_INCLUDE_DIRS}"
+    )
+    add_dependencies(SyclBLAS::SyclBLAS SyclBLAS_download)
+  endif()
   mark_as_advanced(SyclBLAS_REPO SyclBLAS_GIT_TAG)
 endif()
 
