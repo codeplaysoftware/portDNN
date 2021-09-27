@@ -32,7 +32,7 @@ struct Conv2DParams {
   /** The underlying data type of all index parameters. */
   using Index = int;
 
-  /** The number of channels (or feature maps) in each input image, */
+  /** The number of channels (or feature maps) in each input image. */
   Index channels;
 
   /** The number of feature maps (or channels) in each output image. */

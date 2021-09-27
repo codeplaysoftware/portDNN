@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Codeplay Software Ltd
+ * Copyright Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_INCLUDE_POINTWISE_OPERATORS_H_
-#define SYCLDNN_INCLUDE_POINTWISE_OPERATORS_H_
+#ifndef SYCLDNN_INCLUDE_SOFTMAX_OPERATORS_H_
+#define SYCLDNN_INCLUDE_SOFTMAX_OPERATORS_H_
+
 /**
  * \file
- * Contains the declarations of the \ref sycldnn::pointwise::Relu
- * and \ref sycldnn::pointwise::Tanh tag types.
+ * Contains the declarations of the Softmax, SoftmaxWithMaxScaling, and
+ * LogSoftmax tag types.
  */
 
 namespace sycldnn {
-namespace pointwise {
+namespace softmax {
 
-template <typename Direction>
-struct Relu;
+struct Softmax;
 
-template <typename Direction>
-struct Tanh;
-
-template <typename Direction>
-struct Exp;
-
-template <typename Direction>
-struct SoftMaxDiv;
-
-}  // namespace pointwise
+}  // namespace softmax
 }  // namespace sycldnn
-#endif  // SYCLDNN_INCLUDE_POINTWISE_OPERATORS_H_
+
+#endif  // SYCLDNN_INCLUDE_SOFTMAX_OPERATORS_H_

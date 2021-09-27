@@ -19,6 +19,7 @@ from generate_depthwise_conv2d_tests import generate_depthwise_conv2d_tests
 from generate_matmul_tests import generate_matmul_tests
 from generate_pooling_tests import generate_pooling_tests
 from generate_pointwise_tests import generate_pointwise_tests
+from generate_softmax_tests import generate_softmax_tests
 from generate_transpose_tests import generate_transpose_tests
 
 
@@ -28,6 +29,7 @@ def generate_all():
     generate_matmul_tests()
     generate_pooling_tests()
     generate_pointwise_tests()
+    generate_softmax_tests()
     generate_transpose_tests()
 
 

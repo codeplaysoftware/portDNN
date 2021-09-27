@@ -22,4 +22,4 @@ add_subdirectory(pointwise)
 add_subdirectory(pooling)
 add_subdirectory(bias)
 add_subdirectory(transpose)
-
+add_subdirectory(softmax)

@@ -38,4 +38,4 @@ SNNStatus queue_pointwise(BaseMemObject<T const>& in_mem,
 }  // namespace pointwise
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FOWARD_H_
+#endif  // SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_

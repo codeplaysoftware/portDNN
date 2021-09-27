@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Codeplay Software Ltd
+ * Copyright Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_H_
-#define SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_H_
 
-#include "sycldnn/mem_object.h"
+#ifndef SYCLDNN_SRC_SOFTMAX_QUEUE_SOFTMAX_H
+#define SYCLDNN_SRC_SOFTMAX_QUEUE_SOFTMAX_H
+
+#include "sycldnn/softmax/params.h"
+
+#include <CL/sycl.hpp>
 #include "sycldnn/status.h"
 
 namespace sycldnn {
-namespace transpose {
+namespace softmax {
 namespace internal {
 
-template <typename T, typename Index, int ND>
-SNNStatus queue_kernel(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                       std::vector<int> const& dimensions,
-                       std::vector<int> const& permutation,
-                       cl::sycl::queue& queue);
-
+template <typename T, typename Index, typename SoftmaxType, typename Backend,
+          int VectorWidth>
+SNNStatus queue_softmax(typename Backend::template pointer_type<T const>& input,
+                        typename Backend::template pointer_type<T>& workspace,
+                        typename Backend::template pointer_type<T>& output,
+                        SoftmaxParams const& params, Backend& backend);
 }  // namespace internal
-}  // namespace transpose
+}  // namespace softmax
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_H_
+#endif  // SYCLDNN_SRC_SOFTMAX_QUEUE_SOFTMAX_H

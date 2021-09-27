@@ -64,6 +64,7 @@ struct BaseAccessor {
   template <typename Alloc>
   BaseAccessor(Buffer<Alloc>& buf, Handler& cgh, size_t extent, size_t offset)
       : acc_{buf, cgh, cl::sycl::range<1>{extent}, cl::sycl::id<1>{offset}},
+        extent_{extent},
         offset_{offset} {}
 
   /**
@@ -84,9 +85,21 @@ struct BaseAccessor {
    */
   Accessor const& get_accessor() const { return acc_; }
 
+  /**
+   * Get the number of elements in the buffer.
+   * \return number of elements in the buffer.
+   */
+  size_t get_extent() const { return extent_; }
+
  private:
   /** The SYCL accessor. */
   Accessor acc_;
+
+  /**
+   * The number of elements in the buffer to provide access to.
+   */
+  size_t extent_;
+
   /**
    * The offset from the start of the SYCL buffer in elements.
    *

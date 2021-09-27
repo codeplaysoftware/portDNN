@@ -65,6 +65,12 @@ struct BaseMemObject {
    * \return A WriteAccessor wrapper containing a SYCL accessor.
    */
   virtual WriteAccessor<T> write_accessor(Handler& cgh) = 0;
+
+  /**
+   * Get the number of elements in a buffer.
+   * \return number of elements.
+   */
+  virtual size_t get_count() const = 0;
 };
 
 /**
@@ -83,6 +89,11 @@ struct BaseMemObject<T const> {
 
   /** \copydoc BaseMemObject<T>::read_accessor */
   virtual ReadAccessor<T const> read_accessor(Handler& cgh) = 0;
+  /**
+   * Get the number of elements in a buffer.
+   * \return number of elements.
+   */
+  virtual size_t get_count() const = 0;
 };
 
 /**
@@ -107,10 +118,19 @@ struct MemObject final : public BaseMemObject<T> {
    * \param extent The overall number of elements in the buffer to provide
    *               access to.
    * \param offset The offset from the start of the buffer (in number of
-   *               elements) to use as the initial index for the memory object.
+   *               elements) to use as the initial index for the memory
+   * object.
    */
   MemObject(Buffer buffer, size_t extent, size_t offset)
       : buffer_{buffer}, extent_{extent}, offset_{offset} {}
+
+  /**
+   * Implicit Conversion operator from non-const ptr to const ptr
+   * \return reference of the same pointer re-interpreted as const ptr
+   */
+  operator MemObject<T const, Alloc>&() {
+    return *reinterpret_cast<MemObject<T const, Alloc>*>(this);
+  }
 
   /** \copydoc BaseMemObject<T>::read_accessor */
   ReadAccessor<DataType> read_accessor(Handler& cgh) override {
@@ -135,8 +155,8 @@ struct MemObject final : public BaseMemObject<T> {
 
   /**
    * Get the extent of this MemObject. This is the number of elements in the
-   * SYCL buffer that are available to a user when a SYCL accessor is requested.
-   * \return The extent of this MemObject.
+   * SYCL buffer that are available to a user when a SYCL accessor is
+   * requested. \return The extent of this MemObject.
    */
   size_t get_extent() const { return extent_; }
 
@@ -145,6 +165,12 @@ struct MemObject final : public BaseMemObject<T> {
    * \return The number of elements offset from the start of the Buffer.
    */
   size_t get_offset() const { return offset_; }
+
+  /**
+   * Get the number of elements in a buffer.
+   * \return number of elements.
+   */
+  size_t get_count() const override { return buffer_.get_count(); }
 
  private:
   /** The underlying SYCL buffer. */
@@ -158,8 +184,8 @@ struct MemObject final : public BaseMemObject<T> {
 /**
  * Specialisation of \ref MemObject for `const` DataTypes.
  *
- * The specialisation restricts access to read only, as the underlying data type
- * is constant.
+ * The specialisation restricts access to read only, as the underlying data
+ * type is constant.
  */
 template <typename T, typename Alloc>
 struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
@@ -190,6 +216,12 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
 
   /** \copydoc MemObject<T>::get_offset  */
   size_t get_offset() const { return offset_; }
+
+  /**
+   * Get the number of elements in a buffer.
+   * \return number of elements.
+   */
+  size_t get_count() const override { return buffer_.get_count(); }
 
  private:
   /** The underlying SYCL buffer. */

@@ -1,4 +1,4 @@
-# Copyright 2018 Codeplay Software Ltd.
+# Copyright Codeplay Software Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use these files except in compliance with the License.
@@ -12,10 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+cmake_minimum_required(VERSION 3.2.2)
+set(_cxx_opts)
+set(_softmax_providers)
 
-include(HandleEigen)
+if(SNN_TEST_SYCLBLAS)
+  include(HandleSyclBLAS)
+  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
+  list(APPEND _softmax_providers SyclBLAS::SyclBLAS)
+endif()
 
-add_subdirectory(conv2d)
-add_subdirectory(pooling)
-add_subdirectory(bias)
-add_subdirectory(softmax)
+set(CMAKE_CXX_STANDARD 14)
+snn_executable(
+  WITH_SYCL
+  TARGET
+   softmax_sample
+  SOURCES
+    softmax.cc
+  PRIVATE_LIBRARIES
+    sycl_dnn
+  PUBLIC_LIBRARIES
+    ${_softmax_providers}
+  CXX_OPTS
+    ${_cxx_opts}
+)

@@ -1,0 +1,54 @@
+/*
+ * Copyright Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#if defined(SNN_TEST_SYCLBLAS)
+#include "sycldnn/backend/sycl_blas_backend.h"
+#else
+#include "sycldnn/backend/snn_backend.h"
+#endif
+
+#include "src/softmax/queue_softmax_kernel_impl.h"
+
+#include "sycldnn/status.h"
+
+#include "sycldnn/softmax/operators.h"
+#include "sycldnn/softmax/params.h"
+
+// clang-format off
+#define SNN_DATA_TYPE      @DATA_TYPE@
+#define SNN_VECTOR_WIDTH   @VECTOR_WIDTH@
+#define SNN_INDEX_TYPE     @INDEX_TYPE@
+#define SNN_SOFTMAX_TYPE   @SOFTMAX_TYPE@
+#define SNN_BACKEND_TYPE   sycldnn::backend::@BACKEND@
+
+// clang-format on
+
+namespace sycldnn {
+namespace softmax {
+namespace internal {
+
+template SNNStatus
+queue_softmax<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_SOFTMAX_TYPE, SNN_BACKEND_TYPE,
+              SNN_VECTOR_WIDTH>(
+    typename SNN_BACKEND_TYPE::template pointer_type<SNN_DATA_TYPE const>&
+        input,
+    typename SNN_BACKEND_TYPE::template pointer_type<SNN_DATA_TYPE>& workspace,
+    typename SNN_BACKEND_TYPE::template pointer_type<SNN_DATA_TYPE>& output,
+    SoftmaxParams const& params, SNN_BACKEND_TYPE& backend);
+
+}  // namespace internal
+}  // namespace softmax
+}  // namespace sycldnn

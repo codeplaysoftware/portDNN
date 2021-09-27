@@ -42,12 +42,11 @@ SNNStatus queue_pointwise(BaseMemObject<T const>& in_mem,
                           cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = in_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
+    auto output = PointwiseType<Direction>::output_access(out_mem, cgh);
     Index const n_vecs = n_items / VectorWidth;
     size_t const n_threads = helpers::round_up_to_nearest_multiple(n_vecs, 64);
     PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth> pointwise_op{
         input, output, n_vecs};
-
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);
   });
 

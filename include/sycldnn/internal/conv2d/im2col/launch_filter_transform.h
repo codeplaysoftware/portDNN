@@ -65,7 +65,7 @@ static SNNStatus launch_filter_transform(
  * For the input backprop the filter needs to be mirrored.
  *
  * The AllocatedPointerSet will already have a temporary filter transform buffer
- * for this mirrored filter, so fill this with the fitler values.
+ * for this mirrored filter, so fill this with the filter values.
  */
 template <
     typename T, typename ConvType, typename Backend,

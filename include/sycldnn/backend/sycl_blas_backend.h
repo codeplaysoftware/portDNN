@@ -24,6 +24,7 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
 
+#include "src/transpose/queue_kernel_impl.h"
 #include "sycldnn/mem_object.h"
 
 #include <sycl_blas.h>
@@ -188,6 +189,16 @@ struct SyclBLASBackend final {
   }
 
   /**
+   * Convert non-const pointer to const pointer.
+   * \param ptr pointer to input memory.
+   * \return a reinterpreted const type pointer of the input pointer.
+   */
+  template <typename T>
+  pointer_type<T const> to_const_pointer(pointer_type<T>* ptr) {
+    return *reinterpret_cast<pointer_type<T const>*>(ptr);
+  }
+
+  /**
    * A wrapper around a call to GEMM.
    *
    * Should perform the matrix multiply operation:
@@ -294,6 +305,51 @@ struct SyclBLASBackend final {
                             static_cast<T>(0), output, ldc, n_batches)
             .back();
     return e;
+  }
+
+  /**
+   * Function for reducing inputs using SyclBLAS backend.
+   * \tparam T          Data type.
+   * \tparam Index      Index type.
+   * \tparam Params     Parameters object which holds N, H, W and C.
+   * \param input       input memory to be reduced.
+   * \param output      output memory to store the reduced value.
+   * \param params      Parameters object.
+   * \return            reduced value in output memory.
+   */
+  template <typename T, typename Index, typename Params>
+  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const>& input,
+                                       pointer_type<T>& output,
+                                       Params const& params) {
+    // For now, the reduction is performed across channels only,
+    // in order to match the outputs from Tensorflow.
+    // Only NHWC format is supported.
+
+    auto rows = params.batch * params.rows * params.cols;  // batch*rows*cols
+    auto cols = params.channels;                           // channels
+
+    // need to change layout of exponents from row-major to column-major.
+    // had to create this extra memory to store the transposed exponent values
+
+    // TODO: remove this temp memory once SYCL-BLAS supports row-major
+    // reduction
+    auto temp = this->allocate<T>(rows * cols);
+
+    auto in_mem = this->get_mem_object(input, rows * cols);
+    auto temp_mem = this->get_mem_object(temp, rows * cols);
+
+    const std::vector<int> sizes = {rows, cols};
+    const std::vector<int> perm = {1, 0};
+    auto queue = this->get_queue();
+
+    sycldnn::transpose::internal::queue_kernel<T, Index, 2>(in_mem, temp_mem,
+                                                            sizes, perm, queue);
+
+    // proceeding with reduction using column major data layout
+    blas::extension::_reduction<blas::AddOperator, T>(executor_, temp, rows,
+                                                      output, rows, cols);
+
+    this->deallocate(temp);
   }
 };
 
