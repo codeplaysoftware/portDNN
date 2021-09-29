@@ -164,17 +164,19 @@ class PointwiseOp<T, Index, SoftMaxDiv, Forward, VectorWidth> {
     if (idx < n_items_) {
       SoftMaxDiv<Forward> op;
       auto vec_idx1 = idx * VectorWidth;
-      auto n_channels =
-          static_cast<Index>(output_.get_extent() / input_.get_extent());
-      auto vec_idx2 = vec_idx1 / n_channels;
+      auto iterations = static_cast<Index>(input_.get_extent());
+      auto increment = n_items_ * VectorWidth;
 
       auto in_ptr = input_.get_pointer();
       auto out_ptr = output_.get_pointer();
 
-      auto in1 = LoadData()(out_ptr, vec_idx1);
-      auto in2 = ScalarLoadData()(in_ptr, vec_idx2);
-      auto out_value = op.apply(in1, DataType(in2));
-      StoreData()(out_ptr, vec_idx1, out_value);
+      DataType in1, in2, out_value;
+      for (Index i = 0; i < iterations; i++, vec_idx1 += increment) {
+        in1 = LoadData()(out_ptr, vec_idx1);
+        in2 = ScalarLoadData()(in_ptr, i);
+        out_value = op.apply(in1, DataType(in2));
+        StoreData()(out_ptr, vec_idx1, out_value);
+      }
     }
   }
 };

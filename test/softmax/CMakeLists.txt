@@ -33,6 +33,7 @@ snn_test(
     softmax_forward.cc
   OBJECTS
     $<TARGET_OBJECTS:softmax>
+    $<TARGET_OBJECTS:transpose>
   PUBLIC_LIBRARIES
     ${_softmax_providers}
   CXX_OPTS

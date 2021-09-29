@@ -124,14 +124,6 @@ struct MemObject final : public BaseMemObject<T> {
   MemObject(Buffer buffer, size_t extent, size_t offset)
       : buffer_{buffer}, extent_{extent}, offset_{offset} {}
 
-  /**
-   * Implicit Conversion operator from non-const ptr to const ptr
-   * \return reference of the same pointer re-interpreted as const ptr
-   */
-  operator MemObject<T const, Alloc>&() {
-    return *reinterpret_cast<MemObject<T const, Alloc>*>(this);
-  }
-
   /** \copydoc BaseMemObject<T>::read_accessor */
   ReadAccessor<DataType> read_accessor(Handler& cgh) override {
     return {buffer_, cgh, extent_, offset_};

@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(SNN_TEST_SYCLBLAS)
-#include "sycldnn/backend/sycl_blas_backend.h"
-#else
 #include "sycldnn/backend/snn_backend.h"
-#endif
 
 #include "sycldnn/softmax/launch.h"
 #include "sycldnn/softmax/operators.h"
@@ -30,12 +26,7 @@
 namespace snn = sycldnn;
 namespace sycl = cl::sycl;
 
-#if defined(SNN_TEST_SYCLBLAS)
-using Backend = snn::backend::SyclBLASBackend;
-#else
 using Backend = snn::backend::SNNBackend;
-#endif
-
 using DeviceMem = Backend::pointer_type<float>;
 
 int main() {

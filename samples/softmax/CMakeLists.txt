@@ -13,14 +13,6 @@
 # limitations under the License.
 #
 cmake_minimum_required(VERSION 3.2.2)
-set(_cxx_opts)
-set(_softmax_providers)
-
-if(SNN_TEST_SYCLBLAS)
-  include(HandleSyclBLAS)
-  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND _softmax_providers SyclBLAS::SyclBLAS)
-endif()
 
 set(CMAKE_CXX_STANDARD 14)
 snn_executable(
@@ -29,10 +21,6 @@ snn_executable(
    softmax_sample
   SOURCES
     softmax.cc
-  PRIVATE_LIBRARIES
-    sycl_dnn
   PUBLIC_LIBRARIES
-    ${_softmax_providers}
-  CXX_OPTS
-    ${_cxx_opts}
+    sycl_dnn
 )

@@ -94,16 +94,6 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
   }
 
   /**
-   * Convert non-const pointer to const pointer.
-   * \param ptr pointer to input memory.
-   * \return a reinterpreted const type pointer of the input pointer.
-   */
-  template <typename T>
-  pointer_type<T const> to_const_pointer(pointer_type<T>* ptr) {
-    return *reinterpret_cast<pointer_type<T const>*>(ptr);
-  }
-
-  /**
    * Get a MemObject containing the buffer corresponding to a given pointer.
    * \param ptr     A pointer referring to a SYCL buffer with some offset.
    * \param n_elems The number of elements required within the MemObject.
@@ -173,8 +163,8 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
    * \return            reduced value in output memory.
    */
   template <typename T, typename Index, typename Params>
-  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const>& input,
-                                       pointer_type<T>& output,
+  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const> input,
+                                       pointer_type<T> output,
                                        Params const& params) {
     // For now, the reduction is performed across channels only,
     // in order to match the outputs from Tensorflow.

@@ -15,23 +15,15 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
-set(_backends)
-set(_cxx_opts)
-set(_softmax_providers)
+add_definitions(-DENABLE_SOFTMAXDIV=1)
 
-if(SNN_TEST_SYCLBLAS)
-  include(HandleSyclBLAS)
-  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND _softmax_providers SyclBLAS::SyclBLAS)
-  list(APPEND _backends SyclBLASBackend)
-else()
-  list(APPEND _backends SNNBackend)
-endif()
-
-macro(generate_kernel out_var template)
-  set(_filename "${INST_SOFTMAX_FILENAME}_${DATA_TYPE}_${INDEX_TYPE}_${SOFTMAX_TYPE}")
-  set(_filename "${_filename}_${BACKEND}_${VECTOR_WIDTH}.cc")
+macro(generate_kernel out_var template op dir)
+  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
+  set(_filename "${INST_SOFTMAX_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${op}")
+  set(_filename "${_filename}_${dir}_${VECTOR_WIDTH}.cc")
   set(_gen_file ${CMAKE_BINARY_DIR}/generated/softmax/${_filename})
+  set(OP_TYPE ${op})
+  set(DIRECTION ${dir})
   configure_file(${template} ${_gen_file} @ONLY)
   list(APPEND ${out_var} ${_gen_file})
 endmacro()
@@ -49,16 +41,13 @@ function(generate_softmax)
     "${multi_value_args}"
     ${ARGN}
   )
-  set(_general_template queue_softmax_kernel_impl.cc.in)
+  set(_forward_template ../pointwise/queue_pointwise_forward_impl.cc.in)
   set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
-      foreach(SOFTMAX_TYPE IN ITEMS Softmax)
-        foreach(BACKEND IN LISTS _backends)
-          foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
-            generate_kernel(_sources ${_general_template})
-          endforeach()
-        endforeach()
+      foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
+        generate_kernel(_sources ${_forward_template} Exp Forward)
+        generate_kernel(_sources ${_forward_template} SoftMaxDiv Forward)
       endforeach()
     endforeach()
   endforeach()
@@ -77,9 +66,6 @@ snn_object_library(
   KERNEL_SOURCES
     ${softmax_kernels}
   SOURCES
-    launch_softmax.cc
-  PUBLIC_LIBRARIES
-    ${_softmax_providers}
-  CXX_OPTS
-    ${_cxx_opts}
+    ../pointwise/launch_pointwise_forward.cc
 )
+set(-DENABLE_SOFTMAXDIV 0)

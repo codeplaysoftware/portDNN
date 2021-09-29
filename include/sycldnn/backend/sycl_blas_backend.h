@@ -24,8 +24,8 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
 
-#include "src/transpose/queue_kernel_impl.h"
 #include "sycldnn/mem_object.h"
+#include "sycldnn/transpose/launch.h"
 
 #include <sycl_blas.h>
 
@@ -189,16 +189,6 @@ struct SyclBLASBackend final {
   }
 
   /**
-   * Convert non-const pointer to const pointer.
-   * \param ptr pointer to input memory.
-   * \return a reinterpreted const type pointer of the input pointer.
-   */
-  template <typename T>
-  pointer_type<T const> to_const_pointer(pointer_type<T>* ptr) {
-    return *reinterpret_cast<pointer_type<T const>*>(ptr);
-  }
-
-  /**
    * A wrapper around a call to GEMM.
    *
    * Should perform the matrix multiply operation:
@@ -318,8 +308,8 @@ struct SyclBLASBackend final {
    * \return            reduced value in output memory.
    */
   template <typename T, typename Index, typename Params>
-  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const>& input,
-                                       pointer_type<T>& output,
+  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const> input,
+                                       pointer_type<T> output,
                                        Params const& params) {
     // For now, the reduction is performed across channels only,
     // in order to match the outputs from Tensorflow.
@@ -335,15 +325,10 @@ struct SyclBLASBackend final {
     // reduction
     auto temp = this->allocate<T>(rows * cols);
 
-    auto in_mem = this->get_mem_object(input, rows * cols);
-    auto temp_mem = this->get_mem_object(temp, rows * cols);
-
     const std::vector<int> sizes = {rows, cols};
     const std::vector<int> perm = {1, 0};
-    auto queue = this->get_queue();
 
-    sycldnn::transpose::internal::queue_kernel<T, Index, 2>(in_mem, temp_mem,
-                                                            sizes, perm, queue);
+    sycldnn::transpose::launch<T>(input, temp, sizes, perm, *this);
 
     // proceeding with reduction using column major data layout
     blas::extension::_reduction<blas::AddOperator, T>(executor_, temp, rows,
