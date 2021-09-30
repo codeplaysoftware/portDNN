@@ -149,6 +149,23 @@ DType Batchnorm_MeanDiv<Forward>::apply(DType val1, DType val2) {
   return val1 / val2;
 }
 
+template <typename Direction>
+struct ResidualAdd {
+  template <typename DType>
+  DType apply(DType val1, DType val2);
+  template <typename MemObject>
+  static auto output_access(MemObject& out, cl::sycl::handler& cgh)
+      -> decltype(out.read_write_accessor(cgh)) {
+    return out.read_write_accessor(cgh);
+  }
+};
+
+template <>
+template <typename DType>
+DType ResidualAdd<Forward>::apply(DType val1, DType val2) {
+  return val1 + val2;
+}
+
 template <typename T, typename Index, template <typename> class Op,
           typename Direction, int VectorWidth>
 class PointwiseOp;
@@ -235,6 +252,39 @@ class PointwiseOp<T, Index, Batchnorm_MeanDiv, Forward, VectorWidth> {
         StoreData()(out_ptr, vec_idx, out);
         vec_idx += (n_items_ * VectorWidth);
       }
+    }
+  }
+};
+
+template <typename T, typename Index, int VectorWidth>
+class PointwiseOp<T, Index, ResidualAdd, Forward, VectorWidth> {
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
+  using LoadData = helpers::io::Load<DataType>;
+  using StoreData = helpers::io::Store<DataType>;
+
+  ReadAccessor<T const> input_;
+  ReadWriteAccessor<T> output_;
+  Index const n_items_;
+
+ public:
+  PointwiseOp(ReadAccessor<T const> const& input,
+              ReadWriteAccessor<T> const& output, Index const num_items)
+      : input_{input}, output_{output}, n_items_{num_items} {}
+
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+    Index const idx = item.get_id(0);
+
+    if (idx < n_items_) {
+      ResidualAdd<Forward> op;
+      auto vec_idx = idx * VectorWidth;
+
+      auto in_ptr = input_.get_pointer();
+      auto out_ptr = output_.get_pointer();
+
+      auto val1 = LoadData()(in_ptr, vec_idx);
+      auto val2 = LoadData()(out_ptr, vec_idx);
+      auto out = op.apply(val1, val2);
+      StoreData()(out_ptr, vec_idx, out);
     }
   }
 };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(SNN_USE_SYCLBLAS)
+#if defined(SNN_TEST_SYCLBLAS)
 #include "sycldnn/backend/sycl_blas_backend.h"
 #else
 #include "sycldnn/backend/snn_backend.h"
@@ -27,7 +27,7 @@
 
 using DType = float;
 
-#if defined(SNN_USE_SYCLBLAS)
+#if defined(SNN_TEST_SYCLBLAS)
 using Backend = sycldnn::backend::SyclBLASBackend;
 #else
 using Backend = sycldnn::backend::SNNBackend;

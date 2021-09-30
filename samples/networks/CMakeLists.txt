@@ -11,29 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-cmake_minimum_required(VERSION 3.2.2)
-set(_cxx_opts)
-set(backend_providers)
-
-if(SNN_TEST_SYCLBLAS)
-  include(HandleSyclBLAS)
-  list(APPEND _cxx_opts -DSNN_USE_SYCLBLAS=1)
-  list(APPEND backend_providers SyclBLAS::SyclBLAS)
-endif()
-
-set(CMAKE_CXX_STANDARD 14)
-snn_executable(
-  WITH_SYCL
-  TARGET
-   vgg
-  KERNEL_SOURCES
-   vgg.cc
-  SOURCES
-    vgg.cc
-  PUBLIC_LIBRARIES
-    sycl_dnn
-    ${backend_providers}
-  CXX_OPTS
-    ${_cxx_opts}
-)
+add_subdirectory(vgg)
+add_subdirectory(resnet50)

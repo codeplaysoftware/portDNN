@@ -19,9 +19,9 @@
 /**
  * \file
  * Contains the declarations of the \ref sycldnn::pointwise::Relu
- * and \ref sycldnn::pointwise::Tanh, sycldnn::pointwise::Exp,
- * sycldnn::pointwise::SoftMaxDiv and \ref sycldnn::pointwise::Batchnorm_MeanDiv
- * tag types.
+ * and \ref sycldnn::pointwise::Tanh, \ref sycldnn::pointwise::Exp, \ref
+ * sycldnn::pointwise::SoftMaxDiv, \ref sycldnn::pointwise::Batchnorm_MeanDiv
+ * and \ref sycldnn::pointwise::ResidualAdd tag types.
  */
 
 namespace sycldnn {
@@ -41,6 +41,9 @@ struct SoftMaxDiv;
 
 template <typename Direction>
 struct Batchnorm_MeanDiv;
+
+template <typename Direction>
+struct ResidualAdd;
 
 }  // namespace pointwise
 }  // namespace sycldnn
