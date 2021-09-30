@@ -160,7 +160,7 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
    * \param input       input memory to be reduced.
    * \param output      output memory to store the reduced value.
    * \param params      Parameters object.
-   * \return            reduced value in output memory.
+   * \return
    */
   template <typename T, typename Index, typename Params>
   inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const> input,
@@ -204,6 +204,48 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
         });
       });
     }
+  }
+
+  /**
+   * Function for calculating mean using SYCL-DNN backend.
+   * \tparam T          Data type.
+   * \tparam Index      Index type.
+   * \tparam Params     Parameters object which holds N, H, W and C.
+   * \param input       input memory to be used to compute mean.
+   * \param output      output memory to store the mean values.
+   * \param params      Parameters object.
+   * \return
+   */
+  template <typename T, typename Index, typename Params>
+  inline SNN_ALWAYS_INLINE void batchnorm_mean(pointer_type<T const> input,
+                                               pointer_type<T> output,
+                                               Params const& params) {
+    // Only NHWC format is supported.
+
+    Index out_size = params.channels;
+    Index reduction_items = params.batch * params.rows * params.cols;
+
+    auto event = queue_.submit([&](cl::sycl::codeplay::host_handler& h) {
+      auto buf_in = input.get_buffer();
+      auto acc_in = buf_in.template get_access<cl::sycl::access::mode::read>(h);
+      auto buf_out = output.get_buffer();
+      auto acc_out =
+          buf_out.template get_access<cl::sycl::access::mode::write>(h);
+      auto start = acc_in.get_pointer();
+      auto finish = start + out_size;
+      auto sum = 0.f;
+      h.host_task([=]() mutable {
+        for (Index i = 0; i < out_size; i++) {
+          sum = *start;
+          for (Index j = 1; j < reduction_items; j++, finish += out_size) {
+            sum += *finish;
+          }
+          acc_out[i] = static_cast<T>(sum / reduction_items);
+          start++;
+          finish = start + out_size;
+        }
+      });
+    });
   }
 
  private:

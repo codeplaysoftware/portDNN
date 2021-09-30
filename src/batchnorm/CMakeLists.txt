@@ -15,57 +15,70 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
-add_definitions(-DENABLE_SOFTMAXDIV=1)
+add_definitions(-DENABLE_BATCHNORM_MEANDIV=1)
 
-macro(generate_kernel out_var template op dir)
+macro(generate_pointwise_kernel out_var template op dir)
   string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
-  set(_filename "${INST_SOFTMAX_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${op}")
+  set(_filename "${INST_BATCHNORM_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${op}")
   set(_filename "${_filename}_${dir}_${VECTOR_WIDTH}.cc")
-  set(_gen_file ${CMAKE_BINARY_DIR}/generated/softmax/${_filename})
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/batchnorm/${_filename})
   set(OP_TYPE ${op})
   set(DIRECTION ${dir})
   configure_file(${template} ${_gen_file} @ONLY)
   list(APPEND ${out_var} ${_gen_file})
 endmacro()
 
-function(generate_softmax)
+macro(generate_kernel out_var template operation)
+  set(_filename "${INST_BATCHNORM_FILENAME}_${DATA_TYPE}_${INDEX_TYPE}")
+  set(_filename "${_filename}_${VECTOR_WIDTH}_${operation}.cc")
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/batchnorm/${_filename})
+  configure_file(${template} ${_gen_file} @ONLY)
+  list(APPEND ${out_var} ${_gen_file})
+endmacro()
+
+function(generate_batchnorm)
   set(options)
   set(one_value_args
     OUTPUT_VAR
     FILENAME
   )
   set(multi_value_args)
-  cmake_parse_arguments(INST_SOFTMAX
+  cmake_parse_arguments(INST_BATCHNORM
     "${options}"
     "${one_value_args}"
     "${multi_value_args}"
     ${ARGN}
   )
-  set(_forward_template ../pointwise/queue_pointwise_forward_impl.cc.in)
+  set(_variance_template queue_variance_kernel_impl.cc.in)
+  set(_pointwise_template ../pointwise/queue_pointwise_forward_impl.cc.in)
+  set(_inference_template queue_batchnorm_kernel_inference_impl.cc.in)
   set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
       foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
-        generate_kernel(_sources ${_forward_template} Exp Forward)
-        generate_kernel(_sources ${_forward_template} SoftMaxDiv Forward)
+        generate_kernel(_sources ${_variance_template} Training)
+        generate_pointwise_kernel(_sources ${_pointwise_template} Batchnorm_MeanDiv Forward)
+        generate_kernel(_sources ${_inference_template} Inference)
       endforeach()
     endforeach()
   endforeach()
-  set(${INST_SOFTMAX_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+  set(${INST_BATCHNORM_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
 endfunction()
 
-generate_softmax(
-  OUTPUT_VAR softmax_kernels
-  FILENAME   softmax
+generate_batchnorm(
+  OUTPUT_VAR batchnorm_kernels
+  FILENAME   batchnorm
 )
 
 snn_object_library(
   WITH_SYCL
   TARGET 
-    softmax
+    batchnorm
   KERNEL_SOURCES
-    ${softmax_kernels}
+    ${batchnorm_kernels}
   SOURCES
+    launch_variance.cc
+    launch_batchnorm_inference.cc
     ../pointwise/launch_pointwise_forward.cc
 )
-remove_definitions(-DENABLE_SOFTMAXDIV)
+remove_definitions(-DENABLE_BATCHNORM_MEANDIV)

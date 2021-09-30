@@ -132,6 +132,23 @@ DType SoftMaxDiv<Forward>::apply(DType val1, DType val2) {
   return val1 / val2;
 }
 
+template <typename Direction>
+struct Batchnorm_MeanDiv {
+  template <typename DType>
+  DType apply(DType val1, DType val2);
+  template <typename MemObject>
+  static auto output_access(MemObject& out, cl::sycl::handler& cgh)
+      -> decltype(out.write_accessor(cgh)) {
+    return out.write_accessor(cgh);
+  }
+};
+
+template <>
+template <typename DType>
+DType Batchnorm_MeanDiv<Forward>::apply(DType val1, DType val2) {
+  return val1 / val2;
+}
+
 template <typename T, typename Index, template <typename> class Op,
           typename Direction, int VectorWidth>
 class PointwiseOp;
@@ -176,6 +193,47 @@ class PointwiseOp<T, Index, SoftMaxDiv, Forward, VectorWidth> {
         in2 = ScalarLoadData()(in_ptr, i);
         out_value = op.apply(in1, DataType(in2));
         StoreData()(out_ptr, vec_idx1, out_value);
+      }
+    }
+  }
+};
+
+template <typename T, typename Index, int VectorWidth>
+class PointwiseOp<T, Index, Batchnorm_MeanDiv, Forward, VectorWidth> {
+  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
+  using LoadData = helpers::io::Load<DataType>;
+  using StoreData = helpers::io::Store<DataType>;
+
+  ReadAccessor<T const> input_;
+  WriteAccessor<T> output_;
+  Index const n_items_;
+
+ public:
+  PointwiseOp(ReadAccessor<T const> const& input,
+              WriteAccessor<T> const& output, Index const num_items)
+      : input_{input}, output_{output}, n_items_{num_items} {}
+
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+    Index const idx = item.get_id(0);
+
+    if (idx < n_items_) {
+      Batchnorm_MeanDiv<Forward> op;
+      auto in_count = static_cast<Index>(input_.get_extent());
+
+      Index iterations = in_count / (n_items_ * VectorWidth);
+
+      auto vec_idx = idx * VectorWidth;
+
+      auto in_ptr = input_.get_pointer();
+      auto out_ptr = output_.get_pointer();
+
+      auto val = DataType(0);
+      auto out = DataType(0);
+      for (Index i = 0; i < iterations; i++) {
+        val = LoadData()(in_ptr, vec_idx);
+        out = op.apply(val, DataType(n_items_ * VectorWidth));
+        StoreData()(out_ptr, vec_idx, out);
+        vec_idx += (n_items_ * VectorWidth);
       }
     }
   }

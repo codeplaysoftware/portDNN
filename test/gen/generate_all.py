@@ -20,6 +20,7 @@ from generate_matmul_tests import generate_matmul_tests
 from generate_pooling_tests import generate_pooling_tests
 from generate_pointwise_tests import generate_pointwise_tests
 from generate_pointwise_tests import generate_bias_tests
+from generate_batchnorm_tests import generate_batchnorm_tests
 from generate_softmax_tests import generate_softmax_tests
 from generate_transpose_tests import generate_transpose_tests
 
@@ -33,6 +34,7 @@ def generate_all():
     generate_softmax_tests()
     generate_transpose_tests()
     generate_bias_tests()
+    generate_batchnorm_tests()
 
 
 if __name__ == "__main__":

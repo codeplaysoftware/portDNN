@@ -24,6 +24,7 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
 
+#include "sycldnn/internal/pointwise/launch_internal.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/transpose/launch.h"
 
@@ -305,7 +306,7 @@ struct SyclBLASBackend final {
    * \param input       input memory to be reduced.
    * \param output      output memory to store the reduced value.
    * \param params      Parameters object.
-   * \return            reduced value in output memory.
+   * \return
    */
   template <typename T, typename Index, typename Params>
   inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const> input,
@@ -330,6 +331,53 @@ struct SyclBLASBackend final {
 
     sycldnn::transpose::launch<T>(input, temp, sizes, perm, *this);
 
+    // proceeding with reduction using column major data layout
+    blas::extension::_reduction<blas::AddOperator, T>(executor_, temp, rows,
+                                                      output, rows, cols);
+
+    this->deallocate(temp);
+  }
+
+  /**
+   * Function for calculating mean using SYCL-BLAS backend.
+   * \tparam T          Data type.
+   * \tparam Index      Index type.
+   * \tparam Params     Parameters object which holds N, H, W and C.
+   * \param input       input memory to be used to compute mean.
+   * \param output      output memory to store the mean values.
+   * \param params      Parameters object.
+   * \return
+   */
+  template <typename T, typename Index, typename Params>
+  inline SNN_ALWAYS_INLINE void batchnorm_mean(pointer_type<T const> input,
+                                               pointer_type<T> output,
+                                               Params const& params) {
+    // Only NHWC format is supported.
+
+    auto cols = params.batch * params.rows * params.cols;  // batch*rows*cols
+    auto rows = params.channels;                           // channels
+
+    // created a temporary memory
+    // TODO - Tanvir: delete this temporary memory and call to pointwise kernel
+    // once MeanOperator is added in SYCL-BLAS
+
+    auto temp = this->allocate<T>(rows * cols);
+
+    auto in_mem = this->get_mem_object(input, rows * cols);
+    auto temp_mem = this->get_mem_object(temp, rows * cols);
+
+    auto queue = this->get_queue();
+
+    // could not call pointwise::launch directly as it creates
+    // memory objects based on the n_items provided, whereas in our case
+    // the size of memory objects and n_items for
+    // Div operation are not equal
+
+    // size of memory = batch * rows * cols * channels
+    // n_items = channels
+    pointwise::internal::launch_pointwise<T, pointwise::Batchnorm_MeanDiv,
+                                          pointwise::Forward>(in_mem, temp_mem,
+                                                              cols, queue);
     // proceeding with reduction using column major data layout
     blas::extension::_reduction<blas::AddOperator, T>(executor_, temp, rows,
                                                       output, rows, cols);
