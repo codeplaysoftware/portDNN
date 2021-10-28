@@ -17,9 +17,9 @@ set(_cxx_opts)
 set(backend_providers)
 
 if(SNN_TEST_SYCLBLAS)
-  include(HandleSyclBLAS)
+  include(Handlesycl_blas)
   list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND backend_providers SyclBLAS::SyclBLAS)
+  list(APPEND backend_providers SYCL_BLAS::sycl_blas)
 endif()
 
 set(CMAKE_CXX_STANDARD 14)

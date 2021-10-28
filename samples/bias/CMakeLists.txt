@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-include(HandleSyclBLAS)
+include(Handlesycl_blas)
 
 set(CMAKE_CXX_STANDARD 14)
 snn_executable(
@@ -24,5 +24,5 @@ snn_executable(
     bias.cc
   PRIVATE_LIBRARIES
     sycl_dnn
-    SyclBLAS::SyclBLAS
+    SYCL_BLAS::sycl_blas
 )

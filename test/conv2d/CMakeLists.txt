@@ -90,9 +90,9 @@ if(SNN_TEST_EIGEN_MATMULS)
 endif()
 
 if(SNN_TEST_SYCLBLAS_MATMULS)
-  include(HandleSyclBLAS)
+  include(Handlesycl_blas)
   list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS_MATMULS=1)
-  list(APPEND _matmul_providers SyclBLAS::SyclBLAS)
+  list(APPEND _matmul_providers SYCL_BLAS::sycl_blas)
 endif()
 
 if(SNN_TEST_CLBLAST_MATMULS)

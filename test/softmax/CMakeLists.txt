@@ -20,9 +20,9 @@ set(_cxx_opts)
 set(_softmax_providers)
 
 if(SNN_TEST_SYCLBLAS)
-  include(HandleSyclBLAS)
+  include(Handlesycl_blas)
   list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND _softmax_providers SyclBLAS::SyclBLAS)
+  list(APPEND _softmax_providers SYCL_BLAS::sycl_blas)
 endif()
 
 snn_test(

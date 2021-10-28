@@ -22,7 +22,7 @@ option(SNN_DOWNLOAD_GTEST
 option(SNN_DOWNLOAD_BENCHMARK
   "Download and build google benchmark, rather than use the system version" ON)
 option(SNN_DOWNLOAD_EIGEN "Download Eigen headers" ON)
-option(SNN_DOWNLOAD_SYCLBLAS "Download SyclBLAS headers" ON)
+option(SNN_DOWNLOAD_SYCLBLAS "Download SYCL-BLAS repository" ON)
 option(SNN_DOWNLOAD_MISSING_DEPS
   "Download any dependencies which cannot be found" ON)
 

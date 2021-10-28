@@ -88,9 +88,9 @@ if(SNN_BENCH_EIGEN)
 endif()
 
 if(SNN_BENCH_SYCLBLAS)
-  include(HandleSyclBLAS)
+  include(Handlesycl_blas)
   list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_SYCLBLAS)
-  list(APPEND _BACKENDS SyclBLAS::SyclBLAS)
+  list(APPEND _BACKENDS SYCL_BLAS::sycl_blas)
 endif()
 
 if(SNN_BENCH_CLBLAST)
