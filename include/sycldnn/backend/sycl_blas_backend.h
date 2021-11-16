@@ -316,26 +316,14 @@ struct SyclBLASBackend final {
     // in order to match the outputs from Tensorflow.
     // Only NHWC format is supported.
 
-    auto rows = params.batch * params.rows * params.cols;  // batch*rows*cols
-    auto cols = params.channels;                           // channels
+    auto reduce_dim = params.channels;  // channels
+    auto preserve_dim =
+        params.batch * params.rows * params.cols;  // batch*rows*cols
 
-    // need to change layout of exponents from row-major to column-major.
-    // had to create this extra memory to store the transposed exponent values
-
-    // TODO: remove this temp memory once SYCL-BLAS supports row-major
-    // reduction
-    auto temp = this->allocate<T>(rows * cols);
-
-    const std::vector<int> sizes = {rows, cols};
-    const std::vector<int> perm = {1, 0};
-
-    sycldnn::transpose::launch<T>(input, temp, sizes, perm, *this);
-
-    // proceeding with reduction using column major data layout
-    blas::extension::_reduction<blas::AddOperator, T>(executor_, temp, rows,
-                                                      output, rows, cols);
-
-    this->deallocate(temp);
+    // call sycl-blas reduction using column major data layout
+    blas::extension::_reduction<blas::AddOperator, T>(
+        executor_, input, reduce_dim, output, reduce_dim, preserve_dim,
+        blas::reduction_dim_t::inner);
   }
 
   /**
@@ -354,35 +342,13 @@ struct SyclBLASBackend final {
                                                Params const& params) {
     // Only NHWC format is supported.
 
-    auto cols = params.batch * params.rows * params.cols;  // batch*rows*cols
-    auto rows = params.channels;                           // channels
+    auto reduce_dim =
+        params.batch * params.rows * params.cols;  // batch*rows*cols
+    auto preserve_dim = params.channels;           // channels
 
-    // created a temporary memory
-    // TODO - Tanvir: delete this temporary memory and call to pointwise kernel
-    // once MeanOperator is added in SYCL-BLAS
-
-    auto temp = this->allocate<T>(rows * cols);
-
-    auto in_mem = this->get_mem_object(input, rows * cols);
-    auto temp_mem = this->get_mem_object(temp, rows * cols);
-
-    auto queue = this->get_queue();
-
-    // could not call pointwise::launch directly as it creates
-    // memory objects based on the n_items provided, whereas in our case
-    // the size of memory objects and n_items for
-    // Div operation are not equal
-
-    // size of memory = batch * rows * cols * channels
-    // n_items = channels
-    pointwise::internal::launch_pointwise<T, pointwise::Batchnorm_MeanDiv,
-                                          pointwise::Forward>(in_mem, temp_mem,
-                                                              cols, queue);
-    // proceeding with reduction using column major data layout
-    blas::extension::_reduction<blas::AddOperator, T>(executor_, temp, rows,
-                                                      output, rows, cols);
-
-    this->deallocate(temp);
+    blas::extension::_reduction<blas::MeanOperator, T>(
+        executor_, input, preserve_dim, output, preserve_dim, reduce_dim,
+        blas::reduction_dim_t::outer);
   }
 };
 

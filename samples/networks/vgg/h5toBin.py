@@ -6,6 +6,7 @@ from sys import argv
 
 def dump_data(name):
     f = h5.File(name, 'r')
+    count = 0
     for layer in f.keys():
         try:
             weights = f[layer][layer + '_W_1:0']
