@@ -71,7 +71,7 @@ struct BaseAccessor {
    * Get the underlying pointer from the accessor.
    * \return A global pointer to the underlying memory.
    */
-  MultiPtr get_pointer() const { return acc_.get_pointer() + offset_; }
+  MultiPtr get_pointer() const { return acc_.get_pointer(); }
 
   /**
    * Get a reference to the underlying SYCL accessor.
