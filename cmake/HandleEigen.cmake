@@ -33,7 +33,7 @@ if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
   if(NOT TARGET Eigen_download)
     ExternalProject_Add(Eigen_download
       GIT_REPOSITORY     ${EIGEN_REPO}
-      GIT_TAG            ${EIGEN_HG_TAG}
+      GIT_TAG            ${EIGEN_GIT_TAG}
       SOURCE_DIR        ${EIGEN_SOURCE_DIR}
       CONFIGURE_COMMAND ""
       BUILD_COMMAND     ""
