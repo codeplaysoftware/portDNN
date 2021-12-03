@@ -19,3 +19,4 @@ Testing/
 *.tmp
 *.bak
 *.swp
+.vscode/
