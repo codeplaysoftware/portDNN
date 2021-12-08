@@ -56,6 +56,7 @@ Option                  | Type   | Default | Description
 `SNN_BENCH_SYCLBLAS`    | `BOOL` | `ON`    | Build benchmarks with SYCLBLAS support
 `SNN_BENCH_MKLDNN`      | `BOOL` | `OFF`   | Build MKLDNN benchmarks
 `SNN_BENCH_ARM_COMPUTE` | `BOOL` | `OFF`   | Build ARM Compute Library benchmarks
+`SNN_BENCH_SNN`         | `BOOL` | `OFF`   | Build benchmarks with SYCL-DNN matmul support
 
 ## Eigen options
 

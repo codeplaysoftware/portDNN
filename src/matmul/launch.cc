@@ -30,29 +30,15 @@ template <typename T, bool TransposeLHS, bool TransposeRHS, int RowTile,
 SNNStatus launch_with_tiles(BaseMemObject<T const>& lhs,
                             BaseMemObject<T const>& rhs,
                             BaseMemObject<T>& output, int batches, int m, int k,
-                            int n, T beta, cl::sycl::queue& queue) {
-  constexpr int wg_rows = 8;
-  constexpr int wg_cols = 4;
-  constexpr int wg_batch = 1;
-  return queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile, AccTile,
-                      ColTile>(lhs, rhs, output, batches, m, k, n, beta, queue,
-                               wg_rows, wg_cols, wg_batch);
-}
-
-template <typename T, bool TransposeLHS, bool TransposeRHS, int RowTile,
-          int AccTile, int ColTile>
-SNNStatus launch_with_tiles_unchecked(BaseMemObject<T const>& lhs,
-                                      BaseMemObject<T const>& rhs,
-                                      BaseMemObject<T>& output, int batches,
-                                      int m, int k, int n, T beta,
-                                      cl::sycl::queue& queue) {
-  constexpr int wg_rows = 8;
-  constexpr int wg_cols = 4;
-  constexpr int wg_batch = 1;
-  return queue_unchecked_kernel<T, int, TransposeLHS, TransposeRHS, RowTile,
-                                AccTile, ColTile>(lhs, rhs, output, batches, m,
-                                                  k, n, beta, queue, wg_rows,
-                                                  wg_cols, wg_batch);
+                            int n, T beta, cl::sycl::queue& queue,
+                            size_t wg_rows, size_t wg_cols, size_t wg_batch) {
+  auto kernel = ((m % RowTile == 0) && (k % AccTile == 0) && (n % ColTile == 0))
+                    ? queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile,
+                                   AccTile, ColTile, false>
+                    : queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile,
+                                   AccTile, ColTile, true>;
+  return kernel(lhs, rhs, output, batches, m, k, n, beta, queue, wg_rows,
+                wg_cols, wg_batch);
 }
 
 }  // namespace
@@ -62,16 +48,8 @@ template <typename T, bool TransposeLHS, bool TransposeRHS>
 SNNStatus launch(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
                  BaseMemObject<T>& output, int batches, int m, int k, int n,
                  T beta, cl::sycl::queue& queue) {
-  constexpr int num_tiles = 4;
-  if ((m % num_tiles == 0) && (k % num_tiles == 0) && (n % num_tiles == 0)) {
-    return launch_with_tiles_unchecked<T, TransposeLHS, TransposeRHS, num_tiles,
-                                       num_tiles, num_tiles>(
-        lhs, rhs, output, batches, m, k, n, beta, queue);
-  } else {
-    return launch_with_tiles<T, TransposeLHS, TransposeRHS, num_tiles,
-                             num_tiles, num_tiles>(lhs, rhs, output, batches, m,
-                                                   k, n, beta, queue);
-  }
+  return launch_with_tiles<T, TransposeLHS, TransposeRHS, 4, 4, 4>(
+      lhs, rhs, output, batches, m, k, n, beta, queue, 8, 4, 1);
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, TLHS, TRHS)                                \

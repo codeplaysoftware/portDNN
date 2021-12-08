@@ -31,7 +31,7 @@ namespace internal {
 
 template SNNStatus
 queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
-             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE>(
+             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, true>(
     BaseMemObject<SNN_DATA_TYPE const>& lhs,
     BaseMemObject<SNN_DATA_TYPE const>& rhs,
     BaseMemObject<SNN_DATA_TYPE>& output, int batches, int m, int k, int n,
@@ -39,8 +39,8 @@ queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
     size_t wg_batch);
 
 template SNNStatus
-queue_unchecked_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS,
-                       SNN_TRANS_RHS, SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE>(
+queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
+             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, false>(
     BaseMemObject<SNN_DATA_TYPE const>& lhs,
     BaseMemObject<SNN_DATA_TYPE const>& rhs,
     BaseMemObject<SNN_DATA_TYPE>& output, int batches, int m, int k, int n,

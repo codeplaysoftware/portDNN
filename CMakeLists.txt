@@ -236,4 +236,3 @@ endif()
 if(SNN_BUILD_DOCUMENTATION)
   add_subdirectory(docs)
 endif()
-
