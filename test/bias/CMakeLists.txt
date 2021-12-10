@@ -23,5 +23,5 @@ snn_test(
   SOURCES
     test_bias.cc
   OBJECTS
-    $<TARGET_OBJECTS:bias>
+    $<TARGET_OBJECTS:binaryop>
 )

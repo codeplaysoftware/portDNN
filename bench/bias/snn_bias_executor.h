@@ -21,9 +21,9 @@
 #include "sycldnn/helpers/handle_exception.h"
 #include "sycldnn/helpers/scope_exit.h"
 
-#include "sycldnn/bias/launch.h"
-#include "sycldnn/bias/params.h"
-#include "sycldnn/bias/sizes.h"
+#include "sycldnn/binaryop/launch.h"
+#include "sycldnn/binaryop/operators.h"
+#include "sycldnn/binaryop/params.h"
 
 #include "bench/fixture/base_executor.h"
 
@@ -35,22 +35,20 @@ template <typename Benchmark>
 struct SNNBiasExecutor : public BaseExecutor {
  private:
   using State = ::benchmark::State;
-  using BiasParams = bias::BiasParams;
+  using BinaryParams = binaryop::BinaryParams;
 
   /** Get a reference to the underlying benchmark fixture. */
   Benchmark& underlying_benchmark() { return static_cast<Benchmark&>(*this); }
 
  public:
   /** Execute the bias benchmark for the given parameters. */
-  void execute(State& state, BiasParams const& params) {
+  void execute(State& state, BinaryParams const& params) {
     auto& benchmark = underlying_benchmark();
     auto& backend = benchmark.get_backend();
 
-    auto bias_sizes = sycldnn::bias::get_sizes(params);
-
-    std::vector<float> inp_vec(bias_sizes.input_size);
-    std::vector<float> bias_vec(bias_sizes.bias_size);
-    std::vector<float> out_vec(bias_sizes.output_size);
+    std::vector<float> inp_vec(params.lhs_items);
+    std::vector<float> bias_vec(params.rhs_items);
+    std::vector<float> out_vec(params.lhs_items);
 
     auto inp_gpu =
         benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
@@ -68,8 +66,8 @@ struct SNNBiasExecutor : public BaseExecutor {
     {  // Ensure the kernel is built before benchmarking
       SNNStatus status;
       try {
-        status = sycldnn::bias::launch<float>(inp_gpu, bias_gpu, out_gpu,
-                                              params, backend);
+        status = sycldnn::binaryop::launch<float, sycldnn::binaryop::Add>(
+            inp_gpu, bias_gpu, out_gpu, params, backend);
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
@@ -100,8 +98,8 @@ struct SNNBiasExecutor : public BaseExecutor {
     for (auto _ : state) {
       this->start_timing();
       try {
-        auto status = sycldnn::bias::launch<float>(inp_gpu, bias_gpu, out_gpu,
-                                                   params, backend);
+        auto status = sycldnn::binaryop::launch<float, sycldnn::binaryop::Add>(
+            inp_gpu, bias_gpu, out_gpu, params, backend);
 
         status.event.wait_and_throw();
       } catch (cl::sycl::exception const& e) {
@@ -122,7 +120,7 @@ struct SNNBiasExecutor : public BaseExecutor {
 
     benchmark.set_items_processed(state, params);
     benchmark.add_param_counters(state, params);
-    benchmark.template add_bandwidth_counters<float>(state, bias_sizes);
+    benchmark.template add_bandwidth_counters<float>(state, params);
 
     this->finish_benchmark(state);
   }

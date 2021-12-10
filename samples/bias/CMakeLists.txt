@@ -13,16 +13,12 @@
 # limitations under the License.
 #
 
-include(Handlesycl_blas)
-
-set(CMAKE_CXX_STANDARD 14)
 snn_executable(
   WITH_SYCL
   TARGET
    bias_sample
-  KERNEL_SOURCES
+  SOURCES
     bias.cc
-  PRIVATE_LIBRARIES
+  PUBLIC_LIBRARIES
     sycl_dnn
-    SYCL_BLAS::sycl_blas
 )

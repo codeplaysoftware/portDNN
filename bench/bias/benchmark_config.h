@@ -25,7 +25,7 @@
  *
  * Each benchmark configuration is a vector of sizes as produced by
  * benchmark_params::serialize, these parameters will then be used to construct
- * the benchmark State. A set of sycldnn::bias::BiasParams can be
+ * the benchmark State. A set of sycldnn::binaryop::BinaryParams can be
  * constructed from this State using benchmark_params::deserialize.
  *
  * The definition of this is provided by the specific benchmark models.

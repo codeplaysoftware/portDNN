@@ -22,9 +22,9 @@
 #include "sycldnn/helpers/padding.h"
 #include "sycldnn/helpers/scope_exit.h"
 
-#include "sycldnn/bias/launch.h"
-#include "sycldnn/bias/params.h"
-#include "sycldnn/bias/sizes.h"
+#include "sycldnn/binaryop/launch.h"
+#include "sycldnn/binaryop/operators.h"
+#include "sycldnn/binaryop/params.h"
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
@@ -37,12 +37,11 @@ struct BiasFixture : public BackendTestFixture<Backend> {
   using DataType = DType;
 
   void test_bias(std::vector<DataType> exp,
-                 sycldnn::bias::BiasParams const& params,
+                 sycldnn::binaryop::BinaryParams const& params,
                  DataType max_val = DataType{0}) {
-    auto size = sycldnn::bias::get_sizes(params);
-    auto in_size = size.input_size;
-    auto out_size = size.output_size;
-    auto bias_size = size.bias_size;
+    auto in_size = params.lhs_items;
+    auto out_size = params.lhs_items;
+    auto bias_size = params.rhs_items;
     std::vector<DataType> input = iota_initialised_data(in_size, max_val);
     std::vector<DataType> bias =
         iota_initialised_data(bias_size, static_cast<DataType>(bias_size));
@@ -60,8 +59,8 @@ struct BiasFixture : public BackendTestFixture<Backend> {
       provider.deallocate_ptr(out_gpu);
     };
 
-    auto status = sycldnn::bias::launch<DataType>(inp_gpu, bias_gpu, out_gpu,
-                                                  params, backend);
+    auto status = sycldnn::binaryop::launch<DataType, sycldnn::binaryop::Add>(
+        inp_gpu, bias_gpu, out_gpu, params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
@@ -75,13 +74,11 @@ struct BiasFixture : public BackendTestFixture<Backend> {
   }
 };
 
-inline sycldnn::bias::BiasParams getBiasParams(std::array<int, 4> in_shape) {
-  sycldnn::bias::BiasParams ret;
-  ret.in_rows = in_shape[1];
-  ret.in_cols = in_shape[2];
-  ret.batch = in_shape[0];
-  ret.channels = in_shape[3];
-  ret.bias = in_shape[3];
+inline sycldnn::binaryop::BinaryParams getBiasParams(
+    std::array<int, 4> in_shape) {
+  sycldnn::binaryop::BinaryParams ret;
+  ret.lhs_items = in_shape[0] * in_shape[1] * in_shape[2] * in_shape[3];
+  ret.rhs_items = in_shape[3];
   return ret;
 }
 

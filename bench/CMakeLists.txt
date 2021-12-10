@@ -510,7 +510,7 @@ function(snn_bias_bench modelname)
     TARGET
       ${modelname}_bias
     OBJECTS
-      $<TARGET_OBJECTS:bias>
+      $<TARGET_OBJECTS:binaryop>
       $<TARGET_OBJECTS:bias_benchmark_functions>
       $<TARGET_OBJECTS:${modelname}_bias_config>
     PUBLIC_LIBRARIES

@@ -16,7 +16,7 @@
 #ifndef SYCLDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
 #define SYCLDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
 
-#include "sycldnn/bias/params.h"
+#include "sycldnn/binaryop/params.h"
 
 #include <benchmark/benchmark.h>
 
@@ -37,7 +37,7 @@ namespace benchmark_params {
  */
 inline std::vector<int> serialize(int batch, int rows, int cols, int channels,
                                   int biases) {
-  return {batch, rows, cols, channels, biases};
+  return {batch * rows * cols * channels, biases};
 }
 
 /**
@@ -46,13 +46,11 @@ inline std::vector<int> serialize(int batch, int rows, int cols, int channels,
  * Expects the parameters of the benchmark::State to match those provided by the
  * serialize function.
  */
-inline sycldnn::bias::BiasParams deserialize(benchmark::State const& state) {
-  sycldnn::bias::BiasParams params;
-  params.batch = state.range(0);
-  params.in_rows = state.range(1);
-  params.in_cols = state.range(2);
-  params.channels = state.range(3);
-  params.bias = state.range(4);
+inline sycldnn::binaryop::BinaryParams deserialize(
+    benchmark::State const& state) {
+  sycldnn::binaryop::BinaryParams params;
+  params.lhs_items = state.range(0);
+  params.rhs_items = state.range(1);
   return params;
 }
 

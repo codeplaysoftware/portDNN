@@ -26,8 +26,8 @@
 
 #include "sycldnn/pooling/launch.h"
 
-#include "sycldnn/bias/launch.h"
-#include "sycldnn/bias/sizes.h"
+#include "sycldnn/binaryop/launch.h"
+#include "sycldnn/binaryop/operators.h"
 
 #include "sycldnn/batchnorm/launch.h"
 #include "sycldnn/batchnorm/sizes.h"
@@ -99,27 +99,26 @@ struct ConvolutionLayer : Layer<DType, Backend> {
 template <typename DType, typename Backend>
 struct BiasAddLayer : Layer<DType, Backend> {
   using DeviceMem = typename Backend::template pointer_type<DType>;
-  sycldnn::bias::BiasParams params_;
-  sycldnn::bias::BiasSizes sizes_;
+  sycldnn::binaryop::BinaryParams params_;
   DeviceMem input_;
   DeviceMem biases_;
   DeviceMem output_;
 
-  BiasAddLayer(sycldnn::bias::BiasParams const& params, DeviceMem const input,
-               DeviceMem const bias, DeviceMem output, Backend& b)
+  BiasAddLayer(sycldnn::binaryop::BinaryParams const& params,
+               DeviceMem const input, DeviceMem const bias, DeviceMem output,
+               Backend& b)
       : Layer<DType, Backend>(b),
         params_{params},
-        sizes_{sycldnn::bias::get_sizes(params)},
         input_{input},
         biases_{bias},
         output_{output} {}
 
   DeviceMem get_output() override { return output_; }
-  size_t get_output_size() const override { return sizes_.output_size; }
+  size_t get_output_size() const override { return params_.lhs_items; }
 
   sycldnn::SNNStatus run() override {
-    return sycldnn::bias::launch<DType>(input_, biases_, output_, params_,
-                                        this->backend_);
+    return sycldnn::binaryop::launch<DType, sycldnn::binaryop::Add>(
+        input_, biases_, output_, params_, this->backend_);
   }
 };
 

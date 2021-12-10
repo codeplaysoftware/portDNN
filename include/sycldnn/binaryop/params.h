@@ -13,44 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_INCLUDE_BIAS_PARAMS_H_
-#define SYCLDNN_INCLUDE_BIAS_PARAMS_H_
+#ifndef SYCLDNN_INCLUDE_BINARYOP_PARAMS_H_
+#define SYCLDNN_INCLUDE_BINARYOP_PARAMS_H_
 
 #include "sycldnn/data_format.h"
 
 /**
  * \file
- * Defines the \ref sycldnn::bias::BiasParams struct,
- * which contains the values used in a bias operation.
+ * Defines the \ref sycldnn::binaryop::BinaryParams struct,
+ * which contains the values used in a binary operation.
  */
 namespace sycldnn {
-namespace bias {
+namespace binaryop {
 
-/** Struct that contains values used in a Bias op. */
-struct BiasParams {
+/** Struct that contains values used in a Binary op. */
+struct BinaryParams {
   /** The type of the params is int, providing a decent
    * upper bound on the tensor sizes.*/
   using Index = int;
 
-  /** The number of input rows. */
-  Index in_rows;
+  /** The number of items in input1. */
+  Index lhs_items;
 
-  /** The number of input columns. */
-  Index in_cols;
-
-  /** The number of tensors in the calculation. */
-  Index batch;
-
-  /** The number of channels in each tensor. */
-  Index channels;
-
-  /** The number of bias values*/
-  Index bias;
+  /** The number of items in input2. */
+  Index rhs_items;
 
   /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 };
 
-}  // namespace bias
+}  // namespace binaryop
 }  // namespace sycldnn
-#endif  // SYCLDNN_INCLUDE_BIAS_PARAMS_H_
+#endif  // SYCLDNN_INCLUDE_BINARYOP_PARAMS_H_

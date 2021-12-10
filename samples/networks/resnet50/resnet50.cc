@@ -115,9 +115,10 @@ inline sycldnn::ConvolutionLayer<T, Backend>* create_conv_layer(
 }
 
 // make bias layer parameters
-inline sycldnn::bias::BiasParams make_bias_params(int batch, int input,
-                                                  int channels) {
-  sycldnn::bias::BiasParams params = {input, input, batch, channels, channels};
+inline sycldnn::binaryop::BinaryParams make_bias_params(int batch, int input,
+                                                        int channels) {
+  sycldnn::binaryop::BinaryParams params = {input * input * batch * channels,
+                                            channels};
   return params;
 }
 
@@ -125,19 +126,18 @@ inline sycldnn::bias::BiasParams make_bias_params(int batch, int input,
 template <typename T>
 inline sycldnn::BiasAddLayer<T, Backend>* create_bias_layer(
     DeviceMem const input, Backend& backend, std::string const& data_dir,
-    sycldnn::bias::BiasParams const& params) {
+    sycldnn::binaryop::BinaryParams const& params) {
   DeviceMem bias, output;
-  auto sizes = sycldnn::bias::get_sizes(params);
-  bias = backend.allocate<T>(sizes.bias_size);
-  output = backend.allocate<T>(sizes.output_size);
+  bias = backend.allocate<T>(params.rhs_items);
+  output = backend.allocate<T>(params.lhs_items);
 
-  std::vector<char> biases(params.channels * sizeof(T));
+  std::vector<char> biases(params.rhs_items * sizeof(T));
   if (data_dir == "")
     std::fill(biases.begin(), biases.end(), 'a');
   else
     biases = read_binary_data(data_dir);
-  assert(biases.size() == static_cast<size_t>(params.channels) * sizeof(T));
-  auto data_size = cl::sycl::range<1>(params.channels);
+  assert(biases.size() == static_cast<size_t>(params.rhs_items) * sizeof(T));
+  auto data_size = cl::sycl::range<1>(params.rhs_items);
   auto buf = bias.get_buffer();
   auto char_buf = buf.reinterpret<char>(data_size * sizeof(T));
   auto queue = backend.get_queue();

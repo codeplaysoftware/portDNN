@@ -13,33 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "src/bias/queue_bias_kernel_impl.h"
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
-
-#include "sycldnn/bias/params.h"
-
-#include <CL/sycl.hpp>
-
-// clang-format off
-#define SNN_DATA_TYPE    @DATA_TYPE@
-#define SNN_VECTOR_WIDTH @VECTOR_WIDTH@
-#define SNN_INDEX_TYPE   @INDEX_TYPE@
-
-// clang-format on
+#ifndef SYCLDNN_SRC_BINARYOP_QUEUE_H_
+#define SYCLDNN_SRC_BINARYOP_QUEUE_H_
 
 namespace sycldnn {
-namespace bias {
+namespace binaryop {
 namespace internal {
 
-template SNNStatus
-queue_bias_add<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
-    BaseMemObject<SNN_DATA_TYPE const>& in_mem,
-    BaseMemObject<SNN_DATA_TYPE const>& bias_mem,
-    BaseMemObject<SNN_DATA_TYPE>& out_mem, const BiasParams& pp, size_t threads,
-    cl::sycl::queue& queue);
+template <typename T, typename Op, typename Index, int VectorWidth>
+SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
+                         BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
+                         int32_t const n_items, cl::sycl::queue& queue);
 
 }  // namespace internal
-}  // namespace bias
+}  // namespace binaryop
 }  // namespace sycldnn
+
+#endif  // SYCLDNN_SRC_BINARYOP_QUEUE_H_

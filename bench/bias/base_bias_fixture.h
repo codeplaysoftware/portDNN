@@ -18,7 +18,7 @@
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/bias/sizes.h"
+#include "sycldnn/binaryop/params.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -26,30 +26,26 @@ extern const char* commit_hash;
 class BaseBiasBenchmark : public benchmark::Fixture {
  private:
   using State = benchmark::State;
-  using BiasParams = sycldnn::bias::BiasParams;
-  using BiasSizes = sycldnn::bias::BiasSizes;
+  using BinaryParams = sycldnn::binaryop::BinaryParams;
 
  public:
   // Adds the bias parameters to the counter set.
-  void add_param_counters(State& state, BiasParams const& params);
+  void add_param_counters(State& state, BinaryParams const& params);
 
   // Adds theoretical best-case bandwidth requirements to the counter set.
   template <typename T>
-  void add_bandwidth_counters(State& state, BiasSizes const& sizes);
+  void add_bandwidth_counters(State& state, BinaryParams const& params);
 
   // Records the number of elements processed to the counter set. How this
   // calculated varies based on the type of operation.
-  inline void set_items_processed(State& state, BiasParams const& params);
+  inline void set_items_processed(State& state, BinaryParams const& params);
 };
 
 // Add a full set of counters corresponding to the bias parameters.
 void BaseBiasBenchmark::add_param_counters(benchmark::State& state,
-                                           BiasParams const& params) {
-  state.counters["batch"] = params.batch;
-  state.counters["in_rows"] = params.in_rows;
-  state.counters["in_cols"] = params.in_cols;
-  state.counters["channels"] = params.channels;
-  state.counters["bias"] = params.bias;
+                                           BinaryParams const& params) {
+  state.counters["input_items"] = params.lhs_items;
+  state.counters["bias_items"] = params.rhs_items;
 }
 
 // Calculate the optimal bandwidth requirements, and add corresponding counters.
@@ -57,23 +53,22 @@ void BaseBiasBenchmark::add_param_counters(benchmark::State& state,
 // behaviour where multiple threads may re-read the same values.
 template <typename ElementType>
 void BaseBiasBenchmark::add_bandwidth_counters(benchmark::State& state,
-                                               BiasSizes const& sizes) {
+                                               BinaryParams const& params) {
   // Compute the size of each element in bytes.
   auto element_bytes = sizeof(ElementType);
 
   state.counters["bytes_read"] =
-      (sizes.input_size + sizes.bias_size) * element_bytes;
-  state.counters["bytes_written"] = sizes.output_size * element_bytes;
+      (params.lhs_items + params.rhs_items) * element_bytes;
+  state.counters["bytes_written"] = params.lhs_items * element_bytes;
 }
 
 // Records the number of elements processed to the counter set. How this
 // is calculated varies based on the type of operation.
 inline void BaseBiasBenchmark::set_items_processed(benchmark::State& state,
-                                                   BiasParams const& params) {
+                                                   BinaryParams const& params) {
   // We define items processed as neighbourhood size * output tensor size for
   // bias operations.
-  auto tensor_size =
-      params.batch * params.in_rows * params.in_cols * params.channels;
+  auto tensor_size = params.lhs_items;
 
   state.SetItemsProcessed(state.iterations() * tensor_size);
 }

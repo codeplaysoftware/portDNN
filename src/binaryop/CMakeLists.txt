@@ -15,50 +15,55 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
-macro(generate_kernel out_var template) 
+macro(generate_kernel out_var template op) 
   string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
-  set(_filename "${INST_BIAS_FILENAME}_${DTYPE_ID}")
-  set(_filename "${_filename}_${dir}_${VECTOR_WIDTH}.cc")
-  set(_gen_file ${CMAKE_BINARY_DIR}/generated/bias/${_filename})
+  set(_filename "${INST_BINARYOP_FILENAME}_${DTYPE_ID}")
+  set(_filename "${_filename}_${op}_${VECTOR_WIDTH}.cc")
+  set(OP_TYPE ${op})
+  set(_gen_file ${CMAKE_BINARY_DIR}/generated/binaryop/${_filename})
   configure_file(${template} ${_gen_file} @ONLY)
   list(APPEND ${out_var} ${_gen_file})
 endmacro()
 
-function(generate_bias)
+function(generate_binary)
   set(options)
   set(one_value_args
     OUTPUT_VAR
     FILENAME
   )
   set(multi_value_args)
-  cmake_parse_arguments(INST_BIAS
+  cmake_parse_arguments(INST_BINARYOP
     "${options}"
     "${one_value_args}"
     "${multi_value_args}"
     ${ARGN}
   )
-  set(_general_template queue_bias_kernel_impl.cc.in)
+  set(_general_template queue_binaryop_kernel_impl.cc.in)
   set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
-    foreach(VECTOR_WIDTH IN ITEMS 1 2 4 8)
-        generate_kernel(_sources ${_general_template})
+      foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
+        generate_kernel(_sources ${_general_template} Add)
+        generate_kernel(_sources ${_general_template} Sub)
+        generate_kernel(_sources ${_general_template} Mul)
+        generate_kernel(_sources ${_general_template} Div)
       endforeach()
     endforeach()
   endforeach()
-  set(${INST_BIAS_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
+  set(${INST_BINARYOP_OUTPUT_VAR} ${_sources} PARENT_SCOPE)
 endfunction()
 
-generate_bias(
-  OUTPUT_VAR bias_kernels
-  FILENAME   biasadd
+generate_binary(
+  OUTPUT_VAR binary_kernels
+  FILENAME   binaryop
 )
 
 snn_object_library(
   WITH_SYCL
-  TARGET bias
+  TARGET 
+    binaryop
   KERNEL_SOURCES
-    ${bias_kernels}
+    ${binary_kernels}
   SOURCES
-    launch_bias_add.cc
+    launch_binaryop.cc
 )

@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_INCLUDE_BIAS_LAUNCH_INTERNAL_H_
-#define SYCLDNN_INCLUDE_BIAS_LAUNCH_INTERNAL_H_
+#ifndef SYCLDNN_INCLUDE_BINARYOP_LAUNCH_INTERNAL_H_
+#define SYCLDNN_INCLUDE_BINARYOP_LAUNCH_INTERNAL_H_
 
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
-#include "sycldnn/bias/params.h"
-
 #include "sycldnn/export.h"
 
 namespace sycldnn {
-namespace bias {
+namespace binaryop {
 namespace internal {
 
-template <typename T>
-SNN_EXPORT SNNStatus launch_bias_add(BaseMemObject<T const>& inp_data,
-                                     BaseMemObject<T const>& bias_data,
-                                     BaseMemObject<T>& outp_data,
-                                     const BiasParams& pp,
+template <typename T, typename Op>
+SNN_EXPORT SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
+                                     BaseMemObject<T const>& rhs,
+                                     BaseMemObject<T>& output,
+                                     int32_t const n_items,
                                      cl::sycl::queue& queue);
 
 }  // namespace internal
-}  // namespace bias
+}  // namespace binaryop
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_INCLUDE_BIAS_LAUNCH_INTERNAL_H_
+#endif  // SYCLDNN_INCLUDE_BINARYOP_LAUNCH_INTERNAL_H_

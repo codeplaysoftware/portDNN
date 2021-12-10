@@ -14,47 +14,22 @@
  * limitations under the License.
  */
 
-//#include "sycldnn/backend/sycl_blas_backend.h"
 #include "sycldnn/backend/snn_backend.h"
-//#include "sycldnn/backend/clblast_backend.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/selector/default_selector.h"
-#include "sycldnn/conv2d/sizes.h"
-#include "sycldnn/conv2d/workspace_size.h"
+#include "sycldnn/binaryop/launch.h"
+#include "sycldnn/binaryop/operators.h"
+#include "sycldnn/binaryop/params.h"
 
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/helpers/ratio.h"
-
-#include "sycldnn/pointwise/launch.h"
-
-#include "sycldnn/bias/launch.h"
-#include "sycldnn/bias/params.h"
-
-#include "sycldnn/transpose/launch.h"
-
-#include "sycldnn/padding_mode.h"
 #include "sycldnn/status.h"
 
-#include <algorithm>
-#include <array>
-#include <fstream>
 #include <iostream>
-#include <memory>
-#include <numeric>
-#include <vector>
 
 #include <CL/sycl.hpp>
-#include <SYCL/codeplay.hpp>
 
 namespace snn = sycldnn;
 namespace sycl = cl::sycl;
 
-// using Backend = snn::backend::SyclBLASBackend;
 using Backend = snn::backend::SNNBackend;
-// using Backend = snn::backend::CLBlastBackend;
 using DeviceMem = Backend::pointer_type<float>;
 
 int main() {
@@ -68,35 +43,34 @@ int main() {
     }
   });
   Backend backend(q);
-  snn::bias::BiasParams bias_params{};
-  bias_params.channels = 16;
-  bias_params.batch = 1;
-  bias_params.in_rows = 16;
-  bias_params.in_cols = 16;
-  bias_params.bias = 16;
+  snn::binaryop::BinaryParams params{};
+  params.lhs_items = 4096;
+  params.rhs_items = 16;
 
-  std::vector<float> in_(4096, 10.0);
-  std::vector<float> bias_(16, 0.5);
-  std::vector<float> out_(4096, 0.0);
+  std::vector<float> in(params.lhs_items, 10.0);
+  std::vector<float> bias(params.rhs_items, 0.5);
+  std::vector<float> out(params.lhs_items, 0.0);
 
-  auto input_ = backend.allocate<float>(in_.size());
-  auto biases_ = backend.allocate<float>(bias_.size());
-  auto output_ = backend.allocate<float>(out_.size());
-  auto buf_in = input_.get_buffer();
-  auto buf_bias = biases_.get_buffer();
-  auto buf_out = output_.get_buffer();
-  auto event = backend.get_queue().submit([&](sycl::handler& cgh) {
+  auto input = backend.allocate<float>(in.size());
+  auto biases = backend.allocate<float>(bias.size());
+  auto output = backend.allocate<float>(out.size());
+  auto buf_in = input.get_buffer();
+  auto buf_bias = biases.get_buffer();
+  auto event = q.submit([&](sycl::handler& cgh) {
     auto acc_in = buf_in.get_access<sycl::access::mode::write>(cgh);
-    auto acc_bias = buf_bias.get_access<sycl::access::mode::write>(cgh);
+    cgh.copy(in.data(), acc_in);
+  });
+  event.wait_and_throw();
 
-    cgh.copy(in_.data(), acc_in);
-    cgh.copy(bias_.data(), acc_bias);
+  event = q.submit([&](sycl::handler& cgh) {
+    auto acc_bias = buf_bias.get_access<sycl::access::mode::write>(cgh);
+    cgh.copy(bias.data(), acc_bias);
   });
   event.wait_and_throw();
 
   auto st = std::chrono::high_resolution_clock::now();
-  auto bias_event =
-      snn::bias::launch<float>(input_, biases_, output_, bias_params, backend);
+  auto bias_event = snn::binaryop::launch<float, snn::binaryop::Add>(
+      input, biases, output, params, backend);
   bias_event.event.wait_and_throw();
   auto end = std::chrono::high_resolution_clock::now();
 

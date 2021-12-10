@@ -14,42 +14,41 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_BIAS_QUEUE_IMPL_H_
-#define SYCLDNN_SRC_BIAS_QUEUE_IMPL_H_
+#ifndef SYCLDNN_SRC_BINARYOP_QUEUE_IMPL_H_
+#define SYCLDNN_SRC_BINARYOP_QUEUE_IMPL_H_
 
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
-#include "sycldnn/bias/params.h"
-
-#include "src/bias/kernels.h"
-#include "src/bias/queue_bias_kernel.h"
+#include "src/binaryop/kernels.h"
+#include "src/binaryop/queue_binaryop_kernel.h"
 
 #include <CL/sycl.hpp>
 
 namespace sycldnn {
-namespace bias {
+namespace binaryop {
 namespace internal {
 
-template <typename T, typename Index, int VectorWidth>
-SNNStatus queue_bias_add(BaseMemObject<T const>& in_mem,
-                         BaseMemObject<T const>& bias_mem,
-                         BaseMemObject<T>& out_mem, BiasParams const& pp,
-                         size_t threads, cl::sycl::queue& queue) {
+template <typename T, typename Op, typename Index, int VectorWidth>
+SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
+                         BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
+                         int32_t const n_items, cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto biases = bias_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
-    BiasOp<T, Index, VectorWidth> bias_add{input, biases, output, pp};
+    auto in1 = lhs.read_accessor(cgh);
+    auto in2 = rhs.read_accessor(cgh);
+    auto out = output.write_accessor(cgh);
+    BinaryOp<T, Op, Index, VectorWidth> binary_op{in1, in2, out};
 
-    cgh.parallel_for(cl::sycl::range<1>{threads / VectorWidth}, bias_add);
+    cgh.parallel_for(
+        cl::sycl::range<1>{static_cast<size_t>(n_items / VectorWidth)},
+        binary_op);
   });
 
   return {event, StatusCode::OK};
 }
 
 }  // namespace internal
-}  // namespace bias
+}  // namespace binaryop
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_BIAS_QUEUE_IMPL_H_
+#endif  // SYCLDNN_SRC_BINARYOP_QUEUE_IMPL_H_
