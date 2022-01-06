@@ -67,7 +67,9 @@ struct Reducer {
   void operator()(cl::sycl::nd_item<Dims> item) {
     size_t lin_idx = sycldnn::helpers::get_flattened_global_id(item) * Width;
     if (lin_idx < data_size) {
-      auto data = Load()(input.get_pointer(), lin_idx);
+      auto input_ptr =
+          sycldnn::helpers::internal::as_const_ptr(input.get_pointer());
+      auto data = Load()(input_ptr, lin_idx);
       data = sycldnn::helpers::reduce::workgroup_reduce<
           sycldnn::helpers::reduce::Sum, size_t>(data, item,
                                                  workspace.get_pointer());

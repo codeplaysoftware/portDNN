@@ -206,7 +206,7 @@ class PointwiseOp<T, Index, SoftMaxDiv, Forward, VectorWidth> {
 
       DataType in1, in2, out_value;
       for (Index i = 0; i < iterations; i++, vec_idx1 += increment) {
-        in1 = LoadData()(out_ptr, vec_idx1);
+        in1 = LoadData()(helpers::internal::as_const_ptr(out_ptr), vec_idx1);
         in2 = ScalarLoadData()(in_ptr, i);
         out_value = op.apply(in1, DataType(in2));
         StoreData()(out_ptr, vec_idx1, out_value);
@@ -282,7 +282,7 @@ class PointwiseOp<T, Index, ResidualAdd, Forward, VectorWidth> {
       auto out_ptr = output_.get_pointer();
 
       auto val1 = LoadData()(in_ptr, vec_idx);
-      auto val2 = LoadData()(out_ptr, vec_idx);
+      auto val2 = LoadData()(helpers::internal::as_const_ptr(out_ptr), vec_idx);
       auto out = op.apply(val1, val2);
       StoreData()(out_ptr, vec_idx, out);
     }

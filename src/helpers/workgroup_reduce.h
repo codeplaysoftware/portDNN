@@ -105,8 +105,9 @@ workgroup_reduce(DataType value, cl::sycl::nd_item<Dimensions> item,
     item.barrier(fence_space);
 
     if (local_idx < reduction_idx) {
-      DataType other_thread_val = Load()(
-          workspace, helpers::io::as_vec_index(local_idx + reduction_idx));
+      DataType other_thread_val =
+          Load()(helpers::internal::as_const_ptr(workspace),
+                 helpers::io::as_vec_index(local_idx + reduction_idx));
       value = Op()(value, other_thread_val);
     }
   }

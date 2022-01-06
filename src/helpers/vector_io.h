@@ -39,6 +39,16 @@ struct AsVecIndex {
   /** The actual index value. */
   Index value;
 };
+
+/**
+ * Adds const to multi_ptr.
+ */
+template <typename T, cl::sycl::access::address_space Space>
+cl::sycl::multi_ptr<T const, Space> as_const_ptr(
+    cl::sycl::multi_ptr<T, Space> ptr) {
+  return ptr;
+}
+
 }  // namespace internal
 
 /**
@@ -91,7 +101,7 @@ struct Load<cl::sycl::vec<T, N>> {
                 "Cannot load values into a vector of const types.");
   template <typename Index, cl::sycl::access::address_space Space>
   cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
-  operator()(cl::sycl::multi_ptr<T, Space> ptr, Index const offset) {
+  operator()(cl::sycl::multi_ptr<const T, Space> ptr, Index const offset) {
     cl::sycl::vec<T, N> result;
     result.load(0, ptr + offset);
     return result;
@@ -99,40 +109,11 @@ struct Load<cl::sycl::vec<T, N>> {
 
   template <typename Index, cl::sycl::access::address_space Space>
   cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
-  operator()(cl::sycl::multi_ptr<T, Space> ptr,
+  operator()(cl::sycl::multi_ptr<const T, Space> ptr,
              internal::AsVecIndex<Index> const offset) {
     cl::sycl::vec<T, N> result;
     result.load(offset, ptr);
     return result;
-  }
-
-  template <typename U, typename Index, cl::sycl::access::address_space Space,
-            typename DependentU = U,
-            typename std::enable_if<std::is_same<U, DependentU>::value &&
-                                        std::is_const<DependentU>::value,
-                                    int>::type = 0>
-  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
-  operator()(cl::sycl::multi_ptr<U, Space> ptr, Index const offset) {
-    static_assert(std::is_convertible<U, T>::value,
-                  "Type U must be convertible to type T.");
-    // When the pointer is of the form multi_ptr<T const> we need to cast away
-    // the const as vec<T> will only load values from a multi_ptr<T>
-    using NonConstT = typename std::remove_const<U>::type;
-    auto non_const_ptr = const_cast<NonConstT*>(ptr.get());
-    cl::sycl::multi_ptr<T, Space> multi_ptr(non_const_ptr);
-    return operator()(multi_ptr, offset);
-  }
-
-  template <typename U, typename Index>
-  cl::sycl::vec<T, N> SNN_ALWAYS_INLINE operator()(U const* const ptr,
-                                                   Index const offset) {
-    static_assert(std::is_convertible<U, T>::value,
-                  "Type U must be convertible to type T.");
-    static constexpr auto address_space =
-        cl::sycl::access::address_space::global_space;
-    auto* non_const_ptr = const_cast<U*>(ptr);
-    cl::sycl::multi_ptr<T, address_space> mptr(non_const_ptr);
-    return operator()(mptr, offset);
   }
 };
 
