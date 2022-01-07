@@ -20,8 +20,8 @@
  * \file
  * Contains the declarations of the \ref sycldnn::pointwise::Relu
  * and \ref sycldnn::pointwise::Tanh, \ref sycldnn::pointwise::Exp, \ref
- * sycldnn::pointwise::SoftMaxDiv, \ref sycldnn::pointwise::Batchnorm_MeanDiv
- * and \ref sycldnn::pointwise::ResidualAdd tag types.
+ * sycldnn::pointwise::Batchnorm_MeanDiv and \ref
+ * sycldnn::pointwise::ResidualAdd tag types.
  */
 
 namespace sycldnn {
@@ -35,9 +35,6 @@ struct Tanh;
 
 template <typename Direction>
 struct Exp;
-
-template <typename Direction>
-struct SoftMaxDiv;
 
 template <typename Direction>
 struct Batchnorm_MeanDiv;

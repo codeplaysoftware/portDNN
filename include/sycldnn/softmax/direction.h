@@ -19,13 +19,15 @@
 
 /**
  * \file
- * Contains the declarations of the Forward and Backpropagate tag types.
+ * Contains the declarations of the Forward and Gradient tag types.
  */
 
 namespace sycldnn {
 namespace softmax {
 
 struct Forward;
+
+struct Gradient;
 
 }  // namespace softmax
 }  // namespace sycldnn

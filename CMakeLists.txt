@@ -167,7 +167,6 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:pointwise>
   $<TARGET_OBJECTS:matmul>
   $<TARGET_OBJECTS:transpose>
-  $<TARGET_OBJECTS:softmax>
   $<TARGET_OBJECTS:batchnorm>
 )
 snn_target(TARGET sycl_dnn WITH_SYCL)
@@ -189,7 +188,6 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:pointwise>
   $<TARGET_OBJECTS:matmul>
   $<TARGET_OBJECTS:transpose>
-  $<TARGET_OBJECTS:softmax>
   $<TARGET_OBJECTS:batchnorm>
 )
 snn_target(TARGET sycl_dnn_static WITH_SYCL)

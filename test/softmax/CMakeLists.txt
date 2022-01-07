@@ -31,9 +31,10 @@ snn_test(
     softmax_test
   SOURCES
     softmax_forward.cc
+    softmax_grad.cc
   OBJECTS
-    $<TARGET_OBJECTS:softmax>
-    $<TARGET_OBJECTS:transpose>
+    $<TARGET_OBJECTS:pointwise>
+    $<TARGET_OBJECTS:binaryop>
   PUBLIC_LIBRARIES
     ${_softmax_providers}
   CXX_OPTS

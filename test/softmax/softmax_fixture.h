@@ -29,7 +29,6 @@
 
 #include "sycldnn/softmax/direction.h"
 #include "sycldnn/softmax/launch.h"
-#include "sycldnn/softmax/operators.h"
 #include "sycldnn/softmax/params.h"
 
 #include "test/backend/backend_test_fixture.h"
@@ -42,7 +41,7 @@ using Backend = sycldnn::backend::SyclBLASBackend;
 using Backend = sycldnn::backend::SNNBackend;
 #endif
 
-sycldnn::softmax::SoftmaxParams getSoftmaxParams(
+inline sycldnn::softmax::SoftmaxParams getSoftmaxParams(
     std::array<int, 4> in_shape, sycldnn::DataFormat data_format) {
   sycldnn::softmax::SoftmaxParams params;
   params.channels = in_shape[3];
@@ -53,8 +52,12 @@ sycldnn::softmax::SoftmaxParams getSoftmaxParams(
   return params;
 }
 
-template <typename DType, typename SoftmaxType, typename Direction>
-struct SoftmaxFixture : public BackendTestFixture<Backend> {
+template <typename DType, typename Direction>
+struct SoftmaxFixture;
+
+template <typename DType>
+struct SoftmaxFixture<DType, sycldnn::softmax::Forward>
+    : public BackendTestFixture<Backend> {
   using DataType = DType;
 
   void test_softmax(std::vector<DataType> const& exp,
@@ -90,13 +93,78 @@ struct SoftmaxFixture : public BackendTestFixture<Backend> {
       provider.deallocate_ptr(workspace_gpu);
     };
 
-    auto status = sycldnn::softmax::launch_forward<DataType, SoftmaxType>(
+    auto status = sycldnn::softmax::launch<DataType, sycldnn::softmax::Forward>(
         inp_gpu, workspace_gpu, out_gpu, params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(size, out_gpu, output);
+
+    for (size_t i = 0; i < size; ++i) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(exp[i], output[i], 10u);
+    }
+  }
+};
+
+template <typename DType>
+struct SoftmaxFixture<DType, sycldnn::softmax::Gradient>
+    : public BackendTestFixture<Backend> {
+  using DataType = DType;
+
+  void test_softmax(std::vector<DataType> const& exp,
+                    sycldnn::softmax::SoftmaxParams const& params,
+                    DataType max_val = static_cast<DataType>(0)) {
+    auto input_size =
+        params.batch * params.rows * params.cols * params.channels;
+    auto workspace_size = params.batch * params.rows * params.cols;
+    ASSERT_EQ(input_size, exp.size());
+    const auto size = exp.size();
+
+    std::vector<DataType> input;
+    if (max_val == 0) {
+      input.reserve(size);
+      std::generate_n(std::back_inserter(input), size,
+                      [&max_val] { return max_val; });
+    } else {
+      input = iota_initialised_data<DataType>(size, max_val);
+    }
+    std::vector<DataType> output(size);
+    std::vector<DataType> workspace_fwd(workspace_size);
+    std::vector<DataType> workspace_grad(size);
+
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
+
+    auto inp_gpu = provider.get_initialised_device_memory(size, input);
+    auto workspace_fwd_gpu =
+        provider.get_initialised_device_memory(workspace_size, workspace_fwd);
+    auto workspace_grad_gpu =
+        provider.get_initialised_device_memory(size, workspace_grad);
+    auto out_fwd_gpu = provider.get_initialised_device_memory(size, output);
+    auto out_grad_gpu = provider.get_initialised_device_memory(size, output);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(out_fwd_gpu);
+      provider.deallocate_ptr(out_grad_gpu);
+      provider.deallocate_ptr(workspace_fwd_gpu);
+      provider.deallocate_ptr(workspace_grad_gpu);
+    };
+
+    auto status = sycldnn::softmax::launch<DataType, sycldnn::softmax::Forward>(
+        inp_gpu, workspace_fwd_gpu, out_fwd_gpu, params, backend);
+
+    status.event.wait_and_throw();
+
+    status = sycldnn::softmax::launch<DataType, sycldnn::softmax::Gradient>(
+        out_fwd_gpu, inp_gpu, workspace_grad_gpu, out_grad_gpu, params,
+        backend);
+
+    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+    status.event.wait_and_throw();
+
+    provider.copy_device_data_to_host(size, out_grad_gpu, output);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

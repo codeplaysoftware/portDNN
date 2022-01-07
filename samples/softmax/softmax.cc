@@ -16,8 +16,8 @@
 
 #include "sycldnn/backend/snn_backend.h"
 
+#include "sycldnn/softmax/direction.h"
 #include "sycldnn/softmax/launch.h"
-#include "sycldnn/softmax/operators.h"
 #include "sycldnn/softmax/params.h"
 
 #include <CL/sycl.hpp>
@@ -62,10 +62,14 @@ int main() {
   event.wait_and_throw();
 
   auto st = std::chrono::high_resolution_clock::now();
-  auto softmax_event =
-      snn::softmax::launch_forward<float, snn::softmax::Softmax>(
-          input_mem, workspace, output_mem, params, backend);
+  auto softmax_event = snn::softmax::launch<float, snn::softmax::Forward>(
+      input_mem, workspace, output_mem, params, backend);
   softmax_event.event.wait_and_throw();
+
+  softmax_event = snn::softmax::launch<float, snn::softmax::Gradient>(
+      input_mem, input_mem, workspace, output_mem, params, backend);
+  softmax_event.event.wait_and_throw();
+
   auto end = std::chrono::high_resolution_clock::now();
 
   std::cout << "Finished Execution of the Softmax event after time "

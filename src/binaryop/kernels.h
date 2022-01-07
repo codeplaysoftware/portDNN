@@ -101,6 +101,86 @@ class BinaryOp {
         n_offset_(static_cast<Index>(rhs.get_extent())) {}
 };
 
+template <typename T, typename Index, int VectorWidth>
+class BinaryOp<T, internal::SoftmaxSub, Index, VectorWidth> {
+  using DataT = typename helpers::VectorType<T, VectorWidth>::type;
+  using ScalarDataT = typename helpers::VectorType<T, 1>::type;
+  using Load = helpers::io::Load<DataT>;
+  using ScalarLoad = helpers::io::Load<ScalarDataT>;
+  using Store = helpers::io::Store<DataT>;
+
+  ReadAccessor<T const> lhs_, rhs_;
+  WriteAccessor<T> out_data_;
+  const Index n_offset_, n_iterations_;
+
+ public:
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+    Index idx = item.get_id(0) * VectorWidth;
+
+    const auto in1 = lhs_.get_pointer();
+    const auto in2 = rhs_.get_pointer();
+    auto out = out_data_.get_pointer();
+
+    Sub op;
+
+    for (Index i = 0; i < n_iterations_; i++) {
+      auto lhs_val = Load()(in1, idx);
+      auto rhs_val = ScalarLoad()(in2, i);
+      auto out_val = op.apply(lhs_val, static_cast<DataT>(rhs_val));
+      Store()(out, idx, out_val);
+      idx += n_offset_;
+    }
+  }
+
+  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+           WriteAccessor<T> out_data)
+      : lhs_(lhs),
+        rhs_(rhs),
+        out_data_(out_data),
+        n_offset_(static_cast<Index>(lhs.get_extent() / rhs.get_extent())),
+        n_iterations_(static_cast<Index>(rhs.get_extent())) {}
+};
+
+template <typename T, typename Index, int VectorWidth>
+class BinaryOp<T, internal::SoftmaxDiv, Index, VectorWidth> {
+  using DataT = typename helpers::VectorType<T, VectorWidth>::type;
+  using ScalarDataT = typename helpers::VectorType<T, 1>::type;
+  using Load = helpers::io::Load<DataT>;
+  using ScalarLoad = helpers::io::Load<ScalarDataT>;
+  using Store = helpers::io::Store<DataT>;
+
+  ReadAccessor<T const> lhs_, rhs_;
+  WriteAccessor<T> out_data_;
+  const Index n_offset_, n_iterations_;
+
+ public:
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+    Index idx = item.get_id(0) * VectorWidth;
+
+    const auto in1 = lhs_.get_pointer();
+    const auto in2 = rhs_.get_pointer();
+    auto out = out_data_.get_pointer();
+
+    Div op;
+
+    for (Index i = 0; i < n_iterations_; i++) {
+      auto lhs_val = Load()(in1, idx);
+      auto rhs_val = ScalarLoad()(in2, i);
+      auto out_val = op.apply(lhs_val, static_cast<DataT>(rhs_val));
+      Store()(out, idx, out_val);
+      idx += n_offset_;
+    }
+  }
+
+  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+           WriteAccessor<T> out_data)
+      : lhs_(lhs),
+        rhs_(rhs),
+        out_data_(out_data),
+        n_offset_(static_cast<Index>(lhs.get_extent() / rhs.get_extent())),
+        n_iterations_(static_cast<Index>(rhs.get_extent())) {}
+};
+
 }  // namespace binaryop
 }  // namespace sycldnn
 

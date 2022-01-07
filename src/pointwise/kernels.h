@@ -116,23 +116,6 @@ DType Exp<Gradient>::apply(DType val, DType err) {
 }
 
 template <typename Direction>
-struct SoftMaxDiv {
-  template <typename DType>
-  DType apply(DType val1, DType val2);
-  template <typename MemObject>
-  static auto output_access(MemObject& out, cl::sycl::handler& cgh)
-      -> decltype(out.read_write_accessor(cgh)) {
-    return out.read_write_accessor(cgh);
-  }
-};
-
-template <>
-template <typename DType>
-DType SoftMaxDiv<Forward>::apply(DType val1, DType val2) {
-  return val1 / val2;
-}
-
-template <typename Direction>
 struct Batchnorm_MeanDiv {
   template <typename DType>
   DType apply(DType val1, DType val2);
@@ -175,45 +158,6 @@ class PointwiseOp;
  * since we wish to keep the results for the back-propogation stage
  * if we are training.
  */
-
-template <typename T, typename Index, int VectorWidth>
-class PointwiseOp<T, Index, SoftMaxDiv, Forward, VectorWidth> {
-  using DataType = typename helpers::VectorType<T, VectorWidth>::type;
-  using ScalarDataType = typename helpers::VectorType<T, 1>::type;
-  using LoadData = helpers::io::Load<DataType>;
-  using ScalarLoadData = helpers::io::Load<ScalarDataType>;
-  using StoreData = helpers::io::Store<DataType>;
-
-  ReadAccessor<T const> input_;
-  ReadWriteAccessor<T> output_;
-  Index const n_items_;
-
- public:
-  PointwiseOp(ReadAccessor<T const> const& input,
-              ReadWriteAccessor<T> const& output, Index const num_items)
-      : input_{input}, output_{output}, n_items_{num_items} {}
-
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
-    Index const idx = item.get_id(0);
-    if (idx < n_items_) {
-      SoftMaxDiv<Forward> op;
-      auto vec_idx1 = idx * VectorWidth;
-      auto iterations = static_cast<Index>(input_.get_extent());
-      auto increment = n_items_ * VectorWidth;
-
-      auto in_ptr = input_.get_pointer();
-      auto out_ptr = output_.get_pointer();
-
-      DataType in1, in2, out_value;
-      for (Index i = 0; i < iterations; i++, vec_idx1 += increment) {
-        in1 = LoadData()(helpers::internal::as_const_ptr(out_ptr), vec_idx1);
-        in2 = ScalarLoadData()(in_ptr, i);
-        out_value = op.apply(in1, DataType(in2));
-        StoreData()(out_ptr, vec_idx1, out_value);
-      }
-    }
-  }
-};
 
 template <typename T, typename Index, int VectorWidth>
 class PointwiseOp<T, Index, Batchnorm_MeanDiv, Forward, VectorWidth> {

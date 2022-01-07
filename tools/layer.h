@@ -303,8 +303,7 @@ struct SoftmaxLayer : Layer<DType, Backend> {
   size_t get_output_size() const override { return sizes_.output_size; }
 
   sycldnn::SNNStatus run() override {
-    return sycldnn::softmax::launch_forward<DType, sycldnn::softmax::Softmax,
-                                            Backend>(
+    return sycldnn::softmax::launch<DType, sycldnn::softmax::Forward, Backend>(
         input_, workspace_, output_, params_, this->backend_);
   }
 };

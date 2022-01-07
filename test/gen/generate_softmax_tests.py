@@ -41,7 +41,7 @@ BATCHES = [1, 3]
 CHANNELS = [1, 5, 8]
 IN_SIZES = [1, 8, 9]  # Assumes square inputs in the spatial dimensions.
 TEST_TYPES = ['softmax']
-DIRECTIONS = ['forward']
+DIRECTIONS = ['forward', 'grad']
 
 INCLUDES = r"""
 #include <gtest/gtest.h>
@@ -49,7 +49,6 @@ INCLUDES = r"""
 #include "sycldnn/data_format.h"
 
 #include "sycldnn/softmax/direction.h"
-#include "sycldnn/softmax/operators.h"
 #include "sycldnn/softmax/params.h"
 
 #include "test/softmax/softmax_fixture.h"
@@ -59,7 +58,7 @@ INCLUDES = r"""
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 template <typename DataType>
-using {test_case} = SoftmaxFixture<DataType, {operator}, {direction}>;
+using {test_case} = SoftmaxFixture<DataType, {direction}>;
 TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
 TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction'])
@@ -93,11 +92,11 @@ def get_grad_results(max_val, softmax_op, input_shape):
         tf_op = tf.get_default_graph().get_operation_by_name('softmax')
         grad_fn = get_gradient_function(tf_op)
 
-        output_size = in_size
+        output_size = total_inp_size
         error_vals = helpers.get_signed_tensor_data(output_size,
                                                     max_val=max_val,
-                                                    min_val=min_val)
-        error_tensor = tf.constant(error_vals, dtype=np.float64)
+                                                    min_val=-1)
+        error_tensor = tf.constant(input_vals, shape=input_shape, dtype=np.float64)
 
         output = grad_fn(tf_op, error_tensor)
 
@@ -151,13 +150,9 @@ TEST_CASE_TPL = "{test_type}{direction}"
 TEST_NAME_TPL = "{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
 
-OPERATOR_MAP = {
-    'softmax': 'softmax::Softmax',
-}
-
 DIRECTION_MAP = {
     'forward': 'softmax::Forward',
-    'grad': 'softmax::Backpropagate',
+    'grad': 'softmax::Gradient',
 }
 
 
@@ -224,7 +219,6 @@ def output_for_test_case(test_case):
         INCLUDES,
         TYPED_TEST_CASE_DECL_TPL.format(
             test_case=test_case_name,
-            operator=OPERATOR_MAP[test_case.test_type],
             direction=DIRECTION_MAP[test_case.direction]),
     ]
 

@@ -19,8 +19,8 @@
 /**
  * \file
  * Contains the declarations of the sycldnn::binaryop::Add,
- * sycldnn::binaryop::Sub, sycldnn::binaryop::Mul and
- * sycldnn::binaryop::Div tag types.
+ * sycldnn::binaryop::Sub, sycldnn::binaryop::Mul and sycldnn::binaryop::Div tag
+ * types.
  */
 
 namespace sycldnn {
@@ -34,6 +34,13 @@ struct Mul;
 
 struct Div;
 
+namespace internal {
+
+struct SoftmaxSub;
+
+struct SoftmaxDiv;
+
+}  // namespace internal
 }  // namespace binaryop
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_BINARYOP_OPERATORS_H_
