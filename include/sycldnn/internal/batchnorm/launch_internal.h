@@ -55,9 +55,10 @@ SNNStatus launch_batchnorm_training(
     typename Backend::template pointer_type<T> moving_variance,
     typename Backend::template pointer_type<T> output,
     BatchNormParams const& params, Backend& backend) {
-  backend
-      .template batchnorm_mean<T, int32_t, sycldnn::batchnorm::BatchNormParams>(
-          input, moving_mean, params);
+  using Index = int32_t;
+  backend.template reduce_outer<T, Index, sycldnn::batchnorm::BatchNormParams,
+                                sycldnn::backend::reduction::Mean>(
+      input, moving_mean, params);
 
   auto n_items = params.batch * params.channels * params.rows * params.cols;
 

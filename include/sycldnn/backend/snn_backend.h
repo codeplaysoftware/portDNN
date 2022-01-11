@@ -21,6 +21,7 @@
 
 #include <SYCL/codeplay.hpp>
 #include <numeric>
+#include "sycldnn/backend/reductionops.h"
 
 namespace sycldnn {
 namespace backend {
@@ -153,21 +154,23 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
   static char const* name() { return "SNNBackend"; }
 
   /**
-   * Function for reducing inputs.
+   * Function for reducing inputs using SYCL-DNN backend.
    * \tparam T          Data type.
    * \tparam Index      Index type.
    * \tparam Params     Parameters object which holds N, H, W and C.
+   * \tparam Op         Reduction Type.
    * \param input       input memory to be reduced.
    * \param output      output memory to store the reduced value.
    * \param params      Parameters object.
-   * \return
+   * \return            A SYCL event corresponding to the reduction kernel.
    */
-  template <typename T, typename Index, typename Params>
-  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const> input,
-                                       pointer_type<T> output,
-                                       Params const& params) {
-    // For now, the reduction is performed across channels only,
-    // in order to match the outputs from Tensorflow.
+  template <typename T, typename Index, typename Params, typename Op>
+  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_inner(
+      pointer_type<T const> input, pointer_type<T> output,
+      Params const& params) {
+    // Validate the reduction type
+    reduction::is_valid_reduction<Op>();
+
     // Only NHWC format is supported.
 
     Index out_size = params.batch * params.rows * params.cols;
@@ -183,6 +186,7 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
 
         cgh.copy(acc_in, acc_out);
       });
+      return event;
     } else {
       auto event = queue_.submit([&](cl::sycl::codeplay::host_handler& h) {
         auto buf_in = input.get_buffer();
@@ -191,35 +195,44 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
         auto buf_out = output.get_buffer();
         auto acc_out =
             buf_out.template get_access<cl::sycl::access::mode::write>(h);
-        auto start = acc_in.get_pointer();
+        auto start = acc_in.get_pointer() + input.get_offset();
         auto finish = start + reduction_items;
         auto sum = 0.f;
         h.host_task([=]() mutable {
           for (Index i = 0; i < out_size; i++) {
             sum = std::accumulate(start, finish, 0.f);
-            acc_out[i] = static_cast<T>(sum);
+            if (std::is_same<Op, reduction::Add>::value) {
+              acc_out[i] = static_cast<T>(sum);
+            } else if (std::is_same<Op, reduction::Mean>::value) {
+              acc_out[i] = static_cast<T>(sum) / reduction_items;
+            }
             start += reduction_items;
             finish += reduction_items;
           }
         });
       });
+      return event;
     }
   }
 
   /**
-   * Function for calculating mean using SYCL-DNN backend.
+   * Function for reducing inputs using SYCL-DNN backend.
    * \tparam T          Data type.
    * \tparam Index      Index type.
    * \tparam Params     Parameters object which holds N, H, W and C.
-   * \param input       input memory to be used to compute mean.
-   * \param output      output memory to store the mean values.
+   * \tparam Op         Reduction Type.
+   * \param input       input memory to be reduced.
+   * \param output      output memory to store the reduced value.
    * \param params      Parameters object.
-   * \return
+   * \return            A SYCL event corresponding to the reduction kernel.
    */
-  template <typename T, typename Index, typename Params>
-  inline SNN_ALWAYS_INLINE void batchnorm_mean(pointer_type<T const> input,
-                                               pointer_type<T> output,
-                                               Params const& params) {
+  template <typename T, typename Index, typename Params, typename Op>
+  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_outer(
+      pointer_type<T const> input, pointer_type<T> output,
+      Params const& params) {
+    // Validate the reduction type
+    reduction::is_valid_reduction<Op>();
+
     // Only NHWC format is supported.
 
     Index out_size = params.channels;
@@ -231,21 +244,26 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
       auto buf_out = output.get_buffer();
       auto acc_out =
           buf_out.template get_access<cl::sycl::access::mode::write>(h);
-      auto start = acc_in.get_pointer();
+      auto start = acc_in.get_pointer() + input.get_offset();
       auto finish = start + out_size;
-      auto sum = 0.f;
+      T sum = 0.f;
       h.host_task([=]() mutable {
         for (Index i = 0; i < out_size; i++) {
           sum = *start;
           for (Index j = 1; j < reduction_items; j++, finish += out_size) {
             sum += *finish;
           }
-          acc_out[i] = static_cast<T>(sum / reduction_items);
+          if (std::is_same<Op, reduction::Add>::value) {
+            acc_out[i] = sum;
+          } else if (std::is_same<Op, reduction::Mean>::value) {
+            acc_out[i] = sum / reduction_items;
+          }
           start++;
           finish = start + out_size;
         }
       });
     });
+    return event;
   }
 
  private:

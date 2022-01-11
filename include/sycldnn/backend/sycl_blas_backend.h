@@ -24,9 +24,8 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
 
-#include "sycldnn/internal/pointwise/launch_internal.h"
+#include "sycldnn/backend/reductionops.h"
 #include "sycldnn/mem_object.h"
-#include "sycldnn/transpose/launch.h"
 
 #include <sycl_blas.h>
 
@@ -299,56 +298,78 @@ struct SyclBLASBackend final {
   }
 
   /**
-   * Function for reducing inputs using SyclBLAS backend.
+   * Function for reducing inputs using SYCL-BLAS backend.
    * \tparam T          Data type.
    * \tparam Index      Index type.
    * \tparam Params     Parameters object which holds N, H, W and C.
+   * \tparam Op         Reduction Type.
    * \param input       input memory to be reduced.
    * \param output      output memory to store the reduced value.
    * \param params      Parameters object.
-   * \return
+   * \return            A SYCL event corresponding to the reduction kernel.
    */
-  template <typename T, typename Index, typename Params>
-  inline SNN_ALWAYS_INLINE void reduce(pointer_type<T const> input,
-                                       pointer_type<T> output,
-                                       Params const& params) {
-    // For now, the reduction is performed across channels only,
-    // in order to match the outputs from Tensorflow.
+  template <typename T, typename Index, typename Params, typename Op>
+  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_inner(
+      pointer_type<T const> input, pointer_type<T> output,
+      Params const& params) {
+    // Validate the reduction type
+    reduction::is_valid_reduction<Op>();
+
     // Only NHWC format is supported.
 
-    auto reduce_dim = params.channels;  // channels
-    auto preserve_dim =
+    Index reduce_dim = params.channels;  // channels
+    Index preserve_dim =
         params.batch * params.rows * params.cols;  // batch*rows*cols
 
     // call sycl-blas reduction using column major data layout
-    blas::extension::_reduction<blas::AddOperator, T>(
-        executor_, input, reduce_dim, output, reduce_dim, preserve_dim,
-        blas::reduction_dim_t::inner);
+    if (std::is_same<Op, reduction::Add>::value) {
+      return blas::extension::_reduction<blas::AddOperator, T>(
+                 executor_, input, reduce_dim, output, reduce_dim, preserve_dim,
+                 blas::reduction_dim_t::inner)
+          .back();
+    } else if (std::is_same<Op, reduction::Mean>::value) {
+      return blas::extension::_reduction<blas::MeanOperator, T>(
+                 executor_, input, reduce_dim, output, reduce_dim, preserve_dim,
+                 blas::reduction_dim_t::inner)
+          .back();
+    }
   }
 
   /**
-   * Function for calculating mean using SYCL-BLAS backend.
+   * Function for reducing inputs using SYCL-BLAS backend.
    * \tparam T          Data type.
    * \tparam Index      Index type.
    * \tparam Params     Parameters object which holds N, H, W and C.
-   * \param input       input memory to be used to compute mean.
-   * \param output      output memory to store the mean values.
+   * \tparam Op         Reduction Type.
+   * \param input       input memory to be reduced.
+   * \param output      output memory to store the reduced value.
    * \param params      Parameters object.
-   * \return
+   * \return            A SYCL event corresponding to the reduction kernel.
    */
-  template <typename T, typename Index, typename Params>
-  inline SNN_ALWAYS_INLINE void batchnorm_mean(pointer_type<T const> input,
-                                               pointer_type<T> output,
-                                               Params const& params) {
+  template <typename T, typename Index, typename Params, typename Op>
+  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_outer(
+      pointer_type<T const> input, pointer_type<T> output,
+      Params const& params) {
+    // Validate the reduction type
+    reduction::is_valid_reduction<Op>();
+
     // Only NHWC format is supported.
 
-    auto reduce_dim =
+    Index reduce_dim =
         params.batch * params.rows * params.cols;  // batch*rows*cols
-    auto preserve_dim = params.channels;           // channels
+    Index preserve_dim = params.channels;          // channels
 
-    blas::extension::_reduction<blas::MeanOperator, T>(
-        executor_, input, preserve_dim, output, preserve_dim, reduce_dim,
-        blas::reduction_dim_t::outer);
+    if (std::is_same<Op, reduction::Add>::value) {
+      return blas::extension::_reduction<blas::AddOperator, T>(
+                 executor_, input, preserve_dim, output, preserve_dim,
+                 reduce_dim, blas::reduction_dim_t::outer)
+          .back();
+    } else if (std::is_same<Op, reduction::Mean>::value) {
+      return blas::extension::_reduction<blas::MeanOperator, T>(
+                 executor_, input, preserve_dim, output, preserve_dim,
+                 reduce_dim, blas::reduction_dim_t::outer)
+          .back();
+    }
   }
 };
 

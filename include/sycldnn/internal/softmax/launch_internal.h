@@ -50,11 +50,11 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> workspace,
                  typename Backend::template pointer_type<T> output,
                  SoftmaxParams const& params, Backend& backend) {
-  int32_t n_items = params.batch * params.channels * params.rows * params.cols;
+  auto n_items = params.batch * params.channels * params.rows * params.cols;
   auto queue = backend.get_queue();
   auto in_mem = backend.get_mem_object(input, n_items);
   auto out_mem = backend.get_mem_object(output, n_items);
-  int32_t workspace_items = params.batch * params.rows * params.cols;
+  auto workspace_items = params.batch * params.rows * params.cols;
 
   SNNStatus status = pointwise::internal::launch_pointwise<T, pointwise::Exp,
                                                            pointwise::Forward>(
@@ -63,7 +63,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   if (sycldnn::StatusCode::OK != status.status) return status;
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
-  backend.template reduce<T, int32_t, softmax::SoftmaxParams>(
+  using Index = int32_t;
+  backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
+                                sycldnn::backend::reduction::Add>(
       ConstPointer{output}, workspace, params);
 
   auto const_workspace = ConstPointer{workspace};
@@ -93,8 +95,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> workspace,
                  typename Backend::template pointer_type<T> output,
                  SoftmaxParams const& params, Backend& backend) {
-  int32_t n_items1 = params.batch * params.rows * params.cols * params.channels;
-  int32_t n_items2 = params.batch * params.rows * params.cols;
+  auto n_items1 = params.batch * params.rows * params.cols * params.channels;
+  auto n_items2 = params.batch * params.rows * params.cols;
 
   auto in_mem = backend.get_mem_object(input, n_items1);
   auto grad_mem = backend.get_mem_object(gradient, n_items1);
@@ -109,12 +111,14 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   if (sycldnn::StatusCode::OK != status.status) return status;
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
+  using Index = int32_t;
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
 
-  backend.template reduce<T, int32_t, SoftmaxParams>(const_workspace, output,
-                                                     params);
+  backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
+                                sycldnn::backend::reduction::Add>(
+      const_workspace, output, params);
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
