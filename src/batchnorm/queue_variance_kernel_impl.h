@@ -30,14 +30,14 @@ namespace internal {
 
 template <typename T, typename Index, int VectorWidth>
 SNNStatus queue_variance(BaseMemObject<T const>& input,
-                         BaseMemObject<T const>& moving_mean,
-                         BaseMemObject<T>& moving_variance,
+                         BaseMemObject<T const>& current_mean,
+                         BaseMemObject<T>& current_variance,
                          BatchNormParams const& params,
                          cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input_acc = input.read_accessor(cgh);
-    auto mean_acc = moving_mean.read_accessor(cgh);
-    auto variance_acc = moving_variance.write_accessor(cgh);
+    auto mean_acc = current_mean.read_accessor(cgh);
+    auto variance_acc = current_variance.write_accessor(cgh);
     Index const n_vecs = params.channels / VectorWidth;
     VarianceOp<T, Index, VectorWidth> varianceop{input_acc, mean_acc,
                                                  variance_acc, n_vecs};

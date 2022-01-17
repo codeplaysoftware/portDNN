@@ -55,29 +55,29 @@ inline sycldnn::batchnorm::BatchNormParams getBatchNormParams(
 template <typename DType, typename Direction, typename Operation>
 struct BatchNormFixture;
 
-template <typename DType, typename Direction>
-struct BatchNormFixture<DType, Direction, sycldnn::batchnorm::Training>
+template <typename DType>
+struct BatchNormFixture<DType, sycldnn::batchnorm::Forward,
+                        sycldnn::batchnorm::Training>
     : public BackendTestFixture<Backend> {
   using DataType = DType;
-
-  void test_batchnorm(std::vector<DataType> const& exp,
-                      std::vector<DataType> const&,
-                      std::vector<DataType> const&,
+  void test_batchnorm(std::vector<DType> const& exp,
+                      std::vector<DType> const& input_mean,
+                      std::vector<DType> const& input_variance,
                       sycldnn::batchnorm::BatchNormParams const& params,
-                      DataType max_val = static_cast<DataType>(0)) {
+                      DType max_val = static_cast<DType>(0)) {
     auto input_size =
         params.batch * params.rows * params.cols * params.channels;
     ASSERT_EQ(input_size, exp.size());
     const auto size = exp.size();
 
-    std::vector<DataType> input =
-        iota_initialised_data<DataType>(input_size, max_val);
+    std::vector<DType> input =
+        iota_initialised_data<DType>(input_size, max_val);
 
-    std::vector<DataType> beta(params.channels, 0.f);
-    std::vector<DataType> gamma(params.channels, 1.f);
-    std::vector<DataType> mean(params.channels, 0.f);
-    std::vector<DataType> variance(params.channels, 1.f);
-    std::vector<DataType> output(size);
+    std::vector<DType> beta(params.channels, 0.f);
+    std::vector<DType> gamma(params.channels, 1.f);
+    std::vector<DType> mean(params.channels, 0.f);
+    std::vector<DType> variance(params.channels, 0.f);
+    std::vector<DType> output(size);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
@@ -87,27 +87,56 @@ struct BatchNormFixture<DType, Direction, sycldnn::batchnorm::Training>
         provider.get_initialised_device_memory(params.channels, beta);
     auto gamma_gpu =
         provider.get_initialised_device_memory(params.channels, gamma);
-    auto mean_gpu =
+    auto input_mean_gpu =
         provider.get_initialised_device_memory(params.channels, mean);
-    auto variance_gpu =
+    auto input_variance_gpu =
+        provider.get_initialised_device_memory(params.channels, variance);
+    auto running_mean_gpu =
+        provider.get_initialised_device_memory(params.channels, mean);
+    auto running_variance_gpu =
         provider.get_initialised_device_memory(params.channels, variance);
     auto out_gpu = provider.get_initialised_device_memory(size, output);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(beta_gpu);
       provider.deallocate_ptr(gamma_gpu);
-      provider.deallocate_ptr(mean_gpu);
-      provider.deallocate_ptr(variance_gpu);
+      provider.deallocate_ptr(input_mean_gpu);
+      provider.deallocate_ptr(input_variance_gpu);
+      provider.deallocate_ptr(running_mean_gpu);
+      provider.deallocate_ptr(running_variance_gpu);
       provider.deallocate_ptr(out_gpu);
     };
 
-    auto status = sycldnn::batchnorm::launch<DataType, Backend,
-                                             sycldnn::batchnorm::Training>(
-        inp_gpu, beta_gpu, gamma_gpu, mean_gpu, variance_gpu, out_gpu, params,
-        backend);
+    auto status =
+        sycldnn::batchnorm::launch_forward<DType, Backend,
+                                           sycldnn::batchnorm::Forward,
+                                           sycldnn::batchnorm::Training>(
+            inp_gpu, beta_gpu, gamma_gpu, input_mean_gpu, input_variance_gpu,
+            running_mean_gpu, running_variance_gpu, out_gpu, params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
+
+    provider.copy_device_data_to_host(params.channels, running_mean_gpu,
+                                      output);
+
+    // We pass all 0s for Input Mean and Input Variance.
+    // So the Running Mean and Running Variance comes out
+    // to be just the Current Mean and Current Variance times
+    //(1 - momentum) where momentum is by default 0.9
+    for (size_t i = 0; i < static_cast<size_t>(params.channels); i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(static_cast<DType>(input_mean[i] * 0.1), output[i], 10u);
+    }
+
+    provider.copy_device_data_to_host(params.channels, running_variance_gpu,
+                                      output);
+
+    for (size_t i = 0; i < static_cast<size_t>(params.channels); i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(static_cast<DType>(input_variance[i] * 0.1), output[i],
+                       10u);
+    }
 
     provider.copy_device_data_to_host(size, out_gpu, output);
 
@@ -118,27 +147,27 @@ struct BatchNormFixture<DType, Direction, sycldnn::batchnorm::Training>
   }
 };
 
-template <typename DType, typename Direction>
-struct BatchNormFixture<DType, Direction, sycldnn::batchnorm::Inference>
+template <typename DType>
+struct BatchNormFixture<DType, sycldnn::batchnorm::Forward,
+                        sycldnn::batchnorm::Frozen>
     : public BackendTestFixture<Backend> {
   using DataType = DType;
-
-  void test_batchnorm(std::vector<DataType> const& exp,
-                      std::vector<DataType> const& exp_mean,
-                      std::vector<DataType> const& exp_variance,
+  void test_batchnorm(std::vector<DType> const& exp,
+                      std::vector<DType> const& exp_mean,
+                      std::vector<DType> const& exp_variance,
                       sycldnn::batchnorm::BatchNormParams const& params,
-                      DataType max_val = static_cast<DataType>(0)) {
+                      DType max_val = static_cast<DType>(0)) {
     auto input_size =
         params.batch * params.rows * params.cols * params.channels;
     ASSERT_EQ(input_size, exp.size());
     const auto size = exp.size();
 
-    std::vector<DataType> input =
-        iota_initialised_data<DataType>(input_size, max_val);
+    std::vector<DType> input =
+        iota_initialised_data<DType>(input_size, max_val);
 
-    std::vector<DataType> beta(params.channels, 0.f);
-    std::vector<DataType> gamma(params.channels, 1.f);
-    std::vector<DataType> output(size);
+    std::vector<DType> beta(params.channels, 0.f);
+    std::vector<DType> gamma(params.channels, 1.f);
+    std::vector<DType> output(size);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
@@ -162,10 +191,12 @@ struct BatchNormFixture<DType, Direction, sycldnn::batchnorm::Inference>
       provider.deallocate_ptr(out_gpu);
     };
 
-    auto status = sycldnn::batchnorm::launch<DataType, Backend,
-                                             sycldnn::batchnorm::Inference>(
-        inp_gpu, beta_gpu, gamma_gpu, mean_gpu, variance_gpu, out_gpu, params,
-        backend);
+    auto status =
+        sycldnn::batchnorm::launch_forward<DType, Backend,
+                                           sycldnn::batchnorm::Forward,
+                                           sycldnn::batchnorm::Frozen>(
+            inp_gpu, beta_gpu, gamma_gpu, mean_gpu, variance_gpu, out_gpu,
+            params, backend);
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();

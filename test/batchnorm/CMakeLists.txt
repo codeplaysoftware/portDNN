@@ -31,7 +31,7 @@ snn_test(
     batchnorm_test
   SOURCES
     batchnorm_forward_Training.cc
-    batchnorm_forward_Inference.cc
+    batchnorm_forward_Frozen.cc
   OBJECTS
     $<TARGET_OBJECTS:batchnorm>
   PUBLIC_LIBRARIES

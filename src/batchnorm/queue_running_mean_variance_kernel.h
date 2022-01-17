@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
+#ifndef SYCLDNN_SRC_RUNNING_MEAN_VARIANCE_QUEUE_BATCHNORM_H
+#define SYCLDNN_SRC_RUNNING_MEAN_VARIANCE_QUEUE_BATCHNORM_H
+
 #include "sycldnn/mem_object.h"
 
-#include "src/batchnorm/queue_variance_kernel_impl.h"
-
+#include <CL/sycl.hpp>
 #include "sycldnn/status.h"
-
-#include "sycldnn/batchnorm/params.h"
-
-// clang-format off
-#define SNN_DATA_TYPE      @DATA_TYPE@
-#define SNN_VECTOR_WIDTH   @VECTOR_WIDTH@
-#define SNN_INDEX_TYPE     @INDEX_TYPE@
-
-// clang-format on
 
 namespace sycldnn {
 namespace batchnorm {
 namespace internal {
 
-template SNNStatus
-queue_variance<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
-    BaseMemObject<SNN_DATA_TYPE const>& input,
-    BaseMemObject<SNN_DATA_TYPE const>& current_mean,
-    BaseMemObject<SNN_DATA_TYPE>& current_variance,
-    BatchNormParams const& params, cl::sycl::queue& queue);
+template <typename T, typename Index, int VectorWidth>
+SNNStatus queue_running_mean_variance(BaseMemObject<T const>& input_mean,
+                                      BaseMemObject<T const>& input_variance,
+                                      BaseMemObject<T>& running_mean,
+                                      BaseMemObject<T>& running_variance,
+                                      Index const n_items, float const momentum,
+                                      cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace batchnorm
 }  // namespace sycldnn
+
+#endif  // SYCLDNN_SRC_RUNNING_MEAN_VARIANCE_QUEUE_BATCHNORM_H

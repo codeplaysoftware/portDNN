@@ -19,13 +19,15 @@
 
 /**
  * \file
- * Contains the declarations of the Forward tag type.
+ * Contains the declarations of the Forward and Gradient tag types.
  */
 
 namespace sycldnn {
 namespace batchnorm {
 
 struct Forward;
+
+struct Gradient;
 
 }  // namespace batchnorm
 }  // namespace sycldnn

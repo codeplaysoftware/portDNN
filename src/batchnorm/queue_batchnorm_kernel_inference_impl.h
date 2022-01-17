@@ -31,20 +31,17 @@ namespace internal {
 template <typename T, typename Index, int VectorWidth>
 SNNStatus queue_batchnorm(
     BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& moving_mean,
-    BaseMemObject<T const>& moving_variance, BaseMemObject<T>& output,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& current_mean,
+    BaseMemObject<T const>& current_variance, BaseMemObject<T>& output,
     BatchNormParams const& params, cl::sycl::queue& queue) {
-  // algo for implementation of batchnorm inference
-  // call batchnorm
-
   Index n_items = params.batch * params.channels * params.rows * params.cols;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input_acc = input.read_accessor(cgh);
     auto beta_acc = beta.read_accessor(cgh);
     auto gamma_acc = gamma.read_accessor(cgh);
-    auto mean_acc = moving_mean.read_accessor(cgh);
-    auto variance_acc = moving_variance.read_accessor(cgh);
+    auto mean_acc = current_mean.read_accessor(cgh);
+    auto variance_acc = current_variance.read_accessor(cgh);
     auto output_acc = output.write_accessor(cgh);
     BatchNormOp<T, Index, VectorWidth> op{input_acc, beta_acc,     gamma_acc,
                                           mean_acc,  variance_acc, output_acc,

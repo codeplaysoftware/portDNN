@@ -36,18 +36,21 @@ inline bool can_use_vector_width(BatchNormParams const& params, int w) {
 template <typename T, typename Index>
 SNNStatus launch_with_index(
     BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& moving_mean,
-    BaseMemObject<T const>& moving_variance, BaseMemObject<T>& output,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& current_mean,
+    BaseMemObject<T const>& current_variance, BaseMemObject<T>& output,
     BatchNormParams const& params, cl::sycl::queue& queue) {
   if (can_use_vector_width(params, 4)) {
-    return queue_batchnorm<T, Index, 4>(input, beta, gamma, moving_mean,
-                                        moving_variance, output, params, queue);
+    return queue_batchnorm<T, Index, 4>(input, beta, gamma, current_mean,
+                                        current_variance, output, params,
+                                        queue);
   } else if (can_use_vector_width(params, 2)) {
-    return queue_batchnorm<T, Index, 2>(input, beta, gamma, moving_mean,
-                                        moving_variance, output, params, queue);
+    return queue_batchnorm<T, Index, 2>(input, beta, gamma, current_mean,
+                                        current_variance, output, params,
+                                        queue);
   } else {
-    return queue_batchnorm<T, Index, 1>(input, beta, gamma, moving_mean,
-                                        moving_variance, output, params, queue);
+    return queue_batchnorm<T, Index, 1>(input, beta, gamma, current_mean,
+                                        current_variance, output, params,
+                                        queue);
   }
 }
 /**
@@ -56,18 +59,14 @@ SNNStatus launch_with_index(
 template <typename T>
 SNNStatus launch_batchnorm(
     BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& moving_mean,
-    BaseMemObject<T const>& moving_variance, BaseMemObject<T>& output,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& current_mean,
+    BaseMemObject<T const>& current_variance, BaseMemObject<T>& output,
     BatchNormParams const& params, cl::sycl::queue& queue) {
   auto total_size = params.batch * params.rows * params.cols * params.channels;
-  if (total_size > std::numeric_limits<int64_t>::max()) {
-    SNNStatus index_too_large;
-    index_too_large.status = StatusCode::IndexExceeded;
-    return index_too_large;
-  } else if (total_size > std::numeric_limits<int32_t>::max()) {
+  if (total_size > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
-    return launch_with_index<T, int64_t>(input, beta, gamma, moving_mean,
-                                         moving_variance, output, params,
+    return launch_with_index<T, int64_t>(input, beta, gamma, current_mean,
+                                         current_variance, output, params,
                                          queue);
 #else
     SNNStatus index_too_large;
@@ -75,8 +74,8 @@ SNNStatus launch_batchnorm(
     return index_too_large;
 #endif  // SNN_USE_INT64
   } else {
-    return launch_with_index<T, int32_t>(input, beta, gamma, moving_mean,
-                                         moving_variance, output, params,
+    return launch_with_index<T, int32_t>(input, beta, gamma, current_mean,
+                                         current_variance, output, params,
                                          queue);
   }
 }
@@ -85,8 +84,8 @@ SNNStatus launch_batchnorm(
   template SNN_EXPORT SNNStatus launch_batchnorm<DTYPE>(                     \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & beta, \
       BaseMemObject<DTYPE const> & gamma,                                    \
-      BaseMemObject<DTYPE const> & moving_mean,                              \
-      BaseMemObject<DTYPE const> & moving_variance,                          \
+      BaseMemObject<DTYPE const> & current_mean,                             \
+      BaseMemObject<DTYPE const> & current_variance,                         \
       BaseMemObject<DTYPE> & output, BatchNormParams const& params,          \
       cl::sycl::queue& queue)
 

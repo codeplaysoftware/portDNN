@@ -34,18 +34,18 @@ inline bool can_use_vector_width(BatchNormParams const& params, int w) {
 
 template <typename T, typename Index>
 SNNStatus launch_with_index(BaseMemObject<T const>& input,
-                            BaseMemObject<T const>& moving_mean,
-                            BaseMemObject<T>& moving_variance,
+                            BaseMemObject<T const>& current_mean,
+                            BaseMemObject<T>& current_variance,
                             BatchNormParams const& params,
                             cl::sycl::queue& queue) {
   if (can_use_vector_width(params, 4)) {
-    return queue_variance<T, Index, 4>(input, moving_mean, moving_variance,
+    return queue_variance<T, Index, 4>(input, current_mean, current_variance,
                                        params, queue);
   } else if (can_use_vector_width(params, 2)) {
-    return queue_variance<T, Index, 2>(input, moving_mean, moving_variance,
+    return queue_variance<T, Index, 2>(input, current_mean, current_variance,
                                        params, queue);
   } else {
-    return queue_variance<T, Index, 1>(input, moving_mean, moving_variance,
+    return queue_variance<T, Index, 1>(input, current_mean, current_variance,
                                        params, queue);
   }
 }
@@ -54,18 +54,14 @@ SNNStatus launch_with_index(BaseMemObject<T const>& input,
  */
 template <typename T>
 SNNStatus launch_variance(BaseMemObject<T const>& input,
-                          BaseMemObject<T const>& moving_mean,
-                          BaseMemObject<T>& moving_variance,
+                          BaseMemObject<T const>& current_mean,
+                          BaseMemObject<T>& current_variance,
                           BatchNormParams const& params,
                           cl::sycl::queue& queue) {
   auto total_size = params.batch * params.rows * params.cols * params.channels;
-  if (total_size > std::numeric_limits<int64_t>::max()) {
-    SNNStatus index_too_large;
-    index_too_large.status = StatusCode::IndexExceeded;
-    return index_too_large;
-  } else if (total_size > std::numeric_limits<int32_t>::max()) {
+  if (total_size > std::numeric_limits<int32_t>::max()) {
 #ifdef SNN_USE_INT64
-    return launch_with_index<T, int64_t>(input, moving_mean, moving_variance,
+    return launch_with_index<T, int64_t>(input, current_mean, current_variance,
                                          params, queue);
 #else
     SNNStatus index_too_large;
@@ -73,16 +69,16 @@ SNNStatus launch_variance(BaseMemObject<T const>& input,
     return index_too_large;
 #endif  // SNN_USE_INT64
   } else {
-    return launch_with_index<T, int32_t>(input, moving_mean, moving_variance,
+    return launch_with_index<T, int32_t>(input, current_mean, current_variance,
                                          params, queue);
   }
 }
 
-#define INSTANTIATE_LAUNCH(DTYPE)                                            \
-  template SNN_EXPORT SNNStatus launch_variance<DTYPE>(                      \
-      BaseMemObject<DTYPE const> & input,                                    \
-      BaseMemObject<DTYPE const> & moving_mean,                              \
-      BaseMemObject<DTYPE> & moving_variance, BatchNormParams const& params, \
+#define INSTANTIATE_LAUNCH(DTYPE)                                             \
+  template SNN_EXPORT SNNStatus launch_variance<DTYPE>(                       \
+      BaseMemObject<DTYPE const> & input,                                     \
+      BaseMemObject<DTYPE const> & current_mean,                              \
+      BaseMemObject<DTYPE> & current_variance, BatchNormParams const& params, \
       cl::sycl::queue& queue)
 
 INSTANTIATE_LAUNCH(float);

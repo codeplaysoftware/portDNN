@@ -19,8 +19,7 @@
 /**
  * \file
  * Contains the declarations of the \ref sycldnn::pointwise::Relu
- * and \ref sycldnn::pointwise::Tanh, \ref sycldnn::pointwise::Exp, \ref
- * sycldnn::pointwise::Batchnorm_MeanDiv and \ref
+ * and \ref sycldnn::pointwise::Tanh, \ref sycldnn::pointwise::Exp and \ref
  * sycldnn::pointwise::ResidualAdd tag types.
  */
 
@@ -35,9 +34,6 @@ struct Tanh;
 
 template <typename Direction>
 struct Exp;
-
-template <typename Direction>
-struct Batchnorm_MeanDiv;
 
 template <typename Direction>
 struct ResidualAdd;

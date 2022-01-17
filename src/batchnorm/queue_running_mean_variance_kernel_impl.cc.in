@@ -16,11 +16,9 @@
 
 #include "sycldnn/mem_object.h"
 
-#include "src/batchnorm/queue_variance_kernel_impl.h"
+#include "src/batchnorm/queue_running_mean_variance_kernel_impl.h"
 
 #include "sycldnn/status.h"
-
-#include "sycldnn/batchnorm/params.h"
 
 // clang-format off
 #define SNN_DATA_TYPE      @DATA_TYPE@
@@ -34,11 +32,12 @@ namespace batchnorm {
 namespace internal {
 
 template SNNStatus
-queue_variance<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
-    BaseMemObject<SNN_DATA_TYPE const>& input,
-    BaseMemObject<SNN_DATA_TYPE const>& current_mean,
-    BaseMemObject<SNN_DATA_TYPE>& current_variance,
-    BatchNormParams const& params, cl::sycl::queue& queue);
+queue_running_mean_variance<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
+    BaseMemObject<SNN_DATA_TYPE const>& input_mean,
+    BaseMemObject<SNN_DATA_TYPE const>& input_variance,
+    BaseMemObject<SNN_DATA_TYPE>& running_mean,
+    BaseMemObject<SNN_DATA_TYPE>& running_variance,
+    SNN_INDEX_TYPE const n_items, float const momentum, cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace batchnorm

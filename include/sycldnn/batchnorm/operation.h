@@ -19,7 +19,7 @@
 
 /**
  * \file
- * Contains the declarations of the Training and Inference tag types.
+ * Contains the declarations of the Training and Frozen tag types.
  */
 
 namespace sycldnn {
@@ -27,7 +27,7 @@ namespace batchnorm {
 
 struct Training;
 
-struct Inference;
+struct Frozen;
 
 }  // namespace batchnorm
 }  // namespace sycldnn

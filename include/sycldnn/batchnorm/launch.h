@@ -58,15 +58,19 @@ SNNStatus inline validate_params(BatchNormParams const& params) {
                      "The number of input/output columns must be positive.");
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
                      "Currently SYCL-DNN only supports the NHWC data format.");
-  SNN_VALIDATE_PARAM(params.epsilon > float(0),
+  SNN_VALIDATE_PARAM(params.epsilon > 0.f,
                      "The epsilon parameter must be greater than 0.");
+  SNN_VALIDATE_PARAM(
+      params.momentum >= 0.f,
+      "The momentum parameter must be greater than or equal to 0.");
   return SNNStatus{{}, StatusCode::OK};
 }
 
 }  // namespace internal
 
 /**
- * Launch the batchnorm operation kernel in the forward direction.
+ * Launch the batchnorm operation kernel in the forward direction when computing
+ * the Mean and Variance for Batchnorm Computation.
  *
  * BatchNorm is applied along the channel dimension of a 4D tensor - for 2D
  * matrices with shape (batch x channels), the height and width dimensions can
@@ -79,12 +83,15 @@ SNNStatus inline validate_params(BatchNormParams const& params) {
  *
  * \tparam T           The data type of the input tensor.
  * \tparam Backend     The type of backend.
- * \tparam Operation   Either Training or Inference.
+ * \tparam Direction   Either Forward or Gradient.
+ * \tparam Operation   Either Training or Frozen.
  * \param input        A pointer to memory representing the input tensor.
  * \param beta         A pointer to memory representing the beta tensor.
  * \param gamma        A pointer to memory representing the gamma tensor.
- * \param moving_mean  A pointer to memory for moving_mean tensor.
- * \param moving_variance A pointer to memory for moving_variance tensor.
+ * \param input_mean   A pointer to memory for input mean tensor.
+ * \param input_variance A pointer to memory for input variance tensor.
+ * \param running_mean  A pointer to memory for output mean tensor.
+ * \param running_variance A pointer to memory for output variance tensor.
  * \param output       A pointer to memory representing the output tensor.
  * \param params       The batchnorm parameters.
  * \param backend      The backend for mapping between pointer representations.
@@ -92,33 +99,57 @@ SNNStatus inline validate_params(BatchNormParams const& params) {
  *                     the kernel launches and a StatusCode enum showing if the
  *                     launch was OK or whether it encountered some problem.
  */
-template <typename T, typename Backend, typename Operation,
-          typename = internal::EnableIfTraining<Operation>>
-SNNStatus launch(typename Backend::template pointer_type<T const> input,
-                 typename Backend::template pointer_type<T const> beta,
-                 typename Backend::template pointer_type<T const> gamma,
-                 typename Backend::template pointer_type<T> moving_mean,
-                 typename Backend::template pointer_type<T> moving_variance,
-                 typename Backend::template pointer_type<T> output,
-                 BatchNormParams const& params, Backend& backend) {
+template <typename T, typename Backend, typename Direction, typename Operation,
+          typename = internal::EnableIf_Forward_Training<Direction, Operation>>
+SNNStatus launch_forward(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> beta,
+    typename Backend::template pointer_type<T const> gamma,
+    typename Backend::template pointer_type<T const> input_mean,
+    typename Backend::template pointer_type<T const> input_variance,
+    typename Backend::template pointer_type<T> running_mean,
+    typename Backend::template pointer_type<T> running_variance,
+    typename Backend::template pointer_type<T> output,
+    BatchNormParams const& params, Backend& backend) {
   auto validation_status = internal::validate_params(params);
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }
 
-  return internal::launch_batchnorm_training<T, Backend, Operation>(
-      input, beta, gamma, moving_mean, moving_variance, output, params,
-      backend);
+  return internal::launch_forward<T, Backend, Direction, Operation>(
+      input, beta, gamma, input_mean, input_variance, running_mean,
+      running_variance, output, params, backend);
 }
 
-template <typename T, typename Backend, typename Operation,
-          typename = internal::DisableIfTraining<Operation>>
-SNNStatus launch(
+/**
+ * Launch the batchnorm operation kernel in the forward direction when using the
+ * existing Mean and Variance for Batchnorm Computation.
+ *
+ * \tparam T           The data type of the input tensor.
+ * \tparam Backend     The type of backend.
+ * \tparam Direction   Either Forward or Gradient
+ * \tparam Operation   Either Training or Frozen.
+ * \param input        A pointer to memory representing the input tensor.
+ * \param beta         A pointer to memory representing the beta tensor.
+ * \param gamma        A pointer to memory representing the gamma tensor.
+ * \param input_mean  A pointer to memory for input mean tensor.
+ * \param input_variance A pointer to memory for input variance tensor.
+ * \param output       A pointer to memory representing the output tensor.
+ * \param params       The batchnorm parameters.
+ * \param backend      The backend for mapping between pointer representations.
+ * \return             Returns a SNNStatus containing the SYCL event tied to
+ *                     the kernel launches and a StatusCode enum showing if the
+ *                     launch was OK or whether it encountered some problem.
+ */
+
+template <typename T, typename Backend, typename Direction, typename Operation,
+          typename = internal::DisableIf_Forward_Training<Direction, Operation>>
+SNNStatus launch_forward(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T const> beta,
     typename Backend::template pointer_type<T const> gamma,
-    typename Backend::template pointer_type<T const> moving_mean,
-    typename Backend::template pointer_type<T const> moving_variance,
+    typename Backend::template pointer_type<T const> input_mean,
+    typename Backend::template pointer_type<T const> input_variance,
     typename Backend::template pointer_type<T> output,
     BatchNormParams const& params, Backend& backend) {
   auto validation_status = internal::validate_params(params);
@@ -135,10 +166,10 @@ SNNStatus launch(
 
   auto beta_mem = backend.get_mem_object(beta, params.channels);
   auto gamma_mem = backend.get_mem_object(gamma, params.channels);
-  auto mean_mem = backend.get_mem_object(moving_mean, params.channels);
-  auto variance_mem = backend.get_mem_object(moving_variance, params.channels);
+  auto mean_mem = backend.get_mem_object(input_mean, params.channels);
+  auto variance_mem = backend.get_mem_object(input_variance, params.channels);
 
-  return internal::launch_batchnorm_inference<T, Operation>(
+  return internal::launch_forward<T, Direction, Operation>(
       in_mem, beta_mem, gamma_mem, mean_mem, variance_mem, out_mem, params,
       queue);
 }

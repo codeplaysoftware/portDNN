@@ -15,19 +15,6 @@
 cmake_minimum_required(VERSION 3.2.2)
 include(SNNHelpers)
 
-add_definitions(-DENABLE_BATCHNORM_MEANDIV=1)
-
-macro(generate_pointwise_kernel out_var template op dir)
-  string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
-  set(_filename "${INST_BATCHNORM_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}_${op}")
-  set(_filename "${_filename}_${dir}_${VECTOR_WIDTH}.cc")
-  set(_gen_file ${CMAKE_BINARY_DIR}/generated/batchnorm/${_filename})
-  set(OP_TYPE ${op})
-  set(DIRECTION ${dir})
-  configure_file(${template} ${_gen_file} @ONLY)
-  list(APPEND ${out_var} ${_gen_file})
-endmacro()
-
 macro(generate_kernel out_var template operation)
   set(_filename "${INST_BATCHNORM_FILENAME}_${DATA_TYPE}_${INDEX_TYPE}")
   set(_filename "${_filename}_${VECTOR_WIDTH}_${operation}.cc")
@@ -50,14 +37,14 @@ function(generate_batchnorm)
     ${ARGN}
   )
   set(_variance_template queue_variance_kernel_impl.cc.in)
-  set(_pointwise_template ../pointwise/queue_pointwise_forward_impl.cc.in)
+  set(_running_mean_variance_template queue_running_mean_variance_kernel_impl.cc.in)
   set(_inference_template queue_batchnorm_kernel_inference_impl.cc.in)
   set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
       foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
-        generate_kernel(_sources ${_variance_template} Training)
-        generate_pointwise_kernel(_sources ${_pointwise_template} Batchnorm_MeanDiv Forward)
+        generate_kernel(_sources ${_variance_template} Variance)
+        generate_kernel(_sources ${_running_mean_variance_template} RunningMeanVariance)
         generate_kernel(_sources ${_inference_template} Inference)
       endforeach()
     endforeach()
@@ -78,7 +65,6 @@ snn_object_library(
     ${batchnorm_kernels}
   SOURCES
     launch_variance.cc
+    launch_running_mean_variance.cc
     launch_batchnorm_inference.cc
-    ../pointwise/launch_pointwise_forward.cc
 )
-remove_definitions(-DENABLE_BATCHNORM_MEANDIV)

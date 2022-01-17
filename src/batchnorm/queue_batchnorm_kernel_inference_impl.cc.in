@@ -37,8 +37,8 @@ queue_batchnorm<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
     BaseMemObject<SNN_DATA_TYPE const>& input,
     BaseMemObject<SNN_DATA_TYPE const>& beta,
     BaseMemObject<SNN_DATA_TYPE const>& gamma,
-    BaseMemObject<SNN_DATA_TYPE const>& moving_mean,
-    BaseMemObject<SNN_DATA_TYPE const>& moving_variance,
+    BaseMemObject<SNN_DATA_TYPE const>& current_mean,
+    BaseMemObject<SNN_DATA_TYPE const>& current_variance,
     BaseMemObject<SNN_DATA_TYPE>& output, BatchNormParams const& params,
     cl::sycl::queue& queue);
 

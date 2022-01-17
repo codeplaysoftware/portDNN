@@ -160,12 +160,14 @@ inline sycldnn::batchnorm::BatchNormParams make_batchnorm_params(int batch,
 }
 
 // create batchnorm layer
-template <typename T, typename Operator>
-inline sycldnn::BatchNormLayer<T, Backend, Operator>* create_batchnorm_layer(
-    DeviceMem const input, Backend& backend, std::string const& beta_file,
-    std::string const& gamma_file, std::string const& mean_file,
-    std::string const& variance_file,
-    sycldnn::batchnorm::BatchNormParams const& params) {
+template <typename T>
+inline sycldnn::BatchNormLayer<T, Backend, sycldnn::batchnorm::Frozen>*
+create_batchnorm_layer(DeviceMem const input, Backend& backend,
+                       std::string const& beta_file,
+                       std::string const& gamma_file,
+                       std::string const& mean_file,
+                       std::string const& variance_file,
+                       sycldnn::batchnorm::BatchNormParams const& params) {
   DeviceMem beta, gamma, mean, variance, output;
   beta = backend.template allocate<T>(params.channels);
   gamma = backend.template allocate<T>(params.channels);
@@ -252,7 +254,7 @@ inline sycldnn::BatchNormLayer<T, Backend, Operator>* create_batchnorm_layer(
   mean_event.wait_and_throw();
   variance_event.wait_and_throw();
 
-  return new sycldnn::BatchNormLayer<T, Backend, Operator>(
+  return new sycldnn::BatchNormLayer<T, Backend, sycldnn::batchnorm::Frozen>(
       params, input, beta, gamma, mean, variance, output, backend);
 }
 
@@ -393,13 +395,11 @@ int main(int argc, char* argv[]) {
                                              data_dir + "conv1_conv_bias.bin",
                                              make_bias_params(1, 112, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend, data_dir + "conv1_bn_beta.bin",
-          data_dir + "conv1_bn_gamma.bin",
-          data_dir + "conv1_bn_moving_mean.bin",
-          data_dir + "conv1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 112, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv1_bn_beta.bin",
+      data_dir + "conv1_bn_gamma.bin", data_dir + "conv1_bn_moving_mean.bin",
+      data_dir + "conv1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 112, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(112 * 112 * 64)));
@@ -420,14 +420,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block1_0_conv_bias.bin",
       make_bias_params(1, 56, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block1_0_bn_beta.bin",
-          data_dir + "conv2_block1_0_bn_gamma.bin",
-          data_dir + "conv2_block1_0_bn_moving_mean.bin",
-          data_dir + "conv2_block1_0_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block1_0_bn_beta.bin",
+      data_dir + "conv2_block1_0_bn_gamma.bin",
+      data_dir + "conv2_block1_0_bn_moving_mean.bin",
+      data_dir + "conv2_block1_0_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 256)));
   // Residual Conv end
   int residual_connection_reference = network.get_network_size() - 1;
 
@@ -440,14 +438,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block1_1_conv_bias.bin",
       make_bias_params(1, 56, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block1_1_bn_beta.bin",
-          data_dir + "conv2_block1_1_bn_gamma.bin",
-          data_dir + "conv2_block1_1_bn_moving_mean.bin",
-          data_dir + "conv2_block1_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block1_1_bn_beta.bin",
+      data_dir + "conv2_block1_1_bn_gamma.bin",
+      data_dir + "conv2_block1_1_bn_moving_mean.bin",
+      data_dir + "conv2_block1_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 64)));
@@ -461,14 +457,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block1_2_conv_bias.bin",
       make_bias_params(1, 56, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block1_2_bn_beta.bin",
-          data_dir + "conv2_block1_2_bn_gamma.bin",
-          data_dir + "conv2_block1_2_bn_moving_mean.bin",
-          data_dir + "conv2_block1_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block1_2_bn_beta.bin",
+      data_dir + "conv2_block1_2_bn_gamma.bin",
+      data_dir + "conv2_block1_2_bn_moving_mean.bin",
+      data_dir + "conv2_block1_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 64)));
@@ -482,14 +476,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block1_3_conv_bias.bin",
       make_bias_params(1, 56, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block1_3_bn_beta.bin",
-          data_dir + "conv2_block1_3_bn_gamma.bin",
-          data_dir + "conv2_block1_3_bn_moving_mean.bin",
-          data_dir + "conv2_block1_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block1_3_bn_beta.bin",
+      data_dir + "conv2_block1_3_bn_gamma.bin",
+      data_dir + "conv2_block1_3_bn_moving_mean.bin",
+      data_dir + "conv2_block1_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 256)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -510,14 +502,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block2_1_conv_bias.bin",
       make_bias_params(1, 56, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block2_1_bn_beta.bin",
-          data_dir + "conv2_block2_1_bn_gamma.bin",
-          data_dir + "conv2_block2_1_bn_moving_mean.bin",
-          data_dir + "conv2_block2_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block2_1_bn_beta.bin",
+      data_dir + "conv2_block2_1_bn_gamma.bin",
+      data_dir + "conv2_block2_1_bn_moving_mean.bin",
+      data_dir + "conv2_block2_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 64)));
@@ -531,14 +521,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block2_2_conv_bias.bin",
       make_bias_params(1, 56, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block2_2_bn_beta.bin",
-          data_dir + "conv2_block2_2_bn_gamma.bin",
-          data_dir + "conv2_block2_2_bn_moving_mean.bin",
-          data_dir + "conv2_block2_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block2_2_bn_beta.bin",
+      data_dir + "conv2_block2_2_bn_gamma.bin",
+      data_dir + "conv2_block2_2_bn_moving_mean.bin",
+      data_dir + "conv2_block2_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 64)));
@@ -552,14 +540,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block2_3_conv_bias.bin",
       make_bias_params(1, 56, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block2_3_bn_beta.bin",
-          data_dir + "conv2_block2_3_bn_gamma.bin",
-          data_dir + "conv2_block2_3_bn_moving_mean.bin",
-          data_dir + "conv2_block2_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block2_3_bn_beta.bin",
+      data_dir + "conv2_block2_3_bn_gamma.bin",
+      data_dir + "conv2_block2_3_bn_moving_mean.bin",
+      data_dir + "conv2_block2_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 256)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -580,14 +566,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block3_1_conv_bias.bin",
       make_bias_params(1, 56, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block3_1_bn_beta.bin",
-          data_dir + "conv2_block3_1_bn_gamma.bin",
-          data_dir + "conv2_block3_1_bn_moving_mean.bin",
-          data_dir + "conv2_block3_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block3_1_bn_beta.bin",
+      data_dir + "conv2_block3_1_bn_gamma.bin",
+      data_dir + "conv2_block3_1_bn_moving_mean.bin",
+      data_dir + "conv2_block3_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 64)));
@@ -601,14 +585,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block3_2_conv_bias.bin",
       make_bias_params(1, 56, 64)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block3_2_bn_beta.bin",
-          data_dir + "conv2_block3_2_bn_gamma.bin",
-          data_dir + "conv2_block3_2_bn_moving_mean.bin",
-          data_dir + "conv2_block3_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 64)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block3_2_bn_beta.bin",
+      data_dir + "conv2_block3_2_bn_gamma.bin",
+      data_dir + "conv2_block3_2_bn_moving_mean.bin",
+      data_dir + "conv2_block3_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 64)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 64)));
@@ -622,14 +604,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv2_block3_3_conv_bias.bin",
       make_bias_params(1, 56, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv2_block3_3_bn_beta.bin",
-          data_dir + "conv2_block3_3_bn_gamma.bin",
-          data_dir + "conv2_block3_3_bn_moving_mean.bin",
-          data_dir + "conv2_block3_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 56, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv2_block3_3_bn_beta.bin",
+      data_dir + "conv2_block3_3_bn_gamma.bin",
+      data_dir + "conv2_block3_3_bn_moving_mean.bin",
+      data_dir + "conv2_block3_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 56, 256)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -651,14 +631,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block1_0_conv_bias.bin",
       make_bias_params(1, 28, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block1_0_bn_beta.bin",
-          data_dir + "conv3_block1_0_bn_gamma.bin",
-          data_dir + "conv3_block1_0_bn_moving_mean.bin",
-          data_dir + "conv3_block1_0_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block1_0_bn_beta.bin",
+      data_dir + "conv3_block1_0_bn_gamma.bin",
+      data_dir + "conv3_block1_0_bn_moving_mean.bin",
+      data_dir + "conv3_block1_0_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 512)));
   // Residual Conv end
   residual_connection_reference = network.get_network_size() - 1;
   network.add_layer(create_conv_layer<DType>(
@@ -670,14 +648,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block1_1_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block1_1_bn_beta.bin",
-          data_dir + "conv3_block1_1_bn_gamma.bin",
-          data_dir + "conv3_block1_1_bn_moving_mean.bin",
-          data_dir + "conv3_block1_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block1_1_bn_beta.bin",
+      data_dir + "conv3_block1_1_bn_gamma.bin",
+      data_dir + "conv3_block1_1_bn_moving_mean.bin",
+      data_dir + "conv3_block1_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -691,14 +667,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block1_2_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block1_2_bn_beta.bin",
-          data_dir + "conv3_block1_2_bn_gamma.bin",
-          data_dir + "conv3_block1_2_bn_moving_mean.bin",
-          data_dir + "conv3_block1_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block1_2_bn_beta.bin",
+      data_dir + "conv3_block1_2_bn_gamma.bin",
+      data_dir + "conv3_block1_2_bn_moving_mean.bin",
+      data_dir + "conv3_block1_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -712,14 +686,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block1_3_conv_bias.bin",
       make_bias_params(1, 28, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block1_3_bn_beta.bin",
-          data_dir + "conv3_block1_3_bn_gamma.bin",
-          data_dir + "conv3_block1_3_bn_moving_mean.bin",
-          data_dir + "conv3_block1_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block1_3_bn_beta.bin",
+      data_dir + "conv3_block1_3_bn_gamma.bin",
+      data_dir + "conv3_block1_3_bn_moving_mean.bin",
+      data_dir + "conv3_block1_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 512)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -740,14 +712,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block2_1_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block2_1_bn_beta.bin",
-          data_dir + "conv3_block2_1_bn_gamma.bin",
-          data_dir + "conv3_block2_1_bn_moving_mean.bin",
-          data_dir + "conv3_block2_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block2_1_bn_beta.bin",
+      data_dir + "conv3_block2_1_bn_gamma.bin",
+      data_dir + "conv3_block2_1_bn_moving_mean.bin",
+      data_dir + "conv3_block2_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -761,14 +731,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block2_2_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block2_2_bn_beta.bin",
-          data_dir + "conv3_block2_2_bn_gamma.bin",
-          data_dir + "conv3_block2_2_bn_moving_mean.bin",
-          data_dir + "conv3_block2_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block2_2_bn_beta.bin",
+      data_dir + "conv3_block2_2_bn_gamma.bin",
+      data_dir + "conv3_block2_2_bn_moving_mean.bin",
+      data_dir + "conv3_block2_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -782,14 +750,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block2_3_conv_bias.bin",
       make_bias_params(1, 28, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block2_3_bn_beta.bin",
-          data_dir + "conv3_block2_3_bn_gamma.bin",
-          data_dir + "conv3_block2_3_bn_moving_mean.bin",
-          data_dir + "conv3_block2_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block2_3_bn_beta.bin",
+      data_dir + "conv3_block2_3_bn_gamma.bin",
+      data_dir + "conv3_block2_3_bn_moving_mean.bin",
+      data_dir + "conv3_block2_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 512)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -810,14 +776,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block3_1_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block3_1_bn_beta.bin",
-          data_dir + "conv3_block3_1_bn_gamma.bin",
-          data_dir + "conv3_block3_1_bn_moving_mean.bin",
-          data_dir + "conv3_block3_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block3_1_bn_beta.bin",
+      data_dir + "conv3_block3_1_bn_gamma.bin",
+      data_dir + "conv3_block3_1_bn_moving_mean.bin",
+      data_dir + "conv3_block3_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -831,14 +795,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block3_2_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block3_2_bn_beta.bin",
-          data_dir + "conv3_block3_2_bn_gamma.bin",
-          data_dir + "conv3_block3_2_bn_moving_mean.bin",
-          data_dir + "conv3_block3_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block3_2_bn_beta.bin",
+      data_dir + "conv3_block3_2_bn_gamma.bin",
+      data_dir + "conv3_block3_2_bn_moving_mean.bin",
+      data_dir + "conv3_block3_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -852,14 +814,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block3_3_conv_bias.bin",
       make_bias_params(1, 28, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block3_3_bn_beta.bin",
-          data_dir + "conv3_block3_3_bn_gamma.bin",
-          data_dir + "conv3_block3_3_bn_moving_mean.bin",
-          data_dir + "conv3_block3_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block3_3_bn_beta.bin",
+      data_dir + "conv3_block3_3_bn_gamma.bin",
+      data_dir + "conv3_block3_3_bn_moving_mean.bin",
+      data_dir + "conv3_block3_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 512)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -880,14 +840,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block4_1_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block4_1_bn_beta.bin",
-          data_dir + "conv3_block4_1_bn_gamma.bin",
-          data_dir + "conv3_block4_1_bn_moving_mean.bin",
-          data_dir + "conv3_block4_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block4_1_bn_beta.bin",
+      data_dir + "conv3_block4_1_bn_gamma.bin",
+      data_dir + "conv3_block4_1_bn_moving_mean.bin",
+      data_dir + "conv3_block4_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -901,14 +859,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block4_2_conv_bias.bin",
       make_bias_params(1, 28, 128)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block4_2_bn_beta.bin",
-          data_dir + "conv3_block4_2_bn_gamma.bin",
-          data_dir + "conv3_block4_2_bn_moving_mean.bin",
-          data_dir + "conv3_block4_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 128)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block4_2_bn_beta.bin",
+      data_dir + "conv3_block4_2_bn_gamma.bin",
+      data_dir + "conv3_block4_2_bn_moving_mean.bin",
+      data_dir + "conv3_block4_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 128)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 128)));
@@ -922,14 +878,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv3_block4_3_conv_bias.bin",
       make_bias_params(1, 28, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv3_block4_3_bn_beta.bin",
-          data_dir + "conv3_block4_3_bn_gamma.bin",
-          data_dir + "conv3_block4_3_bn_moving_mean.bin",
-          data_dir + "conv3_block4_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 28, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv3_block4_3_bn_beta.bin",
+      data_dir + "conv3_block4_3_bn_gamma.bin",
+      data_dir + "conv3_block4_3_bn_moving_mean.bin",
+      data_dir + "conv3_block4_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 28, 512)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -951,14 +905,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block1_0_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block1_0_bn_beta.bin",
-          data_dir + "conv4_block1_0_bn_gamma.bin",
-          data_dir + "conv4_block1_0_bn_moving_mean.bin",
-          data_dir + "conv4_block1_0_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block1_0_bn_beta.bin",
+      data_dir + "conv4_block1_0_bn_gamma.bin",
+      data_dir + "conv4_block1_0_bn_moving_mean.bin",
+      data_dir + "conv4_block1_0_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
   // Residual Conv end
   residual_connection_reference = network.get_network_size() - 1;
 
@@ -971,14 +923,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block1_1_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block1_1_bn_beta.bin",
-          data_dir + "conv4_block1_1_bn_gamma.bin",
-          data_dir + "conv4_block1_1_bn_moving_mean.bin",
-          data_dir + "conv4_block1_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block1_1_bn_beta.bin",
+      data_dir + "conv4_block1_1_bn_gamma.bin",
+      data_dir + "conv4_block1_1_bn_moving_mean.bin",
+      data_dir + "conv4_block1_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -992,14 +942,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block1_2_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block1_2_bn_beta.bin",
-          data_dir + "conv4_block1_2_bn_gamma.bin",
-          data_dir + "conv4_block1_2_bn_moving_mean.bin",
-          data_dir + "conv4_block1_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block1_2_bn_beta.bin",
+      data_dir + "conv4_block1_2_bn_gamma.bin",
+      data_dir + "conv4_block1_2_bn_moving_mean.bin",
+      data_dir + "conv4_block1_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1013,14 +961,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block1_3_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block1_3_bn_beta.bin",
-          data_dir + "conv4_block1_3_bn_gamma.bin",
-          data_dir + "conv4_block1_3_bn_moving_mean.bin",
-          data_dir + "conv4_block1_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block1_3_bn_beta.bin",
+      data_dir + "conv4_block1_3_bn_gamma.bin",
+      data_dir + "conv4_block1_3_bn_moving_mean.bin",
+      data_dir + "conv4_block1_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1041,14 +987,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block2_1_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block2_1_bn_beta.bin",
-          data_dir + "conv4_block2_1_bn_gamma.bin",
-          data_dir + "conv4_block2_1_bn_moving_mean.bin",
-          data_dir + "conv4_block2_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block2_1_bn_beta.bin",
+      data_dir + "conv4_block2_1_bn_gamma.bin",
+      data_dir + "conv4_block2_1_bn_moving_mean.bin",
+      data_dir + "conv4_block2_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1062,14 +1006,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block2_2_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block2_2_bn_beta.bin",
-          data_dir + "conv4_block2_2_bn_gamma.bin",
-          data_dir + "conv4_block2_2_bn_moving_mean.bin",
-          data_dir + "conv4_block2_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block2_2_bn_beta.bin",
+      data_dir + "conv4_block2_2_bn_gamma.bin",
+      data_dir + "conv4_block2_2_bn_moving_mean.bin",
+      data_dir + "conv4_block2_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1083,14 +1025,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block2_3_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block2_3_bn_beta.bin",
-          data_dir + "conv4_block2_3_bn_gamma.bin",
-          data_dir + "conv4_block2_3_bn_moving_mean.bin",
-          data_dir + "conv4_block2_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block2_3_bn_beta.bin",
+      data_dir + "conv4_block2_3_bn_gamma.bin",
+      data_dir + "conv4_block2_3_bn_moving_mean.bin",
+      data_dir + "conv4_block2_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1111,14 +1051,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block3_1_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block3_1_bn_beta.bin",
-          data_dir + "conv4_block3_1_bn_gamma.bin",
-          data_dir + "conv4_block3_1_bn_moving_mean.bin",
-          data_dir + "conv4_block3_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block3_1_bn_beta.bin",
+      data_dir + "conv4_block3_1_bn_gamma.bin",
+      data_dir + "conv4_block3_1_bn_moving_mean.bin",
+      data_dir + "conv4_block3_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1132,14 +1070,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block3_2_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block3_2_bn_beta.bin",
-          data_dir + "conv4_block3_2_bn_gamma.bin",
-          data_dir + "conv4_block3_2_bn_moving_mean.bin",
-          data_dir + "conv4_block3_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block3_2_bn_beta.bin",
+      data_dir + "conv4_block3_2_bn_gamma.bin",
+      data_dir + "conv4_block3_2_bn_moving_mean.bin",
+      data_dir + "conv4_block3_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1153,14 +1089,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block3_3_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block3_3_bn_beta.bin",
-          data_dir + "conv4_block3_3_bn_gamma.bin",
-          data_dir + "conv4_block3_3_bn_moving_mean.bin",
-          data_dir + "conv4_block3_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block3_3_bn_beta.bin",
+      data_dir + "conv4_block3_3_bn_gamma.bin",
+      data_dir + "conv4_block3_3_bn_moving_mean.bin",
+      data_dir + "conv4_block3_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1181,14 +1115,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block4_1_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block4_1_bn_beta.bin",
-          data_dir + "conv4_block4_1_bn_gamma.bin",
-          data_dir + "conv4_block4_1_bn_moving_mean.bin",
-          data_dir + "conv4_block4_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block4_1_bn_beta.bin",
+      data_dir + "conv4_block4_1_bn_gamma.bin",
+      data_dir + "conv4_block4_1_bn_moving_mean.bin",
+      data_dir + "conv4_block4_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1202,14 +1134,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block4_2_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block4_2_bn_beta.bin",
-          data_dir + "conv4_block4_2_bn_gamma.bin",
-          data_dir + "conv4_block4_2_bn_moving_mean.bin",
-          data_dir + "conv4_block4_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block4_2_bn_beta.bin",
+      data_dir + "conv4_block4_2_bn_gamma.bin",
+      data_dir + "conv4_block4_2_bn_moving_mean.bin",
+      data_dir + "conv4_block4_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1223,14 +1153,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block4_3_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block4_3_bn_beta.bin",
-          data_dir + "conv4_block4_3_bn_gamma.bin",
-          data_dir + "conv4_block4_3_bn_moving_mean.bin",
-          data_dir + "conv4_block4_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block4_3_bn_beta.bin",
+      data_dir + "conv4_block4_3_bn_gamma.bin",
+      data_dir + "conv4_block4_3_bn_moving_mean.bin",
+      data_dir + "conv4_block4_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1251,14 +1179,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block5_1_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block5_1_bn_beta.bin",
-          data_dir + "conv4_block5_1_bn_gamma.bin",
-          data_dir + "conv4_block5_1_bn_moving_mean.bin",
-          data_dir + "conv4_block5_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block5_1_bn_beta.bin",
+      data_dir + "conv4_block5_1_bn_gamma.bin",
+      data_dir + "conv4_block5_1_bn_moving_mean.bin",
+      data_dir + "conv4_block5_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1272,14 +1198,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block5_2_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block5_2_bn_beta.bin",
-          data_dir + "conv4_block5_2_bn_gamma.bin",
-          data_dir + "conv4_block5_2_bn_moving_mean.bin",
-          data_dir + "conv4_block5_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block5_2_bn_beta.bin",
+      data_dir + "conv4_block5_2_bn_gamma.bin",
+      data_dir + "conv4_block5_2_bn_moving_mean.bin",
+      data_dir + "conv4_block5_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1293,14 +1217,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block5_3_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block5_3_bn_beta.bin",
-          data_dir + "conv4_block5_3_bn_gamma.bin",
-          data_dir + "conv4_block5_3_bn_moving_mean.bin",
-          data_dir + "conv4_block5_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block5_3_bn_beta.bin",
+      data_dir + "conv4_block5_3_bn_gamma.bin",
+      data_dir + "conv4_block5_3_bn_moving_mean.bin",
+      data_dir + "conv4_block5_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1321,14 +1243,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block6_1_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block6_1_bn_beta.bin",
-          data_dir + "conv4_block6_1_bn_gamma.bin",
-          data_dir + "conv4_block6_1_bn_moving_mean.bin",
-          data_dir + "conv4_block6_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block6_1_bn_beta.bin",
+      data_dir + "conv4_block6_1_bn_gamma.bin",
+      data_dir + "conv4_block6_1_bn_moving_mean.bin",
+      data_dir + "conv4_block6_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1342,14 +1262,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block6_2_conv_bias.bin",
       make_bias_params(1, 14, 256)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block6_2_bn_beta.bin",
-          data_dir + "conv4_block6_2_bn_gamma.bin",
-          data_dir + "conv4_block6_2_bn_moving_mean.bin",
-          data_dir + "conv4_block6_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 256)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block6_2_bn_beta.bin",
+      data_dir + "conv4_block6_2_bn_gamma.bin",
+      data_dir + "conv4_block6_2_bn_moving_mean.bin",
+      data_dir + "conv4_block6_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 256)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 256)));
@@ -1363,14 +1281,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv4_block6_3_conv_bias.bin",
       make_bias_params(1, 14, 1024)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv4_block6_3_bn_beta.bin",
-          data_dir + "conv4_block6_3_bn_gamma.bin",
-          data_dir + "conv4_block6_3_bn_moving_mean.bin",
-          data_dir + "conv4_block6_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 14, 1024)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv4_block6_3_bn_beta.bin",
+      data_dir + "conv4_block6_3_bn_gamma.bin",
+      data_dir + "conv4_block6_3_bn_moving_mean.bin",
+      data_dir + "conv4_block6_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 14, 1024)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1392,14 +1308,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block1_0_conv_bias.bin",
       make_bias_params(1, 7, 2048)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block1_0_bn_beta.bin",
-          data_dir + "conv5_block1_0_bn_gamma.bin",
-          data_dir + "conv5_block1_0_bn_moving_mean.bin",
-          data_dir + "conv5_block1_0_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 2048)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block1_0_bn_beta.bin",
+      data_dir + "conv5_block1_0_bn_gamma.bin",
+      data_dir + "conv5_block1_0_bn_moving_mean.bin",
+      data_dir + "conv5_block1_0_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 2048)));
   // Residual Conv end
   residual_connection_reference = network.get_network_size() - 1;
   network.add_layer(create_conv_layer<DType>(
@@ -1411,14 +1325,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block1_1_conv_bias.bin",
       make_bias_params(1, 7, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block1_1_bn_beta.bin",
-          data_dir + "conv5_block1_1_bn_gamma.bin",
-          data_dir + "conv5_block1_1_bn_moving_mean.bin",
-          data_dir + "conv5_block1_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block1_1_bn_beta.bin",
+      data_dir + "conv5_block1_1_bn_gamma.bin",
+      data_dir + "conv5_block1_1_bn_moving_mean.bin",
+      data_dir + "conv5_block1_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 512)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 512)));
@@ -1432,14 +1344,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block1_2_conv_bias.bin",
       make_bias_params(1, 7, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block1_2_bn_beta.bin",
-          data_dir + "conv5_block1_2_bn_gamma.bin",
-          data_dir + "conv5_block1_2_bn_moving_mean.bin",
-          data_dir + "conv5_block1_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block1_2_bn_beta.bin",
+      data_dir + "conv5_block1_2_bn_gamma.bin",
+      data_dir + "conv5_block1_2_bn_moving_mean.bin",
+      data_dir + "conv5_block1_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 512)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 512)));
@@ -1453,14 +1363,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block1_3_conv_bias.bin",
       make_bias_params(1, 7, 2048)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block1_3_bn_beta.bin",
-          data_dir + "conv5_block1_3_bn_gamma.bin",
-          data_dir + "conv5_block1_3_bn_moving_mean.bin",
-          data_dir + "conv5_block1_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 2048)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block1_3_bn_beta.bin",
+      data_dir + "conv5_block1_3_bn_gamma.bin",
+      data_dir + "conv5_block1_3_bn_moving_mean.bin",
+      data_dir + "conv5_block1_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 2048)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1481,14 +1389,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block2_1_conv_bias.bin",
       make_bias_params(1, 7, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block2_1_bn_beta.bin",
-          data_dir + "conv5_block2_1_bn_gamma.bin",
-          data_dir + "conv5_block2_1_bn_moving_mean.bin",
-          data_dir + "conv5_block2_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block2_1_bn_beta.bin",
+      data_dir + "conv5_block2_1_bn_gamma.bin",
+      data_dir + "conv5_block2_1_bn_moving_mean.bin",
+      data_dir + "conv5_block2_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 512)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 512)));
@@ -1502,14 +1408,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block2_2_conv_bias.bin",
       make_bias_params(1, 7, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block2_2_bn_beta.bin",
-          data_dir + "conv5_block2_2_bn_gamma.bin",
-          data_dir + "conv5_block2_2_bn_moving_mean.bin",
-          data_dir + "conv5_block2_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block2_2_bn_beta.bin",
+      data_dir + "conv5_block2_2_bn_gamma.bin",
+      data_dir + "conv5_block2_2_bn_moving_mean.bin",
+      data_dir + "conv5_block2_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 512)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 512)));
@@ -1523,14 +1427,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block2_3_conv_bias.bin",
       make_bias_params(1, 7, 2048)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block2_3_bn_beta.bin",
-          data_dir + "conv5_block2_3_bn_gamma.bin",
-          data_dir + "conv5_block2_3_bn_moving_mean.bin",
-          data_dir + "conv5_block2_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 2048)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block2_3_bn_beta.bin",
+      data_dir + "conv5_block2_3_bn_gamma.bin",
+      data_dir + "conv5_block2_3_bn_moving_mean.bin",
+      data_dir + "conv5_block2_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 2048)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
@@ -1551,14 +1453,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block3_1_conv_bias.bin",
       make_bias_params(1, 7, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block3_1_bn_beta.bin",
-          data_dir + "conv5_block3_1_bn_gamma.bin",
-          data_dir + "conv5_block3_1_bn_moving_mean.bin",
-          data_dir + "conv5_block3_1_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block3_1_bn_beta.bin",
+      data_dir + "conv5_block3_1_bn_gamma.bin",
+      data_dir + "conv5_block3_1_bn_moving_mean.bin",
+      data_dir + "conv5_block3_1_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 512)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 512)));
@@ -1572,14 +1472,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block3_2_conv_bias.bin",
       make_bias_params(1, 7, 512)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block3_2_bn_beta.bin",
-          data_dir + "conv5_block3_2_bn_gamma.bin",
-          data_dir + "conv5_block3_2_bn_moving_mean.bin",
-          data_dir + "conv5_block3_2_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 512)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block3_2_bn_beta.bin",
+      data_dir + "conv5_block3_2_bn_gamma.bin",
+      data_dir + "conv5_block3_2_bn_moving_mean.bin",
+      data_dir + "conv5_block3_2_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 512)));
 
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 512)));
@@ -1593,14 +1491,12 @@ int main(int argc, char* argv[]) {
       network.get_output(), backend, data_dir + "conv5_block3_3_conv_bias.bin",
       make_bias_params(1, 7, 2048)));
 
-  network.add_layer(
-      create_batchnorm_layer<DType, sycldnn::batchnorm::Inference>(
-          network.get_output(), backend,
-          data_dir + "conv5_block3_3_bn_beta.bin",
-          data_dir + "conv5_block3_3_bn_gamma.bin",
-          data_dir + "conv5_block3_3_bn_moving_mean.bin",
-          data_dir + "conv5_block3_3_bn_moving_variance.bin",
-          make_batchnorm_params(1, 7, 2048)));
+  network.add_layer(create_batchnorm_layer<DType>(
+      network.get_output(), backend, data_dir + "conv5_block3_3_bn_beta.bin",
+      data_dir + "conv5_block3_3_bn_gamma.bin",
+      data_dir + "conv5_block3_3_bn_moving_mean.bin",
+      data_dir + "conv5_block3_3_bn_moving_variance.bin",
+      make_batchnorm_params(1, 7, 2048)));
 
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(

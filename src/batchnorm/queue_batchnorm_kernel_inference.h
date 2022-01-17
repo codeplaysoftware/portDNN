@@ -30,8 +30,8 @@ namespace internal {
 template <typename T, typename Index, int VectorWidth>
 SNNStatus queue_batchnorm(
     BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& moving_mean,
-    BaseMemObject<T const>& moving_variance, BaseMemObject<T>& output,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& current_mean,
+    BaseMemObject<T const>& current_variance, BaseMemObject<T>& output,
     BatchNormParams const& params, cl::sycl::queue& queue);
 }  // namespace internal
 }  // namespace batchnorm

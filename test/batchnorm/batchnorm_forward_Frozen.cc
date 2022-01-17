@@ -32,10 +32,10 @@
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 template <typename DataType>
-using BatchnormForwardTraining =
-    BatchNormFixture<DataType, batchnorm::Forward, batchnorm::Training>;
-TYPED_TEST_CASE(BatchnormForwardTraining, types::GTestKernelDataTypes);
-TYPED_TEST(BatchnormForwardTraining, 1x1x1x1) {
+using BatchnormForwardFrozen =
+    BatchNormFixture<DataType, batchnorm::Forward, batchnorm::Frozen>;
+TYPED_TEST_CASE(BatchnormForwardFrozen, types::GTestKernelDataTypes);
+TYPED_TEST(BatchnormForwardFrozen, 1x1x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0.};
   const std::vector<DataType> mean = {1.};
@@ -45,7 +45,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x1x1) {
   const DataType max_input_val = 0.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x1x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x1x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0., 0., 0., 0., 0.};
   const std::vector<DataType> mean = {1., 2., 1., 2., 1.};
@@ -55,7 +55,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x1x5) {
   const DataType max_input_val = 2.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x1x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x1x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0., 0., 0., 0., 0., 0., 0., 0.};
   const std::vector<DataType> mean = {1., 2., 3., 4., 1., 2., 3., 4.};
@@ -65,7 +65,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x1x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x8x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503, -0.44703481732151684, 0.4470348173215166,
@@ -78,7 +78,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x8x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x8x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -102,7 +102,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x8x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x8x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x8x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -116,7 +116,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x8x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x9x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.1542677690948733, -0.2885669422737185, 0.5771338845474361,
@@ -129,7 +129,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x9x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x9x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.154267769094873,   -0.41684536590733523, 0.41684536590733545,
@@ -158,7 +158,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x9x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x1x9x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x1x9x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -172,7 +172,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x1x9x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x1x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503, -0.44703481732151684, 0.4470348173215166,
@@ -185,7 +185,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x1x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x1x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x1x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -209,7 +209,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x1x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x1x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x1x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -223,7 +223,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x1x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x8x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -255,7 +255,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x8x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x8x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -372,7 +372,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x8x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x8x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x8x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -411,7 +411,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x8x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x9x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -445,7 +445,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x9x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x9x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -575,7 +575,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x9x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x8x9x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x8x9x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -617,7 +617,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x8x9x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x1x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.1542677690948733, -0.2885669422737185, 0.5771338845474361,
@@ -630,7 +630,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x1x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x1x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x1x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.154267769094873,   -0.41684536590733523, 0.41684536590733545,
@@ -659,7 +659,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x1x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x1x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x1x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -673,7 +673,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x1x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x8x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -707,7 +707,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x8x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x8x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -837,7 +837,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x8x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x8x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x8x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -879,7 +879,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x8x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x9x1) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3182387697441287,  -0.42842760016684167, 0.4613835694104451,
@@ -916,7 +916,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x9x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x9x5) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.318238769744128,   -0.4437175348382201,  0.4437175348382203,
@@ -1065,7 +1065,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x9x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 1x9x9x8) {
+TYPED_TEST(BatchnormForwardFrozen, 1x9x9x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -1111,7 +1111,7 @@ TYPED_TEST(BatchnormForwardTraining, 1x9x9x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x1x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0., 0., 0.};
   const std::vector<DataType> mean = {1.};
@@ -1121,7 +1121,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x1x1) {
   const DataType max_input_val = 1.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x1x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x1x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -0.7055211404639925, 0.7055211404639925,  -0.7055211404639925,
@@ -1140,7 +1140,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x1x5) {
   const DataType max_input_val = 2.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x1x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x1x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0., 0., 0., 0., 0., 0., 0., 0.,
                                          0., 0., 0., 0., 0., 0., 0., 0.,
@@ -1152,7 +1152,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x1x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x8x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -1170,7 +1170,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x8x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x8x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -1220,7 +1220,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x8x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x8x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x8x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -1241,7 +1241,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x8x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x9x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.312655944803793,  -0.4038941368627058, 0.5048676710783813,
@@ -1260,7 +1260,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x9x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x9x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3126559448037929,  -0.5048676710783815,  0.42430019853336054,
@@ -1319,7 +1319,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x9x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x1x9x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x1x9x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -1341,7 +1341,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x1x9x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x1x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -1359,7 +1359,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x1x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x1x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x1x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -1409,7 +1409,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x1x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x1x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x1x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -1430,7 +1430,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x1x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x8x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -1504,7 +1504,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x8x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x8x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -1834,7 +1834,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x8x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x8x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x8x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -1930,7 +1930,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x8x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x9x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -2012,7 +2012,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x9x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x9x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -2382,7 +2382,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x9x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x8x9x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x8x9x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -2488,7 +2488,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x8x9x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x1x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.312655944803793,  -0.4038941368627058, 0.5048676710783813,
@@ -2507,7 +2507,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x1x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x1x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x1x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3126559448037929,  -0.5048676710783815,  0.42430019853336054,
@@ -2566,7 +2566,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x1x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x1x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x1x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -2588,7 +2588,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x1x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x8x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -2670,7 +2670,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x8x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x8x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x8x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.3411044519645503,  -0.44703481732151684, 0.4470348173215166,
@@ -3040,7 +3040,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x8x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x8x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x8x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -3146,7 +3146,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x8x8) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x9x1) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.337808116883239,   -0.44225061715148395, 0.4533068825802711,
@@ -3237,7 +3237,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x9x1) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x9x5) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x9x5) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       -1.337808116883239,   -0.4533068825802713,  0.4444654733820719,
@@ -3656,7 +3656,7 @@ TYPED_TEST(BatchnormForwardTraining, 3x9x9x5) {
   const DataType max_input_val = 4.0;
   this->test_batchnorm(exp_out, mean, variance, params, max_input_val);
 }
-TYPED_TEST(BatchnormForwardTraining, 3x9x9x8) {
+TYPED_TEST(BatchnormForwardFrozen, 3x9x9x8) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,

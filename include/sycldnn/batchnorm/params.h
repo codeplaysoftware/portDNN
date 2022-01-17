@@ -54,6 +54,11 @@ struct BatchNormParams {
    */
   float epsilon = 0.001;
 
+  /**
+   * The momentum parameter for batch normalization.
+   */
+  float momentum = 0.9;
+
   /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 };

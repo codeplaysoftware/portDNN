@@ -80,33 +80,22 @@ SNNStatus launch_pointwise(BaseMemObject<T const>& input,
       BaseMemObject<DTYPE> & outp_access, size_t const n_items,       \
       cl::sycl::queue& queue);
 
-#ifdef ENABLE_BATCHNORM_MEANDIV
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Batchnorm_MeanDiv)
-#else
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Relu)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Tanh)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Exp)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, ResidualAdd)
-#endif
+
 #ifdef SNN_USE_HALF
-#ifdef ENABLE_BATCHNORM_MEANDIV
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Batchnorm_MeanDiv)
-#else
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Relu)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Tanh)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Exp)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, ResidualAdd)
-#endif
 #endif  // SNN_USE_HALF
 #ifdef SNN_USE_DOUBLE
-#ifdef ENABLE_BATCHNORM_MEANDIV
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Batchnorm_MeanDiv)
-#else
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Relu)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Tanh)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Exp)
 SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, ResidualAdd)
-#endif
 #endif  // SNN_USE_DOUBLE
 
 }  // namespace internal

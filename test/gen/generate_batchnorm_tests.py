@@ -42,7 +42,7 @@ CHANNELS = [1, 5, 8]
 IN_SIZES = [1, 8, 9]  # Assumes square inputs in the spatial dimensions.
 TEST_TYPES = ['batchnorm']
 DIRECTIONS = ['forward']
-OPERATIONS = ['Training', 'Inference']
+OPERATIONS = ['Training', 'Frozen']
 
 INCLUDES = r"""
 #include <gtest/gtest.h>
@@ -65,10 +65,6 @@ TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction', 'operation'])
 TestParams = namedtuple('TestParams', ['in_shape', 'data_format'])
 
-TENSORFLOW_OPS_MAP = {
-    'batchnorm': tf.nn.batch_normalization,
-}
-
 def get_forward_results(max_val, input_shape):
     """
     Construct and run a Tensorflow graph to compute a forward batchnorm op.
@@ -84,7 +80,7 @@ def get_forward_results(max_val, input_shape):
 
         inp_tensor = tf.constant(input_vals,
                                  shape=input_shape,
-                                 dtype=np.float32)
+                                 dtype=np.float64)
 
         mean = tf.math.reduce_mean(inp_tensor,axis=[0,1,2])
 
@@ -106,7 +102,6 @@ def get_result_function(test_case):
     return get_forward_results
 
 
-#TODO dansoutar: fix these and the remainder of the file.
 TEST_CASE_TPL = "{test_type}{direction}{operation}"
 TEST_NAME_TPL = "{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
@@ -118,7 +113,7 @@ DIRECTION_MAP = {
 
 OPERATION_MAP = {
     'Training': 'batchnorm::Training',
-    'Inference': 'batchnorm::Inference'
+    'Frozen': 'batchnorm::Frozen'
 }
 
 

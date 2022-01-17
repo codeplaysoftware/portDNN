@@ -38,7 +38,8 @@ struct Mean;
 template <typename Op>
 inline SNN_ALWAYS_INLINE void is_valid_reduction() {
   static_assert(std::is_same<Op, reduction::Add>::value ||
-                std::is_same<Op, reduction::Mean>::value);
+                    std::is_same<Op, reduction::Mean>::value,
+                "Invalid Reduction Type");
 }
 
 }  // namespace reduction
