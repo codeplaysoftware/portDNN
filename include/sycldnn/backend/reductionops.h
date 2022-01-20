@@ -22,6 +22,8 @@
  * Contains the declarations of the Add, Mean tag types.
  */
 
+#include <type_traits>
+
 namespace sycldnn {
 namespace backend {
 namespace reduction {
