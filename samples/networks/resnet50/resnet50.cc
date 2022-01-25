@@ -260,12 +260,11 @@ create_batchnorm_layer(DeviceMem const input, Backend& backend,
 
 // create ResidualAdd layer
 template <typename T>
-inline sycldnn::ActivationLayer<T, Backend, sycldnn::pointwise::ResidualAdd>*
-create_residual_layer(DeviceMem const input, DeviceMem output, Backend& backend,
-                      sycldnn::pointwise::PointwiseParams const& params) {
-  return new sycldnn::ActivationLayer<T, Backend,
-                                      sycldnn::pointwise::ResidualAdd>(
-      params, input, output, backend);
+inline sycldnn::BiasAddLayer<T, Backend>* create_residual_layer(
+    DeviceMem const input, DeviceMem output, Backend& backend,
+    sycldnn::binaryop::BinaryParams const& params) {
+  return new sycldnn::BiasAddLayer<T, Backend>(params, input, output, output,
+                                               backend);
 }
 
 // make activation layer parameters
@@ -486,7 +485,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(56 * 56 * 256)));
+      backend, make_bias_params(1, 1, 56 * 56 * 256)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 256)));
@@ -550,7 +549,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(56 * 56 * 256)));
+      backend, make_bias_params(1, 1, 56 * 56 * 256)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 256)));
@@ -614,7 +613,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(56 * 56 * 256)));
+      backend, make_bias_params(1, 1, 56 * 56 * 256)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(56 * 56 * 256)));
@@ -696,7 +695,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(28 * 28 * 512)));
+      backend, make_bias_params(1, 1, 28 * 28 * 512)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 512)));
@@ -760,7 +759,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(28 * 28 * 512)));
+      backend, make_bias_params(1, 1, 28 * 28 * 512)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 512)));
@@ -824,7 +823,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(28 * 28 * 512)));
+      backend, make_bias_params(1, 1, 28 * 28 * 512)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 512)));
@@ -888,7 +887,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(28 * 28 * 512)));
+      backend, make_bias_params(1, 1, 28 * 28 * 512)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(28 * 28 * 512)));
@@ -971,7 +970,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(14 * 14 * 1024)));
+      backend, make_bias_params(1, 1, 14 * 14 * 1024)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 1024)));
@@ -1035,7 +1034,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(14 * 14 * 1024)));
+      backend, make_bias_params(1, 1, 14 * 14 * 1024)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 1024)));
@@ -1099,7 +1098,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(14 * 14 * 1024)));
+      backend, make_bias_params(1, 1, 14 * 14 * 1024)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 1024)));
@@ -1163,7 +1162,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(14 * 14 * 1024)));
+      backend, make_bias_params(1, 1, 14 * 14 * 1024)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 1024)));
@@ -1227,7 +1226,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(14 * 14 * 1024)));
+      backend, make_bias_params(1, 1, 14 * 14 * 1024)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 1024)));
@@ -1291,7 +1290,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(14 * 14 * 1024)));
+      backend, make_bias_params(1, 1, 14 * 14 * 1024)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(14 * 14 * 1024)));
@@ -1373,7 +1372,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(7 * 7 * 2048)));
+      backend, make_bias_params(1, 1, 7 * 7 * 2048)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 2048)));
@@ -1437,7 +1436,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(7 * 7 * 2048)));
+      backend, make_bias_params(1, 1, 7 * 7 * 2048)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 2048)));
@@ -1501,7 +1500,7 @@ int main(int argc, char* argv[]) {
   // perform residual addition
   network.add_layer(create_residual_layer<DType>(
       network.get_output(residual_connection_reference), network.get_output(),
-      backend, make_pointwise_params(7 * 7 * 2048)));
+      backend, make_bias_params(1, 1, 7 * 7 * 2048)));
   // residual addition complete, move to activation layer
   network.add_layer(create_activation_layer<DType, sycldnn::pointwise::Relu>(
       network.get_output(), backend, make_pointwise_params(7 * 7 * 2048)));

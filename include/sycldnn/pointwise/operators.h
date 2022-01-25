@@ -19,8 +19,8 @@
 /**
  * \file
  * Contains the declarations of the \ref sycldnn::pointwise::Relu
- * and \ref sycldnn::pointwise::Tanh, \ref sycldnn::pointwise::Exp and \ref
- * sycldnn::pointwise::ResidualAdd tag types.
+ * and \ref sycldnn::pointwise::Tanh and \ref sycldnn::pointwise::Exp
+ * tag types.
  */
 
 namespace sycldnn {
@@ -34,9 +34,6 @@ struct Tanh;
 
 template <typename Direction>
 struct Exp;
-
-template <typename Direction>
-struct ResidualAdd;
 
 }  // namespace pointwise
 }  // namespace sycldnn
