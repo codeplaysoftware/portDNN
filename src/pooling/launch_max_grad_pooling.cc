@@ -95,12 +95,12 @@ SNNStatus launch_pooling(BaseMemObject<T const>& inp_data,
   }
 }
 
-#define INSTANTIATE_LAUNCH(DTYPE, OP, DIRECTION)                     \
-  template SNNStatus launch_pooling<DTYPE, OP, DIRECTION>(           \
-      BaseMemObject<DTYPE const> & input_data,                       \
-      BaseMemObject<DTYPE const> & output_data,                      \
-      BaseMemObject<DTYPE const> & input_backprop,                   \
-      BaseMemObject<DTYPE> & outp_backprop, const PoolingParams& pp, \
+#define INSTANTIATE_LAUNCH(DTYPE, OP, DIRECTION)                      \
+  template SNN_EXPORT SNNStatus launch_pooling<DTYPE, OP, DIRECTION>( \
+      BaseMemObject<DTYPE const> & input_data,                        \
+      BaseMemObject<DTYPE const> & output_data,                       \
+      BaseMemObject<DTYPE const> & input_backprop,                    \
+      BaseMemObject<DTYPE> & outp_backprop, const PoolingParams& pp,  \
       cl::sycl::queue& queue)
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)              \

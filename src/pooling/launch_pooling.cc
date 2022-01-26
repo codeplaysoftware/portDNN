@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_POOLING_LAUNCH_POOLING_H_
-#define SYCLDNN_SRC_POOLING_LAUNCH_POOLING_H_
 
 #include "sycldnn/mem_object.h"
 
@@ -120,5 +118,3 @@ INSTANTIATE_FOR_TYPE(double);
 }  // namespace internal
 }  // namespace pooling
 }  // namespace sycldnn
-
-#endif  // SYCLDNN_SRC_POOLING_LAUNCH_POOLING_H_
