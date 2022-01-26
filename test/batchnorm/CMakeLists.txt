@@ -32,9 +32,8 @@ snn_test(
   SOURCES
     batchnorm_forward_Training.cc
     batchnorm_forward_Frozen.cc
-  OBJECTS
-    $<TARGET_OBJECTS:batchnorm>
   PUBLIC_LIBRARIES
+    sycl_dnn
     ${_batchnorm_providers}
   CXX_OPTS
     ${_cxx_opts}

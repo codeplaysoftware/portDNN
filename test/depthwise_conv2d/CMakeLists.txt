@@ -24,8 +24,8 @@ snn_test(
     moderate
   SOURCES
     simple_depthwise.cc
-  OBJECTS
-    $<TARGET_OBJECTS:depthwise_conv2d>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )
 
 foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
@@ -37,8 +37,8 @@ foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
       short
     SOURCES
       ${_type}_1x1.cc
-    OBJECTS
-      $<TARGET_OBJECTS:depthwise_conv2d>
+    PUBLIC_LIBRARIES
+      sycl_dnn
   )
 endforeach()
 
@@ -58,8 +58,8 @@ foreach(_index RANGE ${_list_len})
         moderate
       SOURCES
         ${_type}_window${_window}_stride${_stride}.cc
-      OBJECTS
-        $<TARGET_OBJECTS:depthwise_conv2d>
+      PUBLIC_LIBRARIES
+        sycl_dnn
     )
   endforeach()
 endforeach()

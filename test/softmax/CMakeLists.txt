@@ -32,10 +32,8 @@ snn_test(
   SOURCES
     softmax_forward.cc
     softmax_grad.cc
-  OBJECTS
-    $<TARGET_OBJECTS:pointwise>
-    $<TARGET_OBJECTS:binaryop>
   PUBLIC_LIBRARIES
+    sycl_dnn
     ${_softmax_providers}
   CXX_OPTS
     ${_cxx_opts}

@@ -25,8 +25,8 @@ foreach(_transpose_dim IN ITEMS 2 3 4)
       moderate
     SOURCES
       transpose_${_transpose_dim}d.cc
-    OBJECTS
-      $<TARGET_OBJECTS:transpose>
+    PUBLIC_LIBRARIES
+      sycl_dnn
   )
 endforeach()
 
@@ -36,8 +36,8 @@ snn_test(
     transpose_conversions
   SOURCES
     conversions.cc
-  OBJECTS
-    $<TARGET_OBJECTS:transpose>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )
 snn_test(
   WITH_SYCL
@@ -45,6 +45,6 @@ snn_test(
     transpose_offsets
   SOURCES
     offsets.cc
-  OBJECTS
-    $<TARGET_OBJECTS:transpose>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )

@@ -28,8 +28,8 @@ foreach(_trans_lhs IN ITEMS "true" "false")
             moderate
           SOURCES
             matmul_batch${_batch}_beta${_beta}_${_trans_lhs}_${_trans_rhs}.cc
-          OBJECTS
-            $<TARGET_OBJECTS:matmul>
+          PUBLIC_LIBRARIES
+            sycl_dnn
         )
       endforeach()
     endforeach()
@@ -44,6 +44,6 @@ snn_test(
     moderate
   SOURCES
     matmul_offset.cc
-  OBJECTS
-    $<TARGET_OBJECTS:matmul>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )

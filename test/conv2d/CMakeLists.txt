@@ -24,12 +24,8 @@ snn_test(
     short
   SOURCES
     convolutions.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:matmul>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )
 
 foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
@@ -41,12 +37,8 @@ foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
       short
     SOURCES
       ${_type}_1x1.cc
-    OBJECTS
-      $<TARGET_OBJECTS:direct_conv2d>
-      $<TARGET_OBJECTS:tiled_conv2d>
-      $<TARGET_OBJECTS:im2col_conv2d>
-      $<TARGET_OBJECTS:winograd_conv2d>
-      $<TARGET_OBJECTS:matmul>
+    PUBLIC_LIBRARIES
+      sycl_dnn
   )
 endforeach()
 
@@ -58,12 +50,8 @@ snn_test(
     short
   SOURCES
     convolution_offsets.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:matmul>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )
 snn_test(
   WITH_SYCL
@@ -73,12 +61,8 @@ snn_test(
     moderate
   SOURCES
     workspace_comparative_test.cc
-  OBJECTS
-    $<TARGET_OBJECTS:direct_conv2d>
-    $<TARGET_OBJECTS:tiled_conv2d>
-    $<TARGET_OBJECTS:im2col_conv2d>
-    $<TARGET_OBJECTS:winograd_conv2d>
-    $<TARGET_OBJECTS:matmul>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )
 
 set(_cxx_opts CXX_OPTS)
@@ -123,13 +107,8 @@ foreach(_index RANGE ${_list_len})
         moderate
       SOURCES
         ${_type}_window${_window}_stride${_stride}.cc
-      OBJECTS
-        $<TARGET_OBJECTS:direct_conv2d>
-        $<TARGET_OBJECTS:tiled_conv2d>
-        $<TARGET_OBJECTS:im2col_conv2d>
-        $<TARGET_OBJECTS:winograd_conv2d>
-        $<TARGET_OBJECTS:matmul>
       PUBLIC_LIBRARIES
+        sycl_dnn
         ${_matmul_providers}
       ${_cxx_opts}
       ${_kernel_src}

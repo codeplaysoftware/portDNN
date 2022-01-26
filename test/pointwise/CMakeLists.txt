@@ -26,8 +26,8 @@ foreach(_type IN ITEMS "relu" "tanh")
         short
       SOURCES
         ${_type}_${_direction}.cc
-      OBJECTS
-        $<TARGET_OBJECTS:pointwise>
+      PUBLIC_LIBRARIES
+        sycl_dnn
     )
   endforeach()
 endforeach()

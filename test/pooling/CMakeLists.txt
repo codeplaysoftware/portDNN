@@ -25,8 +25,8 @@ foreach(_type IN ITEMS "max" "avg")
       short
     SOURCES
       ${_type}_pooling_1x1s.cc
-    OBJECTS
-      $<TARGET_OBJECTS:pooling>
+    PUBLIC_LIBRARIES
+      sycl_dnn
   )
 endforeach()
 
@@ -49,8 +49,8 @@ foreach(_index RANGE ${pooling_list_len})
           moderate
         SOURCES
           ${_type}_window${_window}_stride${_stride}_${_direction}.cc
-        OBJECTS
-          $<TARGET_OBJECTS:pooling>
+        PUBLIC_LIBRARIES
+          sycl_dnn
       )
     endforeach()
   endforeach()
@@ -59,18 +59,18 @@ snn_test(
   WITH_SYCL
   TARGET max_pooling_with_nan
   SOURCES max_pooling_with_nan.cc
-  OBJECTS $<TARGET_OBJECTS:pooling>
+  PUBLIC_LIBRARIES sycl_dnn
 )
 snn_test(
   WITH_SYCL
   TARGET pooling_with_offsets
   SOURCES pooling_offset.cc
-  OBJECTS $<TARGET_OBJECTS:pooling>
+  PUBLIC_LIBRARIES sycl_dnn
 )
 snn_test(
   WITH_SYCL
   SIZE moderate
   TARGET pooling_with_fastdiv
   SOURCES pooling_fastdiv.cc
-  OBJECTS $<TARGET_OBJECTS:pooling>
+  PUBLIC_LIBRARIES sycl_dnn
 )

@@ -51,11 +51,11 @@ function(snn_matmul_bench modelname)
     TARGET
       ${modelname}_matmul
     OBJECTS
-      $<TARGET_OBJECTS:matmul>
       $<TARGET_OBJECTS:matmul_benchmark_functions>
       $<TARGET_OBJECTS:${modelname}_matmul_config>
     PUBLIC_LIBRARIES
       bench_main
+      sycl_dnn
       ${_BACKENDS}
   )
 endfunction()

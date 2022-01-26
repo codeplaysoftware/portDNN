@@ -72,9 +72,8 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
       long
     SOURCES
       matmul_backend.cc
-    OBJECTS
-      $<TARGET_OBJECTS:matmul>
     PUBLIC_LIBRARIES
+      sycl_dnn
       ${_matmul_providers}
       backend_matmul
     ${_cxx_opts}

@@ -22,6 +22,6 @@ snn_test(
     bias
   SOURCES
     test_bias.cc
-  OBJECTS
-    $<TARGET_OBJECTS:binaryop>
+  PUBLIC_LIBRARIES
+    sycl_dnn
 )
