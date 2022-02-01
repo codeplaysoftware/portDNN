@@ -41,7 +41,7 @@ BATCHES = [1, 3]
 CHANNELS = [1, 5, 8]
 IN_SIZES = [1, 8, 9]  # Assumes square inputs in the spatial dimensions.
 TEST_TYPES = ['batchnorm']
-DIRECTIONS = ['forward']
+DIRECTIONS = ['forward', 'gradient']
 OPERATIONS = ['Training', 'Frozen']
 
 INCLUDES = r"""
@@ -64,6 +64,88 @@ TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
 TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction', 'operation'])
 TestParams = namedtuple('TestParams', ['in_shape', 'data_format'])
+
+def compute_gradients(grad_y,
+                   x,
+                   scale,
+                   pop_mean,
+                   pop_var,
+                   epsilon,
+                   is_training=True,
+                   keepdims=False):
+  """Returns the gradients for the 3 inputs of BatchNorm.
+  https://github.com/tensorflow/tensorflow/blob/d916f20e1f1897696a19158ac7f5bd8d83e1b857/tensorflow/python/ops/nn_grad.py#L924
+  Args:
+    grad_y: A `Tensor` of 4 or 5 dimensions for gradient for y.
+    x: A `Tensor` of 4 or 5 dimensions for x.
+    scale: A `Tensor` of 1 dimension for scaling.
+    pop_mean: A `Tensor` of 1 dimension for the population mean. Only used when
+      is_training=False.
+    pop_var: A `Tensor` of 1 dimension for the population variance. Only used
+      when is_training=False.
+    epsilon: A small float number added to the variance of x.
+    is_training: A bool value to indicate the operation is for training
+      (default) or inference.
+
+  Returns:
+    A tuple (grad_x, grad_scale, grad_offset), where grad_x is the gradient
+    for x, grad_scale the gradient for scale, and grad_offset the gradient
+    for offset.
+  """
+  if is_training:
+    mean_grad_y = np.mean(grad_y, axis=(0,1,2), keepdims=keepdims)
+    mean_x = np.mean(x, axis=(0,1,2), keepdims=keepdims)
+    var_x = np.var(x, axis=(0,1,2), keepdims=keepdims)
+    grad_y_offset = grad_y - mean_grad_y
+    x_offset = x - mean_x
+    mean = np.mean(grad_y * x_offset, axis=(0,1,2), keepdims=keepdims)
+    grad_x = scale * np.reciprocal(np.sqrt(var_x + epsilon)) * (
+        grad_y_offset - np.reciprocal(var_x + epsilon) * mean * x_offset)
+    grad_scale = np.reciprocal(np.sqrt(var_x + epsilon)) * np.sum(
+        grad_y * x_offset, axis=(0,1,2), keepdims=keepdims)
+    grad_offset = np.sum(grad_y, axis=(0,1,2))
+    return grad_x, grad_scale, grad_offset
+  else:
+    grad_offset = np.sum(grad_y, axis=(0,1,2))
+    var_rsqrt = np.reciprocal(np.sqrt(pop_var + epsilon))
+    grad_scale = np.sum(
+        grad_y * (x - pop_mean) * var_rsqrt, axis=(0,1,2))
+    grad_x = grad_y * scale * var_rsqrt
+    return grad_x, grad_scale, grad_offset
+
+def get_gradient_results(max_val, input_shape, is_training):
+    """
+    Construct and run a Tensorflow graph to compute a gradient batchnorm op.
+
+    Will create an input tensor of the required size filled with values 1, 2,
+    3... and use these to compute the batchnorm op. Returns the computed values
+    in a numpy array.
+    """
+    with tf.Graph().as_default():
+        total_inp_size = np.product(input_shape)
+
+        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+
+        inp_tensor = tf.constant(input_vals,
+                                 shape=input_shape,
+                                 dtype=np.float64)
+
+        mean = tf.math.reduce_mean(inp_tensor,axis=[0,1,2])
+
+        variance = tf.math.reduce_variance(inp_tensor,axis=[0,1,2])
+
+        output = tf.nn.batch_normalization(inp_tensor, mean, variance, 0., 1., 0.001)
+
+        output_arr = output.eval(session=tf.Session())
+
+        mean_arr = mean.eval(session=tf.Session())
+
+        variance_arr = variance.eval(session=tf.Session())
+
+        grad_x, grad_scale, grad_offset = compute_gradients(grad_y=np.array(input_vals, dtype=np.float64).reshape(input_shape), 
+                                                            x=output_arr, scale=np.ones(input_shape[3], dtype=np.float64),
+                                                            pop_mean=mean_arr, pop_var=variance_arr, epsilon=0.001, is_training=is_training)
+        return grad_x, mean_arr, variance_arr, grad_scale, grad_offset
 
 def get_forward_results(max_val, input_shape):
     """
@@ -99,7 +181,12 @@ def get_result_function(test_case):
     """
     Get the function which will compute the expected values for the given test case.
     """
-    return get_forward_results
+    if (test_case.direction == 'gradient'):
+        return get_gradient_results
+    elif (test_case.direction == 'forward'):
+        return get_forward_results
+    else:
+        raise Exception("Direction provided not recognised")
 
 
 TEST_CASE_TPL = "{test_type}{direction}{operation}"
@@ -108,7 +195,8 @@ IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
 
 
 DIRECTION_MAP = {
-    'forward': 'batchnorm::Forward'
+    'forward': 'batchnorm::Forward',
+    'gradient': 'batchnorm::Gradient'
 }
 
 OPERATION_MAP = {
@@ -129,9 +217,21 @@ def get_result(test_case, test_params):
         else:
             max_input_val /= 2
         func = get_result_function(test_case)
-        output, mean, variance = func(max_input_val, input_shape)
+        if test_case.direction == 'forward':
+            output, mean, variance = func(max_val=max_input_val,
+                                        input_shape=input_shape)
+        else:
+            if test_case.operation == 'Training':
+                output, mean, variance, grad_scale, grad_offset = func(max_val=max_input_val,
+                                                                   input_shape=input_shape, is_training=True)
+            else:
+                output, mean, variance, grad_scale, grad_offset = func(max_val=max_input_val,
+                                                                   input_shape=input_shape, is_training=False)
         max_output_val = np.max(output)
-    return output, mean, variance, max_input_val
+    if test_case.direction == 'forward':
+        return output, mean, variance, max_input_val
+    else:
+        return output, mean, variance, max_input_val, grad_scale, grad_offset
 
 
 def get_test_lines(test_case, test_params):
@@ -142,29 +242,50 @@ def get_test_lines(test_case, test_params):
     and provides the code to call the test fixture to run the test.
     """
     channel_idx = -1 if test_params.data_format == 'NHWC' else 1
-    output, mean, variance, max_input_val = get_result(test_case, test_params)
+    if test_case.direction == 'forward':
+        output, mean, variance, max_input_val = get_result(test_case, test_params)
+    else:
+        output, mean, variance, max_input_val, grad_scale, grad_offset = get_result(test_case, test_params)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
     test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
                                           direction=helpers.to_camel_case(
                                               test_case.direction),
-                                              operation=helpers.to_camel_case(
+                                          operation=helpers.to_camel_case(
                                               test_case.operation))
     test_name = TEST_NAME_TPL.format(in_s=test_params.in_shape)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
-    test_lines = [
-        "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
-        "  using DataType = typename TestFixture::DataType;",
-        "  const std::vector<DataType> exp_out = {};".format(
-            helpers.format_tensor(output)),
-        " const std::vector<DataType> mean = {};".format(helpers.format_tensor(mean)),
-        " const std::vector<DataType> variance = {};".format(helpers.format_tensor(variance)),
-        "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-        "  const auto params = getBatchNormParams(in_shape, DataFormat::{});".format(test_params.data_format),
-        "  const DataType max_input_val = {:.1f};".format(max_input_val),
-        "  this->test_batchnorm(exp_out, mean, variance, params, max_input_val);",
-        "}",
-    ]
-    return test_lines
+    if test_case.direction == 'forward':
+        test_lines = [
+            "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
+            "  using DataType = typename TestFixture::DataType;",
+            "  const std::vector<DataType> exp_out = {};".format(
+                helpers.format_tensor(output)),
+            " const std::vector<DataType> mean = {};".format(helpers.format_tensor(mean)),
+            " const std::vector<DataType> variance = {};".format(helpers.format_tensor(variance)),
+            "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
+            "  const auto params = getBatchNormParams(in_shape, DataFormat::{});".format(test_params.data_format),
+            "  const DataType max_input_val = {:.1f};".format(max_input_val),
+            "  this->test_batchnorm(exp_out, mean, variance, params, max_input_val);",
+            "}",
+        ]
+        return test_lines
+    else:
+        test_lines = [
+            "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
+            "  using DataType = typename TestFixture::DataType;",
+            "  const std::vector<DataType> exp_grad = {};".format(
+                helpers.format_tensor(output)),
+            " const std::vector<DataType> mean = {};".format(helpers.format_tensor(mean)),
+            " const std::vector<DataType> variance = {};".format(helpers.format_tensor(variance)),
+            " const std::vector<DataType> grad_scale = {};".format(helpers.format_tensor(grad_scale)),
+            " const std::vector<DataType> grad_offset = {};".format(helpers.format_tensor(grad_offset)),
+            "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
+            "  const auto params = getBatchNormParams(in_shape, DataFormat::{});".format(test_params.data_format),
+            "  const DataType max_input_val = {:.1f};".format(max_input_val),
+            "  this->test_batchnorm(exp_grad, mean, variance, grad_scale, grad_offset, params, max_input_val);",
+            "}",
+        ]
+        return test_lines        
 
 
 def test_params_for_test_case(test_case):

@@ -32,6 +32,11 @@ snn_test(
   SOURCES
     batchnorm_forward_Training.cc
     batchnorm_forward_Frozen.cc
+    batchnorm_gradient_Training.cc
+    batchnorm_gradient_Frozen.cc
+  OBJECTS
+    $<TARGET_OBJECTS:batchnorm>
+    $<TARGET_OBJECTS:binaryop>
   PUBLIC_LIBRARIES
     sycl_dnn
     ${_batchnorm_providers}

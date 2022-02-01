@@ -54,6 +54,48 @@ SNN_EXPORT SNNStatus launch_running_mean_variance(
     BaseMemObject<T>& running_mean, BaseMemObject<T>& running_variance,
     int32_t const n_items, float const momentum, cl::sycl::queue& queue);
 
+/**
+ * The internal launcher for computing input gradient for the case when
+ * computing mean and variance.
+ */
+template <typename T>
+SNN_EXPORT SNNStatus launch_input_gradient(
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& variance,
+    BaseMemObject<T const>& mean, BaseMemObject<T const>& x_offset,
+    BaseMemObject<T>& output, int32_t const n_items, float const epsilon,
+    cl::sycl::queue& queue);
+
+/**
+ * The internal launcher for computing gamma gradient for the case when
+ * computing mean and variance.
+ */
+template <typename T>
+SNN_EXPORT SNNStatus launch_gamma_gradient(
+    BaseMemObject<T const>& variance, BaseMemObject<T const>& grad_y_x_offset,
+    BaseMemObject<T>& output, int32_t const n_items, float const epsilon,
+    cl::sycl::queue& queue);
+
+/**
+ * The internal launcher for computing input gradient for the case when using
+ * the existing mean and variance.
+ */
+template <typename T>
+SNN_EXPORT SNNStatus launch_input_gradient(
+    BaseMemObject<T const>& gradient, BaseMemObject<T const>& gamma,
+    BaseMemObject<T const>& variance, BaseMemObject<T>& output,
+    int32_t const n_items, float const epsilon, cl::sycl::queue& queue);
+
+/**
+ * The internal launcher for computing gamma gradient for the case when using
+ * the existing mean and variance.
+ */
+template <typename T>
+SNN_EXPORT SNNStatus launch_gamma_gradient(
+    BaseMemObject<T const>& gradient, BaseMemObject<T const>& input,
+    BaseMemObject<T const>& mean, BaseMemObject<T const>& variance,
+    BaseMemObject<T>& output, int32_t const n_items, float const epsilon,
+    cl::sycl::queue& queue);
+
 }  // namespace internal
 }  // namespace batchnorm
 }  // namespace sycldnn

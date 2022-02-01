@@ -64,9 +64,10 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
   using Index = int32_t;
-  backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
-                                sycldnn::backend::reduction::Add>(
-      ConstPointer{output}, workspace, params);
+  status.event =
+      backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
+                                    sycldnn::backend::reduction::Add>(
+          ConstPointer{output}, workspace, params);
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem =
@@ -116,9 +117,10 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
 
-  backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
-                                sycldnn::backend::reduction::Add>(
-      const_workspace, output, params);
+  status.event =
+      backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
+                                    sycldnn::backend::reduction::Add>(
+          const_workspace, output, params);
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);

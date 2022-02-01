@@ -210,4 +210,206 @@ struct BatchNormFixture<DType, sycldnn::batchnorm::Forward,
   }
 };
 
+template <typename DType>
+struct BatchNormFixture<DType, sycldnn::batchnorm::Gradient,
+                        sycldnn::batchnorm::Training>
+    : public BackendTestFixture<Backend> {
+  using DataType = DType;
+
+  void test_batchnorm(std::vector<DType> const& exp_grad,
+                      std::vector<DType> const&, std::vector<DType> const&,
+                      std::vector<DType> const& grad_scale,
+                      std::vector<DType> const& grad_offset,
+                      sycldnn::batchnorm::BatchNormParams const& params,
+                      DType max_val = static_cast<DType>(0)) {
+    auto input_size =
+        params.batch * params.rows * params.cols * params.channels;
+    ASSERT_EQ(input_size, exp_grad.size());
+    const auto size = exp_grad.size();
+
+    std::vector<DType> input =
+        iota_initialised_data<DType>(input_size, max_val);
+
+    std::vector<DType> beta(params.channels, 0.f);
+    std::vector<DType> gamma(params.channels, 1.f);
+    std::vector<DType> mean(params.channels, 0.f);
+    std::vector<DType> variance(params.channels, 0.f);
+    std::vector<DType> output(size);
+    std::vector<DType> workspace(2 * size);
+
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
+
+    auto inp_gpu = provider.get_initialised_device_memory(input_size, input);
+    auto beta_gpu =
+        provider.get_initialised_device_memory(params.channels, beta);
+    auto gamma_gpu =
+        provider.get_initialised_device_memory(params.channels, gamma);
+    auto input_mean_gpu =
+        provider.get_initialised_device_memory(params.channels, mean);
+    auto input_variance_gpu =
+        provider.get_initialised_device_memory(params.channels, variance);
+    auto running_mean_gpu =
+        provider.get_initialised_device_memory(params.channels, mean);
+    auto running_variance_gpu =
+        provider.get_initialised_device_memory(params.channels, variance);
+    auto out_gpu = provider.get_initialised_device_memory(size, output);
+    auto out_grad_gpu = provider.get_initialised_device_memory(size, output);
+    auto workspace_gpu =
+        provider.get_initialised_device_memory(2 * size, workspace);
+
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(beta_gpu);
+      provider.deallocate_ptr(gamma_gpu);
+      provider.deallocate_ptr(input_mean_gpu);
+      provider.deallocate_ptr(input_variance_gpu);
+      provider.deallocate_ptr(running_mean_gpu);
+      provider.deallocate_ptr(running_variance_gpu);
+      provider.deallocate_ptr(out_gpu);
+      provider.deallocate_ptr(out_grad_gpu);
+      provider.deallocate_ptr(workspace_gpu);
+    };
+
+    auto status =
+        sycldnn::batchnorm::launch_forward<DType, Backend,
+                                           sycldnn::batchnorm::Forward,
+                                           sycldnn::batchnorm::Training>(
+            inp_gpu, beta_gpu, gamma_gpu, input_mean_gpu, input_variance_gpu,
+            running_mean_gpu, running_variance_gpu, out_gpu, params, backend);
+
+    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+    status.event.wait_and_throw();
+
+    status = sycldnn::batchnorm::launch_grad<DType, Backend,
+                                             sycldnn::batchnorm::Gradient,
+                                             sycldnn::batchnorm::Training>(
+        out_gpu, inp_gpu, gamma_gpu, workspace_gpu, running_mean_gpu,
+        running_variance_gpu, out_grad_gpu, params, backend);
+
+    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+    status.event.wait_and_throw();
+
+    provider.copy_device_data_to_host(params.channels, running_mean_gpu,
+                                      output);
+
+    for (size_t i = 0; i < (size_t)params.channels; i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(grad_offset[i], output[i], 50u);
+    }
+
+    provider.copy_device_data_to_host(params.channels, running_variance_gpu,
+                                      output);
+
+    for (size_t i = 0; i < (size_t)params.channels; i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(grad_scale[i], output[i], 50u);
+    }
+
+    provider.copy_device_data_to_host(size, out_grad_gpu, output);
+
+    for (size_t i = 0; i < size; i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(exp_grad[i], output[i], 50000u);
+    }
+  }
+};
+
+template <typename DType>
+struct BatchNormFixture<DType, sycldnn::batchnorm::Gradient,
+                        sycldnn::batchnorm::Frozen>
+    : public BackendTestFixture<Backend> {
+  using DataType = DType;
+  void test_batchnorm(std::vector<DType> const& exp_grad,
+                      std::vector<DType> const& pop_mean,
+                      std::vector<DType> const& pop_variance,
+                      std::vector<DType> const& grad_scale,
+                      std::vector<DType> const& grad_offset,
+                      sycldnn::batchnorm::BatchNormParams const& params,
+                      DType max_val = static_cast<DType>(0)) {
+    auto input_size =
+        params.batch * params.rows * params.cols * params.channels;
+    ASSERT_EQ(input_size, exp_grad.size());
+    const auto size = exp_grad.size();
+
+    std::vector<DType> input =
+        iota_initialised_data<DType>(input_size, max_val);
+
+    std::vector<DType> beta(params.channels, 0.f);
+    std::vector<DType> gamma(params.channels, 1.f);
+    std::vector<DType> output(size);
+
+    auto& provider = this->provider_;
+    auto& backend = provider.get_backend();
+
+    auto inp_gpu = provider.get_initialised_device_memory(input_size, input);
+    auto beta_gpu =
+        provider.get_initialised_device_memory(params.channels, beta);
+    auto gamma_gpu =
+        provider.get_initialised_device_memory(params.channels, gamma);
+    auto mean_gpu =
+        provider.get_initialised_device_memory(params.channels, pop_mean);
+    auto variance_gpu =
+        provider.get_initialised_device_memory(params.channels, pop_variance);
+    auto out_fwd_gpu = provider.get_initialised_device_memory(size, output);
+    auto beta_grad_gpu =
+        provider.get_initialised_device_memory(params.channels, beta);
+    auto gamma_grad_gpu =
+        provider.get_initialised_device_memory(params.channels, gamma);
+    auto out_grad_gpu = provider.get_initialised_device_memory(size, output);
+
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(inp_gpu);
+      provider.deallocate_ptr(beta_gpu);
+      provider.deallocate_ptr(gamma_gpu);
+      provider.deallocate_ptr(mean_gpu);
+      provider.deallocate_ptr(variance_gpu);
+      provider.deallocate_ptr(out_fwd_gpu);
+      provider.deallocate_ptr(beta_grad_gpu);
+      provider.deallocate_ptr(gamma_grad_gpu);
+      provider.deallocate_ptr(out_grad_gpu);
+    };
+
+    auto status =
+        sycldnn::batchnorm::launch_forward<DType, Backend,
+                                           sycldnn::batchnorm::Forward,
+                                           sycldnn::batchnorm::Frozen>(
+            inp_gpu, beta_gpu, gamma_gpu, mean_gpu, variance_gpu, out_fwd_gpu,
+            params, backend);
+
+    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+    status.event.wait_and_throw();
+
+    status = sycldnn::batchnorm::launch_grad<DType, Backend,
+                                             sycldnn::batchnorm::Gradient,
+                                             sycldnn::batchnorm::Frozen>(
+        out_fwd_gpu, inp_gpu, gamma_gpu, mean_gpu, variance_gpu, beta_grad_gpu,
+        gamma_grad_gpu, out_grad_gpu, params, backend);
+
+    ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
+    status.event.wait_and_throw();
+
+    provider.copy_device_data_to_host(params.channels, beta_grad_gpu, output);
+
+    for (size_t i = 0; i < (size_t)params.channels; i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(grad_offset[i], output[i], 50u);
+    }
+
+    provider.copy_device_data_to_host(params.channels, gamma_grad_gpu, output);
+
+    for (size_t i = 0; i < (size_t)params.channels; i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(grad_scale[i], output[i], 50u);
+    }
+
+    provider.copy_device_data_to_host(size, out_grad_gpu, output);
+
+    for (size_t i = 0; i < size; i++) {
+      SCOPED_TRACE("Element: " + std::to_string(i));
+      SNN_ALMOST_EQUAL(exp_grad[i], output[i], 50000u);
+    }
+  }
+};
+
 #endif  // SYCLDNN_TEST_BATCHNORM_FIXTURE_H_

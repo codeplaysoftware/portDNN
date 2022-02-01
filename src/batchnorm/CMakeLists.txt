@@ -39,6 +39,10 @@ function(generate_batchnorm)
   set(_variance_template queue_variance_kernel_impl.cc.in)
   set(_running_mean_variance_template queue_running_mean_variance_kernel_impl.cc.in)
   set(_inference_template queue_batchnorm_kernel_inference_impl.cc.in)
+  set(_grad_frozen_input_template ./gradient/frozen/queue_input_gradient_impl.cc.in)
+  set(_grad_frozen_gamma_template ./gradient/frozen/queue_gamma_gradient_impl.cc.in)
+  set(_grad_training_input_template ./gradient/training/queue_input_gradient_impl.cc.in)
+  set(_grad_training_gamma_template ./gradient/training/queue_gamma_gradient_impl.cc.in)
   set(_sources "")
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
@@ -46,6 +50,10 @@ function(generate_batchnorm)
         generate_kernel(_sources ${_variance_template} Variance)
         generate_kernel(_sources ${_running_mean_variance_template} RunningMeanVariance)
         generate_kernel(_sources ${_inference_template} Inference)
+        generate_kernel(_sources ${_grad_frozen_input_template} FrozenInputGradient)
+        generate_kernel(_sources ${_grad_frozen_gamma_template} FrozenGammaGradient)
+        generate_kernel(_sources ${_grad_training_input_template} TrainingInputGradient)
+        generate_kernel(_sources ${_grad_training_gamma_template} TrainingGammaGradient)
       endforeach()
     endforeach()
   endforeach()
@@ -67,4 +75,8 @@ snn_object_library(
     launch_variance.cc
     launch_running_mean_variance.cc
     launch_batchnorm_inference.cc
+    ./gradient/frozen/launch_input_gradient.cc
+    ./gradient/frozen/launch_gamma_gradient.cc
+    ./gradient/training/launch_input_gradient.cc
+    ./gradient/training/launch_gamma_gradient.cc
 )
