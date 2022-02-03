@@ -138,8 +138,6 @@ set(CL_SYCL_LANGUAGE_VERSION 220 CACHE VERSION
   "Host language version to be used by triSYCL (default is: 220)")
 set(TRISYCL_CL_LANGUAGE_VERSION 220 CACHE VERSION
   "Device language version to be used by triSYCL (default is: 220)")
-set(CMAKE_CXX_STANDARD 14)
-set(CXX_STANDARD_REQUIRED ON)
 
 if(NOT TRISYCL_INCLUDE_DIR)
   set(TRISYCL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)

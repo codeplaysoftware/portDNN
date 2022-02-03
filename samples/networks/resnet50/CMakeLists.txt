@@ -22,7 +22,6 @@ if(SNN_TEST_SYCLBLAS)
   list(APPEND backend_providers SYCL_BLAS::sycl_blas)
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
 snn_executable(
   WITH_SYCL
   TARGET

@@ -119,6 +119,9 @@ set(SNN_HIGH_MEM_JOB_LIMIT 8 CACHE STRING
   "Number of concurrent build jobs for high memory targets (Ninja only)")
 set_property(GLOBAL PROPERTY JOB_POOLS high_mem=${SNN_HIGH_MEM_JOB_LIMIT})
 
+set(CMAKE_CXX_STANDARD 14)
+set(CXX_STANDARD_REQUIRED ON)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 if(NOT SNN_FASTBUILD)

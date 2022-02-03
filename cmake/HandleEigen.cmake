@@ -26,8 +26,8 @@ if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
   set(EIGEN_REPO "https://gitlab.com/libeigen/eigen.git" CACHE STRING
     "Eigen repository to use"
   )
-  set(EIGEN_GIT_TAG "00de5707" CACHE STRING
-    "Hg tag, branch or commit to use for the Eigen library"
+  set(EIGEN_GIT_TAG "3.4.0" CACHE STRING
+    "Git tag, branch or commit to use for the Eigen library"
   )
   set(EIGEN_SOURCE_DIR ${sycldnn_BINARY_DIR}/Eigen-src)
   if(NOT TARGET Eigen_download)
