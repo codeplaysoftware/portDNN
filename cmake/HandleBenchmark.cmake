@@ -19,7 +19,7 @@
 # download the library from github. If the library cannot be found or
 # downloaded then the cmake configuration will fail, otherwise the library will
 # be available in the `benchmark::benchmark` target.
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 
 include(SNNHelpers)
 snn_include_guard(HANDLE_BENCHMARK)
@@ -49,6 +49,8 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
   ExternalProject_Add(benchmark
     GIT_REPOSITORY    https://github.com/google/benchmark.git
     GIT_TAG           ${BENCHMARK_GIT_TAG}
+    GIT_SHALLOW       ON
+    GIT_CONFIG        advice.detachedHead=false
     SOURCE_DIR        ${benchmark_SOURCE_DIR}
     BINARY_DIR        ${benchmark_BINARY_DIR}
     CMAKE_ARGS        -DBENCHMARK_ENABLE_TESTING=OFF

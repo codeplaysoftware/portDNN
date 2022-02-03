@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10.2)
 
 include(SNNHelpers)
 snn_include_guard(HANDLE_CLBLAST)
@@ -44,6 +44,7 @@ if(NOT CLBlast_FOUND AND (SNN_DOWNLOAD_CLBLAST OR SNN_DOWNLOAD_MISSING_DEPS))
     ExternalProject_Add(CLBlast_download
       GIT_REPOSITORY    ${CLBlast_REPO}
       GIT_TAG           ${CLBlast_GIT_TAG}
+      GIT_CONFIG        advice.detachedHead=false
       SOURCE_DIR        ${CLBlast_SOURCE_DIR}
       BINARY_DIR        ${CLBlast_BINARY_DIR}
       CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

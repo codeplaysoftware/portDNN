@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 include(SNNHelpers)
 
 macro(instantiate_depth_conv_impl out_var)

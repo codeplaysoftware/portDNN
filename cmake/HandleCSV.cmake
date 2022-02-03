@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10.2)
 
 include(ExternalProject)
 include(SNNHelpers)
@@ -30,6 +30,7 @@ if(NOT TARGET CSV_download)
   ExternalProject_Add(CSV_download
     GIT_REPOSITORY    ${CSV_REPO}
     GIT_TAG           ${CSV_GIT_TAG}
+    GIT_CONFIG        advice.detachedHead=false
     SOURCE_DIR        ${CSV_SOURCE_DIR}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND     ""

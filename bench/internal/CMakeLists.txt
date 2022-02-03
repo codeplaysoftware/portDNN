@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 project(snn_bench_internal)
 
 include(HandleCSV)

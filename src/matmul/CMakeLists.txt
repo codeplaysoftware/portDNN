@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 include(SNNHelpers)
 
 macro(generate_matmul_impl out_var row_tile acc_tile col_tile)

@@ -28,7 +28,7 @@
 #  Latest version of this file can be found at:
 #    https://github.com/codeplaysoftware/computecpp-sdk
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 include(FindPackageHandleStandardArgs)
 
 # Check that a supported host compiler can be found

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 
 include(SNNHelpers)
 snn_include_guard(HANDLE_EIGEN)
@@ -32,8 +32,10 @@ if(NOT Eigen_FOUND AND (SNN_DOWNLOAD_EIGEN OR SNN_DOWNLOAD_MISSING_DEPS))
   set(EIGEN_SOURCE_DIR ${sycldnn_BINARY_DIR}/Eigen-src)
   if(NOT TARGET Eigen_download)
     ExternalProject_Add(Eigen_download
-      GIT_REPOSITORY     ${EIGEN_REPO}
-      GIT_TAG            ${EIGEN_GIT_TAG}
+      GIT_REPOSITORY    ${EIGEN_REPO}
+      GIT_TAG           ${EIGEN_GIT_TAG}
+      GIT_SHALLOW       ON
+      GIT_CONFIG        advice.detachedHead=false
       SOURCE_DIR        ${EIGEN_SOURCE_DIR}
       CONFIGURE_COMMAND ""
       BUILD_COMMAND     ""

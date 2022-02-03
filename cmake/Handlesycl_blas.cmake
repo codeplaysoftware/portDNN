@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10.2)
 
 include(SNNHelpers)
 snn_include_guard(HANDLE_SYCLBLAS)
@@ -44,6 +44,7 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
     ExternalProject_Add(sycl_blas_download
       GIT_REPOSITORY    ${sycl_blas_REPO}
       GIT_TAG           ${sycl_blas_GIT_TAG}
+      GIT_CONFIG        advice.detachedHead=false
       SOURCE_DIR        ${sycl_blas_SOURCE_DIR}
       BINARY_DIR        ${sycl_blas_BINARY_DIR}
       CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

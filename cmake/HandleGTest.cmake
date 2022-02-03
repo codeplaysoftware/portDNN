@@ -22,7 +22,7 @@
 #
 # Note: The googletest library requires the Threads library and so cmake may
 # fail if it cannot find this.
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 
 include(SNNHelpers)
 snn_include_guard(HANDLE_GTEST)
@@ -71,12 +71,13 @@ if(SNN_DOWNLOAD_GTEST OR (NOT GTEST_FOUND AND SNN_DOWNLOAD_MISSING_DEPS))
   ExternalProject_Add(googletest
     GIT_REPOSITORY    https://github.com/google/googletest.git
     GIT_TAG           ${GTEST_GIT_TAG}
+    GIT_SHALLOW       ON
+    GIT_CONFIG        advice.detachedHead=false
     SOURCE_DIR        ${GTEST_SOURCE_DIR}
     BINARY_DIR        ${GTEST_BINARY_DIR}
     CMAKE_ARGS        -Dgtest_force_shared_crt=ON
                       -DBUILD_SHARED_LIBS=OFF
                       -DBUILD_GMOCK=OFF
-                      -DBUILD_GTEST=ON
                       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                       -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE}

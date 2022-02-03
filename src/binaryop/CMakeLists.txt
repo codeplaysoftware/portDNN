@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.10.2)
 include(SNNHelpers)
 
-macro(generate_kernel out_var template op) 
+macro(generate_kernel out_var template op)
   string(MAKE_C_IDENTIFIER ${DATA_TYPE} DTYPE_ID)
   set(_filename "${INST_BINARYOP_FILENAME}_${DTYPE_ID}")
   set(_filename "${_filename}_${op}_${VECTOR_WIDTH}.cc")
