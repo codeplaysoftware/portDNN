@@ -143,8 +143,8 @@ endif()
 
 set(CMAKE_DEBUG_POSTFIX "-debug")
 set(include_dest "include")
-set(library_dest "lib/sycldnn")
-set(cmake_config_dest "${library_dest}/cmake")
+set(library_dest "lib")
+set(cmake_config_dest "${library_dest}/sycldnn/cmake")
 set(runtime_dest "bin")
 
 add_subdirectory(src)
