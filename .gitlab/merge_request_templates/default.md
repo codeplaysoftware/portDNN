@@ -20,10 +20,5 @@
 
 * [ ] Every class with a destructor has a (possibly default or deleted) copy/move constructor
 * [ ] Every class with a virtual function has a virtual destructor
-* [ ] References used where possible to avoid unecessary copies
+* [ ] References used where possible to avoid unnecessary copies
 
-### Reviewers
-
-@john
-@daniel.soutar
-@duncan
