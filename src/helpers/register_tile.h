@@ -3,7 +3,7 @@
 // DO NOT EDIT BY HAND!!!
 
 /*
- * Copyright 2018 Codeplay Software Ltd
+ * Copyright Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
