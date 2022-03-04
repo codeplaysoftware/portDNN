@@ -84,47 +84,6 @@ inline bool can_use_vector_width(Conv2DParams const& params, int const width) {
          params.features % width == 0;
 }
 
-/**
- * Helper struct to partially specialize the launch of kernels.
- * This ensures NCHW kernels are not instantiated for unsupported ConvTypes.
- **/
-template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth, typename Layout>
-struct queue_kernel_helper {
-  SNNStatus operator()(BaseMemObject<T const>& input,
-                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
-                       Conv2DParams const& params, Index output_size,
-                       cl::sycl::queue& queue) {
-    return queue_direct_kernel<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               VectorWidth, Layout>(input, filter, output,
-                                                    params, output_size, queue);
-  }
-};
-
-/** Disable NCHW InputBackprop */
-template <typename T, typename Index, bool UseFastDiv, int Window, int Stride,
-          int VectorWidth>
-struct queue_kernel_helper<T, Index, conv_type::InputBackprop, UseFastDiv,
-                           Window, Stride, VectorWidth, layout::NCHW> {
-  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T const>&,
-                       BaseMemObject<T>&, Conv2DParams const&, Index,
-                       cl::sycl::queue&) {
-    return StatusCode::InvalidAlgorithm;
-  }
-};
-
-/** Disable NCHW FilterBackprop */
-template <typename T, typename Index, bool UseFastDiv, int Window, int Stride,
-          int VectorWidth>
-struct queue_kernel_helper<T, Index, conv_type::FilterBackprop, UseFastDiv,
-                           Window, Stride, VectorWidth, layout::NCHW> {
-  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T const>&,
-                       BaseMemObject<T>&, Conv2DParams const&, Index,
-                       cl::sycl::queue&) {
-    return StatusCode::InvalidAlgorithm;
-  }
-};
-
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
           int Window, int Stride, int VectorWidth>
 SNNStatus launch_with_fast_div(BaseMemObject<T const>& input,
@@ -135,16 +94,16 @@ SNNStatus launch_with_fast_div(BaseMemObject<T const>& input,
   if (params.input_format == DataFormat::NCHW &&
       params.filter_format == FilterFormat::FCHW) {
 #ifdef SNN_ENABLE_NCHW
-    return queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               VectorWidth, layout::NCHW>()(
+    return queue_direct_kernel<T, Index, ConvType, UseFastDiv, Window, Stride,
+                               VectorWidth, layout::NCHW>(
         input, filter, output, params, output_size, queue);
 #else
     return StatusCode::InvalidAlgorithm;
 #endif
   } else if (params.input_format == DataFormat::NHWC &&
              params.filter_format == FilterFormat::HWCF) {
-    return queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               VectorWidth, layout::NHWC>()(
+    return queue_direct_kernel<T, Index, ConvType, UseFastDiv, Window, Stride,
+                               VectorWidth, layout::NHWC>(
         input, filter, output, params, output_size, queue);
   }
   return StatusCode::InvalidAlgorithm;

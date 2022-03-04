@@ -52,10 +52,6 @@ function(instantiate_direct_conv)
       foreach(CONV_TYPE IN LISTS SNN_CONV_TYPES)
         foreach(VECTOR_WIDTH IN ITEMS 1 2 4)
           foreach(LAYOUT IN LISTS SNN_LAYOUTS)
-            # Backpropagation only supports NHWC.
-            if (NOT CONV_TYPE STREQUAL "conv_type::Forward" AND NOT LAYOUT STREQUAL "NHWC")
-              continue()
-            endif()
             # NCHW only supports VectorWidth of 1.
             if (LAYOUT STREQUAL "NCHW" AND NOT VECTOR_WIDTH EQUAL 1)
               continue()

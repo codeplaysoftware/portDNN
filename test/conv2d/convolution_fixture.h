@@ -30,6 +30,148 @@
 #include "test/helpers/float_comparison.h"
 #include "test/helpers/transpose.h"
 
+template <typename ConvType>
+struct transpose_helper {
+  /**
+   * \brief Transpose input data to \p params.input_format.
+   * This is shared for all ConvType as the ConvSizes are already adjusted for a
+   * given ConvType.
+   *
+   * \param params
+   * \param inputData Initialised data.
+   * \param trInputData Storage to use if the data needs to be transposed.
+   * \param conv_batch_sizes
+   * \param conv_spatial_sizes
+   * \param conv_channel_sizes
+   * \return std::vector<T>* Pointer to data to use.
+   */
+  template <typename T>
+  std::vector<T>& transpose_input(
+      const sycldnn::conv2d::Conv2DParams& params, std::vector<T>& inputData,
+      std::vector<T>& trInputData,
+      const sycldnn::conv2d::ConvSizes& conv_batch_sizes,
+      const sycldnn::conv2d::ConvSizes& conv_spatial_sizes,
+      const sycldnn::conv2d::ConvSizes& conv_channel_sizes) {
+    if (params.input_format == sycldnn::DataFormat::NCHW) {
+      transpose(trInputData, inputData, conv_batch_sizes.input_size,
+                conv_spatial_sizes.input_size, conv_channel_sizes.input_size);
+      return trInputData;
+    }
+    return inputData;
+  }
+
+  /**
+   * \brief Generic case to transpose the filter data to \p
+   * params.filter_format.
+   *
+   * \param params
+   * \param filterData Initialised data.
+   * \param trFilterData Storage to use if the data needs to be transposed.
+   * \param conv_batch_sizes
+   * \param conv_spatial_sizes
+   * \param conv_channel_sizes
+   * \param filter_offset Optional offset that is not transposed.
+   * \return std::vector<T>* Pointer to data to use.
+   */
+  template <typename T>
+  std::vector<T>& transpose_filter(
+      const sycldnn::conv2d::Conv2DParams& params, std::vector<T>& filterData,
+      std::vector<T>& trFilterData,
+      const sycldnn::conv2d::ConvSizes& conv_batch_sizes,
+      const sycldnn::conv2d::ConvSizes& conv_spatial_sizes,
+      const sycldnn::conv2d::ConvSizes& conv_channel_sizes,
+      int filter_offset = 0) {
+    if (params.filter_format == sycldnn::FilterFormat::FCHW) {
+      // HWCF -> HWFC
+      transpose(trFilterData, filterData, conv_spatial_sizes.filter_size,
+                params.channels, params.features, filter_offset);
+      // HWFC -> FCHW
+      transpose(filterData, trFilterData, conv_batch_sizes.filter_size,
+                conv_spatial_sizes.filter_size, conv_channel_sizes.filter_size,
+                filter_offset);
+    }
+    return filterData;
+  }
+
+  /**
+   * \brief Generic case to transpose the output data to \p params.input_format.
+   *
+   * \param params
+   * \param outputData Initialised data.
+   * \param trOutputData Storage to use if the data needs to be transposed.
+   * \param conv_batch_sizes
+   * \param conv_spatial_sizes
+   * \param conv_channel_sizes
+   * \param output_offset Optional offset that is not transposed.
+   * \return std::vector<T>* Pointer to data to use.
+   */
+  template <typename T>
+  std::vector<T>& transpose_output(
+      const sycldnn::conv2d::Conv2DParams& params, std::vector<T>& outputData,
+      std::vector<T>& trOutputData,
+      const sycldnn::conv2d::ConvSizes& conv_batch_sizes,
+      const sycldnn::conv2d::ConvSizes& conv_spatial_sizes,
+      const sycldnn::conv2d::ConvSizes& conv_channel_sizes,
+      int output_offset = 0) {
+    if (params.input_format == sycldnn::DataFormat::NCHW) {
+      transpose(trOutputData, outputData, conv_batch_sizes.output_size,
+                conv_channel_sizes.output_size, conv_spatial_sizes.output_size,
+                output_offset);
+      return trOutputData;
+    }
+    return outputData;
+  }
+};
+
+/**
+ * \brief Filter and output transposes are swapped for FilterBackprop.
+ *
+ * \copydetail transpose_helper::transpose_filter
+ */
+template <>
+template <typename T>
+std::vector<T>&
+transpose_helper<sycldnn::conv2d::conv_type::FilterBackprop>::transpose_filter(
+    const sycldnn::conv2d::Conv2DParams& params, std::vector<T>& filterData,
+    std::vector<T>& trFilterData,
+    const sycldnn::conv2d::ConvSizes& conv_batch_sizes,
+    const sycldnn::conv2d::ConvSizes& conv_spatial_sizes,
+    const sycldnn::conv2d::ConvSizes& conv_channel_sizes, int filter_offset) {
+  if (params.input_format == sycldnn::DataFormat::NCHW) {
+    transpose(trFilterData, filterData, conv_batch_sizes.filter_size,
+              conv_spatial_sizes.filter_size, conv_channel_sizes.filter_size,
+              filter_offset);
+    return trFilterData;
+  }
+  return filterData;
+}
+
+/**
+ * \brief Filter and output transposes are swapped for FilterBackprop.
+ *
+ * \copydetail transpose_helper::transpose_output
+ */
+template <>
+template <typename T>
+std::vector<T>&
+transpose_helper<sycldnn::conv2d::conv_type::FilterBackprop>::transpose_output(
+    const sycldnn::conv2d::Conv2DParams& params, std::vector<T>& outputData,
+    std::vector<T>& trOutputData,
+    const sycldnn::conv2d::ConvSizes& conv_batch_sizes,
+    const sycldnn::conv2d::ConvSizes& conv_spatial_sizes,
+    const sycldnn::conv2d::ConvSizes& conv_channel_sizes, int output_offset) {
+  if (params.filter_format == sycldnn::FilterFormat::FCHW) {
+    // FCHW -> HWFC
+    transpose(trOutputData, outputData, conv_batch_sizes.output_size,
+              conv_channel_sizes.output_size, conv_spatial_sizes.output_size,
+              output_offset);
+    // HWFC -> HWCF
+    transpose(outputData, trOutputData, conv_spatial_sizes.output_size,
+              params.features, params.channels, output_offset);
+  }
+  return outputData;
+}
+
 template <typename Tuple>
 struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
   using SelectorType = typename Tuple::T0;
@@ -59,40 +201,29 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
                 filter_format == sycldnn::FilterFormat::FCHW);
     params.input_format = input_format;
     params.filter_format = filter_format;
+    auto conv_batch_sizes = sycldnn::conv2d::get_batch_sizes<ConvType>(params);
+    auto conv_spatial_sizes =
+        sycldnn::conv2d::get_spatial_sizes<ConvType>(params);
+    auto conv_channel_sizes =
+        sycldnn::conv2d::get_channel_sizes<ConvType>(params);
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
     ASSERT_EQ(conv_sizes.output_size, nhwc_exp.size());
-
-    // Stop the test early to avoid performing useless transposes.
-    if (input_format == sycldnn::DataFormat::NCHW &&
-        !std::is_same<ConvType, sycldnn::conv2d::conv_type::Forward>::value) {
-      GTEST_SKIP();
-    }
+    transpose_helper<ConvType> helper;
 
     std::vector<DataType> inputData =
         iota_initialised_data(conv_sizes.input_size, max_val);
-    std::vector<DataType>& input = inputData;
     std::vector<DataType> trInputData;
-    if (input_format == sycldnn::DataFormat::NCHW) {
-      transpose(trInputData, inputData, params.batch,
-                params.in_rows * params.in_cols, params.channels);
-      input = trInputData;
-    }
+    std::vector<DataType>& input =
+        helper.transpose_input(params, inputData, trInputData, conv_batch_sizes,
+                               conv_spatial_sizes, conv_channel_sizes);
     input.insert(input.begin(), input_offset, 0);
 
     std::vector<DataType> filterData =
         iota_initialised_data(conv_sizes.filter_size, max_val);
-    std::vector<DataType>& filter = filterData;
     std::vector<DataType> trFilterData;
-    if (filter_format == sycldnn::FilterFormat::FCHW) {
-      // HWCF -> HWFC
-      transpose(trFilterData, filterData,
-                params.window_rows * params.window_cols, params.channels,
-                params.features);
-      // HWFC -> FCHW
-      transpose(filterData, trFilterData, 1,
-                params.window_rows * params.window_cols,
-                params.channels * params.features);
-    }
+    std::vector<DataType>& filter = helper.transpose_filter(
+        params, filterData, trFilterData, conv_batch_sizes, conv_spatial_sizes,
+        conv_channel_sizes);
     filter.insert(filter.begin(), filter_offset, 0);
 
     std::vector<DataType> outputData(conv_sizes.output_size + output_offset,
@@ -136,13 +267,10 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
 
     provider.copy_device_data_to_host(outputData.size(), out_gpu, outputData);
 
-    std::vector<DataType>& output = outputData;
     std::vector<DataType> trOutputData;
-    if (input_format == sycldnn::DataFormat::NCHW) {
-      transpose(trOutputData, outputData, params.batch, params.features,
-                params.out_rows * params.out_cols, output_offset);
-      output = trOutputData;
-    }
+    std::vector<DataType>& output = helper.transpose_output(
+        params, outputData, trOutputData, conv_batch_sizes, conv_spatial_sizes,
+        conv_channel_sizes, output_offset);
 
     for (size_t i = 0; i < output_offset; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

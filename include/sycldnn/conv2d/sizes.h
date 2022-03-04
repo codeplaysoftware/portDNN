@@ -39,6 +39,121 @@ struct ConvSizes {
 };
 
 /**
+ * \brief Compute the batch of the tensors used in a convolution for the
+ * specified parameters.
+ *
+ * \param params The convolution parameters, containing the tensor sizes and
+ *               filter strides.
+ * \return Returns a \ref sycldnn::conv2d::ConvSizes instance, containing the
+ *         sizes of the tensors in elements.
+ */
+template <typename ConvType>
+inline ConvSizes get_batch_sizes(Conv2DParams const& params) {
+  size_t batch = params.batch;
+  ConvSizes sizes{batch, 1, batch};
+  return sizes;
+}
+
+/** \copydoc sycldnn::conv2d::get_batch_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_batch_sizes<conv_type::FilterBackprop>(
+    Conv2DParams const& params) {
+  size_t batch = params.batch;
+  ConvSizes sizes{batch, batch, 1};
+  return sizes;
+}
+
+/**
+ * \brief Compute the spatial sizes (height * width) of the tensors used in a
+ * convolution for the specified parameters.
+ *
+ * \param params The convolution parameters, containing the tensor sizes and
+ *               filter strides.
+ * \return Returns a \ref sycldnn::conv2d::ConvSizes instance, containing the
+ *         sizes of the tensors in elements.
+ */
+template <typename ConvType>
+ConvSizes get_spatial_sizes(Conv2DParams const& params);
+
+/** \copydoc sycldnn::conv2d::get_spatial_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_spatial_sizes<conv_type::Forward>(
+    Conv2DParams const& params) {
+  size_t inp_size = params.in_rows * params.in_cols;
+  size_t fil_size = params.window_rows * params.window_cols;
+  size_t out_size = params.out_rows * params.out_cols;
+  ConvSizes sizes{inp_size, fil_size, out_size};
+  return sizes;
+}
+
+/** \copydoc sycldnn::conv2d::get_spatial_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_spatial_sizes<conv_type::InputBackprop>(
+    Conv2DParams const& params) {
+  size_t inp_size = params.out_rows * params.out_cols;
+  size_t fil_size = params.window_rows * params.window_cols;
+  size_t out_size = params.in_rows * params.in_cols;
+  ConvSizes sizes{inp_size, fil_size, out_size};
+  return sizes;
+}
+
+/** \copydoc sycldnn::conv2d::get_spatial_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_spatial_sizes<conv_type::FilterBackprop>(
+    Conv2DParams const& params) {
+  size_t inp_size = params.in_rows * params.in_cols;
+  size_t fil_size = params.out_rows * params.out_cols;
+  size_t out_size = params.window_rows * params.window_cols;
+  ConvSizes sizes{inp_size, fil_size, out_size};
+  return sizes;
+}
+
+/**
+ * \brief Compute the spatial sizes (channel and/or feature) of the tensors used
+ * in a convolution for the specified parameters.
+ *
+ * \param params The convolution parameters, containing the tensor sizes and
+ *               filter strides.
+ * \return Returns a \ref sycldnn::conv2d::ConvSizes instance, containing the
+ *         sizes of the tensors in elements.
+ */
+template <typename ConvType>
+ConvSizes get_channel_sizes(Conv2DParams const& params);
+
+/** \copydoc sycldnn::conv2d::get_channel_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_channel_sizes<conv_type::Forward>(
+    Conv2DParams const& params) {
+  size_t inp_size = params.channels;
+  size_t fil_size = params.channels * params.features;
+  size_t out_size = params.features;
+  ConvSizes sizes{inp_size, fil_size, out_size};
+  return sizes;
+}
+
+/** \copydoc sycldnn::conv2d::get_channel_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_channel_sizes<conv_type::InputBackprop>(
+    Conv2DParams const& params) {
+  size_t inp_size = params.features;
+  size_t fil_size = params.channels * params.features;
+  size_t out_size = params.channels;
+  ConvSizes sizes{inp_size, fil_size, out_size};
+  return sizes;
+}
+
+/** \copydoc sycldnn::conv2d::get_channel_sizes(Conv2DParams const& params) */
+template <>
+inline ConvSizes get_channel_sizes<conv_type::FilterBackprop>(
+    Conv2DParams const& params) {
+  size_t inp_size = params.channels;
+  size_t fil_size = params.features;
+  size_t out_size = params.channels * params.features;
+  ConvSizes sizes{inp_size, fil_size, out_size};
+  return sizes;
+}
+
+/**
  * Compute the total sizes of the tensors used in a convolution for the
  * specified parameters.
  * \param params The convolution parameters, containing the tensor sizes and
@@ -47,45 +162,16 @@ struct ConvSizes {
  *         sizes of the tensors in elements.
  */
 template <typename ConvType>
-ConvSizes get_sizes(Conv2DParams const& params);
-
-/** \copydoc sycldnn::conv2d::get_sizes(Conv2DParams const& params) */
-template <>
-inline ConvSizes get_sizes<conv_type::Forward>(Conv2DParams const& params) {
-  size_t inp_size =
-      params.batch * params.in_rows * params.in_cols * params.channels;
-  size_t fil_size = params.window_rows * params.window_cols * params.channels *
-                    params.features;
-  size_t out_size =
-      params.batch * params.out_rows * params.out_cols * params.features;
-  ConvSizes sizes{inp_size, fil_size, out_size};
-  return sizes;
-}
-
-/** \copydoc sycldnn::conv2d::get_sizes(Conv2DParams const& params) */
-template <>
-inline ConvSizes get_sizes<conv_type::InputBackprop>(
-    Conv2DParams const& params) {
-  size_t inp_size =
-      params.batch * params.out_rows * params.out_cols * params.features;
-  size_t fil_size = params.window_rows * params.window_cols * params.channels *
-                    params.features;
-  size_t out_size =
-      params.batch * params.in_rows * params.in_cols * params.channels;
-  ConvSizes sizes{inp_size, fil_size, out_size};
-  return sizes;
-}
-
-/** \copydoc sycldnn::conv2d::get_sizes(Conv2DParams const& params) */
-template <>
-inline ConvSizes get_sizes<conv_type::FilterBackprop>(
-    Conv2DParams const& params) {
-  size_t inp_size =
-      params.batch * params.in_rows * params.in_cols * params.channels;
-  size_t fil_size =
-      params.batch * params.out_rows * params.out_cols * params.features;
-  size_t out_size = params.window_rows * params.window_cols * params.channels *
-                    params.features;
+inline ConvSizes get_sizes(Conv2DParams const& params) {
+  ConvSizes batch_sizes = get_batch_sizes<ConvType>(params);
+  ConvSizes spatial_sizes = get_spatial_sizes<ConvType>(params);
+  ConvSizes channel_sizes = get_channel_sizes<ConvType>(params);
+  size_t inp_size = batch_sizes.input_size * spatial_sizes.input_size *
+                    channel_sizes.input_size;
+  size_t fil_size = batch_sizes.filter_size * spatial_sizes.filter_size *
+                    channel_sizes.filter_size;
+  size_t out_size = batch_sizes.output_size * spatial_sizes.output_size *
+                    channel_sizes.output_size;
   ConvSizes sizes{inp_size, fil_size, out_size};
   return sizes;
 }
