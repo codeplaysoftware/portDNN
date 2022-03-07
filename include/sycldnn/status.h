@@ -25,6 +25,7 @@
  */
 #include <CL/sycl.hpp>
 
+#include "sycldnn/helpers/macros.h"
 namespace sycldnn {
 /** The possible errors returned by SYCL-DNN kernel launchers. */
 enum class StatusCode {
@@ -47,6 +48,30 @@ enum class StatusCode {
  * launching the kernel.
  */
 struct SNNStatus {
+  /**
+   * \brief Construct a new SNNStatus object
+   *
+   * \param e SYCL event
+   * \param s StatusCode
+   */
+  SNNStatus(const cl::sycl::event e, StatusCode s) : event(e), status(s) {}
+
+  /**
+   * \brief Construct a new SNNStatus object
+   * Implicit constructor to simplify returning an error without a SYCL event.
+   *
+   * \param s StatusCode
+   */
+  SNNStatus(StatusCode s) : SNNStatus({}, s) {}
+
+  /**
+   * \brief Construct a new SNNStatus object with the OK status.
+   */
+  SNNStatus() : SNNStatus(StatusCode::OK) {}
+
+  /** Default copy constructor and assignment. */
+  SNN_DEFAULT_COPY(SNNStatus);
+
   /**
    * A SYCL event corresponding to the final SYCL kernel launch. This event can
    * be used to facilitate synchronization between the host processor and the

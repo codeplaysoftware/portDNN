@@ -79,7 +79,6 @@ SNNStatus launch_forward(
     BatchNormParams const& params, Backend& backend) {
   using Index = int32_t;
   SNNStatus status;
-  status.status = StatusCode::OK;
   status.event =
       backend
           .template reduce_outer<T, Index, sycldnn::batchnorm::BatchNormParams,
@@ -165,7 +164,6 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
                       typename Backend::template pointer_type<T> output,
                       BatchNormParams const& params, Backend& backend) {
   SNNStatus status;
-  status.status = StatusCode::OK;
   status.event =
       backend.template reduce_outer<T, int32_t,
                                     sycldnn::batchnorm::BatchNormParams,

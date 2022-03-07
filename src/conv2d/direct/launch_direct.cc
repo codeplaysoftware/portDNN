@@ -15,6 +15,7 @@
  */
 #include "sycldnn/internal/conv2d/direct.h"
 
+#include "sycldnn/format_type.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -78,7 +79,75 @@ inline bool can_use_static_conv(Conv2DParams const& params, int const window,
  * */
 template <typename ConvType>
 inline bool can_use_vector_width(Conv2DParams const& params, int const width) {
-  return params.features % width == 0;
+  return params.input_format == DataFormat::NHWC &&
+         params.filter_format == FilterFormat::HWCF &&
+         params.features % width == 0;
+}
+
+/**
+ * Helper struct to partially specialize the launch of kernels.
+ * This ensures NCHW kernels are not instantiated for unsupported ConvTypes.
+ **/
+template <typename T, typename Index, typename ConvType, bool UseFastDiv,
+          int Window, int Stride, int VectorWidth, typename Layout>
+struct queue_kernel_helper {
+  SNNStatus operator()(BaseMemObject<T const>& input,
+                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
+                       Conv2DParams const& params, Index output_size,
+                       cl::sycl::queue& queue) {
+    return queue_direct_kernel<T, Index, ConvType, UseFastDiv, Window, Stride,
+                               VectorWidth, Layout>(input, filter, output,
+                                                    params, output_size, queue);
+  }
+};
+
+/** Disable NCHW InputBackprop */
+template <typename T, typename Index, bool UseFastDiv, int Window, int Stride,
+          int VectorWidth>
+struct queue_kernel_helper<T, Index, conv_type::InputBackprop, UseFastDiv,
+                           Window, Stride, VectorWidth, layout::NCHW> {
+  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T const>&,
+                       BaseMemObject<T>&, Conv2DParams const&, Index,
+                       cl::sycl::queue&) {
+    return StatusCode::InvalidAlgorithm;
+  }
+};
+
+/** Disable NCHW FilterBackprop */
+template <typename T, typename Index, bool UseFastDiv, int Window, int Stride,
+          int VectorWidth>
+struct queue_kernel_helper<T, Index, conv_type::FilterBackprop, UseFastDiv,
+                           Window, Stride, VectorWidth, layout::NCHW> {
+  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T const>&,
+                       BaseMemObject<T>&, Conv2DParams const&, Index,
+                       cl::sycl::queue&) {
+    return StatusCode::InvalidAlgorithm;
+  }
+};
+
+template <typename T, typename Index, typename ConvType, bool UseFastDiv,
+          int Window, int Stride, int VectorWidth>
+SNNStatus launch_with_fast_div(BaseMemObject<T const>& input,
+                               BaseMemObject<T const>& filter,
+                               BaseMemObject<T>& output,
+                               Conv2DParams const& params, Index output_size,
+                               cl::sycl::queue& queue) {
+  if (params.input_format == DataFormat::NCHW &&
+      params.filter_format == FilterFormat::FCHW) {
+#ifdef SNN_ENABLE_NCHW
+    return queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
+                               VectorWidth, layout::NCHW>()(
+        input, filter, output, params, output_size, queue);
+#else
+    return StatusCode::InvalidAlgorithm;
+#endif
+  } else if (params.input_format == DataFormat::NHWC &&
+             params.filter_format == FilterFormat::HWCF) {
+    return queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
+                               VectorWidth, layout::NHWC>()(
+        input, filter, output, params, output_size, queue);
+  }
+  return StatusCode::InvalidAlgorithm;
 }
 
 /**
@@ -94,13 +163,13 @@ SNNStatus launch_with_vector(BaseMemObject<T const>& input,
                              cl::sycl::queue& queue) {
   auto kernel_params = direct::get_kernel_params<ConvType>(params);
   if (can_use_fast_div<ConvType>(kernel_params, VectorWidth)) {
-    return queue_direct_kernel<T, Index, ConvType, true, Window, Stride,
-                               VectorWidth>(input, filter, output,
-                                            kernel_params, output_size, queue);
+    return launch_with_fast_div<T, Index, ConvType, true, Window, Stride,
+                                VectorWidth>(input, filter, output,
+                                             kernel_params, output_size, queue);
   } else {
-    return queue_direct_kernel<T, Index, ConvType, false, Window, Stride,
-                               VectorWidth>(input, filter, output,
-                                            kernel_params, output_size, queue);
+    return launch_with_fast_div<T, Index, ConvType, false, Window, Stride,
+                                VectorWidth>(input, filter, output,
+                                             kernel_params, output_size, queue);
   }
 }
 
@@ -144,9 +213,7 @@ SNNStatus launch_with_static_sizes(BaseMemObject<T const>& input,
         input, filter, output, params, static_cast<int64_t>(output_size),
         queue);
 #else
-    SNNStatus tensor_too_large;
-    tensor_too_large.status = StatusCode::IndexExceeded;
-    return tensor_too_large;
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, int32_t, ConvType, Window, Stride>(

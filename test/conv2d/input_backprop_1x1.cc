@@ -23,8 +23,9 @@
 #include "test/conv2d/selector_list.h"
 
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
-#include "test/types/nested_pairs_to_triple.h"
+#include "test/types/nested_pairs_to_tuple4.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -36,15 +37,19 @@ using OneByOneInputConvolutionTest = ConvolutionFixture<Pair>;
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
 using Backends = sycldnn::types::DefaultBackendTypes;
+using DataFormats = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
 using BackendTypePairs =
     sycldnn::types::CartesianProduct<SNNTypePairs, Backends>::type;
-using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
+using DataFormatBackendTypePairs =
+    sycldnn::types::CartesianProduct<BackendTypePairs, DataFormats>::type;
+using TestTuple4 =
+    sycldnn::types::NestedPairsToTuple4<DataFormatBackendTypePairs>::type;
 
-using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
-TYPED_TEST_SUITE(OneByOneInputConvolutionTest, GTestTypeTriples);
+using GTestTypeTuple4s = sycldnn::types::ToGTestTypes<TestTuple4>::type;
+TYPED_TEST_SUITE(OneByOneInputConvolutionTest, GTestTypeTuple4s);
 
 sycldnn::conv2d::Conv2DParams get_1x1_params(int batch, int channels,
                                              int features) {

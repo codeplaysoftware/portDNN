@@ -47,7 +47,7 @@ namespace internal {
  * Otherwise a status code \ref StatusCode::InvalidParameter will be returned.
  *
  * \param [in] params User provided parameters to validate
- * \return An SNNStatus obejct containing either \ref StatusCode::OK if all
+ * \return An SNNStatus object containing either \ref StatusCode::OK if all
  *         parameters are valid, or \ref StatusCode::InvalidParameter otherwise.
  */
 SNNStatus inline validate_params(PoolingParams const& params) {
@@ -77,7 +77,7 @@ SNNStatus inline validate_params(PoolingParams const& params) {
       "The padding in the column direction must be non-negative.");
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
                      "Currently SYCL-DNN only supports the NHWC data format.");
-  return SNNStatus{{}, StatusCode::OK};
+  return StatusCode::OK;
 }
 
 }  // namespace internal

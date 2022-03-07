@@ -63,7 +63,7 @@ SNNStatus inline validate_params(BatchNormParams const& params) {
   SNN_VALIDATE_PARAM(
       params.momentum >= 0.f,
       "The momentum parameter must be greater than or equal to 0.");
-  return SNNStatus{{}, StatusCode::OK};
+  return StatusCode::OK;
 }
 
 }  // namespace internal

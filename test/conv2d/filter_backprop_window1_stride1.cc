@@ -23,8 +23,9 @@
 #include "sycldnn/padding_mode.h"
 
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
-#include "test/types/nested_pairs_to_triple.h"
+#include "test/types/nested_pairs_to_tuple4.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -37,18 +38,22 @@
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
 using Backends = sycldnn::types::AllBackendTypes;
+using DataFormats = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<Selectors, DataTypeList>::type;
 using BackendTypePairs =
     sycldnn::types::CartesianProduct<SNNTypePairs, Backends>::type;
-using TestTriples = sycldnn::types::NestedPairsToTriple<BackendTypePairs>::type;
+using DataFormatBackendTypePairs =
+    sycldnn::types::CartesianProduct<BackendTypePairs, DataFormats>::type;
+using TestTuple4 =
+    sycldnn::types::NestedPairsToTuple4<DataFormatBackendTypePairs>::type;
 
-using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
+using GTestTypeTuple4s = sycldnn::types::ToGTestTypes<TestTuple4>::type;
 
-template <typename Pair>
-using FilterBackpropWindow1Stride1 = WindowStrideTest<Pair, 1, 1>;
-TYPED_TEST_SUITE(FilterBackpropWindow1Stride1, GTestTypeTriples);
+template <typename Tuple>
+using FilterBackpropWindow1Stride1 = WindowStrideTest<Tuple, 1, 1>;
+TYPED_TEST_SUITE(FilterBackpropWindow1Stride1, GTestTypeTuple4s);
 TYPED_TEST(FilterBackpropWindow1Stride1, SAME1x2x2x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {30.};

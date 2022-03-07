@@ -57,9 +57,7 @@ SNNStatus launch_roi_align(BaseMemObject<T const>& input,
     return launch_with_index<T, BatchIndicesT, int64_t, PoolType>(
         input, rois, batch_indices, output, rap, threads, queue);
 #else
-    SNNStatus index_too_large;
-    index_too_large.status = StatusCode::IndexExceeded;
-    return index_too_large;
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, BatchIndicesT, int32_t, PoolType>(

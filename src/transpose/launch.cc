@@ -127,7 +127,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
       return Transposer<T, int, 1>::transpose(input, output, dimensions,
                                               permutation, queue);
   }
-  return {{}, StatusCode::InvalidAlgorithm};
+  return StatusCode::InvalidAlgorithm;
 }
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                    \

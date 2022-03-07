@@ -45,14 +45,14 @@ namespace conv2d {
  * \param input A pointer to the memory representing the input tensor.
  * \param filter A pointer to the memory representing the tensor of filter
  *               coefficients.
- * \param output A pointer to the memory represnting the output tensor.
+ * \param output A pointer to the memory representing the output tensor.
  * \param params The convolution parameters, which describe the tensor shapes
  *               and convolution strides.
  * \param selector An instance of \ref sycldnn::conv2d::Selector, used to guide
  *                 the selection of the most appropriate convolution algorithm
  *                 for a specific target platform or problem size.
  * \param backend The backend implementation, used to provide optimized matrix
- *                multiplies and to map between pointer represntations.
+ *                multiplies and to map between pointer representations.
  * \param workspace Optional pointer to a workspace buffer for use whenever
  *                  temporary memory is required.
  * \param workspace_size The number of elements available in the workspace
@@ -100,13 +100,20 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                      "Currently SYCL-DNN only supports dilation 1.");
   SNN_VALIDATE_PARAM(params.dilation_cols == 1,
                      "Currently SYCL-DNN only supports dilation 1.");
-  SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
-                     "Currently SYCL-DNN only supports the NHWC data format.");
-  SNN_VALIDATE_PARAM(
-      params.filter_format == sycldnn::FilterFormat::HWCF,
-      "Currently SYCL-DNN only supports the HWCF filter format.");
 
   Algorithm algo_tag = selector.select<ConvType>(params);
+  auto implies = [](bool x, bool y) { return !x || (x && y); };
+  SNN_VALIDATE_PARAM(implies(params.input_format == DataFormat::NHWC,
+                             params.filter_format == FilterFormat::HWCF),
+                     "Unsupported layout combination.");
+  SNN_VALIDATE_PARAM(implies(params.input_format == DataFormat::NCHW,
+                             params.filter_format == FilterFormat::FCHW),
+                     "Unsupported layout combination.");
+  if (params.input_format == DataFormat::NCHW &&
+      algo_tag != Algorithm::Direct) {
+    return StatusCode::InvalidAlgorithm;
+  }
+
   switch (algo_tag) {
     case Algorithm::Direct:
       return launch_direct<T, ConvType>(input, filter, output, params, backend);
@@ -125,9 +132,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       return launch_matmul<T, ConvType>(input, filter, output, params, backend);
     case Algorithm::NotSupported:
     default:
-      SNNStatus not_supported_status;
-      not_supported_status.status = StatusCode::InvalidAlgorithm;
-      return not_supported_status;
+      return StatusCode::InvalidAlgorithm;
   }
 }
 }  // namespace conv2d

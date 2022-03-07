@@ -347,7 +347,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
     return launch_with_tiles<T, ConvType, 1, 2, 1, 3>(
         input, filter, output, workspace, params, workspace_size, backend);
   }
-  return SNNStatus{{}, StatusCode::InvalidAlgorithm};
+  return StatusCode::InvalidAlgorithm;
 }
 
 /** \copydoc sycldnn::conv2d::internal::winograd::launch() */
@@ -373,7 +373,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
     return launch_with_tiles<T, ConvType, 1, 3, 1, 2>(
         input, filter, output, workspace, params, workspace_size, backend);
   }
-  return SNNStatus{{}, StatusCode::InvalidAlgorithm};
+  return StatusCode::InvalidAlgorithm;
 }
 
 /** \copydoc sycldnn::conv2d::internal::winograd::launch() */
@@ -391,7 +391,7 @@ SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
     return launch_with_tiles<T, ConvType, 4, 4, 3, 3>(
         input, filter, output, workspace, params, workspace_size, backend);
   }
-  return SNNStatus{{}, StatusCode::InvalidAlgorithm};
+  return StatusCode::InvalidAlgorithm;
 }
 
 /** \copydoc sycldnn::conv2d::internal::winograd::launch() */
@@ -409,7 +409,7 @@ SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
     return launch_with_tiles<T, ConvType, 3, 3, 3, 3>(
         input, filter, output, workspace, params, workspace_size, backend);
   }
-  return SNNStatus{{}, StatusCode::InvalidAlgorithm};
+  return StatusCode::InvalidAlgorithm;
 }
 
 }  // namespace winograd

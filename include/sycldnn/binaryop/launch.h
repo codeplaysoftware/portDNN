@@ -48,14 +48,14 @@ namespace internal {
  * Otherwise a status code \ref StatusCode::InvalidParameter will be returned.
  *
  * \param [in] params User provided parameters to validate
- * \return An SNNStatus obejct containing either \ref StatusCode::OK if all
+ * \return An SNNStatus object containing either \ref StatusCode::OK if all
  *         parameters are valid, or \ref StatusCode::InvalidParameter otherwise.
  */
 
 SNNStatus inline validate_params(BinaryParams const& params) {
   SNN_VALIDATE_PARAM(params.lhs_items > 0, "The number of items in 1st input.");
   SNN_VALIDATE_PARAM(params.rhs_items > 0, "The number of items in 2nd input.");
-  return SNNStatus{{}, StatusCode::OK};
+  return StatusCode::OK;
 }
 
 }  // namespace internal

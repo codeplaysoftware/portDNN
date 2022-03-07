@@ -21,7 +21,8 @@
 #include "sycldnn/helpers/minmax.h"
 #include "sycldnn/helpers/ratio.h"
 
-#include "src/conv2d/direct/kernels.h"
+#include "src/conv2d/direct/kernels_nchw.h"
+#include "src/conv2d/direct/kernels_nhwc.h"
 #include "src/conv2d/direct/queue_direct_kernel.h"
 
 namespace sycldnn {
@@ -38,14 +39,14 @@ Index calculate_required_threads(Index output_size) {
 }
 
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth>
+          int Window, int Stride, int VectorWidth, typename Layout>
 SNNStatus queue_direct_kernel(BaseMemObject<T const>& in_mem,
                               BaseMemObject<T const>& fil_mem,
                               BaseMemObject<T>& out_mem,
                               Conv2DParams const& kernel_params,
                               Index output_size, cl::sycl::queue& queue) {
   using Functor = direct::DirectConv2D<T, Index, ConvType, UseFastDiv, Window,
-                                       Stride, VectorWidth>;
+                                       Stride, VectorWidth, Layout>;
   cl::sycl::device device = queue.get_device();
   Index const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();

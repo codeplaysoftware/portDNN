@@ -58,7 +58,7 @@ template <typename T, typename ConvType, typename Backend,
 static SNNStatus launch_filter_transform(
     FullPointerSet<T, Backend, ConvType> const& /*pointers*/,
     Conv2DParams const& /*params*/, Backend& /*backend*/) {
-  return SNNStatus{{}, StatusCode::OK};
+  return StatusCode::OK;
 }
 
 /**

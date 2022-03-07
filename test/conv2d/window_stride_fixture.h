@@ -25,9 +25,9 @@
 
 #include <vector>
 
-template <typename Triple, int Window, int Stride>
-struct WindowStrideTest : public ConvolutionFixture<Triple> {
-  using typename ConvolutionFixture<Triple>::DataType;
+template <typename Tuple, int Window, int Stride>
+struct WindowStrideTest : public ConvolutionFixture<Tuple> {
+  using typename ConvolutionFixture<Tuple>::DataType;
   using Conv2DParams = sycldnn::conv2d::Conv2DParams;
 
  protected:

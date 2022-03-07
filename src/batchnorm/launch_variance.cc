@@ -64,9 +64,7 @@ SNNStatus launch_variance(BaseMemObject<T const>& input,
     return launch_with_index<T, int64_t>(input, current_mean, current_variance,
                                          params, queue);
 #else
-    SNNStatus index_too_large;
-    index_too_large.status = StatusCode::IndexExceeded;
-    return index_too_large;
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, int32_t>(input, current_mean, current_variance,

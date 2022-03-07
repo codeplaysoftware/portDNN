@@ -28,7 +28,7 @@ namespace internal {
  * Queue a direct convolution kernel to the provided SYCL queue.
  */
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth>
+          int Window, int Stride, int VectorWidth, typename Layout>
 SNNStatus queue_direct_kernel(BaseMemObject<T const>& input,
                               BaseMemObject<T const>& filter,
                               BaseMemObject<T>& output,

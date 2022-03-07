@@ -69,9 +69,7 @@ SNNStatus launch_batchnorm(
                                          current_variance, output, params,
                                          queue);
 #else
-    SNNStatus index_too_large;
-    index_too_large.status = StatusCode::IndexExceeded;
-    return index_too_large;
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, int32_t>(input, beta, gamma, current_mean,

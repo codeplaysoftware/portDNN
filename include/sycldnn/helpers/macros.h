@@ -112,12 +112,12 @@
  * \param condition Condition to check.
  * \param message   Error message to give if condition not met.
  */
-#define SNN_VALIDATE_PARAM(condition, message)            \
-  do {                                                    \
-    SNN_ASSERT(condition, message);                       \
-    if (!(condition)) {                                   \
-      return SNNStatus{{}, StatusCode::InvalidParameter}; \
-    }                                                     \
+#define SNN_VALIDATE_PARAM(condition, message) \
+  do {                                         \
+    SNN_ASSERT(condition, message);            \
+    if (!(condition)) {                        \
+      return StatusCode::InvalidParameter;     \
+    }                                          \
   } while (0)
 
 /**

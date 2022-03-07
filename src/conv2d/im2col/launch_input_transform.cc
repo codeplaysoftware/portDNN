@@ -94,7 +94,7 @@ SNNStatus launch_with_vector(BaseMemObject<T const>& input,
     return launch_with_index<T, int64_t, VectorWidth, ConvType>(
         input, output, params, n_tiles, tile_size, queue);
 #else
-    return SNNStatus{{}, StatusCode::IndexExceeded};
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, int32_t, VectorWidth, ConvType>(

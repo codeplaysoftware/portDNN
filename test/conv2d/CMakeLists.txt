@@ -23,7 +23,7 @@ snn_test(
   SIZE
     short
   SOURCES
-    convolutions.cc
+    simple_convolution.cc
   PUBLIC_LIBRARIES
     sycl_dnn
 )

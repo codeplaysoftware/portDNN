@@ -58,7 +58,7 @@ SNNStatus inline validate_params(SoftmaxParams const& params) {
                      "The number of input/output columns must be positive.");
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
                      "Currently SYCL-DNN only supports the NHWC data format.");
-  return SNNStatus{{}, StatusCode::OK};
+  return StatusCode::OK;
 }
 
 }  // namespace internal

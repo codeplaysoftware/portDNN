@@ -138,9 +138,7 @@ SNNStatus launch_with_sizes(BaseMemObject<T const>& input,
                                   Window, Stride>(input, filter, output, params,
                                                   tile_info, queue);
 #else
-    SNNStatus tensor_too_large;
-    tensor_too_large.status = StatusCode::IndexExceeded;
-    return tensor_too_large;
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index_type<T, int32_t, ConvType, TileRows, TileCols,
@@ -229,9 +227,7 @@ inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& input,
   LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
   // clang-format on
 
-  SNNStatus invalid_algorithm_status;
-  invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
-  return invalid_algorithm_status;
+  return StatusCode::InvalidAlgorithm;
 }
 
 /** Internal tile size launcher for InputBackprop.  */
@@ -259,9 +255,7 @@ inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& input,
   LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
   // clang-format on
 
-  SNNStatus invalid_algorithm_status;
-  invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
-  return invalid_algorithm_status;
+  return StatusCode::InvalidAlgorithm;
 }
 
 #undef LAUNCH_IF_MATCH
@@ -277,9 +271,7 @@ inline SNNStatus launch_tiled_impl(BaseMemObject<T const>& /*input*/,
                                    Conv2DParams const& /*params*/,
                                    cl::sycl::queue& /*queue*/) {
   // Tiled algorithm is not supported for filter backprop.
-  SNNStatus invalid_algorithm_status;
-  invalid_algorithm_status.status = StatusCode::InvalidAlgorithm;
-  return invalid_algorithm_status;
+  return StatusCode::InvalidAlgorithm;
 }
 }  // namespace
 

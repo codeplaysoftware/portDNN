@@ -104,9 +104,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
         input, filter, output, kernel_params, static_cast<int64_t>(output_size),
         queue);
 #else
-    SNNStatus tensor_too_large;
-    tensor_too_large.status = StatusCode::IndexExceeded;
-    return tensor_too_large;
+    return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_vectorised<ConvType, T, int32_t>(
