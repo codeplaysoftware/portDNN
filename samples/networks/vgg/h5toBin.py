@@ -4,6 +4,7 @@ import numpy as npy
 import h5py as h5
 from sys import argv
 
+
 def dump_data(name):
     f = h5.File(name, 'r')
     count = 0
@@ -24,6 +25,7 @@ def dump_data(name):
             output_w.tofile(f_weights)
         with open(layer_name + '-biases.bin', 'wb') as f_biases:
             output_b.tofile(f_biases)
+
 
 if __name__ == "__main__":
     for name in argv[1:]:

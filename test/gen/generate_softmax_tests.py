@@ -20,19 +20,11 @@
 
 from __future__ import print_function
 
-try:
-    # With python3 `zip` returns an iterator, however with python2, use
-    # `itertools.izip` instead
-    import itertools.izip as zip
-except ImportError:
-    pass
-
 import itertools
 import os
 from collections import namedtuple
 
-import tensorflow.compat.v1 as tf
-from tensorflow.python.framework.ops import get_gradient_function
+import tensorflow as tf
 import numpy as np
 
 import helpers
@@ -71,66 +63,40 @@ TENSORFLOW_OPS_MAP = {
 
 def get_grad_results(max_val, softmax_op, input_shape):
     """
-    Construct and run a Tensorflow graph to compute a backprop softmax op.
+    Compute backprop softmax.
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the softmax op. Then, create another tensor
     with the same values to use as the errors for back-propagation.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
+    input = helpers.get_variable(input_shape, max_val)
 
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+    with tf.GradientTape() as tape:
+        output = softmax_op(input)
 
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
-
-        softmax_output = softmax_op(inp_tensor, name='softmax')
-
-        tf_op = tf.get_default_graph().get_operation_by_name('softmax')
-        grad_fn = get_gradient_function(tf_op)
-
-        output_size = total_inp_size
-        error_vals = helpers.get_signed_tensor_data(output_size,
-                                                    max_val=max_val,
-                                                    min_val=-1)
-        error_tensor = tf.constant(input_vals, shape=input_shape, dtype=np.float64)
-
-        output = grad_fn(tf_op, error_tensor)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    output_shape = output.shape
+    error = helpers.get_variable(output_shape, max_val)
+    return tape.gradient(output, input, error)
 
 
 def get_forward_results(max_val, softmax_op, input_shape):
     """
-    Construct and run a Tensorflow graph to compute a forward softmax op.
+    Compute forward softmax.
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the softmax op. Returns the computed values
     in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
+    total_inp_size = np.product(input_shape)
 
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+    input_vals = helpers.get_tensor_data(total_inp_size, max_val)
 
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
+    inp_tensor = tf.constant(input_vals,
+                             shape=input_shape,
+                             dtype=np.float64)
 
-        output = softmax_op(inp_tensor)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    return softmax_op(inp_tensor)
 
 
 def get_result_function(test_case):
@@ -145,7 +111,6 @@ def get_result_function(test_case):
         raise Exception("Direction provided not recognised")
 
 
-#TODO dansoutar: fix these and the remainder of the file.
 TEST_CASE_TPL = "{test_type}{direction}"
 TEST_NAME_TPL = "{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
@@ -174,7 +139,6 @@ def get_test_lines(test_case, test_params):
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    channel_idx = -1 if test_params.data_format == 'NHWC' else 1
     output, max_input_val = get_result(test_case, test_params)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
     test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
@@ -183,12 +147,15 @@ def get_test_lines(test_case, test_params):
     test_name = TEST_NAME_TPL.format(in_s=test_params.in_shape)
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     test_lines = [
-        "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
+        "TYPED_TEST({}, {}) {{".format(
+            test_case_name,
+            test_name),
         "  using DataType = typename TestFixture::DataType;",
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
         "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-        "  const auto params = getSoftmaxParams(in_shape, DataFormat::{});".format(test_params.data_format),
+        "  const auto params = getSoftmaxParams(in_shape, DataFormat::{});".format(
+            test_params.data_format),
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->test_softmax(exp_out, params, max_input_val);",
         "}",
@@ -257,4 +224,3 @@ def generate_softmax_tests():
 
 if __name__ == "__main__":
     generate_softmax_tests()
-

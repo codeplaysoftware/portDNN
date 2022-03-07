@@ -4,6 +4,7 @@ import numpy as npy
 import h5py as h5
 from sys import argv
 
+
 def dump_data(name):
     f = h5.File(name, 'r')
     for layer in f.keys():
@@ -18,6 +19,7 @@ def dump_data(name):
                     output_w.tofile(f_weights)
         except KeyError:
             continue
+
 
 if __name__ == "__main__":
     for name in argv[1:]:

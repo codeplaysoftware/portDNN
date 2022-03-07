@@ -20,19 +20,11 @@
 
 from __future__ import print_function
 
-try:
-    # With python3 `zip` returns an iterator, however with python2, use
-    # `itertools.izip` instead
-    import itertools.izip as zip
-except ImportError:
-    pass
-
 import itertools
 import os
 from collections import namedtuple
 
 import tensorflow as tf
-from tensorflow.python.framework.ops import get_gradient_function
 import numpy as np
 
 import helpers
@@ -67,7 +59,7 @@ TENSORFLOW_OPS_MAP = {
 
 def get_grad_results(max_val, pointwise_op, in_size):
     """
-    Construct and run a Tensorflow graph to compute a backprop pointwise op.
+    Compute a backprop pointwise op.
 
     Will create an input tensor of the required size filled with values -n, -n+1,
     ..., 0, 1, ..., n-1, n and use these to compute the pointwise op.
@@ -75,56 +67,32 @@ def get_grad_results(max_val, pointwise_op, in_size):
     for back-propagation.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        min_val = -max_val if in_size % 2 == 0 else -max_val - 1
-        input_vals = helpers.get_signed_tensor_data(in_size,
-                                                    max_val=max_val,
-                                                    min_val=min_val)
-        inp_tensor = tf.constant(input_vals, dtype=np.float64)
+    min_val = -max_val if in_size % 2 == 0 else -max_val - 1
+    input = helpers.get_signed_variable(in_size, min_val, max_val)
+    with tf.GradientTape() as tape:
+        output = pointwise_op(input)
 
-        pointwise_output = pointwise_op(inp_tensor, name='pointwise')
-
-        tf_op = tf.get_default_graph().get_operation_by_name('pointwise')
-        grad_fn = get_gradient_function(tf_op)
-
-        output_size = in_size
-        error_vals = helpers.get_signed_tensor_data(output_size,
-                                                    max_val=max_val,
-                                                    min_val=min_val)
-        error_tensor = tf.constant(error_vals, dtype=np.float64)
-
-        output = grad_fn(tf_op, error_tensor)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    output_shape = output.shape
+    error = helpers.get_signed_variable(output_shape, min_val, max_val)
+    return tape.gradient(output, input, error)
 
 
 def get_forward_results(max_val, pointwise_op, in_size):
     """
-    Construct and run a Tensorflow graph to compute a forward pointwise op.
+    Compute a forward pointwise op.
 
     Will create an input tensor of the required size filled with values -n, -n+1,
     ..., 0, 1, ..., n-1, n and use these to compute the pointwise op.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        min_val = -max_val if in_size % 2 == 0 else -max_val - 1
-        input_vals = helpers.get_signed_tensor_data(in_size,
-                                                    max_val=max_val,
-                                                    min_val=min_val)
+    min_val = -max_val if in_size % 2 == 0 else -max_val - 1
+    input_vals = helpers.get_signed_tensor_data(in_size,
+                                                max_val=max_val,
+                                                min_val=min_val)
 
-        inp_tensor = tf.constant(input_vals, dtype=np.float64)
+    inp_tensor = tf.constant(input_vals, dtype=np.float64)
 
-        output = pointwise_op(inp_tensor)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    return pointwise_op(inp_tensor)
 
 
 def get_result_function(test_case):

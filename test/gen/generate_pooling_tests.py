@@ -32,7 +32,6 @@ import os
 from collections import namedtuple
 
 import tensorflow as tf
-from tensorflow.python.framework.ops import get_gradient_function
 import numpy as np
 
 import helpers
@@ -91,76 +90,48 @@ TF_OPERATOR_MAP = {
 def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
                      padding):
     """
-    Construct and run a Tensorflow graph to compute pooling backprop values.
+    Compute pooling backprop values.
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the pooling, then create another tensor with
     the same values to use as the errors to back-propagate.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
-
-        pool_output = tf.nn.pool(inp_tensor,
-                                 window_shape=window_shape,
-                                 pooling_type=TF_OPERATOR_MAP[pool_op],
-                                 strides=stride_shape,
-                                 padding=padding,
-                                 name='pool',
-                                 data_format="NHWC")
-
-        tf_op = tf.get_default_graph().get_operation_by_name('pool')
-        grad_fn = get_gradient_function(tf_op)
-        output_shape = pool_output.shape
-
-        total_out_size = np.product(output_shape)
-        error_vals = helpers.get_tensor_data(total_out_size, max_val)
-        error_tensor = tf.constant(error_vals,
-                                   shape=output_shape,
-                                   dtype=np.float64)
-
-        output = grad_fn(tf_op, error_tensor)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
-
-
-def get_pool_results(max_val, pool_op, input_shape, window_shape, stride_shape,
-                     padding):
-    """
-    Construct and run a Tensorflow graph to compute pooling.
-
-    Will create an input tensor of the required size filled with values 1, 2,
-    3... and use these to compute the pooling.
-    Returns the computed values in a numpy array.
-    """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
-
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
-
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
-        output = tf.nn.pool(inp_tensor,
+    input = helpers.get_variable(input_shape, max_val)
+    with tf.GradientTape() as tape:
+        output = tf.nn.pool(input,
                             window_shape=window_shape,
                             pooling_type=TF_OPERATOR_MAP[pool_op],
                             strides=stride_shape,
                             padding=padding,
                             data_format="NHWC")
+    output_shape = output.shape
+    error = helpers.get_variable(output_shape, max_val)
+    return tape.gradient(output, input, error)
 
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+
+def get_pool_results(max_val, pool_op, input_shape, window_shape, stride_shape,
+                     padding):
+    """
+    Compute forward pooling.
+
+    Will create an input tensor of the required size filled with values 1, 2,
+    3... and use these to compute the pooling.
+    Returns the computed values in a numpy array.
+    """
+    total_inp_size = np.product(input_shape)
+
+    input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+
+    inp_tensor = tf.constant(input_vals,
+                             shape=input_shape,
+                             dtype=np.float64)
+    return tf.nn.pool(inp_tensor,
+                      window_shape=window_shape,
+                      pooling_type=TF_OPERATOR_MAP[pool_op],
+                      strides=stride_shape,
+                      padding=padding,
+                      data_format="NHWC")
 
 
 def get_result_function(test_case):

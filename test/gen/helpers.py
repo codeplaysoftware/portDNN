@@ -92,6 +92,13 @@ def get_tensor_data(size, max_val):
         return [(i % max_val) + 1 for i in range(size)]
 
 
+def get_variable(shape, max_val):
+    "Get TensorFlow variable with populated data"
+    total_size = np.product(shape)
+    values = np.array(get_tensor_data(total_size, max_val)).reshape(shape)
+    return tf.Variable(values, dtype=np.float64)
+
+
 def get_signed_tensor_data(size, min_val, max_val):
     """
     As with get_tensor_data(), but enables negative-valued data
@@ -106,12 +113,23 @@ def get_signed_tensor_data(size, min_val, max_val):
     return res[0:size]
 
 
+def get_signed_variable(shape, min_val, max_val):
+    "Get TensorFlow variable with populated data"
+    total_size = np.product(shape)
+    values = np.array(
+        get_signed_tensor_data(
+            total_size,
+            min_val,
+            max_val)).reshape(shape)
+    return tf.Variable(values, dtype=np.float64)
+
+
 SPACE_REGEX = re.compile(r'([0-9]\.?)\s+')
 
 
 def format_tensor(tensor):
     "Convert a numpy tensor into an initializer list."
-    t_str = np.array2string(tensor.flatten(),
+    t_str = np.array2string(np.array(tensor).flatten(),
                             floatmode='unique',
                             separator=', ')
     t_braced = '{' + t_str[1:-1] + '}'

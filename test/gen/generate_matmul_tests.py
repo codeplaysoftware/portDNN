@@ -71,33 +71,26 @@ def get_shape(batch, rows, cols, transpose):
 
 def get_matmul_result(max_val, batch, m, k, n, beta, trans_lhs, trans_rhs):
     """
-    Construct and run a Tensorflow graph to compute matrix multiplication.
+    Compute matrix multiplication.
 
     Will create input tensors of the required size filled with values 1, 2,
     3... and use these to compute the multiplication.
 
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        lhs_vals = helpers.get_tensor_data(batch * m * k, max_val)
-        rhs_vals = helpers.get_tensor_data(batch * k * n, max_val)
-        out_vals = helpers.get_tensor_data(batch * m * n, max_val)
+    lhs_vals = helpers.get_tensor_data(batch * m * k, max_val)
+    rhs_vals = helpers.get_tensor_data(batch * k * n, max_val)
+    out_vals = helpers.get_tensor_data(batch * m * n, max_val)
 
-        lhs_shape = get_shape(batch, m, k, trans_lhs)
-        rhs_shape = get_shape(batch, k, n, trans_rhs)
-        out_shape = get_shape(batch, m, n, False)
+    lhs_shape = get_shape(batch, m, k, trans_lhs)
+    rhs_shape = get_shape(batch, k, n, trans_rhs)
+    out_shape = get_shape(batch, m, n, False)
 
-        lhs_tensor = tf.constant(lhs_vals, shape=lhs_shape, dtype=np.float64)
-        rhs_tensor = tf.constant(rhs_vals, shape=rhs_shape, dtype=np.float64)
-        initial_out = tf.constant(out_vals, shape=out_shape, dtype=np.float64)
-        output = beta * initial_out + tf.matmul(lhs_tensor, rhs_tensor,
-                                                trans_lhs, trans_rhs)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    lhs_tensor = tf.constant(lhs_vals, shape=lhs_shape, dtype=np.float64)
+    rhs_tensor = tf.constant(rhs_vals, shape=rhs_shape, dtype=np.float64)
+    initial_out = tf.constant(out_vals, shape=out_shape, dtype=np.float64)
+    return beta * initial_out + tf.matmul(lhs_tensor, rhs_tensor,
+                                          trans_lhs, trans_rhs)
 
 
 def get_test_lines(batch, m, k, n, beta, trans_lhs, trans_rhs):

@@ -20,19 +20,11 @@
 
 from __future__ import print_function
 
-try:
-    # With python3 `zip` returns an iterator, however with python2, use
-    # `itertools.izip` instead
-    import itertools.izip as zip
-except ImportError:
-    pass
-
 import itertools
 import os
 from collections import namedtuple
 
 import tensorflow.compat.v1 as tf
-from tensorflow.python.framework.ops import get_gradient_function
 import numpy as np
 
 import helpers
@@ -62,119 +54,115 @@ template <typename DataType>
 using {test_case} = BatchNormFixture<DataType, {direction}, {operation}>;
 TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
 
-TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction', 'operation'])
+TestCaseParams = namedtuple(
+    'TestCaseParams', [
+        'test_type', 'direction', 'operation'])
 TestParams = namedtuple('TestParams', ['in_shape', 'data_format'])
 
-def compute_gradients(grad_y,
-                   x,
-                   scale,
-                   pop_mean,
-                   pop_var,
-                   epsilon,
-                   is_training=True,
-                   keepdims=False):
-  """Returns the gradients for the 3 inputs of BatchNorm.
-  https://github.com/tensorflow/tensorflow/blob/d916f20e1f1897696a19158ac7f5bd8d83e1b857/tensorflow/python/ops/nn_grad.py#L924
-  Args:
-    grad_y: A `Tensor` of 4 or 5 dimensions for gradient for y.
-    x: A `Tensor` of 4 or 5 dimensions for x.
-    scale: A `Tensor` of 1 dimension for scaling.
-    pop_mean: A `Tensor` of 1 dimension for the population mean. Only used when
-      is_training=False.
-    pop_var: A `Tensor` of 1 dimension for the population variance. Only used
-      when is_training=False.
-    epsilon: A small float number added to the variance of x.
-    is_training: A bool value to indicate the operation is for training
-      (default) or inference.
 
-  Returns:
-    A tuple (grad_x, grad_scale, grad_offset), where grad_x is the gradient
-    for x, grad_scale the gradient for scale, and grad_offset the gradient
-    for offset.
-  """
-  if is_training:
-    mean_grad_y = np.mean(grad_y, axis=(0,1,2), keepdims=keepdims)
-    mean_x = np.mean(x, axis=(0,1,2), keepdims=keepdims)
-    var_x = np.var(x, axis=(0,1,2), keepdims=keepdims)
-    grad_y_offset = grad_y - mean_grad_y
-    x_offset = x - mean_x
-    mean = np.mean(grad_y * x_offset, axis=(0,1,2), keepdims=keepdims)
-    grad_x = scale * np.reciprocal(np.sqrt(var_x + epsilon)) * (
-        grad_y_offset - np.reciprocal(var_x + epsilon) * mean * x_offset)
-    grad_scale = np.reciprocal(np.sqrt(var_x + epsilon)) * np.sum(
-        grad_y * x_offset, axis=(0,1,2), keepdims=keepdims)
-    grad_offset = np.sum(grad_y, axis=(0,1,2))
-    return grad_x, grad_scale, grad_offset
-  else:
-    grad_offset = np.sum(grad_y, axis=(0,1,2))
-    var_rsqrt = np.reciprocal(np.sqrt(pop_var + epsilon))
-    grad_scale = np.sum(
-        grad_y * (x - pop_mean) * var_rsqrt, axis=(0,1,2))
-    grad_x = grad_y * scale * var_rsqrt
-    return grad_x, grad_scale, grad_offset
+def compute_gradients(grad_y,
+                      x,
+                      scale,
+                      pop_mean,
+                      pop_var,
+                      epsilon,
+                      is_training=True,
+                      keepdims=False):
+    """Returns the gradients for the 3 inputs of BatchNorm.
+    https://github.com/tensorflow/tensorflow/blob/d916f20e1f1897696a19158ac7f5bd8d83e1b857/tensorflow/python/ops/nn_grad.py#L924
+    Args:
+      grad_y: A `Tensor` of 4 or 5 dimensions for gradient for y.
+      x: A `Tensor` of 4 or 5 dimensions for x.
+      scale: A `Tensor` of 1 dimension for scaling.
+      pop_mean: A `Tensor` of 1 dimension for the population mean. Only used when
+        is_training=False.
+      pop_var: A `Tensor` of 1 dimension for the population variance. Only used
+        when is_training=False.
+      epsilon: A small float number added to the variance of x.
+      is_training: A bool value to indicate the operation is for training
+        (default) or inference.
+
+    Returns:
+      A tuple (grad_x, grad_scale, grad_offset), where grad_x is the gradient
+      for x, grad_scale the gradient for scale, and grad_offset the gradient
+      for offset.
+    """
+    if is_training:
+        mean_grad_y = np.mean(grad_y, axis=(0, 1, 2), keepdims=keepdims)
+        mean_x = np.mean(x, axis=(0, 1, 2), keepdims=keepdims)
+        var_x = np.var(x, axis=(0, 1, 2), keepdims=keepdims)
+        grad_y_offset = grad_y - mean_grad_y
+        x_offset = x - mean_x
+        mean = np.mean(grad_y * x_offset, axis=(0, 1, 2), keepdims=keepdims)
+        grad_x = scale * np.reciprocal(np.sqrt(var_x + epsilon)) * (
+            grad_y_offset - np.reciprocal(var_x + epsilon) * mean * x_offset)
+        grad_scale = np.reciprocal(np.sqrt(var_x + epsilon)) * np.sum(
+            grad_y * x_offset, axis=(0, 1, 2), keepdims=keepdims)
+        grad_offset = np.sum(grad_y, axis=(0, 1, 2))
+        return grad_x, grad_scale, grad_offset
+    else:
+        grad_offset = np.sum(grad_y, axis=(0, 1, 2))
+        var_rsqrt = np.reciprocal(np.sqrt(pop_var + epsilon))
+        grad_scale = np.sum(
+            grad_y * (x - pop_mean) * var_rsqrt, axis=(0, 1, 2))
+        grad_x = grad_y * scale * var_rsqrt
+        return grad_x, grad_scale, grad_offset
+
 
 def get_gradient_results(max_val, input_shape, is_training):
     """
-    Construct and run a Tensorflow graph to compute a gradient batchnorm op.
+    Compute gradient batchnorm.
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the batchnorm op. Returns the computed values
     in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
+    total_inp_size = np.product(input_shape)
 
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+    input_vals = helpers.get_tensor_data(total_inp_size, max_val)
 
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
+    inp_tensor = tf.constant(input_vals,
+                             shape=input_shape,
+                             dtype=np.float64)
 
-        mean = tf.math.reduce_mean(inp_tensor,axis=[0,1,2])
+    mean = tf.math.reduce_mean(inp_tensor, axis=[0, 1, 2])
 
-        variance = tf.math.reduce_variance(inp_tensor,axis=[0,1,2])
+    variance = tf.math.reduce_variance(inp_tensor, axis=[0, 1, 2])
 
-        output = tf.nn.batch_normalization(inp_tensor, mean, variance, 0., 1., 0.001)
+    output = tf.nn.batch_normalization(
+        inp_tensor, mean, variance, 0., 1., 0.001)
 
-        output_arr = output.eval(session=tf.Session())
+    grad_x, grad_scale, grad_offset = compute_gradients(
+        grad_y=np.array(
+            input_vals, dtype=np.float64).reshape(input_shape), x=output, scale=np.ones(
+            input_shape[3], dtype=np.float64), pop_mean=mean, pop_var=variance, epsilon=0.001, is_training=is_training)
+    return grad_x, mean, variance, grad_scale, grad_offset
 
-        mean_arr = mean.eval(session=tf.Session())
-
-        variance_arr = variance.eval(session=tf.Session())
-
-        grad_x, grad_scale, grad_offset = compute_gradients(grad_y=np.array(input_vals, dtype=np.float64).reshape(input_shape), 
-                                                            x=output_arr, scale=np.ones(input_shape[3], dtype=np.float64),
-                                                            pop_mean=mean_arr, pop_var=variance_arr, epsilon=0.001, is_training=is_training)
-        return grad_x, mean_arr, variance_arr, grad_scale, grad_offset
 
 def get_forward_results(max_val, input_shape):
     """
-    Construct and run a Tensorflow graph to compute a forward batchnorm op.
+    Compute forward batchnorm.
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the batchnorm op. Returns the computed values
     in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
+    total_inp_size = np.product(input_shape)
 
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+    input_vals = helpers.get_tensor_data(total_inp_size, max_val)
 
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
+    inp_tensor = tf.constant(input_vals,
+                             shape=input_shape,
+                             dtype=np.float64)
 
-        mean = tf.math.reduce_mean(inp_tensor,axis=[0,1,2])
+    mean = tf.math.reduce_mean(inp_tensor, axis=[0, 1, 2])
 
-        variance = tf.math.reduce_variance(inp_tensor,axis=[0,1,2])
+    variance = tf.math.reduce_variance(inp_tensor, axis=[0, 1, 2])
 
-        output = tf.nn.batch_normalization(inp_tensor, mean, variance, 0., 1., 0.001)
-        
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output), sess.run(mean), sess.run(variance)
+    output = tf.nn.batch_normalization(
+        inp_tensor, mean, variance, 0., 1., 0.001)
+
+    return output, mean, variance
 
 
 def get_result_function(test_case):
@@ -207,10 +195,14 @@ OPERATION_MAP = {
 
 def get_result(test_case, test_params):
     REQUIRED_MAX = 2**24
-    max_input_val=max(test_params.in_shape[0], test_params.in_shape[1], test_params.in_shape[2], test_params.in_shape[3])
+    max_input_val = max(
+        test_params.in_shape[0],
+        test_params.in_shape[1],
+        test_params.in_shape[2],
+        test_params.in_shape[3])
     max_output_val = REQUIRED_MAX + 1
-    floor_div=True
-    input_shape=test_params.in_shape
+    floor_div = True
+    input_shape = test_params.in_shape
     while max_output_val > REQUIRED_MAX:
         if floor_div:
             max_input_val = max_input_val // 2
@@ -219,14 +211,14 @@ def get_result(test_case, test_params):
         func = get_result_function(test_case)
         if test_case.direction == 'forward':
             output, mean, variance = func(max_val=max_input_val,
-                                        input_shape=input_shape)
+                                          input_shape=input_shape)
         else:
             if test_case.operation == 'Training':
-                output, mean, variance, grad_scale, grad_offset = func(max_val=max_input_val,
-                                                                   input_shape=input_shape, is_training=True)
+                output, mean, variance, grad_scale, grad_offset = func(
+                    max_val=max_input_val, input_shape=input_shape, is_training=True)
             else:
-                output, mean, variance, grad_scale, grad_offset = func(max_val=max_input_val,
-                                                                   input_shape=input_shape, is_training=False)
+                output, mean, variance, grad_scale, grad_offset = func(
+                    max_val=max_input_val, input_shape=input_shape, is_training=False)
         max_output_val = np.max(output)
     if test_case.direction == 'forward':
         return output, mean, variance, max_input_val
@@ -241,11 +233,12 @@ def get_test_lines(test_case, test_params):
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    channel_idx = -1 if test_params.data_format == 'NHWC' else 1
     if test_case.direction == 'forward':
-        output, mean, variance, max_input_val = get_result(test_case, test_params)
+        output, mean, variance, max_input_val = get_result(
+            test_case, test_params)
     else:
-        output, mean, variance, max_input_val, grad_scale, grad_offset = get_result(test_case, test_params)
+        output, mean, variance, max_input_val, grad_scale, grad_offset = get_result(
+            test_case, test_params)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
     test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
                                           direction=helpers.to_camel_case(
@@ -256,14 +249,19 @@ def get_test_lines(test_case, test_params):
     in_shape_init = IN_SHAPE_INIT_TPL.format(test_params.in_shape)
     if test_case.direction == 'forward':
         test_lines = [
-            "TYPED_TEST({}, {}) {{".format(test_case_name, test_name),
+            "TYPED_TEST({}, {}) {{".format(
+                test_case_name,
+                test_name),
             "  using DataType = typename TestFixture::DataType;",
             "  const std::vector<DataType> exp_out = {};".format(
                 helpers.format_tensor(output)),
-            " const std::vector<DataType> mean = {};".format(helpers.format_tensor(mean)),
-            " const std::vector<DataType> variance = {};".format(helpers.format_tensor(variance)),
+            " const std::vector<DataType> mean = {};".format(
+                helpers.format_tensor(mean)),
+            " const std::vector<DataType> variance = {};".format(
+                helpers.format_tensor(variance)),
             "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-            "  const auto params = getBatchNormParams(in_shape, DataFormat::{});".format(test_params.data_format),
+            "  const auto params = getBatchNormParams(in_shape, DataFormat::{});".format(
+                test_params.data_format),
             "  const DataType max_input_val = {:.1f};".format(max_input_val),
             "  this->test_batchnorm(exp_out, mean, variance, params, max_input_val);",
             "}",
@@ -285,7 +283,7 @@ def get_test_lines(test_case, test_params):
             "  this->test_batchnorm(exp_grad, mean, variance, grad_scale, grad_offset, params, max_input_val);",
             "}",
         ]
-        return test_lines        
+        return test_lines
 
 
 def test_params_for_test_case(test_case):
@@ -302,10 +300,10 @@ def output_for_test_case(test_case):
     """
     scriptname = os.path.basename(__file__)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
-    test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
-                                          direction=helpers.to_camel_case(
-                                              test_case.direction),
-                                              operation=helpers.to_camel_case(test_case.operation))
+    test_case_name = TEST_CASE_TPL.format(
+        test_type=camel_case_type, direction=helpers.to_camel_case(
+            test_case.direction), operation=helpers.to_camel_case(
+            test_case.operation))
     output = [
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
@@ -334,7 +332,8 @@ def get_test_case_filename(test_case):
 
 def test_cases():
     "Test case generator giving all possible test cases."
-    for test_type, direction, operation in itertools.product(TEST_TYPES, DIRECTIONS, OPERATIONS):
+    for test_type, direction, operation in itertools.product(
+            TEST_TYPES, DIRECTIONS, OPERATIONS):
         yield TestCaseParams(test_type=test_type, direction=direction, operation=operation)
 
 
@@ -352,4 +351,3 @@ def generate_batchnorm_tests():
 
 if __name__ == "__main__":
     generate_batchnorm_tests()
-

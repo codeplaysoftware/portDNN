@@ -61,25 +61,18 @@ def get_input_sizes():
 
 def get_transpose_result(max_val, in_shape, permutation):
     """
-    Construct and run a Tensorflow graph to compute transpose.
+    Compute transpose.
 
     Will create input tensors of the required size filled with values 1, 2,
     3... and use this as the input to tf.transpose along with the given permutation.
 
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_size = np.prod(in_shape)
-        in_vals = helpers.get_tensor_data(total_size, max_val)
+    total_size = np.prod(in_shape)
+    in_vals = helpers.get_tensor_data(total_size, max_val)
 
-        in_tensor = tf.constant(in_vals, shape=in_shape, dtype=np.float64)
-        out_tensor = tf.transpose(in_tensor, permutation)
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(out_tensor)
+    in_tensor = tf.constant(in_vals, shape=in_shape, dtype=np.float64)
+    return tf.transpose(in_tensor, permutation)
 
 
 def get_test_lines(in_shape, permutation):
@@ -116,7 +109,7 @@ def test_cases(n_dimensions):
     in_sizes = get_input_sizes()
     for in_shape in itertools.product(in_sizes, repeat=n_dimensions):
         for permutation in itertools.permutations(
-            [i for i in range(n_dimensions)]):
+                [i for i in range(n_dimensions)]):
             yield in_shape, permutation
 
 

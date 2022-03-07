@@ -20,24 +20,14 @@
 
 from __future__ import print_function
 
-try:
-    # With python3 `zip` returns an iterator, however with python2, use
-    # `itertools.izip` instead
-    import itertools.izip as zip
-except ImportError:
-    pass
-
 import itertools
 import os
 from collections import namedtuple
 
-import tensorflow.compat.v1 as tf
-from tensorflow.python.framework.ops import get_gradient_function
+import tensorflow as tf
 import numpy as np
 
 import helpers
-
-tf.disable_v2_behavior()
 
 BATCHES = [1, 2, 4]
 CHANNELS = [1, 2, 4]
@@ -72,39 +62,32 @@ TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple(
     'TestCaseParams',
-    ['test_type','param_gen'])
+    ['test_type', 'param_gen'])
 TestParams = namedtuple('TestParams', ['in_shape'])
 
 
 def get_bias_results(max_val, input_shape):
     """
-    Construct and run a Tensorflow graph to compute bias-add.
+    Compute bias-add.
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the bias-add.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
+    total_inp_size = np.product(input_shape)
 
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
-        bias_vals = helpers.get_tensor_data(input_shape[3],max_val)
+    input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+    bias_vals = helpers.get_tensor_data(input_shape[3], max_val)
 
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
-        bias_tensor = tf.constant(bias_vals,
-                                 shape = (input_shape[3],),
-                                 dtype = np.float64)
-        output = tf.nn.bias_add(inp_tensor,
-                                bias_tensor,
-                                data_format="NHWC")
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    inp_tensor = tf.constant(input_vals,
+                             shape=input_shape,
+                             dtype=np.float64)
+    bias_tensor = tf.constant(bias_vals,
+                              shape=(input_shape[3],),
+                              dtype=np.float64)
+    return tf.nn.bias_add(inp_tensor,
+                          bias_tensor,
+                          data_format="NHWC")
 
 
 def get_result_function(test_case):
@@ -118,6 +101,7 @@ TEST_CASE_TPL = "{test_type}"
 TEST_NAME_TPL = "{in_s[0]}x{in_s[1]}x{in_s[2]}x{in_s[3]}"
 IN_SHAPE_INIT_TPL = "{{{{ {0[0]}, {0[1]}, {0[2]}, {0[3]} }}}}"
 
+
 def get_result_and_size(test_case, test_params):
     """
     Get the result of the bias-add and max input value.
@@ -127,6 +111,7 @@ def get_result_and_size(test_case, test_params):
     """
     return helpers.get_result_and_size(get_result_function(test_case),
                                        input_shape=test_params.in_shape)
+
 
 def get_test_lines(test_case, test_params):
     """
@@ -189,16 +174,19 @@ def get_initial_boilerplate():
         DATA_TYPES,
     ]
 
+
 FILENAME_TPL = "bias/test_bias.cc"
+
 
 def get_test_case_filename(test_case):
     "Get filename for test case."
     return FILENAME_TPL.format(test_type=test_case.test_type)
 
+
 def test_cases(param_gen):
     "Test case generator giving all possible test cases."
     for test_type in TEST_TYPES:
-        yield TestCaseParams(test_type=test_type,param_gen=param_gen)
+        yield TestCaseParams(test_type=test_type, param_gen=param_gen)
 
 
 def generate_bias_tests():

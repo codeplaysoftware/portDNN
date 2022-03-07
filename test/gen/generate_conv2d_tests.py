@@ -86,126 +86,76 @@ TestParams = namedtuple('TestParams', ['in_shape', 'features', 'padding'])
 def get_forward_conv_results(max_val, input_shape, filter_shape, stride_shape,
                              padding):
     """
-    Construct and run a Tensorflow graph to compute forward convolution.
+    Compute forward convolution.
 
     Will create input tensors of the required size filled with values 1, 2,
     3... and use these to compute the convolution for the forward pass.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
-        total_fil_size = np.product(filter_shape)
+    total_inp_size = np.product(input_shape)
+    total_fil_size = np.product(filter_shape)
 
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
-        filter_vals = helpers.get_tensor_data(total_fil_size, max_val)
+    input_vals = helpers.get_tensor_data(total_inp_size, max_val)
+    filter_vals = helpers.get_tensor_data(total_fil_size, max_val)
 
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
-        fil_tensor = tf.constant(filter_vals,
-                                 shape=filter_shape,
-                                 dtype=np.float64)
-        output = tf.nn.conv2d(inp_tensor,
-                              fil_tensor,
-                              strides=stride_shape,
-                              padding=padding,
-                              data_format="NHWC")
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(output)
+    inp_tensor = tf.constant(input_vals,
+                             shape=input_shape,
+                             dtype=np.float64)
+    fil_tensor = tf.constant(filter_vals,
+                             shape=filter_shape,
+                             dtype=np.float64)
+    return tf.nn.conv2d(inp_tensor,
+                        fil_tensor,
+                        strides=stride_shape,
+                        padding=padding,
+                        data_format="NHWC")
 
 
 def get_input_backprop_conv_results(max_val, input_shape, filter_shape,
                                     stride_shape, padding):
     """
-    Construct and run a Tensorflow graph to compute input backprop convolution.
+    Compute input backprop convolution.
 
     Will create input tensors of the required size filled with values 1, 2,
     3... and use these to compute the convolution for the input backprop pass.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_fil_size = np.product(filter_shape)
-        filter_vals = helpers.get_tensor_data(total_fil_size, max_val)
+    input = tf.Variable(tf.zeros(input_shape, dtype=np.float64))
+    filter = helpers.get_variable(filter_shape, max_val)
 
-        inp_tensor = tf.constant(0, shape=input_shape, dtype=np.float64)
-        fil_tensor = tf.constant(filter_vals,
-                                 shape=filter_shape,
-                                 dtype=np.float64)
-        output = tf.nn.conv2d(inp_tensor,
-                              fil_tensor,
+    with tf.GradientTape() as tape:
+        output = tf.nn.conv2d(input,
+                              filter,
                               strides=stride_shape,
                               padding=padding,
                               data_format="NHWC")
 
-        output_shape = output.shape
-        total_out_size = np.product(output_shape)
-        output_vals = helpers.get_tensor_data(total_out_size, max_val)
-        out_tensor = tf.constant(output_vals,
-                                 shape=output_shape,
-                                 dtype=np.float64)
-
-        inp_size_tensor = tf.constant(input_shape, shape=[len(input_shape)])
-        input_backprop = tf.nn.conv2d_backprop_input(inp_size_tensor,
-                                                     fil_tensor,
-                                                     out_tensor,
-                                                     strides=stride_shape,
-                                                     padding=padding,
-                                                     data_format="NHWC")
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(input_backprop)
+    output_shape = output.shape
+    error = helpers.get_variable(output_shape, max_val)
+    return tape.gradient(output, input, error)
 
 
 def get_filter_backprop_conv_results(max_val, input_shape, filter_shape,
                                      stride_shape, padding):
     """
-    Construct and run a Tensorflow graph to compute filter backprop convolution.
+    Compute filter backprop convolution.
 
     Will create input tensors of the required size filled with values 1, 2,
     3... and use these to compute the convolution for the filter backprop pass.
     Returns the computed values in a numpy array.
     """
-    with tf.Graph().as_default():
-        total_inp_size = np.product(input_shape)
-        input_vals = helpers.get_tensor_data(total_inp_size, max_val)
-
-        inp_tensor = tf.constant(input_vals,
-                                 shape=input_shape,
-                                 dtype=np.float64)
-        fil_tensor = tf.constant(0, shape=filter_shape, dtype=np.float64)
-        output = tf.nn.conv2d(inp_tensor,
-                              fil_tensor,
+    input = helpers.get_variable(input_shape, max_val)
+    filter = tf.Variable(tf.zeros(filter_shape, dtype=np.float64))
+    with tf.GradientTape() as tape:
+        output = tf.nn.conv2d(input,
+                              filter,
                               strides=stride_shape,
                               padding=padding,
                               data_format="NHWC")
 
-        output_shape = output.shape
-        total_out_size = np.product(output_shape)
-        output_vals = helpers.get_tensor_data(total_out_size, max_val)
-        out_tensor = tf.constant(output_vals,
-                                 shape=output_shape,
-                                 dtype=np.float64)
-
-        fil_size_tensor = tf.constant(filter_shape, shape=[len(filter_shape)])
-        filter_backprop = tf.nn.conv2d_backprop_filter(inp_tensor,
-                                                       fil_size_tensor,
-                                                       out_tensor,
-                                                       strides=stride_shape,
-                                                       padding=padding,
-                                                       data_format="NHWC")
-
-        with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
-            sess.graph.finalize()
-            return sess.run(filter_backprop)
+    output_shape = output.shape
+    error = helpers.get_variable(output_shape, max_val)
+    return tape.gradient(output, filter, error)
 
 
 def get_conv_fn(test_type):

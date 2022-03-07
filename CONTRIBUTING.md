@@ -20,6 +20,10 @@ formatted.
 To do this run: `clang-format --style=Google -i <filename>` on any C++ files
 changed in your contribution.
 
+The Python scripts are formatted used autopep8.
+Run: `autopep8 -i -a -a <filename>` on any Python files changed in your
+contribution.
+
 ### Pull request guidelines
 
 * Submit any pull request to the `master` branch, unless you are really sure

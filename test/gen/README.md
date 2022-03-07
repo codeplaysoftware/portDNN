@@ -18,7 +18,7 @@ python test/gen/generate_all.py
 The script uses TensorFlow to generate the expected output values, as such it
 requires the following:
 
- * TensorFlow
+ * TensorFlow 2.x
  * Numpy
 
 ### Changing the test parameters
