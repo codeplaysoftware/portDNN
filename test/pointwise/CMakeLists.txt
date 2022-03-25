@@ -16,18 +16,20 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-foreach(_type IN ITEMS "relu" "tanh")
+foreach(_type IN ITEMS "relu" "tanh" "log" "floor" "sqrt")
   foreach(_direction IN ITEMS "forward" "grad")
-    snn_test(
-      WITH_SYCL
-      TARGET
-        pointwise_${_type}_${_direction}
-      SIZE
-        short
-      SOURCES
-        ${_type}_${_direction}.cc
-      PUBLIC_LIBRARIES
-        sycl_dnn
-    )
+    if (NOT _type STREQUAL "floor" OR NOT _direction STREQUAL "grad")
+      snn_test(
+        WITH_SYCL
+        TARGET
+          pointwise_${_type}_${_direction}
+        SIZE
+          short
+        SOURCES
+          ${_type}_${_direction}.cc
+        PUBLIC_LIBRARIES
+          sycl_dnn
+      )
+    endif()
   endforeach()
 endforeach()

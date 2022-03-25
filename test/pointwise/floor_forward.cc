@@ -30,45 +30,33 @@
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 template <typename DataType>
-using TanhGrad =
-    PointwiseFixture<DataType, pointwise::Tanh, pointwise::Gradient>;
-TYPED_TEST_SUITE(TanhGrad, types::GTestKernelDataTypes);
-TYPED_TEST(TanhGrad, Shape_1x1) {
+using FloorForward =
+    PointwiseFixture<DataType, pointwise::Floor, pointwise::Forward>;
+TYPED_TEST_SUITE(FloorForward, types::GTestKernelDataTypes);
+TYPED_TEST(FloorForward, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> input = iota_initialised_signed_data<DataType>(1);
-  const std::vector<DataType> exp_out = {-0.41997434161402614};
+  const std::vector<DataType> exp_out = {-1.};
   this->test_pointwise(input, exp_out);
 }
-TYPED_TEST(TanhGrad, Shape_8x1) {
+TYPED_TEST(FloorForward, Shape_8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> input = iota_initialised_signed_data<DataType>(8);
-  const std::vector<DataType> exp_out = {-0.005363802732103462,
-                                         -0.029598111496320634,
-                                         -0.14130164970632886,
-                                         -0.41997434161402614,
-                                         0.,
-                                         0.41997434161402614,
-                                         0.14130164970632886,
-                                         0.029598111496320634};
+  const std::vector<DataType> exp_out = {-4., -3., -2., -1., 0., 1., 2., 3.};
   this->test_pointwise(input, exp_out);
 }
-TYPED_TEST(TanhGrad, Shape_9x1) {
+TYPED_TEST(FloorForward, Shape_9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> input = iota_initialised_signed_data<DataType>(9);
-  const std::vector<DataType> exp_out = {
-      -0.0009079161547193015, -0.005363802732103462, -0.029598111496320634,
-      -0.14130164970632886,   -0.41997434161402614,  0.,
-      0.41997434161402614,    0.14130164970632886,   0.029598111496320634};
+  const std::vector<DataType> exp_out = {-5., -4., -3., -2., -1.,
+                                         0.,  1.,  2.,  3.};
   this->test_pointwise(input, exp_out);
 }
-TYPED_TEST(TanhGrad, Shape_10x1) {
+TYPED_TEST(FloorForward, Shape_10x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> input =
       iota_initialised_signed_data<DataType>(10);
-  const std::vector<DataType> exp_out = {
-      -0.0009079161547193015, -0.005363802732103462, -0.029598111496320634,
-      -0.14130164970632886,   -0.41997434161402614,  0.,
-      0.41997434161402614,    0.14130164970632886,   0.029598111496320634,
-      0.005363802732103462};
+  const std::vector<DataType> exp_out = {-5., -4., -3., -2., -1.,
+                                         0.,  1.,  2.,  3.,  4.};
   this->test_pointwise(input, exp_out);
 }

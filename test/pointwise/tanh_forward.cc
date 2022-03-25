@@ -35,11 +35,13 @@ using TanhForward =
 TYPED_TEST_SUITE(TanhForward, types::GTestKernelDataTypes);
 TYPED_TEST(TanhForward, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(1);
   const std::vector<DataType> exp_out = {-0.7615941559557649};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
 TYPED_TEST(TanhForward, Shape_8x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(8);
   const std::vector<DataType> exp_out = {-0.999329299739067,
                                          -0.9950547536867305,
                                          -0.9640275800758169,
@@ -48,22 +50,25 @@ TYPED_TEST(TanhForward, Shape_8x1) {
                                          0.7615941559557649,
                                          0.9640275800758169,
                                          0.9950547536867305};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
 TYPED_TEST(TanhForward, Shape_9x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(9);
   const std::vector<DataType> exp_out = {
       -0.9999092042625951, -0.999329299739067,  -0.9950547536867305,
       -0.9640275800758169, -0.7615941559557649, 0.,
       0.7615941559557649,  0.9640275800758169,  0.9950547536867305};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
 TYPED_TEST(TanhForward, Shape_10x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input =
+      iota_initialised_signed_data<DataType>(10);
   const std::vector<DataType> exp_out = {
       -0.9999092042625951, -0.999329299739067,  -0.9950547536867305,
       -0.9640275800758169, -0.7615941559557649, 0.,
       0.7615941559557649,  0.9640275800758169,  0.9950547536867305,
       0.999329299739067};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }

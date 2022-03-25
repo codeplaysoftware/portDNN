@@ -100,6 +100,58 @@ DType Exp<Gradient>::apply(DType val, DType err) {
   return cl::sycl::exp(val) + err;
 }
 
+template <typename Direction>
+struct Log {
+  template <typename DType>
+  DType apply(DType val);
+  template <typename DType>
+  DType apply(DType val, DType err);
+};
+
+template <>
+template <typename DType>
+DType Log<Forward>::apply(DType val) {
+  return cl::sycl::log(val);
+}
+
+template <>
+template <typename DType>
+DType Log<Gradient>::apply(DType val, DType err) {
+  return (DType{1} / val) * err;
+}
+
+template <typename Direction>
+struct Floor {
+  template <typename DType>
+  DType apply(DType val);
+};
+
+template <>
+template <typename DType>
+DType Floor<Forward>::apply(DType val) {
+  return cl::sycl::floor(val);
+}
+
+template <typename Direction>
+struct Sqrt {
+  template <typename DType>
+  DType apply(DType val);
+  template <typename DType>
+  DType apply(DType val, DType err);
+};
+
+template <>
+template <typename DType>
+DType Sqrt<Forward>::apply(DType val) {
+  return cl::sycl::sqrt(val);
+}
+
+template <>
+template <typename DType>
+DType Sqrt<Gradient>::apply(DType val, DType err) {
+  return (DType{0.5} / val) * err;
+}
+
 template <typename T, typename Index, template <typename> class Op,
           typename Direction, int VectorWidth>
 class PointwiseOp;

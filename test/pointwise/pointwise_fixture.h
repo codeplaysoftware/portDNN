@@ -38,10 +38,10 @@ struct PointwiseFixture
     : public BackendTestFixture<sycldnn::backend::SNNBackend> {
   using DataType = DType;
 
-  void test_pointwise(const std::vector<DataType>& exp) {
+  void test_pointwise(const std::vector<DataType>& input,
+                      const std::vector<DataType>& exp) {
     const auto size = exp.size();
 
-    std::vector<DataType> input = iota_initialised_signed_data<DataType>(size);
     std::vector<DataType> output(size);
 
     auto& provider = this->provider_;
@@ -74,18 +74,17 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
     : public BackendTestFixture<sycldnn::backend::SNNBackend> {
   using DataType = DType;
 
-  void test_pointwise(const std::vector<DataType>& exp) {
+  void test_pointwise(const std::vector<DataType>& input,
+                      const std::vector<DataType>& exp) {
     /* While ULP-based errors are generally better, the expected values
      * in this test are close to 0, which can result in large ULP errors
      * even though the answer is "close" to the expected. */
     const DataType tolerance = 0.00001;
     const auto size = exp.size();
 
-    std::vector<DataType> input_forward =
-        iota_initialised_signed_data<DataType>(size);
+    std::vector<DataType> input_forward = input;
     std::vector<DataType> output_forward(size);
-    std::vector<DataType> input_backprop =
-        iota_initialised_signed_data<DataType>(size);
+    std::vector<DataType> input_backprop = input;
     std::vector<DataType> output_backprop(size);
 
     auto& provider = this->provider_;
@@ -114,9 +113,16 @@ struct PointwiseFixture<DType, Op, sycldnn::pointwise::Gradient>
       provider.deallocate_ptr(out_bk_gpu);
     };
 
-    auto bk_status =
-        sycldnn::pointwise::launch<DataType, Op, sycldnn::pointwise::Gradient>(
-            out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend);
+    sycldnn::SNNStatus bk_status;
+    if (std::is_same<Op<DataType>, sycldnn::pointwise::Log<DataType>>::value) {
+      bk_status = sycldnn::pointwise::launch<DataType, Op,
+                                             sycldnn::pointwise::Gradient>(
+          inp_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend);
+    } else {
+      bk_status = sycldnn::pointwise::launch<DataType, Op,
+                                             sycldnn::pointwise::Gradient>(
+          out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend);
+    }
     ASSERT_EQ(sycldnn::StatusCode::OK, bk_status.status);
 
     fwd_status.event.wait_and_throw();

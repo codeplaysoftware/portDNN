@@ -35,6 +35,15 @@ struct Tanh;
 template <typename Direction>
 struct Exp;
 
+template <typename Direction>
+struct Log;
+
+template <typename Direction>
+struct Floor;
+
+template <typename Direction>
+struct Sqrt;
+
 }  // namespace pointwise
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_POINTWISE_OPERATORS_H_

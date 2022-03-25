@@ -30,32 +30,30 @@
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 template <typename DataType>
-using ReluForward =
-    PointwiseFixture<DataType, pointwise::Relu, pointwise::Forward>;
-TYPED_TEST_SUITE(ReluForward, types::GTestKernelDataTypes);
-TYPED_TEST(ReluForward, Shape_1x1) {
+using LogGrad = PointwiseFixture<DataType, pointwise::Log, pointwise::Gradient>;
+TYPED_TEST_SUITE(LogGrad, types::GTestKernelDataTypes);
+TYPED_TEST(LogGrad, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(1);
-  const std::vector<DataType> exp_out = {0.};
+  const std::vector<DataType> input = iota_initialised_data<DataType>(1, 1);
+  const std::vector<DataType> exp_out = {1.};
   this->test_pointwise(input, exp_out);
 }
-TYPED_TEST(ReluForward, Shape_8x1) {
+TYPED_TEST(LogGrad, Shape_8x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(8);
-  const std::vector<DataType> exp_out = {0., 0., 0., 0., 0., 1., 2., 3.};
+  const std::vector<DataType> input = iota_initialised_data<DataType>(8, 8);
+  const std::vector<DataType> exp_out = {1., 1., 1., 1., 1., 1., 1., 1.};
   this->test_pointwise(input, exp_out);
 }
-TYPED_TEST(ReluForward, Shape_9x1) {
+TYPED_TEST(LogGrad, Shape_9x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(9);
-  const std::vector<DataType> exp_out = {0., 0., 0., 0., 0., 0., 1., 2., 3.};
+  const std::vector<DataType> input = iota_initialised_data<DataType>(9, 9);
+  const std::vector<DataType> exp_out = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
   this->test_pointwise(input, exp_out);
 }
-TYPED_TEST(ReluForward, Shape_10x1) {
+TYPED_TEST(LogGrad, Shape_10x1) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> input =
-      iota_initialised_signed_data<DataType>(10);
-  const std::vector<DataType> exp_out = {0., 0., 0., 0., 0.,
-                                         0., 1., 2., 3., 4.};
+  const std::vector<DataType> input = iota_initialised_data<DataType>(10, 10);
+  const std::vector<DataType> exp_out = {1., 1., 1., 1., 1.,
+                                         1., 1., 1., 1., 1.};
   this->test_pointwise(input, exp_out);
 }

@@ -35,23 +35,28 @@ using ReluGrad =
 TYPED_TEST_SUITE(ReluGrad, types::GTestKernelDataTypes);
 TYPED_TEST(ReluGrad, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(1);
   const std::vector<DataType> exp_out = {-0.};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
 TYPED_TEST(ReluGrad, Shape_8x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(8);
   const std::vector<DataType> exp_out = {-0., -0., -0., -0., 0., 1., 2., 3.};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
 TYPED_TEST(ReluGrad, Shape_9x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input = iota_initialised_signed_data<DataType>(9);
   const std::vector<DataType> exp_out = {-0., -0., -0., -0., -0.,
                                          0.,  1.,  2.,  3.};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
 TYPED_TEST(ReluGrad, Shape_10x1) {
   using DataType = typename TestFixture::DataType;
+  const std::vector<DataType> input =
+      iota_initialised_signed_data<DataType>(10);
   const std::vector<DataType> exp_out = {-0., -0., -0., -0., -0.,
                                          0.,  1.,  2.,  3.,  4.};
-  this->test_pointwise(exp_out);
+  this->test_pointwise(input, exp_out);
 }
