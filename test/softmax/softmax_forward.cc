@@ -26,14 +26,25 @@
 #include "sycldnn/softmax/params.h"
 
 #include "test/softmax/softmax_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include <vector>
 
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::AllBackendTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename DataType>
-using SoftmaxForward = SoftmaxFixture<DataType, softmax::Forward>;
-TYPED_TEST_CASE(SoftmaxForward, types::GTestKernelDataTypes);
+template <typename Pair>
+using SoftmaxForward = SoftmaxFixture<Pair, softmax::Forward>;
+TYPED_TEST_CASE(SoftmaxForward, GTestTypePairs);
 TYPED_TEST(SoftmaxForward, 1x1x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1.};

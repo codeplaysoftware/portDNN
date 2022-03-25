@@ -19,12 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#if defined(SNN_TEST_SYCLBLAS)
-#include "sycldnn/backend/sycl_blas_backend.h"
-#else
-#include "sycldnn/backend/snn_backend.h"
-#endif
-
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/softmax/direction.h"
@@ -34,12 +28,6 @@
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
-
-#if defined(SNN_TEST_SYCLBLAS)
-using Backend = sycldnn::backend::SyclBLASBackend;
-#else
-using Backend = sycldnn::backend::SNNBackend;
-#endif
 
 inline sycldnn::softmax::SoftmaxParams getSoftmaxParams(
     std::array<int, 4> in_shape, sycldnn::DataFormat data_format) {
@@ -52,13 +40,14 @@ inline sycldnn::softmax::SoftmaxParams getSoftmaxParams(
   return params;
 }
 
-template <typename DType, typename Direction>
+template <typename Pair, typename Direction>
 struct SoftmaxFixture;
 
-template <typename DType>
-struct SoftmaxFixture<DType, sycldnn::softmax::Forward>
-    : public BackendTestFixture<Backend> {
-  using DataType = DType;
+template <typename Pair>
+struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
+    : public BackendTestFixture<typename Pair::SecondType> {
+  using DataType = typename Pair::FirstType;
+  using Backend = typename Pair::SecondType;
 
   void test_softmax(std::vector<DataType> const& exp,
                     sycldnn::softmax::SoftmaxParams const& params,
@@ -108,10 +97,11 @@ struct SoftmaxFixture<DType, sycldnn::softmax::Forward>
   }
 };
 
-template <typename DType>
-struct SoftmaxFixture<DType, sycldnn::softmax::Gradient>
-    : public BackendTestFixture<Backend> {
-  using DataType = DType;
+template <typename Pair>
+struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
+    : public BackendTestFixture<typename Pair::SecondType> {
+  using DataType = typename Pair::FirstType;
+  using Backend = typename Pair::SecondType;
 
   void test_softmax(std::vector<DataType> const& exp,
                     sycldnn::softmax::SoftmaxParams const& params,

@@ -30,7 +30,8 @@
 template <typename DataType>
 ::testing::AssertionResult expect_not_equal(
     const char* lhs_expr, const char* rhs_expr, const char* max_ulps_expr,
-    DataType const& lhs, DataType const& rhs, size_t const max_ulps) {
+    const char*, DataType const& lhs, DataType const& rhs,
+    size_t const max_ulps, DataType const&) {
   FloatingPoint<DataType> x(lhs);
   FloatingPoint<DataType> y(rhs);
 
@@ -48,7 +49,7 @@ template <typename DataType>
 }
 
 #define SNN_NOT_EQUAL(expected, actual, max_ulps) \
-  SNN_PREDICATE_COMPARISON(expect_not_equal, expected, actual, max_ulps)
+  SNN_PREDICATE_COMPARISON(expect_not_equal, expected, actual, max_ulps, 0)
 
 template <typename DataType>
 DataType get_quiet_NaN_for_type() {
@@ -256,5 +257,17 @@ TEST(FloatingPointComparatorTest, WithinFiveULPs) {
 #ifdef SNN_USE_DOUBLE
   SNN_ALMOST_EQUAL(
       0.15625, 0.1562500000000001387778780781445675529539585113525390625, 5);
+#endif  // SNN_USE_DOUBLE
+}
+
+TEST(FloatingPointComparatorTest, ULPWithEps) {
+#ifdef SNN_USE_HALF
+  SNN_ALMOST_EQUAL_EPS(cl::sycl::half{1e-6f}, cl::sycl::half{5e-6f}, 1, 1e-5f);
+#endif  // SNN_USE_HALF
+
+  SNN_ALMOST_EQUAL_EPS(1e-6f, 5e-6f, 1, 1e-5f);
+
+#ifdef SNN_USE_DOUBLE
+  SNN_ALMOST_EQUAL_EPS(1e-6, 5e-6, 1, 1e-5f);
 #endif  // SNN_USE_DOUBLE
 }

@@ -64,7 +64,7 @@ INCLUDES = r"""
 DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
-using Backends = sycldnn::types::AllBackendTypes;
+using Backends = sycldnn::types::AllMatmulBackendTypes;
 using DataFormats = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =

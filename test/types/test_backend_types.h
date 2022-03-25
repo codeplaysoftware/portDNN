@@ -21,17 +21,17 @@
 
 #include "sycldnn/backend/snn_backend.h"
 
-#ifdef SNN_TEST_EIGEN_MATMULS
+#if defined(SNN_TEST_EIGEN_MATMULS) || defined(SNN_TEST_EIGEN)
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "sycldnn/backend/eigen_backend.h"
 #endif
 
-#ifdef SNN_TEST_SYCLBLAS_MATMULS
+#if defined(SNN_TEST_SYCLBLAS_MATMULS) || defined(SNN_TEST_SYCLBLAS)
 #include "sycldnn/backend/sycl_blas_backend.h"
 #endif
 
-#ifdef SNN_TEST_CLBLAST_MATMULS
+#if defined(SNN_TEST_CLBLAST_MATMULS) || defined(SNN_TEST_CLBLAST)
 #include "sycldnn/backend/clblast_backend.h"
 #endif
 
@@ -44,8 +44,10 @@ using DefaultBackendTypes =
 /** The same as DefaultBackends but in the googletest Types format. */
 using GTestDefaultBackendTypes = ToGTestTypes<DefaultBackendTypes>::type;
 
-/** Expanded list of all supported backend types to use in tests. */
-using AllBackendTypes = sycldnn::types::TypeList<
+/**
+ * Expanded list of all supported backend types to use in tests using matmuls.
+ */
+using AllMatmulBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN_MATMULS
     sycldnn::backend::EigenBackend,
 #endif
@@ -56,8 +58,19 @@ using AllBackendTypes = sycldnn::types::TypeList<
     sycldnn::backend::CLBlastBackend,
 #endif
     sycldnn::backend::SNNBackend>;
-/** The same as AllBackends but in the googletest Types format. */
-using GTestAllBackendTypes = ToGTestTypes<AllBackendTypes>::type;
+
+/** Expanded list of all supported backend types to use in tests. */
+using AllBackendTypes = sycldnn::types::TypeList<
+#ifdef SNN_TEST_EIGEN
+    sycldnn::backend::EigenBackend,
+#endif
+#ifdef SNN_TEST_SYCLBLAS
+    sycldnn::backend::SyclBLASBackend,
+#endif
+#ifdef SNN_TEST_CLBLAST
+    sycldnn::backend::CLBlastBackend,
+#endif
+    sycldnn::backend::SNNBackend>;
 
 }  // namespace types
 }  // namespace sycldnn

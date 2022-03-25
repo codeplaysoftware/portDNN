@@ -49,6 +49,7 @@
 #endif  // SNN_USE_HALF
 
 #include <climits>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -248,32 +249,41 @@ inline typename FloatingPoint<DataType>::RawBits unsigned_difference(
 }
 
 /**
- * ULP comparison between two floating point values, returning a formatted
- * message on returning false. Note that:
+ * ULP and epsilon comparison between two floating point values, returning a
+ * formatted message on returning false. The 2 comparison methods must fail to
+ * fail the test. Note that:
  *
  *  - For all x, x != -x, except 0 and -0 (as per IEEE standard)
  *  - Any comparison involving NaNs returns false (as per IEEE standard)
  *  - A sufficiently large number will be nearly equal to infinity.
  *  - A sufficiently small number (denorms) will be nearly equal to 0.
+ *  - For small numbers below epsilon, ULP comparison can be too strict hence
+ *    it is mitigated with epsilon comparison.
  */
 template <typename DataType>
 inline ::testing::AssertionResult expect_almost_equal(
     const char* lhs_expr, const char* rhs_expr, const char* max_ulps_expr,
-    DataType const& lhs, DataType const& rhs, size_t const max_ulps) {
+    const char* eps_expr, DataType const& lhs, DataType const& rhs,
+    size_t const max_ulps, DataType const& eps) {
   using PrintableType = typename Printable<DataType>::type;
   FloatingPoint<DataType> x(lhs);
   FloatingPoint<DataType> y(rhs);
 
   auto difference_in_ulps = unsigned_difference(x, y);
+  auto diff_eps = fabs(double(lhs) - double(rhs));
 
-  if (x.is_NaN() || y.is_NaN() || difference_in_ulps > max_ulps) {
+  if (x.is_NaN() || y.is_NaN() ||
+      (difference_in_ulps > max_ulps && diff_eps > eps)) {
     PrintableType print_lhs = lhs;
     PrintableType print_rhs = rhs;
+    PrintableType print_eps = eps;
     return ::testing::AssertionFailure()
            << "  expected: " << lhs_expr << " (" << print_lhs << "), "
            << "actual: " << rhs_expr << " (" << print_rhs << "), "
            << "ULPs: " << difference_in_ulps << " when testing with "
-           << max_ulps_expr << " (" << max_ulps << ")";
+           << max_ulps_expr << " (" << max_ulps << "), "
+           << "epsilon: " << diff_eps << " when testing with " << eps_expr
+           << " (" << print_eps << ")";
   } else {
     return ::testing::AssertionSuccess();
   }
@@ -284,12 +294,12 @@ inline ::testing::AssertionResult expect_almost_equal(
       typename std::remove_reference<decltype(input)>::type>::type
 
 #define SNN_PREDICATE_COMPARISON(formatted_predicate, expected, actual, \
-                                 max_ulps)                              \
+                                 max_ulps, epsilon)                     \
   static_assert(std::is_same<GET_UNQUALIFIED_T(expected),               \
                              GET_UNQUALIFIED_T(actual)>::value,         \
                 "expected and actual must be of the same type!\n");     \
-  EXPECT_PRED_FORMAT3(formatted_predicate<GET_UNQUALIFIED_T(expected)>, \
-                      expected, actual, max_ulps)
+  EXPECT_PRED_FORMAT4(formatted_predicate<GET_UNQUALIFIED_T(expected)>, \
+                      expected, actual, max_ulps, epsilon)
 
 /**
  * Usage: replace GoogleTest's EXPECT_{FLOAT|DOUBLE}_EQ(exp[i], out[i]) with
@@ -297,6 +307,14 @@ inline ::testing::AssertionResult expect_almost_equal(
  * num_ulps = 4. No type specialisation is required.
  */
 #define SNN_ALMOST_EQUAL(expected, actual, max_ulps) \
-  SNN_PREDICATE_COMPARISON(expect_almost_equal, expected, actual, max_ulps)
+  SNN_PREDICATE_COMPARISON(expect_almost_equal, expected, actual, max_ulps, 0)
+
+/**
+ * Usage: replace GoogleTest's EXPECT_{FLOAT|DOUBLE}_EQ(exp[i], out[i]) with
+ * SNN_ALMOST_EQUAL(exp[i], out[i], num_ulps, eps). GoogleTest by default uses
+ * num_ulps = 4. No type specialisation is required.
+ */
+#define SNN_ALMOST_EQUAL_EPS(expected, actual, max_ulps, eps) \
+  SNN_PREDICATE_COMPARISON(expect_almost_equal, expected, actual, max_ulps, eps)
 
 #endif  // SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_

@@ -44,14 +44,17 @@ INCLUDES = r"""
 #include "sycldnn/softmax/params.h"
 
 #include "test/softmax/softmax_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
-template <typename DataType>
-using {test_case} = SoftmaxFixture<DataType, {direction}>;
-TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
+template <typename Pair>
+using {test_case} = SoftmaxFixture<Pair, {direction}>;
+TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction'])
 TestParams = namedtuple('TestParams', ['in_shape', 'data_format'])
@@ -184,6 +187,7 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
+        helpers.get_test_types_tpl(),
         TYPED_TEST_CASE_DECL_TPL.format(
             test_case=test_case_name,
             direction=DIRECTION_MAP[test_case.direction]),

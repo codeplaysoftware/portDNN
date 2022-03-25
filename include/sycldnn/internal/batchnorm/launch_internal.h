@@ -30,6 +30,8 @@
 #include "sycldnn/binaryop/operators.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
+#include "sycldnn/backend/reductionops.h"
+
 namespace sycldnn {
 namespace batchnorm {
 namespace internal {

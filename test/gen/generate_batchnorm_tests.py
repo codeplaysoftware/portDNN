@@ -45,14 +45,17 @@ INCLUDES = r"""
 #include "sycldnn/batchnorm/params.h"
 
 #include "test/batchnorm/batchnorm_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
-template <typename DataType>
-using {test_case} = BatchNormFixture<DataType, {direction}, {operation}>;
-TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
+template <typename Pair>
+using {test_case} = BatchNormFixture<Pair, {direction}, {operation}>;
+TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple(
     'TestCaseParams', [
@@ -273,10 +276,10 @@ def get_test_lines(test_case, test_params):
             "  using DataType = typename TestFixture::DataType;",
             "  const std::vector<DataType> exp_grad = {};".format(
                 helpers.format_tensor(output)),
-            " const std::vector<DataType> mean = {};".format(helpers.format_tensor(mean)),
-            " const std::vector<DataType> variance = {};".format(helpers.format_tensor(variance)),
-            " const std::vector<DataType> grad_scale = {};".format(helpers.format_tensor(grad_scale)),
-            " const std::vector<DataType> grad_offset = {};".format(helpers.format_tensor(grad_offset)),
+            "  const std::vector<DataType> mean = {};".format(helpers.format_tensor(mean)),
+            "  const std::vector<DataType> variance = {};".format(helpers.format_tensor(variance)),
+            "  const std::vector<DataType> grad_scale = {};".format(helpers.format_tensor(grad_scale)),
+            "  const std::vector<DataType> grad_offset = {};".format(helpers.format_tensor(grad_offset)),
             "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
             "  const auto params = getBatchNormParams(in_shape, DataFormat::{});".format(test_params.data_format),
             "  const DataType max_input_val = {:.1f};".format(max_input_val),
@@ -308,6 +311,7 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
+        helpers.get_test_types_tpl(),
         TYPED_TEST_CASE_DECL_TPL.format(
             test_case=test_case_name,
             direction=DIRECTION_MAP[test_case.direction],
