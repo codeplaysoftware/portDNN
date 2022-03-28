@@ -59,7 +59,7 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
     const auto size = exp.size();
 
     std::vector<DataType> input;
-    if (max_val == 0) {
+    if (max_val == DataType(0)) {
       input.reserve(size);
       std::generate_n(std::back_inserter(input), input_size,
                       [&max_val] { return max_val; });
@@ -113,7 +113,7 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
     const auto size = exp.size();
 
     std::vector<DataType> input;
-    if (max_val == 0) {
+    if (max_val == DataType(0)) {
       input.reserve(size);
       std::generate_n(std::back_inserter(input), size,
                       [&max_val] { return max_val; });

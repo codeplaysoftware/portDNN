@@ -53,7 +53,7 @@ SNNStatus launch(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, TLHS, TRHS)                                \
-  template SNNStatus launch<DTYPE, TLHS, TRHS>(                                \
+  template SNN_EXPORT SNNStatus launch<DTYPE, TLHS, TRHS>(                     \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
       BaseMemObject<DTYPE> & output, int batches, int m, int k, int n,         \
       DTYPE beta, cl::sycl::queue& queue);

@@ -26,7 +26,7 @@
 #include "sycldnn/binaryop/operators.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
-#include "sycldnn/backend/reductionops.h"
+#include "sycldnn/reduce/operators.h"
 
 namespace sycldnn {
 namespace softmax {
@@ -65,11 +65,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   if (sycldnn::StatusCode::OK != status.status) return status;
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
-  using Index = int32_t;
-  status.event =
-      backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
-                                    sycldnn::backend::reduction::Add>(
-          ConstPointer{output}, workspace, params);
+  status.event = backend.template reduce<reduce::Add>(
+      ConstPointer{output}, workspace, params.batch * params.rows * params.cols,
+      params.channels, 1);
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem =
@@ -114,15 +112,13 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   if (sycldnn::StatusCode::OK != status.status) return status;
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
-  using Index = int32_t;
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
 
-  status.event =
-      backend.template reduce_inner<T, Index, softmax::SoftmaxParams,
-                                    sycldnn::backend::reduction::Add>(
-          const_workspace, output, params);
+  status.event = backend.template reduce<reduce::Add>(
+      const_workspace, output, params.batch * params.rows * params.cols,
+      params.channels, 1);
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);

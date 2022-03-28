@@ -18,10 +18,10 @@
 
 #include "sycldnn/backend/device_mem_pointer.h"
 #include "sycldnn/backend/snn_matmul_provider.h"
+#include "sycldnn/backend/snn_reduce_provider.h"
 
 #include <SYCL/codeplay.hpp>
 #include <numeric>
-#include "sycldnn/backend/reductionops.h"
 
 namespace sycldnn {
 namespace backend {
@@ -53,9 +53,11 @@ struct BackendTraits<SNNBackend> {
 /**
  * Standard test backend for SYCL-DNN.
  *
- * Provides pointer handling and matrix multiplies using our internal kernels.
+ * Provides pointer handling, matrix multiplies and reduce using our internal
+ * kernels.
  */
-struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
+struct SNNBackend final : public SNNMatmulProvider<SNNBackend>,
+                          public SNNReduceProvider<SNNBackend> {
   /** The pointer type used in interface of the SNNBackend. */
   template <typename T>
   using pointer_type =
@@ -152,119 +154,6 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
    * \return a descriptive name for this backend.
    */
   static char const* name() { return "SNNBackend"; }
-
-  /**
-   * Function for reducing inputs using SYCL-DNN backend.
-   * \tparam T          Data type.
-   * \tparam Index      Index type.
-   * \tparam Params     Parameters object which holds N, H, W and C.
-   * \tparam Op         Reduction Type.
-   * \param input       input memory to be reduced.
-   * \param output      output memory to store the reduced value.
-   * \param params      Parameters object.
-   * \return            A SYCL event corresponding to the reduction kernel.
-   */
-  template <typename T, typename Index, typename Params, typename Op>
-  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_inner(
-      pointer_type<T const> input, pointer_type<T> output,
-      Params const& params) {
-    // Validate the reduction type
-    reduction::is_valid_reduction<Op>();
-
-    // Only NHWC format is supported.
-
-    Index out_size = params.batch * params.rows * params.cols;
-    Index reduction_items = params.channels;
-    if (reduction_items == 1) {
-      auto event = queue_.submit([&](cl::sycl::handler& cgh) {
-        auto buf_in = input.get_buffer();
-        auto buf_out = output.get_buffer();
-        auto acc_in =
-            buf_in.template get_access<cl::sycl::access::mode::read>(cgh);
-        auto acc_out =
-            buf_out.template get_access<cl::sycl::access::mode::write>(cgh);
-
-        cgh.copy(acc_in, acc_out);
-      });
-      return event;
-    } else {
-      auto event = queue_.submit([&](cl::sycl::codeplay::host_handler& h) {
-        auto buf_in = input.get_buffer();
-        auto acc_in =
-            buf_in.template get_access<cl::sycl::access::mode::read>(h);
-        auto buf_out = output.get_buffer();
-        auto acc_out =
-            buf_out.template get_access<cl::sycl::access::mode::write>(h);
-        auto start = acc_in.get_pointer() + input.get_offset();
-        auto finish = start + reduction_items;
-        auto sum = 0.f;
-        h.host_task([=]() mutable {
-          for (Index i = 0; i < out_size; i++) {
-            sum = std::accumulate(start, finish, 0.f);
-            if (std::is_same<Op, reduction::Add>::value) {
-              acc_out[i] = static_cast<T>(sum);
-            } else if (std::is_same<Op, reduction::Mean>::value) {
-              acc_out[i] = static_cast<T>(sum) / reduction_items;
-            }
-            start += reduction_items;
-            finish += reduction_items;
-          }
-        });
-      });
-      return event;
-    }
-  }
-
-  /**
-   * Function for reducing inputs using SYCL-DNN backend.
-   * \tparam T          Data type.
-   * \tparam Index      Index type.
-   * \tparam Params     Parameters object which holds N, H, W and C.
-   * \tparam Op         Reduction Type.
-   * \param input       input memory to be reduced.
-   * \param output      output memory to store the reduced value.
-   * \param params      Parameters object.
-   * \return            A SYCL event corresponding to the reduction kernel.
-   */
-  template <typename T, typename Index, typename Params, typename Op>
-  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_outer(
-      pointer_type<T const> input, pointer_type<T> output,
-      Params const& params) {
-    // Validate the reduction type
-    reduction::is_valid_reduction<Op>();
-
-    // Only NHWC format is supported.
-
-    Index out_size = params.channels;
-    Index reduction_items = params.batch * params.rows * params.cols;
-
-    auto event = queue_.submit([&](cl::sycl::codeplay::host_handler& h) {
-      auto buf_in = input.get_buffer();
-      auto acc_in = buf_in.template get_access<cl::sycl::access::mode::read>(h);
-      auto buf_out = output.get_buffer();
-      auto acc_out =
-          buf_out.template get_access<cl::sycl::access::mode::write>(h);
-      auto start = acc_in.get_pointer() + input.get_offset();
-      auto finish = start + out_size;
-      T sum = 0.f;
-      h.host_task([=]() mutable {
-        for (Index i = 0; i < out_size; i++) {
-          sum = *start;
-          for (Index j = 1; j < reduction_items; j++, finish += out_size) {
-            sum += *finish;
-          }
-          if (std::is_same<Op, reduction::Add>::value) {
-            acc_out[i] = sum;
-          } else if (std::is_same<Op, reduction::Mean>::value) {
-            acc_out[i] = sum / reduction_items;
-          }
-          start++;
-          finish = start + out_size;
-        }
-      });
-    });
-    return event;
-  }
 
  private:
   cl::sycl::queue queue_;

@@ -115,6 +115,16 @@ struct InternalHandler {
                                internal_pointer_type<T> const output,
                                Index const n_batches, Index const m,
                                Index const k, Index const n);
+  /**
+   * A wrapper around a call to reduce.
+   *
+   * Perform a reduction using Op on the outer axis from an input:
+   * [batch, outer, inner].
+   */
+  template <typename Op, typename T, typename Index>
+  cl::sycl::event reduce(internal_pointer_type<const T> const input,
+                         internal_pointer_type<T> const output, Index batch,
+                         Index outer, Index inner);
 };
 struct ExternalToInternalConverter {
   template <typename T>

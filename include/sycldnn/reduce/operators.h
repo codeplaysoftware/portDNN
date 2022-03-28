@@ -14,38 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_INCLUDE_BACKEND_REDUCTION_H_
-#define SYCLDNN_INCLUDE_BACKEND_REDUCTION_H_
+#ifndef SYCLDNN_INCLUDE_REDUCE_OPERATORS_H_
+#define SYCLDNN_INCLUDE_REDUCE_OPERATORS_H_
 
 /**
  * \file
  * Contains the declarations of the Add, Mean tag types.
  */
 
-#include <type_traits>
-
 namespace sycldnn {
-namespace backend {
-namespace reduction {
+namespace reduce {
 
 struct Add;
 
 struct Mean;
 
-/**
- * Function to check if the provided reduction is valid or not.
- * \tparam Op   Type of reduction.
- * \return
- */
-template <typename Op>
-inline SNN_ALWAYS_INLINE void is_valid_reduction() {
-  static_assert(std::is_same<Op, reduction::Add>::value ||
-                    std::is_same<Op, reduction::Mean>::value,
-                "Invalid Reduction Type");
-}
-
-}  // namespace reduction
-}  // namespace backend
+}  // namespace reduce
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_INCLUDE_BACKEND_REDUCTION_H_
+#endif  // SYCLDNN_INCLUDE_REDUCE_OPERATORS_H_

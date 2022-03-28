@@ -30,7 +30,7 @@
 #include "sycldnn/binaryop/operators.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
-#include "sycldnn/backend/reductionops.h"
+#include "sycldnn/reduce/operators.h"
 
 namespace sycldnn {
 namespace batchnorm {
@@ -79,13 +79,10 @@ SNNStatus launch_forward(
     typename Backend::template pointer_type<T> running_variance,
     typename Backend::template pointer_type<T> output,
     BatchNormParams const& params, Backend& backend) {
-  using Index = int32_t;
   SNNStatus status;
-  status.event =
-      backend
-          .template reduce_outer<T, Index, sycldnn::batchnorm::BatchNormParams,
-                                 sycldnn::backend::reduction::Mean>(
-              input, running_mean, params);
+  status.event = backend.template reduce<reduce::Mean>(
+      input, running_mean, 1, params.batch * params.rows * params.cols,
+      params.channels);
 
   auto n_items = params.batch * params.channels * params.rows * params.cols;
 
@@ -166,11 +163,9 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
                       typename Backend::template pointer_type<T> output,
                       BatchNormParams const& params, Backend& backend) {
   SNNStatus status;
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Mean>(
-          input, gamma_grad, params);  // mean_x
+  status.event = backend.template reduce<reduce::Mean>(
+      input, gamma_grad, 1, params.batch * params.rows * params.cols,
+      params.channels);  // mean_x
 
   auto n_items = params.batch * params.channels * params.rows * params.cols;
   using ConstPointer = typename Backend::template pointer_type<T const>;
@@ -196,11 +191,9 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Mean>(
-          gradient, gamma_grad, params);  // mean_grad_y
+  status.event = backend.template reduce<reduce::Mean>(
+      gradient, gamma_grad, 1, params.batch * params.rows * params.cols,
+      params.channels);  // mean_grad_y
 
   auto const_gradient_mean = ConstPointer{gamma_grad};
   auto const_gradient_mean_mem =
@@ -230,11 +223,10 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Mean>(
-          secondary_workspace, gamma_grad, params);  // mean pt 2
+  auto const_secondary_workspace = ConstPointer{secondary_workspace};
+  status.event = backend.template reduce<reduce::Mean>(
+      const_secondary_workspace, gamma_grad, 1,
+      params.batch * params.rows * params.cols, params.channels);  // mean pt 2
 
   auto const_input_variance = ConstPointer{beta_grad};
   auto const_input_variance_mem =
@@ -251,13 +243,10 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Add>(
-          secondary_workspace, workspace, params);  // grad_scale pt 1
-
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  status.event = backend.template reduce<reduce::Add>(
+      const_secondary_workspace, workspace, 1,
+      params.batch * params.rows * params.cols,
+      params.channels);  // grad_scale pt 1
 
   auto gamma_grad_mem = backend.get_mem_object(gamma_grad, params.channels);
 
@@ -267,11 +256,9 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Add>(
-          gradient, beta_grad, params);  // grad_offset
+  status.event = backend.template reduce<reduce::Add>(
+      gradient, beta_grad, 1, params.batch * params.rows * params.cols,
+      params.channels);  // grad_offset
   return status;
 }
 
@@ -309,11 +296,11 @@ SNNStatus launch_grad(
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Add>(
-          output, gamma_grad, params);  // grad_scale pt 2
+  using ConstPointer = typename Backend::template pointer_type<T const>;
+  status.event = backend.template reduce<reduce::Add>(
+      ConstPointer{output}, gamma_grad, 1,
+      params.batch * params.rows * params.cols,
+      params.channels);  // grad_scale pt 2
 
   auto gamma_mem = backend.get_mem_object(gamma, params.channels);
 
@@ -323,11 +310,9 @@ SNNStatus launch_grad(
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
-  status.event =
-      backend.template reduce_outer<T, int32_t,
-                                    sycldnn::batchnorm::BatchNormParams,
-                                    sycldnn::backend::reduction::Add>(
-          gradient, beta_grad, params);  // grad_offset
+  status.event = backend.template reduce<reduce::Add>(
+      gradient, beta_grad, 1, params.batch * params.rows * params.cols,
+      params.channels);  // grad_offset
 
   return status;
 }

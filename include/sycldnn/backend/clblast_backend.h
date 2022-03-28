@@ -24,6 +24,7 @@
  */
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/backend/device_mem_pointer.h"
+#include "sycldnn/backend/snn_reduce_provider.h"
 #include "sycldnn/helpers/macros.h"
 
 #include "sycldnn/mem_object.h"
@@ -56,7 +57,7 @@ struct BackendTraits<CLBlastBackend> {
  *
  * Provides pointer handling and matrix multiplies using CLBlast.
  */
-class CLBlastBackend final {
+class CLBlastBackend final : public SNNReduceProvider<CLBlastBackend> {
   /** Copy of SYCL queue that wraps the cl_command_queue used by CLBlast. */
   cl::sycl::queue queue_;
   /** Cached OpenCL command queue from SYCL queue, used in CLBlast API. */

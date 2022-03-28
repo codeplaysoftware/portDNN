@@ -26,6 +26,7 @@
 #include "sycldnn/backend/eigen_internal_handler.h"
 #include "sycldnn/backend/eigen_pointer_to_eigen_pointer.h"
 #include "sycldnn/backend/snn_matmul_provider.h"
+#include "sycldnn/backend/snn_reduce_provider.h"
 
 namespace sycldnn {
 namespace backend {
@@ -63,6 +64,7 @@ struct EigenBackendSNNMatmul final
     : public EigenExternalHandler<EigenBackendSNNMatmul>,
       public EigenToEigenPointer,
       public EigenInternalHandler<EigenBackendSNNMatmul>,
+      public SNNReduceProvider<EigenBackendSNNMatmul>,
       public SNNMatmulProvider<EigenBackendSNNMatmul> {
   /** The pointer type used in interface of the EigenBackend. */
   template <typename T>

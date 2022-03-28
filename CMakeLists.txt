@@ -178,6 +178,7 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:transpose>
   $<TARGET_OBJECTS:batchnorm>
   $<TARGET_OBJECTS:roi_align>
+  $<TARGET_OBJECTS:reduce>
 )
 snn_target(TARGET sycl_dnn WITH_SYCL)
 set_target_properties(sycl_dnn PROPERTIES
@@ -200,6 +201,7 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:transpose>
   $<TARGET_OBJECTS:batchnorm>
   $<TARGET_OBJECTS:roi_align>
+  $<TARGET_OBJECTS:reduce>
 )
 snn_target(TARGET sycl_dnn_static WITH_SYCL)
 set_target_properties(sycl_dnn_static PROPERTIES

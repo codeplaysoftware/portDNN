@@ -23,14 +23,33 @@
  */
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/helpers/macros.h"
+#include "sycldnn/reduce/operators.h"
 
-#include "sycldnn/backend/reductionops.h"
 #include "sycldnn/mem_object.h"
 
 #include <sycl_blas.h>
 
 namespace sycldnn {
 namespace backend {
+namespace internal {
+/** Convert SNN Reduce operation type to SYCL-BLAS one */
+template <typename Op>
+struct SNNToBlas;
+
+/** Convert SNN Reduce Add to SYCL-BLAS one */
+template <>
+struct SNNToBlas<reduce::Add> {
+  /** SYCL-BLAS Add type */
+  using type = blas::AddOperator;
+};
+
+/** Convert SNN Reduce Mean to SYCL-BLAS one */
+template <>
+struct SNNToBlas<reduce::Mean> {
+  /** SYCL-BLAS Mean type */
+  using type = blas::MeanOperator;
+};
+}  // namespace internal
 
 // Forward declaration to allow the BackendTraits specialisation.
 struct SyclBLASBackend;
@@ -59,7 +78,7 @@ struct BackendTraits<SyclBLASBackend> {
 /**
  * SyclBLAS backend for SYCL-DNN.
  *
- * Provides pointer handling and matrix multiplies using SyclBLAS.
+ * Provides pointer handling, matrix multiplies and reduce using SyclBLAS.
  */
 struct SyclBLASBackend final {
  private:
@@ -298,78 +317,39 @@ struct SyclBLASBackend final {
   }
 
   /**
-   * Function for reducing inputs using SYCL-BLAS backend.
-   * \tparam T          Data type.
-   * \tparam Index      Index type.
-   * \tparam Params     Parameters object which holds N, H, W and C.
-   * \tparam Op         Reduction Type.
-   * \param input       input memory to be reduced.
-   * \param output      output memory to store the reduced value.
-   * \param params      Parameters object.
-   * \return            A SYCL event corresponding to the reduction kernel.
+   * Compute a reduction.
+   *
+   * Perform a reduction using Op on the outer axis from an input:
+   * [batch, outer, inner].
+   * \param [in]  input  Pointer to a buffer containing the input tensor.
+   * \param [out] output Pointer to a buffer containing the output tensor.
+   * \param [in]  batch  Batch size.
+   * \param [in]  outer  Outer size.
+   * \param [in]  inner  Inner size.
+   * \return A SYCL event corresponding to the reduce kernel launch.
    */
-  template <typename T, typename Index, typename Params, typename Op>
-  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_inner(
-      pointer_type<T const> input, pointer_type<T> output,
-      Params const& params) {
-    // Validate the reduction type
-    reduction::is_valid_reduction<Op>();
-
-    // Only NHWC format is supported.
-
-    Index reduce_dim = params.channels;  // channels
-    Index preserve_dim =
-        params.batch * params.rows * params.cols;  // batch*rows*cols
-
-    // call sycl-blas reduction using column major data layout
-    if (std::is_same<Op, reduction::Add>::value) {
-      return blas::extension::_reduction<blas::AddOperator, T>(
-                 executor_, input, reduce_dim, output, reduce_dim, preserve_dim,
-                 blas::reduction_dim_t::inner)
-          .back();
-    } else if (std::is_same<Op, reduction::Mean>::value) {
-      return blas::extension::_reduction<blas::MeanOperator, T>(
-                 executor_, input, reduce_dim, output, reduce_dim, preserve_dim,
+  template <typename Op, typename T, typename Index>
+  cl::sycl::event reduce(internal_pointer_type<const T> const input,
+                         internal_pointer_type<T> const output, Index batch,
+                         Index outer, Index inner) {
+    using BlasOp = typename internal::SNNToBlas<Op>::type;
+    // In most cases reductions should be called with either batch=1 or inner=1
+    // which are efficiently implemented by SYCL-BLAS. In the most generic case
+    // with batch>1 and inner>1 we have to perform multiple outer reductions.
+    if (inner == 1) {
+      return blas::extension::_reduction<BlasOp, T>(
+                 executor_, input, outer, output, outer, batch,
                  blas::reduction_dim_t::inner)
           .back();
     }
-  }
-
-  /**
-   * Function for reducing inputs using SYCL-BLAS backend.
-   * \tparam T          Data type.
-   * \tparam Index      Index type.
-   * \tparam Params     Parameters object which holds N, H, W and C.
-   * \tparam Op         Reduction Type.
-   * \param input       input memory to be reduced.
-   * \param output      output memory to store the reduced value.
-   * \param params      Parameters object.
-   * \return            A SYCL event corresponding to the reduction kernel.
-   */
-  template <typename T, typename Index, typename Params, typename Op>
-  inline SNN_ALWAYS_INLINE cl::sycl::event reduce_outer(
-      pointer_type<T const> input, pointer_type<T> output,
-      Params const& params) {
-    // Validate the reduction type
-    reduction::is_valid_reduction<Op>();
-
-    // Only NHWC format is supported.
-
-    Index reduce_dim =
-        params.batch * params.rows * params.cols;  // batch*rows*cols
-    Index preserve_dim = params.channels;          // channels
-
-    if (std::is_same<Op, reduction::Add>::value) {
-      return blas::extension::_reduction<blas::AddOperator, T>(
-                 executor_, input, preserve_dim, output, preserve_dim,
-                 reduce_dim, blas::reduction_dim_t::outer)
-          .back();
-    } else if (std::is_same<Op, reduction::Mean>::value) {
-      return blas::extension::_reduction<blas::MeanOperator, T>(
-                 executor_, input, preserve_dim, output, preserve_dim,
-                 reduce_dim, blas::reduction_dim_t::outer)
-          .back();
+    cl::sycl::event e;
+    for (Index b = 0; b < batch; ++b) {
+      e = blas::extension::_reduction<BlasOp, T>(
+              executor_, input + b * outer * inner, inner, output + b * inner,
+              inner, outer, blas::reduction_dim_t::outer)
+              .back();
     }
+    return e;
   }
 };
 

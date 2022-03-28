@@ -60,6 +60,7 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
     TARGET backend_matmul
     KERNEL_SOURCES ${backend_matmul_sources}
     PUBLIC_LIBRARIES
+      sycl_dnn
       ${_matmul_providers}
       GTest::GTest
     ${_cxx_opts}
@@ -73,7 +74,6 @@ if(SNN_TEST_EIGEN OR SNN_TEST_SYCLBLAS)
     SOURCES
       matmul_backend.cc
     PUBLIC_LIBRARIES
-      sycl_dnn
       ${_matmul_providers}
       backend_matmul
     ${_cxx_opts}

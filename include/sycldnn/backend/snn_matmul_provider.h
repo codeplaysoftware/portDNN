@@ -24,6 +24,7 @@
  */
 
 #include "sycldnn/backend/backend_traits.h"
+#include "sycldnn/backend/internal_backend.h"
 #include "sycldnn/matmul/launch.h"
 
 namespace sycldnn {
@@ -40,48 +41,6 @@ struct SNNMatmulProvider {
   template <typename T>
   using internal_pointer_type =
       typename BackendTraits<Backend>::template internal_pointer_type<T>;
-
-  /**
-   * The SYCL-DNN matmul launcher uses the backend's external pointer type and
-   * buffer accessors, however the calls to Backend::matmul and
-   * Backend::batch_matmul use the backend's internal pointer type and buffer
-   * accessors. This means we need to create a new backend just to provide
-   * access to the correct types and methods when calling
-   * sycldnn::matmul::launch.
-   */
-  struct MatmulBackend {
-    template <typename T>
-    using pointer_type =
-        typename BackendTraits<Backend>::template internal_pointer_type<T>;
-
-    /**
-     * Construct a MatmulBackend which forwards buffer access calls to the
-     * provided backend.
-     *
-     * \param backend Underlying backend which provides access to buffers.
-     */
-    explicit MatmulBackend(Backend backend)
-        : underlying_backend{std::move(backend)} {}
-
-    /**
-     * Get the buffer corresponding to the provided buffer of the specified
-     * size.
-     *
-     * \param [in] ptr Pointer into a SYCL buffer.
-     * \param [in] n_elems Number of elements expected to be in the buffer.
-     * \return Buffer corresponding to the provided pointer.
-     */
-    template <typename T>
-    auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
-        -> decltype(std::declval<Backend>().get_mem_object(ptr, n_elems)) {
-      return underlying_backend.get_mem_object(ptr, n_elems);
-    }
-
-    cl::sycl::queue get_queue() { return underlying_backend.get_queue(); }
-
-   private:
-    Backend underlying_backend;
-  };
 
  public:
   /**
@@ -112,9 +71,9 @@ struct SNNMatmulProvider {
                          internal_pointer_type<T> const output, T const beta,
                          Index const m, Index const k, Index const n) {
     auto& underlying_backend = static_cast<Backend&>(*this);
-    MatmulBackend matmul_backend{underlying_backend};
+    internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
-        lhs, rhs, output, 1, m, k, n, beta, matmul_backend);
+        lhs, rhs, output, 1, m, k, n, beta, internal_backend);
     SNN_ASSERT(status.status == StatusCode::OK,
                "Error launching matmul kernel.");
     return status.event;
@@ -150,9 +109,9 @@ struct SNNMatmulProvider {
                                Index const n_batches, Index const m,
                                Index const k, Index const n) {
     auto& underlying_backend = static_cast<Backend&>(*this);
-    MatmulBackend matmul_backend{underlying_backend};
+    internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
-        lhs, rhs, output, n_batches, m, k, n, T{0}, matmul_backend);
+        lhs, rhs, output, n_batches, m, k, n, T{0}, internal_backend);
     SNN_ASSERT(status.status == StatusCode::OK,
                "Error launching matmul kernel.");
     return status.event;

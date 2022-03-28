@@ -11,17 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 cmake_minimum_required(VERSION 3.10.2)
+
+include(HandleGTest)
 include(SNNHelpers)
 
-add_subdirectory(conv2d)
-add_subdirectory(depthwise_conv2d)
-add_subdirectory(matmul)
-add_subdirectory(pointwise)
-add_subdirectory(pooling)
-add_subdirectory(binaryop)
-add_subdirectory(transpose)
-add_subdirectory(batchnorm)
-add_subdirectory(roi_align)
-add_subdirectory(reduce)
+foreach(_op IN ITEMS add mean)
+  set(_target reduce_${_op})
+  snn_test(
+    WITH_SYCL
+    TARGET
+      ${_target}
+    SIZE
+      moderate
+    SOURCES
+      ${_target}.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endforeach()

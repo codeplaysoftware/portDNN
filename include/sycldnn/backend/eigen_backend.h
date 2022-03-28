@@ -25,6 +25,7 @@
 #include "sycldnn/backend/eigen_internal_handler.h"
 #include "sycldnn/backend/eigen_matmul_provider.h"
 #include "sycldnn/backend/eigen_pointer_to_eigen_pointer.h"
+#include "sycldnn/backend/eigen_reduce_provider.h"
 
 namespace sycldnn {
 namespace backend {
@@ -56,12 +57,13 @@ struct BackendTraits<EigenBackend> {
 /**
  * Eigen backend for SYCL-DNN.
  *
- * Provides pointer handling and matrix multiplies using Eigen.
+ * Provides pointer handling, matrix multiplies and reduce using Eigen.
  */
 struct EigenBackend final : public EigenExternalHandler<EigenBackend>,
                             public EigenToEigenPointer,
                             public EigenInternalHandler<EigenBackend>,
-                            public EigenMatmulProvider<EigenBackend> {
+                            public EigenMatmulProvider<EigenBackend>,
+                            public EigenReduceProvider<EigenBackend> {
   /** The pointer type used in interface of the EigenBackend. */
   template <typename T>
   using pointer_type =
