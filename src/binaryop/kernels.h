@@ -72,7 +72,7 @@ class BinaryOp {
   WriteAccessor<T> out_data_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) const {
     Index rhs_idx = static_cast<Index>(item.get_id(1) * VectorWidth);
     Index lhs_idx =
         static_cast<Index>(item.get_id(0) * rhs_.get_extent()) + rhs_idx;
@@ -106,7 +106,7 @@ class BinaryOp<T, internal::SoftmaxSub, Index, VectorWidth> {
   const Index n_offset_, n_iterations_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) const {
     Index lhs_idx = static_cast<Index>(item.get_id(1) * VectorWidth);
 
     const auto lhs = lhs_.get_pointer();
@@ -146,7 +146,7 @@ class BinaryOp<T, internal::SoftmaxDiv, Index, VectorWidth> {
   const Index n_offset_, n_iterations_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) const {
     Index lhs_idx = static_cast<Index>(item.get_id(1) * VectorWidth);
 
     const auto lhs = lhs_.get_pointer();
