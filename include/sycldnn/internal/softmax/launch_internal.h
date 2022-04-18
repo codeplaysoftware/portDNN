@@ -24,6 +24,7 @@
 #include "sycldnn/pointwise/operators.h"
 
 #include "sycldnn/binaryop/operators.h"
+#include "sycldnn/binaryop/params.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
 #include "sycldnn/reduce/operators.h"
@@ -76,10 +77,10 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
 
+  binaryop::BinaryParams div_params{params.channels, params.channels};
   status =
       binaryop::internal::launch_binaryop<T, binaryop::internal::SoftmaxDiv>(
-          const_output_mem, const_workspace_mem, out_mem, params.channels,
-          queue);
+          const_output_mem, const_workspace_mem, out_mem, div_params, queue);
   return status;
 }
 
@@ -106,8 +107,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
 
   auto queue = backend.get_queue();
 
+  binaryop::BinaryParams mul_params{n_items1, n_items1};
   SNNStatus status = binaryop::internal::launch_binaryop<T, binaryop::Mul>(
-      grad_mem, in_mem, workspace_mem, n_items1, queue);
+      grad_mem, in_mem, workspace_mem, mul_params, queue);
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
@@ -123,14 +125,15 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
+  binaryop::BinaryParams sub_params{params.channels, params.channels};
   status =
       binaryop::internal::launch_binaryop<T, binaryop::internal::SoftmaxSub>(
-          grad_mem, const_output_mem, workspace_mem, params.channels, queue);
+          grad_mem, const_output_mem, workspace_mem, sub_params, queue);
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 
   status = binaryop::internal::launch_binaryop<T, binaryop::Mul>(
-      const_workspace_mem, in_mem, out_mem, n_items1, queue);
+      const_workspace_mem, in_mem, out_mem, mul_params, queue);
 
   return status;
 }

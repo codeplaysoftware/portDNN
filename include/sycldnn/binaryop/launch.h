@@ -87,15 +87,24 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
     return validation_status;
   }
 
-  auto inp1_mem =
+  auto lhs_mem =
       backend.get_mem_object(lhs, static_cast<size_t>(params.lhs_items));
-  auto inp2_mem =
+  auto rhs_mem =
       backend.get_mem_object(rhs, static_cast<size_t>(params.rhs_items));
-  auto outp_mem =
-      backend.get_mem_object(output, static_cast<size_t>(params.lhs_items));
   auto queue = backend.get_queue();
-  return internal::launch_binaryop<T, Op>(inp1_mem, inp2_mem, outp_mem,
-                                          params.rhs_items, queue);
+
+  if (params.lhs_items < params.rhs_items) {
+    BinaryParams new_params{params.rhs_items, params.lhs_items};
+    auto outp_mem =
+        backend.get_mem_object(output, static_cast<size_t>(params.rhs_items));
+    return internal::launch_binaryop<T, Op>(rhs_mem, lhs_mem, outp_mem,
+                                            new_params, queue);
+  } else {
+    auto outp_mem =
+        backend.get_mem_object(output, static_cast<size_t>(params.lhs_items));
+    return internal::launch_binaryop<T, Op>(lhs_mem, rhs_mem, outp_mem, params,
+                                            queue);
+  }
 }
 
 }  // namespace binaryop

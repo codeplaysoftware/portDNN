@@ -28,6 +28,7 @@
 #include "sycldnn/internal/batchnorm/launch_batchnorm.h"
 
 #include "sycldnn/binaryop/operators.h"
+#include "sycldnn/binaryop/params.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
 #include "sycldnn/reduce/operators.h"
@@ -184,9 +185,10 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
   auto gradient_mem = backend.get_mem_object(gradient, n_items);
   auto workspace_mem = backend.get_mem_object(workspace, n_items);
 
+  sycldnn::binaryop::BinaryParams sub_params{n_items, params.channels};
   status =
       sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Sub>(
-          input_mem, const_input_mean_mem, workspace_mem, params.channels,
+          input_mem, const_input_mean_mem, workspace_mem, sub_params,
           queue);  // x_offset
 
   if (sycldnn::StatusCode::OK != status.status) return status;
@@ -202,7 +204,7 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   status =
       sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Sub>(
-          gradient_mem, const_gradient_mean_mem, output_mem, params.channels,
+          gradient_mem, const_gradient_mean_mem, output_mem, sub_params,
           queue);  // grad_y_offset
 
   if (sycldnn::StatusCode::OK != status.status) return status;
@@ -216,9 +218,11 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
   auto secondary_workspace_mem =
       backend.get_mem_object(secondary_workspace, n_items);
 
+  sycldnn::binaryop::BinaryParams mul_params{n_items, n_items};
   status =
       sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Mul>(
-          gradient_mem, const_workspace_mem, secondary_workspace_mem, n_items,
+          gradient_mem, const_workspace_mem, secondary_workspace_mem,
+          mul_params,
           queue);  // mean pt 1
 
   if (sycldnn::StatusCode::OK != status.status) return status;

@@ -17,6 +17,8 @@
 
 #include "sycldnn/binaryop/operators.h"
 
+#include "sycldnn/binaryop/params.h"
+
 #include <CL/sycl.hpp>
 
 // clang-format off
@@ -35,7 +37,7 @@ template SNNStatus
 queue_binaryop<SNN_DATA_TYPE, SNN_OP_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
     BaseMemObject<SNN_DATA_TYPE const>& input1,
     BaseMemObject<SNN_DATA_TYPE const>& input2,
-    BaseMemObject<SNN_DATA_TYPE>& output, SNN_INDEX_TYPE const n_items,
+    BaseMemObject<SNN_DATA_TYPE>& output, const BinaryParams& params,
     cl::sycl::queue& queue);
 
 }  // namespace internal

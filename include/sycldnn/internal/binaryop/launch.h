@@ -20,6 +20,8 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/binaryop/params.h"
+
 #include "sycldnn/export.h"
 
 namespace sycldnn {
@@ -30,7 +32,7 @@ template <typename T, typename Op>
 SNN_EXPORT SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                                      BaseMemObject<T const>& rhs,
                                      BaseMemObject<T>& output,
-                                     int32_t const n_items,
+                                     const BinaryParams& params,
                                      cl::sycl::queue& queue);
 
 }  // namespace internal

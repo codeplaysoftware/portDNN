@@ -32,16 +32,17 @@ namespace internal {
 template <typename T, typename Op, typename Index, int VectorWidth>
 SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
                          BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
-                         int32_t const n_items, cl::sycl::queue& queue) {
+                         const BinaryParams& params, cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto in1 = lhs.read_accessor(cgh);
     auto in2 = rhs.read_accessor(cgh);
     auto out = output.write_accessor(cgh);
+    auto x_range = static_cast<size_t>(params.lhs_items / params.rhs_items);
+    auto y_range = static_cast<size_t>(params.rhs_items);
     BinaryOp<T, Op, Index, VectorWidth> binary_op{in1, in2, out};
 
-    cgh.parallel_for(
-        cl::sycl::range<1>{static_cast<size_t>(n_items / VectorWidth)},
-        binary_op);
+    cgh.parallel_for(cl::sycl::range<2>{x_range, y_range / VectorWidth},
+                     binary_op);
   });
 
   return {event, StatusCode::OK};

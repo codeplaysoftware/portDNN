@@ -17,6 +17,8 @@
 #ifndef SYCLDNN_SRC_BINARYOP_QUEUE_H_
 #define SYCLDNN_SRC_BINARYOP_QUEUE_H_
 
+#include "sycldnn/binaryop/params.h"
+
 namespace sycldnn {
 namespace binaryop {
 namespace internal {
@@ -24,7 +26,7 @@ namespace internal {
 template <typename T, typename Op, typename Index, int VectorWidth>
 SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
                          BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
-                         int32_t const n_items, cl::sycl::queue& queue);
+                         const BinaryParams& params, cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace binaryop

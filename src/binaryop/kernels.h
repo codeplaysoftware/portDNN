@@ -70,35 +70,27 @@ class BinaryOp {
 
   ReadAccessor<T const> lhs_, rhs_;
   WriteAccessor<T> out_data_;
-  const Index n_iterations_, n_offset_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
-    Index idx1 = item.get_id(0) * VectorWidth;
-    Index idx2 = idx1;
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+    Index rhs_idx = static_cast<Index>(item.get_id(1) * VectorWidth);
+    Index lhs_idx =
+        static_cast<Index>(item.get_id(0) * rhs_.get_extent()) + rhs_idx;
 
-    const auto in1 = lhs_.get_pointer();
-    const auto in2 = rhs_.get_pointer();
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer();
     auto out = out_data_.get_pointer();
 
     Op op;
-    auto rhs_val = Load()(in2, idx2);
-
-    for (Index i = 0; i < n_iterations_; i++) {
-      auto lhs_val = Load()(in1, idx1);
-      auto out_val = op.apply(lhs_val, rhs_val);
-      Store()(out, idx1, out_val);
-      idx1 += n_offset_;
-    }
+    auto lhs_val = Load()(lhs, lhs_idx);
+    auto rhs_val = Load()(rhs, rhs_idx);
+    auto out_val = op.apply(lhs_val, rhs_val);
+    Store()(out, lhs_idx, out_val);
   }
 
   BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
            WriteAccessor<T> out_data)
-      : lhs_(lhs),
-        rhs_(rhs),
-        out_data_(out_data),
-        n_iterations_(static_cast<Index>(lhs.get_extent() / rhs.get_extent())),
-        n_offset_(static_cast<Index>(rhs.get_extent())) {}
+      : lhs_(lhs), rhs_(rhs), out_data_(out_data) {}
 };
 
 template <typename T, typename Index, int VectorWidth>
@@ -114,21 +106,21 @@ class BinaryOp<T, internal::SoftmaxSub, Index, VectorWidth> {
   const Index n_offset_, n_iterations_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
-    Index idx = item.get_id(0) * VectorWidth;
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+    Index lhs_idx = static_cast<Index>(item.get_id(1) * VectorWidth);
 
-    const auto in1 = lhs_.get_pointer();
-    const auto in2 = rhs_.get_pointer();
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer();
     auto out = out_data_.get_pointer();
 
     Sub op;
 
     for (Index i = 0; i < n_iterations_; i++) {
-      auto lhs_val = Load()(in1, idx);
-      auto rhs_val = ScalarLoad()(in2, i);
+      auto lhs_val = Load()(lhs, lhs_idx);
+      auto rhs_val = ScalarLoad()(rhs, i);
       auto out_val = op.apply(lhs_val, static_cast<DataT>(rhs_val));
-      Store()(out, idx, out_val);
-      idx += n_offset_;
+      Store()(out, lhs_idx, out_val);
+      lhs_idx += n_offset_;
     }
   }
 
@@ -154,21 +146,21 @@ class BinaryOp<T, internal::SoftmaxDiv, Index, VectorWidth> {
   const Index n_offset_, n_iterations_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
-    Index idx = item.get_id(0) * VectorWidth;
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+    Index lhs_idx = static_cast<Index>(item.get_id(1) * VectorWidth);
 
-    const auto in1 = lhs_.get_pointer();
-    const auto in2 = rhs_.get_pointer();
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer();
     auto out = out_data_.get_pointer();
 
     Div op;
 
     for (Index i = 0; i < n_iterations_; i++) {
-      auto lhs_val = Load()(in1, idx);
-      auto rhs_val = ScalarLoad()(in2, i);
+      auto lhs_val = Load()(lhs, lhs_idx);
+      auto rhs_val = ScalarLoad()(rhs, i);
       auto out_val = op.apply(lhs_val, static_cast<DataT>(rhs_val));
-      Store()(out, idx, out_val);
-      idx += n_offset_;
+      Store()(out, lhs_idx, out_val);
+      lhs_idx += n_offset_;
     }
   }
 

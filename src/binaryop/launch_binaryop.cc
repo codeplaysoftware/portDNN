@@ -16,6 +16,8 @@
 
 #include "sycldnn/binaryop/operators.h"
 
+#include "sycldnn/binaryop/params.h"
+
 #include "sycldnn/internal/binaryop/launch.h"
 
 #include "src/binaryop/queue_binaryop_kernel.h"
@@ -31,21 +33,23 @@ namespace internal {
 template <typename T, typename Op>
 SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                           BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
-                          int32_t const n_items, cl::sycl::queue& queue) {
+                          const BinaryParams& params, cl::sycl::queue& queue) {
+  using Index = int32_t;
+  Index n_items = params.rhs_items;
   if (n_items % 4 == 0) {
-    return queue_binaryop<T, Op, int32_t, 4>(lhs, rhs, output, n_items, queue);
+    return queue_binaryop<T, Op, Index, 4>(lhs, rhs, output, params, queue);
   } else if (n_items % 2 == 0) {
-    return queue_binaryop<T, Op, int32_t, 2>(lhs, rhs, output, n_items, queue);
+    return queue_binaryop<T, Op, Index, 2>(lhs, rhs, output, params, queue);
   } else {
-    return queue_binaryop<T, Op, int32_t, 1>(lhs, rhs, output, n_items, queue);
+    return queue_binaryop<T, Op, Index, 1>(lhs, rhs, output, params, queue);
   }
 }
 
-#define INSTANTIATE_BINARYOP_LAUNCH(DTYPE, OP)                   \
-  template SNN_EXPORT SNNStatus launch_binaryop<DTYPE, OP>(      \
-      BaseMemObject<DTYPE const> & inp1_access,                  \
-      BaseMemObject<DTYPE const> & inp2_access,                  \
-      BaseMemObject<DTYPE> & outp_access, int32_t const n_items, \
+#define INSTANTIATE_BINARYOP_LAUNCH(DTYPE, OP)                        \
+  template SNN_EXPORT SNNStatus launch_binaryop<DTYPE, OP>(           \
+      BaseMemObject<DTYPE const> & inp1_access,                       \
+      BaseMemObject<DTYPE const> & inp2_access,                       \
+      BaseMemObject<DTYPE> & outp_access, const BinaryParams& params, \
       cl::sycl::queue& queue)
 
 #define INSTANTIATE_BINARYOP_FOR_TYPE(DTYPE)      \
