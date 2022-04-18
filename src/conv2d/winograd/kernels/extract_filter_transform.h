@@ -42,7 +42,7 @@ struct ExtractFilterTiles {
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
       auto filter_data = filter_accessor_.get_pointer();
@@ -91,7 +91,7 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
       auto filter_data = filter_accessor_.get_pointer();
@@ -139,7 +139,7 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
         filter_accessor_{std::move(filter)},
         output_accessor_{std::move(output)} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_threads_) {
       auto filter_data = filter_accessor_.get_pointer();

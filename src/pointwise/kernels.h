@@ -178,7 +178,7 @@ class PointwiseOp<T, Index, Op, Forward, VectorWidth> {
               WriteAccessor<T> const& output, Index const num_items)
       : input_{input}, output_{output}, n_items_{num_items} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const idx = item.get_id(0);
 
     if (idx < n_items_) {
@@ -216,7 +216,7 @@ class PointwiseOp<T, Index, Op, Gradient, VectorWidth> {
         output_backprop_{output_backprop},
         n_items_{num_items} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const idx = item.get_id(0);
 
     if (idx < n_items_) {

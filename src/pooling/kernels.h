@@ -55,7 +55,7 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
   const IndexDivType div_channels_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
 
     if (index < n_items_) {
@@ -135,7 +135,7 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
         div_in_cols_{pp.in_cols},
         div_channels_{pp.channels} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
 
     if (index < n_items_) {
@@ -250,7 +250,8 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
 
   /** Get the input window corresponding to the given index.  */
   Window SNN_ALWAYS_INLINE get_input_window(Index idx, Index max_idx,
-                                            Index window_size, Index stride) {
+                                            Index window_size,
+                                            Index stride) const {
     Index const begin =
         (idx < window_size) ? 0 : (idx - window_size) / stride + 1;
     Index const end = helpers::min(idx / stride + 1, max_idx);
@@ -260,7 +261,7 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
   /** Get the output window corresponding to the given index.  */
   Window SNN_ALWAYS_INLINE get_output_window(Index idx, Index max_idx,
                                              Index window_size, Index stride,
-                                             Index pad) {
+                                             Index pad) const {
     Index begin = idx * stride - pad;
     Index end = helpers::min(begin + window_size, max_idx);
     begin = helpers::max(begin, 0);
@@ -302,7 +303,7 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
         div_in_cols_{pp.in_cols},
         div_channels_{pp.channels / VectorWidth} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
 
     if (index < n_items_) {
@@ -368,7 +369,8 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
    */
   Index SNN_ALWAYS_INLINE get_actual_window_size(Index idx, Index max_idx,
                                                  Index window_size,
-                                                 Index stride, Index pad) {
+                                                 Index stride,
+                                                 Index pad) const {
     Index start = idx * stride - pad;
     Index const end = helpers::min(start + window_size, max_idx);
     start = helpers::max(start, 0);
@@ -389,7 +391,7 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
    */
   InputWindow SNN_ALWAYS_INLINE get_input_window(Index idx, Index max_idx,
                                                  Index window_size,
-                                                 Index stride) {
+                                                 Index stride) const {
     Index const begin =
         (idx < window_size) ? 0 : (idx - window_size) / stride + 1;
     Index const end = helpers::min(idx / stride + 1, max_idx);

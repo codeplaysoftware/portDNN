@@ -42,7 +42,7 @@ class InputGradientTraining {
   float const epsilon_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index idx = item.get_id(0);
 
     if (idx < n_items_) {
@@ -104,7 +104,7 @@ class GammaGradientTraining {
   const float epsilon_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index idx = item.get_id(0);
 
     if (idx < n_items_) {

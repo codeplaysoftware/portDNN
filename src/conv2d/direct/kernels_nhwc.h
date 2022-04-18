@@ -59,7 +59,7 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
     const Index range = item.get_range().get(0);
 
@@ -202,7 +202,7 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
     const Index range = item.get_range().get(0);
 
@@ -352,7 +352,7 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
     const Index range = item.get_range().get(0);
 

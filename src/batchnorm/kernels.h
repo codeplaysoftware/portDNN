@@ -44,7 +44,7 @@ class VarianceOp {
   const Index n_items_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index idx = item.get_id(0);
 
     if (idx < n_items_) {
@@ -94,7 +94,7 @@ class RunningMeanVarianceOp {
   const float momentum_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index idx = item.get_id(0);
 
     if (idx < n_items_) {
@@ -148,7 +148,7 @@ class BatchNormOp {
   BatchNormParams params_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index idx = item.get_id(0);
 
     if (idx < n_items_) {

@@ -66,7 +66,7 @@ struct ReduceKernel {
         outer_{outer},
         inner_{inner} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<2> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<2> item) const {
     Index batch = item.get_id(0);
     Index inner = item.get_id(1);
 

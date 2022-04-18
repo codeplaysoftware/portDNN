@@ -53,7 +53,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward, VectorWidth> {
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     const Index index = item.get_id(0);
 
     if (index < n_elems_) {
@@ -149,7 +149,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop,
         filter_accessor_{filter},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
@@ -253,7 +253,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
         workspace_{local},
         filter_output_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<2> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<2> item) const {
     Index const local_idx = item.get_global_id(0);
     Index const fil_idx = item.get_global_id(1);
 

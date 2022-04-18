@@ -55,7 +55,7 @@ struct ExtractInputTiles {
         input_accessor_{input},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_elems_) {
       auto input_data = input_accessor_.get_pointer();
@@ -123,7 +123,7 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
         input_accessor_{input},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_elems_) {
       auto input_data = input_accessor_.get_pointer();

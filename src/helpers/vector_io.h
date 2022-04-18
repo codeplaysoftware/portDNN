@@ -59,12 +59,11 @@ cl::sycl::multi_ptr<T const, Space> as_const_ptr(
  * type.
  */
 namespace io {
-
 /**
- * Identifier function to mark an index as a vector index, rather than a scalar
- * index. When used in a Load or Store operation these will use strides of
- * vector size, rather than strides of scalar size to compute offsets from the
- * given pointer.
+ * Identifier function to mark an index as a vector index, rather than a
+ * scalar index. When used in a Load or Store operation these will use strides
+ * of vector size, rather than strides of scalar size to compute offsets from
+ * the given pointer.
  */
 template <typename Index>
 internal::AsVecIndex<Index> as_vec_index(Index val) {

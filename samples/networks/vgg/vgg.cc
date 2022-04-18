@@ -272,6 +272,10 @@ int main(int argc, char* argv[]) {
       }
     }
   });
+  std::cout << "Running on: "
+            << q.get_device().get_info<cl::sycl::info::device::name>() << ", "
+            << q.get_device().get_info<cl::sycl::info::device::vendor>()
+            << "\n";
   Backend backend(q);
   auto selector = sycldnn::conv2d::get_default_selector(q.get_device());
   std::vector<DType> output;

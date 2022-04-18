@@ -14,6 +14,8 @@
 #
 cmake_minimum_required(VERSION 3.10.2)
 
+include(CheckCXXCompilerFlag)
+
 project(sycldnn LANGUAGES C CXX VERSION 0.6.0)
 
 # Configuration options controlling automatic downloading of dependencies.
@@ -48,6 +50,7 @@ option(SNN_INSTALL_SAMPLES
   "Whether or not to include samples when installing" OFF)
 
 option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
+option(SNN_DPCPP "Use DPCPP (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
   "Disable setting the cmake build type if no flag specified" OFF)
 
@@ -136,6 +139,12 @@ endif()
 
 if(SNN_TRISYCL)
   find_package(TriSYCL)
+elseif(SNN_DPCPP)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__SYCL_DISABLE_NAMESPACE_INLINE__=ON -O3 -Xclang -cl-mad-enable")
+  set(DPCPP_SYCL_TARGET spir64)
+  find_package(DPCPP REQUIRED)
+  get_target_property(DPCPP_INCLUDE_DIRS DPCPP::DPCPP INTERFACE_INCLUDE_DIRECTORIES)
 else()
   find_package(ComputeCpp)
   option(SNN_COMPUTECPP_USE_SERIAL_MEMOP
@@ -187,6 +196,14 @@ set_target_properties(sycl_dnn PROPERTIES
   SOVERSION ${sycldnn_VERSION}
 )
 
+if (SNN_DPCPP)
+  set_target_properties(sycl_dnn PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${DPCPP_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES DPCPP::DPCPP
+  )
+  add_sycl_to_target(TARGET sycl_dnn SOURCES)
+endif()
+
 add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:direct_conv2d>
   $<TARGET_OBJECTS:tiled_conv2d>
@@ -208,6 +225,14 @@ set_target_properties(sycl_dnn_static PROPERTIES
   OUTPUT_NAME "sycldnn_static"
   VERSION ${sycldnn_VERSION}
 )
+
+if (SNN_DPCPP)
+  set_target_properties(sycl_dnn PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${DPCPP_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES DPCPP::DPCPP
+  )
+  add_sycl_to_target(TARGET sycl_dnn SOURCES)
+endif()
 
 include(GenerateExportHeader)
 generate_export_header(sycl_dnn

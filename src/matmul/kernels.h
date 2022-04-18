@@ -39,7 +39,7 @@ struct MatmulKernel {
         n_{n},
         beta_{beta} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<3> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<3> item) const {
     Index batch = item.get_global_id(0);
     Index row = item.get_global_id(1) * RowTile;
     Index col = item.get_global_id(2) * ColTile;
