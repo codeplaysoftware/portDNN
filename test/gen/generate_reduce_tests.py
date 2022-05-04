@@ -70,7 +70,7 @@ def get_batch_sizes():
 
 
 def get_input_sizes():
-    return [1, 6, 8, 33]
+    return [1, 6, 8, 33, 512, 1037]
 
 
 def get_reduce_result(max_val, batch, outer, inner, op):

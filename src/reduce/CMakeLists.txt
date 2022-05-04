@@ -50,13 +50,19 @@ function(generate_reduce_kernels)
 endfunction()
 
 generate_reduce_kernels(
-  OUTPUT_VAR    reduce_kernel_sources
-  TEMPLATE_FILE queue_reduction_impl.cc.in
-  FILENAME      reduce_kernel
+  OUTPUT_VAR    default_reduce_kernel_sources
+  TEMPLATE_FILE queue_reduction_impl_default.cc.in
+  FILENAME      default_reduce_kernel
+)
+generate_reduce_kernels(
+  OUTPUT_VAR    subgroup_reduce_kernel_sources
+  TEMPLATE_FILE queue_reduction_impl_subgroup.cc.in
+  FILENAME      subgroup_reduce_kernel
 )
 snn_object_library(
   WITH_SYCL
   TARGET         reduce
   SOURCES        launch_reduction.cc
-  KERNEL_SOURCES ${reduce_kernel_sources}
+  KERNEL_SOURCES ${default_reduce_kernel_sources}
+                 ${subgroup_reduce_kernel_sources}
 )

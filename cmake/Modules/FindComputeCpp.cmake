@@ -53,7 +53,7 @@ option(COMPUTECPP_FGLRX_WORKAROUND
   "Linker workaround for fglrx AMD drivers to prevent deadlocks" OFF)
 mark_as_advanced(COMPUTECPP_FGLRX_WORKAROUND)
 
-set(COMPUTECPP_BITCODE "spir64" CACHE STRING
+set(COMPUTECPP_BITCODE "spirv64" CACHE STRING
   "Bitcode type to use as SYCL target in compute++")
 mark_as_advanced(COMPUTECPP_BITCODE)
 

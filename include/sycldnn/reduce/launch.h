@@ -26,6 +26,7 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/internal/helpers/types.h"
 #include "sycldnn/internal/reduce/launch.h"
 #include "sycldnn/reduce/operators.h"
 
@@ -66,9 +67,13 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto out_acc = backend.get_mem_object(output, out_size);
 
   auto sycl_queue = backend.get_queue();
+  auto program = backend.get_program();
+  bool supports_subgroup = backend.supports_subgroup();
+  auto& max_kernel_sub_group_sizes = backend.get_max_kernel_sub_group_sizes();
 
   return internal::launch<T, Op>(in_acc, out_acc, batches, outer, inner,
-                                 sycl_queue);
+                                 sycl_queue, program, supports_subgroup,
+                                 max_kernel_sub_group_sizes);
 }
 }  // namespace reduce
 }  // namespace sycldnn

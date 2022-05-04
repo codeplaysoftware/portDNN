@@ -16,6 +16,9 @@
 #ifndef SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
 #define SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
 
+#include <unordered_map>
+
+#include "sycldnn/internal/helpers/types.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -25,9 +28,18 @@ namespace internal {
 
 /** Add a reduce kernel to the provided SYCL queue. */
 template <typename T, typename Index, typename Op>
-SNNStatus queue_kernel(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                       int batches, int outer, int inner,
-                       cl::sycl::queue& queue);
+SNNStatus queue_default_kernel(BaseMemObject<T const>& input,
+                               BaseMemObject<T>& output, int batches, int outer,
+                               int inner, int finalizeParam,
+                               cl::sycl::queue& queue);
+
+template <typename T, typename Index, typename Op>
+SNNStatus queue_subgroup_kernel(
+    BaseMemObject<T const>& input_mem, BaseMemObject<T>& output_mem,
+    int batches, int outer, int inner, cl::sycl::queue& queue,
+    cl::sycl::program& program,
+    sycldnn::internal::types::KernelSubgroupSizesMap&
+        max_kernel_sub_group_sizes);
 
 }  // namespace internal
 }  // namespace reduce

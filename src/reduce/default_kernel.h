@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_REDUCE_KERNELS_H_
-#define SYCLDNN_SRC_REDUCE_KERNELS_H_
+#ifndef SYCLDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
+#define SYCLDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
 
 #include "sycldnn/accessor_types.h"
 #include "sycldnn/reduce/operators.h"
@@ -32,9 +32,9 @@ template <typename T, typename Index>
 struct Reducer<T, Index, Add> {
   Reducer() : res_(0) {}
 
-  void reduce(T x) { res_ += x; }
+  SNN_ALWAYS_INLINE void reduce(T x) { res_ += x; }
 
-  T finalize(Index) { return res_; }
+  SNN_ALWAYS_INLINE T finalize(Index) { return res_; }
 
  private:
   T res_;
@@ -44,9 +44,9 @@ template <typename T, typename Index>
 struct Reducer<T, Index, Mean> {
   Reducer() : res_(0) {}
 
-  void reduce(T x) { res_ += x; }
+  SNN_ALWAYS_INLINE void reduce(T x) { res_ += x; }
 
-  T finalize(Index outer_size) { return res_ / outer_size; }
+  SNN_ALWAYS_INLINE T finalize(Index outer_size) { return res_ / outer_size; }
 
  private:
   T res_;
@@ -59,12 +59,13 @@ template <typename T, typename Index, typename Op>
 struct ReduceKernel {
   ReduceKernel(ReadAccessor<T const> const& input,
                WriteAccessor<T> const& output, Index batches, Index outer,
-               Index inner)
+               Index inner, Index finalizeParam)
       : input_{input},
         output_{output},
         batches_{batches},
         outer_{outer},
-        inner_{inner} {}
+        inner_{inner},
+        finalizeParam_{finalizeParam} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<2> item) {
     Index batch = item.get_id(0);
@@ -78,7 +79,7 @@ struct ReduceKernel {
     for (Index i = 0; i < outer_; ++i) {
       reducer.reduce(input_n[i * inner_]);
     }
-    output[batch * inner_ + inner] = reducer.finalize(outer_);
+    output[batch * inner_ + inner] = reducer.finalize(finalizeParam_);
   }
 
  private:
@@ -87,8 +88,9 @@ struct ReduceKernel {
   Index const batches_;
   Index const outer_;
   Index const inner_;
+  Index const finalizeParam_;
 };
 
 }  // namespace reduce
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_REDUCE_KERNELS_H_
+#endif  // SYCLDNN_SRC_REDUCE_DEFAULT_KERNEL_H_

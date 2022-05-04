@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/internal/reduce/launch.h"
-#include "sycldnn/reduce/operators.h"
-
-#include "sycldnn/mem_object.h"
-
 #include "src/reduce/queue_reduction.h"
+#include "sycldnn/internal/helpers/types.h"
+#include "sycldnn/internal/reduce/launch.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/reduce/operators.h"
 
 namespace sycldnn {
 namespace reduce {
@@ -27,14 +26,25 @@ namespace internal {
 // Launch the reduce kernel for the passed parameters.
 template <typename T, typename Op>
 SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                 int batches, int outer, int inner, cl::sycl::queue& queue) {
-  return queue_kernel<T, int, Op>(input, output, batches, outer, inner, queue);
+                 int batches, int outer, int inner, cl::sycl::queue& queue,
+                 cl::sycl::program& program, bool supports_subgroup,
+                 sycldnn::internal::types::KernelSubgroupSizesMap&
+                     max_kernel_sub_group_sizes) {
+  if (supports_subgroup && inner == 1)
+    return queue_subgroup_kernel<T, int, Op>(input, output, batches, outer,
+                                             inner, queue, program,
+                                             max_kernel_sub_group_sizes);
+  return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
+                                          outer, queue);
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, OP)                                  \
   template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                       \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
-      int batches, int outer, int inner, cl::sycl::queue& queue);
+      int batches, int outer, int inner, cl::sycl::queue& queue,         \
+      cl::sycl::program& program, bool supports_subgroup,                \
+      sycldnn::internal::types::KernelSubgroupSizesMap&                  \
+          max_kernel_sub_group_sizes);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE) \
   INSTANTIATE_LAUNCHER(DTYPE, Add)  \

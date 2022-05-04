@@ -17,6 +17,7 @@
 #define SYCLDNN_INCLUDE_BACKEND_INTERNAL_BACKEND_H_
 
 #include "sycldnn/backend/backend_traits.h"
+#include "sycldnn/internal/helpers/types.h"
 
 namespace sycldnn {
 namespace backend {
@@ -65,6 +66,30 @@ struct InternalBackend {
    * \return cl::sycl::queue Underlying queue
    */
   cl::sycl::queue get_queue() { return underlying_backend.get_queue(); }
+
+  /**
+   * \brief Returns whether the backend can use subgroup operations.
+   *
+   * \return Whether the backend can use subgroup operations.
+   */
+  bool supports_subgroup() { return underlying_backend.supports_subgroup(); }
+
+  /**
+   * \brief Get the map caching kernel's subgroup sizes.
+   *
+   * \return Map caching kernel's subgroup sizes.
+   */
+  sycldnn::internal::types::KernelSubgroupSizesMap&
+  get_max_kernel_sub_group_sizes() {
+    return underlying_backend.get_max_kernel_sub_group_sizes();
+  }
+
+  /**
+   * \brief Get the cached program.
+   *
+   * \return Cached program.
+   */
+  cl::sycl::program get_program() { return underlying_backend.get_program(); }
 
  private:
   Backend underlying_backend;

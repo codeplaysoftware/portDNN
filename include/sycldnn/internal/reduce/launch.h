@@ -17,11 +17,13 @@
 #define SYCLDNN_INCLUDE_INTERNAL_REDUCE_LAUNCH_H_
 
 #include <CL/sycl.hpp>
-
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include <string>
+#include <unordered_map>
 
 #include "sycldnn/export.h"
+#include "sycldnn/internal/helpers/types.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
 namespace sycldnn {
 namespace reduce {
@@ -35,7 +37,10 @@ namespace internal {
 template <typename T, typename Op>
 SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
                             BaseMemObject<T>& output, int batches, int outer,
-                            int inner, cl::sycl::queue& queue);
+                            int inner, cl::sycl::queue& queue,
+                            cl::sycl::program& program, bool supports_subgroup,
+                            sycldnn::internal::types::KernelSubgroupSizesMap&
+                                max_kernel_sub_group_sizes);
 
 }  // namespace internal
 }  // namespace reduce

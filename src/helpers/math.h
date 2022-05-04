@@ -102,6 +102,23 @@ inline SNN_ALWAYS_INLINE cl::sycl::vec<T, Width> ratio(
   return a * (T{1} / b);
 }
 
+/**
+ * \brief Return ceil of \p x divided by \p y
+ */
+template <typename T>
+inline SNN_ALWAYS_INLINE T divide_ceil(T x, T y) {
+  return (x + y - 1) / y;
+}
+
+/**
+ * \brief Round up \p x to the next multiple of \p alignment
+ */
+template <typename T>
+inline SNN_ALWAYS_INLINE T align(T x, T alignment) {
+  T r = x % alignment;
+  return x + (r == 0 ? 0 : alignment - r);
+}
+
 }  // namespace math
 }  // namespace helpers
 }  // namespace sycldnn

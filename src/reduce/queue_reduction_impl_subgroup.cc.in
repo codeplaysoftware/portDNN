@@ -25,10 +25,12 @@ namespace sycldnn {
 namespace reduce {
 namespace internal {
 
-template SNNStatus queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP>(
+template SNNStatus queue_subgroup_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP>(
     BaseMemObject<SNN_DATA_TYPE const>& input,
     BaseMemObject<SNN_DATA_TYPE>& output, int batches, int outer, int inner,
-    cl::sycl::queue& queue);
+    cl::sycl::queue& queue, cl::sycl::program& program,
+    sycldnn::internal::types::KernelSubgroupSizesMap&
+        max_kernel_sub_group_sizes);
 
 }  // namespace internal
 }  // namespace reduce

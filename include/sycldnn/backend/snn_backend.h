@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_INCLUDE_BACKEND_SNN_BACKEND_H_
 #define SYCLDNN_INCLUDE_BACKEND_SNN_BACKEND_H_
 
+#include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/device_mem_pointer.h"
 #include "sycldnn/backend/snn_matmul_provider.h"
 #include "sycldnn/backend/snn_reduce_provider.h"
@@ -56,7 +57,8 @@ struct BackendTraits<SNNBackend> {
  * Provides pointer handling, matrix multiplies and reduce using our internal
  * kernels.
  */
-struct SNNBackend final : public SNNMatmulProvider<SNNBackend>,
+struct SNNBackend final : public CommonBackend,
+                          public SNNMatmulProvider<SNNBackend>,
                           public SNNReduceProvider<SNNBackend> {
   /** The pointer type used in interface of the SNNBackend. */
   template <typename T>
@@ -74,7 +76,8 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend>,
    *
    * \param queue The SYCL queue to use with this backend.
    */
-  SNNBackend(cl::sycl::queue queue) : queue_{std::move(queue)} {}
+  SNNBackend(cl::sycl::queue queue)
+      : CommonBackend(queue), queue_{std::move(queue)} {}
 
   /**
    * Allocate a tensor to be used internally.

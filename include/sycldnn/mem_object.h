@@ -164,6 +164,16 @@ struct MemObject final : public BaseMemObject<T> {
    */
   size_t get_count() const override { return buffer_.get_count(); }
 
+  /**
+   * Return the same MemObject as a read-only one.
+   * \return Read-only MemObject.
+   */
+  MemObject<DataType const, AllocType> as_const() const {
+    return MemObject<DataType const, AllocType>(
+        buffer_.template reinterpret<DataType const, 1>(buffer_.get_count()),
+        extent_, offset_);
+  }
+
  private:
   /** The underlying SYCL buffer. */
   Buffer buffer_;

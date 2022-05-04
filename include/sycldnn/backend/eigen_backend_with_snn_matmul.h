@@ -22,6 +22,7 @@
  * which provides pointer handling through Eigen and matrix multiplies via
  * SYCL-DNN's internal matmul kernels.
  */
+#include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/eigen_external_handler.h"
 #include "sycldnn/backend/eigen_internal_handler.h"
 #include "sycldnn/backend/eigen_pointer_to_eigen_pointer.h"
@@ -61,7 +62,8 @@ struct BackendTraits<EigenBackendSNNMatmul> {
  * Provides pointer handling and matrix multiplies using Eigen.
  */
 struct EigenBackendSNNMatmul final
-    : public EigenExternalHandler<EigenBackendSNNMatmul>,
+    : public CommonBackend,
+      public EigenExternalHandler<EigenBackendSNNMatmul>,
       public EigenToEigenPointer,
       public EigenInternalHandler<EigenBackendSNNMatmul>,
       public SNNReduceProvider<EigenBackendSNNMatmul>,
@@ -82,7 +84,7 @@ struct EigenBackendSNNMatmul final
    * \param device The Eigen::SyclDevice to construct the backend from.
    */
   explicit EigenBackendSNNMatmul(Eigen::SyclDevice const& device)
-      : device_{device} {}
+      : CommonBackend(device.sycl_queue()), device_{device} {}
 
   /**
    * Gets a descriptive name for this backend.

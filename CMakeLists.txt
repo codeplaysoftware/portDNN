@@ -137,7 +137,8 @@ endif()
 if(SNN_TRISYCL)
   find_package(TriSYCL)
 else()
-  find_package(ComputeCpp)
+  # Require ComputeCpp 2.10 to support sub-groups
+  find_package(ComputeCpp 2.10 REQUIRED)
   option(SNN_COMPUTECPP_USE_SERIAL_MEMOP
     "Replace memory operations (eg memset) in kernels with serial operations." OFF)
   if(NOT SNN_COMPUTECPP_USE_SERIAL_MEMOP)

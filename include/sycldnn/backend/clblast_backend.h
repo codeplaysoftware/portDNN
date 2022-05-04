@@ -23,6 +23,7 @@
  * the CLBlast library.
  */
 #include "sycldnn/backend/backend_traits.h"
+#include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/device_mem_pointer.h"
 #include "sycldnn/backend/snn_reduce_provider.h"
 #include "sycldnn/helpers/macros.h"
@@ -57,7 +58,8 @@ struct BackendTraits<CLBlastBackend> {
  *
  * Provides pointer handling and matrix multiplies using CLBlast.
  */
-class CLBlastBackend final : public SNNReduceProvider<CLBlastBackend> {
+class CLBlastBackend final : public CommonBackend,
+                             public SNNReduceProvider<CLBlastBackend> {
   /** Copy of SYCL queue that wraps the cl_command_queue used by CLBlast. */
   cl::sycl::queue queue_;
   /** Cached OpenCL command queue from SYCL queue, used in CLBlast API. */
@@ -80,7 +82,7 @@ class CLBlastBackend final : public SNNReduceProvider<CLBlastBackend> {
    * \param queue The SYCL queue to construct the backend from.
    */
   CLBlastBackend(cl::sycl::queue& queue)
-      : queue_{queue}, cl_queue_{queue.get()} {}
+      : CommonBackend(queue), queue_{queue}, cl_queue_{queue.get()} {}
 
   /** Explicit destructor releases cl_queue_ */
   ~CLBlastBackend() { clReleaseCommandQueue(cl_queue_); }

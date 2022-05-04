@@ -21,6 +21,7 @@
  * Contains the implementation of \ref sycldnn::backend::EigenBackend,
  * which provides pointer handling and matrix multiplies via Eigen.
  */
+#include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/eigen_external_handler.h"
 #include "sycldnn/backend/eigen_internal_handler.h"
 #include "sycldnn/backend/eigen_matmul_provider.h"
@@ -59,7 +60,8 @@ struct BackendTraits<EigenBackend> {
  *
  * Provides pointer handling, matrix multiplies and reduce using Eigen.
  */
-struct EigenBackend final : public EigenExternalHandler<EigenBackend>,
+struct EigenBackend final : public CommonBackend,
+                            public EigenExternalHandler<EigenBackend>,
                             public EigenToEigenPointer,
                             public EigenInternalHandler<EigenBackend>,
                             public EigenMatmulProvider<EigenBackend>,
@@ -78,7 +80,8 @@ struct EigenBackend final : public EigenExternalHandler<EigenBackend>,
    * instance of Eigen's SyclDevice.
    * \param device The Eigen::SyclDevice to construct the backend from.
    */
-  explicit EigenBackend(Eigen::SyclDevice const& device) : device_{device} {}
+  explicit EigenBackend(Eigen::SyclDevice const& device)
+      : CommonBackend(device.sycl_queue()), device_{device} {}
 
   /**
    * Gets a descriptive name for this backend.

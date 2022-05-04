@@ -125,6 +125,11 @@ struct InternalHandler {
   cl::sycl::event reduce(internal_pointer_type<const T> const input,
                          internal_pointer_type<T> const output, Index batch,
                          Index outer, Index inner);
+
+  /**
+   * Returns whether the backend can use subgroup operations.
+   */
+  bool supports_subgroup();
 };
 struct ExternalToInternalConverter {
   template <typename T>

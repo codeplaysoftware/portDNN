@@ -22,6 +22,7 @@
  * which provides pointer handling and matrix multiplies via SyclBLAS.
  */
 #include "sycldnn/backend/backend_traits.h"
+#include "sycldnn/backend/common_backend.h"
 #include "sycldnn/helpers/macros.h"
 #include "sycldnn/reduce/operators.h"
 
@@ -80,7 +81,7 @@ struct BackendTraits<SyclBLASBackend> {
  *
  * Provides pointer handling, matrix multiplies and reduce using SyclBLAS.
  */
-struct SyclBLASBackend final {
+struct SyclBLASBackend final : public CommonBackend {
  private:
   /** Alias for the SYCL-BLAS executor type. */
   using Executor = blas::Executor<blas::PolicyHandler<blas::codeplay_policy>>;
@@ -101,7 +102,8 @@ struct SyclBLASBackend final {
    * SYCL queue.
    * \param queue The SYCL queue to construct the backend from.
    */
-  SyclBLASBackend(const cl::sycl::queue& queue) : executor_{queue} {}
+  SyclBLASBackend(const cl::sycl::queue& queue)
+      : CommonBackend(queue), executor_{queue} {}
 
   /**
    * Deleted copy constructor.
