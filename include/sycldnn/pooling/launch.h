@@ -28,6 +28,7 @@
 
 #include "sycldnn/helpers/macros.h"
 
+#include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
 
@@ -46,10 +47,12 @@ namespace internal {
  * If compiled with asserts, any invalid parameter will fail an assert.
  * Otherwise a status code \ref StatusCode::InvalidParameter will be returned.
  *
+ * \tparam Direction  Forward or Backprop
  * \param [in] params User provided parameters to validate
  * \return An SNNStatus object containing either \ref StatusCode::OK if all
  *         parameters are valid, or \ref StatusCode::InvalidParameter otherwise.
  */
+template <typename Direction>
 SNNStatus inline validate_params(PoolingParams const& params) {
   SNN_VALIDATE_PARAM(params.batch > 0, "The batch size must be positive.");
   SNN_VALIDATE_PARAM(params.channels > 0,
@@ -75,8 +78,11 @@ SNNStatus inline validate_params(PoolingParams const& params) {
   SNN_VALIDATE_PARAM(
       params.pad_cols >= 0,
       "The padding in the column direction must be non-negative.");
-  SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
-                     "Currently SYCL-DNN only supports the NHWC data format.");
+  SNN_VALIDATE_PARAM(
+      params.input_format == sycldnn::DataFormat::NHWC ||
+          (params.input_format == sycldnn::DataFormat::NCHW &&
+           std::is_same<Direction, Forward>::value),
+      "Currently SYCL-DNN pooling supports the NHWC and NCHW data formats.");
   return StatusCode::OK;
 }
 
@@ -108,7 +114,7 @@ template <typename T, template <typename> class PoolType, typename Direction,
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  const PoolingParams& pp, Backend& backend) {
-  auto validation_status = internal::validate_params(pp);
+  auto validation_status = internal::validate_params<Direction>(pp);
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }
@@ -154,7 +160,7 @@ SNNStatus launch(
     typename Backend::template pointer_type<T const> input_backprop,
     typename Backend::template pointer_type<T> output, const PoolingParams& pp,
     Backend& backend) {
-  auto validation_status = internal::validate_params(pp);
+  auto validation_status = internal::validate_params<Direction>(pp);
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }

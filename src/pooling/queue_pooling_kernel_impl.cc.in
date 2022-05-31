@@ -29,6 +29,7 @@
 #define SNN_DIRECTION    @DIRECTION@
 #define SNN_VECTOR_WIDTH @VECTOR_WIDTH@
 #define SNN_USE_FASTDIV  @USE_FASTDIV@
+#define SNN_DATA_FORMAT  @DATA_FORMAT@
 // clang-format on
 
 namespace sycldnn {
@@ -37,7 +38,7 @@ namespace internal {
 
 template SNNStatus
 queue_pooling<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OPERATOR, SNN_DIRECTION,
-              SNN_VECTOR_WIDTH, SNN_USE_FASTDIV>(
+              SNN_VECTOR_WIDTH, SNN_USE_FASTDIV, layout::SNN_DATA_FORMAT>(
     BaseMemObject<SNN_DATA_TYPE const>& in_mem,
     BaseMemObject<SNN_DATA_TYPE>& out_mem, const PoolingParams& pp,
     size_t threads, cl::sycl::queue& queue);

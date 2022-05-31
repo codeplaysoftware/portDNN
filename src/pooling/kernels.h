@@ -26,6 +26,7 @@
 #include "src/pooling/operators_impl.h"
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/format_type.h"
 
 #include "sycldnn/helpers/minmax.h"
 
@@ -35,12 +36,12 @@ namespace sycldnn {
 namespace pooling {
 
 template <typename T, typename Index, template <typename> class Op,
-          typename Direction, int VectorWidth, bool UseFastDiv>
+          typename Direction, int VectorWidth, bool UseFastDiv, typename Layout>
 class PoolingOp;
 
 template <typename T, typename Index, template <typename> class Op,
           int VectorWidth, bool UseFastDiv>
-class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
+class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv, layout::NHWC> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
@@ -114,7 +115,8 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv> {
  */
 template <typename T, typename Index, template <typename> class MaxOp,
           int VectorWidth, bool UseFastDiv>
-class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
+class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv,
+                layout::NHWC> {
   using DataType = typename helpers::VectorType<T, 1>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
@@ -284,7 +286,8 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv> {
  * Expects to be run with one thread per output value in the backprop kernel.
  */
 template <typename T, typename Index, int VectorWidth, bool UseFastDiv>
-class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
+class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv,
+                layout::NHWC> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
@@ -403,6 +406,74 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv> {
   const IndexDivType div_in_rows_;
   const IndexDivType div_in_cols_;
   const IndexDivType div_channels_;
+};
+
+template <typename T, typename Index, template <typename> class Op,
+          bool UseFastDiv>
+class PoolingOp<T, Index, Op, Forward, /*VectorWidth=*/1, UseFastDiv,
+                layout::NCHW> {
+  using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
+  using Load = helpers::io::Load<T>;
+  using Store = helpers::io::Store<T>;
+
+  ReadAccessor<T const> in_data_;
+  WriteAccessor<T> out_data_;
+  const Index n_items_;
+  PoolingParams params_;
+  const IndexDivType div_out_rows_;
+  const IndexDivType div_out_cols_;
+  const IndexDivType div_channels_;
+
+ public:
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+    Index index = item.get_id(0);
+
+    if (index < n_items_) {
+      Op<T> op;
+      const auto in_data = in_data_.get_pointer();
+      const auto out_data = out_data_.get_pointer();
+
+      const auto tensor_id =
+          helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
+              index, div_channels_, params_.channels, div_out_rows_,
+              params_.out_rows, div_out_cols_, params_.out_cols);
+      const auto col = tensor_id.s3;
+      const auto row = tensor_id.s2;
+      const auto feature = tensor_id.s1;
+      const auto batch = tensor_id.s0;
+
+      auto row_start = row * params_.stride_rows - params_.pad_rows;
+      const auto row_end =
+          helpers::min(row_start + params_.window_rows, params_.in_rows);
+      row_start = helpers::max(row_start, 0);
+
+      auto col_start = col * params_.stride_cols - params_.pad_cols;
+      const auto col_end =
+          helpers::min(col_start + params_.window_cols, params_.in_cols);
+      col_start = helpers::max(col_start, 0);
+
+      const auto input_offset =
+          batch * params_.in_cols * params_.in_rows * params_.channels;
+      const auto offset_pointer = in_data + input_offset;
+      for (Index r = row_start; r < row_end; r++) {
+        for (Index c = col_start; c < col_end; c++) {
+          Index loc = (feature * params_.in_rows + r) * params_.in_cols + c;
+          op.accumulate(Load()(offset_pointer, loc));
+        }
+      }
+      Store()(out_data, index, op.value());
+    }
+  }
+
+  PoolingOp(ReadAccessor<T const> in_data, WriteAccessor<T> out_data,
+            PoolingParams const& pp)
+      : in_data_(std::move(in_data)),
+        out_data_(std::move(out_data)),
+        n_items_(pp.batch * pp.out_rows * pp.out_cols * pp.channels),
+        params_(pp),
+        div_out_rows_{pp.out_rows},
+        div_out_cols_{pp.out_cols},
+        div_channels_{pp.channels} {}
 };
 
 }  // namespace pooling

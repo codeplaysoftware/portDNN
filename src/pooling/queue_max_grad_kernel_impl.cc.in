@@ -15,6 +15,7 @@
  */
 #include "src/pooling/queue_max_grad_kernel_impl.h"
 
+#include "sycldnn/data_format.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -30,15 +31,17 @@
 #define SNN_DIRECTION    @DIRECTION@
 #define SNN_VECTOR_WIDTH @VECTOR_WIDTH@
 #define SNN_USE_FASTDIV  @USE_FASTDIV@
+#define SNN_DATA_FORMAT  @DATA_FORMAT@
 // clang-format on
 
 namespace sycldnn {
 namespace pooling {
 namespace internal {
 
-template SNNStatus queue_max_grad_pooling<
-    SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OPERATOR,
-    sycldnn::pooling::Backpropagate, SNN_VECTOR_WIDTH, SNN_USE_FASTDIV>(
+template SNNStatus
+queue_max_grad_pooling<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OPERATOR,
+                       sycldnn::pooling::Backpropagate, SNN_VECTOR_WIDTH,
+                       SNN_USE_FASTDIV, layout::SNN_DATA_FORMAT>(
     BaseMemObject<SNN_DATA_TYPE const>& input_mem,
     BaseMemObject<SNN_DATA_TYPE const>& output_mem,
     BaseMemObject<SNN_DATA_TYPE const>& input_backprop_mem,

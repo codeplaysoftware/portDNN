@@ -26,7 +26,7 @@ namespace internal {
 
 template <typename Direction, template <typename> class Op>
 inline bool can_vectorize(PoolingParams const& pp, int width) {
-  return (pp.channels % width) == 0;
+  return (pp.input_format == DataFormat::NHWC) && ((pp.channels % width) == 0);
 }
 
 template <>

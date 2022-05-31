@@ -25,6 +25,7 @@
 #include "sycldnn/pooling/operators.h"
 
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
@@ -36,16 +37,17 @@
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes;
+using DataFormatList = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =
-    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+    sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 
 template <typename Pair>
 using MaxWindow3Stride1Forward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   pooling::Max, pooling::Forward>;
+                   sycldnn::backend::SNNBackend, pooling::Max,
+                   pooling::Forward>;
 TYPED_TEST_SUITE(MaxWindow3Stride1Forward, GTestTypePairs);
 TYPED_TEST(MaxWindow3Stride1Forward, SAME1x4x4x1) {
   using DataType = typename TestFixture::DataType;

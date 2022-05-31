@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "sycldnn/format_type.h"
 #include "sycldnn/padding_mode.h"
 
 #include "sycldnn/helpers/padding.h"
@@ -32,21 +33,34 @@
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
+#include "test/helpers/transpose.h"
 
 #include <string>
+#include <type_traits>
 #include <vector>
+
+template <typename Format>
+using IsNHWC = std::is_same<Format, sycldnn::layout::NHWC>;
+template <typename Format>
+using IsNCHW = std::is_same<Format, sycldnn::layout::NCHW>;
 
 using sycldnn::pooling::internal::IsMaxGradient;
 
-template <typename DType, typename Backend, template <typename T> class Op,
-          typename Direction, bool = IsMaxGradient<DType, Op, Direction>::value>
+template <typename DType, typename Format, typename Backend,
+          template <typename T> class Op, typename Direction,
+          bool = IsMaxGradient<DType, Op, Direction>::value>
 struct PoolingFixture : public BackendTestFixture<Backend> {
   using DataType = DType;
 
   void test_pool(std::vector<DataType> exp,
-                 sycldnn::pooling::PoolingParams const& params,
+                 sycldnn::pooling::PoolingParams params,
                  DataType max_val = DataType{0}, size_t in_offset = 0u,
                  size_t out_offset = 0u) {
+    ASSERT_TRUE(IsNHWC<Format>::value || IsNCHW<Format>::value);
+    if (IsNCHW<Format>::value &&
+        std::is_same<Direction, sycldnn::pooling::Backpropagate>::value) {
+      GTEST_SKIP();
+    }
     auto pooling_size = sycldnn::pooling::get_sizes<Direction>(params);
     auto in_size = pooling_size.input_size;
     auto out_size = pooling_size.output_size + out_offset;
@@ -56,6 +70,14 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
+
+    if (IsNCHW<Format>::value) {
+      params.input_format = sycldnn::DataFormat::NCHW;
+      std::vector<DataType> tmp;
+      transpose(tmp, input, params.batch, params.in_rows * params.in_cols,
+                params.channels, in_offset);
+      input = tmp;
+    }
 
     auto inp_gpu = provider.get_initialised_device_memory(input.size(), input);
     auto out_gpu = provider.get_initialised_device_memory(out_size, output);
@@ -71,6 +93,12 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
     status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(out_size, out_gpu, output);
+    if (IsNCHW<Format>::value) {
+      std::vector<DataType> tmp;
+      transpose(tmp, output, params.batch, params.channels,
+                params.out_rows * params.out_cols, out_offset);
+      output = tmp;
+    }
 
     auto platform = backend.get_queue().get_device().get_platform();
     auto plat_profile =
@@ -103,9 +131,9 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
 // Need a specific fixture for maxpooling gradient, as this operation requires
 // both the original pooling values and the backprop values.
-template <typename DType, typename Backend, template <typename> class Op,
-          typename Direction>
-struct PoolingFixture<DType, Backend, Op, Direction, true>
+template <typename DType, typename Format, typename Backend,
+          template <typename> class Op, typename Direction>
+struct PoolingFixture<DType, Format, Backend, Op, Direction, true>
     : public BackendTestFixture<Backend> {
   using DataType = DType;
 
@@ -114,6 +142,9 @@ struct PoolingFixture<DType, Backend, Op, Direction, true>
                  DataType max_val = DataType{0}, size_t in_offset = 0u,
                  size_t out_offset = 0u, size_t in_back_offset = 0u,
                  size_t out_back_offset = 0u) {
+    if (IsNCHW<Direction>::value) {
+      GTEST_SKIP();
+    }
     auto pooling_size =
         sycldnn::pooling::get_sizes<sycldnn::pooling::Forward>(params);
     auto in_size = pooling_size.input_size;

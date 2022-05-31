@@ -22,6 +22,7 @@
 
 #include "test/pooling/pooling_fixture.h"
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
@@ -31,30 +32,34 @@
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
-using Backends = sycldnn::types::DefaultBackendTypes;
+using DataFormatList = sycldnn::types::DataFormatTypes;
 using SNNTypePairs =
-    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+    sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
 
 template <typename Pair>
 using PoolingOffsetAvgForward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::pooling::Average, sycldnn::pooling::Forward>;
+                   sycldnn::backend::SNNBackend, sycldnn::pooling::Average,
+                   sycldnn::pooling::Forward>;
 
 template <typename Pair>
 using PoolingOffsetMaxForward =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::pooling::Max, sycldnn::pooling::Forward>;
+                   sycldnn::backend::SNNBackend, sycldnn::pooling::Max,
+                   sycldnn::pooling::Forward>;
 
 template <typename Pair>
 using PoolingOffsetAvgBackprop =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::pooling::Average, sycldnn::pooling::Backpropagate>;
+                   sycldnn::backend::SNNBackend, sycldnn::pooling::Average,
+                   sycldnn::pooling::Backpropagate>;
 
 template <typename Pair>
 using PoolingOffsetMaxBackprop =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::pooling::Max, sycldnn::pooling::Backpropagate>;
+                   sycldnn::backend::SNNBackend, sycldnn::pooling::Max,
+                   sycldnn::pooling::Backpropagate>;
 
 TYPED_TEST_SUITE(PoolingOffsetAvgForward, GTestTypePairs);
 TYPED_TEST(PoolingOffsetAvgForward, Valid) {

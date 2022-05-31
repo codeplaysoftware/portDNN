@@ -30,7 +30,7 @@ namespace pooling {
 namespace internal {
 
 template <typename T, typename Index, template <typename U> class PoolType,
-          typename Direction, int VectorWidth, bool UseFastDiv>
+          typename Direction, int VectorWidth, bool UseFastDiv, typename Format>
 SNNStatus queue_max_grad_pooling(BaseMemObject<T const>& input_mem,
                                  BaseMemObject<T const>& output_mem,
                                  BaseMemObject<T const>& input_backprop_mem,

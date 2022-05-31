@@ -32,15 +32,15 @@ namespace pooling {
 namespace internal {
 
 template <typename T, typename Index, template <typename> class PoolType,
-          typename Direction, int VectorWidth, bool UseFastDiv>
+          typename Direction, int VectorWidth, bool UseFastDiv, typename Format>
 SNNStatus queue_pooling(BaseMemObject<T const>& in_mem,
                         BaseMemObject<T>& out_mem, PoolingParams const& pp,
                         size_t threads, cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto input = in_mem.read_accessor(cgh);
     auto output = out_mem.write_accessor(cgh);
-    PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv> pool{
-        input, output, pp};
+    PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv, Format>
+        pool{input, output, pp};
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);
   });

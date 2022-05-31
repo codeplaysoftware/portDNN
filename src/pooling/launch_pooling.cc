@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+#include "sycldnn/data_format.h"
 #include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
 #include "sycldnn/pooling/operators.h"
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
+
+#include "sycldnn/helpers/macros.h"
 
 #include "sycldnn/internal/pooling/launch_internal.h"
 
@@ -29,11 +33,68 @@
 
 #include <CL/sycl.hpp>
 
+#include <type_traits>
+
 #include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace pooling {
 namespace internal {
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth, bool UseFastDiv, typename Format>
+struct queue_pooling_helper;
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth, bool UseFastDiv>
+struct queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
+                            UseFastDiv, layout::NHWC> {
+  SNNStatus operator()(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+                       const PoolingParams& pp, size_t threads,
+                       cl::sycl::queue& queue) {
+    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, UseFastDiv,
+                         layout::NHWC>(input, output, pp, threads, queue);
+  }
+};
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth, bool UseFastDiv>
+struct queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
+                            UseFastDiv, layout::NCHW> {
+#if SNN_ENABLE_NCHW
+  SNNStatus operator()(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+                       const PoolingParams& pp, size_t threads,
+                       cl::sycl::queue& queue) {
+    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, UseFastDiv,
+                         layout::NCHW>(input, output, pp, threads, queue);
+  }
+#else
+  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T>&,
+                       const PoolingParams&, size_t, cl::sycl::queue&) {
+    return StatusCode::InvalidAlgorithm;
+  }
+#endif
+};
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth, bool UseFastDiv>
+SNNStatus launch_with_fastdiv(BaseMemObject<T const>& input,
+                              BaseMemObject<T>& output, const PoolingParams& pp,
+                              size_t threads, cl::sycl::queue& queue) {
+  if (DataFormat::NHWC == pp.input_format) {
+    return queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
+                                UseFastDiv, layout::NHWC>{}(input, output, pp,
+                                                            threads, queue);
+  } else if (DataFormat::NCHW == pp.input_format) {
+    SNN_ASSERT((std::is_same<Direction, Forward>::value),
+               "Must have forward-only NCHW pooling");
+    return queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
+                                UseFastDiv, layout::NCHW>{}(input, output, pp,
+                                                            threads, queue);
+  } else {
+    return StatusCode::InvalidAlgorithm;
+  }
+}
 
 template <typename T, typename Index, template <typename> class PoolType,
           typename Direction, int VectorWidth>
@@ -43,11 +104,11 @@ SNNStatus launch_with_vector_size(BaseMemObject<T const>& input,
                                   cl::sycl::queue& queue) {
   threads /= VectorWidth;
   if (can_use_fastdiv<Direction>(pp, VectorWidth)) {
-    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, true>(
-        input, output, pp, threads, queue);
+    return launch_with_fastdiv<T, Index, PoolType, Direction, VectorWidth,
+                               true>(input, output, pp, threads, queue);
   } else {
-    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, false>(
-        input, output, pp, threads, queue);
+    return launch_with_fastdiv<T, Index, PoolType, Direction, VectorWidth,
+                               false>(input, output, pp, threads, queue);
   }
 }
 

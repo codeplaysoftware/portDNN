@@ -18,6 +18,8 @@
 #include "sycldnn/pooling/params.h"
 #include "sycldnn/pooling/sizes.h"
 
+#include "sycldnn/helpers/macros.h"
+
 #include "sycldnn/internal/pooling/launch_internal.h"
 
 #include "src/pooling/can_fastdiv.h"
@@ -27,9 +29,32 @@
 
 #include <CL/sycl.hpp>
 
+#include <type_traits>
+
+#include "sycldnn/export.h"
+
 namespace sycldnn {
 namespace pooling {
 namespace internal {
+
+template <typename T, typename Index, template <typename> class PoolType,
+          typename Direction, int VectorWidth, bool UseFastDiv>
+SNNStatus launch_with_fastdiv(BaseMemObject<T const>& inp_data,
+                              BaseMemObject<T const>& outp_data,
+                              BaseMemObject<T const>& inp_backprop,
+                              BaseMemObject<T>& outp_backprop,
+                              const PoolingParams& pp, size_t threads,
+                              cl::sycl::queue& queue) {
+  if (DataFormat::NHWC == pp.input_format) {
+    return queue_max_grad_pooling<T, Index, PoolType, Direction, VectorWidth,
+                                  UseFastDiv, layout::NHWC>(
+        inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);
+  } else if (DataFormat::NCHW == pp.input_format) {
+    return StatusCode::InvalidAlgorithm;
+  } else {
+    return StatusCode::InvalidAlgorithm;
+  }
+}
 
 template <typename T, typename Index, template <typename> class PoolType,
           typename Direction, int VectorWidth>
@@ -41,13 +66,13 @@ SNNStatus launch_with_vector_size(BaseMemObject<T const>& inp_data,
                                   cl::sycl::queue& queue) {
   threads /= VectorWidth;
   if (can_use_fastdiv<Direction>(pp, VectorWidth)) {
-    return queue_max_grad_pooling<T, Index, PoolType, Direction, VectorWidth,
-                                  true>(inp_data, outp_data, inp_backprop,
-                                        outp_backprop, pp, threads, queue);
+    return launch_with_fastdiv<T, Index, PoolType, Direction, VectorWidth,
+                               true>(inp_data, outp_data, inp_backprop,
+                                     outp_backprop, pp, threads, queue);
   } else {
-    return queue_max_grad_pooling<T, Index, PoolType, Direction, VectorWidth,
-                                  false>(inp_data, outp_data, inp_backprop,
-                                         outp_backprop, pp, threads, queue);
+    return launch_with_fastdiv<T, Index, PoolType, Direction, VectorWidth,
+                               false>(inp_data, outp_data, inp_backprop,
+                                      outp_backprop, pp, threads, queue);
   }
 }
 

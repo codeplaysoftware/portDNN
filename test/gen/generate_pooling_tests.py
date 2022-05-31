@@ -43,6 +43,7 @@ CHANNELS = [1, 2, 4]
 PADDING_VALUES = ["SAME", "VALID"]
 TEST_TYPES = ["maxwithnan", "max", "avg"]
 DIRECTIONS = ['forward', 'grad']
+DATA_LAYOUT = ["NHWC", "NCHW"]
 
 INCLUDES = r"""
 #include <gtest/gtest.h>
@@ -52,6 +53,7 @@ INCLUDES = r"""
 #include "sycldnn/pooling/operators.h"
 
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
@@ -63,16 +65,16 @@ INCLUDES = r"""
 DATA_TYPES = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes;
+using DataFormatList = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =
-    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+    sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
 using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;"""
 TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename Pair>
 using {test_case} =
     PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   {operation}, {direction}>;
+                   sycldnn::backend::SNNBackend, {operation}, {direction}>;
 TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple(

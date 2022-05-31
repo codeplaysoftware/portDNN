@@ -23,6 +23,7 @@
 #include "test/pooling/pooling_fixture.h"
 
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
@@ -35,18 +36,18 @@
 template <typename Triple>
 using OneByOneInputMaxPoolingTest =
     PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
-                   sycldnn::pooling::Max, typename Triple::ThirdType>;
+                   sycldnn::backend::SNNBackend, sycldnn::pooling::Max,
+                   typename Triple::ThirdType>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes;
 // NB - Pooling reduces the input in its spatial dimensions. Since our
 // inputs are degenerate 1x1 cases, forward and backward passes will
 // have the same results, when they normally wouldn't.
 using Directions = sycldnn::types::TypeList<sycldnn::pooling::Forward,
                                             sycldnn::pooling::Backpropagate>;
-
+using DataFormatList = sycldnn::types::DataFormatTypes;
 using SNNTypePairs =
-    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+    sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
 using DirectedBackTypePairs =
     sycldnn::types::CartesianProduct<SNNTypePairs, Directions>::type;
 using TestTriples =
