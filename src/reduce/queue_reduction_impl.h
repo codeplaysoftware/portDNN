@@ -83,11 +83,9 @@ SNNStatus queue_subgroup_kernel(
   };
   auto query_subgroup_size = [&](cl::sycl::kernel kernel,
                                  const cl::sycl::range<2>& local_range) {
-    // ComputeCpp swaps the dimensions when enqueuing OpenCL kernels but not
-    // when querying.
     return kernel.template get_sub_group_info<
         cl::sycl::info::kernel_sub_group::max_sub_group_size_for_ndrange>(
-        device, cl::sycl::range<3>(local_range[1], local_range[0], 1));
+        device, cl::sycl::range<3>(1, local_range[0], local_range[1]));
   };
 
   size_t max_sub_group_size;

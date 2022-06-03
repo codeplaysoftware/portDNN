@@ -55,7 +55,7 @@ generate_reduce_kernels(
   FILENAME      default_reduce_kernel
 )
 set(SNN_ENABLE_SUBGROUPS 0)
-if(ComputeCpp_VERSION VERSION_GREATER_EQUAL 2.10)
+if(ComputeCpp_VERSION VERSION_GREATER_EQUAL 2.11)
   generate_reduce_kernels(
     OUTPUT_VAR    subgroup_reduce_kernel_sources
     TEMPLATE_FILE queue_reduction_impl_subgroup.cc.in
