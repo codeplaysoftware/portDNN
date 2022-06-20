@@ -31,7 +31,7 @@ import helpers
 
 BATCHES = [1, 3]
 CHANNELS = [1, 5, 8]
-IN_SIZES = [1, 8, 9]  # Assumes square inputs in the spatial dimensions.
+IN_SIZES = [1, 8, 9]
 TEST_TYPES = ['softmax']
 DIRECTIONS = ['forward', 'grad']
 
@@ -59,12 +59,8 @@ TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction'])
 TestParams = namedtuple('TestParams', ['in_shape', 'data_format'])
 
-TENSORFLOW_OPS_MAP = {
-    'softmax': tf.nn.softmax,
-}
 
-
-def get_grad_results(max_val, softmax_op, input_shape):
+def get_grad_results(max_val, input_shape):
     """
     Compute backprop softmax.
 
@@ -76,14 +72,14 @@ def get_grad_results(max_val, softmax_op, input_shape):
     input = helpers.get_variable(input_shape, max_val)
 
     with tf.GradientTape() as tape:
-        output = softmax_op(input)
+        output = tf.nn.softmax(input)
 
     output_shape = output.shape
     error = helpers.get_variable(output_shape, max_val)
     return tape.gradient(output, input, error)
 
 
-def get_forward_results(max_val, softmax_op, input_shape):
+def get_forward_results(max_val, input_shape):
     """
     Compute forward softmax.
 
@@ -99,7 +95,7 @@ def get_forward_results(max_val, softmax_op, input_shape):
                              shape=input_shape,
                              dtype=np.float64)
 
-    return softmax_op(inp_tensor)
+    return tf.nn.softmax(inp_tensor)
 
 
 def get_result_function(test_case):
@@ -124,17 +120,6 @@ DIRECTION_MAP = {
 }
 
 
-def get_result(test_case, test_params):
-    channel_idx = -1 if test_params.data_format == 'NHWC' else 1
-    output, max_input_val = helpers.get_result_and_size(
-        get_result_function(test_case),
-        max_input_val=test_params.in_shape[channel_idx],
-        floor_div=True,
-        softmax_op=TENSORFLOW_OPS_MAP[test_case.test_type],
-        input_shape=test_params.in_shape)
-    return output, max_input_val
-
-
 def get_test_lines(test_case, test_params):
     """
     Create a list of strings corresponding to the lines in a single test case.
@@ -142,7 +127,10 @@ def get_test_lines(test_case, test_params):
     Uses TensorFlow to compute the expected results for the given parameters,
     and provides the code to call the test fixture to run the test.
     """
-    output, max_input_val = get_result(test_case, test_params)
+    output, max_input_val = helpers.get_result_and_size(
+        get_result_function(test_case),
+        floor_div=True,
+        input_shape=test_params.in_shape)
     camel_case_type = helpers.to_camel_case(test_case.test_type)
     test_case_name = TEST_CASE_TPL.format(test_type=camel_case_type,
                                           direction=helpers.to_camel_case(

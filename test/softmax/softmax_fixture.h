@@ -58,14 +58,8 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
     ASSERT_EQ(input_size, exp.size());
     const auto size = exp.size();
 
-    std::vector<DataType> input;
-    if (max_val == DataType(0)) {
-      input.reserve(size);
-      std::generate_n(std::back_inserter(input), input_size,
-                      [&max_val] { return max_val; });
-    } else {
-      input = iota_initialised_data<DataType>(input_size, max_val);
-    }
+    std::vector<DataType> input =
+        iota_initialised_data<DataType>(input_size, max_val);
     std::vector<DataType> output(size);
     std::vector<DataType> workspace(workspace_size);
 
@@ -112,14 +106,8 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
     ASSERT_EQ(input_size, exp.size());
     const auto size = exp.size();
 
-    std::vector<DataType> input;
-    if (max_val == DataType(0)) {
-      input.reserve(size);
-      std::generate_n(std::back_inserter(input), size,
-                      [&max_val] { return max_val; });
-    } else {
-      input = iota_initialised_data<DataType>(size, max_val);
-    }
+    std::vector<DataType> input =
+        iota_initialised_data<DataType>(size, max_val);
     std::vector<DataType> output(size);
     std::vector<DataType> workspace_fwd(workspace_size);
     std::vector<DataType> workspace_grad(size);
@@ -158,7 +146,7 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output[i], 10u);
+      SNN_ALMOST_EQUAL_EPS(exp[i], output[i], 10u, 2e-4);
     }
   }
 };

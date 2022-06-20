@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-foreach(_op IN ITEMS add mean)
+foreach(_op IN ITEMS add mean max min)
   set(_target reduce_${_op})
   snn_test(
     WITH_SYCL

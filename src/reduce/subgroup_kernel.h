@@ -49,6 +49,28 @@ struct SubgroupReducer<T, Index, Mean> {
   SNN_ALWAYS_INLINE T finalize(T x, Index outer_size) { return x / outer_size; }
 };
 
+template <typename T, typename Index>
+struct SubgroupReducer<T, Index, Max> {
+  static constexpr bool RequireFinalize = false;
+
+  SNN_ALWAYS_INLINE T reduce(cl::sycl::experimental::sub_group sub_group, T x) {
+    return sub_group.reduce(x, cl::sycl::experimental::maximum<T>());
+  }
+
+  SNN_ALWAYS_INLINE T finalize(T x, Index) { return x; }
+};
+
+template <typename T, typename Index>
+struct SubgroupReducer<T, Index, Min> {
+  static constexpr bool RequireFinalize = false;
+
+  SNN_ALWAYS_INLINE T reduce(cl::sycl::experimental::sub_group sub_group, T x) {
+    return sub_group.reduce(x, cl::sycl::experimental::minimum<T>());
+  }
+
+  SNN_ALWAYS_INLINE T finalize(T x, Index) { return x; }
+};
+
 }  // namespace internal
 
 template <typename T, typename Index, typename Op>

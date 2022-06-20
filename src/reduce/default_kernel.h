@@ -30,7 +30,7 @@ struct Reducer;
 
 template <typename T, typename Index>
 struct Reducer<T, Index, Add> {
-  Reducer() : res_(0) {}
+  Reducer(T) : res_(0) {}
 
   SNN_ALWAYS_INLINE void reduce(T x) { res_ += x; }
 
@@ -42,11 +42,35 @@ struct Reducer<T, Index, Add> {
 
 template <typename T, typename Index>
 struct Reducer<T, Index, Mean> {
-  Reducer() : res_(0) {}
+  Reducer(T) : res_(0) {}
 
   SNN_ALWAYS_INLINE void reduce(T x) { res_ += x; }
 
   SNN_ALWAYS_INLINE T finalize(Index outer_size) { return res_ / outer_size; }
+
+ private:
+  T res_;
+};
+
+template <typename T, typename Index>
+struct Reducer<T, Index, Max> {
+  Reducer(T init) : res_(init) {}
+
+  SNN_ALWAYS_INLINE void reduce(T x) { res_ = cl::sycl::max(res_, x); }
+
+  SNN_ALWAYS_INLINE T finalize(Index) { return res_; }
+
+ private:
+  T res_;
+};
+
+template <typename T, typename Index>
+struct Reducer<T, Index, Min> {
+  Reducer(T init) : res_(init) {}
+
+  SNN_ALWAYS_INLINE void reduce(T x) { res_ = cl::sycl::min(res_, x); }
+
+  SNN_ALWAYS_INLINE T finalize(Index) { return res_; }
 
  private:
   T res_;
@@ -59,13 +83,14 @@ template <typename T, typename Index, typename Op>
 struct ReduceKernel {
   ReduceKernel(ReadAccessor<T const> const& input,
                WriteAccessor<T> const& output, Index batches, Index outer,
-               Index inner, Index finalizeParam)
+               Index inner, Index finalizeParam, T init)
       : input_{input},
         output_{output},
         batches_{batches},
         outer_{outer},
         inner_{inner},
-        finalizeParam_{finalizeParam} {}
+        finalizeParam_{finalizeParam},
+        init_{init} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<2> item) {
     Index batch = item.get_id(0);
@@ -73,7 +98,7 @@ struct ReduceKernel {
 
     const auto input = input_.get_pointer().get();
     auto output = output_.get_pointer().get();
-    internal::Reducer<T, Index, Op> reducer;
+    internal::Reducer<T, Index, Op> reducer(init_);
 
     const auto input_n = input + batch * outer_ * inner_ + inner;
     for (Index i = 0; i < outer_; ++i) {
@@ -89,6 +114,7 @@ struct ReduceKernel {
   Index const outer_;
   Index const inner_;
   Index const finalizeParam_;
+  T const init_;
 };
 
 }  // namespace reduce

@@ -60,15 +60,30 @@ TEST_NAME_TPL = r"Batch{batch}Outer{outer}Inner{inner}"
 TENSORFLOW_OPS_MAP = {
     "Add": tf.math.reduce_sum,
     "Mean": tf.math.reduce_mean,
+    "Max": tf.math.reduce_max,
+    "Min": tf.math.reduce_min,
+}
+
+# Test a few operators with all the sizes.
+# Other operators are tested on few sizes to avoid redundancy.
+TEST_ALL_SIZES = {
+    "Add",
+    "Mean",
 }
 
 
-def get_batch_sizes():
-    return [1, 3]
+def get_batch_sizes(op):
+    if op in TEST_ALL_SIZES:
+        return [1, 3]
+    else:
+        return [1, 2]
 
 
-def get_input_sizes():
-    return [1, 6, 8, 33, 512, 1037]
+def get_input_sizes(op):
+    if op in TEST_ALL_SIZES:
+        return [1, 6, 8, 33, 512, 1037]
+    else:
+        return [1, 11]
 
 
 def get_reduce_result(max_val, batch, outer, inner, op):
@@ -134,8 +149,8 @@ def get_test_cases(op):
         DATA_TYPES,
         TYPED_TEST_SUITE_DECL_TPL.format(test_case=test_case, op=op),
     ]
-    batch_sizes = get_batch_sizes()
-    in_sizes = get_input_sizes()
+    batch_sizes = get_batch_sizes(op)
+    in_sizes = get_input_sizes(op)
     for batch, outer, inner in itertools.product(
             batch_sizes, in_sizes, in_sizes):
         output.extend(

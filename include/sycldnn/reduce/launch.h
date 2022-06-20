@@ -54,7 +54,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output, int batches,
                  int outer, int inner, Backend& backend) {
   static_assert(std::is_same<Op, reduce::Add>::value ||
-                    std::is_same<Op, reduce::Mean>::value,
+                    std::is_same<Op, reduce::Mean>::value ||
+                    std::is_same<Op, reduce::Max>::value ||
+                    std::is_same<Op, reduce::Min>::value,
                 "Invalid Reduction Type");
   SNN_VALIDATE_PARAM(batches > 0, "The number of batches must be positive.");
   SNN_VALIDATE_PARAM(outer > 0, "The value of outer must be positive.");

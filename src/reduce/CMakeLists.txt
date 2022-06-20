@@ -39,7 +39,7 @@ function(generate_reduce_kernels)
     ${ARGN}
   )
   set(_sources "")
-  foreach(OP IN ITEMS Add Mean)
+  foreach(OP IN ITEMS Add Mean Max Min)
     foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
       foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
         generate_reduce_impl(_sources)

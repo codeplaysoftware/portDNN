@@ -29,6 +29,10 @@ struct Add;
 
 struct Mean;
 
+struct Max;
+
+struct Min;
+
 }  // namespace reduce
 }  // namespace sycldnn
 

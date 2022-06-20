@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
 #define SYCLDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
 
+#include <limits>
 #include <type_traits>
 
 #include "sycldnn/mem_object.h"
@@ -30,6 +31,15 @@ namespace sycldnn {
 namespace reduce {
 namespace internal {
 
+template <class T, class Op>
+static constexpr T init_val = 0;
+
+template <class T>
+static constexpr T init_val<T, Max> = std::numeric_limits<T>::min();
+
+template <class T>
+static constexpr T init_val<T, Min> = std::numeric_limits<T>::max();
+
 template <typename T, typename Index, typename Op>
 SNNStatus queue_default_kernel(BaseMemObject<T const>& input_mem,
                                BaseMemObject<T>& output_mem, int batches,
@@ -39,8 +49,8 @@ SNNStatus queue_default_kernel(BaseMemObject<T const>& input_mem,
     auto input = input_mem.read_accessor(cgh);
     auto output = output_mem.write_accessor(cgh);
 
-    ReduceKernel<T, Index, Op> functor{input, output, batches,
-                                       outer, inner,  finalizeParam};
+    ReduceKernel<T, Index, Op> functor{
+        input, output, batches, outer, inner, finalizeParam, init_val<T, Op>};
 
     cgh.parallel_for(cl::sycl::range<2>(batches, inner), functor);
   });
