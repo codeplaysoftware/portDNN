@@ -28,40 +28,75 @@
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
+#include "test/helpers/transpose.h"
 
 inline sycldnn::softmax::SoftmaxParams getSoftmaxParams(
-    std::array<int, 4> in_shape, sycldnn::DataFormat data_format) {
+    std::array<int, 4> in_shape) {
   sycldnn::softmax::SoftmaxParams params;
   params.channels = in_shape[3];
   params.batch = in_shape[0];
   params.rows = in_shape[1];
   params.cols = in_shape[2];
-  params.input_format = data_format;
+  params.input_format = sycldnn::DataFormat::NHWC;
   return params;
 }
 
-template <typename Pair, typename Direction>
+template <class T>
+const std::vector<T>& transposeInput(
+    sycldnn::softmax::SoftmaxParams const& params, std::vector<T>& trInputData,
+    const std::vector<T>& inputData) {
+  if (params.input_format == sycldnn::DataFormat::NCHW) {
+    transpose(trInputData, inputData, params.batch, params.rows * params.cols,
+              params.channels);
+    return trInputData;
+  }
+  return inputData;
+}
+
+template <class T>
+const std::vector<T>& transposeOutput(
+    sycldnn::softmax::SoftmaxParams const& params, std::vector<T>& trOutputData,
+    const std::vector<T>& outputData) {
+  if (params.input_format == sycldnn::DataFormat::NCHW) {
+    transpose(trOutputData, outputData, params.batch, params.channels,
+              params.rows * params.cols);
+    return trOutputData;
+  }
+  return outputData;
+}
+
+template <typename Triple, typename Direction>
 struct SoftmaxFixture;
 
-template <typename Pair>
-struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
-    : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
-  using Backend = typename Pair::SecondType;
+template <typename Triple>
+struct SoftmaxFixture<Triple, sycldnn::softmax::Forward>
+    : public BackendTestFixture<typename Triple::SecondType> {
+  using DataType = typename Triple::FirstType;
+  using Backend = typename Triple::SecondType;
+  static constexpr sycldnn::DataFormat INPUT_FORMAT =
+      Triple::ThirdType::input_layout;
 
   void test_softmax(std::vector<DataType> const& exp,
-                    sycldnn::softmax::SoftmaxParams const& params,
+                    sycldnn::softmax::SoftmaxParams params,
                     DataType max_val = static_cast<DataType>(0)) {
+    ASSERT_EQ(params.input_format, sycldnn::DataFormat::NHWC)
+        << "Tests should be written for the NHWC layout. The input layout is "
+           "set from the fixture type.";
+    params.input_format = INPUT_FORMAT;
     auto input_size =
         params.batch * params.rows * params.cols * params.channels;
     auto workspace_size = params.batch * params.rows * params.cols;
     ASSERT_EQ(input_size, exp.size());
     const auto size = exp.size();
 
-    std::vector<DataType> input =
+    std::vector<DataType> inputData =
         iota_initialised_data<DataType>(input_size, max_val);
-    std::vector<DataType> output(size);
+    std::vector<DataType> outputData(size);
     std::vector<DataType> workspace(workspace_size);
+
+    std::vector<DataType> trInputData;
+    const std::vector<DataType>& input =
+        transposeInput(params, trInputData, inputData);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
@@ -69,7 +104,7 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
     auto inp_gpu = provider.get_initialised_device_memory(input_size, input);
     auto workspace_gpu =
         provider.get_initialised_device_memory(workspace_size, workspace);
-    auto out_gpu = provider.get_initialised_device_memory(size, output);
+    auto out_gpu = provider.get_initialised_device_memory(size, outputData);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(out_gpu);
@@ -82,7 +117,11 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
-    provider.copy_device_data_to_host(size, out_gpu, output);
+    provider.copy_device_data_to_host(size, out_gpu, outputData);
+
+    std::vector<DataType> trOutputData;
+    const std::vector<DataType>& output =
+        transposeOutput(params, trOutputData, outputData);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -91,26 +130,36 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Forward>
   }
 };
 
-template <typename Pair>
-struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
-    : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
-  using Backend = typename Pair::SecondType;
+template <typename Triple>
+struct SoftmaxFixture<Triple, sycldnn::softmax::Gradient>
+    : public BackendTestFixture<typename Triple::SecondType> {
+  using DataType = typename Triple::FirstType;
+  using Backend = typename Triple::SecondType;
+  static constexpr sycldnn::DataFormat INPUT_FORMAT =
+      Triple::ThirdType::input_layout;
 
   void test_softmax(std::vector<DataType> const& exp,
-                    sycldnn::softmax::SoftmaxParams const& params,
+                    sycldnn::softmax::SoftmaxParams params,
                     DataType max_val = static_cast<DataType>(0)) {
+    ASSERT_EQ(params.input_format, sycldnn::DataFormat::NHWC)
+        << "Tests should be written for the NHWC layout. The input layout is "
+           "set from the fixture type.";
+    params.input_format = INPUT_FORMAT;
     auto input_size =
         params.batch * params.rows * params.cols * params.channels;
     auto workspace_size = params.batch * params.rows * params.cols;
     ASSERT_EQ(input_size, exp.size());
     const auto size = exp.size();
 
-    std::vector<DataType> input =
+    std::vector<DataType> inputData =
         iota_initialised_data<DataType>(size, max_val);
-    std::vector<DataType> output(size);
+    std::vector<DataType> outputData(size);
     std::vector<DataType> workspace_fwd(workspace_size);
     std::vector<DataType> workspace_grad(size);
+
+    std::vector<DataType> trInputData;
+    const std::vector<DataType>& input =
+        transposeInput(params, trInputData, inputData);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
@@ -120,8 +169,9 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
         provider.get_initialised_device_memory(workspace_size, workspace_fwd);
     auto workspace_grad_gpu =
         provider.get_initialised_device_memory(size, workspace_grad);
-    auto out_fwd_gpu = provider.get_initialised_device_memory(size, output);
-    auto out_grad_gpu = provider.get_initialised_device_memory(size, output);
+    auto out_fwd_gpu = provider.get_initialised_device_memory(size, outputData);
+    auto out_grad_gpu =
+        provider.get_initialised_device_memory(size, outputData);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(out_fwd_gpu);
@@ -142,7 +192,11 @@ struct SoftmaxFixture<Pair, sycldnn::softmax::Gradient>
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
 
-    provider.copy_device_data_to_host(size, out_grad_gpu, output);
+    provider.copy_device_data_to_host(size, out_grad_gpu, outputData);
+
+    std::vector<DataType> trOutputData;
+    const std::vector<DataType>& output =
+        transposeOutput(params, trOutputData, outputData);
 
     for (size_t i = 0; i < size; ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));

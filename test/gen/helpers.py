@@ -53,21 +53,6 @@ def get_dont_modify_comment(scriptname):
     return COMMENT_TPL.format(scriptname=scriptname, tf_version=tf_version)
 
 
-TEST_TYPES_TPL = r"""
-using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::AllBackendTypes;
-
-using TypeBackendPairs =
-    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
-
-using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
-"""
-
-
-def get_test_types_tpl():
-    return TEST_TYPES_TPL
-
-
 # To ensure that the tests can be computed exactly, we require that the results
 # are contained in the set of values that can be exactly represented by the
 # floating point data types. Single precision floating point values can

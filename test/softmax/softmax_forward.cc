@@ -27,7 +27,9 @@
 
 #include "test/softmax/softmax_fixture.h"
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -35,21 +37,26 @@
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::AllBackendTypes;
+using DataFormats = sycldnn::types::DataFormatTypes;
 
 using TypeBackendPairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+using TypeBackendFormatTriple =
+    sycldnn::types::CartesianProduct<TypeBackendPairs, DataFormats>::type;
 
-using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<TypeBackendFormatTriple>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename Pair>
-using SoftmaxForward = SoftmaxFixture<Pair, softmax::Forward>;
-TYPED_TEST_CASE(SoftmaxForward, GTestTypePairs);
+template <typename Tripe>
+using SoftmaxForward = SoftmaxFixture<Tripe, softmax::Forward>;
+TYPED_TEST_CASE(SoftmaxForward, GTestTypeTriples);
 TYPED_TEST(SoftmaxForward, 1x1x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1.};
   const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -59,7 +66,7 @@ TYPED_TEST(SoftmaxForward, 1x1x1x5) {
       0.01165623095603961, 0.031684920796124276, 0.08612854443626873,
       0.23412165725273662, 0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 1, 1, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -70,7 +77,7 @@ TYPED_TEST(SoftmaxForward, 1x1x1x8) {
       0.011581577075929862,  0.03148199051039798,   0.08557692272813495,
       0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -78,7 +85,7 @@ TYPED_TEST(SoftmaxForward, 1x1x8x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -100,7 +107,7 @@ TYPED_TEST(SoftmaxForward, 1x1x8x5) {
       0.031684920796124276, 0.08612854443626873,  0.23412165725273662,
       0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 1, 8, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -130,7 +137,7 @@ TYPED_TEST(SoftmaxForward, 1x1x8x8) {
       0.03148199051039798,   0.08557692272813495,   0.23262219398733305,
       0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 1, 8, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -138,7 +145,7 @@ TYPED_TEST(SoftmaxForward, 1x1x9x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 1, 9, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -161,7 +168,7 @@ TYPED_TEST(SoftmaxForward, 1x1x9x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 1, 9, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -193,7 +200,7 @@ TYPED_TEST(SoftmaxForward, 1x1x9x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 1, 9, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -201,7 +208,7 @@ TYPED_TEST(SoftmaxForward, 1x8x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 8, 1, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -223,7 +230,7 @@ TYPED_TEST(SoftmaxForward, 1x8x1x5) {
       0.031684920796124276, 0.08612854443626873,  0.23412165725273662,
       0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 8, 1, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -253,7 +260,7 @@ TYPED_TEST(SoftmaxForward, 1x8x1x8) {
       0.03148199051039798,   0.08557692272813495,   0.23262219398733305,
       0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 8, 1, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -265,7 +272,7 @@ TYPED_TEST(SoftmaxForward, 1x8x8x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -380,7 +387,7 @@ TYPED_TEST(SoftmaxForward, 1x8x8x5) {
       0.01165623095603961,  0.031684920796124276, 0.08612854443626873,
       0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 8, 8, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -559,7 +566,7 @@ TYPED_TEST(SoftmaxForward, 1x8x8x8) {
       0.011581577075929862,  0.03148199051039798,   0.08557692272813495,
       0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 8, 8, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -571,7 +578,7 @@ TYPED_TEST(SoftmaxForward, 1x8x9x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 8, 9, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -699,7 +706,7 @@ TYPED_TEST(SoftmaxForward, 1x8x9x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 8, 9, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -899,7 +906,7 @@ TYPED_TEST(SoftmaxForward, 1x8x9x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 8, 9, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -907,7 +914,7 @@ TYPED_TEST(SoftmaxForward, 1x9x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 9, 1, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -930,7 +937,7 @@ TYPED_TEST(SoftmaxForward, 1x9x1x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 9, 1, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -962,7 +969,7 @@ TYPED_TEST(SoftmaxForward, 1x9x1x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 9, 1, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -974,7 +981,7 @@ TYPED_TEST(SoftmaxForward, 1x9x8x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 9, 8, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1102,7 +1109,7 @@ TYPED_TEST(SoftmaxForward, 1x9x8x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 9, 8, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1302,7 +1309,7 @@ TYPED_TEST(SoftmaxForward, 1x9x8x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 9, 8, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1315,7 +1322,7 @@ TYPED_TEST(SoftmaxForward, 1x9x9x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{1, 9, 9, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1458,7 +1465,7 @@ TYPED_TEST(SoftmaxForward, 1x9x9x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{1, 9, 9, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1682,7 +1689,7 @@ TYPED_TEST(SoftmaxForward, 1x9x9x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{1, 9, 9, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1690,7 +1697,7 @@ TYPED_TEST(SoftmaxForward, 3x1x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 1, 1, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1703,7 +1710,7 @@ TYPED_TEST(SoftmaxForward, 3x1x1x5) {
       0.6364086465588309,   0.011656230956039609, 0.03168492079612427,
       0.0861285444362687,   0.23412165725273662,  0.6364086465588308};
   const std::array<int, 4> in_shape = {{3, 1, 1, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1719,7 +1726,7 @@ TYPED_TEST(SoftmaxForward, 3x1x1x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 1, 1, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1729,7 +1736,7 @@ TYPED_TEST(SoftmaxForward, 3x1x8x1) {
                                          1., 1., 1., 1., 1., 1., 1., 1.,
                                          1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 1, 8, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1777,7 +1784,7 @@ TYPED_TEST(SoftmaxForward, 3x1x8x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{3, 1, 8, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1849,7 +1856,7 @@ TYPED_TEST(SoftmaxForward, 3x1x8x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 1, 8, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1859,7 +1866,7 @@ TYPED_TEST(SoftmaxForward, 3x1x9x1) {
                                          1., 1., 1., 1., 1., 1., 1., 1., 1.,
                                          1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 1, 9, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1912,7 +1919,7 @@ TYPED_TEST(SoftmaxForward, 3x1x9x5) {
       0.6364086465588309,   0.011656230956039609, 0.03168492079612427,
       0.0861285444362687,   0.23412165725273662,  0.6364086465588308};
   const std::array<int, 4> in_shape = {{3, 1, 9, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -1992,7 +1999,7 @@ TYPED_TEST(SoftmaxForward, 3x1x9x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 1, 9, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -2002,7 +2009,7 @@ TYPED_TEST(SoftmaxForward, 3x8x1x1) {
                                          1., 1., 1., 1., 1., 1., 1., 1.,
                                          1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 8, 1, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -2050,7 +2057,7 @@ TYPED_TEST(SoftmaxForward, 3x8x1x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{3, 8, 1, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -2122,7 +2129,7 @@ TYPED_TEST(SoftmaxForward, 3x8x1x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 8, 1, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -2141,7 +2148,7 @@ TYPED_TEST(SoftmaxForward, 3x8x8x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -2469,7 +2476,7 @@ TYPED_TEST(SoftmaxForward, 3x8x8x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{3, 8, 8, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -2989,7 +2996,7 @@ TYPED_TEST(SoftmaxForward, 3x8x8x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 8, 8, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -3009,7 +3016,7 @@ TYPED_TEST(SoftmaxForward, 3x8x9x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 8, 9, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -3377,7 +3384,7 @@ TYPED_TEST(SoftmaxForward, 3x8x9x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{3, 8, 9, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -3961,7 +3968,7 @@ TYPED_TEST(SoftmaxForward, 3x8x9x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 8, 9, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -3971,7 +3978,7 @@ TYPED_TEST(SoftmaxForward, 3x9x1x1) {
                                          1., 1., 1., 1., 1., 1., 1., 1., 1.,
                                          1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 9, 1, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -4024,7 +4031,7 @@ TYPED_TEST(SoftmaxForward, 3x9x1x5) {
       0.6364086465588309,   0.011656230956039609, 0.03168492079612427,
       0.0861285444362687,   0.23412165725273662,  0.6364086465588308};
   const std::array<int, 4> in_shape = {{3, 9, 1, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -4104,7 +4111,7 @@ TYPED_TEST(SoftmaxForward, 3x9x1x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 9, 1, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -4124,7 +4131,7 @@ TYPED_TEST(SoftmaxForward, 3x9x8x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 9, 8, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -4492,7 +4499,7 @@ TYPED_TEST(SoftmaxForward, 3x9x8x5) {
       0.6364086465588309,   0.01165623095603961,  0.031684920796124276,
       0.08612854443626873,  0.23412165725273662,  0.6364086465588309};
   const std::array<int, 4> in_shape = {{3, 9, 8, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -5076,7 +5083,7 @@ TYPED_TEST(SoftmaxForward, 3x9x8x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 9, 8, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -5098,7 +5105,7 @@ TYPED_TEST(SoftmaxForward, 3x9x9x1) {
       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
       1., 1., 1., 1., 1., 1., 1., 1., 1.};
   const std::array<int, 4> in_shape = {{3, 9, 9, 1}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -5511,7 +5518,7 @@ TYPED_TEST(SoftmaxForward, 3x9x9x5) {
       0.6364086465588309,   0.011656230956039609, 0.03168492079612427,
       0.0861285444362687,   0.23412165725273662,  0.6364086465588308};
   const std::array<int, 4> in_shape = {{3, 9, 9, 5}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }
@@ -6167,7 +6174,7 @@ TYPED_TEST(SoftmaxForward, 3x9x9x8) {
       0.004260624102577064,  0.011581577075929862,  0.03148199051039798,
       0.08557692272813495,   0.23262219398733305,   0.6323326828120425};
   const std::array<int, 4> in_shape = {{3, 9, 9, 8}};
-  const auto params = getSoftmaxParams(in_shape, DataFormat::NHWC);
+  const auto params = getSoftmaxParams(in_shape);
   const DataType max_input_val = 2048.0;
   this->test_softmax(exp_out, params, max_input_val);
 }

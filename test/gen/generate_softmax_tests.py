@@ -45,19 +45,37 @@ INCLUDES = r"""
 
 #include "test/softmax/softmax_fixture.h"
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 #include <vector>"""
+
+TEST_TYPES_TPL = r"""
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::AllBackendTypes;
+using DataFormats = sycldnn::types::DataFormatTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+using TypeBackendFormatTriple =
+    sycldnn::types::CartesianProduct<TypeBackendPairs, DataFormats>::type;
+
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<TypeBackendFormatTriple>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
+"""
+
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
-template <typename Pair>
-using {test_case} = SoftmaxFixture<Pair, {direction}>;
-TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
+template <typename Tripe>
+using {test_case} = SoftmaxFixture<Tripe, {direction}>;
+TYPED_TEST_CASE({test_case}, GTestTypeTriples);"""
 
 TestCaseParams = namedtuple('TestCaseParams', ['test_type', 'direction'])
-TestParams = namedtuple('TestParams', ['in_shape', 'data_format'])
+TestParams = namedtuple('TestParams', ['in_shape'])
 
 
 def get_grad_results(max_val, input_shape):
@@ -145,8 +163,7 @@ def get_test_lines(test_case, test_params):
         "  const std::vector<DataType> exp_out = {};".format(
             helpers.format_tensor(output)),
         "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-        "  const auto params = getSoftmaxParams(in_shape, DataFormat::{});".format(
-            test_params.data_format),
+        "  const auto params = getSoftmaxParams(in_shape);",
         "  const DataType max_input_val = {:.1f};".format(max_input_val),
         "  this->test_softmax(exp_out, params, max_input_val);",
         "}",
@@ -157,7 +174,7 @@ def get_test_lines(test_case, test_params):
 def test_params_for_test_case(test_case):
     "Test params generator for all different tests in a given test case."
     for in_shape in itertools.product(BATCHES, IN_SIZES, IN_SIZES, CHANNELS):
-        yield TestParams(in_shape=in_shape, data_format='NHWC')
+        yield TestParams(in_shape=in_shape)
 
 
 def output_for_test_case(test_case):
@@ -175,7 +192,7 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
-        helpers.get_test_types_tpl(),
+        TEST_TYPES_TPL,
         TYPED_TEST_CASE_DECL_TPL.format(
             test_case=test_case_name,
             direction=DIRECTION_MAP[test_case.direction]),

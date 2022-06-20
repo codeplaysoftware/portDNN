@@ -51,6 +51,17 @@ INCLUDES = r"""
 #include "test/types/to_gtest_types.h"
 
 #include <vector>"""
+
+TEST_TYPES_TPL = r"""
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::AllBackendTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+"""
+
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 template <typename Pair>
@@ -311,7 +322,7 @@ def output_for_test_case(test_case):
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
         INCLUDES,
-        helpers.get_test_types_tpl(),
+        TEST_TYPES_TPL,
         TYPED_TEST_CASE_DECL_TPL.format(
             test_case=test_case_name,
             direction=DIRECTION_MAP[test_case.direction],
