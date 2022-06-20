@@ -19,6 +19,7 @@
 #include <benchmark/benchmark.h>
 
 #include "sycldnn/binaryop/params.h"
+#include "sycldnn/helpers/dims.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -44,8 +45,10 @@ class BaseBiasBenchmark : public benchmark::Fixture {
 // Add a full set of counters corresponding to the bias parameters.
 void BaseBiasBenchmark::add_param_counters(benchmark::State& state,
                                            BinaryParams const& params) {
-  state.counters["input_items"] = params.lhs_items;
-  state.counters["bias_items"] = params.rhs_items;
+  state.counters["input_items"] =
+      sycldnn::helpers::get_total_size(params.lhs_dims);
+  state.counters["bias_items"] =
+      sycldnn::helpers::get_total_size(params.rhs_dims);
 }
 
 // Calculate the optimal bandwidth requirements, and add corresponding counters.
@@ -56,10 +59,11 @@ void BaseBiasBenchmark::add_bandwidth_counters(benchmark::State& state,
                                                BinaryParams const& params) {
   // Compute the size of each element in bytes.
   auto element_bytes = sizeof(ElementType);
+  auto lhs_size = sycldnn::helpers::get_total_size(params.lhs_dims);
+  auto rhs_size = sycldnn::helpers::get_total_size(params.rhs_dims);
 
-  state.counters["bytes_read"] =
-      (params.lhs_items + params.rhs_items) * element_bytes;
-  state.counters["bytes_written"] = params.lhs_items * element_bytes;
+  state.counters["bytes_read"] = (lhs_size + rhs_size) * element_bytes;
+  state.counters["bytes_written"] = lhs_size * element_bytes;
 }
 
 // Records the number of elements processed to the counter set. How this
@@ -68,7 +72,7 @@ inline void BaseBiasBenchmark::set_items_processed(benchmark::State& state,
                                                    BinaryParams const& params) {
   // We define items processed as neighbourhood size * output tensor size for
   // bias operations.
-  auto tensor_size = params.lhs_items;
+  auto tensor_size = sycldnn::helpers::get_total_size(params.lhs_dims);
 
   state.SetItemsProcessed(state.iterations() * tensor_size);
 }

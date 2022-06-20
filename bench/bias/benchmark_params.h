@@ -49,8 +49,8 @@ inline std::vector<int> serialize(int batch, int rows, int cols, int channels,
 inline sycldnn::binaryop::BinaryParams deserialize(
     benchmark::State const& state) {
   sycldnn::binaryop::BinaryParams params;
-  params.lhs_items = state.range(0);
-  params.rhs_items = state.range(1);
+  params.lhs_dims = {state.range(0) / state.range(1), state.range(1)};
+  params.rhs_dims = {1, state.range(1)};
   return params;
 }
 

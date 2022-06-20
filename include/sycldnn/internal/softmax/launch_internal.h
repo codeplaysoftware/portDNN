@@ -52,7 +52,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> workspace,
                  typename Backend::template pointer_type<T> output,
                  SoftmaxParams const& params, Backend& backend) {
-  auto n_items = params.batch * params.channels * params.rows * params.cols;
+  auto n_items = params.batch * params.rows * params.cols * params.channels;
   auto queue = backend.get_queue();
   auto in_mem = backend.get_mem_object(input, n_items);
   auto out_mem = backend.get_mem_object(output, n_items);
@@ -76,10 +76,10 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
 
-  status =
-      binaryop::internal::launch_binaryop<T, binaryop::internal::SoftmaxDiv>(
-          const_output_mem, const_workspace_mem, out_mem, params.channels,
-          queue);
+  status = binaryop::internal::launch_binaryop<T, binaryop::Div>(
+      const_output_mem, const_workspace_mem, out_mem,
+      {params.batch, params.rows, params.cols, params.channels},
+      {params.batch, params.rows, params.cols, 1}, queue);
   return status;
 }
 
@@ -123,9 +123,10 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
-  status =
-      binaryop::internal::launch_binaryop<T, binaryop::internal::SoftmaxSub>(
-          grad_mem, const_output_mem, workspace_mem, params.channels, queue);
+  status = binaryop::internal::launch_binaryop<T, binaryop::Sub>(
+      grad_mem, const_output_mem, workspace_mem,
+      {params.batch, params.rows, params.cols, params.channels},
+      {params.batch, params.rows, params.cols, 1}, queue);
 
   if (sycldnn::StatusCode::OK != status.status) return status;
 

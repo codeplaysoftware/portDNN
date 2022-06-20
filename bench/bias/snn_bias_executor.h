@@ -18,6 +18,7 @@
 
 #include <benchmark/benchmark.h>
 
+#include "sycldnn/helpers/dims.h"
 #include "sycldnn/helpers/handle_exception.h"
 #include "sycldnn/helpers/scope_exit.h"
 
@@ -46,9 +47,11 @@ struct SNNBiasExecutor : public BaseExecutor {
     auto& benchmark = underlying_benchmark();
     auto& backend = benchmark.get_backend();
 
-    std::vector<float> inp_vec(params.lhs_items);
-    std::vector<float> bias_vec(params.rhs_items);
-    std::vector<float> out_vec(params.lhs_items);
+    auto lhs_size = sycldnn::helpers::get_total_size(params.lhs_dims);
+    auto rhs_size = sycldnn::helpers::get_total_size(params.rhs_dims);
+    std::vector<float> inp_vec(lhs_size);
+    std::vector<float> bias_vec(rhs_size);
+    std::vector<float> out_vec(lhs_size);
 
     auto inp_gpu =
         benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);

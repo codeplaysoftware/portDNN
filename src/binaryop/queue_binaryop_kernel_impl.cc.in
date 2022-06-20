@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "src/binaryop/kernels.h"
 #include "src/binaryop/queue_binaryop_kernel_impl.h"
 
 #include "sycldnn/binaryop/operators.h"
@@ -20,10 +21,11 @@
 #include <CL/sycl.hpp>
 
 // clang-format off
-#define SNN_DATA_TYPE    @DATA_TYPE@
-#define SNN_VECTOR_WIDTH @VECTOR_WIDTH@
-#define SNN_INDEX_TYPE   @INDEX_TYPE@
-#define SNN_OP_TYPE      @OP_TYPE@
+#define SNN_DATA_TYPE         @DATA_TYPE@
+#define SNN_INDEX_TYPE        @INDEX_TYPE@
+#define SNN_OP_TYPE           @OP_TYPE@
+#define SNN_KERNEL_NAME       @KERNEL_NAME@
+#define SNN_KERNEL_EXTRA_ARGS @KERNEL_EXTRA_ARGS@
 
 // clang-format on
 
@@ -32,11 +34,14 @@ namespace binaryop {
 namespace internal {
 
 template SNNStatus
-queue_binaryop<SNN_DATA_TYPE, SNN_OP_TYPE, SNN_INDEX_TYPE, SNN_VECTOR_WIDTH>(
-    BaseMemObject<SNN_DATA_TYPE const>& input1,
-    BaseMemObject<SNN_DATA_TYPE const>& input2,
-    BaseMemObject<SNN_DATA_TYPE>& output, SNN_INDEX_TYPE const n_items,
-    cl::sycl::queue& queue);
+queue_binaryop<SNN_KERNEL_NAME<SNN_DATA_TYPE, SNN_OP_TYPE,
+                               SNN_INDEX_TYPE SNN_KERNEL_EXTRA_ARGS>,
+               SNN_DATA_TYPE, SNN_INDEX_TYPE>(
+    BaseMemObject<SNN_DATA_TYPE const>& lhs,
+    BaseMemObject<SNN_DATA_TYPE const>& rhs, BaseMemObject<SNN_DATA_TYPE>& out,
+    const std::vector<SNN_INDEX_TYPE>& lhs_dims,
+    const std::vector<SNN_INDEX_TYPE>& rhs_dims,
+    const std::vector<SNN_INDEX_TYPE>& out_dims, cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace binaryop

@@ -27,6 +27,7 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/helpers/dims.h"
 #include "sycldnn/helpers/macros.h"
 
 #include "sycldnn/binaryop/params.h"
@@ -36,29 +37,6 @@
 namespace sycldnn {
 /** Namespace containing all binary elementwise operations. */
 namespace binaryop {
-/** Namespace containing internal implementation details for binary operation.
- */
-namespace internal {
-
-/**
- * Validate that the user provided binaryop parameters are consistent with what
- * is expected by SYCL-DNN.
- *
- * If compiled with asserts, any invalid parameter will fail an assert.
- * Otherwise a status code \ref StatusCode::InvalidParameter will be returned.
- *
- * \param [in] params User provided parameters to validate
- * \return An SNNStatus object containing either \ref StatusCode::OK if all
- *         parameters are valid, or \ref StatusCode::InvalidParameter otherwise.
- */
-
-SNNStatus inline validate_params(BinaryParams const& params) {
-  SNN_VALIDATE_PARAM(params.lhs_items > 0, "The number of items in 1st input.");
-  SNN_VALIDATE_PARAM(params.rhs_items > 0, "The number of items in 2nd input.");
-  return StatusCode::OK;
-}
-
-}  // namespace internal
 
 /**
  * Launch the binary operation kernel.
@@ -67,10 +45,10 @@ SNNStatus inline validate_params(BinaryParams const& params) {
  * \tparam Op        The type of the BinaryOp.
  * \tparam Backend   The type of the Backend.
  *
- * \param [in]  lhs   A pointer to the first input tensor.
- * \param [in]  rhs   A pointer to the second input tensor.
- * \param [out] output   A pointer to the output tensor.
- * \param [in]  params       The parameters of the binary operation.
+ * \param [in]  lhs      A pointer to the first input tensor.
+ * \param [in]  rhs      A pointer to the second input tensor.
+ * \param [out] out      A pointer to the output tensor.
+ * \param [in]  params   The parameters of the binary operation.
  * \param [in]  backend  The backend that provides access to the SYCL buffers
  *                       corresponding to the input and output pointers.
  * \return An \ref SNNStatus containing the SYCL event tied to the kernel
@@ -80,22 +58,41 @@ SNNStatus inline validate_params(BinaryParams const& params) {
 template <typename T, typename Op, typename Backend>
 SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
                  typename Backend::template pointer_type<T const> rhs,
-                 typename Backend::template pointer_type<T> output,
+                 typename Backend::template pointer_type<T> out,
                  const BinaryParams& params, Backend& backend) {
-  auto validation_status = internal::validate_params(params);
-  if (validation_status.status != StatusCode::OK) {
-    return validation_status;
+  auto lhs_dims = params.lhs_dims;
+  auto rhs_dims = params.rhs_dims;
+  SNN_VALIDATE_PARAM(lhs_dims.size() <= MAX_DIMS,
+                     "Left operand exceeds the maximum number of dimensions");
+  SNN_VALIDATE_PARAM(rhs_dims.size() <= MAX_DIMS,
+                     "Right operand exceeds the maximum number of dimensions");
+
+  // Empty dimensions may be used to represent scalars.
+  if (lhs_dims.size() == 0) {
+    lhs_dims.push_back(1);
+  }
+  if (rhs_dims.size() == 0) {
+    rhs_dims.push_back(1);
   }
 
-  auto inp1_mem =
-      backend.get_mem_object(lhs, static_cast<size_t>(params.lhs_items));
-  auto inp2_mem =
-      backend.get_mem_object(rhs, static_cast<size_t>(params.rhs_items));
-  auto outp_mem =
-      backend.get_mem_object(output, static_cast<size_t>(params.lhs_items));
+  size_t lhs_size = helpers::get_total_size(lhs_dims);
+  size_t rhs_size = helpers::get_total_size(rhs_dims);
+  SNN_VALIDATE_PARAM(lhs_size > 0, "Left operand cannot be zero.");
+  SNN_VALIDATE_PARAM(rhs_size > 0, "Right operand cannot be zero.");
+
+  std::vector<int> out_dims;
+  auto status = internal::compute_out_dims(lhs_dims, rhs_dims, out_dims);
+  if (status.status != StatusCode::OK) {
+    return status;
+  }
+  size_t out_size = helpers::get_total_size(out_dims);
+
+  auto lhs_mem = backend.get_mem_object(lhs, lhs_size);
+  auto rhs_mem = backend.get_mem_object(rhs, rhs_size);
+  auto out_mem = backend.get_mem_object(out, out_size);
   auto queue = backend.get_queue();
-  return internal::launch_binaryop<T, Op>(inp1_mem, inp2_mem, outp_mem,
-                                          params.rhs_items, queue);
+  return internal::launch_binaryop<T, Op>(lhs_mem, rhs_mem, out_mem, lhs_dims,
+                                          rhs_dims, out_dims, queue);
 }
 
 }  // namespace binaryop

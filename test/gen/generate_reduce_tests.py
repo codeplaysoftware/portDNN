@@ -57,8 +57,6 @@ TYPED_TEST_SUITE({test_case}, GTestTypePair);"""
 TEST_CASE_TPL = r"Reduce{op}"
 TEST_NAME_TPL = r"Batch{batch}Outer{outer}Inner{inner}"
 
-OP_LIST = ["Add", "Mean"]
-
 TENSORFLOW_OPS_MAP = {
     "Add": tf.math.reduce_sum,
     "Mean": tf.math.reduce_mean,

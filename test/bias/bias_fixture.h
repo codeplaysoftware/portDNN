@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "sycldnn/helpers/dims.h"
 #include "sycldnn/helpers/padding.h"
 #include "sycldnn/helpers/scope_exit.h"
 
@@ -39,9 +40,9 @@ struct BiasFixture : public BackendTestFixture<Backend> {
   void test_bias(std::vector<DataType> exp,
                  sycldnn::binaryop::BinaryParams const& params,
                  DataType max_val = DataType{0}) {
-    auto in_size = params.lhs_items;
-    auto out_size = params.lhs_items;
-    auto bias_size = params.rhs_items;
+    auto in_size = sycldnn::helpers::get_total_size(params.lhs_dims);
+    auto out_size = sycldnn::helpers::get_total_size(params.lhs_dims);
+    auto bias_size = sycldnn::helpers::get_total_size(params.rhs_dims);
     std::vector<DataType> input = iota_initialised_data(in_size, max_val);
     std::vector<DataType> bias =
         iota_initialised_data(bias_size, static_cast<DataType>(bias_size));
@@ -77,8 +78,9 @@ struct BiasFixture : public BackendTestFixture<Backend> {
 inline sycldnn::binaryop::BinaryParams getBiasParams(
     std::array<int, 4> in_shape) {
   sycldnn::binaryop::BinaryParams ret;
-  ret.lhs_items = in_shape[0] * in_shape[1] * in_shape[2] * in_shape[3];
-  ret.rhs_items = in_shape[3];
+  ret.lhs_dims = {sycldnn::helpers::get_total_size(in_shape) / in_shape[3],
+                  in_shape[3]};
+  ret.rhs_dims = {1, in_shape[3]};
   return ret;
 }
 

@@ -44,12 +44,14 @@ int main() {
   });
   Backend backend(q);
   snn::binaryop::BinaryParams params{};
-  params.lhs_items = 4096;
-  params.rhs_items = 16;
+  params.lhs_dims = {256, 16};
+  params.rhs_dims = {1, 16};
+  auto lhs_size = sycldnn::helpers::get_total_size(params.lhs_dims);
+  auto rhs_size = sycldnn::helpers::get_total_size(params.rhs_dims);
 
-  std::vector<float> in(params.lhs_items, 10.0);
-  std::vector<float> bias(params.rhs_items, 0.5);
-  std::vector<float> out(params.lhs_items, 0.0);
+  std::vector<float> in(lhs_size, 10.0);
+  std::vector<float> bias(rhs_size, 0.5);
+  std::vector<float> out(lhs_size, 0.0);
 
   auto input = backend.allocate<float>(in.size());
   auto biases = backend.allocate<float>(bias.size());

@@ -20,8 +20,8 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
-#include "src/binaryop/kernels.h"
 #include "src/binaryop/queue_binaryop_kernel.h"
+#include "sycldnn/helpers/dims.h"
 
 #include <CL/sycl.hpp>
 
@@ -29,19 +29,19 @@ namespace sycldnn {
 namespace binaryop {
 namespace internal {
 
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename Kernel, typename T, typename Index>
 SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
-                         BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
-                         int32_t const n_items, cl::sycl::queue& queue) {
+                         BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
+                         const std::vector<Index>& lhs_dims,
+                         const std::vector<Index>& rhs_dims,
+                         const std::vector<Index>& out_dims,
+                         cl::sycl::queue& queue) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto in1 = lhs.read_accessor(cgh);
-    auto in2 = rhs.read_accessor(cgh);
-    auto out = output.write_accessor(cgh);
-    BinaryOp<T, Op, Index, VectorWidth> binary_op{in1, in2, out};
-
-    cgh.parallel_for(
-        cl::sycl::range<1>{static_cast<size_t>(n_items / VectorWidth)},
-        binary_op);
+    auto lhs_acc = lhs.read_accessor(cgh);
+    auto rhs_acc = rhs.read_accessor(cgh);
+    auto out_acc = out.write_accessor(cgh);
+    Kernel binary_op(lhs_acc, rhs_acc, out_acc, lhs_dims, rhs_dims, out_dims);
+    cgh.parallel_for(binary_op.get_range(), binary_op);
   });
 
   return {event, StatusCode::OK};

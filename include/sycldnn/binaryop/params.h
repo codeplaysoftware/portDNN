@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_INCLUDE_BINARYOP_PARAMS_H_
 #define SYCLDNN_INCLUDE_BINARYOP_PARAMS_H_
 
+#include <vector>
+
 #include "sycldnn/data_format.h"
 
 /**
@@ -26,20 +28,19 @@
 namespace sycldnn {
 namespace binaryop {
 
+static constexpr int MAX_DIMS = 4;
+
 /** Struct that contains values used in a Binary op. */
 struct BinaryParams {
   /** The type of the params is int, providing a decent
    * upper bound on the tensor sizes.*/
   using Index = int;
 
-  /** The number of items in input1. */
-  Index lhs_items;
+  /** Left operand dimensions. */
+  std::vector<Index> lhs_dims;
 
-  /** The number of items in input2. */
-  Index rhs_items;
-
-  /** The data format used in the input and output tensors. */
-  sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
+  /** Right operand dimensions. */
+  std::vector<Index> rhs_dims;
 };
 
 }  // namespace binaryop

@@ -18,6 +18,7 @@
 #define SYCLDNN_SRC_BINARYOP_KERNELS_H_
 
 #include <CL/sycl.hpp>
+#include <array>
 
 #include "src/helpers/tensor_index.h"
 #include "src/helpers/vector_io.h"
@@ -26,159 +27,324 @@
 #include "sycldnn/accessor_types.h"
 
 #include "sycldnn/binaryop/operators.h"
+#include "sycldnn/binaryop/params.h"
+#include "sycldnn/helpers/dims.h"
 
 namespace sycldnn {
 namespace binaryop {
 
 struct Add {
   template <typename T>
-  inline T apply(T val1, T val2) {
-    return val1 + val2;
+  inline T operator()(T lhs, T rhs) {
+    return lhs + rhs;
   }
 };
 
 struct Sub {
   template <typename T>
-  inline T apply(T val1, T val2) {
-    return val1 - val2;
+  inline T operator()(T lhs, T rhs) {
+    return lhs - rhs;
   }
 };
 
 struct Mul {
   template <typename T>
-  T apply(T val1, T val2) {
-    return val1 * val2;
+  T operator()(T lhs, T rhs) {
+    return lhs * rhs;
   }
 };
 
 struct Div {
   template <typename T>
-  T apply(T val1, T val2) {
-    return val1 / val2;
+  T operator()(T lhs, T rhs) {
+    return lhs / rhs;
   }
 };
 
 /**
- * Binary Elementwise Operation Functor.
+ * Binary Elementwise Operation Functors.
  */
 
-template <typename T, typename Op, typename Index, int VectorWidth>
+/**
+ * Generic scalar vector. Any dimension can be broadcasted and at least one
+ * dimension is broadcasted.
+ */
+template <typename T, typename Op, typename Index>
 class BinaryOp {
-  using DataT = typename helpers::VectorType<T, VectorWidth>::type;
-  using Load = helpers::io::Load<DataT>;
-  using Store = helpers::io::Store<DataT>;
-
   ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_data_;
-  const Index n_iterations_, n_offset_;
+  WriteAccessor<T> out_;
+  std::array<Index, MAX_DIMS> lhs_dims_;
+  std::array<Index, MAX_DIMS> rhs_dims_;
+  std::array<Index, MAX_DIMS> out_dims_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
-    Index idx1 = item.get_id(0) * VectorWidth;
-    Index idx2 = idx1;
+  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+           WriteAccessor<T> out, const std::vector<Index>& lhs_dims,
+           const std::vector<Index>& rhs_dims,
+           const std::vector<Index>& out_dims)
+      : lhs_(lhs), rhs_(rhs), out_(out) {
+    size_t i = 0;
+    for (; i < MAX_DIMS - lhs_dims.size(); ++i) {
+      lhs_dims_[i] = 1;
+      rhs_dims_[i] = 1;
+      out_dims_[i] = 1;
+    }
+    for (size_t j = 0; i < MAX_DIMS; ++i, ++j) {
+      lhs_dims_[i] = lhs_dims[j];
+      rhs_dims_[i] = rhs_dims[j];
+      out_dims_[i] = out_dims[j];
+    }
+  }
 
-    const auto in1 = lhs_.get_pointer();
-    const auto in2 = rhs_.get_pointer();
-    auto out = out_data_.get_pointer();
+  cl::sycl::range<1> get_range() {
+    return {size_t(helpers::get_total_size(out_dims_))};
+  }
+
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+    Index out_idx = item.get_id(0);
+    Index lhs_idx = 0;
+    Index rhs_idx = 0;
+    Index cumulative_lhs_stride = 1;
+    Index cumulative_rhs_stride = 1;
+    Index out_idx_remainder = out_idx;
+
+    // Compute lhs and rhs ids. An id is added only if the corresponding
+    // dimension is not broadcasted.
+    // The dimensions are checked outside of the kernel.
+    auto clamp_idx = [&](int i, Index unflatten_idx) {
+      if (unflatten_idx < lhs_dims_[i]) {
+        lhs_idx += unflatten_idx * cumulative_lhs_stride;
+      }
+      if (unflatten_idx < rhs_dims_[i]) {
+        rhs_idx += unflatten_idx * cumulative_rhs_stride;
+      }
+    };
+    for (int i = MAX_DIMS - 1; i >= 1; --i) {
+      clamp_idx(i, out_idx_remainder % out_dims_[i]);
+      cumulative_lhs_stride *= lhs_dims_[i];
+      cumulative_rhs_stride *= rhs_dims_[i];
+      out_idx_remainder /= out_dims_[i];
+    }
+    clamp_idx(0, out_idx_remainder);
+
+    const auto lhs = lhs_.get_pointer().get();
+    const auto rhs = rhs_.get_pointer().get();
+    auto out = out_.get_pointer().get();
 
     Op op;
-    auto rhs_val = Load()(in2, idx2);
-
-    for (Index i = 0; i < n_iterations_; i++) {
-      auto lhs_val = Load()(in1, idx1);
-      auto out_val = op.apply(lhs_val, rhs_val);
-      Store()(out, idx1, out_val);
-      idx1 += n_offset_;
-    }
+    out[out_idx] = op(lhs[lhs_idx], rhs[rhs_idx]);
   }
-
-  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-           WriteAccessor<T> out_data)
-      : lhs_(lhs),
-        rhs_(rhs),
-        out_data_(out_data),
-        n_iterations_(static_cast<Index>(lhs.get_extent() / rhs.get_extent())),
-        n_offset_(static_cast<Index>(rhs.get_extent())) {}
 };
 
-template <typename T, typename Index, int VectorWidth>
-class BinaryOp<T, internal::SoftmaxSub, Index, VectorWidth> {
+/**
+ * 1D kernel with no broadcast.
+ */
+template <typename T, typename Op, typename Index, int VectorWidth>
+class BinaryOpVec {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
-  using ScalarDataT = typename helpers::VectorType<T, 1>::type;
   using Load = helpers::io::Load<DataT>;
-  using ScalarLoad = helpers::io::Load<ScalarDataT>;
   using Store = helpers::io::Store<DataT>;
 
   ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_data_;
-  const Index n_offset_, n_iterations_;
+  WriteAccessor<T> out_;
+  const Index size;
 
  public:
+  BinaryOpVec(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+              WriteAccessor<T> out, const std::vector<Index>&,
+              const std::vector<Index>&, const std::vector<Index>&)
+      : lhs_(lhs), rhs_(rhs), out_(out), size(out.get_extent()) {}
+
+  cl::sycl::range<1> get_range() { return {size_t(size / VectorWidth)}; }
+
   SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
     Index idx = item.get_id(0) * VectorWidth;
 
-    const auto in1 = lhs_.get_pointer();
-    const auto in2 = rhs_.get_pointer();
-    auto out = out_data_.get_pointer();
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer();
+    auto out = out_.get_pointer();
 
-    Sub op;
-
-    for (Index i = 0; i < n_iterations_; i++) {
-      auto lhs_val = Load()(in1, idx);
-      auto rhs_val = ScalarLoad()(in2, i);
-      auto out_val = op.apply(lhs_val, static_cast<DataT>(rhs_val));
-      Store()(out, idx, out_val);
-      idx += n_offset_;
-    }
+    Op op;
+    auto lhs_val = Load()(lhs, idx);
+    auto rhs_val = Load()(rhs, idx);
+    Store()(out, idx, op(lhs_val, rhs_val));
   }
-
-  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-           WriteAccessor<T> out_data)
-      : lhs_(lhs),
-        rhs_(rhs),
-        out_data_(out_data),
-        n_offset_(static_cast<Index>(lhs.get_extent() / rhs.get_extent())),
-        n_iterations_(static_cast<Index>(rhs.get_extent())) {}
 };
 
-template <typename T, typename Index, int VectorWidth>
-class BinaryOp<T, internal::SoftmaxDiv, Index, VectorWidth> {
+/**
+ * 2D kernel where the last lhs dimension is broadcasted.
+ */
+template <typename T, typename Op, typename Index, int VectorWidth>
+class BinaryOpBcastLhsVec2D {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
-  using ScalarDataT = typename helpers::VectorType<T, 1>::type;
   using Load = helpers::io::Load<DataT>;
-  using ScalarLoad = helpers::io::Load<ScalarDataT>;
   using Store = helpers::io::Store<DataT>;
 
   ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_data_;
-  const Index n_offset_, n_iterations_;
+  WriteAccessor<T> out_;
+  const std::array<Index, 2> out_dims_;
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
-    Index idx = item.get_id(0) * VectorWidth;
+  BinaryOpBcastLhsVec2D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+                        WriteAccessor<T> out, const std::vector<Index>&,
+                        const std::vector<Index>&,
+                        const std::vector<Index>& out_dims)
+      : lhs_(lhs), rhs_(rhs), out_(out), out_dims_{out_dims[0], out_dims[1]} {}
 
-    const auto in1 = lhs_.get_pointer();
-    const auto in2 = rhs_.get_pointer();
-    auto out = out_data_.get_pointer();
-
-    Div op;
-
-    for (Index i = 0; i < n_iterations_; i++) {
-      auto lhs_val = Load()(in1, idx);
-      auto rhs_val = ScalarLoad()(in2, i);
-      auto out_val = op.apply(lhs_val, static_cast<DataT>(rhs_val));
-      Store()(out, idx, out_val);
-      idx += n_offset_;
-    }
+  cl::sycl::range<2> get_range() {
+    return {size_t(out_dims_[0]), size_t(out_dims_[1] / VectorWidth)};
   }
 
-  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-           WriteAccessor<T> out_data)
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+    Index batch = item.get_id(0);
+    Index inner = item.get_id(1);
+    Index out_idx = batch * out_dims_[1] + inner * VectorWidth;
+
+    const auto lhs = lhs_.get_pointer().get();
+    const auto rhs = rhs_.get_pointer();
+    auto out = out_.get_pointer();
+
+    Op op;
+    auto lhs_val = DataT(lhs[batch]);
+    auto rhs_val = Load()(rhs, out_idx);
+    Store()(out, out_idx, op(lhs_val, rhs_val));
+  }
+};
+
+/**
+ * 2D kernel where the last rhs dimension is broadcasted.
+ */
+template <typename T, typename Op, typename Index, int VectorWidth>
+class BinaryOpBcastRhsVec2D {
+  using DataT = typename helpers::VectorType<T, VectorWidth>::type;
+  using Load = helpers::io::Load<DataT>;
+  using Store = helpers::io::Store<DataT>;
+
+  ReadAccessor<T const> lhs_, rhs_;
+  WriteAccessor<T> out_;
+  const std::array<Index, 2> out_dims_;
+
+ public:
+  BinaryOpBcastRhsVec2D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+                        WriteAccessor<T> out, const std::vector<Index>&,
+                        const std::vector<Index>&,
+                        const std::vector<Index>& out_dims)
+      : lhs_(lhs), rhs_(rhs), out_(out), out_dims_{out_dims[0], out_dims[1]} {}
+
+  cl::sycl::range<2> get_range() {
+    return {size_t(out_dims_[0]), size_t(out_dims_[1] / VectorWidth)};
+  }
+
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+    Index batch = item.get_id(0);
+    Index inner = item.get_id(1);
+    Index out_idx = batch * out_dims_[1] + inner * VectorWidth;
+
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer().get();
+    auto out = out_.get_pointer();
+
+    Op op;
+    auto lhs_val = Load()(lhs, out_idx);
+    auto rhs_val = DataT(rhs[batch]);
+    Store()(out, out_idx, op(lhs_val, rhs_val));
+  }
+};
+
+/**
+ * 3D kernel where the outer lhs dimension is broadcasted
+ * (in [batch, outer, inner])
+ */
+template <typename T, typename Op, typename Index, int VectorWidth>
+class BinaryOpBcastLhsVec3D {
+  using DataT = typename helpers::VectorType<T, VectorWidth>::type;
+  using Load = helpers::io::Load<DataT>;
+  using Store = helpers::io::Store<DataT>;
+
+  ReadAccessor<T const> lhs_, rhs_;
+  WriteAccessor<T> out_;
+  const std::array<Index, 3> out_dims_;
+
+ public:
+  BinaryOpBcastLhsVec3D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+                        WriteAccessor<T> out, const std::vector<Index>&,
+                        const std::vector<Index>&,
+                        const std::vector<Index>& out_dims)
       : lhs_(lhs),
         rhs_(rhs),
-        out_data_(out_data),
-        n_offset_(static_cast<Index>(lhs.get_extent() / rhs.get_extent())),
-        n_iterations_(static_cast<Index>(rhs.get_extent())) {}
+        out_(out),
+        out_dims_{out_dims[0], out_dims[1], out_dims[2]} {}
+
+  cl::sycl::range<3> get_range() {
+    return {size_t(out_dims_[0]), size_t(out_dims_[1]),
+            size_t(out_dims_[2] / VectorWidth)};
+  }
+
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<3> item) {
+    Index batch = item.get_id(0);
+    Index outer = item.get_id(1);
+    Index inner = item.get_id(2);
+    Index out_idx =
+        (batch * out_dims_[1] + outer) * out_dims_[2] + inner * VectorWidth;
+    Index lhs_idx = batch * out_dims_[2] + inner * VectorWidth;
+
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer();
+    auto out = out_.get_pointer();
+
+    Op op;
+    auto lhs_val = Load()(lhs, lhs_idx);
+    auto rhs_val = Load()(rhs, out_idx);
+    Store()(out, out_idx, op(lhs_val, rhs_val));
+  }
+};
+
+/**
+ * 3D kernel where the outer rhs dimension is broadcasted
+ * (in [batch, outer, inner])
+ */
+template <typename T, typename Op, typename Index, int VectorWidth>
+class BinaryOpBcastRhsVec3D {
+  using DataT = typename helpers::VectorType<T, VectorWidth>::type;
+  using Load = helpers::io::Load<DataT>;
+  using Store = helpers::io::Store<DataT>;
+
+  ReadAccessor<T const> lhs_, rhs_;
+  WriteAccessor<T> out_;
+  const std::array<Index, 3> out_dims_;
+
+ public:
+  BinaryOpBcastRhsVec3D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
+                        WriteAccessor<T> out, const std::vector<Index>&,
+                        const std::vector<Index>&,
+                        const std::vector<Index>& out_dims)
+      : lhs_(lhs),
+        rhs_(rhs),
+        out_(out),
+        out_dims_{out_dims[0], out_dims[1], out_dims[2]} {}
+
+  cl::sycl::range<3> get_range() {
+    return {size_t(out_dims_[0]), size_t(out_dims_[1]),
+            size_t(out_dims_[2] / VectorWidth)};
+  }
+
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<3> item) {
+    Index batch = item.get_id(0);
+    Index outer = item.get_id(1);
+    Index inner = item.get_id(2);
+    Index out_idx =
+        (batch * out_dims_[1] + outer) * out_dims_[2] + inner * VectorWidth;
+    Index rhs_idx = batch * out_dims_[2] + inner * VectorWidth;
+
+    const auto lhs = lhs_.get_pointer();
+    const auto rhs = rhs_.get_pointer();
+    auto out = out_.get_pointer();
+
+    Op op;
+    auto lhs_val = Load()(lhs, out_idx);
+    auto rhs_val = Load()(rhs, rhs_idx);
+    Store()(out, out_idx, op(lhs_val, rhs_val));
+  }
 };
 
 }  // namespace binaryop

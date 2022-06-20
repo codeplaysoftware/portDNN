@@ -34,13 +34,6 @@ struct Mul;
 
 struct Div;
 
-namespace internal {
-
-struct SoftmaxSub;
-
-struct SoftmaxDiv;
-
-}  // namespace internal
 }  // namespace binaryop
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_BINARYOP_OPERATORS_H_

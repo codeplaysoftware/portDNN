@@ -17,14 +17,23 @@
 #ifndef SYCLDNN_SRC_BINARYOP_QUEUE_H_
 #define SYCLDNN_SRC_BINARYOP_QUEUE_H_
 
+#include <CL/sycl.hpp>
+#include <vector>
+
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
+
 namespace sycldnn {
 namespace binaryop {
 namespace internal {
 
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename Kernel, typename T, typename Index>
 SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
-                         BaseMemObject<T const>& rhs, BaseMemObject<T>& output,
-                         int32_t const n_items, cl::sycl::queue& queue);
+                         BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
+                         const std::vector<Index>& lhs_dims,
+                         const std::vector<Index>& rhs_dims,
+                         const std::vector<Index>& out_dims,
+                         cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace binaryop

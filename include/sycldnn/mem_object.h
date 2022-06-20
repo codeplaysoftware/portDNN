@@ -67,6 +67,20 @@ struct BaseMemObject {
   virtual WriteAccessor<T> write_accessor(Handler& cgh) = 0;
 
   /**
+   * Get the extent of this MemObject. This is the number of elements in the
+   * SYCL buffer that are available to a user when a SYCL accessor is
+   * requested.
+   * \return The extent of this MemObject.
+   */
+  virtual size_t get_extent() const = 0;
+
+  /**
+   * Get the offset of this MemObject into its Buffer.
+   * \return The number of elements offset from the start of the Buffer.
+   */
+  virtual size_t get_offset() const = 0;
+
+  /**
    * Get the number of elements in a buffer.
    * \return number of elements.
    */
@@ -89,10 +103,14 @@ struct BaseMemObject<T const> {
 
   /** \copydoc BaseMemObject<T>::read_accessor */
   virtual ReadAccessor<T const> read_accessor(Handler& cgh) = 0;
-  /**
-   * Get the number of elements in a buffer.
-   * \return number of elements.
-   */
+
+  /** \copydoc BaseMemObject<T>::get_extent() */
+  virtual size_t get_extent() const = 0;
+
+  /** \copydoc BaseMemObject<T>::get_offset() */
+  virtual size_t get_offset() const = 0;
+
+  /** \copydoc BaseMemObject<T>::get_count() */
   virtual size_t get_count() const = 0;
 };
 
@@ -145,23 +163,13 @@ struct MemObject final : public BaseMemObject<T> {
    */
   Buffer const& get_buffer() const { return buffer_; }
 
-  /**
-   * Get the extent of this MemObject. This is the number of elements in the
-   * SYCL buffer that are available to a user when a SYCL accessor is
-   * requested. \return The extent of this MemObject.
-   */
-  size_t get_extent() const { return extent_; }
+  /** \copydoc BaseMemObject<T>::get_extent() */
+  size_t get_extent() const override { return extent_; }
 
-  /**
-   * Get the offset of this MemObject into its Buffer.
-   * \return The number of elements offset from the start of the Buffer.
-   */
-  size_t get_offset() const { return offset_; }
+  /** \copydoc BaseMemObject<T>::get_offset() */
+  size_t get_offset() const override { return offset_; }
 
-  /**
-   * Get the number of elements in a buffer.
-   * \return number of elements.
-   */
+  /** \copydoc BaseMemObject<T>::get_count() */
   size_t get_count() const override { return buffer_.get_count(); }
 
   /**
@@ -214,15 +222,12 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
   Buffer const& get_buffer() const { return buffer_; }
 
   /** \copydoc MemObject<T>::get_extent  */
-  size_t get_extent() const { return extent_; }
+  size_t get_extent() const override { return extent_; }
 
   /** \copydoc MemObject<T>::get_offset  */
-  size_t get_offset() const { return offset_; }
+  size_t get_offset() const override { return offset_; }
 
-  /**
-   * Get the number of elements in a buffer.
-   * \return number of elements.
-   */
+  /** \copydoc MemObject<T>::get_count() */
   size_t get_count() const override { return buffer_.get_count(); }
 
  private:

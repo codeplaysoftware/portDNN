@@ -167,7 +167,8 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
       input, gamma_grad, 1, params.batch * params.rows * params.cols,
       params.channels);  // mean_x
 
-  auto n_items = params.batch * params.channels * params.rows * params.cols;
+  auto input_dims = {params.batch, params.rows, params.cols, params.channels};
+  auto n_items = params.batch * params.rows * params.cols * params.channels;
   using ConstPointer = typename Backend::template pointer_type<T const>;
   auto queue = backend.get_queue();
 
@@ -186,7 +187,8 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   status =
       sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Sub>(
-          input_mem, const_input_mean_mem, workspace_mem, params.channels,
+          input_mem, const_input_mean_mem, workspace_mem, input_dims,
+          {params.channels},
           queue);  // x_offset
 
   if (sycldnn::StatusCode::OK != status.status) return status;
@@ -202,7 +204,8 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   status =
       sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Sub>(
-          gradient_mem, const_gradient_mean_mem, output_mem, params.channels,
+          gradient_mem, const_gradient_mean_mem, output_mem, input_dims,
+          {params.channels},
           queue);  // grad_y_offset
 
   if (sycldnn::StatusCode::OK != status.status) return status;
@@ -218,7 +221,8 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
 
   status =
       sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Mul>(
-          gradient_mem, const_workspace_mem, secondary_workspace_mem, n_items,
+          gradient_mem, const_workspace_mem, secondary_workspace_mem,
+          input_dims,
           queue);  // mean pt 1
 
   if (sycldnn::StatusCode::OK != status.status) return status;

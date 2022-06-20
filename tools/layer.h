@@ -18,6 +18,7 @@
 #include "sycldnn/conv2d/selector/default_selector.h"
 #include "sycldnn/conv2d/workspace_size.h"
 
+#include "sycldnn/helpers/dims.h"
 #include "sycldnn/helpers/padding.h"
 #include "sycldnn/helpers/ratio.h"
 
@@ -114,7 +115,9 @@ struct BiasAddLayer : Layer<DType, Backend> {
         output_{output} {}
 
   DeviceMem get_output() override { return output_; }
-  size_t get_output_size() const override { return params_.lhs_items; }
+  size_t get_output_size() const override {
+    return helpers::get_total_size(params_.lhs_dims);
+  }
 
   sycldnn::SNNStatus run() override {
     return sycldnn::binaryop::launch<DType, sycldnn::binaryop::Add>(
