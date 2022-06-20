@@ -298,7 +298,7 @@ struct BatchNormFixture<Pair, sycldnn::batchnorm::Gradient,
 
     for (size_t i = 0; i < (size_t)params.channels; i++) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL_EPS(grad_scale[i], output[i], 20u, 1e-5);
+      SNN_ALMOST_EQUAL_EPS(grad_scale[i], output[i], 30u, 1e-5);
     }
 
     provider.copy_device_data_to_host(size, out_grad_gpu, output);

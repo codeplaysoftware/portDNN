@@ -49,13 +49,17 @@ math(EXPR _list_len "${_list_len_raw} - 1")
 foreach(_index RANGE ${_list_len})
   list(GET _windows ${_index} _window)
   list(GET _strides ${_index} _stride)
+  set(_test_size moderate)
+  if (_window GREATER_EQUAL 11)
+    set(_test_size long)
+  endif()
   foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
     snn_test(
       WITH_SYCL
       TARGET
         depthwise_conv2d_${_type}_window${_window}_stride${_stride}
       SIZE
-        moderate
+        ${_test_size}
       SOURCES
         ${_type}_window${_window}_stride${_stride}.cc
       PUBLIC_LIBRARIES

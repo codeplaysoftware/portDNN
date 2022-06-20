@@ -44,6 +44,7 @@ using IsNHWC = std::is_same<Format, sycldnn::layout::NHWC>;
 template <typename Format>
 using IsNCHW = std::is_same<Format, sycldnn::layout::NCHW>;
 
+using sycldnn::pooling::internal::IsAverage;
 using sycldnn::pooling::internal::IsMaxGradient;
 
 template <typename DType, typename Format, typename Backend,
@@ -104,6 +105,11 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
     auto plat_profile =
         platform.template get_info<cl::sycl::info::platform::profile>();
     size_t tolerance = 0u;
+
+    // Average pooling accuracy can vary with the device used.
+    if (IsAverage<DType, Op>::value) {
+      tolerance = 6u;
+    }
 
     // Taking the average pooling gradient can result in significantly higher
     // error in the results than for other pooling ops. Allow for a greater
