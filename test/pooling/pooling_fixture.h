@@ -108,7 +108,7 @@ struct PoolingFixture : public BackendTestFixture<Backend> {
 
     // Average pooling accuracy can vary with the device used.
     if (IsAverage<DType, Op>::value) {
-      tolerance = 6u;
+      tolerance = 7u;
     }
 
     // Taking the average pooling gradient can result in significantly higher
