@@ -78,8 +78,8 @@ struct BiasFixture : public BackendTestFixture<Backend> {
 inline sycldnn::binaryop::BinaryParams getBiasParams(
     std::array<int, 4> in_shape) {
   sycldnn::binaryop::BinaryParams ret;
-  ret.lhs_dims = {sycldnn::helpers::get_total_size(in_shape) / in_shape[3],
-                  in_shape[3]};
+  int tot_size = sycldnn::helpers::get_total_size(in_shape);
+  ret.lhs_dims = {tot_size / in_shape[3], in_shape[3]};
   ret.rhs_dims = {1, in_shape[3]};
   return ret;
 }

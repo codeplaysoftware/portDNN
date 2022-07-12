@@ -17,7 +17,6 @@ Option                             | Type     | Default   | Description
 `SNN_BUILD_LARGE_BATCH_BENCHMARKS` | `BOOL`   | `OFF`     | `OFF` disables batch sizes    8, 16, 32, 64. Slow.
 `SNN_BUILD_INTERNAL_BENCHMARKS`    | `BOOL`   | `OFF`     | Builds a large tiled convolution benchmark.
 `SNN_BUILD_DOCUMENTATION`          | `BOOL`   | `ON`      | Generates HTML documentation. Requires Doxygen.
-`SNN_TRISYCL`                      | `BOOL`   | `OFF`     | Use TriSYCL as SYCL implementation. ComputeCpp by default.
 `SNN_VISIBILITY_HIDDEN`            | `BOOL`   | `ON`      | Hides library symbols by default, exporting select functions
 `SNN_FORCE_COLOUR_DIAGNOSTICS`     | `BOOL`   | `ON`      | Forces compilers to output error messages in colour
 `SNN_HIGH_MEM_JOB_LIMIT`           | `INT`    | `8`       | Number of concurrent build jobs for high memory targets (Ninja only)

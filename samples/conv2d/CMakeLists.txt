@@ -33,7 +33,7 @@ snn_executable(
 
 # The onchip memory sample relies on the codeplay extension onchip_memory
 # buffer property available in ComputeCpp 1.0.3 and onwards.
-if (ComputeCpp_FOUND AND ${ComputeCpp_VERSION} VERSION_GREATER 1.0.2)
+if (ComputeCpp_FOUND AND (ComputeCpp_VERSION VERSION_GREATER 1.0.2))
   snn_executable(
     WITH_SYCL
     TARGET

@@ -31,8 +31,8 @@ template <typename T, typename Index>
 struct SubgroupReducer<T, Index, Add> {
   static constexpr bool RequireFinalize = false;
 
-  SNN_ALWAYS_INLINE T reduce(cl::sycl::experimental::sub_group sub_group, T x) {
-    return sub_group.reduce(x, cl::sycl::experimental::plus<T>());
+  SNN_ALWAYS_INLINE T reduce(cl::sycl::sub_group sub_group, T x) {
+    return sub_group.reduce(x, cl::sycl::plus<T>());
   }
 
   SNN_ALWAYS_INLINE T finalize(T x, Index) { return x; }
@@ -42,8 +42,8 @@ template <typename T, typename Index>
 struct SubgroupReducer<T, Index, Mean> {
   static constexpr bool RequireFinalize = true;
 
-  SNN_ALWAYS_INLINE T reduce(cl::sycl::experimental::sub_group sub_group, T x) {
-    return sub_group.reduce(x, cl::sycl::experimental::plus<T>());
+  SNN_ALWAYS_INLINE T reduce(cl::sycl::sub_group sub_group, T x) {
+    return sub_group.reduce(x, cl::sycl::plus<T>());
   }
 
   SNN_ALWAYS_INLINE T finalize(T x, Index outer_size) { return x / outer_size; }

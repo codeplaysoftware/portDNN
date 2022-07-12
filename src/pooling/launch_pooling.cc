@@ -58,14 +58,14 @@ struct queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
 };
 
 template <typename T, typename Index, template <typename> class PoolType,
-          typename Direction, int VectorWidth, bool UseFastDiv>
-struct queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
+          int VectorWidth, bool UseFastDiv>
+struct queue_pooling_helper<T, Index, PoolType, Forward, VectorWidth,
                             UseFastDiv, layout::NCHW> {
 #if SNN_ENABLE_NCHW
   SNNStatus operator()(BaseMemObject<T const>& input, BaseMemObject<T>& output,
                        const PoolingParams& pp, size_t threads,
                        cl::sycl::queue& queue) {
-    return queue_pooling<T, Index, PoolType, Direction, VectorWidth, UseFastDiv,
+    return queue_pooling<T, Index, PoolType, Forward, VectorWidth, UseFastDiv,
                          layout::NCHW>(input, output, pp, threads, queue);
   }
 #else
@@ -74,6 +74,16 @@ struct queue_pooling_helper<T, Index, PoolType, Direction, VectorWidth,
     return StatusCode::InvalidAlgorithm;
   }
 #endif
+};
+
+template <typename T, typename Index, template <typename> class PoolType,
+          int VectorWidth, bool UseFastDiv>
+struct queue_pooling_helper<T, Index, PoolType, Backpropagate, VectorWidth,
+                            UseFastDiv, layout::NCHW> {
+  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T>&,
+                       const PoolingParams&, size_t, cl::sycl::queue&) {
+    return StatusCode::InvalidAlgorithm;
+  }
 };
 
 template <typename T, typename Index, template <typename> class PoolType,

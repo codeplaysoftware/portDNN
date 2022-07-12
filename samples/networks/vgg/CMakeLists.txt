@@ -26,8 +26,6 @@ snn_executable(
   WITH_SYCL
   TARGET
    vgg
-  KERNEL_SOURCES
-   vgg.cc
   SOURCES
     vgg.cc
   PUBLIC_LIBRARIES

@@ -46,8 +46,6 @@ option(SNN_INSTALL_BENCHMARKS
   "Whether or not to include benchmarks when installing" OFF)
 option(SNN_INSTALL_SAMPLES
   "Whether or not to include samples when installing" OFF)
-
-option(SNN_TRISYCL "Use TriSYCL (default is ComputeCpp)" OFF)
 option(SNN_FASTBUILD
   "Disable setting the cmake build type if no flag specified" OFF)
 
@@ -134,18 +132,22 @@ if(NOT SNN_FASTBUILD)
   include(DefaultBuildType)
 endif()
 
-if(SNN_TRISYCL)
-  find_package(TriSYCL)
-else()
-  # Require ComputeCpp 2.10 to support sub-groups
-  find_package(ComputeCpp 2.10 REQUIRED)
+find_package(ComputeCpp)
+find_package(DPCPP)
+
+if((ComputeCpp_FOUND AND DPCPP_FOUND) OR
+  (NOT ComputeCpp_FOUND AND NOT DPCPP_FOUND))
+  message(FATAL_ERROR "Please choose one and only one SYCL implementation to use")
+endif()
+
+if(ComputeCpp_FOUND)
   option(SNN_COMPUTECPP_USE_SERIAL_MEMOP
     "Replace memory operations (eg memset) in kernels with serial operations." OFF)
   if(NOT SNN_COMPUTECPP_USE_SERIAL_MEMOP)
     list(APPEND COMPUTECPP_USER_FLAGS -no-serial-memop)
   endif()
-  list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-mad-enable")
-  list(APPEND COMPUTECPP_USER_FLAGS "-Xclang -cl-no-signed-zeros")
+  list(APPEND COMPUTECPP_USER_FLAGS -Xclang -cl-mad-enable)
+  list(APPEND COMPUTECPP_USER_FLAGS -Xclang -cl-no-signed-zeros)
 endif()
 
 set(CMAKE_DEBUG_POSTFIX "-debug")

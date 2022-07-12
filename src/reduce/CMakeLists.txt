@@ -54,11 +54,14 @@ generate_reduce_kernels(
   TEMPLATE_FILE queue_reduction_impl_default.cc.in
   FILENAME      default_reduce_kernel
 )
-generate_reduce_kernels(
-  OUTPUT_VAR    subgroup_reduce_kernel_sources
-  TEMPLATE_FILE queue_reduction_impl_subgroup.cc.in
-  FILENAME      subgroup_reduce_kernel
-)
+set(SNN_ENABLE_SUBGROUPS 0)
+if(DPCPP_FOUND OR (ComputeCpp_VERSION VERSION_GREATER_EQUAL 2.10))
+  generate_reduce_kernels(
+    OUTPUT_VAR    subgroup_reduce_kernel_sources
+    TEMPLATE_FILE queue_reduction_impl_subgroup.cc.in
+    FILENAME      subgroup_reduce_kernel)
+  set(SNN_ENABLE_SUBGROUPS 1)
+endif()
 snn_object_library(
   WITH_SYCL
   TARGET         reduce
@@ -66,3 +69,8 @@ snn_object_library(
   KERNEL_SOURCES ${default_reduce_kernel_sources}
                  ${subgroup_reduce_kernel_sources}
 )
+target_compile_definitions(reduce
+  PRIVATE -DSNN_ENABLE_SUBGROUPS=${SNN_ENABLE_SUBGROUPS})
+set_target_properties(reduce PROPERTIES
+  CXX_STANDARD 17
+  SYCL_STANDARD 2020)

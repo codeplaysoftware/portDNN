@@ -30,10 +30,16 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
                  cl::sycl::program& program, bool supports_subgroup,
                  sycldnn::internal::types::KernelSubgroupSizesMap&
                      max_kernel_sub_group_sizes) {
-  if (supports_subgroup && inner == 1)
+#if SNN_ENABLE_SUBGROUPS
+  if (supports_subgroup && inner == 1) {
     return queue_subgroup_kernel<T, int, Op>(input, output, batches, outer,
                                              inner, queue, program,
                                              max_kernel_sub_group_sizes);
+  }
+#endif
+  SNN_UNUSED_VAR(program);
+  SNN_UNUSED_VAR(supports_subgroup);
+  SNN_UNUSED_VAR(max_kernel_sub_group_sizes);
   return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
                                           outer, queue);
 }
