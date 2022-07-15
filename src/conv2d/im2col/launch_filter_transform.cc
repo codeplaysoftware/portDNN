@@ -51,7 +51,7 @@ SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
                                   cl::sycl::queue& queue) {
   size_t thread_size = params.window_rows * params.window_cols *
                        params.channels * params.features;
-  if (thread_size > std::numeric_limits<int32_t>::max()) {
+  if (thread_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, int64_t>(input, output, params, thread_size,
                                          queue);

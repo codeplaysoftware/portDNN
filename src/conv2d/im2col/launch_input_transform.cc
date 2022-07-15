@@ -89,7 +89,7 @@ SNNStatus launch_with_vector(BaseMemObject<T const>& input,
                              Conv2DParams const& params, int n_tiles,
                              int tile_size, cl::sycl::queue& queue) {
   size_t thread_size = get_thread_size<ConvType>(params, VectorWidth);
-  if (thread_size > std::numeric_limits<int32_t>::max()) {
+  if (thread_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, int64_t, VectorWidth, ConvType>(
         input, output, params, n_tiles, tile_size, queue);

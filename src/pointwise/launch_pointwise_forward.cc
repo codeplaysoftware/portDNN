@@ -55,9 +55,7 @@ template <typename T, template <typename> class PointwiseType,
 SNNStatus launch_pointwise(BaseMemObject<T const>& input,
                            BaseMemObject<T>& output, size_t const n_items,
                            cl::sycl::queue& queue) {
-  if (n_items > std::numeric_limits<int64_t>::max()) {
-    return StatusCode::IndexExceeded;
-  } else if (n_items > std::numeric_limits<int32_t>::max()) {
+  if (n_items > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_vector_pointwise<T, int64_t, PointwiseType, Direction>(
         input, output, n_items, queue);

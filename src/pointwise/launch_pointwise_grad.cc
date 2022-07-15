@@ -57,9 +57,7 @@ SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
                            BaseMemObject<T const>& input_backprop,
                            BaseMemObject<T>& output_backprop,
                            size_t const n_items, cl::sycl::queue& queue) {
-  if (n_items > std::numeric_limits<int64_t>::max()) {
-    return StatusCode::IndexExceeded;
-  } else if (n_items > std::numeric_limits<int32_t>::max()) {
+  if (n_items > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_vector_pointwise<T, int64_t, PointwiseType, Direction>(
         input_forward, input_backprop, output_backprop, n_items, queue);

@@ -166,7 +166,7 @@ SNNStatus launch_with_static_sizes(BaseMemObject<T const>& input,
                                    cl::sycl::queue& queue) {
   auto conv_sizes = get_sizes<ConvType>(params);
   size_t output_size = conv_sizes.output_size;
-  if (output_size > std::numeric_limits<int32_t>::max()) {
+  if (output_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, int64_t, ConvType, Window, Stride>(
         input, filter, output, params, static_cast<int64_t>(output_size),

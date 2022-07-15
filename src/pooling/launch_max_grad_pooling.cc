@@ -105,7 +105,7 @@ SNNStatus launch_pooling(BaseMemObject<T const>& inp_data,
                          const PoolingParams& pp, cl::sycl::queue& queue) {
   auto sizes = get_sizes<Direction>(pp);
   size_t threads = sizes.output_size;
-  if (threads > std::numeric_limits<int32_t>::max()) {
+  if (threads > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, int64_t, PoolType, Direction>(
         inp_data, outp_data, inp_backprop, outp_backprop, pp, threads, queue);

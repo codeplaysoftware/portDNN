@@ -131,7 +131,7 @@ SNNStatus launch_with_sizes(BaseMemObject<T const>& input,
       params, TileRows, TileCols, ChannelVectorWidth, FeatureVectorWidth);
   size_t const output_size = params.batch * tile_info.n_rows *
                              tile_info.n_cols * tile_info.output_vectors;
-  if (output_size > std::numeric_limits<int32_t>::max()) {
+  if (output_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index_type<T, int64_t, ConvType, TileRows, TileCols,
                                   ChannelVectorWidth, FeatureVectorWidth,

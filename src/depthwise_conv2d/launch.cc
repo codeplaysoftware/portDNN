@@ -98,7 +98,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
                  cl::sycl::queue& queue) {
   size_t output_size = get_output_size<ConvType>(params);
   auto kernel_params = get_kernel_params<ConvType>(params);
-  if (output_size > std::numeric_limits<int32_t>::max()) {
+  if (output_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_vectorised<ConvType, T, int64_t>(
         input, filter, output, kernel_params, static_cast<int64_t>(output_size),

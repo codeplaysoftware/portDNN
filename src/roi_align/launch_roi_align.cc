@@ -52,7 +52,7 @@ SNNStatus launch_roi_align(BaseMemObject<T const>& input,
                            BaseMemObject<T>& output, const RoiAlignParams& rap,
                            cl::sycl::queue& queue) {
   const size_t threads = output.get_count();
-  if (threads > std::numeric_limits<int32_t>::max()) {
+  if (threads > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, BatchIndicesT, int64_t, PoolType>(
         input, rois, batch_indices, output, rap, threads, queue);
