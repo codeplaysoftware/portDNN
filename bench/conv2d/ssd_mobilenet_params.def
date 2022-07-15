@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for SSD + MobileNet convolution sizes.
+ * X-Macro definition file for SSD + MobileNet convolution sizes.
  *
  * Contains a number of calls to the SSD_MOBILENET_PARAMS function macro
  * defining the following convolution parameters.

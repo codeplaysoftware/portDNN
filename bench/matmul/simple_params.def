@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for simple matmul sizes.
+ * X-Macro definition file for simple matmul sizes.
  */
 #ifndef SIMPLE_PARAMS
 #error This file expects the SIMPLE_PARAMS macro to be defined.

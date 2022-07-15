@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for dummy bias layer sizes.
+ * X-Macro definition file for dummy bias layer sizes.
  *
  * Contains a number of calls to the NET_PARAMS function macro defining
  * the following bias parameters, as used in the dummy network.

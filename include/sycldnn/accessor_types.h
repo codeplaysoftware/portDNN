@@ -55,7 +55,7 @@ struct BaseAccessor {
 
  public:
   /**
-   * Contruct a BaseAccessor from a SYCL buffer and command group handler.
+   * Construct a BaseAccessor from a SYCL buffer and command group handler.
    * \param buf The SYCL buffer to construct an accessor from.
    * \param cgh The SYCL command group handler to bind the accessor to.
    * \param extent The number of elements in the buffer to provide access to.

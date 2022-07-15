@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for VGG16 matmul sizes.
+ * X-Macro definition file for VGG16 matmul sizes.
  *
  * Contains a number of calls to the VGG_PARAMS function macro defining
  * the following convolution parameters, as used in the VGG16 network.

@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for VGG pooling sizes.
+ * X-Macro definition file for VGG pooling sizes.
  *
  * Contains a number of calls to the VGG_PARAMS function-like macro defining
  * the following pooling parameters, as used in the VGG network.

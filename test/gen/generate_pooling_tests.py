@@ -96,7 +96,7 @@ def get_grad_results(max_val, pool_op, input_shape, window_shape, stride_shape,
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the pooling, then create another tensor with
-    the same values to use as the errors to back-propagate.
+    the same values to use as the errors to backpropagate.
     Returns the computed values in a numpy array.
     """
     input = helpers.get_variable(input_shape, max_val)

@@ -75,7 +75,7 @@ namespace fast_div {
  * and the fact that if 'p_0' satisfies this, then so does 'p_0 + 1'.
  *
  * We know 'p' is at least W, so starting with this we can try each value of
- * 'p' until we find the smallest value satsifying (2). This will give the
+ * 'p' until we find the smallest value satisfying (2). This will give the
  * shift value 's = p - W', and (1) will give the value for m.
  *
  * In this implementation we assume that the divisor is positive, which allows

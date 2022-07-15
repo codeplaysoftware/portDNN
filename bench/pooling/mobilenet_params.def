@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for MobileNet pooling layer sizes.
+ * X-Macro definition file for MobileNet pooling layer sizes.
  *
  * Contains a number of calls to the MOBILENET_PARAMS function macro defining
  * the following pooling parameters, as used in the MobileNet network.

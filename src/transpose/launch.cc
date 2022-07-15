@@ -76,7 +76,7 @@ void merge_consecutive_indices(int index, std::vector<int>& dimensions,
   }
 }
 
-// Two consectutive indices can be merged into one, as they will not be split up
+// Two consecutive indices can be merged into one, as they will not be split up
 // in the transpose.
 //
 // e.g. The two following transposes are equivalent:

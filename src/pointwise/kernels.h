@@ -158,7 +158,7 @@ class PointwiseOp;
 
 /**
  * Note that PointwiseOp writes to a new buffer for the forward pass,
- * since we wish to keep the results for the back-propogation stage
+ * since we wish to keep the results for the backpropagation stage
  * if we are training.
  */
 

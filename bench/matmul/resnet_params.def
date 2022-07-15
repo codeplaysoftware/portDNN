@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for ResNet matmul sizes.
+ * X-Macro definition file for ResNet matmul sizes.
  *
  * Contains a number of calls to the RESNET_PARAMS function macro defining
  * the following convolution parameters, as used in the Resnet network.

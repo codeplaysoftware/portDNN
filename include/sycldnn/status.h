@@ -82,8 +82,8 @@ struct SNNStatus {
   cl::sycl::event event;
 
   /**
-   * A status code indicating whether the operator was launched sucessfully, or
-   * the reason for an unsucessful launch.
+   * A status code indicating whether the operator was launched successfully, or
+   * the reason for an unsuccessful launch.
    */
   StatusCode status;
 };

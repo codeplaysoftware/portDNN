@@ -18,8 +18,8 @@ namespace sycldnn {
 /**
  * The backend has three main parts:
  *
- *   - An external pointer interface which is reponsible for providing access to
- *     SYCL buffers from external pointers.
+ *   - An external pointer interface which is responsible for providing access
+ *     to SYCL buffers from external pointers.
  *
  *   - An internal interface which provides matrix multiply methods and ways to
  *     create and access SYCL buffers used in the matrix multiplies.
@@ -144,7 +144,7 @@ struct ExternalToInternalConverter {
   template <typename T>
   internal_pointer_type<T> to_internal_pointer(pointer_type<T> ptr);
   /**
-   * Release an internal pointer which was contructed by to_internal_pointer.
+   * Release an internal pointer which was constructed by to_internal_pointer.
    * \param ptr An internal pointer to release.
    */
   template <typename T>

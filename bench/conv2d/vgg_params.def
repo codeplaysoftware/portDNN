@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for VGG convolution sizes.
+ * X-Macro definition file for VGG convolution sizes.
  *
  * Contains a number of calls to the VGG_PARAMS function-like macro defining
  * the following convolution parameters, as used in the VGG network.

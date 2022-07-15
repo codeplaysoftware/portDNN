@@ -16,7 +16,7 @@
 
 /**
  * \file
- * X-Macro definiton file for Xception depthwise convolution sizes.
+ * X-Macro definition file for Xception depthwise convolution sizes.
  *
  * Contains a number of calls to the XCEPTION_PARAMS function macro defining
  * the following depthwise convolution parameters, as used in the Xception

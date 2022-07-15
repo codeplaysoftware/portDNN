@@ -23,7 +23,7 @@
  * \file
  * Declare \ref sycldnn::DataFormat and \ref sycldnn::FilterFormat as types that
  * can be used to specialise SYCL kernels. DataFormat and FilterFormat are tied
- * to the same type to avoid combinatorialexplosion.
+ * to the same type to avoid combinatorial explosion.
  */
 namespace sycldnn {
 namespace layout {

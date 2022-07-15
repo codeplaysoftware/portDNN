@@ -157,7 +157,7 @@ def get_grad_results(max_val, pointwise_op, in_size):
     Will create an input tensor of the required size filled with values -n, -n+1,
     ..., 0, 1, ..., n-1, n and use these to compute the pointwise op.
     Then, create another tensor with the same values to use as the errors
-    for back-propagation.
+    for backpropagation.
     Returns the computed values in a numpy array.
     """
     input, _, _ = get_input_tensor(

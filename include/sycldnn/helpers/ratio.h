@@ -18,7 +18,7 @@
 
 /**
  * \file
- * Contains helper functions to control rounding behvaiour in integer division.
+ * Contains helper functions to control rounding behaviour in integer division.
  */
 #include "sycldnn/helpers/macros.h"
 #include "sycldnn/helpers/non_deduced_type.h"
@@ -85,7 +85,7 @@ inline SNN_ALWAYS_INLINE Index round_ratio_up(Index const num,
  * NOTE: This is not implemented for negative integers, and will provide
  * incorrect results if used with them.
  * \param val The value to round up to the nearest positive multiple of
- *            multipler.
+ *            multiplier.
  * \param multiplier The value to round val to a multiple of.
  * \return Returns val rounded up to the nearest positive multiple of
  *         multiplier.

@@ -112,7 +112,7 @@ class CLBlastBackend final : public CommonBackend,
    * Conversion function from external to internal pointer representation.
    * Is a no-op for CLBlastBackend.
    * \param ptr Pointer to convert from
-   * \return The passed-in paramter
+   * \return The passed-in parameter
    */
   template <typename T>
   internal_pointer_type<T> to_internal_pointer(pointer_type<T> ptr) {

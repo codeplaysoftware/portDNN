@@ -84,7 +84,7 @@ def get_grad_results(max_val, input_shape):
 
     Will create an input tensor of the required size filled with values 1, 2,
     3... and use these to compute the softmax op. Then, create another tensor
-    with the same values to use as the errors for back-propagation.
+    with the same values to use as the errors for backpropagation.
     Returns the computed values in a numpy array.
     """
     input = helpers.get_variable(input_shape, max_val)

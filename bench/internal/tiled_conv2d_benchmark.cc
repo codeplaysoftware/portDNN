@@ -100,7 +100,7 @@ class TiledConvolutionBenchmark
     if (params.window_rows != WindowRows || params.window_cols != WindowCols ||
         params.stride_rows != Stride || params.stride_cols != Stride) {
       state.SkipWithError(
-          "Runtime paramters don't match the compile time kernel sizes.");
+          "Runtime parameters don't match the compile time kernel sizes.");
       return;
     }
     this->execute(state, params);

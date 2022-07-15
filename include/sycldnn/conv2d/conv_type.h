@@ -35,13 +35,13 @@ namespace conv_type {
 struct Forward {};
 
 /**
- * Tag type representing computation of back-propagation gradients with respect
+ * Tag type representing computation of backpropagation gradients with respect
  * to the input tensor.
  */
 struct InputBackprop {};
 
 /**
- * Tag type representing computation of back-propagation gradients with respect
+ * Tag type representing computation of backpropagation gradients with respect
  * to the filter tensor.
  */
 struct FilterBackprop {};
