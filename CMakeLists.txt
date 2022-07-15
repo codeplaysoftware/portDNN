@@ -132,12 +132,18 @@ if(NOT SNN_FASTBUILD)
   include(DefaultBuildType)
 endif()
 
-find_package(ComputeCpp)
-find_package(DPCPP)
+find_package(ComputeCpp QUIET)
+find_package(DPCPP QUIET)
 
-if((ComputeCpp_FOUND AND DPCPP_FOUND) OR
-  (NOT ComputeCpp_FOUND AND NOT DPCPP_FOUND))
+if(ComputeCpp_FOUND AND DPCPP_FOUND)
   message(FATAL_ERROR "Please choose one and only one SYCL implementation to use")
+endif()
+
+if(NOT ComputeCpp_FOUND AND NOT DPCPP_FOUND)
+  # Display warnings
+  find_package(ComputeCpp)
+  find_package(DPCPP)
+  message(FATAL_ERROR "No SYCL implementation found")
 endif()
 
 if(ComputeCpp_FOUND)
