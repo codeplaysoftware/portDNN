@@ -16,30 +16,19 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-set(_cxx_opts)
-set(_batchnorm_providers)
-
-if(SNN_TEST_SYCLBLAS)
-  include(Handlesycl_blas)
-  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND _batchnorm_providers SYCL_BLAS::sycl_blas)
-endif()
-
-snn_test(
-  WITH_SYCL
-  TARGET
-    batchnorm_test
-  SOURCES
-    batchnorm_forward_Training.cc
-    batchnorm_forward_Frozen.cc
-    batchnorm_gradient_Training.cc
-    batchnorm_gradient_Frozen.cc
-  OBJECTS
-    $<TARGET_OBJECTS:batchnorm>
-    $<TARGET_OBJECTS:binaryop>
-  PUBLIC_LIBRARIES
-    sycl_dnn
-    ${_batchnorm_providers}
-  CXX_OPTS
-    ${_cxx_opts}
-)
+foreach(_dir IN ITEMS forward gradient)
+  foreach(_op IN ITEMS training frozen)
+    set(_target batchnorm_${_dir}_${_op})
+    snn_test(
+      WITH_SYCL
+      TARGET
+        ${_target}
+      SIZE
+        moderate
+      SOURCES
+        ${_target}.cc
+      PUBLIC_LIBRARIES
+        sycl_dnn
+    )
+  endforeach()
+endforeach()

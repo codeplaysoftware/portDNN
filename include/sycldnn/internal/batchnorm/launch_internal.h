@@ -24,41 +24,132 @@
 #include "sycldnn/export.h"
 
 #include "sycldnn/batchnorm/direction.h"
-#include "sycldnn/batchnorm/operation.h"
-#include "sycldnn/internal/batchnorm/launch_batchnorm.h"
 
 #include "sycldnn/binaryop/operators.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
+#include "sycldnn/internal/pointwise/launch_internal.h"
+#include "sycldnn/pointwise/operators.h"
+
+#include "sycldnn/internal/reduce/launch.h"
 #include "sycldnn/reduce/operators.h"
 
 namespace sycldnn {
 namespace batchnorm {
 namespace internal {
 
-template <typename Direction, typename Operation>
-using EnableIf_Forward_Training = typename std::enable_if<
-    std::is_same<Direction, sycldnn::batchnorm::Forward>::value &&
-        std::is_same<Operation, sycldnn::batchnorm::Training>::value,
-    int>::type;
+template <typename Direction>
+static constexpr bool IsGradient = std::is_same<Direction, Gradient>::value;
 
-template <typename Direction, typename Operation>
-using DisableIf_Forward_Training = typename std::enable_if<
-    std::is_same<Direction, sycldnn::batchnorm::Forward>::value &&
-        !std::is_same<Operation, sycldnn::batchnorm::Training>::value,
-    int>::type;
+template <typename Direction>
+using EnableIfGradient = typename std::enable_if<IsGradient<Direction>>::type;
 
-template <typename Direction, typename Operation>
-using EnableIf_Gradient_Training = typename std::enable_if<
-    !std::is_same<Direction, sycldnn::batchnorm::Forward>::value &&
-        std::is_same<Operation, sycldnn::batchnorm::Training>::value,
-    int>::type;
+template <typename Direction>
+using DisableIfGradient = typename std::enable_if<!IsGradient<Direction>>::type;
 
-template <typename Direction, typename Operation>
-using DisableIf_Gradient_Training = typename std::enable_if<
-    !std::is_same<Direction, sycldnn::batchnorm::Forward>::value &&
-        !std::is_same<Operation, sycldnn::batchnorm::Training>::value,
-    int>::type;
+inline int get_total_size(BatchNormParams const& params) {
+  return params.batch * params.rows * params.cols * params.channels;
+}
+
+inline int get_non_channel_size(BatchNormParams const& params) {
+  return params.batch * params.rows * params.cols;
+}
+
+/**
+ * The internal launcher for computing variance.
+ */
+template <typename T, typename Backend>
+SNNStatus launch_variance(BaseMemObject<T const>& centered_input,
+                          BaseMemObject<T>& variance,
+                          BaseMemObject<T>& squared_centered_input,
+                          BatchNormParams const& params, Backend& backend) {
+  auto queue = backend.get_queue();
+  SNNStatus status;
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      centered_input, centered_input, squared_centered_input,
+      get_total_size(params), queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  auto const_squared_centered_input = squared_centered_input.as_const();
+  status = reduce::internal::launch<reduce::Mean>(
+      const_squared_centered_input, variance, 1, get_non_channel_size(params),
+      params.channels, backend);
+  return status;
+}
+
+/**
+ * The internal launcher for computing batchnorm.
+ */
+template <typename T>
+inline SNNStatus launch_batchnorm(
+    BaseMemObject<T const>& centered_input, BaseMemObject<T const>& beta,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& current_variance,
+    BaseMemObject<T>& output, BaseMemObject<T>& workspace,
+    BatchNormParams const& params, cl::sycl::queue& queue) {
+  cl::sycl::buffer<T const, 1> epsilon_buf(&params.epsilon,
+                                           cl::sycl::range<1>(1));
+  auto epsilon = make_mem_object<T const>(epsilon_buf, 1);
+
+  SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Add>(
+      current_variance, epsilon, workspace, {params.channels}, {1}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  auto const_workspace = workspace.as_const();
+  status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
+      const_workspace, workspace, params.channels, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  auto dims = {params.batch, params.rows, params.cols, params.channels};
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      centered_input, const_workspace, output, dims, {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  auto const_output = output.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      const_output, gamma, output, dims, {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  return binaryop::internal::launch_binaryop<binaryop::Add>(
+      const_output, beta, output, dims, {params.channels}, queue);
+}
+
+/**
+ * Compute running mean and running variance:
+ * output = input * momentum + output * (1 - momentum)
+ */
+template <typename T>
+inline SNNStatus launch_running_mean_variance(
+    BaseMemObject<T const>& input, BaseMemObject<T const>& momentum,
+    BaseMemObject<T const>& one_minus_momentum, BaseMemObject<T>& output,
+    BaseMemObject<T>& workspace, int size, cl::sycl::queue& queue) {
+  auto const_output = output.as_const();
+  SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      const_output, one_minus_momentum, output, {size}, {1}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      input, momentum, workspace, {size}, {1}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  auto const_workspace = workspace.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Add>(
+      const_output, const_workspace, output, size, queue);
+  return status;
+}
 
 /**
  * The internal batchnorm launcher for Forward Direction when computing Mean and
@@ -67,61 +158,80 @@ using DisableIf_Gradient_Training = typename std::enable_if<
  * Calculates Mean, then Variance and then Batchnorm.
  */
 
-template <typename T, typename Backend, typename Direction, typename Operation,
-          typename = EnableIf_Forward_Training<Direction, Operation>>
+template <typename T, typename Backend>
 SNNStatus launch_forward(
-    typename Backend::template pointer_type<T const> input,
-    typename Backend::template pointer_type<T const> beta,
-    typename Backend::template pointer_type<T const> gamma,
-    typename Backend::template pointer_type<T const> input_mean,
-    typename Backend::template pointer_type<T const> input_variance,
-    typename Backend::template pointer_type<T> running_mean,
-    typename Backend::template pointer_type<T> running_variance,
-    typename Backend::template pointer_type<T> output,
+    BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& input_mean,
+    BaseMemObject<T const>& input_variance, BaseMemObject<T>& running_mean,
+    BaseMemObject<T>& running_variance, BaseMemObject<T>& output,
     BatchNormParams const& params, Backend& backend) {
-  SNNStatus status;
-  status.event = backend.template reduce<reduce::Mean>(
-      input, running_mean, 1, params.batch * params.rows * params.cols,
-      params.channels);
-
-  auto n_items = params.batch * params.channels * params.rows * params.cols;
-
+  auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
 
-  using ConstPointer = typename Backend::template pointer_type<T const>;
-  auto const_mean = ConstPointer{running_mean};
-  auto const_mean_mem = backend.get_mem_object(const_mean, params.channels);
+  cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
+  auto centered_input = make_mem_object(centered_input_buf, n_items);
+  SNNStatus status;
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
+      input, input_mean, centered_input,
+      {params.batch, params.rows, params.cols, params.channels},
+      {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto in_mem = backend.get_mem_object(input, n_items);
-  auto variance_mem = backend.get_mem_object(running_variance, params.channels);
-  auto beta_mem = backend.get_mem_object(beta, params.channels);
-  auto gamma_mem = backend.get_mem_object(gamma, params.channels);
-  auto out_mem = backend.get_mem_object(output, n_items);
+  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
+  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto const_centered_input = centered_input.as_const();
+  status = launch_batchnorm(const_centered_input, beta, gamma, input_variance,
+                            output, workspace, params, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status = launch_variance(in_mem, const_mean_mem, variance_mem, params, queue);
+  status = reduce::internal::launch<reduce::Mean>(input, running_mean, 1,
+                                                  get_non_channel_size(params),
+                                                  params.channels, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  auto const_running_mean = running_mean.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
+      input, const_running_mean, centered_input,
+      {params.batch, params.rows, params.cols, params.channels},
+      {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto const_variance = ConstPointer{running_variance};
-  auto const_variance_mem =
-      backend.get_mem_object(const_variance, params.channels);
+  cl::sycl::buffer<T const, 1> momentum_buf(&params.momentum,
+                                            cl::sycl::range<1>(1));
+  auto momentum = make_mem_object<T const>(momentum_buf, 1);
+  const T one_minus_momentum_val = 1 - params.momentum;
+  cl::sycl::buffer<T const, 1> one_minus_momentum_buf(&one_minus_momentum_val,
+                                                      cl::sycl::range<1>(1));
+  auto one_minus_momentum = make_mem_object<T const>(one_minus_momentum_buf, 1);
 
-  status = launch_batchnorm(in_mem, beta_mem, gamma_mem, const_mean_mem,
-                            const_variance_mem, out_mem, params, queue);
+  status = launch_running_mean_variance(input_mean, momentum,
+                                        one_minus_momentum, running_mean,
+                                        workspace, params.channels, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  cl::sycl::buffer<T, 1> squared_centered_input_buf(
+      (cl::sycl::range<1>(n_items)));
+  auto squared_centered_input =
+      make_mem_object(squared_centered_input_buf, n_items);
+  status = launch_variance(const_centered_input, running_variance,
+                           squared_centered_input, params, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto input_mean_mem = backend.get_mem_object(input_mean, params.channels);
-  auto running_mean_mem = backend.get_mem_object(running_mean, params.channels);
-  auto input_variance_mem =
-      backend.get_mem_object(input_variance, params.channels);
-  auto running_variance_mem =
-      backend.get_mem_object(running_variance, params.channels);
-
-  status = launch_running_mean_variance(
-      input_mean_mem, input_variance_mem, running_mean_mem,
-      running_variance_mem, params.channels, params.momentum, queue);
-
+  status = launch_running_mean_variance(input_variance, momentum,
+                                        one_minus_momentum, running_variance,
+                                        workspace, params.channels, queue);
   return status;
 }
 
@@ -133,15 +243,33 @@ SNNStatus launch_forward(
  * provided by the user.
  */
 
-template <typename T, typename Direction, typename Operation,
-          typename = DisableIf_Forward_Training<Direction, Operation>>
-SNNStatus launch_forward(
-    BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& running_mean,
-    BaseMemObject<T const>& running_variance, BaseMemObject<T>& output,
-    BatchNormParams const& params, cl::sycl::queue& queue) {
-  return launch_batchnorm(input, beta, gamma, running_mean, running_variance,
-                          output, params, queue);
+template <typename T, typename Backend>
+SNNStatus launch_forward(BaseMemObject<T const>& input,
+                         BaseMemObject<T const>& beta,
+                         BaseMemObject<T const>& gamma,
+                         BaseMemObject<T const>& running_mean,
+                         BaseMemObject<T const>& running_variance,
+                         BaseMemObject<T>& output,
+                         BatchNormParams const& params, Backend& backend) {
+  auto n_items = get_total_size(params);
+  auto input_dims = {params.batch, params.rows, params.cols, params.channels};
+  auto queue = backend.get_queue();
+
+  cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
+  auto centered_input = make_mem_object(centered_input_buf, n_items);
+  SNNStatus status;
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
+      input, running_mean, centered_input, input_dims, {params.channels},
+      queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
+  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto const_centered_input = centered_input.as_const();
+  return launch_batchnorm(const_centered_input, beta, gamma, running_variance,
+                          output, workspace, params, queue);
 }
 
 /**
@@ -152,117 +280,155 @@ SNNStatus launch_forward(
  * https://github.com/tensorflow/tensorflow/blob/d916f20e1f1897696a19158ac7f5bd8d83e1b857/tensorflow/python/ops/nn_grad.py#L924
  */
 
-template <typename T, typename Backend, typename Direction, typename Operation,
-          typename = EnableIf_Gradient_Training<Direction, Operation>>
-SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
-                      typename Backend::template pointer_type<T const> gradient,
-                      typename Backend::template pointer_type<T const> gamma,
-                      typename Backend::template pointer_type<T> workspace,
-                      typename Backend::template pointer_type<T> beta_grad,
-                      typename Backend::template pointer_type<T> gamma_grad,
-                      typename Backend::template pointer_type<T> output,
-                      BatchNormParams const& params, Backend& backend) {
-  SNNStatus status;
-  status.event = backend.template reduce<reduce::Mean>(
-      input, gamma_grad, 1, params.batch * params.rows * params.cols,
-      params.channels);  // mean_x
-
+template <typename T, typename Backend>
+SNNStatus launch_gradient(BaseMemObject<T const>& input,
+                          BaseMemObject<T const>& gradient,
+                          BaseMemObject<T const>& gamma,
+                          BaseMemObject<T>& beta_grad,
+                          BaseMemObject<T>& gamma_grad,
+                          BaseMemObject<T>& output,
+                          BatchNormParams const& params, Backend& backend) {
   auto input_dims = {params.batch, params.rows, params.cols, params.channels};
-  auto n_items = params.batch * params.rows * params.cols * params.channels;
-  using ConstPointer = typename Backend::template pointer_type<T const>;
+  auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
 
-  auto const_input_mean = ConstPointer{gamma_grad};
-  auto const_input_mean_mem =
-      backend.get_mem_object(const_input_mean, params.channels);
-  auto input_mem = backend.get_mem_object(input, n_items);
-  auto input_variance_mem = backend.get_mem_object(beta_grad, params.channels);
+  cl::sycl::buffer<T, 1> mean_input_buf((cl::sycl::range<1>(params.channels)));
+  auto mean_input = make_mem_object(mean_input_buf, params.channels);
+  cl::sycl::buffer<T, 1> input_variance_buf(
+      (cl::sycl::range<1>(params.channels)));
+  auto input_variance = make_mem_object(input_variance_buf, params.channels);
 
-  status = launch_variance(input_mem, const_input_mean_mem, input_variance_mem,
-                           params, queue);  // var_x
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  SNNStatus status;
+  status = reduce::internal::launch<reduce::Mean>(input, mean_input, 1,
+                                                  get_non_channel_size(params),
+                                                  params.channels, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto gradient_mem = backend.get_mem_object(gradient, n_items);
-  auto workspace_mem = backend.get_mem_object(workspace, n_items);
+  cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
+  auto centered_input = make_mem_object(centered_input_buf, n_items);
+  auto const_mean_input = mean_input.as_const();
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
+      input, const_mean_input, centered_input, input_dims, {params.channels},
+      queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status =
-      sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Sub>(
-          input_mem, const_input_mean_mem, workspace_mem, input_dims,
-          {params.channels},
-          queue);  // x_offset
+  cl::sycl::buffer<T, 1> scaled_input_buf((cl::sycl::range<1>(n_items)));
+  auto scaled_input = make_mem_object(scaled_input_buf, n_items);
+  auto const_centered_input = centered_input.as_const();
+  status = launch_variance(const_centered_input, input_variance, scaled_input,
+                           params, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  cl::sycl::buffer<T, 1> epsilon_buf(&params.epsilon, cl::sycl::range<1>(1));
+  auto epsilon = make_mem_object(epsilon_buf, 1).as_const();
+  auto const_input_variance = input_variance.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Add>(
+      const_input_variance, epsilon, input_variance, {params.channels}, {1},
+      queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status.event = backend.template reduce<reduce::Mean>(
-      gradient, gamma_grad, 1, params.batch * params.rows * params.cols,
-      params.channels);  // mean_grad_y
+  status = reduce::internal::launch<reduce::Add>(gradient, beta_grad, 1,
+                                                 get_non_channel_size(params),
+                                                 params.channels, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto const_gradient_mean = ConstPointer{gamma_grad};
-  auto const_gradient_mean_mem =
-      backend.get_mem_object(const_gradient_mean, params.channels);
-  auto output_mem = backend.get_mem_object(output, n_items);
+  cl::sycl::buffer<T, 1> mean_gradient_buf(
+      (cl::sycl::range<1>(params.channels)));
+  auto mean_gradient = make_mem_object(mean_gradient_buf, params.channels);
+  T num_elts_val = get_non_channel_size(params);
+  cl::sycl::buffer<T, 1> num_elts_buf(&num_elts_val, cl::sycl::range<1>(1));
+  auto num_elts = make_mem_object(num_elts_buf, 1).as_const();
+  auto const_beta_grad = beta_grad.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      const_beta_grad, num_elts, mean_gradient, {params.channels}, {1}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status =
-      sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Sub>(
-          gradient_mem, const_gradient_mean_mem, output_mem, input_dims,
-          {params.channels},
-          queue);  // grad_y_offset
+  auto const_mean_gradient = mean_gradient.as_const();
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
+      gradient, const_mean_gradient, output, input_dims, {params.channels},
+      queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
+      gradient, const_centered_input, scaled_input, input_dims, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto const_workspace = ConstPointer{workspace};
-  auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items);
+  auto const_scaled_input = scaled_input.as_const();
+  status = reduce::internal::launch<reduce::Add>(
+      const_scaled_input, gamma_grad, 1, get_non_channel_size(params),
+      params.channels, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  using Pointer = typename Backend::template pointer_type<T>;
+  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
+  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto const_gamma_grad = gamma_grad.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      const_gamma_grad, num_elts, workspace, {params.channels}, {1}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto secondary_workspace = Pointer{workspace + static_cast<size_t>(n_items)};
-  auto secondary_workspace_mem =
-      backend.get_mem_object(secondary_workspace, n_items);
+  auto const_workspace = workspace.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      const_workspace, const_input_variance, workspace, params.channels, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status =
-      sycldnn::binaryop::internal::launch_binaryop<T, sycldnn::binaryop::Mul>(
-          gradient_mem, const_workspace_mem, secondary_workspace_mem,
-          input_dims,
-          queue);  // mean pt 1
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      const_centered_input, const_workspace, centered_input, input_dims,
+      {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  auto const_output = output.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
+      const_output, const_centered_input, output, input_dims, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto const_secondary_workspace = ConstPointer{secondary_workspace};
-  status.event = backend.template reduce<reduce::Mean>(
-      const_secondary_workspace, gamma_grad, 1,
-      params.batch * params.rows * params.cols, params.channels);  // mean pt 2
+  status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
+      const_input_variance, input_variance, params.channels, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto const_input_variance = ConstPointer{beta_grad};
-  auto const_input_variance_mem =
-      backend.get_mem_object(const_input_variance, params.channels);
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      const_output, gamma, output, input_dims, {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto const_mean = ConstPointer{gamma_grad};
-  auto const_mean_mem = backend.get_mem_object(const_mean, params.channels);
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      const_output, const_input_variance, output, input_dims, {params.channels},
+      queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto gamma_mem = backend.get_mem_object(gamma, params.channels);
-
-  status = launch_input_gradient(
-      gamma_mem, const_input_variance_mem, const_mean_mem, const_workspace_mem,
-      output_mem, params.channels, params.epsilon, queue);  // grad_x
-
-  if (sycldnn::StatusCode::OK != status.status) return status;
-
-  status.event = backend.template reduce<reduce::Add>(
-      const_secondary_workspace, workspace, 1,
-      params.batch * params.rows * params.cols,
-      params.channels);  // grad_scale pt 1
-
-  auto gamma_grad_mem = backend.get_mem_object(gamma_grad, params.channels);
-
-  status = launch_gamma_gradient(const_input_variance_mem, const_workspace_mem,
-                                 gamma_grad_mem, params.channels,
-                                 params.epsilon, queue);  // grad_scale pt 2
-
-  if (sycldnn::StatusCode::OK != status.status) return status;
-
-  status.event = backend.template reduce<reduce::Add>(
-      gradient, beta_grad, 1, params.batch * params.rows * params.cols,
-      params.channels);  // grad_offset
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      const_gamma_grad, const_input_variance, gamma_grad, params.channels,
+      queue);
   return status;
 }
 
@@ -274,50 +440,76 @@ SNNStatus launch_grad(typename Backend::template pointer_type<T const> input,
  * provided by the user.
  */
 
-template <typename T, typename Backend, typename Direction, typename Operation,
-          typename = DisableIf_Gradient_Training<Direction, Operation>>
-SNNStatus launch_grad(
-    typename Backend::template pointer_type<T const> input,
-    typename Backend::template pointer_type<T const> gradient,
-    typename Backend::template pointer_type<T const> gamma,
-    typename Backend::template pointer_type<T const> pop_mean,
-    typename Backend::template pointer_type<T const> pop_variance,
-    typename Backend::template pointer_type<T> beta_grad,
-    typename Backend::template pointer_type<T> gamma_grad,
-    typename Backend::template pointer_type<T> output,
+template <typename T, typename Backend>
+SNNStatus launch_gradient(
+    BaseMemObject<T const>& input, BaseMemObject<T const>& gradient,
+    BaseMemObject<T const>& gamma, BaseMemObject<T const>& pop_mean,
+    BaseMemObject<T const>& pop_variance, BaseMemObject<T>& beta_grad,
+    BaseMemObject<T>& gamma_grad, BaseMemObject<T>& output,
     BatchNormParams const& params, Backend& backend) {
-  auto n_items = params.batch * params.rows * params.cols * params.channels;
-  auto gradient_mem = backend.get_mem_object(gradient, n_items);
-  auto input_mem = backend.get_mem_object(input, n_items);
-  auto mean_mem = backend.get_mem_object(pop_mean, params.channels);
-  auto variance_mem = backend.get_mem_object(pop_variance, params.channels);
-  auto output_mem = backend.get_mem_object(output, n_items);
-
+  auto input_dims = {params.batch, params.rows, params.cols, params.channels};
   auto queue = backend.get_queue();
-  SNNStatus status = launch_gamma_gradient(
-      gradient_mem, input_mem, mean_mem, variance_mem, output_mem,
-      params.channels, params.epsilon, queue);  // grad_scale pt 1
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  cl::sycl::buffer<T, 1> epsilon_buf(&params.epsilon, cl::sycl::range<1>(1));
+  auto epsilon = make_mem_object(epsilon_buf, 1).as_const();
+  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
+  auto workspace = make_mem_object(workspace_buf, params.channels);
+  SNNStatus status;
+  status = binaryop::internal::launch_binaryop<binaryop::Add>(
+      pop_variance, epsilon, workspace, {params.channels}, {1}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  using ConstPointer = typename Backend::template pointer_type<T const>;
-  status.event = backend.template reduce<reduce::Add>(
-      ConstPointer{output}, gamma_grad, 1,
-      params.batch * params.rows * params.cols,
-      params.channels);  // grad_scale pt 2
+  auto const_workspace = workspace.as_const();
+  status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
+      const_workspace, workspace, params.channels, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  auto gamma_mem = backend.get_mem_object(gamma, params.channels);
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
+      input, pop_mean, output, input_dims, {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status =
-      launch_input_gradient(gradient_mem, gamma_mem, variance_mem, output_mem,
-                            params.channels, params.epsilon, queue);  // grad_x
+  auto const_output = output.as_const();
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      const_output, gradient, output, input_dims, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  if (sycldnn::StatusCode::OK != status.status) return status;
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      const_output, const_workspace, output, input_dims, {params.channels},
+      queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
-  status.event = backend.template reduce<reduce::Add>(
-      gradient, beta_grad, 1, params.batch * params.rows * params.cols,
-      params.channels);  // grad_offset
+  status = reduce::internal::launch<reduce::Add>(const_output, gamma_grad, 1,
+                                                 get_non_channel_size(params),
+                                                 params.channels, backend);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
+      gamma, const_workspace, workspace, params.channels, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      gradient, const_workspace, output, input_dims, {params.channels}, queue);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  status = reduce::internal::launch<reduce::Add>(gradient, beta_grad, 1,
+                                                 get_non_channel_size(params),
+                                                 params.channels, backend);
   return status;
 }
 

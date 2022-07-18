@@ -43,16 +43,16 @@ using DisableIfGradient =
     typename std::enable_if<!IsGradient<Direction>::value>::type;
 
 // The internal pointwise operation launcher for the forward pass.
-template <typename T, template <typename> class PointwiseType,
-          typename Direction, typename = DisableIfGradient<Direction>>
+template <template <typename> class PointwiseType, typename T,
+          typename Direction = Forward, typename = DisableIfGradient<Direction>>
 SNN_EXPORT SNNStatus launch_pointwise(BaseMemObject<T const>& input,
                                       BaseMemObject<T>& output,
                                       size_t const n_items,
                                       cl::sycl::queue& queue);
 
 // The internal pointwise operation launcher for the backward pass.
-template <typename T, template <typename> class PointwiseType,
-          typename Direction, typename = EnableIfGradient<Direction>>
+template <template <typename> class PointwiseType, typename T,
+          typename Direction = Forward, typename = EnableIfGradient<Direction>>
 SNN_EXPORT SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
                                       BaseMemObject<T const>& input_backprop,
                                       BaseMemObject<T>& output,

@@ -69,7 +69,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto outp_access = backend.get_mem_object(output, n_items);
 
   auto queue = backend.get_queue();
-  return internal::launch_pointwise<T, PointwiseType, Direction>(
+  return internal::launch_pointwise<PointwiseType, T, Direction>(
       inp_access, outp_access, n_items, queue);
 }
 
@@ -110,7 +110,7 @@ SNNStatus launch(
   auto out_bk_access = backend.get_mem_object(output_backprop, n_items);
 
   auto queue = backend.get_queue();
-  return internal::launch_pointwise<T, PointwiseType, Direction>(
+  return internal::launch_pointwise<PointwiseType, T, Direction>(
       inp_fwd_access, inp_bk_access, out_bk_access, n_items, queue);
 }
 

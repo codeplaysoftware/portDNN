@@ -50,7 +50,7 @@ SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input,
  * Queue a pointwise operation with a thread per element if supported,
  * otherwise return an SNNStatus error code.
  */
-template <typename T, template <typename> class PointwiseType,
+template <template <typename> class PointwiseType, typename T,
           typename Direction, typename EnableIf>
 SNNStatus launch_pointwise(BaseMemObject<T const>& input,
                            BaseMemObject<T>& output, size_t const n_items,
@@ -69,7 +69,7 @@ SNNStatus launch_pointwise(BaseMemObject<T const>& input,
 }
 
 #define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP)            \
-  template SNN_EXPORT SNNStatus launch_pointwise<DTYPE, OP, Forward>( \
+  template SNN_EXPORT SNNStatus launch_pointwise<OP, DTYPE, Forward>( \
       BaseMemObject<DTYPE const> & inp_access,                        \
       BaseMemObject<DTYPE> & outp_access, size_t const n_items,       \
       cl::sycl::queue& queue);

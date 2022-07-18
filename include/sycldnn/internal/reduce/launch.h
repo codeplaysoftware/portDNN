@@ -42,6 +42,20 @@ SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
                             sycldnn::internal::types::KernelSubgroupSizesMap&
                                 max_kernel_sub_group_sizes);
 
+/**
+ * Helper for internal reduce launcher.
+ */
+template <typename Op, typename T, typename Backend>
+inline SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+                        int batches, int outer, int inner, Backend& backend) {
+  auto queue = backend.get_queue();
+  auto program = backend.get_program();
+  bool supports_subgroup = backend.supports_subgroup();
+  auto& max_kernel_sub_group_sizes = backend.get_max_kernel_sub_group_sizes();
+  return launch<T, Op>(input, output, batches, outer, inner, queue, program,
+                       supports_subgroup, max_kernel_sub_group_sizes);
+}
+
 }  // namespace internal
 }  // namespace reduce
 }  // namespace sycldnn

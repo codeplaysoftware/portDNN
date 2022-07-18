@@ -157,20 +157,20 @@ inline sycldnn::BiasAddLayer<T, Backend>* create_bias_layer(
 inline sycldnn::batchnorm::BatchNormParams make_batchnorm_params(int batch,
                                                                  int rows,
                                                                  int channels) {
-  sycldnn::batchnorm::BatchNormParams params{batch, rows, rows, channels,
-                                             1.001e-5};
+  bool is_training = false;
+  float epsilon = 1.001e-5;
+  sycldnn::batchnorm::BatchNormParams params{batch,    rows,        rows,
+                                             channels, is_training, epsilon};
   return params;
 }
 
 // create batchnorm layer
 template <typename T>
-inline sycldnn::BatchNormLayer<T, Backend, sycldnn::batchnorm::Frozen>*
-create_batchnorm_layer(DeviceMem const input, Backend& backend,
-                       std::string const& beta_file,
-                       std::string const& gamma_file,
-                       std::string const& mean_file,
-                       std::string const& variance_file,
-                       sycldnn::batchnorm::BatchNormParams const& params) {
+inline sycldnn::BatchNormFrozenLayer<T, Backend>* create_batchnorm_layer(
+    DeviceMem const input, Backend& backend, std::string const& beta_file,
+    std::string const& gamma_file, std::string const& mean_file,
+    std::string const& variance_file,
+    sycldnn::batchnorm::BatchNormParams const& params) {
   DeviceMem beta, gamma, mean, variance, output;
   beta = backend.template allocate<T>(params.channels);
   gamma = backend.template allocate<T>(params.channels);
@@ -257,7 +257,7 @@ create_batchnorm_layer(DeviceMem const input, Backend& backend,
   mean_event.wait_and_throw();
   variance_event.wait_and_throw();
 
-  return new sycldnn::BatchNormLayer<T, Backend, sycldnn::batchnorm::Frozen>(
+  return new sycldnn::BatchNormFrozenLayer<T, Backend>(
       params, input, beta, gamma, mean, variance, output, backend);
 }
 

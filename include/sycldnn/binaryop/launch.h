@@ -91,8 +91,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
   auto rhs_mem = backend.get_mem_object(rhs, rhs_size);
   auto out_mem = backend.get_mem_object(out, out_size);
   auto queue = backend.get_queue();
-  return internal::launch_binaryop<T, Op>(lhs_mem, rhs_mem, out_mem, lhs_dims,
-                                          rhs_dims, out_dims, queue);
+  return internal::launch_binaryop<Op>(lhs_mem, rhs_mem, out_mem, lhs_dims,
+                                       rhs_dims, out_dims, queue);
 }
 
 }  // namespace binaryop

@@ -31,7 +31,6 @@
 #include "sycldnn/binaryop/operators.h"
 
 #include "sycldnn/batchnorm/launch.h"
-#include "sycldnn/batchnorm/sizes.h"
 
 #include "sycldnn/matmul/launch.h"
 #include "sycldnn/matmul/params.h"
@@ -125,15 +124,10 @@ struct BiasAddLayer : Layer<DType, Backend> {
   }
 };
 
-template <typename DType, typename Backend, typename Operation>
-struct BatchNormLayer;
-
 template <typename DType, typename Backend>
-struct BatchNormLayer<DType, Backend, sycldnn::batchnorm::Training>
-    : Layer<DType, Backend> {
+struct BatchNormTrainingLayer : Layer<DType, Backend> {
   using DeviceMem = typename Backend::template pointer_type<DType>;
   sycldnn::batchnorm::BatchNormParams params_;
-  sycldnn::batchnorm::BatchNormSizes sizes_;
   DeviceMem input_;
   DeviceMem beta_;
   DeviceMem gamma_;
@@ -141,14 +135,14 @@ struct BatchNormLayer<DType, Backend, sycldnn::batchnorm::Training>
   DeviceMem input_variance_, running_variance_;
   DeviceMem output_;
 
-  BatchNormLayer(sycldnn::batchnorm::BatchNormParams const& params,
-                 DeviceMem const input, DeviceMem const beta,
-                 DeviceMem const gamma, DeviceMem const input_mean,
-                 DeviceMem const input_variance, DeviceMem running_mean,
-                 DeviceMem running_variance, DeviceMem output, Backend& b)
+  BatchNormTrainingLayer(sycldnn::batchnorm::BatchNormParams const& params,
+                         DeviceMem const input, DeviceMem const beta,
+                         DeviceMem const gamma, DeviceMem const input_mean,
+                         DeviceMem const input_variance, DeviceMem running_mean,
+                         DeviceMem running_variance, DeviceMem output,
+                         Backend& b)
       : Layer<DType, Backend>(b),
         params_{params},
-        sizes_{sycldnn::batchnorm::get_sizes(params)},
         input_{input},
         beta_{beta},
         gamma_{gamma},
@@ -159,23 +153,22 @@ struct BatchNormLayer<DType, Backend, sycldnn::batchnorm::Training>
         output_{output} {}
 
   DeviceMem get_output() override { return output_; }
-  size_t get_output_size() const override { return sizes_.output_size; }
+  size_t get_output_size() const override {
+    return params_.batch * params_.rows * params_.cols * params_.channels;
+  }
 
   sycldnn::SNNStatus run() override {
-    return sycldnn::batchnorm::launch_forward<DType, Backend,
-                                              sycldnn::batchnorm::Forward,
-                                              sycldnn::batchnorm::Training>(
+    return sycldnn::batchnorm::launch<DType, Backend,
+                                      sycldnn::batchnorm::Forward>(
         input_, beta_, gamma_, input_mean_, input_variance_, running_mean_,
         running_variance_, output_, params_, this->backend_);
   }
 };
 
 template <typename DType, typename Backend>
-struct BatchNormLayer<DType, Backend, sycldnn::batchnorm::Frozen>
-    : Layer<DType, Backend> {
+struct BatchNormFrozenLayer : Layer<DType, Backend> {
   using DeviceMem = typename Backend::template pointer_type<DType>;
   sycldnn::batchnorm::BatchNormParams params_;
-  sycldnn::batchnorm::BatchNormSizes sizes_;
   DeviceMem input_;
   DeviceMem beta_;
   DeviceMem gamma_;
@@ -183,13 +176,12 @@ struct BatchNormLayer<DType, Backend, sycldnn::batchnorm::Frozen>
   DeviceMem variance_;
   DeviceMem output_;
 
-  BatchNormLayer(sycldnn::batchnorm::BatchNormParams const& params,
-                 DeviceMem const input, DeviceMem const beta,
-                 DeviceMem const gamma, DeviceMem const mean,
-                 DeviceMem const variance, DeviceMem output, Backend& b)
+  BatchNormFrozenLayer(sycldnn::batchnorm::BatchNormParams const& params,
+                       DeviceMem const input, DeviceMem const beta,
+                       DeviceMem const gamma, DeviceMem const mean,
+                       DeviceMem const variance, DeviceMem output, Backend& b)
       : Layer<DType, Backend>(b),
         params_{params},
-        sizes_{sycldnn::batchnorm::get_sizes(params)},
         input_{input},
         beta_{beta},
         gamma_{gamma},
@@ -198,12 +190,13 @@ struct BatchNormLayer<DType, Backend, sycldnn::batchnorm::Frozen>
         output_{output} {}
 
   DeviceMem get_output() override { return output_; }
-  size_t get_output_size() const override { return sizes_.output_size; }
+  size_t get_output_size() const override {
+    return params_.batch * params_.rows * params_.cols * params_.channels;
+  }
 
   sycldnn::SNNStatus run() override {
-    return sycldnn::batchnorm::launch_forward<DType, Backend,
-                                              sycldnn::batchnorm::Forward,
-                                              sycldnn::batchnorm::Frozen>(
+    return sycldnn::batchnorm::launch<DType, Backend,
+                                      sycldnn::batchnorm::Forward>(
         input_, beta_, gamma_, mean_, variance_, output_, params_,
         this->backend_);
   }

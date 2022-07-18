@@ -68,14 +68,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   auto in_acc = backend.get_mem_object(input, in_size);
   auto out_acc = backend.get_mem_object(output, out_size);
 
-  auto sycl_queue = backend.get_queue();
-  auto program = backend.get_program();
-  bool supports_subgroup = backend.supports_subgroup();
-  auto& max_kernel_sub_group_sizes = backend.get_max_kernel_sub_group_sizes();
-
-  return internal::launch<T, Op>(in_acc, out_acc, batches, outer, inner,
-                                 sycl_queue, program, supports_subgroup,
-                                 max_kernel_sub_group_sizes);
+  return internal::launch<Op>(in_acc, out_acc, batches, outer, inner, backend);
 }
 }  // namespace reduce
 }  // namespace sycldnn

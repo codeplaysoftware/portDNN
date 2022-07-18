@@ -77,7 +77,7 @@ SNNStatus launch_vec_kernel(BaseMemObject<T const>& lhs,
   }
 }
 
-template <typename T, typename Op>
+template <typename Op, typename T>
 SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                           BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
                           std::vector<int> lhs_dims, std::vector<int> rhs_dims,
@@ -170,7 +170,7 @@ SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
 }
 
 #define INSTANTIATE_BINARYOP_LAUNCH(DTYPE, OP)                       \
-  template SNN_EXPORT SNNStatus launch_binaryop<DTYPE, OP>(          \
+  template SNN_EXPORT SNNStatus launch_binaryop<OP, DTYPE>(          \
       BaseMemObject<DTYPE const> & inp1_access,                      \
       BaseMemObject<DTYPE const> & inp2_access,                      \
       BaseMemObject<DTYPE> & outp_access, std::vector<int> lhs_dims, \

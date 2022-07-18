@@ -513,3 +513,45 @@ endfunction()
 
 snn_bias_bench(net)
 
+snn_object_library(
+  WITH_SYCL
+  TARGET
+    batchnorm_benchmark_functions
+  KERNEL_SOURCES
+    batchnorm/benchmark_functions.cc
+  PUBLIC_LIBRARIES
+    benchmark::benchmark
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
+
+function(snn_batchnorm_config_lib modelname)
+  snn_object_library(
+    TARGET
+      ${modelname}_batchnorm_config
+    SOURCES
+      batchnorm/${modelname}.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+endfunction()
+
+snn_batchnorm_config_lib(resnet50)
+
+function(snn_batchnorm_bench modelname)
+  snn_bench(
+    WITH_SYCL
+    TARGET
+      ${modelname}_batchnorm
+    OBJECTS
+      $<TARGET_OBJECTS:batchnorm_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_batchnorm_config>
+    PUBLIC_LIBRARIES
+      bench_main
+      sycl_dnn
+  )
+endfunction()
+
+snn_batchnorm_bench(resnet50)

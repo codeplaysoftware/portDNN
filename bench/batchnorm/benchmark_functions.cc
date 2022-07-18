@@ -1,5 +1,5 @@
 /*
- * Copyright Codeplay Software Ltd
+ * Copyright Codeplay Software Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "snn_fixture.h"
 
-#ifndef SYCLDNN_INCLUDE_BATCHNORM_OPERATION_H_
-#define SYCLDNN_INCLUDE_BATCHNORM_OPERATION_H_
+#include "src/backend/snn_backend_provider.h"
 
-/**
- * \file
- * Contains the declarations of the Training and Frozen tag types.
- */
+#include "sycldnn/backend/snn_backend.h"
 
-namespace sycldnn {
-namespace batchnorm {
+#define BM_WITH_DTYPE(DTYPE) \
+  BATCHNORM_BENCHMARK(SNNBackend, sycldnn::backend::SNNBackend, DTYPE)
 
-struct Training;
-
-struct Frozen;
-
-}  // namespace batchnorm
-}  // namespace sycldnn
-
-#endif  // SYCLDNN_INCLUDE_BATCHNORM_OPERATION_H_
+BM_WITH_DTYPE(float)

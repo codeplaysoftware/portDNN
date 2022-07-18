@@ -16,15 +16,6 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-set(_cxx_opts)
-set(_softmax_providers)
-
-if(SNN_TEST_SYCLBLAS)
-  include(Handlesycl_blas)
-  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND _softmax_providers SYCL_BLAS::sycl_blas)
-endif()
-
 snn_test(
   WITH_SYCL
   TARGET
@@ -34,7 +25,4 @@ snn_test(
     softmax_grad.cc
   PUBLIC_LIBRARIES
     sycl_dnn
-    ${_softmax_providers}
-  CXX_OPTS
-    ${_cxx_opts}
 )

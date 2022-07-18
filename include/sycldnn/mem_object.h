@@ -28,13 +28,16 @@
 
 namespace sycldnn {
 
+template <typename T, typename Alloc>
+struct MemObject;
+
 /**
  * Abstract MemObject base class.
  *
  * Provides virtual functions to get different Accessor types from the
  * underlying memory object.
  */
-template <typename T>
+template <typename T, typename Alloc = cl::sycl::buffer_allocator>
 struct BaseMemObject {
   /** Alias for the SYCL command group handler. */
   using Handler = cl::sycl::handler;
@@ -85,6 +88,12 @@ struct BaseMemObject {
    * \return number of elements.
    */
   virtual size_t get_count() const = 0;
+
+  /**
+   * Return the same BaseMemObject as a read-only one.
+   * \return Read-only MemObject.
+   */
+  virtual MemObject<T const, Alloc> as_const() const = 0;
 };
 
 /**
@@ -93,8 +102,8 @@ struct BaseMemObject {
  * If the DataType of a memory object is `const` it cannot be written to, so
  * remove the ability to create write accessors to the memory object.
  */
-template <typename T>
-struct BaseMemObject<T const> {
+template <typename T, typename Alloc>
+struct BaseMemObject<T const, Alloc> {
   /** Alias for the SYCL command group handler. */
   using Handler = cl::sycl::handler;
 
@@ -118,7 +127,7 @@ struct BaseMemObject<T const> {
  * The implementation of BaseMemObject for SYCL buffers.
  */
 template <typename T, typename Alloc>
-struct MemObject final : public BaseMemObject<T> {
+struct MemObject final : public BaseMemObject<T, Alloc> {
   /** The datatype stored in the memory object. */
   using DataType = T;
   /** The allocator type of the underlying SYCL buffer. */
@@ -176,7 +185,7 @@ struct MemObject final : public BaseMemObject<T> {
    * Return the same MemObject as a read-only one.
    * \return Read-only MemObject.
    */
-  MemObject<DataType const, AllocType> as_const() const {
+  MemObject<DataType const, AllocType> as_const() const override {
     return MemObject<DataType const, AllocType>(
         buffer_.template reinterpret<DataType const, 1>(buffer_.get_count()),
         extent_, offset_);
@@ -198,7 +207,7 @@ struct MemObject final : public BaseMemObject<T> {
  * type is constant.
  */
 template <typename T, typename Alloc>
-struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
+struct MemObject<T const, Alloc> final : public BaseMemObject<T const, Alloc> {
   /** The datatype stored in the memory object. */
   using DataType = T const;
   /** The allocator type of the underlying SYCL buffer. */
@@ -258,7 +267,7 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const> {
  */
 template <typename T, typename Alloc>
 MemObject<T, Alloc> make_mem_object(cl::sycl::buffer<T, 1, Alloc> buffer,
-                                    size_t extent, size_t offset) {
+                                    size_t extent, size_t offset = 0) {
   SNN_ASSERT(buffer.get_count() >= extent + offset,
              "Buffer must contain at least extent + offset elements");
   return MemObject<T, Alloc>{buffer, extent, offset};

@@ -185,7 +185,6 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:pointwise>
   $<TARGET_OBJECTS:matmul>
   $<TARGET_OBJECTS:transpose>
-  $<TARGET_OBJECTS:batchnorm>
   $<TARGET_OBJECTS:roi_align>
   $<TARGET_OBJECTS:reduce>
 )
@@ -208,7 +207,6 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:pointwise>
   $<TARGET_OBJECTS:matmul>
   $<TARGET_OBJECTS:transpose>
-  $<TARGET_OBJECTS:batchnorm>
   $<TARGET_OBJECTS:roi_align>
   $<TARGET_OBJECTS:reduce>
 )

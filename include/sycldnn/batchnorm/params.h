@@ -49,6 +49,14 @@ struct BatchNormParams {
   Index channels;
 
   /**
+   * Set to true to use Batchnorm in training mode.
+   * In training mode the mean and variance are computed on the go.
+   * Set to false to use Batchnorm in frozen mode.
+   * In frozen mode the mean and variance are provided as inputs.
+   */
+  bool is_training;
+
+  /**
    * The epsilon parameter for batch normalization to ensure divisibility by a
    * non-zero value.
    */

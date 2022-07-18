@@ -60,13 +60,13 @@ inline SNNStatus compute_out_dims(const std::vector<int>& lhs_dims,
   return StatusCode::OK;
 }
 
-template <typename T, typename Op>
+template <typename Op, typename T>
 SNN_EXPORT SNNStatus launch_binaryop(
     BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
     BaseMemObject<T>& out, std::vector<int> lhs_dims, std::vector<int> rhs_dims,
     const std::vector<int>& out_dims, cl::sycl::queue& queue);
 
-template <typename T, typename Op>
+template <typename Op, typename T>
 SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                           BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
                           const std::vector<int>& lhs_dims,
@@ -75,23 +75,23 @@ SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
   std::vector<int> out_dims;
   auto status = compute_out_dims(lhs_dims, rhs_dims, out_dims);
   if (status.status != StatusCode::OK) return status;
-  return launch_binaryop<T, Op>(lhs, rhs, out, lhs_dims, rhs_dims, out_dims,
-                                queue);
+  return launch_binaryop<Op>(lhs, rhs, out, lhs_dims, rhs_dims, out_dims,
+                             queue);
 }
 
-template <typename T, typename Op>
+template <typename Op, typename T>
 SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                           BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
                           const std::vector<int>& dims,
                           cl::sycl::queue& queue) {
-  return launch_binaryop<T, Op>(lhs, rhs, out, dims, dims, dims, queue);
+  return launch_binaryop<Op>(lhs, rhs, out, dims, dims, dims, queue);
 }
 
-template <typename T, typename Op>
+template <typename Op, typename T>
 SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                           BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
                           int size, cl::sycl::queue& queue) {
-  return launch_binaryop<T, Op>(lhs, rhs, out, std::vector<int>{size}, queue);
+  return launch_binaryop<Op>(lhs, rhs, out, std::vector<int>{size}, queue);
 }
 
 }  // namespace internal

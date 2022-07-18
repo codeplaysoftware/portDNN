@@ -62,7 +62,12 @@ def get_dont_modify_comment(scriptname):
 REQUIRED_MAX = 2**24
 
 
-def get_result_and_size(func, max_input_val=2**12, floor_div=False, **kwargs):
+def get_result_and_size(
+        func,
+        max_input_val=2**12,
+        floor_div=False,
+        output_val_idx=0,
+        **kwargs):
     """
     Compute the result of func called with passed keyword arguments, ensuring
     that the resulting values are less than the REQUIRED_MAX, and if not adjust
@@ -80,7 +85,11 @@ def get_result_and_size(func, max_input_val=2**12, floor_div=False, **kwargs):
         else:
             max_input_val /= 2
         output = func(max_input_val, **kwargs)
-        max_output_val = np.max(output)
+        if isinstance(output, tuple):
+            output_val = output[output_val_idx]
+        else:
+            output_val = output
+        max_output_val = np.max(output_val)
     return output, max_input_val
 
 

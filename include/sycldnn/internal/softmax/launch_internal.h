@@ -72,7 +72,7 @@ SNNStatus launch_forward_nhwc(
   auto const_workspace_mem =
       backend.get_mem_object(const_workspace, workspace_items);
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Sub>(
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       in_mem, const_workspace_mem, out_mem,
       {params.batch, params.rows, params.cols, params.channels},
       {params.batch, params.rows, params.cols, 1}, queue);
@@ -83,8 +83,7 @@ SNNStatus launch_forward_nhwc(
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
-  status = pointwise::internal::launch_pointwise<T, pointwise::Exp,
-                                                 pointwise::Forward>(
+  status = pointwise::internal::launch_pointwise<pointwise::Exp>(
       const_output_mem, out_mem, n_items, queue);
 
   if (sycldnn::StatusCode::OK != status.status) {
@@ -95,7 +94,7 @@ SNNStatus launch_forward_nhwc(
       ConstPointer{output}, workspace, params.batch * params.rows * params.cols,
       params.channels, 1);
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Div>(
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_output_mem, const_workspace_mem, out_mem,
       {params.batch, params.rows, params.cols, params.channels},
       {params.batch, params.rows, params.cols, 1}, queue);
@@ -134,7 +133,7 @@ SNNStatus launch_forward_nchw(
   auto const_workspace_mem =
       backend.get_mem_object(const_workspace, workspace_items);
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Sub>(
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       in_mem, const_workspace_mem, out_mem,
       {params.batch, params.channels, params.rows, params.cols},
       {params.batch, 1, params.rows, params.cols}, queue);
@@ -145,8 +144,7 @@ SNNStatus launch_forward_nchw(
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
-  status = pointwise::internal::launch_pointwise<T, pointwise::Exp,
-                                                 pointwise::Forward>(
+  status = pointwise::internal::launch_pointwise<pointwise::Exp>(
       const_output_mem, out_mem, n_items, queue);
 
   if (sycldnn::StatusCode::OK != status.status) {
@@ -157,7 +155,7 @@ SNNStatus launch_forward_nchw(
       ConstPointer{output}, workspace, params.batch, params.channels,
       params.rows * params.cols);
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Div>(
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_output_mem, const_workspace_mem, out_mem,
       {params.batch, params.channels, params.rows, params.cols},
       {params.batch, 1, params.rows, params.cols}, queue);
@@ -213,7 +211,7 @@ SNNStatus launch_gradient_nhwc(
 
   auto queue = backend.get_queue();
 
-  SNNStatus status = binaryop::internal::launch_binaryop<T, binaryop::Mul>(
+  SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       grad_mem, in_mem, workspace_mem, n_items1, queue);
 
   if (sycldnn::StatusCode::OK != status.status) {
@@ -232,7 +230,7 @@ SNNStatus launch_gradient_nhwc(
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Sub>(
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       grad_mem, const_output_mem, workspace_mem,
       {params.batch, params.rows, params.cols, params.channels},
       {params.batch, params.rows, params.cols, 1}, queue);
@@ -241,7 +239,7 @@ SNNStatus launch_gradient_nhwc(
     return status;
   }
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Mul>(
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_workspace_mem, in_mem, out_mem, n_items1, queue);
 
   return status;
@@ -270,7 +268,7 @@ SNNStatus launch_gradient_nchw(
 
   auto queue = backend.get_queue();
 
-  SNNStatus status = binaryop::internal::launch_binaryop<T, binaryop::Mul>(
+  SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       grad_mem, in_mem, workspace_mem, n_items1, queue);
 
   if (sycldnn::StatusCode::OK != status.status) {
@@ -289,7 +287,7 @@ SNNStatus launch_gradient_nchw(
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Sub>(
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       grad_mem, const_output_mem, workspace_mem,
       {params.batch, params.channels, params.rows, params.cols},
       {params.batch, 1, params.rows, params.cols}, queue);
@@ -298,7 +296,7 @@ SNNStatus launch_gradient_nchw(
     return status;
   }
 
-  status = binaryop::internal::launch_binaryop<T, binaryop::Mul>(
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_workspace_mem, in_mem, out_mem, n_items1, queue);
 
   return status;
