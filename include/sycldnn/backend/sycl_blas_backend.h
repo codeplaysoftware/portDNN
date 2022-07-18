@@ -102,7 +102,7 @@ struct SyclBLASBackend final : public CommonBackend {
    * SYCL queue.
    * \param queue The SYCL queue to construct the backend from.
    */
-  SyclBLASBackend(const cl::sycl::queue& queue)
+  SyclBLASBackend(cl::sycl::queue& queue)
       : CommonBackend(queue), executor_{queue} {}
 
   /**

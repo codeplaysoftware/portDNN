@@ -32,7 +32,7 @@ option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
 option(SNN_BUILD_INTERNAL_BENCHMARKS
   "Whether or not to build internal benchmarks" OFF)
 option(SNN_BUILD_EXTENDED_BENCHMARKS
-  "Whether or not to build a more comprehesive (but extremely time consuming) set of benchmarks" OFF)
+  "Whether or not to build a more comprehensive (but extremely time consuming) set of benchmarks" OFF)
 option(SNN_BUILD_LARGE_BATCH_BENCHMARKS
   "Whether or not to build benchmarks that use a batch sizes larger than 4" OFF)
 option(SNN_BUILD_SAMPLES "Whether or not to build samples" ON)

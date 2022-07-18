@@ -39,6 +39,7 @@ std::vector<std::vector<int>> const& matmul_benchmark_configs();
  */
 char const* matmul_benchmark_name();
 
+namespace {
 /**
  * Function object to generate all benchmarks from config list, and pass to the
  * benchmarks as runtime parameters.
@@ -48,5 +49,6 @@ auto RunForAllMatmulParamSets = [](benchmark::internal::Benchmark* b) {
     b->Args(config);
   }
 };
+}  // namespace
 
 #endif  // SYCLDNN_BENCH_MATMUL_BENCHMARK_CONFIG_H_

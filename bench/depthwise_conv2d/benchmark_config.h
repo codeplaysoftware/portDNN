@@ -40,6 +40,7 @@ std::vector<std::vector<int>> const& get_benchmark_configs();
  */
 char const* get_benchmark_name();
 
+namespace {
 /**
  * Function object to generate all benchmarks from config list, and pass to the
  * benchmarks as runtime parameters.
@@ -49,5 +50,6 @@ auto RunForAllParamSets = [](benchmark::internal::Benchmark* b) {
     b->Args(config);
   }
 };
+}  // namespace
 
 #endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_BENCHMARK_CONFIG_H_
