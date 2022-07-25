@@ -34,6 +34,12 @@ namespace internal {
  *
  * Implemented in the compiled SYCL DNN library.
  */
+#ifdef SNN_DISABLE_SYCL_PROGRAM
+template <typename T, typename Op>
+SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
+                            BaseMemObject<T>& output, int batches, int outer,
+                            int inner, cl::sycl::queue& queue);
+#else
 template <typename T, typename Op>
 SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
                             BaseMemObject<T>& output, int batches, int outer,
@@ -41,10 +47,19 @@ SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
                             cl::sycl::program& program, bool supports_subgroup,
                             sycldnn::internal::types::KernelSubgroupSizesMap&
                                 max_kernel_sub_group_sizes);
-
+#endif
 /**
  * Helper for internal reduce launcher.
  */
+#ifdef SNN_DISABLE_SYCL_PROGRAM
+template <typename Op, typename T, typename Backend>
+inline SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+                        int batches, int outer, int inner, Backend& backend) {
+  auto queue = backend.get_queue();
+  return launch<T, Op>(input, output, batches, outer, inner, queue);
+}
+
+#else
 template <typename Op, typename T, typename Backend>
 inline SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
                         int batches, int outer, int inner, Backend& backend) {
@@ -55,6 +70,7 @@ inline SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
   return launch<T, Op>(input, output, batches, outer, inner, queue, program,
                        supports_subgroup, max_kernel_sub_group_sizes);
 }
+#endif
 
 }  // namespace internal
 }  // namespace reduce

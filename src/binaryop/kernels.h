@@ -100,7 +100,7 @@ class BinaryOp {
     return {size_t(helpers::get_total_size(out_dims_))};
   }
 
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index out_idx = item.get_id(0);
     Index lhs_idx = 0;
     Index rhs_idx = 0;
@@ -157,7 +157,7 @@ class BinaryOpVec {
 
   cl::sycl::range<1> get_range() { return {size_t(size / VectorWidth)}; }
 
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index idx = item.get_id(0) * VectorWidth;
 
     const auto lhs = lhs_.get_pointer();
@@ -195,7 +195,7 @@ class BinaryOpBcastLhsVec2D {
     return {size_t(out_dims_[0]), size_t(out_dims_[1] / VectorWidth)};
   }
 
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) const {
     Index batch = item.get_id(0);
     Index inner = item.get_id(1);
     Index out_idx = batch * out_dims_[1] + inner * VectorWidth;
@@ -235,7 +235,7 @@ class BinaryOpBcastRhsVec2D {
     return {size_t(out_dims_[0]), size_t(out_dims_[1] / VectorWidth)};
   }
 
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<2> item) const {
     Index batch = item.get_id(0);
     Index inner = item.get_id(1);
     Index out_idx = batch * out_dims_[1] + inner * VectorWidth;
@@ -280,7 +280,7 @@ class BinaryOpBcastLhsVec3D {
             size_t(out_dims_[2] / VectorWidth)};
   }
 
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<3> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<3> item) const {
     Index batch = item.get_id(0);
     Index outer = item.get_id(1);
     Index inner = item.get_id(2);
@@ -328,7 +328,7 @@ class BinaryOpBcastRhsVec3D {
             size_t(out_dims_[2] / VectorWidth)};
   }
 
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<3> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<3> item) const {
     Index batch = item.get_id(0);
     Index outer = item.get_id(1);
     Index inner = item.get_id(2);

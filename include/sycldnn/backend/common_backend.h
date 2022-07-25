@@ -53,19 +53,23 @@ struct CommonBackend {
     return max_kernel_sub_group_sizes;
   }
 
+#ifndef SNN_DISABLE_SYCL_PROGRAM
   /**
    * \brief Get the cached program.
    *
    * \return Cached program.
    */
   cl::sycl::program get_program() { return program; }
+#endif
 
  protected:
+#ifndef SNN_DISABLE_SYCL_PROGRAM
   /**
    * \brief Cache some information on construction.
    *
    * \param queue SYCL queue.
    */
+
   explicit CommonBackend(cl::sycl::queue& queue)
       : max_kernel_sub_group_sizes(),
         program(queue.get_context()),
@@ -74,10 +78,20 @@ struct CommonBackend {
     max_num_sub_groups =
         device.get_info<cl::sycl::info::device::max_num_sub_groups>();
   }
+#else
+  explicit CommonBackend(cl::sycl::queue& queue)
+      : max_kernel_sub_group_sizes(), max_num_sub_groups() {
+    auto device = queue.get_device();
+    max_num_sub_groups =
+        device.get_info<cl::sycl::info::device::max_num_sub_groups>();
+  }
+#endif
 
  private:
   sycldnn::internal::types::KernelSubgroupSizesMap max_kernel_sub_group_sizes;
+#ifndef SNN_DISABLE_SYCL_PROGRAM
   cl::sycl::program program;
+#endif
   size_t max_num_sub_groups;
 };
 

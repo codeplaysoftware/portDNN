@@ -154,6 +154,17 @@ if(ComputeCpp_FOUND)
   endif()
   list(APPEND COMPUTECPP_USER_FLAGS -Xclang -cl-mad-enable)
   list(APPEND COMPUTECPP_USER_FLAGS -Xclang -cl-no-signed-zeros)
+
+elseif(DPCPP_FOUND)
+  if(${SNN_TEST_EIGEN} OR ${SNN_BENCH_EIGEN} OR 
+      ${SNN_TEST_EIGEN_MATMULS} OR ${SNN_DOWNLOAD_EIGEN})
+    message(WARNING "Eigen is not supported with DPC++ at the moment")
+  endif()
+  set(SNN_DOWNLOAD_EIGEN OFF)
+  set(SNN_BENCH_EIGEN OFF)
+  set(SNN_TEST_EIGEN OFF)
+  set(SNN_TEST_EIGEN_MATMULS OFF)
+  add_definitions(-DSNN_DISABLE_SYCL_PROGRAM)
 endif()
 
 set(CMAKE_DEBUG_POSTFIX "-debug")

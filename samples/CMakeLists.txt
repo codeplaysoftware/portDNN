@@ -13,10 +13,11 @@
 # limitations under the License.
 #
 
-include(HandleEigen)
-
-add_subdirectory(conv2d)
-add_subdirectory(pooling)
+if(NOT DPCPP_FOUND)
+  include(HandleEigen)
+  add_subdirectory(conv2d)
+  add_subdirectory(pooling)
+endif()
 add_subdirectory(bias)
 add_subdirectory(networks)
 add_subdirectory(softmax)

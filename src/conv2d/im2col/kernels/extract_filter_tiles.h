@@ -48,7 +48,7 @@ struct ExtractFilterTiles {
         input_accessor_{input},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
 
     if (index < n_items_) {

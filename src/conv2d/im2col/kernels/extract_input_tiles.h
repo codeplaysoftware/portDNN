@@ -67,7 +67,7 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
         input_accessor_{input},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) const {
     Index const channel = item.get_id(0) * VectorWidth;
     Index const col_idx = item.get_id(1);
     Index row_idx;
@@ -167,7 +167,7 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
         input_accessor_{input},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) const {
     Index const feature = item.get_id(0) * VectorWidth;
     Index const col_idx = item.get_id(1);
     Index row_idx;
@@ -260,7 +260,7 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
         input_accessor_{input},
         output_accessor_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) const {
     Index const channel = item.get_id(0);
     Index const col_idx = item.get_id(1);
     Index row_idx;

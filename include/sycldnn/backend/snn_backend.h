@@ -21,7 +21,7 @@
 #include "sycldnn/backend/snn_matmul_provider.h"
 #include "sycldnn/backend/snn_reduce_provider.h"
 
-#include <SYCL/codeplay.hpp>
+#include <CL/sycl.hpp>
 #include <numeric>
 
 namespace sycldnn {
@@ -77,7 +77,7 @@ struct SNNBackend final : public CommonBackend,
    * \param queue The SYCL queue to use with this backend.
    */
   SNNBackend(cl::sycl::queue queue)
-      : CommonBackend(queue), queue_{std::move(queue)} {}
+      : CommonBackend{queue}, queue_{std::move(queue)} {}
 
   /**
    * Allocate a tensor to be used internally.

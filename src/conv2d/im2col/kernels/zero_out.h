@@ -36,7 +36,7 @@ struct ZeroFunctor {
   ZeroFunctor(size_t output_size, WriteAccessor<T> const& output)
       : output_size_{output_size}, output_{output} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     size_t const id = item.get_id(0) * VectorWidth;
     if (id < output_size_) {
       StoreType zeros{0};

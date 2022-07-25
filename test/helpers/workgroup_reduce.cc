@@ -64,7 +64,7 @@ struct Reducer {
   using Load = sycldnn::helpers::io::Load<VecType>;
   using Store = sycldnn::helpers::io::Store<VecType>;
 
-  void operator()(cl::sycl::nd_item<Dims> item) {
+  void operator()(cl::sycl::nd_item<Dims> item) const {
     size_t lin_idx = sycldnn::helpers::get_flattened_global_id(item) * Width;
     if (lin_idx < data_size) {
       auto input_ptr =

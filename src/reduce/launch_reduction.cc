@@ -23,6 +23,15 @@ namespace sycldnn {
 namespace reduce {
 namespace internal {
 
+#ifdef SNN_DISABLE_SYCL_PROGRAM
+// Launch the reduce kernel for the passed parameters.
+template <typename T, typename Op>
+SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+                 int batches, int outer, int inner, cl::sycl::queue& queue) {
+  return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
+                                          outer, queue);
+}
+#else
 // Launch the reduce kernel for the passed parameters.
 template <typename T, typename Op>
 SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
@@ -43,7 +52,14 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
   return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
                                           outer, queue);
 }
+#endif
 
+#ifdef SNN_DISABLE_SYCL_PROGRAM
+#define INSTANTIATE_LAUNCHER(DTYPE, OP)                                  \
+  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                       \
+      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
+      int batches, int outer, int inner, cl::sycl::queue& queue);
+#else
 #define INSTANTIATE_LAUNCHER(DTYPE, OP)                                  \
   template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                       \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
@@ -51,6 +67,7 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
       cl::sycl::program& program, bool supports_subgroup,                \
       sycldnn::internal::types::KernelSubgroupSizesMap&                  \
           max_kernel_sub_group_sizes);
+#endif
 
 #define INSTANTIATE_FOR_TYPE(DTYPE) \
   INSTANTIATE_LAUNCHER(DTYPE, Add)  \

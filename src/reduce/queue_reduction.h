@@ -33,6 +33,7 @@ SNNStatus queue_default_kernel(BaseMemObject<T const>& input,
                                int inner, int finalizeParam,
                                cl::sycl::queue& queue);
 
+#ifndef SNN_DISABLE_SYCL_PROGRAM
 template <typename T, typename Index, typename Op>
 SNNStatus queue_subgroup_kernel(
     BaseMemObject<T const>& input_mem, BaseMemObject<T>& output_mem,
@@ -40,7 +41,7 @@ SNNStatus queue_subgroup_kernel(
     cl::sycl::program& program,
     sycldnn::internal::types::KernelSubgroupSizesMap&
         max_kernel_sub_group_sizes);
-
+#endif
 }  // namespace internal
 }  // namespace reduce
 }  // namespace sycldnn

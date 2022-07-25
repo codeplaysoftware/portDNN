@@ -25,7 +25,10 @@
 #include "src/helpers/math.h"
 #include "src/reduce/default_kernel.h"
 #include "src/reduce/queue_reduction.h"
+
+#ifndef SNN_DISABLE_SYCL_PROGRAM
 #include "src/reduce/subgroup_kernel.h"
+#endif
 
 namespace sycldnn {
 namespace reduce {
@@ -57,6 +60,7 @@ SNNStatus queue_default_kernel(BaseMemObject<T const>& input_mem,
   return {event, StatusCode::OK};
 }
 
+#ifndef SNN_DISABLE_SYCL_PROGRAM
 template <typename T, typename Index, typename Op>
 SNNStatus queue_subgroup_kernel(
     BaseMemObject<T const>& input_mem, BaseMemObject<T>& output_mem,
@@ -181,6 +185,7 @@ SNNStatus queue_subgroup_kernel(
   }
   return {event, StatusCode::OK};
 }
+#endif
 
 }  // namespace internal
 }  // namespace reduce

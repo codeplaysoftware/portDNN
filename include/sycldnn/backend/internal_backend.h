@@ -84,12 +84,14 @@ struct InternalBackend {
     return underlying_backend.get_max_kernel_sub_group_sizes();
   }
 
+#ifndef SNN_DISABLE_SYCL_PROGRAM
   /**
    * \brief Get the cached program.
    *
    * \return Cached program.
    */
   cl::sycl::program get_program() { return underlying_backend.get_program(); }
+#endif
 
  private:
   Backend underlying_backend;

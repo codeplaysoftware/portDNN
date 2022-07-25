@@ -38,7 +38,7 @@ template <typename T, template <typename> class Op>
 struct interpolated_value;
 
 template <typename T>
-struct interpolated_value<T, pooling::Max> {
+struct interpolated_value<T, MaxPool> {
   static T value(T w1, T w2, T w3, T w4, T v1, T v2, T v3, T v4) {
     return (cl::sycl::max(
         cl::sycl::max(cl::sycl::max(w1 * v1, w2 * v2), w3 * v3), w4 * v4));
@@ -46,7 +46,7 @@ struct interpolated_value<T, pooling::Max> {
 };
 
 template <typename T>
-struct interpolated_value<T, pooling::Average> {
+struct interpolated_value<T, AveragePool> {
   static T value(T w1, T w2, T w3, T w4, T v1, T v2, T v3, T v4) {
     return (w1 * v1 + w2 * v2 + w3 * v3 + w4 * v4);
   }
@@ -63,7 +63,7 @@ class RoiAlignOp {
   size_t const n_threads_;
 
   SNN_ALWAYS_INLINE T interpolate_bilinear(T const* in_ptr, Index height,
-                                           Index width, T y, T x) {
+                                           Index width, T y, T x) const {
     if (y < T(-1) || y > static_cast<T>(height) || x < T(-1) ||
         x > static_cast<T>(width)) {
       return T(0);
@@ -105,7 +105,7 @@ class RoiAlignOp {
   }
 
  public:
-  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) {
+  SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     T const* in_ptr = in_data_.get_pointer();
     T const* roi_ptr = roi_data_.get_pointer();
     BatchIndicesT const* batch_indices_ptr = batch_indices_data_.get_pointer();

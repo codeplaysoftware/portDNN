@@ -27,7 +27,7 @@
 #define SNN_DATA_TYPE             @DATA_TYPE@
 #define SNN_BATCH_INDICES_TYPE    @BI_TYPE@
 #define SNN_INDEX_TYPE            @INDEX_TYPE@
-#define SNN_OPERATOR              pooling::@OPERATOR@
+#define SNN_OPERATOR              @OPERATOR@
 // clang-format on
 
 namespace sycldnn {

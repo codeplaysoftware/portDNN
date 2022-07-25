@@ -95,7 +95,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
         filter_accessor_{std::move(filter)},
         output_accessor_{std::move(output)} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
@@ -146,7 +146,8 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
 
  private:
   void SNN_ALWAYS_INLINE convolve_tile(Input const& input, Filter const& filter,
-                                       Output& output, int const row_idx) {
+                                       Output& output,
+                                       int const row_idx) const {
     SNN_PRAGMA_UNROLL
     for (int out_row = 0; out_row < OutTileRows; ++out_row) {
       int const filter_row = row_idx - out_row * Stride;
@@ -159,7 +160,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   void SNN_ALWAYS_INLINE convolve_one_row(Input const& input,
                                           Filter const& filter, Output& output,
                                           int const out_row,
-                                          int const filter_row) {
+                                          int const filter_row) const {
     int in_offset = 0;
     SNN_PRAGMA_UNROLL
     for (int out_col = 0; out_col < OutTileCols; ++out_col) {
@@ -177,7 +178,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
                                                   Filter const& filter,
                                                   int const filter_row,
                                                   int const filter_col,
-                                                  OutVecType value) {
+                                                  OutVecType value) const {
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < ChannelVectorWidth; i++) {
       value =
@@ -249,7 +250,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
         filter_accessor_{std::move(filter)},
         output_accessor_{std::move(output)} {}
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
@@ -305,7 +306,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
  private:
   void SNN_ALWAYS_INLINE convolve_tile(Input const& input, Filter const& filter,
                                        Output& output, int const row_idx,
-                                       int const first_col) {
+                                       int const first_col) const {
     SNN_PRAGMA_UNROLL
     for (int out_row = 0; out_row < OutTileRows; ++out_row) {
       int const filter_row = row_idx - out_row;
@@ -317,7 +318,8 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   void SNN_ALWAYS_INLINE convolve_one_row(Input const& input,
                                           Filter const& filter, Output& output,
                                           int const out_row,
-                                          int const filter_row, int offset) {
+                                          int const filter_row,
+                                          int offset) const {
     SNN_PRAGMA_UNROLL
     for (int out_col = 0; out_col < OutTileCols; ++out_col) {
       auto padded_out = out_col - offset;
@@ -343,11 +345,9 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       }
     }
   }
-  OutVecType SNN_ALWAYS_INLINE inputbackprop_accumulate(InVecType input,
-                                                        Filter const& filter,
-                                                        int const filter_row,
-                                                        int const filter_col,
-                                                        OutVecType value) {
+  OutVecType SNN_ALWAYS_INLINE inputbackprop_accumulate(
+      InVecType input, Filter const& filter, int const filter_row,
+      int const filter_col, OutVecType value) const {
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < FeatureVectorWidth; ++i) {
       OutVecType filter_slice =
@@ -360,7 +360,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   }
   OutVecType SNN_ALWAYS_INLINE slice_transpose(Filter const& filter,
                                                int filter_row, int filter_col,
-                                               int index) {
+                                               int index) const {
     OutVecType output;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < ChannelVectorWidth; ++i) {

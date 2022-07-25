@@ -49,7 +49,7 @@ struct TransposeKernel {
     }
   };
 
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index flat_in_id = item.get_id(0);
     if (flat_in_id < tensor_size_) {
       auto in_ptr = input_.get_pointer();

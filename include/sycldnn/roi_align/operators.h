@@ -24,11 +24,11 @@ namespace roi_align {
 
 /** Type alias for the Max pooling operator. */
 template <typename T>
-using MaxPool = sycldnn::pooling::Max<T>;
+struct MaxPool : public sycldnn::pooling::Max<T> {};
 
 /** Type alias for the Average pooling operator.  */
 template <typename T>
-using AveragePool = sycldnn::pooling::Average<T>;
+struct AveragePool : public sycldnn::pooling::Average<T> {};
 
 }  // namespace roi_align
 }  // namespace sycldnn

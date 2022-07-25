@@ -72,9 +72,9 @@ SNNStatus launch_roi_align(BaseMemObject<T const>& input,
       BaseMemObject<DTYPE> & output, const RoiAlignParams& rap,              \
       cl::sycl::queue& queue)
 
-#define INSTANTIATE_FOR_TYPE(DTYPE, BI_TYPE)        \
-  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, pooling::Max); \
-  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, pooling::Average)
+#define INSTANTIATE_FOR_TYPE(DTYPE, BI_TYPE)   \
+  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, MaxPool); \
+  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, AveragePool)
 
 INSTANTIATE_FOR_TYPE(float, int32_t);
 INSTANTIATE_FOR_TYPE(float, int64_t);

@@ -29,7 +29,7 @@ struct SetBuffer {
 
   explicit SetBuffer(write_accessor out) : output(std::move(out)) {}
 
-  void operator()(cl::sycl::item<1> item) {
+  void operator()(cl::sycl::item<1> item) const {
     const auto id = item.get_id(0);
     output[id] = id * static_cast<T>(0.1);
   }
