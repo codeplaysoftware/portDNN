@@ -26,6 +26,10 @@
 #include "sycldnn/export.h"
 
 namespace sycldnn {
+
+const std::vector<int> NHWC_TO_NCHW{0, 3, 1, 2};
+const std::vector<int> NCHW_TO_NHWC{0, 2, 3, 1};
+
 namespace transpose {
 namespace internal {
 

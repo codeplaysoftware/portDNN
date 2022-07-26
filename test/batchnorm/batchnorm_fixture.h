@@ -28,6 +28,7 @@
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
+#include "test/helpers/transpose.h"
 
 inline sycldnn::batchnorm::BatchNormParams getBatchNormParams(
     std::array<int, 4> in_shape, bool is_training, float momentum,
@@ -44,28 +45,59 @@ inline sycldnn::batchnorm::BatchNormParams getBatchNormParams(
   return params;
 }
 
-template <typename Pair, typename Direction>
+template <class T>
+const std::vector<T>& transposeInput(
+    sycldnn::batchnorm::BatchNormParams const& params,
+    std::vector<T>& trInputData, const std::vector<T>& inputData) {
+  if (params.input_format == sycldnn::DataFormat::NCHW) {
+    transpose(trInputData, inputData, params.batch, params.rows * params.cols,
+              params.channels);
+    return trInputData;
+  }
+  return inputData;
+}
+
+template <class T>
+const std::vector<T>& transposeOutput(
+    sycldnn::batchnorm::BatchNormParams const& params,
+    std::vector<T>& trOutputData, const std::vector<T>& outputData) {
+  if (params.input_format == sycldnn::DataFormat::NCHW) {
+    transpose(trOutputData, outputData, params.batch, params.channels,
+              params.rows * params.cols);
+    return trOutputData;
+  }
+  return outputData;
+}
+
+template <typename Triple, typename Direction>
 struct BatchNormFixture;
 
-template <typename Pair>
-struct BatchNormFixture<Pair, sycldnn::batchnorm::Forward>
-    : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
-  using Backend = typename Pair::SecondType;
+template <typename Triple>
+struct BatchNormFixture<Triple, sycldnn::batchnorm::Forward>
+    : public BackendTestFixture<typename Triple::SecondType> {
+  using DataType = typename Triple::FirstType;
+  using Backend = typename Triple::SecondType;
+  static constexpr sycldnn::DataFormat INPUT_FORMAT =
+      Triple::ThirdType::input_layout;
 
   void test_batchnorm(std::vector<DataType> const& exp_running_mean,
                       std::vector<DataType> const& exp_running_var,
                       std::vector<DataType> const& exp_output,
-                      sycldnn::batchnorm::BatchNormParams const& params,
+                      sycldnn::batchnorm::BatchNormParams params,
                       DataType max_input_val, DataType max_beta_val,
                       DataType max_gamma_val, DataType max_input_mean_val,
                       DataType max_input_var_val) {
+    ASSERT_EQ(params.input_format, sycldnn::DataFormat::NHWC)
+        << "Tests should be written for the NHWC layout. The input layout is "
+           "set from the fixture type.";
+    params.input_format = INPUT_FORMAT;
+
     auto input_size =
         params.batch * params.rows * params.cols * params.channels;
     const auto size = exp_output.size();
     ASSERT_EQ(input_size, size);
 
-    std::vector<DataType> input =
+    std::vector<DataType> inputData =
         iota_initialised_data<DataType>(input_size, max_input_val);
     std::vector<DataType> beta =
         iota_initialised_data<DataType>(params.channels, max_beta_val);
@@ -75,7 +107,12 @@ struct BatchNormFixture<Pair, sycldnn::batchnorm::Forward>
         iota_initialised_data<DataType>(params.channels, max_input_mean_val);
     std::vector<DataType> input_var =
         iota_initialised_data<DataType>(params.channels, max_input_var_val);
-    std::vector<DataType> output(size);
+    std::vector<DataType> outputData(size);
+    std::vector<DataType>& output = outputData;
+
+    std::vector<DataType> trInputData;
+    const std::vector<DataType>& input =
+        transposeInput(params, trInputData, inputData);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
@@ -131,7 +168,9 @@ struct BatchNormFixture<Pair, sycldnn::batchnorm::Forward>
       }
     }
 
-    provider.copy_device_data_to_host(size, out_gpu, output);
+    provider.copy_device_data_to_host(size, out_gpu, outputData);
+    std::vector<DataType> trOutputData;
+    output = transposeOutput(params, trOutputData, outputData);
 
     for (size_t i = 0; i < size; i++) {
       SCOPED_TRACE("Element: " + std::to_string(i));
@@ -140,27 +179,34 @@ struct BatchNormFixture<Pair, sycldnn::batchnorm::Forward>
   }
 };
 
-template <typename Pair>
-struct BatchNormFixture<Pair, sycldnn::batchnorm::Gradient>
-    : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
-  using Backend = typename Pair::SecondType;
+template <typename Triple>
+struct BatchNormFixture<Triple, sycldnn::batchnorm::Gradient>
+    : public BackendTestFixture<typename Triple::SecondType> {
+  using DataType = typename Triple::FirstType;
+  using Backend = typename Triple::SecondType;
+  static constexpr sycldnn::DataFormat INPUT_FORMAT =
+      Triple::ThirdType::input_layout;
 
   void test_batchnorm(std::vector<DataType> const& exp_out_grad,
                       std::vector<DataType> const& exp_beta_grad,
                       std::vector<DataType> const& exp_gamma_grad,
-                      sycldnn::batchnorm::BatchNormParams const& params,
+                      sycldnn::batchnorm::BatchNormParams params,
                       DataType max_input_val, DataType max_gradient_val,
                       DataType max_gamma_val, DataType max_pop_mean_val,
                       DataType max_pop_var_val) {
+    ASSERT_EQ(params.input_format, sycldnn::DataFormat::NHWC)
+        << "Tests should be written for the NHWC layout. The input layout is "
+           "set from the fixture type.";
+    params.input_format = INPUT_FORMAT;
+
     auto input_size =
         params.batch * params.rows * params.cols * params.channels;
     const auto size = exp_out_grad.size();
     ASSERT_EQ(input_size, size);
 
-    std::vector<DataType> input =
+    std::vector<DataType> inputData =
         iota_initialised_data<DataType>(input_size, max_input_val);
-    std::vector<DataType> gradient =
+    std::vector<DataType> gradientData =
         iota_initialised_data<DataType>(input_size, max_gradient_val);
     std::vector<DataType> gamma =
         iota_initialised_data<DataType>(params.channels, max_gamma_val);
@@ -170,7 +216,16 @@ struct BatchNormFixture<Pair, sycldnn::batchnorm::Gradient>
         iota_initialised_data<DataType>(params.channels, max_pop_var_val);
     std::vector<DataType> beta_grad(params.channels);
     std::vector<DataType> gamma_grad(params.channels);
-    std::vector<DataType> output(size);
+    std::vector<DataType> outputData(size);
+    std::vector<DataType>& output = outputData;
+
+    std::vector<DataType> trInputData;
+    const std::vector<DataType>& input =
+        transposeInput(params, trInputData, inputData);
+
+    std::vector<DataType> trGradientData;
+    const std::vector<DataType>& gradient =
+        transposeInput(params, trGradientData, gradientData);
 
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
@@ -223,7 +278,9 @@ struct BatchNormFixture<Pair, sycldnn::batchnorm::Gradient>
       SNN_ALMOST_EQUAL_EPS(exp_gamma_grad[i], output[i], 30u, 1e-2);
     }
 
-    provider.copy_device_data_to_host(size, out_gpu, output);
+    provider.copy_device_data_to_host(size, out_gpu, outputData);
+    std::vector<DataType> trOutputData;
+    output = transposeOutput(params, trOutputData, outputData);
 
     for (size_t i = 0; i < size; i++) {
       SCOPED_TRACE("Element: " + std::to_string(i));

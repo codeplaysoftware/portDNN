@@ -124,7 +124,7 @@ SNNStatus convert_nhwc_to_nchw(
   SNN_VALIDATE_PARAM(
       dimensions.size() == 4,
       "Conversion from NHWC to NCHW is only valid on 4D tensors.");
-  return launch<T>(input, output, dimensions, {0, 3, 1, 2}, backend);
+  return launch<T>(input, output, dimensions, NHWC_TO_NCHW, backend);
 }
 
 /**
@@ -154,7 +154,7 @@ SNNStatus convert_nchw_to_nhwc(
   SNN_VALIDATE_PARAM(
       dimensions.size() == 4,
       "Conversion from NCHW to NHWC is only valid on 4D tensors.");
-  return launch<T>(input, output, dimensions, {0, 2, 3, 1}, backend);
+  return launch<T>(input, output, dimensions, NCHW_TO_NHWC, backend);
 }
 
 }  // namespace transpose

@@ -27,7 +27,9 @@
 
 #include "test/batchnorm/batchnorm_fixture.h"
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -35,16 +37,21 @@
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::AllBackendTypes;
+using DataFormats = sycldnn::types::DataFormatTypes;
 
 using TypeBackendPairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+using TypeBackendFormatTriple =
+    sycldnn::types::CartesianProduct<TypeBackendPairs, DataFormats>::type;
 
-using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<TypeBackendFormatTriple>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename Pair>
-using BatchnormForwardFrozen = BatchNormFixture<Pair, batchnorm::Forward>;
-TYPED_TEST_CASE(BatchnormForwardFrozen, GTestTypePairs);
+template <typename Triple>
+using BatchnormForwardFrozen = BatchNormFixture<Triple, batchnorm::Forward>;
+TYPED_TEST_CASE(BatchnormForwardFrozen, GTestTypeTriples);
 TYPED_TEST(BatchnormForwardFrozen, 1x1x1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_running_mean = {};

@@ -55,8 +55,6 @@ SNNStatus inline validate_params(BatchNormParams const& params) {
                      "The number of input/output rows must be positive.");
   SNN_VALIDATE_PARAM(params.cols > 0,
                      "The number of input/output columns must be positive.");
-  SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
-                     "Currently SYCL-DNN only supports the NHWC data format.");
   SNN_VALIDATE_PARAM(params.epsilon > 0.f,
                      "The epsilon parameter must be greater than 0.");
   SNN_VALIDATE_PARAM(

@@ -45,7 +45,9 @@ INCLUDES = r"""
 
 #include "test/batchnorm/batchnorm_fixture.h"
 #include "test/types/cartesian_product.h"
+#include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -54,18 +56,23 @@ INCLUDES = r"""
 TEST_TYPES_TPL = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Backends = sycldnn::types::AllBackendTypes;
+using DataFormats = sycldnn::types::DataFormatTypes;
 
 using TypeBackendPairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+using TypeBackendFormatTriple =
+    sycldnn::types::CartesianProduct<TypeBackendPairs, DataFormats>::type;
 
-using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<TypeBackendFormatTriple>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 """
 
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
-template <typename Pair>
-using {test_case} = BatchNormFixture<Pair, batchnorm::{direction}>;
-TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
+template <typename Triple>
+using {test_case} = BatchNormFixture<Triple, batchnorm::{direction}>;
+TYPED_TEST_CASE({test_case}, GTestTypeTriples);"""
 
 TestCaseParams = namedtuple('TestCaseParams', ['direction', 'operation'])
 TestParams = namedtuple(
