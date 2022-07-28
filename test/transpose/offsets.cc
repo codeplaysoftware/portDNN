@@ -37,11 +37,7 @@ TYPED_TEST(TransposeOffsets, Offsets_2D) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 16, 16);
 }
-TYPED_TEST(TransposeOffsets, DISABLED_Offsets_2D_NoOutputOffset_NoPerm) {
-  // This test highlights a bug in ComputeCpp 1.0.3 when copying reinterpreted
-  // buffers. The size of the original type is used in the copy rather than the
-  // size of the reinterpreted type.
-  // TODO: Re-enable this tests once underlying problem is fixed.
+TYPED_TEST(TransposeOffsets, Offsets_2D_NoOutputOffset_NoPerm) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {17., 18., 19., 20., 21., 22.,
                                          23., 24., 25., 26., 27., 28.};
