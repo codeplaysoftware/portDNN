@@ -187,8 +187,19 @@ struct MemObject final : public BaseMemObject<T, Alloc> {
    */
   MemObject<DataType const, AllocType> as_const() const override {
     return MemObject<DataType const, AllocType>(
-        buffer_.template reinterpret<DataType const, 1>(buffer_.get_count()),
-        extent_, offset_);
+        buffer_.template reinterpret<DataType const>(), extent_, offset_);
+  }
+
+  /**
+   * Return a new MemObject with a buffer casted to a new type.
+   * \return Casted MemObject.
+   */
+  template <typename NewDataType,
+            typename std::enable_if<sizeof(NewDataType) == sizeof(DataType),
+                                    int>::type = 0>
+  MemObject<NewDataType, AllocType> cast() const {
+    return MemObject<NewDataType, AllocType>(
+        buffer_.template reinterpret<NewDataType>(), extent_, offset_);
   }
 
  private:
@@ -238,6 +249,18 @@ struct MemObject<T const, Alloc> final : public BaseMemObject<T const, Alloc> {
 
   /** \copydoc MemObject<T>::get_count() */
   size_t get_count() const override { return buffer_.get_count(); }
+
+  /**
+   * Return a new MemObject with a buffer casted to a new type.
+   * \return Casted MemObject.
+   */
+  template <typename NewDataType,
+            typename std::enable_if<sizeof(NewDataType) == sizeof(DataType),
+                                    int>::type = 0>
+  MemObject<NewDataType const, AllocType> cast() const {
+    return MemObject<NewDataType const, AllocType>(
+        buffer_.template reinterpret<NewDataType const>(), extent_, offset_);
+  }
 
  private:
   /** The underlying SYCL buffer. */

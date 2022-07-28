@@ -48,3 +48,12 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+snn_test(
+  WITH_SYCL
+  TARGET
+    transpose_cast
+  SOURCES
+    transpose_cast.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)

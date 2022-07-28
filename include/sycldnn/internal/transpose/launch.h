@@ -39,11 +39,49 @@ namespace internal {
  * Implemented in the compiled SYCL DNN library.
  */
 template <typename T>
-SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& input,
-                            BaseMemObject<T>& output,
-                            std::vector<int> dimensions,
-                            std::vector<int> permutation,
-                            cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_impl(BaseMemObject<T const>& input,
+                                 BaseMemObject<T>& output,
+                                 std::vector<int> dimensions,
+                                 std::vector<int> permutation,
+                                 cl::sycl::queue& queue);
+
+/**
+ * Internal tensor transpose launcher that is able to cast tensor types to the
+ * implemented types.
+ */
+template <typename SrcT, typename DstT>
+SNNStatus launch_cast(BaseMemObject<SrcT const>& input,
+                      BaseMemObject<SrcT>& output, std::vector<int> dimensions,
+                      std::vector<int> permutation, cl::sycl::queue& queue) {
+  if (std::is_same<SrcT, DstT>::value) {
+    return launch_impl(input, output, dimensions, permutation, queue);
+  }
+  auto& input_mem =
+      dynamic_cast<MemObject<SrcT const, cl::sycl::buffer_allocator>&>(input);
+  auto& output_mem =
+      dynamic_cast<MemObject<SrcT, cl::sycl::buffer_allocator>&>(output);
+  auto input_int_mem = input_mem.template cast<DstT>();
+  auto output_int_mem = output_mem.template cast<DstT>();
+  return launch_impl(input_int_mem, output_int_mem, dimensions, permutation,
+                     queue);
+}
+
+#define SNN_LAUNCH_CAST(DST_T)                                                \
+  template <typename T, typename std::enable_if<sizeof(T) == sizeof(DST_T),   \
+                                                int>::type = 0>               \
+  SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,   \
+                   std::vector<int> dimensions, std::vector<int> permutation, \
+                   cl::sycl::queue& queue) {                                  \
+    return launch_cast<T, DST_T>(input, output, dimensions, permutation,      \
+                                 queue);                                      \
+  }
+
+SNN_LAUNCH_CAST(uint8_t);
+SNN_LAUNCH_CAST(uint16_t);
+SNN_LAUNCH_CAST(uint32_t);
+SNN_LAUNCH_CAST(uint64_t);
+
+#undef SNN_LAUNCH_CAST
 
 }  // namespace internal
 }  // namespace transpose

@@ -79,7 +79,7 @@ struct TransposeFixture
 
     for (size_t i = 0; i < exp.size(); ++i) {
       SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], out_data[i], 10u);
+      EXPECT_EQ(exp[i], out_data[i]);
     }
   }
 };

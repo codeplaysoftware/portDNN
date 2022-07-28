@@ -80,6 +80,7 @@ option(SNN_BENCH_ARM_COMPUTE
   "Whether or not to build ARM compute library benchmarks" OFF)
 
 set(SNN_DATA_TYPES float)
+set(SNN_DATA_INT_TYPES uint8_t uint16_t uint32_t uint64_t)
 set(SNN_INDEX_TYPES int32_t)
 set(SNN_LAYOUTS NHWC)
 option(SNN_ENABLE_DOUBLE "Enable double support for kernels and tests" OFF)

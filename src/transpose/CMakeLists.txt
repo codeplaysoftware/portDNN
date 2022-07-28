@@ -40,7 +40,7 @@ function(generate_transpose_kernels)
     ${ARGN}
   )
   set(_sources "")
-  foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
+  foreach(DATA_TYPE IN LISTS SNN_DATA_INT_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
       generate_transpose_impl(_sources 2)
       generate_transpose_impl(_sources 3)

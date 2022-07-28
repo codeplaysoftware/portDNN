@@ -24,10 +24,10 @@ using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 template <typename DataType>
-using TranposeOffsets = TransposeFixture<DataType>;
-TYPED_TEST_SUITE(TranposeOffsets, GTestTypeList);
+using TransposeOffsets = TransposeFixture<DataType>;
+TYPED_TEST_SUITE(TransposeOffsets, GTestTypeList);
 
-TYPED_TEST(TranposeOffsets, Offsets_2D) {
+TYPED_TEST(TransposeOffsets, Offsets_2D) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.,  10., 11., 12., 13., 14.,
@@ -37,7 +37,7 @@ TYPED_TEST(TranposeOffsets, Offsets_2D) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 16, 16);
 }
-TYPED_TEST(TranposeOffsets, DISABLED_Offsets_2D_NoOutputOffset_NoPerm) {
+TYPED_TEST(TransposeOffsets, DISABLED_Offsets_2D_NoOutputOffset_NoPerm) {
   // This test highlights a bug in ComputeCpp 1.0.3 when copying reinterpreted
   // buffers. The size of the original type is used in the copy rather than the
   // size of the reinterpreted type.
@@ -50,7 +50,7 @@ TYPED_TEST(TranposeOffsets, DISABLED_Offsets_2D_NoOutputOffset_NoPerm) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 16, 0);
 }
-TYPED_TEST(TranposeOffsets, Offsets_2D_NoOutputOffset_WithPerm) {
+TYPED_TEST(TransposeOffsets, Offsets_2D_NoOutputOffset_WithPerm) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {17., 21., 25., 18., 22., 26.,
                                          19., 23., 27., 20., 24., 28.};

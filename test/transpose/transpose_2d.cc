@@ -25,13 +25,12 @@
 #include "test/types/kernel_data_types.h"
 #include "test/types/to_gtest_types.h"
 
-using DataTypeList = sycldnn::types::KernelDataTypes;
-using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
+using GTestTypeList = sycldnn::types::GTestKernelDataTypes;
 
 template <typename DataType>
-using Tranpose2D = TransposeFixture<DataType>;
-TYPED_TEST_SUITE(Tranpose2D, GTestTypeList);
-TYPED_TEST(Tranpose2D, T2D_2x2_0x1) {
+using Transpose2D = TransposeFixture<DataType>;
+TYPED_TEST_SUITE(Transpose2D, GTestTypeList);
+TYPED_TEST(Transpose2D, T2D_2x2_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.};
   const std::vector<int> sizes = {2, 2};
@@ -39,7 +38,7 @@ TYPED_TEST(Tranpose2D, T2D_2x2_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_2x2_1x0) {
+TYPED_TEST(Transpose2D, T2D_2x2_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 3., 2., 4.};
   const std::vector<int> sizes = {2, 2};
@@ -47,7 +46,7 @@ TYPED_TEST(Tranpose2D, T2D_2x2_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_2x3_0x1) {
+TYPED_TEST(Transpose2D, T2D_2x3_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6.};
   const std::vector<int> sizes = {2, 3};
@@ -55,7 +54,7 @@ TYPED_TEST(Tranpose2D, T2D_2x3_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_2x3_1x0) {
+TYPED_TEST(Transpose2D, T2D_2x3_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 4., 2., 5., 3., 6.};
   const std::vector<int> sizes = {2, 3};
@@ -63,7 +62,7 @@ TYPED_TEST(Tranpose2D, T2D_2x3_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_2x4_0x1) {
+TYPED_TEST(Transpose2D, T2D_2x4_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8.};
   const std::vector<int> sizes = {2, 4};
@@ -71,7 +70,7 @@ TYPED_TEST(Tranpose2D, T2D_2x4_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_2x4_1x0) {
+TYPED_TEST(Transpose2D, T2D_2x4_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 5., 2., 6., 3., 7., 4., 8.};
   const std::vector<int> sizes = {2, 4};
@@ -79,7 +78,7 @@ TYPED_TEST(Tranpose2D, T2D_2x4_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_3x2_0x1) {
+TYPED_TEST(Transpose2D, T2D_3x2_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6.};
   const std::vector<int> sizes = {3, 2};
@@ -87,7 +86,7 @@ TYPED_TEST(Tranpose2D, T2D_3x2_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_3x2_1x0) {
+TYPED_TEST(Transpose2D, T2D_3x2_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 3., 5., 2., 4., 6.};
   const std::vector<int> sizes = {3, 2};
@@ -95,7 +94,7 @@ TYPED_TEST(Tranpose2D, T2D_3x2_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_3x3_0x1) {
+TYPED_TEST(Transpose2D, T2D_3x3_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8., 9.};
   const std::vector<int> sizes = {3, 3};
@@ -103,7 +102,7 @@ TYPED_TEST(Tranpose2D, T2D_3x3_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_3x3_1x0) {
+TYPED_TEST(Transpose2D, T2D_3x3_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 4., 7., 2., 5., 8., 3., 6., 9.};
   const std::vector<int> sizes = {3, 3};
@@ -111,7 +110,7 @@ TYPED_TEST(Tranpose2D, T2D_3x3_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_3x4_0x1) {
+TYPED_TEST(Transpose2D, T2D_3x4_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
                                          7., 8., 9., 10., 11., 12.};
@@ -120,7 +119,7 @@ TYPED_TEST(Tranpose2D, T2D_3x4_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_3x4_1x0) {
+TYPED_TEST(Transpose2D, T2D_3x4_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 5., 9.,  2., 6., 10.,
                                          3., 7., 11., 4., 8., 12.};
@@ -129,7 +128,7 @@ TYPED_TEST(Tranpose2D, T2D_3x4_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_4x2_0x1) {
+TYPED_TEST(Transpose2D, T2D_4x2_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4., 5., 6., 7., 8.};
   const std::vector<int> sizes = {4, 2};
@@ -137,7 +136,7 @@ TYPED_TEST(Tranpose2D, T2D_4x2_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_4x2_1x0) {
+TYPED_TEST(Transpose2D, T2D_4x2_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 3., 5., 7., 2., 4., 6., 8.};
   const std::vector<int> sizes = {4, 2};
@@ -145,7 +144,7 @@ TYPED_TEST(Tranpose2D, T2D_4x2_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_4x3_0x1) {
+TYPED_TEST(Transpose2D, T2D_4x3_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.,  5.,  6.,
                                          7., 8., 9., 10., 11., 12.};
@@ -154,7 +153,7 @@ TYPED_TEST(Tranpose2D, T2D_4x3_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_4x3_1x0) {
+TYPED_TEST(Transpose2D, T2D_4x3_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 4.,  7., 10., 2., 5.,
                                          8., 11., 3., 6.,  9., 12.};
@@ -163,7 +162,7 @@ TYPED_TEST(Tranpose2D, T2D_4x3_1x0) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_4x4_0x1) {
+TYPED_TEST(Transpose2D, T2D_4x4_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2.,  3.,  4.,  5.,  6.,  7.,  8.,
                                          9., 10., 11., 12., 13., 14., 15., 16.};
@@ -172,7 +171,7 @@ TYPED_TEST(Tranpose2D, T2D_4x4_0x1) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, sizes, perm, max_input_val, 0, 0);
 }
-TYPED_TEST(Tranpose2D, T2D_4x4_1x0) {
+TYPED_TEST(Transpose2D, T2D_4x4_1x0) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 5., 9.,  13., 2., 6., 10., 14.,
                                          3., 7., 11., 15., 4., 8., 12., 16.};

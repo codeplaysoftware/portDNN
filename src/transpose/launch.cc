@@ -103,9 +103,9 @@ void simplify_transpose(std::vector<int>& dimensions,
 }  // namespace
 
 template <typename T>
-SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                 std::vector<int> dimensions, std::vector<int> permutation,
-                 cl::sycl::queue& queue) {
+SNNStatus launch_impl(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+                      std::vector<int> dimensions, std::vector<int> permutation,
+                      cl::sycl::queue& queue) {
   simplify_transpose(dimensions, permutation);
   switch (dimensions.size()) {
     case 6:
@@ -131,20 +131,15 @@ SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
 }
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)                                    \
-  template SNN_EXPORT SNNStatus launch(                                \
+  template SNN_EXPORT SNNStatus launch_impl(                           \
       BaseMemObject<DTYPE const>& input, BaseMemObject<DTYPE>& output, \
       std::vector<int> dimensions, std::vector<int> permutation,       \
       cl::sycl::queue& backend)
 
-INSTANTIATE_FOR_TYPE(float);
-
-#ifdef SNN_USE_DOUBLE
-INSTANTIATE_FOR_TYPE(double);
-#endif  // SNN_USE_DOUBLE
-
-#ifdef SNN_USE_HALF
-INSTANTIATE_FOR_TYPE(cl::sycl::half);
-#endif  // SNN_USE_HALF
+INSTANTIATE_FOR_TYPE(uint8_t);
+INSTANTIATE_FOR_TYPE(uint16_t);
+INSTANTIATE_FOR_TYPE(uint32_t);
+INSTANTIATE_FOR_TYPE(uint64_t);
 
 #undef INSTANTIATE_FOR_TYPE
 
