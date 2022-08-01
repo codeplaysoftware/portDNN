@@ -50,6 +50,14 @@ struct SNNToBlas<reduce::Mean> {
   /** SYCL-BLAS Mean type */
   using type = blas::MeanOperator;
 };
+
+/** Convert SNN Reduce Max to SYCL-BLAS type */
+template <>
+struct SNNToBlas<reduce::Max> {
+  /** SYCL-BLAS Max type */
+  using type = blas::MaxOperator;
+};
+
 }  // namespace internal
 
 // Forward declaration to allow the BackendTraits specialisation.
