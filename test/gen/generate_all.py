@@ -25,6 +25,7 @@ from generate_softmax_tests import generate_softmax_tests
 from generate_transpose_tests import generate_transpose_tests
 from generate_reduce_tests import generate_reduce_tests
 from generate_binaryop_tests import generate_binaryop_tests
+from generate_scatter_nd_tests import generate_scatter_nd_tests
 
 
 def generate_all():
@@ -40,6 +41,7 @@ def generate_all():
     generate_batchnorm_tests()
     generate_reduce_tests()
     generate_binaryop_tests()
+    generate_scatter_nd_tests()
 
 
 if __name__ == "__main__":
