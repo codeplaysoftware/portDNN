@@ -41,25 +41,52 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
     set(cmake_toolchain "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
   endif()
   if(NOT TARGET sycl_blas_download)
-    ExternalProject_Add(sycl_blas_download
-      GIT_REPOSITORY    ${sycl_blas_REPO}
-      GIT_TAG           ${sycl_blas_GIT_TAG}
-      GIT_CONFIG        advice.detachedHead=false
-      SOURCE_DIR        ${sycl_blas_SOURCE_DIR}
-      BINARY_DIR        ${sycl_blas_BINARY_DIR}
-      CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                        -DBUILD_SHARED_LIBS=ON
-                        -DBLAS_ENABLE_TESTING=OFF
-                        -DBLAS_ENABLE_BENCHMARK=OFF
-                        -DBLAS_BUILD_SAMPLES=OFF
-                        -DBLAS_ENABLE_CONST_INPUT=ON
-                        -DComputeCpp_DIR=${ComputeCpp_DIR}
-                        -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-                        ${cmake_toolchain}
-      INSTALL_COMMAND   ""
-      TEST_COMMAND      ""
-      BUILD_BYPRODUCTS ${sycl_blas_BYPRODUCTS}
-    )
+    if (ComputeCpp_FOUND)
+      ExternalProject_Add(sycl_blas_download
+        GIT_REPOSITORY    ${sycl_blas_REPO}
+        GIT_TAG           ${sycl_blas_GIT_TAG}
+        GIT_CONFIG        advice.detachedHead=false
+        SOURCE_DIR        ${sycl_blas_SOURCE_DIR}
+        BINARY_DIR        ${sycl_blas_BINARY_DIR}
+        CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                          -DBUILD_SHARED_LIBS=ON
+                          -DBLAS_ENABLE_TESTING=OFF
+                          -DBLAS_ENABLE_BENCHMARK=OFF
+                          -DBLAS_BUILD_SAMPLES=OFF
+                          -DBLAS_ENABLE_CONST_INPUT=ON
+                          -DComputeCpp_DIR=${ComputeCpp_DIR}
+                          -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+                          ${cmake_toolchain}
+        INSTALL_COMMAND   ""
+        TEST_COMMAND      ""
+        BUILD_BYPRODUCTS ${sycl_blas_BYPRODUCTS}
+      )
+    elseif (DPCPP_FOUND)
+      ExternalProject_Add(sycl_blas_download
+        GIT_REPOSITORY    ${sycl_blas_REPO}
+        GIT_TAG           ${sycl_blas_GIT_TAG}
+        GIT_CONFIG        advice.detachedHead=false
+        SOURCE_DIR        ${sycl_blas_SOURCE_DIR}
+        BINARY_DIR        ${sycl_blas_BINARY_DIR}
+        CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                          -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                          -DBUILD_SHARED_LIBS=ON
+                          -DBLAS_ENABLE_TESTING=OFF
+                          -DBLAS_ENABLE_BENCHMARK=OFF
+                          -DBLAS_BUILD_SAMPLES=OFF
+                          -DBLAS_ENABLE_CONST_INPUT=ON
+                          -Dis_computecp=FALSE
+                          -Dis_dpcpp=TRUE
+                          -DDPCPP_SYCL_TARGET=${DPCPP_SYCL_TARGET}
+                          -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+                          ${cmake_toolchain}
+        INSTALL_COMMAND   ""
+        TEST_COMMAND      ""
+        BUILD_BYPRODUCTS ${sycl_blas_BYPRODUCTS}
+      )
+    else()
+      message(FATAL_ERROR "Unknown SYCL implementation")
+    endif()
   endif()
   set(sycl_blas_INCLUDE_DIR
     ${sycl_blas_SOURCE_DIR}/include CACHE PATH
