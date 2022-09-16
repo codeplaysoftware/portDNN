@@ -47,7 +47,7 @@ endif()
 
 set(SYCL_LANGUAGE_VERSION "2017" CACHE STRING "SYCL version to use. Defaults to 1.2.1.")
 
-find_package(OpenCL REQUIRED)
+find_package(OpenCL QUIET)
 
 # Find ComputeCpp package
 set(computecpp_find_hint
@@ -137,6 +137,7 @@ find_package_handle_standard_args(ComputeCpp
                 COMPUTECPP_RUNTIME_LIBRARY
                 COMPUTECPP_RUNTIME_LIBRARY_DEBUG
                 ComputeCpp_INCLUDE_DIRS
+                OpenCL_FOUND
   VERSION_VAR ComputeCpp_VERSION)
 mark_as_advanced(ComputeCpp_ROOT_DIR
                  ComputeCpp_DEVICE_COMPILER_EXECUTABLE
