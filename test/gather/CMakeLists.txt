@@ -11,18 +11,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+cmake_minimum_required(VERSION 3.2.2)
 
-cmake_minimum_required(VERSION 3.10.2)
+include(HandleGTest)
 include(SNNHelpers)
 
-add_subdirectory(conv2d)
-add_subdirectory(depthwise_conv2d)
-add_subdirectory(matmul)
-add_subdirectory(pointwise)
-add_subdirectory(pooling)
-add_subdirectory(binaryop)
-add_subdirectory(transpose)
-add_subdirectory(roi_align)
-add_subdirectory(reduce)
-add_subdirectory(scatter_nd)
-add_subdirectory(gather)
+foreach(_gather_inp_dim IN ITEMS 1 2 3)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      gather_${_gather_inp_dim}d
+    SIZE
+      moderate
+    SOURCES
+      gather_${_gather_inp_dim}d.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endforeach()
+
+snn_test(
+  WITH_SYCL
+  TARGET
+    gather_cast
+  SOURCES
+    gather_cast.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)
+
+snn_test(
+  WITH_SYCL
+  TARGET
+    gather_indices
+  SOURCES
+    gather_indices.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)
