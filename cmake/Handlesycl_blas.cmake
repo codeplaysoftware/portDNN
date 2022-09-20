@@ -41,6 +41,14 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
     set(cmake_toolchain "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
   endif()
   if(NOT TARGET sycl_blas_download)
+    set(ComputeCpp_CMAKE_FLAGS "")
+    set(DPCPP_CMAKE_FLAGS "")
+    if (ComputeCpp_FOUND)
+        set(ComputeCpp_CMAKE_FLAGS "-DComputeCpp_DIR=${ComputeCpp_DIR}")
+    endif()
+    if (DPCPP_FOUND)
+        set(DPCPP_CMAKE_FLAGS "-DDPCPP_SYCL_TARGET=${DPCPP_SYCL_TARGET}")
+    endif()
     ExternalProject_Add(sycl_blas_download
       GIT_REPOSITORY    ${sycl_blas_REPO}
       GIT_TAG           ${sycl_blas_GIT_TAG}
@@ -48,12 +56,14 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
       SOURCE_DIR        ${sycl_blas_SOURCE_DIR}
       BINARY_DIR        ${sycl_blas_BINARY_DIR}
       CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                         -DBUILD_SHARED_LIBS=ON
                         -DBLAS_ENABLE_TESTING=OFF
                         -DBLAS_ENABLE_BENCHMARK=OFF
                         -DBLAS_BUILD_SAMPLES=OFF
                         -DBLAS_ENABLE_CONST_INPUT=ON
-                        -DComputeCpp_DIR=${ComputeCpp_DIR}
+                        ${ComputeCpp_CMAKE_FLAGS}
+                        ${DPCPP_CMAKE_FLAGS}
                         -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
                         ${cmake_toolchain}
       INSTALL_COMMAND   ""
