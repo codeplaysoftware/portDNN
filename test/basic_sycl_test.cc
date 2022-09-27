@@ -26,6 +26,7 @@ TEST(BasicSycl, construct_queue_with_selector) {
   cl::sycl::default_selector selector;
   cl::sycl::queue queue{selector};
 }
+#ifndef SYCL_IMPLEMENTATION_ONEAPI  // No host device in DPC++
 TEST(BasicSycl, host_set_float) {
   static constexpr auto write_mode = cl::sycl::access::mode::write;
   constexpr size_t num_elems = 10;
@@ -49,6 +50,7 @@ TEST(BasicSycl, host_set_float) {
     ASSERT_FLOAT_EQ(static_cast<float>(i) * 0.1f, base_mem[i]);
   }
 }
+#endif
 TEST(BasicSycl, device_set_float) {
   static constexpr auto write_mode = cl::sycl::access::mode::write;
   constexpr size_t num_elems = 10;
