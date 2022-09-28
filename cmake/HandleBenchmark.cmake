@@ -56,6 +56,7 @@ if(SNN_DOWNLOAD_BENCHMARK OR (SNN_DOWNLOAD_MISSING_DEPS AND NOT benchmark_FOUND)
     CMAKE_ARGS        -DBENCHMARK_ENABLE_TESTING=OFF
                       -DBUILD_SHARED_LIBS=OFF
                       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                      -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                       -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
                       "-DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG=1 -Wno-error=unused-but-set-variable"
                       -DCMAKE_CXX_FLAGS_DEBUG=${CMAKE_CXX_FLAGS_DEBUG}
