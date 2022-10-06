@@ -18,6 +18,7 @@
 
 #include <CL/sycl.hpp>
 
+#include "sycldnn/helpers/sycl_language_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -56,11 +57,12 @@ SNNStatus launch_cast(BaseMemObject<SrcT const>& input,
   if (std::is_same<SrcT, DstT>::value) {
     return launch_impl(input, output, dimensions, permutation, queue);
   }
-  auto& input_mem =
-      dynamic_cast<MemObject<SrcT const, cl::sycl::buffer_allocator>&>(input);
+  auto& input_mem = dynamic_cast<
+      MemObject<SrcT const, sycldnn::helpers::buffer_allocator<SrcT>>&>(input);
   auto& output_mem =
-      dynamic_cast<MemObject<SrcT, cl::sycl::buffer_allocator>&>(output);
-  auto input_int_mem = input_mem.template cast<DstT>();
+      dynamic_cast<MemObject<SrcT, sycldnn::helpers::buffer_allocator<SrcT>>&>(
+          output);
+  auto input_int_mem = input_mem.template cast<DstT const>();
   auto output_int_mem = output_mem.template cast<DstT>();
   return launch_impl(input_int_mem, output_int_mem, dimensions, permutation,
                      queue);

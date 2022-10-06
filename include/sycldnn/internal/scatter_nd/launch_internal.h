@@ -17,6 +17,7 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_SCATTER_ND_LAUNCH_INTERNAL_H_
 #define SYCLDNN_INCLUDE_INTERNAL_SCATTER_ND_LAUNCH_INTERNAL_H_
 
+#include "sycldnn/helpers/sycl_language_helpers.h"
 #include "sycldnn/status.h"
 
 #include "sycldnn/export.h"
@@ -58,14 +59,16 @@ SNNStatus launch_cast(BaseMemObject<SrcT const>& input,
     return launch_scatter_nd<SrcT, Index, ScatterNDType, IndexDepth>(
         input, indices, updates, output, sizes, queue);
   }
-  auto& input_mem =
-      dynamic_cast<MemObject<SrcT const, cl::sycl::buffer_allocator>&>(input);
-  auto& updates_mem =
-      dynamic_cast<MemObject<SrcT const, cl::sycl::buffer_allocator>&>(updates);
+  auto& input_mem = dynamic_cast<
+      MemObject<SrcT const, sycldnn::helpers::buffer_allocator<SrcT>>&>(input);
+  auto& updates_mem = dynamic_cast<
+      MemObject<SrcT const, sycldnn::helpers::buffer_allocator<SrcT>>&>(
+      updates);
   auto& output_mem =
-      dynamic_cast<MemObject<SrcT, cl::sycl::buffer_allocator>&>(output);
-  auto input_cast_mem = input_mem.template cast<DstT>();
-  auto updates_cast_mem = updates_mem.template cast<DstT>();
+      dynamic_cast<MemObject<SrcT, sycldnn::helpers::buffer_allocator<SrcT>>&>(
+          output);
+  auto input_cast_mem = input_mem.template cast<DstT const>();
+  auto updates_cast_mem = updates_mem.template cast<DstT const>();
   auto output_cast_mem = output_mem.template cast<DstT>();
   return launch_scatter_nd<DstT, Index, ScatterNDType, IndexDepth>(
       input_cast_mem, indices, updates_cast_mem, output_cast_mem, sizes, queue);
