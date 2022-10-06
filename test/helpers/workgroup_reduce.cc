@@ -119,7 +119,13 @@ struct WorkspaceReductionTest
       return;
     }
     auto max_workitem_sizes =
+#ifndef SYCL_IMPLEMENTATION_ONEAPI
         device.template get_info<cl::sycl::info::device::max_work_item_sizes>();
+#else
+        device.template get_info<
+            cl::sycl::info::device::max_work_item_sizes<3> >();
+#endif
+
     for (int i = 0; i < Dims; ++i) {
       if (workgroup_sizes[i] > max_workitem_sizes[i]) {
         // Skip test as the hardware does not support this many work items in

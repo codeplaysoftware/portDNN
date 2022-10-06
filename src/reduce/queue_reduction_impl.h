@@ -74,7 +74,11 @@ SNNStatus queue_subgroup_kernel(
   const size_t max_work_group_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
   const auto max_work_item_sizes =
+#ifndef SYCL_IMPLEMENTATION_ONEAPI
       device.get_info<cl::sycl::info::device::max_work_item_sizes>();
+#else
+      device.get_info<cl::sycl::info::device::max_work_item_sizes<3> >();
+#endif
   size_t alignment = std::min(max_work_item_sizes[0], max_work_group_size);
 
   auto fallback = [&](BaseMemObject<T const>& input, size_t outer_size) {

@@ -24,7 +24,9 @@
 #include <iostream>
 
 namespace snn = sycldnn;
+#ifndef SYCL_IMPLEMENTATION_ONEAPI
 namespace sycl = cl::sycl;
+#endif
 
 using Backend = snn::backend::SNNBackend;
 using DeviceMem = Backend::pointer_type<float>;
