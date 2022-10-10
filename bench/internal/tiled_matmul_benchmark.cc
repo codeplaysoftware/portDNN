@@ -170,15 +170,16 @@ struct SNNMatmulExecutor : public BaseExecutor {
       try {
         auto benchmark_function =
             ((m % RowTile == 0) && (k % AccTile == 0) && (n % ColTile == 0))
-            ? matmul::internal::queue_kernel<DataType, int32_t, false, false,
-                                             RowTile, AccTile, ColTile, false>;
+                ? matmul::internal::queue_kernel<DataType, int32_t, false,
+                                                 false, RowTile, AccTile,
+                                                 ColTile, false>
                 : matmul::internal::queue_kernel<DataType, int32_t, false,
                                                  false, RowTile, AccTile,
                                                  ColTile, true>;
-                SNNStatus status = benchmark_function(
-                    lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
-                    workgroup_rows, workgroup_cols, workgroup_batch);
-                wait_for_event(status.event, backend.get_queue());
+        SNNStatus status = benchmark_function(
+            lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+            workgroup_rows, workgroup_cols, workgroup_batch);
+        wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
