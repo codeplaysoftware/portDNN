@@ -22,6 +22,7 @@
 #include "sycldnn/backend/snn_backend.h"
 #include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/matmul/launch.h"
+#include "sycldnn/matmul/params.h"
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
@@ -59,7 +60,7 @@ struct MatmulFixture : public BackendTestFixture<sycldnn::backend::SNNBackend> {
       auto status =
           sycldnn::matmul::launch<DataType, TransposeLhs, TransposeRhs>(
               lhs_gpu + lhs_offset, rhs_gpu + rhs_offset, out_gpu + out_offset,
-              batches, m, k, n, beta, backend);
+              sycldnn::matmul::MatmulParams{batches, m, k, n, beta}, backend);
 
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
       status.event.wait_and_throw();

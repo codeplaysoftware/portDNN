@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "sycldnn/internal/matmul/launch.h"
+#include "sycldnn/matmul/params.h"
 
 #include "sycldnn/mem_object.h"
 
@@ -29,16 +30,16 @@ template <typename T, bool TransposeLHS, bool TransposeRHS, int RowTile,
           int AccTile, int ColTile>
 SNNStatus launch_with_tiles(BaseMemObject<T const>& lhs,
                             BaseMemObject<T const>& rhs,
-                            BaseMemObject<T>& output, int batches, int m, int k,
-                            int n, T beta, cl::sycl::queue& queue,
+                            BaseMemObject<T>& output,
+                            MatmulParams const& params, cl::sycl::queue& queue,
                             size_t wg_rows, size_t wg_cols, size_t wg_batch) {
-  auto kernel = ((m % RowTile == 0) && (k % AccTile == 0) && (n % ColTile == 0))
+  auto kernel = ((params.m % RowTile == 0) && (params.k % AccTile == 0) &&
+                 (params.n % ColTile == 0))
                     ? queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile,
                                    AccTile, ColTile, false>
                     : queue_kernel<T, int, TransposeLHS, TransposeRHS, RowTile,
                                    AccTile, ColTile, true>;
-  return kernel(lhs, rhs, output, batches, m, k, n, beta, queue, wg_rows,
-                wg_cols, wg_batch);
+  return kernel(lhs, rhs, output, params, queue, wg_rows, wg_cols, wg_batch);
 }
 
 }  // namespace
@@ -46,17 +47,17 @@ SNNStatus launch_with_tiles(BaseMemObject<T const>& lhs,
 // Launch the matrix multiply kernel for the passed parameters.
 template <typename T, bool TransposeLHS, bool TransposeRHS>
 SNNStatus launch(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
-                 BaseMemObject<T>& output, int batches, int m, int k, int n,
-                 T beta, cl::sycl::queue& queue) {
+                 BaseMemObject<T>& output, MatmulParams const& params,
+                 cl::sycl::queue& queue) {
   return launch_with_tiles<T, TransposeLHS, TransposeRHS, 4, 4, 4>(
-      lhs, rhs, output, batches, m, k, n, beta, queue, 8, 4, 1);
+      lhs, rhs, output, params, queue, 8, 4, 1);
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, TLHS, TRHS)                                \
   template SNN_EXPORT SNNStatus launch<DTYPE, TLHS, TRHS>(                     \
       BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
-      BaseMemObject<DTYPE> & output, int batches, int m, int k, int n,         \
-      DTYPE beta, cl::sycl::queue& queue);
+      BaseMemObject<DTYPE> & output, MatmulParams const& params,               \
+      cl::sycl::queue& queue);
 
 #define INSTANTIATE_FOR_TYPE(DTYPE)        \
   INSTANTIATE_LAUNCHER(DTYPE, true, true)  \

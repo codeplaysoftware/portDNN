@@ -311,8 +311,9 @@ inline sycldnn::PoolingLayer<T, Backend, PoolingType>* create_pooling_layer(
 }
 
 // make fully connected layer parameters
+template <typename T>
 inline sycldnn::matmul::MatmulParams make_fc_params(int input, int output) {
-  sycldnn::matmul::MatmulParams params = {1, 1, input, output, 0.f};
+  sycldnn::matmul::MatmulParams params = {1, 1, input, output, T{0}};
   return params;
 }
 
@@ -1515,7 +1516,7 @@ int main(int argc, char* argv[]) {
 
   network.add_layer(create_fc_layer<DType>(network.get_output(), backend,
                                            data_dir + "probs_kernel.bin",
-                                           make_fc_params(2048, 1000)));
+                                           make_fc_params<DType>(2048, 1000)));
 
   network.add_layer(create_bias_layer<DType>(network.get_output(), backend,
                                              data_dir + "probs_bias.bin",

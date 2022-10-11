@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
 #define SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
 
+#include "sycldnn/matmul/params.h"
+
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -27,9 +29,9 @@ namespace internal {
 template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
           int RowTile, int AccTile, int ColTile, bool CheckBounds>
 SNNStatus queue_kernel(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
-                       BaseMemObject<T>& output, int batches, int m, int k,
-                       int n, T beta, cl::sycl::queue& queue, size_t wg_row,
-                       size_t wg_col, size_t wg_batch);
+                       BaseMemObject<T>& output, MatmulParams const& params,
+                       cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
+                       size_t wg_batch);
 
 }  // namespace internal
 }  // namespace matmul

@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_IMPL_H_
 #define SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_IMPL_H_
 
+#include "sycldnn/matmul/params.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -32,17 +33,17 @@ template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
           int RowTile, int AccTile, int ColTile, bool CheckBounds>
 SNNStatus queue_kernel(BaseMemObject<T const>& lhs_mem,
                        BaseMemObject<T const>& rhs_mem,
-                       BaseMemObject<T>& output_mem, int batches, int m, int k,
-                       int n, T beta, cl::sycl::queue& queue, size_t wg_row,
-                       size_t wg_col, size_t wg_batch) {
-  Index const output_size_row = helpers::round_ratio_up(m, RowTile);
-  Index const output_size_col = helpers::round_ratio_up(n, ColTile);
+                       BaseMemObject<T>& output_mem, MatmulParams const& params,
+                       cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
+                       size_t wg_batch) {
+  Index const output_size_row = helpers::round_ratio_up(params.m, RowTile);
+  Index const output_size_col = helpers::round_ratio_up(params.n, ColTile);
   size_t const n_row_threads =
       helpers::round_up_to_nearest_multiple(output_size_row, wg_row);
   size_t const n_col_threads =
       helpers::round_up_to_nearest_multiple(output_size_col, wg_col);
   size_t const n_batch_threads =
-      helpers::round_up_to_nearest_multiple(batches, wg_batch);
+      helpers::round_up_to_nearest_multiple(params.batches, wg_batch);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     auto lhs = lhs_mem.read_accessor(cgh);
@@ -52,7 +53,7 @@ SNNStatus queue_kernel(BaseMemObject<T const>& lhs_mem,
     using Functor = MatmulKernel<T, Index, TransposeLHS, TransposeRHS, RowTile,
                                  AccTile, ColTile, CheckBounds>;
 
-    Functor functor{lhs, rhs, output, batches, m, k, n, beta};
+    Functor functor{lhs, rhs, output, params};
 
     cgh.parallel_for(
         cl::sycl::nd_range<3>{

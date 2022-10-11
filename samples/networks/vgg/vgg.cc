@@ -194,8 +194,9 @@ inline sycldnn::PoolingLayer<T, Backend, PoolingType>* create_pooling_layer(
 }
 
 // make fully connected layer parameters
+template <typename T>
 inline sycldnn::matmul::MatmulParams make_fc_params(int input, int output) {
-  sycldnn::matmul::MatmulParams params = {1, 1, input, output, 0.f};
+  sycldnn::matmul::MatmulParams params = {1, 1, input, output, T{0}};
   return params;
 }
 
@@ -459,7 +460,7 @@ int main(int argc, char* argv[]) {
 
   network.add_layer(create_fc_layer<DType>(
       network.get_output(), backend, get_path_to_layer_weights(data_dir, 14),
-      make_fc_params(7 * 7 * 512, 4096)));
+      make_fc_params<DType>(7 * 7 * 512, 4096)));
 
   network.add_layer(create_bias_layer<DType>(
       network.get_output(), backend, get_path_to_layer_biases(data_dir, 14),
@@ -470,7 +471,7 @@ int main(int argc, char* argv[]) {
 
   network.add_layer(create_fc_layer<DType>(
       network.get_output(), backend, get_path_to_layer_weights(data_dir, 15),
-      make_fc_params(4096, 4096)));
+      make_fc_params<DType>(4096, 4096)));
 
   network.add_layer(create_bias_layer<DType>(
       network.get_output(), backend, get_path_to_layer_biases(data_dir, 15),
@@ -481,7 +482,7 @@ int main(int argc, char* argv[]) {
 
   network.add_layer(create_fc_layer<DType>(
       network.get_output(), backend, get_path_to_layer_weights(data_dir, 16),
-      make_fc_params(4096, 1000)));
+      make_fc_params<DType>(4096, 1000)));
 
   network.add_layer(create_bias_layer<DType>(
       network.get_output(), backend, get_path_to_layer_biases(data_dir, 16),

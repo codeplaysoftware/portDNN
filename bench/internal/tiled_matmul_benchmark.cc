@@ -22,6 +22,7 @@
 #include "src/backend/backend_provider.h"
 #include "src/backend/snn_backend_provider.h"
 #include "src/matmul/queue_kernel.h"
+#include "sycldnn/matmul/params.h"
 
 #include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_datatype_info.h"
@@ -130,12 +131,14 @@ struct SNNMatmulExecutor : public BaseExecutor {
                 ? matmul::internal::queue_kernel<DataType, int32_t, false,
                                                  false, RowTile, AccTile,
                                                  ColTile, false>(
-                      lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+                      lhs_mem, rhs_mem, out_mem,
+                      sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
                       workgroup_rows, workgroup_cols, workgroup_batch)
                 : matmul::internal::queue_kernel<DataType, int32_t, false,
                                                  false, RowTile, AccTile,
                                                  ColTile, true>(
-                      lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+                      lhs_mem, rhs_mem, out_mem,
+                      sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
                       workgroup_rows, workgroup_cols, workgroup_batch);
 
       } catch (cl::sycl::exception const& e) {
@@ -177,7 +180,8 @@ struct SNNMatmulExecutor : public BaseExecutor {
                                                  false, RowTile, AccTile,
                                                  ColTile, true>;
         SNNStatus status = benchmark_function(
-            lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+            lhs_mem, rhs_mem, out_mem,
+            sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
             workgroup_rows, workgroup_cols, workgroup_batch);
         wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {

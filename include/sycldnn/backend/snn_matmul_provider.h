@@ -26,6 +26,7 @@
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/backend/internal_backend.h"
 #include "sycldnn/matmul/launch.h"
+#include "sycldnn/matmul/params.h"
 
 namespace sycldnn {
 namespace backend {
@@ -73,7 +74,8 @@ struct SNNMatmulProvider {
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
-        lhs, rhs, output, 1, m, k, n, beta, internal_backend);
+        lhs, rhs, output, sycldnn::matmul::MatmulParams{1, m, k, n, beta},
+        internal_backend);
     SNN_ASSERT(status.status == StatusCode::OK,
                "Error launching matmul kernel.");
     return status.event;
@@ -111,7 +113,9 @@ struct SNNMatmulProvider {
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
-        lhs, rhs, output, n_batches, m, k, n, T{0}, internal_backend);
+        lhs, rhs, output,
+        sycldnn::matmul::MatmulParams{n_batches, m, k, n, T{0}},
+        internal_backend);
     SNN_ASSERT(status.status == StatusCode::OK,
                "Error launching matmul kernel.");
     return status.event;

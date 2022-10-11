@@ -21,6 +21,8 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/matmul/params.h"
+
 #include "sycldnn/export.h"
 
 namespace sycldnn {
@@ -35,8 +37,8 @@ namespace internal {
 template <typename T, bool TransposeLHS, bool TransposeRHS>
 SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& lhs,
                             BaseMemObject<T const>& rhs,
-                            BaseMemObject<T>& output, int batches, int m, int k,
-                            int n, T beta, cl::sycl::queue& queue);
+                            BaseMemObject<T>& output,
+                            MatmulParams const& params, cl::sycl::queue& queue);
 
 }  // namespace internal
 }  // namespace matmul

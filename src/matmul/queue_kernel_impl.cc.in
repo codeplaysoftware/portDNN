@@ -24,6 +24,7 @@
 // clang-format on
 
 #include "src/matmul/queue_kernel_impl.h"
+#include "sycldnn/matmul/params.h"
 
 namespace sycldnn {
 namespace matmul {
@@ -34,18 +35,16 @@ queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
              SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, true>(
     BaseMemObject<SNN_DATA_TYPE const>& lhs,
     BaseMemObject<SNN_DATA_TYPE const>& rhs,
-    BaseMemObject<SNN_DATA_TYPE>& output, int batches, int m, int k, int n,
-    SNN_DATA_TYPE beta, cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
-    size_t wg_batch);
+    BaseMemObject<SNN_DATA_TYPE>& output, MatmulParams const& params,
+    cl::sycl::queue& queue, size_t wg_row, size_t wg_col, size_t wg_batch);
 
 template SNNStatus
 queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
              SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, false>(
     BaseMemObject<SNN_DATA_TYPE const>& lhs,
     BaseMemObject<SNN_DATA_TYPE const>& rhs,
-    BaseMemObject<SNN_DATA_TYPE>& output, int batches, int m, int k, int n,
-    SNN_DATA_TYPE beta, cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
-    size_t wg_batch);
+    BaseMemObject<SNN_DATA_TYPE>& output, MatmulParams const& params,
+    cl::sycl::queue& queue, size_t wg_row, size_t wg_col, size_t wg_batch);
 
 }  // namespace internal
 }  // namespace matmul

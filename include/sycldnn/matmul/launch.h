@@ -26,6 +26,7 @@
 
 #include "sycldnn/helpers/macros.h"
 #include "sycldnn/internal/matmul/launch.h"
+#include "sycldnn/matmul/params.h"
 
 namespace sycldnn {
 namespace matmul {
@@ -39,16 +40,7 @@ namespace matmul {
  * \param lhs A pointer to the memory representing the left hand matrix.
  * \param rhs A pointer to the memory representing the right hand matrix.
  * \param output A pointer to the memory representing the output tensor.
- * \param batches The number of matrices in each tensor. Must be a positive
- *                value.
- * \param m The number of rows (columns if TransposeLHS) in the left hand
- *          matrix. Must be a positive value.
- * \param k The number of columns (rows if TransposeLHS) in the left hand
- *          matrix and the number of rows (columns if TransposeRHS) in the
- *          right hand matrix. Must be a positive value.
- * \param n The number of columns (rows if TransposeRHS) in the right hand
- *          matrix. Must be a positive value.
- * \param beta A scalar value to scale the output tensor.
+ * \param params The parameters of the matrix multiplication operation.
  * \param backend The backend implementation, used to map between pointer
  *                representations.
  * \return Returns an SNNStatus containing the SYCL event tied to the kernel
@@ -58,16 +50,17 @@ namespace matmul {
 template <typename T, bool TransposeLHS, bool TransposeRHS, typename Backend>
 SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
                  typename Backend::template pointer_type<T const> rhs,
-                 typename Backend::template pointer_type<T> output, int batches,
-                 int m, int k, int n, T beta, Backend& backend) {
-  SNN_VALIDATE_PARAM(batches > 0, "The number of batches must be positive.");
-  SNN_VALIDATE_PARAM(m > 0, "The value of m must be positive.");
-  SNN_VALIDATE_PARAM(k > 0, "The value of k must be positive.");
-  SNN_VALIDATE_PARAM(n > 0, "The value of n must be positive.");
+                 typename Backend::template pointer_type<T> output,
+                 MatmulParams const& params, Backend& backend) {
+  SNN_VALIDATE_PARAM(params.batches > 0,
+                     "The number of batches must be positive.");
+  SNN_VALIDATE_PARAM(params.m > 0, "The value of m must be positive.");
+  SNN_VALIDATE_PARAM(params.k > 0, "The value of k must be positive.");
+  SNN_VALIDATE_PARAM(params.n > 0, "The value of n must be positive.");
 
-  size_t lhs_size = batches * m * k;
-  size_t rhs_size = batches * k * n;
-  size_t out_size = batches * m * n;
+  size_t lhs_size = params.batches * params.m * params.k;
+  size_t rhs_size = params.batches * params.k * params.n;
+  size_t out_size = params.batches * params.m * params.n;
 
   auto lhs_acc = backend.get_mem_object(lhs, lhs_size);
   auto rhs_acc = backend.get_mem_object(rhs, rhs_size);
@@ -76,7 +69,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
   auto sycl_queue = backend.get_queue();
 
   return internal::launch<T, TransposeLHS, TransposeRHS>(
-      lhs_acc, rhs_acc, out_acc, batches, m, k, n, beta, sycl_queue);
+      lhs_acc, rhs_acc, out_acc, params, sycl_queue);
 }
 }  // namespace matmul
 }  // namespace sycldnn

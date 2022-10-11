@@ -28,44 +28,36 @@ template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
 struct MatmulKernel {
   MatmulKernel(ReadAccessor<T const> const& lhs,
                ReadAccessor<T const> const& rhs,
-               ReadWriteAccessor<T> const& output, Index batches, Index m,
-               Index k, Index n, T beta)
-      : lhs_{lhs},
-        rhs_{rhs},
-        output_{output},
-        batches_{batches},
-        m_{m},
-        k_{k},
-        n_{n},
-        beta_{beta} {}
+               ReadWriteAccessor<T> const& output, MatmulParams const& params)
+      : lhs_{lhs}, rhs_{rhs}, output_{output}, params_{params} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<3> item) const {
     Index batch = item.get_global_id(0);
     Index row = item.get_global_id(1) * RowTile;
     Index col = item.get_global_id(2) * ColTile;
 
-    if (row < m_ && col < n_) {
-      auto lhs_ptr = lhs_.get_pointer() + batch * m_ * k_;
-      auto rhs_ptr = rhs_.get_pointer() + batch * k_ * n_;
-      auto out_ptr = output_.get_pointer() + batch * m_ * n_;
+    if (row < params_.m && col < params_.n) {
+      auto lhs_ptr = lhs_.get_pointer() + batch * params_.m * params_.k;
+      auto rhs_ptr = rhs_.get_pointer() + batch * params_.k * params_.n;
+      auto out_ptr = output_.get_pointer() + batch * params_.m * params_.n;
 
-      auto const lhs_ld = TransposeLHS ? m_ : k_;
-      auto const lhs_step = (TransposeLHS ? m_ : 1) * AccTile;
-      auto const rhs_ld = TransposeRHS ? k_ : n_;
-      auto const rhs_step = (TransposeRHS ? 1 : n_) * AccTile;
-      auto const out_ld = n_;
+      auto const lhs_ld = TransposeLHS ? params_.m : params_.k;
+      auto const lhs_step = (TransposeLHS ? params_.m : 1) * AccTile;
+      auto const rhs_ld = TransposeRHS ? params_.k : params_.n;
+      auto const rhs_step = (TransposeRHS ? 1 : params_.n) * AccTile;
+      auto const out_ld = params_.n;
 
-      lhs_ptr += (TransposeLHS ? row : k_ * row);
-      rhs_ptr += (TransposeRHS ? col * k_ : col);
+      lhs_ptr += (TransposeLHS ? row : params_.k * row);
+      rhs_ptr += (TransposeRHS ? col * params_.k : col);
       out_ptr += out_ld * row + col;
 
       std::array<bool, RowTile> valid_row;
       for (int i = 0; i < RowTile; ++i) {
-        valid_row[i] = row + i < m_;
+        valid_row[i] = row + i < params_.m;
       }
       std::array<bool, ColTile> valid_col;
       for (int i = 0; i < ColTile; ++i) {
-        valid_col[i] = col + i < n_;
+        valid_col[i] = col + i < params_.n;
       }
       // The boundary of the row/col in matmul are important
       // if the last last element of the block is true, it guarantees
@@ -74,21 +66,21 @@ struct MatmulKernel {
       bool const internal_col_block = valid_col[ColTile - 1];
 
       auto out_block = VectorBlock<T, RowTile, ColTile>{};
-      if (beta_ != static_cast<T>(0)) {
+      if (params_.beta != static_cast<T>(0)) {
         // Convert out_ptr from multi_ptr<T> to multi_ptr<T const>
         auto const_out_ptr =
             cl::sycl::multi_ptr<T const,
                                 cl::sycl::access::address_space::global_space>{
                 out_ptr.get()};
 
-        out_block = load_block<RowTile, ColTile>(const_out_ptr, n_, valid_row,
-                                                 valid_col);
-        scalar_multiply(out_block, beta_);
+        out_block = load_block<RowTile, ColTile>(const_out_ptr, params_.n,
+                                                 valid_row, valid_col);
+        scalar_multiply(out_block, params_.beta);
       }
       Index acc_idx = 0;
 
       if (!CheckBounds || (internal_row_block && internal_col_block)) {
-        for (; acc_idx < k_ - AccTile + 1; acc_idx += AccTile) {
+        for (; acc_idx < params_.k - AccTile + 1; acc_idx += AccTile) {
           auto lhs_block =
               load<RowTile, AccTile, TransposeLHS>(lhs_ptr, lhs_ld);
           auto rhs_block =
@@ -110,17 +102,17 @@ struct MatmulKernel {
               lhs_ptr += lhs_step;
               rhs_ptr += rhs_step;
             };
-        for (; acc_idx < k_ - AccTile + 1; acc_idx += AccTile) {
+        for (; acc_idx < params_.k - AccTile + 1; acc_idx += AccTile) {
           std::array<bool, AccTile> valid_acc;
           for (int i = 0; i < AccTile; ++i) {
             valid_acc[i] = true;
           }
           accumulate_block(valid_acc);
         }
-        if (acc_idx < k_) {
+        if (acc_idx < params_.k) {
           std::array<bool, AccTile> valid_acc;
           for (int i = 0; i < AccTile; ++i) {
-            valid_acc[i] = acc_idx + i < k_;
+            valid_acc[i] = acc_idx + i < params_.k;
           }
           accumulate_block(valid_acc);
         }
@@ -137,11 +129,7 @@ struct MatmulKernel {
   ReadAccessor<T const> lhs_;
   ReadAccessor<T const> rhs_;
   ReadWriteAccessor<T> output_;
-  Index const batches_;
-  Index const m_;
-  Index const k_;
-  Index const n_;
-  T const beta_;
+  MatmulParams params_;
 };
 
 }  // namespace matmul
