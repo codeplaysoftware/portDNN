@@ -115,3 +115,15 @@ foreach(_index RANGE ${_list_len})
     )
   endforeach()
 endforeach()
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+    conv2d_event_dependencies
+    SOURCES
+      conv2d_event_dependencies.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

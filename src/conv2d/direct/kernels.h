@@ -37,7 +37,8 @@ namespace direct {
  * SYCL kernel for direct convolution computation.
  */
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int StaticWindow, int StaticStride, int VectorWidth, typename Layout>
+          int StaticWindow, int StaticStride, int VectorWidth, typename Layout,
+          bool isUSM>
 struct DirectConv2D;
 
 }  // namespace direct

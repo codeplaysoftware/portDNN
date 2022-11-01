@@ -69,6 +69,25 @@ using AllMatmulBackendTypes = sycldnn::types::TypeList<
 #endif
     sycldnn::backend::SNNBackend>;
 
+/**
+ * Expanded list of all supported backend types to use in tests using matmuls
+ * with USM backend added.
+ */
+using AllMatmulBackendTypes_ = sycldnn::types::TypeList<
+#ifdef SNN_TEST_EIGEN_MATMULS
+    sycldnn::backend::EigenBackend,
+#endif
+#ifdef SNN_TEST_SYCLBLAS_MATMULS
+    sycldnn::backend::SyclBLASBackend,
+#endif
+#ifdef SNN_TEST_CLBLAST_MATMULS
+    sycldnn::backend::CLBlastBackend,
+#endif
+#ifdef SNN_ENABLE_USM
+    sycldnn::backend::SNNUSMBackend,
+#endif
+    sycldnn::backend::SNNBackend>;
+
 /** Expanded list of all supported backend types to use in tests. */
 using AllBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN

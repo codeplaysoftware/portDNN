@@ -46,7 +46,6 @@ void check_dependency(cl::sycl::event dependee_e, cl::sycl::event depender_e,
     depender_status =
         depender_e.get_info<cl::sycl::info::event::command_execution_status>();
   }
-
   EXPECT_EQ(
       dependee_e.get_info<cl::sycl::info::event::command_execution_status>(),
       cl::sycl::info::event_command_status::complete);

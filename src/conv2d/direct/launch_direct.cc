@@ -88,62 +88,65 @@ inline bool can_use_vector_width(Conv2DParams const& params, int const width) {
  * \brief The helper ensures that only the instantiated symbols are used.
  */
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth, typename Layout>
+          int Window, int Stride, int VectorWidth, typename Layout,
+          template <typename> class MemObj>
 struct queue_kernel_helper {
-  SNNStatus operator()(BaseMemObject<T const>&, BaseMemObject<T const>&,
-                       BaseMemObject<T>&, Conv2DParams const&, Index,
-                       cl::sycl::queue&) {
+  SNNStatus operator()(MemObj<T const>&, MemObj<T const>&, MemObj<T>&,
+                       Conv2DParams const&, Index, cl::sycl::queue&,
+                       const std::vector<cl::sycl::event>& events) {
+    SNN_UNUSED_VAR(events)
     return StatusCode::InvalidAlgorithm;
   }
 };
 
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth>
+          int Window, int Stride, int VectorWidth,
+          template <typename> class MemObj>
 struct queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
-                           VectorWidth, layout::NHWC> {
-  SNNStatus operator()(BaseMemObject<T const>& input,
-                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
-                       Conv2DParams const& params, Index output_size,
-                       cl::sycl::queue& queue) {
+                           VectorWidth, layout::NHWC, MemObj> {
+  SNNStatus operator()(MemObj<T const>& input, MemObj<T const>& filter,
+                       MemObj<T>& output, Conv2DParams const& params,
+                       Index output_size, cl::sycl::queue& queue,
+                       const std::vector<cl::sycl::event>& events) {
     return queue_direct_kernel<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               VectorWidth, layout::NHWC>(
-        input, filter, output, params, output_size, queue);
+                               VectorWidth, layout::NHWC, MemObj>(
+        input, filter, output, params, output_size, queue, events);
   }
 };
 
 #ifdef SNN_ENABLE_NCHW
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride>
+          int Window, int Stride, template <typename> class MemObj>
 struct queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride, 1,
-                           layout::NCHW> {
-  SNNStatus operator()(BaseMemObject<T const>& input,
-                       BaseMemObject<T const>& filter, BaseMemObject<T>& output,
-                       Conv2DParams const& params, Index output_size,
-                       cl::sycl::queue& queue) {
+                           layout::NCHW, MemObj> {
+  SNNStatus operator()(MemObj<T const>& input, MemObj<T const>& filter,
+                       MemObj<T>& output, Conv2DParams const& params,
+                       Index output_size, cl::sycl::queue& queue,
+                       const std::vector<cl::sycl::event>& events) {
     return queue_direct_kernel<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               /*VectorWidth=*/1, layout::NCHW>(
-        input, filter, output, params, output_size, queue);
+                               /*VectorWidth=*/1, layout::NCHW, MemObj>(
+        input, filter, output, params, output_size, queue, events);
   }
 };
 #endif
 
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth>
-SNNStatus launch_with_fast_div(BaseMemObject<T const>& input,
-                               BaseMemObject<T const>& filter,
-                               BaseMemObject<T>& output,
-                               Conv2DParams const& params, Index output_size,
-                               cl::sycl::queue& queue) {
+          int Window, int Stride, int VectorWidth,
+          template <typename> class MemObj>
+SNNStatus launch_with_fast_div(MemObj<T const>& input, MemObj<T const>& filter,
+                               MemObj<T>& output, Conv2DParams const& params,
+                               Index output_size, cl::sycl::queue& queue,
+                               const std::vector<cl::sycl::event>& events) {
   if (params.input_format == DataFormat::NCHW &&
       params.filter_format == FilterFormat::FCHW) {
     return queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               VectorWidth, layout::NCHW>()(
-        input, filter, output, params, output_size, queue);
+                               VectorWidth, layout::NCHW, MemObj>()(
+        input, filter, output, params, output_size, queue, events);
   } else if (params.input_format == DataFormat::NHWC &&
              params.filter_format == FilterFormat::HWCF) {
     return queue_kernel_helper<T, Index, ConvType, UseFastDiv, Window, Stride,
-                               VectorWidth, layout::NHWC>()(
-        input, filter, output, params, output_size, queue);
+                               VectorWidth, layout::NHWC, MemObj>()(
+        input, filter, output, params, output_size, queue, events);
   }
   return StatusCode::InvalidAlgorithm;
 }
@@ -153,21 +156,20 @@ SNNStatus launch_with_fast_div(BaseMemObject<T const>& input,
  * the convolution kernel to do the computation.
  */
 template <typename T, typename Index, typename ConvType, int Window, int Stride,
-          int VectorWidth>
-SNNStatus launch_with_vector(BaseMemObject<T const>& input,
-                             BaseMemObject<T const>& filter,
-                             BaseMemObject<T>& output,
-                             Conv2DParams const& params, Index output_size,
-                             cl::sycl::queue& queue) {
+          int VectorWidth, template <typename> class MemObj>
+SNNStatus launch_with_vector(MemObj<T const>& input, MemObj<T const>& filter,
+                             MemObj<T>& output, Conv2DParams const& params,
+                             Index output_size, cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events) {
   auto kernel_params = direct::get_kernel_params<ConvType>(params);
   if (can_use_fast_div<ConvType>(kernel_params, VectorWidth)) {
     return launch_with_fast_div<T, Index, ConvType, true, Window, Stride,
-                                VectorWidth>(input, filter, output,
-                                             kernel_params, output_size, queue);
+                                VectorWidth, MemObj>(
+        input, filter, output, kernel_params, output_size, queue, events);
   } else {
     return launch_with_fast_div<T, Index, ConvType, false, Window, Stride,
-                                VectorWidth>(input, filter, output,
-                                             kernel_params, output_size, queue);
+                                VectorWidth, MemObj>(
+        input, filter, output, kernel_params, output_size, queue, events);
   }
 }
 
@@ -175,21 +177,21 @@ SNNStatus launch_with_vector(BaseMemObject<T const>& input,
  * Check which vector widths can be used for the convolution, and launch
  * the convolution kernel to do the computation.
  */
-template <typename T, typename Index, typename ConvType, int Window, int Stride>
-SNNStatus launch_with_index(BaseMemObject<T const>& input,
-                            BaseMemObject<T const>& filter,
-                            BaseMemObject<T>& output,
-                            Conv2DParams const& params, Index output_size,
-                            cl::sycl::queue& queue) {
+template <typename T, typename Index, typename ConvType, int Window, int Stride,
+          template <typename> class MemObj>
+SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T const>& filter,
+                            MemObj<T>& output, Conv2DParams const& params,
+                            Index output_size, cl::sycl::queue& queue,
+                            const std::vector<cl::sycl::event>& events) {
   if (can_use_vector_width<ConvType>(params, 4)) {
-    return launch_with_vector<T, Index, ConvType, Window, Stride, 4>(
-        input, filter, output, params, output_size, queue);
+    return launch_with_vector<T, Index, ConvType, Window, Stride, 4, MemObj>(
+        input, filter, output, params, output_size, queue, events);
   } else if (can_use_vector_width<ConvType>(params, 2)) {
-    return launch_with_vector<T, Index, ConvType, Window, Stride, 2>(
-        input, filter, output, params, output_size, queue);
+    return launch_with_vector<T, Index, ConvType, Window, Stride, 2, MemObj>(
+        input, filter, output, params, output_size, queue, events);
   } else {
-    return launch_with_vector<T, Index, ConvType, Window, Stride, 1>(
-        input, filter, output, params, output_size, queue);
+    return launch_with_vector<T, Index, ConvType, Window, Stride, 1, MemObj>(
+        input, filter, output, params, output_size, queue, events);
   }
 }
 
@@ -197,26 +199,27 @@ SNNStatus launch_with_index(BaseMemObject<T const>& input,
  * Check what data type is required to fit the index sizes, and launch the
  * required kernel.
  */
-template <typename T, typename ConvType, int Window, int Stride>
-SNNStatus launch_with_static_sizes(BaseMemObject<T const>& input,
-                                   BaseMemObject<T const>& filter,
-                                   BaseMemObject<T>& output,
+template <typename T, typename ConvType, int Window, int Stride,
+          template <typename> class MemObj>
+SNNStatus launch_with_static_sizes(MemObj<T const>& input,
+                                   MemObj<T const>& filter, MemObj<T>& output,
                                    Conv2DParams const& params,
-                                   cl::sycl::queue& queue) {
+                                   cl::sycl::queue& queue,
+                                   const std::vector<cl::sycl::event>& events) {
   auto conv_sizes = get_sizes<ConvType>(params);
   size_t output_size = conv_sizes.output_size;
   if (output_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
-    return launch_with_index<T, int64_t, ConvType, Window, Stride>(
-        input, filter, output, params, static_cast<int64_t>(output_size),
-        queue);
+    return launch_with_index<T, int64_t, ConvType, Window, Stride, MemObj>(
+        input, filter, output, params, static_cast<int64_t>(output_size), queue,
+        events);
 #else
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
-    return launch_with_index<T, int32_t, ConvType, Window, Stride>(
-        input, filter, output, params, static_cast<int32_t>(output_size),
-        queue);
+    return launch_with_index<T, int32_t, ConvType, Window, Stride, MemObj>(
+        input, filter, output, params, static_cast<int32_t>(output_size), queue,
+        events);
   }
 }
 }  // namespace
@@ -225,45 +228,55 @@ SNNStatus launch_with_static_sizes(BaseMemObject<T const>& input,
  * to using dynamic window and strides. This allows the compiler to make use of
  * the static window and stride sizes to better optimise when possible.
  */
-template <typename T, typename ConvType>
-SNNStatus launch_direct(BaseMemObject<T const>& input,
-                        BaseMemObject<T const>& filter,
-                        BaseMemObject<T>& output, Conv2DParams const& params,
-                        cl::sycl::queue& queue) {
+template <typename T, typename ConvType, template <typename> class MemObj>
+SNNStatus launch_direct(MemObj<T const>& input, MemObj<T const>& filter,
+                        MemObj<T>& output, Conv2DParams const& params,
+                        cl::sycl::queue& queue,
+                        const std::vector<cl::sycl::event>& events) {
 #ifdef SNN_CONV2D_STATIC_DIRECT
   if (can_use_static_conv<ConvType>(params, 1, 1)) {
-    return launch_with_static_sizes<T, ConvType, 1, 1>(input, filter, output,
-                                                       params, queue);
+    return launch_with_static_sizes<T, ConvType, 1, 1, MemObj>(
+        input, filter, output, params, queue, events);
   } else if (can_use_static_conv<ConvType>(params, 3, 1)) {
-    return launch_with_static_sizes<T, ConvType, 3, 1>(input, filter, output,
-                                                       params, queue);
+    return launch_with_static_sizes<T, ConvType, 3, 1, MemObj>(
+        input, filter, output, params, queue, events);
   } else if (can_use_static_conv<ConvType>(params, 3, 2)) {
-    return launch_with_static_sizes<T, ConvType, 3, 2>(input, filter, output,
-                                                       params, queue);
+    return launch_with_static_sizes<T, ConvType, 3, 2, MemObj>(
+        input, filter, output, params, queue, events);
   } else if (can_use_static_conv<ConvType>(params, 5, 1)) {
-    return launch_with_static_sizes<T, ConvType, 5, 1>(input, filter, output,
-                                                       params, queue);
+    return launch_with_static_sizes<T, ConvType, 5, 1, MemObj>(
+        input, filter, output, params, queue, events);
   } else if (can_use_static_conv<ConvType>(params, 5, 2)) {
-    return launch_with_static_sizes<T, ConvType, 5, 2>(input, filter, output,
-                                                       params, queue);
+    return launch_with_static_sizes<T, ConvType, 5, 2, MemObj>(
+        input, filter, output, params, queue, events);
   } else
 #endif  // SNN_CONV2D_STATIC_DIRECT
   {
-    return launch_with_static_sizes<T, ConvType, 0, 0>(input, filter, output,
-                                                       params, queue);
+    return launch_with_static_sizes<T, ConvType, 0, 0, MemObj>(
+        input, filter, output, params, queue, events);
   }
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, DIR)                                       \
-  template SNN_EXPORT SNNStatus launch_direct<DTYPE, DIR>(                     \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
-      BaseMemObject<DTYPE> & output, Conv2DParams const& params,               \
-      cl::sycl::queue& queue)
+#define INSTANTIATE_LAUNCHER(DTYPE, DIR, MEMOBJ)                   \
+  template SNN_EXPORT SNNStatus launch_direct<DTYPE, DIR, MEMOBJ>( \
+      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE const> & filter,   \
+      MEMOBJ<DTYPE> & output, Conv2DParams const& params,          \
+      cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events)
 
-#define INSTANTIATE_FOR_TYPE(DTYPE)                      \
-  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward);       \
-  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop); \
-  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop)
+#ifdef SNN_ENABLE_USM
+#define INSTANTIATE_FOR_MEMOBJ(DTYPE, DIR)        \
+  INSTANTIATE_LAUNCHER(DTYPE, DIR, USMMemObject); \
+  INSTANTIATE_LAUNCHER(DTYPE, DIR, BufferMemObject);
+#else
+#define INSTANTIATE_FOR_MEMOBJ(DTYPE, DIR) \
+  INSTANTIATE_LAUNCHER(DTYPE, DIR, BufferMemObject);
+
+#endif  // SNN_ENABLE_USM
+
+#define INSTANTIATE_FOR_TYPE(DTYPE)                        \
+  INSTANTIATE_FOR_MEMOBJ(DTYPE, conv_type::Forward);       \
+  INSTANTIATE_FOR_MEMOBJ(DTYPE, conv_type::InputBackprop); \
+  INSTANTIATE_FOR_MEMOBJ(DTYPE, conv_type::FilterBackprop);
 
 INSTANTIATE_FOR_TYPE(float);
 
@@ -277,6 +290,7 @@ INSTANTIATE_FOR_TYPE(cl::sycl::half);
 
 #undef INSTANTIATE_FOR_TYPE
 #undef INSTANTIATE_LAUNCHER
+#undef INSTANTIATE_FOR_MEMOBJ
 
 }  // namespace internal
 }  // namespace conv2d

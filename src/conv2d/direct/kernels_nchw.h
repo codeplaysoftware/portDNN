@@ -24,13 +24,13 @@ namespace conv2d {
 namespace internal {
 namespace direct {
 template <typename T, typename Index, bool UseFastDiv, int StaticWindow,
-          int StaticStride>
+          int StaticStride, bool isUSM>
 struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
-                    StaticStride, /*VectorWidth*/ 1, layout::NCHW> {
+                    StaticStride, /*VectorWidth*/ 1, layout::NCHW, isUSM> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
 
-  DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
-               const ReadAccessor<const T> filter, WriteAccessor<T> output)
+  DirectConv2D(const Conv2DParams& params, const ReadMem<const T, isUSM> input,
+               const ReadMem<const T, isUSM> filter, WriteMem<T, isUSM> output)
       : n_elems_{params.batch * params.out_rows * params.out_cols *
                  params.features},
         div_features_{params.features},
@@ -49,18 +49,18 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
         out_cols_{params.out_cols},
         pad_rows_{params.pad_rows},
         pad_cols_{params.pad_cols},
-        input_accessor_{input},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        input_mem_{input},
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const auto input_data = input_accessor_.get_pointer().get();
-      const auto filter_data = filter_accessor_.get_pointer().get();
-      auto output_data = output_accessor_.get_pointer().get();
+      const auto input_data = input_mem_.get_pointer().get();
+      const auto filter_data = filter_mem_.get_pointer().get();
+      auto output_data = output_mem_.get_pointer().get();
 
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -148,19 +148,19 @@ struct DirectConv2D<T, Index, conv_type::Forward, UseFastDiv, StaticWindow,
   const Index out_cols_;
   const Index pad_rows_;
   const Index pad_cols_;
-  const ReadAccessor<const T> input_accessor_;
-  const ReadAccessor<const T> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  const ReadMem<const T, isUSM> input_mem_;
+  const ReadMem<const T, isUSM> filter_mem_;
+  WriteMem<T, isUSM> output_mem_;
 };
 template <typename T, typename Index, bool UseFastDiv, int StaticWindow,
-          int StaticStride>
+          int StaticStride, bool isUSM>
 struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
-                    StaticWindow, StaticStride, /*VectorWidth*/ 1,
-                    layout::NCHW> {
+                    StaticWindow, StaticStride, /*VectorWidth*/ 1, layout::NCHW,
+                    isUSM> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
 
-  DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
-               const ReadAccessor<const T> filter, WriteAccessor<T> output)
+  DirectConv2D(const Conv2DParams& params, const ReadMem<const T, isUSM> input,
+               const ReadMem<const T, isUSM> filter, WriteMem<T, isUSM> output)
       : n_elems_{params.batch * params.in_rows * params.in_cols *
                  params.features},
         div_features_{params.features},
@@ -181,18 +181,18 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
                   1},
         pad_cols_{static_window_param(params.window_cols) - params.pad_cols -
                   1},
-        input_accessor_{input},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        input_mem_{input},
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const auto input_data = input_accessor_.get_pointer().get();
-      const auto filter_data = filter_accessor_.get_pointer().get();
-      auto output_data = output_accessor_.get_pointer().get();
+      const auto input_data = input_mem_.get_pointer().get();
+      const auto filter_data = filter_mem_.get_pointer().get();
+      auto output_data = output_mem_.get_pointer().get();
 
       const auto tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -281,9 +281,9 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
   const Index out_cols_;
   const Index pad_rows_;
   const Index pad_cols_;
-  const ReadAccessor<const T> input_accessor_;
-  const ReadAccessor<const T> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  const ReadMem<const T, isUSM> input_mem_;
+  const ReadMem<const T, isUSM> filter_mem_;
+  WriteMem<T, isUSM> output_mem_;
 };
 
 /*
@@ -296,13 +296,13 @@ struct DirectConv2D<T, Index, conv_type::InputBackprop, UseFastDiv,
  * params.out_rows_ and params.out_cols_ rather than the params.window_*.
  */
 template <typename T, typename Index, bool UseFastDiv, int StaticOut,
-          int StaticStride>
+          int StaticStride, bool isUSM>
 struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
-                    StaticStride, /*VectorWidth*/ 1, layout::NCHW> {
+                    StaticStride, /*VectorWidth*/ 1, layout::NCHW, isUSM> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
 
-  DirectConv2D(const Conv2DParams& params, const ReadAccessor<const T> input,
-               const ReadAccessor<const T> filter, WriteAccessor<T> output)
+  DirectConv2D(const Conv2DParams& params, const ReadMem<const T, isUSM> input,
+               const ReadMem<const T, isUSM> filter, WriteMem<T, isUSM> output)
       : n_elems_{params.out_rows * params.out_cols * params.channels *
                  params.features},
         div_channels_{params.channels},
@@ -321,18 +321,18 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
         out_cols_{params.out_cols},
         pad_rows_{params.pad_rows},
         pad_cols_{params.pad_cols},
-        input_accessor_{input},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        input_mem_{input},
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   inline SNN_ALWAYS_INLINE void operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
     const Index range = item.get_range().get(0);
 
     for (; index < n_elems_; index += range) {
-      const auto input_data = input_accessor_.get_pointer().get();
-      const auto filter_data = filter_accessor_.get_pointer().get();
-      auto output_data = output_accessor_.get_pointer().get();
+      const auto input_data = input_mem_.get_pointer().get();
+      const auto filter_data = filter_mem_.get_pointer().get();
+      auto output_data = output_mem_.get_pointer().get();
 
       const Index row_out = static_out_param(out_rows_);
       const Index col_out = static_out_param(out_cols_);
@@ -417,9 +417,9 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
   const Index out_cols_;
   const Index pad_rows_;
   const Index pad_cols_;
-  const ReadAccessor<const T> input_accessor_;
-  const ReadAccessor<const T> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  const ReadMem<const T, isUSM> input_mem_;
+  const ReadMem<const T, isUSM> filter_mem_;
+  WriteMem<T, isUSM> output_mem_;
 };
 
 }  // namespace direct

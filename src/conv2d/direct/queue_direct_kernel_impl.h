@@ -39,14 +39,16 @@ Index calculate_required_threads(Index output_size) {
 }
 
 template <typename T, typename Index, typename ConvType, bool UseFastDiv,
-          int Window, int Stride, int VectorWidth, typename Layout>
-SNNStatus queue_direct_kernel(BaseMemObject<T const>& in_mem,
-                              BaseMemObject<T const>& fil_mem,
-                              BaseMemObject<T>& out_mem,
+          int Window, int Stride, int VectorWidth, typename Layout,
+          template <typename> class MemObj>
+SNNStatus queue_direct_kernel(MemObj<T const>& in_mem, MemObj<T const>& fil_mem,
+                              MemObj<T>& out_mem,
                               Conv2DParams const& kernel_params,
-                              Index output_size, cl::sycl::queue& queue) {
-  using Functor = direct::DirectConv2D<T, Index, ConvType, UseFastDiv, Window,
-                                       Stride, VectorWidth, Layout>;
+                              Index output_size, cl::sycl::queue& queue,
+                              const std::vector<cl::sycl::event>& events) {
+  using Functor =
+      direct::DirectConv2D<T, Index, ConvType, UseFastDiv, Window, Stride,
+                           VectorWidth, Layout, is_usm_obj_v<MemObj<T>, T> >;
   cl::sycl::device device = queue.get_device();
   Index const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
@@ -56,9 +58,10 @@ SNNStatus queue_direct_kernel(BaseMemObject<T const>& in_mem,
       helpers::round_up_to_nearest_multiple(required_threads, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto filter = fil_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = in_mem.read_mem(cgh);
+    auto filter = fil_mem.read_mem(cgh);
+    auto output = out_mem.write_mem(cgh);
 
     Functor conv{kernel_params, input, filter, output};
 

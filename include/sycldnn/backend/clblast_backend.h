@@ -148,6 +148,21 @@ class CLBlastBackend final : public CommonBackend,
     return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
   }
 
+  // TODO: REMOVE the underscore versions
+  /** \copydoc get_mem_object */
+  template <typename T>
+  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems)
+      -> decltype(_make_mem_object(ptr.get_buffer(), 0ull, 0ull)) {
+    return _make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+  }
+
+  /** \copydoc get_mem_object */
+  template <typename T>
+  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
+      -> decltype(_make_mem_object(ptr.get_buffer(), 0ull, 0ull)) {
+    return _make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+  }
+
   /**
    * Allocation function that creates an internal_pointer representing
    * memory on the device associated with queue_.

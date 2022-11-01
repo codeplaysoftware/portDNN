@@ -30,6 +30,7 @@
 #include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/nested_pairs_to_tuple4.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 #include "test/types/type_list.h"
 
@@ -40,7 +41,7 @@ using OffsetConvolutionTest = ConvolutionFixture<Tuple>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
-using Backends = sycldnn::types::TypeList<sycldnn::backend::SNNBackend>;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 using DataFormats = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =
