@@ -22,6 +22,7 @@
  * asynchronously dispatches a SYCL kernel to transpose an N-Dimensional
  * tensor.
  */
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -29,14 +30,13 @@
 
 #include "sycldnn/internal/transpose/launch.h"
 
-#include <numeric>
 #include <vector>
 
 namespace sycldnn {
 /** Namespace containing tensor transpose operations. */
 namespace transpose {
 /**
- * Transpose an ND tensor using any permutation of the dimensions.
+ * Transpose an ND tensor using any permutation of the input dimensions.
  *
  * \param input       A pointer to the memory representing the input tensor.
  * \param output      A pointer to the memory representing the output tensor.
@@ -60,51 +60,64 @@ namespace transpose {
  *         * The tensor size was zero.
  * \retval StatusCode::OK: The kernel was launched successfully.
  */
-template <typename T, typename Backend>
+template <typename T, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  std::vector<int> const& dimensions,
                  std::vector<int> const& permutation, Backend& backend) {
-  auto n_dimensions = dimensions.size();
-  SNN_VALIDATE_PARAM(n_dimensions > 0u,
-                     "The number of dimensions must be positive.");
-  SNN_VALIDATE_PARAM(n_dimensions < 7u,
-                     "Only dimensions 6 and fewer are supported.");
-  SNN_VALIDATE_PARAM(permutation.size() == n_dimensions,
-                     "The number of permutations entries must match the number "
-                     "of dimensions.");
-
-  std::vector<bool> not_seen(n_dimensions, true);
-  for (int value : permutation) {
-    SNN_VALIDATE_PARAM(value >= 0 && static_cast<size_t>(value) < n_dimensions,
-                       "Each permutation value must index a dimension.");
-    SNN_VALIDATE_PARAM(not_seen[value],
-                       "Each permutation value must be distinct.");
-    not_seen[value] = false;
-  }
-
-  size_t tensor_size = std::accumulate(begin(dimensions), end(dimensions),
-                                       static_cast<size_t>(1),
-                                       [](size_t a, int b) { return a * b; });
-  SNN_VALIDATE_PARAM(tensor_size > 0, "Tensor size must be positive.");
-
-  auto in_acc = backend.get_mem_object(input, tensor_size);
-  auto out_acc = backend.get_mem_object(output, tensor_size);
-
-  auto sycl_queue = backend.get_queue();
-
-  return internal::launch<T>(in_acc, out_acc, dimensions, permutation,
-                             sycl_queue);
+  return internal::sublaunch<T>(input, output, dimensions, permutation,
+                                backend);
 }
+
+#ifdef SNN_ENABLE_USM
+/**
+ * Transpose an ND tensor using any permutation of the input dimensions.
+ *
+ * \param input       A pointer to the memory representing the input tensor.
+ * \param output      A pointer to the memory representing the output tensor.
+ * \param dimensions  Number of elements in each dimension. The size of the
+ *                    vector should match the number of dimensions in the input
+ *                    tensor.
+ * \param permutation A vector of zero indexed integers representing the
+ *                    permutation to use in the transpose. The i-th dimension
+ *                    of the output will be mapped to the permutation[i]-th
+ *                    dimension in the input.
+ * \param backend     The backend implementation, used to map between pointer
+ *                    representations.
+ * \param events     Events which should be completed before the operation
+ * executes. \return Returns an SNNStatus containing the SYCL event tied to the
+ * kernel launches and a StatusCode enum showing if the launch was OK or whether
+ * it encountered some problem. \retval StatusCode::InvalidParameter: An invalid
+ * parameter was passed in to the launch function:
+ *         * The size of dimension was zero or over 6.
+ *         * The size of dimension doesn't match the size of permutation.
+ *         * A value in permutation doesn't map to a dimension.
+ *         * The tensor size was zero.
+ * \retval StatusCode::OK: The kernel was launched successfully.
+ */
+template <typename T, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> input,
+                 typename Backend::template pointer_type<T> output,
+                 std::vector<int> const& dimensions,
+                 std::vector<int> const& permutation, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  return internal::sublaunch<T>(input, output, dimensions, permutation, backend,
+                                events);
+}
+#endif  // SNN_ENABLE_USM
 
 /**
  * Convert an NHWC tensor to an NCHW tensor.
  *
  * \param input       A pointer to the memory representing the input tensor.
  * \param output      A pointer to the memory representing the output tensor.
- * \param dimensions  Number of elements in each dimension of the input. The
- *                    size of the vector should match the number of dimensions
- *                    in the input tensor.
+ * \param dimensions  Number of elements in each dimension. The size of the
+ *                    vector should match the number of dimensions in the input
+ *                    tensor.
  * \param backend     The backend implementation, used to map between pointer
  *                    representations.
  * \return Returns an SNNStatus containing the SYCL event tied to the kernel
@@ -116,7 +129,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  *         * The tensor size was zero.
  * \retval StatusCode::OK: The kernel was launched successfully.
  */
-template <typename T, typename Backend>
+template <typename T, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus convert_nhwc_to_nchw(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T> output,
@@ -124,17 +139,54 @@ SNNStatus convert_nhwc_to_nchw(
   SNN_VALIDATE_PARAM(
       dimensions.size() == 4,
       "Conversion from NHWC to NCHW is only valid on 4D tensors.");
-  return launch<T>(input, output, dimensions, NHWC_TO_NCHW, backend);
+  return internal::sublaunch<T>(input, output, dimensions, NHWC_TO_NCHW,
+                                backend);
 }
+
+#ifdef SNN_ENABLE_USM
+/**
+ * Convert an NHWC tensor to an NCHW tensor.
+ *
+ * \param input       A pointer to the memory representing the input tensor.
+ * \param output      A pointer to the memory representing the output tensor.
+ * \param dimensions  Number of elements in each dimension. The size of the
+ *                    vector should match the number of dimensions in the input
+ *                    tensor.
+ * \param backend     The backend implementation, used to map between pointer
+ *                    representations.
+ * \param events     Events which should be completed before the operation
+ * executes. \return Returns an SNNStatus containing the SYCL event tied to the
+ * kernel launches and a StatusCode enum showing if the launch was OK or whether
+ * it encountered some problem. \retval StatusCode::InvalidParameter: An invalid
+ * parameter was passed in to the launch function:
+ *         * The number of dimensions was not 4.
+ *         * The tensor size was zero.
+ * \retval StatusCode::OK: The kernel was launched successfully.
+ */
+template <typename T, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus convert_nhwc_to_nchw(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T> output,
+    std::vector<int> const& dimensions, Backend& backend,
+    const std::vector<cl::sycl::event>& events = {}) {
+  SNN_VALIDATE_PARAM(
+      dimensions.size() == 4,
+      "Conversion from NHWC to NCHW is only valid on 4D tensors.");
+  return internal::sublaunch<T>(input, output, dimensions, NHWC_TO_NCHW,
+                                backend, events);
+}
+#endif  // SNN_ENABLE_USM
 
 /**
  * Convert an NCHW tensor to an NHWC tensor.
  *
  * \param input       A pointer to the memory representing the input tensor.
  * \param output      A pointer to the memory representing the output tensor.
- * \param dimensions  Number of elements in each dimension of the input. The
- *                    size of the vector should match the number of dimensions
- *                    in the input tensor.
+ * \param dimensions  Number of elements in each dimension. The size of the
+ *                    vector should match the number of dimensions in the input
+ *                    tensor.
  * \param backend     The backend implementation, used to map between pointer
  *                    representations.
  * \return Returns an SNNStatus containing the SYCL event tied to the kernel
@@ -146,7 +198,9 @@ SNNStatus convert_nhwc_to_nchw(
  *         * The tensor size was zero.
  * \retval StatusCode::OK: The kernel was launched successfully.
  */
-template <typename T, typename Backend>
+template <typename T, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus convert_nchw_to_nhwc(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T> output,
@@ -154,8 +208,45 @@ SNNStatus convert_nchw_to_nhwc(
   SNN_VALIDATE_PARAM(
       dimensions.size() == 4,
       "Conversion from NCHW to NHWC is only valid on 4D tensors.");
-  return launch<T>(input, output, dimensions, NCHW_TO_NHWC, backend);
+  return internal::sublaunch<T>(input, output, dimensions, NCHW_TO_NHWC,
+                                backend);
 }
+
+#ifdef SNN_ENABLE_USM
+/**
+ * Convert an NCHW tensor to an NHWC tensor.
+ *
+ * \param input       A pointer to the memory representing the input tensor.
+ * \param output      A pointer to the memory representing the output tensor.
+ * \param dimensions  Number of elements in each dimension. The size of the
+ *                    vector should match the number of dimensions in the input
+ *                    tensor.
+ * \param backend     The backend implementation, used to map between pointer
+ *                    representations.
+ * \param events     Events which should be completed before the operation
+ * executes. \return Returns an SNNStatus containing the SYCL event tied to the
+ * kernel launches and a StatusCode enum showing if the launch was OK or whether
+ * it encountered some problem. \retval StatusCode::InvalidParameter: An invalid
+ * parameter was passed in to the launch function:
+ *         * The number of dimensions was not 4.
+ *         * The tensor size was zero.
+ * \retval StatusCode::OK: The kernel was launched successfully.
+ */
+template <typename T, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus convert_nchw_to_nhwc(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T> output,
+    std::vector<int> const& dimensions, Backend& backend,
+    const std::vector<cl::sycl::event>& events = {}) {
+  SNN_VALIDATE_PARAM(
+      dimensions.size() == 4,
+      "Conversion from NCHW to NHWC is only valid on 4D tensors.");
+  return internal::sublaunch<T>(input, output, dimensions, NCHW_TO_NHWC,
+                                backend, events);
+}
+#endif  // SNN_ENABLE_USM
 
 }  // namespace transpose
 }  // namespace sycldnn

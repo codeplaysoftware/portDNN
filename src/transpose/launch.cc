@@ -30,27 +30,29 @@ namespace internal {
 
 namespace {
 
-template <typename T, typename Index, int N>
+template <typename T, typename Index, int N, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 struct Transposer {
-  static SNNStatus transpose(BaseMemObject<T const>& input,
-                             BaseMemObject<T>& output,
+  static SNNStatus transpose(MemObj<T const>& input, MemObj<T>& output,
                              std::vector<int> const& dimensions,
                              std::vector<int> const& permutation,
-                             cl::sycl::queue& queue) {
+                             cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events) {
     return queue_kernel<T, Index, N>(input, output, dimensions, permutation,
-                                     queue);
+                                     queue, events);
   }
 };
 
 template <typename T, typename Index>
-struct Transposer<T, Index, 1> {
+struct Transposer<T, Index, 1, BufferMemObject> {
   // A 1D transpose can only possibly be an identity operation, so just copy
   // from the input to the output.
-  static SNNStatus transpose(BaseMemObject<T const>& input_mem,
-                             BaseMemObject<T>& output_mem,
+  static SNNStatus transpose(BufferMemObject<T const>& input_mem,
+                             BufferMemObject<T>& output_mem,
                              std::vector<int> const& /*dimensions*/,
                              std::vector<int> const& /*permutation*/,
-                             cl::sycl::queue& queue) {
+                             cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& /*events*/) {
     auto event = queue.submit([&](cl::sycl::handler& cgh) {
       auto input = input_mem.read_accessor(cgh).get_accessor();
       auto output = output_mem.write_accessor(cgh).get_accessor();
@@ -59,6 +61,35 @@ struct Transposer<T, Index, 1> {
     return {event, StatusCode::OK};
   }
 };
+
+#ifdef SNN_ENABLE_USM
+template <typename T, typename Index>
+struct Transposer<T, Index, 1, USMMemObject> {
+  // A 1D transpose can only possibly be an identity operation, so just copy
+  // from the input to the output.
+  static SNNStatus transpose(USMMemObject<T const>& input_mem,
+                             USMMemObject<T>& output_mem,
+                             std::vector<int> const& dimensions,
+                             std::vector<int> const& /*permutation*/,
+                             cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events) {
+    auto event = queue.submit([&](cl::sycl::handler& cgh) {
+      cgh.depends_on(events);
+      auto input = input_mem.read_mem(cgh).get_pointer();
+      auto output = output_mem.write_mem(cgh).get_pointer();
+
+      size_t count = 0;
+      for (unsigned int i = 0; i < dimensions.size(); ++i)
+        count += dimensions[i];
+
+      // TODO: make copy when ComputeCpp implements it
+      cgh.memcpy(static_cast<void*>(output), static_cast<const void*>(input),
+                 count * sizeof(T));
+    });
+    return {event, StatusCode::OK};
+  }
+};
+#endif  // SNN_ENABLE_USM
 
 void merge_consecutive_indices(int index, std::vector<int>& dimensions,
                                std::vector<int>& permutation) {
@@ -102,45 +133,52 @@ void simplify_transpose(std::vector<int>& dimensions,
 
 }  // namespace
 
-template <typename T>
-SNNStatus launch_impl(BaseMemObject<T const>& input, BaseMemObject<T>& output,
+template <typename T, template <typename> class MemObj>
+SNNStatus launch_impl(MemObj<T const>& input, MemObj<T>& output,
                       std::vector<int> dimensions, std::vector<int> permutation,
-                      cl::sycl::queue& queue) {
+                      cl::sycl::queue& queue,
+                      const std::vector<cl::sycl::event>& events) {
   simplify_transpose(dimensions, permutation);
   switch (dimensions.size()) {
     case 6:
-      return Transposer<T, int, 6>::transpose(input, output, dimensions,
-                                              permutation, queue);
+      return Transposer<T, int, 6, MemObj>::transpose(
+          input, output, dimensions, permutation, queue, events);
     case 5:
-      return Transposer<T, int, 5>::transpose(input, output, dimensions,
-                                              permutation, queue);
+      return Transposer<T, int, 5, MemObj>::transpose(
+          input, output, dimensions, permutation, queue, events);
     case 4:
-      return Transposer<T, int, 4>::transpose(input, output, dimensions,
-                                              permutation, queue);
+      return Transposer<T, int, 4, MemObj>::transpose(
+          input, output, dimensions, permutation, queue, events);
     case 3:
-      return Transposer<T, int, 3>::transpose(input, output, dimensions,
-                                              permutation, queue);
+      return Transposer<T, int, 3, MemObj>::transpose(
+          input, output, dimensions, permutation, queue, events);
     case 2:
-      return Transposer<T, int, 2>::transpose(input, output, dimensions,
-                                              permutation, queue);
+      return Transposer<T, int, 2, MemObj>::transpose(
+          input, output, dimensions, permutation, queue, events);
     case 1:
-      return Transposer<T, int, 1>::transpose(input, output, dimensions,
-                                              permutation, queue);
+      return Transposer<T, int, 1, MemObj>::transpose(
+          input, output, dimensions, permutation, queue, events);
   }
   return StatusCode::InvalidAlgorithm;
 }
 
-#define INSTANTIATE_FOR_TYPE(DTYPE)                                    \
-  template SNN_EXPORT SNNStatus launch_impl(                           \
-      BaseMemObject<DTYPE const>& input, BaseMemObject<DTYPE>& output, \
-      std::vector<int> dimensions, std::vector<int> permutation,       \
-      cl::sycl::queue& backend)
+#define INSTANTIATE_FOR_TYPE(DTYPE, MEM_OBJ)                     \
+  template SNN_EXPORT SNNStatus launch_impl(                     \
+      MEM_OBJ<DTYPE const>& input, MEM_OBJ<DTYPE>& output,       \
+      std::vector<int> dimensions, std::vector<int> permutation, \
+      cl::sycl::queue& backend, const std::vector<cl::sycl::event>& events)
 
-INSTANTIATE_FOR_TYPE(uint8_t);
-INSTANTIATE_FOR_TYPE(uint16_t);
-INSTANTIATE_FOR_TYPE(uint32_t);
-INSTANTIATE_FOR_TYPE(uint64_t);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(uint8_t, USMMemObject);
+INSTANTIATE_FOR_TYPE(uint16_t, USMMemObject);
+INSTANTIATE_FOR_TYPE(uint32_t, USMMemObject);
+INSTANTIATE_FOR_TYPE(uint64_t, USMMemObject);
+#endif  // SNN_ENABLE_USM
 
+INSTANTIATE_FOR_TYPE(uint8_t, BufferMemObject);
+INSTANTIATE_FOR_TYPE(uint16_t, BufferMemObject);
+INSTANTIATE_FOR_TYPE(uint32_t, BufferMemObject);
+INSTANTIATE_FOR_TYPE(uint64_t, BufferMemObject);
 #undef INSTANTIATE_FOR_TYPE
 
 }  // namespace internal

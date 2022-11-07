@@ -22,14 +22,22 @@
 #include <vector>
 
 #include "test/transpose/transpose_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
-using GTestTypeList = sycldnn::types::GTestKernelDataTypes;
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 
-template <typename DataType>
-using Transpose2D = TransposeFixture<DataType>;
-TYPED_TEST_SUITE(Transpose2D, GTestTypeList);
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
+template <typename Pair>
+using Transpose2D = TransposeFixture<Pair>;
+TYPED_TEST_SUITE(Transpose2D, GTestTypePairs);
 TYPED_TEST(Transpose2D, T2D_2x2_0x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {1., 2., 3., 4.};

@@ -26,8 +26,6 @@
 #include <utility>
 #include <vector>
 
-#include "sycldnn/backend/snn_backend.h"
-
 #include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/status.h"
 #include "sycldnn/transpose/launch.h"
@@ -35,20 +33,27 @@
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 
-template <typename T>
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
+template <typename Pair>
 struct TransposeConversion
-    : public BackendTestFixture<sycldnn::backend::SNNBackend> {
+    : public BackendTestFixture<typename Pair::SecondType> {
  public:
-  using DataType = T;
+  using DataType = typename Pair::FirstType;
 };
 
-TYPED_TEST_SUITE(TransposeConversion, GTestTypeList);
+TYPED_TEST_SUITE(TransposeConversion, GTestTypePairs);
 
 TYPED_TEST(TransposeConversion, NHWCToNCHW) {
   using DataType = typename TestFixture::DataType;
@@ -80,6 +85,7 @@ TYPED_TEST(TransposeConversion, NHWCToNCHW) {
     auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
     auto out_gpu =
         provider.get_initialised_device_memory(tensor_size, out_data);
+
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(in_gpu);
       provider.deallocate_ptr(out_gpu);
@@ -139,6 +145,7 @@ TYPED_TEST(TransposeConversion, NCHWToNHWC) {
     auto in_gpu = provider.get_initialised_device_memory(tensor_size, in_data);
     auto out_gpu =
         provider.get_initialised_device_memory(tensor_size, out_data);
+
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(in_gpu);
       provider.deallocate_ptr(out_gpu);

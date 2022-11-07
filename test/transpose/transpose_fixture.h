@@ -24,8 +24,6 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/backend/snn_backend.h"
-
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/transpose/launch.h"
@@ -34,10 +32,9 @@
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
 
-template <typename T>
-struct TransposeFixture
-    : public BackendTestFixture<sycldnn::backend::SNNBackend> {
-  using DataType = T;
+template <typename Pair>
+struct TransposeFixture : public BackendTestFixture<typename Pair::SecondType> {
+  using DataType = typename Pair::FirstType;
 
  protected:
   void run(std::vector<DataType> const& exp, std::vector<int> const& sizes,
@@ -58,6 +55,7 @@ struct TransposeFixture
     {
       auto in_gpu = provider.get_initialised_device_memory(in_size, in_data);
       auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
+
       SNN_ON_SCOPE_EXIT {
         provider.deallocate_ptr(in_gpu);
         provider.deallocate_ptr(out_gpu);

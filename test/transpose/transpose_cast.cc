@@ -17,8 +17,9 @@
 #include <vector>
 
 #include "test/transpose/transpose_fixture.h"
-#include "test/types/concatenate.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 using IntDataTypeList =
@@ -27,11 +28,17 @@ using IntDataTypeList =
 using DataTypeList =
     sycldnn::types::Concatenate<sycldnn::types::KernelDataTypes,
                                 IntDataTypeList>::type;
-using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
-template <typename DataType>
-using TransposeCast = TransposeFixture<DataType>;
-TYPED_TEST_SUITE(TransposeCast, GTestTypeList);
+using Backends = sycldnn::types::DefaultBackendTypes_;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
+template <typename Pair>
+using TransposeCast = TransposeFixture<Pair>;
+TYPED_TEST_SUITE(TransposeCast, GTestTypePairs);
 
 TYPED_TEST(TransposeCast, T3D_2x3x4_0x2x1) {
   using DataType = typename TestFixture::DataType;

@@ -57,3 +57,15 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      transpose_event
+    SOURCES
+      transpose_event_dependencies.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

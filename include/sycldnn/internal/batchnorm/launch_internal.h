@@ -202,8 +202,10 @@ SNNStatus launch_forward(
   // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
     auto input_dims = get_input_dims(params);
-    status = transpose::internal::launch(input, tr_input, input_dims,
-                                         NCHW_TO_NHWC, queue);
+    auto in = mo_to_bo(input);
+    auto out = mo_to_bo(tr_input);
+    status =
+        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -233,8 +235,10 @@ SNNStatus launch_forward(
   // Transpose NHWC output back to NCHW.
   if (is_nchw) {
     auto const_tr_output = tr_output.as_const();
-    status = transpose::internal::launch(const_tr_output, output, nhwc_dims,
-                                         NHWC_TO_NCHW, queue);
+    auto in = mo_to_bo(const_tr_output);
+    auto out = mo_to_bo(output);
+    status =
+        transpose::internal::launch(in, out, nhwc_dims, NHWC_TO_NCHW, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -351,14 +355,18 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   // go.
   if (is_nchw) {
     auto input_dims = get_input_dims(params);
-    status = transpose::internal::launch(input, tr_input, input_dims,
-                                         NCHW_TO_NHWC, queue);
+    auto in = mo_to_bo(input);
+    auto out = mo_to_bo(tr_input);
+    status =
+        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
 
-    status = transpose::internal::launch(gradient, tr_gradient, input_dims,
-                                         NCHW_TO_NHWC, queue);
+    auto in2 = mo_to_bo(gradient);
+    auto out2 = mo_to_bo(tr_gradient);
+    status =
+        transpose::internal::launch(in2, out2, input_dims, NCHW_TO_NHWC, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -506,8 +514,10 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   // Transpose NHWC output back to NCHW.
   if (is_nchw) {
     auto const_tr_output = tr_output.as_const();
-    status = transpose::internal::launch(const_tr_output, output, nhwc_dims,
-                                         NHWC_TO_NCHW, queue);
+    auto in = mo_to_bo(const_tr_output);
+    auto out = mo_to_bo(output);
+    status =
+        transpose::internal::launch(in, out, nhwc_dims, NHWC_TO_NCHW, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -582,8 +592,10 @@ SNNStatus launch_gradient(
   auto tr_reduce = make_mem_object(tr_reduce_buf, n_items);
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
-    status = transpose::internal::launch(const_output, tr_reduce, input_dims,
-                                         NCHW_TO_NHWC, queue);
+    auto in = mo_to_bo(const_output);
+    auto out = mo_to_bo(tr_reduce);
+    status =
+        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -613,8 +625,10 @@ SNNStatus launch_gradient(
 
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
-    status = transpose::internal::launch(gradient, tr_reduce, input_dims,
-                                         NCHW_TO_NHWC, queue);
+    auto in = mo_to_bo(gradient);
+    auto out = mo_to_bo(tr_reduce);
+    status =
+        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }

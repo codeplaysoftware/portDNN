@@ -19,25 +19,24 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
-#include "sycldnn/helpers/ratio.h"
-
 #include "src/transpose/kernels.h"
-#include "src/transpose/queue_kernel.h"
 
 namespace sycldnn {
 namespace transpose {
 namespace internal {
 
-template <typename T, typename Index, int ND>
-SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
-                       BaseMemObject<T>& output_mem,
+template <typename T, typename Index, int ND, template <typename> class MemObj,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus queue_kernel(MemObj<T const>& input_mem, MemObj<T>& output_mem,
                        std::vector<int> const& dimensions,
                        std::vector<int> const& permutation,
-                       cl::sycl::queue& queue) {
-  using Functor = TransposeKernel<T, Index, ND>;
+                       cl::sycl::queue& queue,
+                       const std::vector<cl::sycl::event>& events) {
+  using Functor = TransposeKernel<T, Index, ND, IsUSM>;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
 
     size_t const n_threads = std::accumulate(
         begin(dimensions), end(dimensions), static_cast<size_t>(1),

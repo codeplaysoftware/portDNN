@@ -28,13 +28,13 @@ namespace sycldnn {
 namespace transpose {
 namespace internal {
 
-template <typename T, typename Index, int ND>
+template <typename T, typename Index, int ND, bool IsUSM>
 struct TransposeKernel {
   using LoadData = helpers::io::Load<T>;
   using StoreData = helpers::io::Store<T>;
 
-  TransposeKernel(ReadAccessor<T const> const& input,
-                  WriteAccessor<T> const& output,
+  TransposeKernel(ReadMem<T const, IsUSM> const& input,
+                  WriteMem<T, IsUSM> const& output,
                   std::vector<int> const& dimensions,
                   std::vector<int> const& permutation)
       : input_{input},
@@ -79,8 +79,8 @@ struct TransposeKernel {
   }
 
  private:
-  ReadAccessor<T const> input_;
-  WriteAccessor<T> output_;
+  ReadMem<T const, IsUSM> input_;
+  WriteMem<T, IsUSM> output_;
   Index tensor_size_;
   std::array<int, ND> in_dims_;
   std::array<int, ND> out_dims_;
