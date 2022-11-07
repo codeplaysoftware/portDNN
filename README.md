@@ -69,12 +69,15 @@ where `bin/`, `lib/` etc. are. This should be the only argument that is
 mandatory, everything else should be optional. The default build type is
 Release, though this can be overridden.
 
+ComputeCpp with SYCL-DNN does not currently support USM. If you build with
+ComputeCpp you must disable USM support.
+
 The following command shows how to compile SYCL-DNN.
 
 ```bash
 # Setup build environment
 mkdir build && cd build
-cmake .. -DComputeCpp_DIR=/path/to/computecpp
+cmake .. -DComputeCpp_DIR=/path/to/computecpp -DSNN_ENABLE_USM=OFF
 # Compile SYCL-DNN
 make -j$(nproc)
 ```

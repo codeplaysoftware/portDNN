@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include "src/backend/snn_backend_provider.h"
+#include "src/backend/snn_usm_backend_provider.h"
 
 #if defined(SNN_TEST_EIGEN) || defined(SNN_TEST_EIGEN_MATMULS)
 #include <unsupported/Eigen/CXX11/Tensor>

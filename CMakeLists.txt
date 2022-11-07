@@ -123,8 +123,9 @@ endif()
 set(SNN_HIGH_MEM_JOB_LIMIT 8 CACHE STRING
   "Number of concurrent build jobs for high memory targets (Ninja only)")
 set_property(GLOBAL PROPERTY JOB_POOLS high_mem=${SNN_HIGH_MEM_JOB_LIMIT})
+option(SNN_ENABLE_USM "Allow use of USM pointer backend" ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
@@ -171,6 +172,10 @@ elseif(DPCPP_FOUND)
   add_definitions(-DSNN_DISABLE_SYCL_PROGRAM)
 endif()
 
+if(SNN_ENABLE_USM)
+  add_definitions(-DSNN_ENABLE_USM)
+endif()
+
 set(CMAKE_DEBUG_POSTFIX "-debug")
 set(include_dest "include")
 set(library_dest "lib")
@@ -178,6 +183,10 @@ set(cmake_config_dest "${library_dest}/sycldnn/cmake")
 set(runtime_dest "bin")
 
 add_subdirectory(src)
+
+if(ComputeCpp_FOUND AND SNN_ENABLE_USM)
+  message(FATAL_ERROR "ComputeCPP does not currently support USM")
+endif()
 
 if(SNN_BUILD_TESTS)
   enable_testing()

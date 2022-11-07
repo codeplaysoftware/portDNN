@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_INCLUDE_BACKEND_SNN_BACKEND_H_
-#define SYCLDNN_INCLUDE_BACKEND_SNN_BACKEND_H_
+#ifndef SYCLDNN_INCLUDE_BACKEND_SNN_USM_BACKEND_H_
+#define SYCLDNN_INCLUDE_BACKEND_SNN_USM_BACKEND_H_
 
 #include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/device_mem_pointer.h"
@@ -28,27 +28,27 @@ namespace sycldnn {
 namespace backend {
 
 // Forward declaration to allow the BackendTraits specialisation.
-struct SNNBackend;
+struct SNNUSMBackend;
 
 /**
  * The template specialisation of \ref
- * sycldnn::backend::BackendTraits<SNNBackend>.
+ * sycldnn::backend::BackendTraits<SNNUSMBackend>.
  *
- * Provides the pointer types for the SNNBackend.
+ * Provides the pointer types for the SNNUSMBackend.
  */
 template <>
-struct BackendTraits<SNNBackend> {
+struct BackendTraits<SNNUSMBackend> {
   /**
-   * The external pointer type for SNNBackend.
+   * The external pointer type for SNNUSMBackend.
    */
   template <typename T>
-  using pointer_type = DeviceMemPointer<T>;
+  using pointer_type = T*;
 
   /**
-   * The internal pointer type for SNNBackend.
+   * The internal pointer type for SNNUSMBackend.
    */
   template <typename T>
-  using internal_pointer_type = DeviceMemPointer<T>;
+  using internal_pointer_type = T*;
 };
 
 /**
@@ -57,26 +57,26 @@ struct BackendTraits<SNNBackend> {
  * Provides pointer handling, matrix multiplies and reduce using our internal
  * kernels.
  */
-struct SNNBackend final : public CommonBackend,
-                          public SNNMatmulProvider<SNNBackend>,
-                          public SNNReduceProvider<SNNBackend> {
-  /** The pointer type used in interface of the SNNBackend. */
+struct SNNUSMBackend final : public CommonBackend,
+                             public SNNMatmulProvider<SNNUSMBackend>,
+                             public SNNReduceProvider<SNNUSMBackend> {
+  /** The pointer type used in interface of the SNNUSMBackend. */
   template <typename T>
   using pointer_type =
-      typename BackendTraits<SNNBackend>::template pointer_type<T>;
+      typename BackendTraits<SNNUSMBackend>::template pointer_type<T>;
 
-  /** The internal pointer type used internally by the SNNBackend. */
+  /** The internal pointer type used internally by the SNNUSMBackend. */
   template <typename T>
   using internal_pointer_type =
-      typename BackendTraits<SNNBackend>::template internal_pointer_type<T>;
+      typename BackendTraits<SNNUSMBackend>::template internal_pointer_type<T>;
 
   /**
-   * Construct an SNNBackend with the given queue. All SYCL-DNN operations
+   * Construct an SNNUSMBackend with the given queue. All SYCL-DNN operations
    * launched with this backend will be submitted to this queue.
    *
    * \param queue The SYCL queue to use with this backend.
    */
-  SNNBackend(cl::sycl::queue queue)
+  SNNUSMBackend(cl::sycl::queue queue)
       : CommonBackend{queue}, queue_{std::move(queue)} {}
 
   /**
@@ -87,7 +87,7 @@ struct SNNBackend final : public CommonBackend,
    * */
   template <typename T>
   internal_pointer_type<T> allocate(size_t n_elems) {
-    return internal_pointer_type<T>{n_elems};
+    return cl::sycl::malloc_device<T>(n_elems, queue_);
   }
 
   /**
@@ -96,49 +96,49 @@ struct SNNBackend final : public CommonBackend,
    */
   template <typename T>
   void deallocate(internal_pointer_type<T> ptr) {
-    SNN_UNUSED_VAR(ptr)
+    cl::sycl::free(ptr, queue_);
   }
 
   /**
-   * Get a MemObject containing the buffer corresponding to a given pointer.
-   * \param ptr     A pointer referring to a SYCL buffer with some offset.
+   * Get a MemObject containing the pointer.
+   * \param ptr     Memory pointer.
    * \param n_elems The number of elements required within the MemObject.
+   * \param offset The number of elements to offset ptr by.
    * \return Returns a MemObject corresponding to the pointer.
    */
   template <typename T>
-  auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_mem_object(ptr.get_buffer(), n_elems,
-                                  ptr.get_offset())) {
-    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+  auto get_mem_object(pointer_type<T> ptr, size_t n_elems, size_t offset)
+      -> decltype(make_usm_mem_object(ptr, n_elems, offset)) {
+    return make_usm_mem_object(ptr, n_elems, offset);
   }
 
   /** \copydoc get_mem_object */
   template <typename T>
-  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_mem_object(ptr.get_buffer(), n_elems,
-                                  ptr.get_offset())) {
-    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems,
+                               size_t offset)
+      -> decltype(make_usm_mem_object(ptr, n_elems, offset)) {
+    return make_usm_mem_object(ptr, n_elems, offset);
   }
 
   /**
-   * Get a MemObject containing the buffer corresponding to a given pointer.
-   * \param ptr     A pointer referring to a SYCL buffer with some offset.
+   * Get a USMMemObject containing the pointer.
+   * \param ptr     Memory pointer.
    * \param n_elems The number of elements required within the MemObject.
-   * \return Returns a MemObject corresponding to the pointer.
+   * \param offset The number of elements to offset ptr by.
+   * \return Returns a USMMemObject corresponding to the pointer.
    */
   template <typename T>
-  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_buffer_mem_object(ptr.get_buffer(), n_elems,
-                                         ptr.get_offset())) {
-    return make_buffer_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems, size_t offset = 0)
+      -> decltype(make_usm_mem_object<T>(ptr, n_elems, offset)) {
+    return make_usm_mem_object<T>(ptr, n_elems, offset);
   }
 
   /** \copydoc _get_mem_object */
   template <typename T>
-  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_buffer_mem_object(ptr.get_buffer(), n_elems,
-                                         ptr.get_offset())) {
-    return make_buffer_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
+  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems,
+                                size_t offset = 0)
+      -> decltype(get_usm_mem_object(ptr, n_elems, offset)) {
+    return get_usm_mem_object(ptr, n_elems, offset);
   }
 
   /**
@@ -147,7 +147,7 @@ struct SNNBackend final : public CommonBackend,
    * \param ptr The external pointer to transform to the corresponding internal
    *            pointer representation.
    * \return Returns an internal pointer representation compatible with \ref
-   *         sycldnn::backend::SNNBackend.
+   *         sycldnn::backend::SNNUSMBackend.
    */
   template <typename T>
   internal_pointer_type<T> to_internal_pointer(pointer_type<T> ptr) {
@@ -156,7 +156,7 @@ struct SNNBackend final : public CommonBackend,
 
   /**
    * Release the internal pointer, which has previously been returned from \ref
-   * sycldnn::backend::SNNBackend::to_internal_pointer.
+   * sycldnn::backend::SNNUSMBackend::to_internal_pointer.
    *
    * In this case it is a no-op.
    *
@@ -177,7 +177,7 @@ struct SNNBackend final : public CommonBackend,
    * Gets a descriptive name for this backend.
    * \return a descriptive name for this backend.
    */
-  static char const* name() { return "SNNBackend"; }
+  static char const* name() { return "SNNUSMBackend"; }
 
  private:
   cl::sycl::queue queue_;
@@ -186,4 +186,4 @@ struct SNNBackend final : public CommonBackend,
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_INCLUDE_BACKEND_SNN_BACKEND_H_
+#endif  // SYCLDNN_INCLUDE_BACKEND_SNN_USM_BACKEND_H_
