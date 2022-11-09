@@ -47,3 +47,16 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      matmul_event
+    SOURCES
+      matmul_event_dependency.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

@@ -48,10 +48,9 @@ transpose_block(VectorBlock<T, Rows, Cols> const& input) {
   return output;
 }
 
-template <typename VectorType, typename T,
-          cl::sycl::access::address_space Space>
+template <typename VectorType, typename T, MULTI_PTR_TEMPLATE_DECL>
 static VectorType SNN_ALWAYS_INLINE
-load_row(cl::sycl::multi_ptr<T, Space> row_start) {
+load_row(cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> row_start) {
   using VectorLoad = helpers::io::Load<VectorType>;
   VectorType output = VectorLoad()(row_start, 0);
   return output;
@@ -59,10 +58,10 @@ load_row(cl::sycl::multi_ptr<T, Space> row_start) {
 
 // if the row is not internal the load_row function is overloaded to accept
 // col mask to check the boundary element of the row
-template <typename VectorType, int Cols, typename T,
-          cl::sycl::access::address_space Space>
+template <typename VectorType, int Cols, typename T, MULTI_PTR_TEMPLATE_DECL>
 static VectorType SNN_ALWAYS_INLINE
-load_row(cl::sycl::multi_ptr<T, Space> row_start, std::array<bool, Cols> mask) {
+load_row(cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> row_start,
+         std::array<bool, Cols> mask) {
   namespace vec_elem = helpers::vector_element;
   using ScalarType = T;
   using ScalarLoad = helpers::io::Load<ScalarType>;
@@ -81,10 +80,10 @@ load_row(cl::sycl::multi_ptr<T, Space> row_start, std::array<bool, Cols> mask) {
 
 // if the block is not internal the load block function is overloaded to accept
 // row and col mask to check the boundary
-template <int Rows, int Cols, typename T, cl::sycl::access::address_space Space,
+template <int Rows, int Cols, typename T, MULTI_PTR_TEMPLATE_DECL,
           typename Index>
 static VectorBlock<T, Rows, Cols> SNN_ALWAYS_INLINE
-load_block(cl::sycl::multi_ptr<T const, Space> input, Index ld,
+load_block(cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input, Index ld,
            std::array<bool, Rows> row_mask, std::array<bool, Cols> col_mask) {
   using OutputType = VectorBlock<T, Rows, Cols>;
   using VectorType = typename OutputType::VectorType;
@@ -104,9 +103,9 @@ load_block(cl::sycl::multi_ptr<T const, Space> input, Index ld,
 // if the requested is not internal the load function is overloaded to accept
 // row and col mask to check the boundary
 template <int Rows, int Cols, bool Transpose, typename T,
-          cl::sycl::access::address_space Space, typename Index>
+          MULTI_PTR_TEMPLATE_DECL, typename Index>
 static VectorBlock<T, Rows, Cols> SNN_ALWAYS_INLINE
-load(cl::sycl::multi_ptr<T const, Space> input, Index ld,
+load(cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input, Index ld,
      std::array<bool, Rows> row_mask, std::array<bool, Cols> col_mask) {
   VectorBlock<T, Rows, Cols> output;
   if (Transpose) {
@@ -118,10 +117,10 @@ load(cl::sycl::multi_ptr<T const, Space> input, Index ld,
   return output;
 }
 
-template <int Rows, int Cols, typename T, cl::sycl::access::address_space Space,
+template <int Rows, int Cols, typename T, MULTI_PTR_TEMPLATE_DECL,
           typename Index>
 static VectorBlock<T, Rows, Cols> SNN_ALWAYS_INLINE
-load_block(cl::sycl::multi_ptr<T const, Space> input, Index ld) {
+load_block(cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input, Index ld) {
   using OutputType = VectorBlock<T, Rows, Cols>;
   using VectorType = typename OutputType::VectorType;
   VectorBlock<T, Rows, Cols> output;
@@ -134,9 +133,9 @@ load_block(cl::sycl::multi_ptr<T const, Space> input, Index ld) {
 }
 
 template <int Rows, int Cols, bool Transpose, typename T,
-          cl::sycl::access::address_space Space, typename Index>
+          MULTI_PTR_TEMPLATE_DECL, typename Index>
 static VectorBlock<T, Rows, Cols> SNN_ALWAYS_INLINE
-load(cl::sycl::multi_ptr<T const, Space> input, Index ld) {
+load(cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input, Index ld) {
   VectorBlock<T, Rows, Cols> output;
   if (Transpose) {
     auto out_trans = load_block<Cols, Rows>(input, ld);
@@ -172,11 +171,11 @@ static void SNN_ALWAYS_INLINE block_mmacc(
   }
 }
 
-template <int Cols, typename VectorType, typename T,
-          cl::sycl::access::address_space Space>
-static void SNN_ALWAYS_INLINE store_row(VectorType const& row_vec,
-                                        cl::sycl::multi_ptr<T, Space> row_start,
-                                        std::array<bool, Cols> valid_col) {
+template <int Cols, typename VectorType, typename T, MULTI_PTR_TEMPLATE_DECL>
+static void SNN_ALWAYS_INLINE
+store_row(VectorType const& row_vec,
+          cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> row_start,
+          std::array<bool, Cols> valid_col) {
   using ScalarType = T;
   using ScalarStore = helpers::io::Store<ScalarType>;
   namespace vec_elem = helpers::vector_element;
@@ -190,11 +189,11 @@ static void SNN_ALWAYS_INLINE store_row(VectorType const& row_vec,
 
 // if the written block is not internal the store function is overloaded to
 // accept row and col mask to check the boundary
-template <int Rows, int Cols, typename T, cl::sycl::access::address_space Space,
+template <int Rows, int Cols, typename T, MULTI_PTR_TEMPLATE_DECL,
           typename Index>
 static void SNN_ALWAYS_INLINE store_block(
     VectorBlock<T, Rows, Cols> const& block,
-    cl::sycl::multi_ptr<T, Space> output, Index ld,
+    cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index ld,
     std::array<bool, Rows> valid_row, std::array<bool, Cols> valid_col) {
   auto row_start_ptr = output;
   for (int i = 0; i < Rows; ++i) {
@@ -205,11 +204,11 @@ static void SNN_ALWAYS_INLINE store_block(
   }
 }
 
-template <int Rows, int Cols, typename T, cl::sycl::access::address_space Space,
+template <int Rows, int Cols, typename T, MULTI_PTR_TEMPLATE_DECL,
           typename Index>
 static void SNN_ALWAYS_INLINE
 store_block(VectorBlock<T, Rows, Cols> const& block,
-            cl::sycl::multi_ptr<T, Space> output, Index ld) {
+            cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index ld) {
   using VectorType = typename VectorBlock<T, Rows, Cols>::VectorType;
   using VectorStore = helpers::io::Store<VectorType>;
   for (int i = 0; i < Rows; ++i) {

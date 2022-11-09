@@ -34,11 +34,55 @@ namespace internal {
  *
  * Implemented in the compiled SYCL DNN library.
  */
-template <typename T, bool TransposeLHS, bool TransposeRHS>
-SNN_EXPORT SNNStatus launch(BaseMemObject<T const>& lhs,
-                            BaseMemObject<T const>& rhs,
-                            BaseMemObject<T>& output,
-                            MatmulParams const& params, cl::sycl::queue& queue);
+template <typename T, bool TransposeLHS, bool TransposeRHS,
+          template <typename> class MemObj>
+SNN_EXPORT SNNStatus launch(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                            MemObj<T>& output, MatmulParams const& params,
+                            cl::sycl::queue& queue,
+                            const std::vector<cl::sycl::event>& events);
+
+/**
+ * Launch a batched matrix multiplication.
+ *
+ * Will compute: output[i] = beta * output[i] + op(lhs[i]) * op(rhs[i])
+ * where i ranges over the number of batches and op(X) is either X or X^T if
+ * TransposeX is true.
+ *
+ * \param lhs A pointer to the memory representing the left hand matrix.
+ * \param rhs A pointer to the memory representing the right hand matrix.
+ * \param output A pointer to the memory representing the output tensor.
+ * \param params The parameters of the matrix multiplication operation.
+ * \param backend The backend implementation, used to map between pointer
+ *                representations.
+ * \return Returns an SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, bool TransposeLHS, bool TransposeRHS, typename Backend>
+SNNStatus sublaunch(typename Backend::template pointer_type<T const> lhs,
+                    typename Backend::template pointer_type<T const> rhs,
+                    typename Backend::template pointer_type<T> output,
+                    MatmulParams const& params, Backend& backend,
+                    const std::vector<cl::sycl::event>& events = {}) {
+  SNN_VALIDATE_PARAM(params.batches > 0,
+                     "The number of batches must be positive.");
+  SNN_VALIDATE_PARAM(params.m > 0, "The value of m must be positive.");
+  SNN_VALIDATE_PARAM(params.k > 0, "The value of k must  be positive.");
+  SNN_VALIDATE_PARAM(params.n > 0, "The value of n must be positive.");
+
+  size_t lhs_size = params.batches * params.m * params.k;
+  size_t rhs_size = params.batches * params.k * params.n;
+  size_t out_size = params.batches * params.m * params.n;
+
+  auto lhs_acc = backend._get_mem_object(lhs, lhs_size);
+  auto rhs_acc = backend._get_mem_object(rhs, rhs_size);
+  auto out_acc = backend._get_mem_object(output, out_size);
+
+  auto sycl_queue = backend.get_queue();
+
+  return internal::launch<T, TransposeLHS, TransposeRHS>(
+      lhs_acc, rhs_acc, out_acc, params, sycl_queue, events);
+}
 
 }  // namespace internal
 }  // namespace matmul

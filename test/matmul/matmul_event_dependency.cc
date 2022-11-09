@@ -21,22 +21,25 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "test/matmul/fixture.h"
+#include "test/matmul/matmul_event_dependency_fixture.h"
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using BackendTypeList = sycldnn::types::DefaultBackendTypes_;
+using BackendTypeList =
+    sycldnn::types::TypeList<sycldnn::backend::SNNUSMBackend>;
 using TypePairList =
     sycldnn::types::CartesianProduct<DataTypeList, BackendTypeList>::type;
 using GTestTypeList = sycldnn::types::ToGTestTypes<TypePairList>::type;
 
 template <typename DataType>
-using MatmulBatch1Beta0FalseFalse = MatmulFixture<DataType, false, false>;
-TYPED_TEST_SUITE(MatmulBatch1Beta0FalseFalse, GTestTypeList);
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK14xN14) {
+using MatmulEventDependecy =
+    MatmulEventDependencyFixture<DataType, false, false>;
+TYPED_TEST_SUITE(MatmulEventDependecy, GTestTypeList);
+
+TYPED_TEST(MatmulEventDependecy, M14xK14xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       12845.,  12950.,  13055.,  13160.,  13265.,  13370.,  13475.,  13580.,
@@ -72,7 +75,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK14xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK14xN15) {
+TYPED_TEST(MatmulEventDependecy, M14xK14xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       13755.,  13860.,  13965.,  14070.,  14175.,  14280.,  14385.,  14490.,
@@ -110,7 +113,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK14xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK14xN16) {
+TYPED_TEST(MatmulEventDependecy, M14xK14xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       14665.,  14770.,  14875.,  14980.,  15085.,  15190.,  15295.,  15400.,
@@ -149,7 +152,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK14xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK15xN14) {
+TYPED_TEST(MatmulEventDependecy, M14xK15xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       15800.,  15920.,  16040.,  16160.,  16280.,  16400.,  16520.,  16640.,
@@ -185,7 +188,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK15xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK15xN15) {
+TYPED_TEST(MatmulEventDependecy, M14xK15xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       16920.,  17040.,  17160.,  17280.,  17400.,  17520.,  17640.,  17760.,
@@ -223,7 +226,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK15xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK15xN16) {
+TYPED_TEST(MatmulEventDependecy, M14xK15xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       18040.,  18160.,  18280.,  18400.,  18520.,  18640.,  18760.,  18880.,
@@ -262,7 +265,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK15xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK16xN14) {
+TYPED_TEST(MatmulEventDependecy, M14xK16xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       19176.,  19312.,  19448.,  19584.,  19720.,  19856.,  19992.,  20128.,
@@ -298,7 +301,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK16xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK16xN15) {
+TYPED_TEST(MatmulEventDependecy, M14xK16xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       20536.,  20672.,  20808.,  20944.,  21080.,  21216.,  21352.,  21488.,
@@ -336,7 +339,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK16xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK16xN16) {
+TYPED_TEST(MatmulEventDependecy, M14xK16xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       21896.,  22032.,  22168.,  22304.,  22440.,  22576.,  22712.,  22848.,
@@ -375,7 +378,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M14xK16xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK14xN14) {
+TYPED_TEST(MatmulEventDependecy, M15xK14xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       12845.,  12950.,  13055.,  13160.,  13265.,  13370.,  13475.,  13580.,
@@ -413,7 +416,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK14xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK14xN15) {
+TYPED_TEST(MatmulEventDependecy, M15xK14xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       13755.,  13860.,  13965.,  14070.,  14175.,  14280.,  14385.,  14490.,
@@ -453,7 +456,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK14xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK14xN16) {
+TYPED_TEST(MatmulEventDependecy, M15xK14xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       14665.,  14770.,  14875.,  14980.,  15085.,  15190.,  15295.,  15400.,
@@ -494,7 +497,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK14xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK15xN14) {
+TYPED_TEST(MatmulEventDependecy, M15xK15xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       15800.,  15920.,  16040.,  16160.,  16280.,  16400.,  16520.,  16640.,
@@ -532,7 +535,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK15xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK15xN15) {
+TYPED_TEST(MatmulEventDependecy, M15xK15xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       16920.,  17040.,  17160.,  17280.,  17400.,  17520.,  17640.,  17760.,
@@ -572,7 +575,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK15xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK15xN16) {
+TYPED_TEST(MatmulEventDependecy, M15xK15xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       18040.,  18160.,  18280.,  18400.,  18520.,  18640.,  18760.,  18880.,
@@ -613,7 +616,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK15xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK16xN14) {
+TYPED_TEST(MatmulEventDependecy, M15xK16xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       19176.,  19312.,  19448.,  19584.,  19720.,  19856.,  19992.,  20128.,
@@ -651,7 +654,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK16xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK16xN15) {
+TYPED_TEST(MatmulEventDependecy, M15xK16xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       20536.,  20672.,  20808.,  20944.,  21080.,  21216.,  21352.,  21488.,
@@ -691,7 +694,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK16xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK16xN16) {
+TYPED_TEST(MatmulEventDependecy, M15xK16xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       21896.,  22032.,  22168.,  22304.,  22440.,  22576.,  22712.,  22848.,
@@ -732,7 +735,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M15xK16xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK14xN14) {
+TYPED_TEST(MatmulEventDependecy, M16xK14xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       12845.,  12950.,  13055.,  13160.,  13265.,  13370.,  13475.,  13580.,
@@ -771,7 +774,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK14xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK14xN15) {
+TYPED_TEST(MatmulEventDependecy, M16xK14xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       13755.,  13860.,  13965.,  14070.,  14175.,  14280.,  14385.,  14490.,
@@ -812,7 +815,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK14xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK14xN16) {
+TYPED_TEST(MatmulEventDependecy, M16xK14xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       14665.,  14770.,  14875.,  14980.,  15085.,  15190.,  15295.,  15400.,
@@ -855,7 +858,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK14xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK15xN14) {
+TYPED_TEST(MatmulEventDependecy, M16xK15xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       15800.,  15920.,  16040.,  16160.,  16280.,  16400.,  16520.,  16640.,
@@ -894,7 +897,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK15xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK15xN15) {
+TYPED_TEST(MatmulEventDependecy, M16xK15xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       16920.,  17040.,  17160.,  17280.,  17400.,  17520.,  17640.,  17760.,
@@ -935,7 +938,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK15xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK15xN16) {
+TYPED_TEST(MatmulEventDependecy, M16xK15xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       18040.,  18160.,  18280.,  18400.,  18520.,  18640.,  18760.,  18880.,
@@ -978,7 +981,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK15xN16) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK16xN14) {
+TYPED_TEST(MatmulEventDependecy, M16xK16xN14) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       19176.,  19312.,  19448.,  19584.,  19720.,  19856.,  19992.,  20128.,
@@ -1017,7 +1020,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK16xN14) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK16xN15) {
+TYPED_TEST(MatmulEventDependecy, M16xK16xN15) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       20536.,  20672.,  20808.,  20944.,  21080.,  21216.,  21352.,  21488.,
@@ -1058,7 +1061,7 @@ TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK16xN15) {
   const DataType max_input_val = 2048.0;
   this->run(exp_out, batches, m, k, n, beta, 0, 0, 0, max_input_val);
 }
-TYPED_TEST(MatmulBatch1Beta0FalseFalse, M16xK16xN16) {
+TYPED_TEST(MatmulEventDependecy, M16xK16xN16) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
       21896.,  22032.,  22168.,  22304.,  22440.,  22576.,  22712.,  22848.,

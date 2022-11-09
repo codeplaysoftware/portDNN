@@ -30,12 +30,14 @@ namespace matmul {
 namespace internal {
 
 template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
-          int RowTile, int AccTile, int ColTile, bool CheckBounds>
-SNNStatus queue_kernel(BaseMemObject<T const>& lhs_mem,
-                       BaseMemObject<T const>& rhs_mem,
-                       BaseMemObject<T>& output_mem, MatmulParams const& params,
+          int RowTile, int AccTile, int ColTile, bool CheckBounds,
+          template <typename> class MemObj>
+SNNStatus queue_kernel(MemObj<T const>& lhs_mem, MemObj<T const>& rhs_mem,
+                       MemObj<T>& output_mem, MatmulParams const& params,
                        cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
-                       size_t wg_batch) {
+                       size_t wg_batch,
+                       const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   Index const output_size_row = helpers::round_ratio_up(params.m, RowTile);
   Index const output_size_col = helpers::round_ratio_up(params.n, ColTile);
   size_t const n_row_threads =
@@ -46,12 +48,13 @@ SNNStatus queue_kernel(BaseMemObject<T const>& lhs_mem,
       helpers::round_up_to_nearest_multiple(params.batches, wg_batch);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto lhs = lhs_mem.read_accessor(cgh);
-    auto rhs = rhs_mem.read_accessor(cgh);
-    auto output = output_mem.read_write_accessor(cgh);
+    cgh.depends_on(events);
+    auto lhs = lhs_mem.read_mem(cgh);
+    auto rhs = rhs_mem.read_mem(cgh);
+    auto output = output_mem.read_write_mem(cgh);
 
     using Functor = MatmulKernel<T, Index, TransposeLHS, TransposeRHS, RowTile,
-                                 AccTile, ColTile, CheckBounds>;
+                                 AccTile, ColTile, CheckBounds, is_usm>;
 
     Functor functor{lhs, rhs, output, params};
 

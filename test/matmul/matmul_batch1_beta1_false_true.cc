@@ -22,11 +22,16 @@
 #include <vector>
 
 #include "test/matmul/fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
+using BackendTypeList = sycldnn::types::DefaultBackendTypes_;
+using TypePairList =
+    sycldnn::types::CartesianProduct<DataTypeList, BackendTypeList>::type;
+using GTestTypeList = sycldnn::types::ToGTestTypes<TypePairList>::type;
 
 template <typename DataType>
 using MatmulBatch1Beta1FalseTrue = MatmulFixture<DataType, false, true>;

@@ -21,6 +21,7 @@
  * Implements the \ref sycldnn::matmul::launch() function, which asynchronously
  * dispatches the SYCL kernels required to perform a matrix multiply.
  */
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -47,30 +48,47 @@ namespace matmul {
  *         launches and a StatusCode enum showing if the launch was OK or
  *         whether it encountered some problem.
  */
-template <typename T, bool TransposeLHS, bool TransposeRHS, typename Backend>
+template <typename T, bool TransposeLHS, bool TransposeRHS, typename Backend,
+          typename = typename std::enable_if<
+              !sycldnn::backend::is_usm_backend_v<Backend>>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
                  typename Backend::template pointer_type<T const> rhs,
                  typename Backend::template pointer_type<T> output,
                  MatmulParams const& params, Backend& backend) {
-  SNN_VALIDATE_PARAM(params.batches > 0,
-                     "The number of batches must be positive.");
-  SNN_VALIDATE_PARAM(params.m > 0, "The value of m must be positive.");
-  SNN_VALIDATE_PARAM(params.k > 0, "The value of k must be positive.");
-  SNN_VALIDATE_PARAM(params.n > 0, "The value of n must be positive.");
-
-  size_t lhs_size = params.batches * params.m * params.k;
-  size_t rhs_size = params.batches * params.k * params.n;
-  size_t out_size = params.batches * params.m * params.n;
-
-  auto lhs_acc = backend.get_mem_object(lhs, lhs_size);
-  auto rhs_acc = backend.get_mem_object(rhs, rhs_size);
-  auto out_acc = backend.get_mem_object(output, out_size);
-
-  auto sycl_queue = backend.get_queue();
-
-  return internal::launch<T, TransposeLHS, TransposeRHS>(
-      lhs_acc, rhs_acc, out_acc, params, sycl_queue);
+  return internal::sublaunch<T, TransposeLHS, TransposeRHS>(lhs, rhs, output,
+                                                            params, backend);
 }
+
+/**
+ * Launch a batched matrix multiplication.
+ *
+ * Will compute: output[i] = beta * output[i] + op(lhs[i]) * op(rhs[i])
+ * where i ranges over the number of batches and op(X) is either X or X^T if
+ * TransposeX is true.
+ *
+ * \param lhs A pointer to the memory representing the left hand matrix.
+ * \param rhs A pointer to the memory representing the right hand matrix.
+ * \param output A pointer to the memory representing the output tensor.
+ * \param params The parameters of the matrix multiplication operation.
+ * \param backend The backend implementation, used to map between pointer
+ *                representations.
+ * \param events Events which should be completed before the operation
+ * \return Returns an SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, bool TransposeLHS, bool TransposeRHS, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
+                 typename Backend::template pointer_type<T const> rhs,
+                 typename Backend::template pointer_type<T> output,
+                 MatmulParams const& params, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  return internal::sublaunch<T, TransposeLHS, TransposeRHS>(
+      lhs, rhs, output, params, backend, events);
+}
+
 }  // namespace matmul
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_MATMUL_LAUNCH_H_

@@ -27,11 +27,13 @@ namespace internal {
 
 /** Add a matrix multiply kernel to the provided SYCL queue. */
 template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
-          int RowTile, int AccTile, int ColTile, bool CheckBounds>
-SNNStatus queue_kernel(BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
-                       BaseMemObject<T>& output, MatmulParams const& params,
+          int RowTile, int AccTile, int ColTile, bool CheckBounds,
+          template <typename> class MemObj>
+SNNStatus queue_kernel(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                       MemObj<T>& output, MatmulParams const& params,
                        cl::sycl::queue& queue, size_t wg_row, size_t wg_col,
-                       size_t wg_batch);
+                       size_t wg_batch,
+                       const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace matmul

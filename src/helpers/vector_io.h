@@ -224,9 +224,6 @@ struct Store<cl::sycl::vec<T, 1>> {
   }
 };
 
-#undef MULTI_PTR_TEMPLATE_DECL
-#undef MULTI_PTR_TEMPLATE
-
 }  // namespace io
 }  // namespace helpers
 }  // namespace sycldnn

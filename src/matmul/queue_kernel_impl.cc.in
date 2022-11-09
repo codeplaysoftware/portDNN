@@ -32,20 +32,41 @@ namespace internal {
 
 template SNNStatus
 queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
-             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, true>(
-    BaseMemObject<SNN_DATA_TYPE const>& lhs,
-    BaseMemObject<SNN_DATA_TYPE const>& rhs,
-    BaseMemObject<SNN_DATA_TYPE>& output, MatmulParams const& params,
-    cl::sycl::queue& queue, size_t wg_row, size_t wg_col, size_t wg_batch);
+             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, true, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& lhs,
+    BufferMemObject<SNN_DATA_TYPE const>& rhs,
+    BufferMemObject<SNN_DATA_TYPE>& output, MatmulParams const& params,
+    cl::sycl::queue& queue, size_t wg_row, size_t wg_col, size_t wg_batch,
+    const std::vector<cl::sycl::event>& events);
 
 template SNNStatus
 queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
-             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, false>(
-    BaseMemObject<SNN_DATA_TYPE const>& lhs,
-    BaseMemObject<SNN_DATA_TYPE const>& rhs,
-    BaseMemObject<SNN_DATA_TYPE>& output, MatmulParams const& params,
-    cl::sycl::queue& queue, size_t wg_row, size_t wg_col, size_t wg_batch);
+             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, false, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& lhs,
+    BufferMemObject<SNN_DATA_TYPE const>& rhs,
+    BufferMemObject<SNN_DATA_TYPE>& output, MatmulParams const& params,
+    cl::sycl::queue& queue, size_t wg_row, size_t wg_col, size_t wg_batch,
+    const std::vector<cl::sycl::event>& events);
 
+#ifdef SNN_ENABLE_USM
+
+template SNNStatus
+queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
+             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, true, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& lhs,
+    USMMemObject<SNN_DATA_TYPE const>& rhs, USMMemObject<SNN_DATA_TYPE>& output,
+    MatmulParams const& params, cl::sycl::queue& queue, size_t wg_row,
+    size_t wg_col, size_t wg_batch, const std::vector<cl::sycl::event>& events);
+
+template SNNStatus
+queue_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_TRANS_LHS, SNN_TRANS_RHS,
+             SNN_ROW_TILE, SNN_ACC_TILE, SNN_COL_TILE, false, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& lhs,
+    USMMemObject<SNN_DATA_TYPE const>& rhs, USMMemObject<SNN_DATA_TYPE>& output,
+    MatmulParams const& params, cl::sycl::queue& queue, size_t wg_row,
+    size_t wg_col, size_t wg_batch, const std::vector<cl::sycl::event>& events);
+
+#endif  // SNN_ENABLE_USM
 }  // namespace internal
 }  // namespace matmul
 }  // namespace sycldnn

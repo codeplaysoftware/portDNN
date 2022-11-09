@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_MATMUL_FIXTURE_H_
-#define SYCLDNN_TEST_MATMUL_FIXTURE_H_
+#ifndef SYCLDNN_TEST_MATMUL_EVENT_FIXTURE_H_
+#define SYCLDNN_TEST_MATMUL_EVENT_FIXTURE_H_
 
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "sycldnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_usm_backend.h"
 #include "sycldnn/helpers/scope_exit.h"
 #include "sycldnn/matmul/launch.h"
 #include "sycldnn/matmul/params.h"
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
+#include "test/helpers/dependency_check.h"
 #include "test/helpers/float_comparison.h"
 
 template <typename Pair, bool TransposeLhs, bool TransposeRhs>
-struct MatmulFixture : public BackendTestFixture<typename Pair::SecondType> {
+struct MatmulEventDependencyFixture
+    : public BackendTestFixture<typename Pair::SecondType> {
   using DataType = typename Pair::FirstType;
   using Backend = typename Pair::SecondType;
 
@@ -48,32 +50,30 @@ struct MatmulFixture : public BackendTestFixture<typename Pair::SecondType> {
     auto& provider = this->provider_;
     auto& backend = provider.get_backend();
 
-    {
-      auto lhs_gpu = provider.get_initialised_device_memory(lhs_size, lhs_data);
-      auto rhs_gpu = provider.get_initialised_device_memory(rhs_size, rhs_data);
-      auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
-      SNN_ON_SCOPE_EXIT {
-        provider.deallocate_ptr(lhs_gpu);
-        provider.deallocate_ptr(rhs_gpu);
-        provider.deallocate_ptr(out_gpu);
-      };
+    auto lhs_gpu = provider.get_initialised_device_memory(lhs_size, lhs_data);
+    auto rhs_gpu = provider.get_initialised_device_memory(rhs_size, rhs_data);
+    auto out_gpu = provider.get_initialised_device_memory(out_size, out_data);
+    SNN_ON_SCOPE_EXIT {
+      provider.deallocate_ptr(lhs_gpu);
+      provider.deallocate_ptr(rhs_gpu);
+      provider.deallocate_ptr(out_gpu);
+    };
+    try {
+      dependency_test_params dep_test_params;
+      cl::sycl::event dependee_e = create_event(backend, dep_test_params);
 
       auto status =
           sycldnn::matmul::launch<DataType, TransposeLhs, TransposeRhs>(
               lhs_gpu + lhs_offset, rhs_gpu + rhs_offset, out_gpu + out_offset,
-              sycldnn::matmul::MatmulParams{batches, m, k, n, beta}, backend);
+              sycldnn::matmul::MatmulParams{batches, m, k, n, beta}, backend,
+              std::vector<cl::sycl::event>{dependee_e});
 
-      ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-      status.event.wait_and_throw();
+      check_dependency(dependee_e, status.event, backend, dep_test_params);
 
-      provider.copy_device_data_to_host(out_size, out_gpu, out_data);
-    }
-
-    for (size_t i = 0; i < exp.size(); ++i) {
-      SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], out_data[i], 10u);
+    } catch (cl::sycl::exception const& e) {
+      throw std::runtime_error(e.what());
     }
   }
 };
 
-#endif  // SYCLDNN_TEST_MATMUL_FIXTURE_H_
+#endif  // SYCLDNN_TEST_MATMUL_EVENT_FIXTURE_H_

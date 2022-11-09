@@ -24,11 +24,11 @@
 namespace sycldnn {
 namespace matmul {
 template <typename T, typename Index, bool TransposeLHS, bool TransposeRHS,
-          int RowTile, int AccTile, int ColTile, bool CheckBounds>
+          int RowTile, int AccTile, int ColTile, bool CheckBounds, bool IsUSM>
 struct MatmulKernel {
-  MatmulKernel(ReadAccessor<T const> const& lhs,
-               ReadAccessor<T const> const& rhs,
-               ReadWriteAccessor<T> const& output, MatmulParams const& params)
+  MatmulKernel(ReadMem<T const, IsUSM> const& lhs,
+               ReadMem<T const, IsUSM> const& rhs,
+               ReadWriteMem<T, IsUSM> const& output, MatmulParams const& params)
       : lhs_{lhs}, rhs_{rhs}, output_{output}, params_{params} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<3> item) const {
@@ -126,9 +126,9 @@ struct MatmulKernel {
   }
 
  private:
-  ReadAccessor<T const> lhs_;
-  ReadAccessor<T const> rhs_;
-  ReadWriteAccessor<T> output_;
+  ReadMem<T const, IsUSM> lhs_;
+  ReadMem<T const, IsUSM> rhs_;
+  ReadWriteMem<T, IsUSM> output_;
   MatmulParams params_;
 };
 
