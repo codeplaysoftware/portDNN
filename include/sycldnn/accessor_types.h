@@ -215,6 +215,7 @@ struct GenericMem {
   size_t offset_;
 };
 
+#ifdef SNN_ENABLE_USM
 /**
  * SYCL USM wrapper.
  *
@@ -224,6 +225,11 @@ struct GenericMem {
 template <typename T, cl::sycl::access::mode Mode>
 struct GenericMem<T, Mode, true> {
  private:
+  static auto constexpr GenericSpace =
+      cl::sycl::access::address_space::generic_space;
+  /** Alias for a generic SYCL pointer. */
+  using MultiPtr =
+      cl::sycl::multi_ptr<T, GenericSpace, cl::sycl::access::decorated::no>;
   /** Alias for a SYCL command group handler. */
   using Handler = cl::sycl::handler;
 
@@ -250,7 +256,11 @@ struct GenericMem<T, Mode, true> {
    * Get the underlying pointer from the accessor.
    * \return A global pointer to the underlying memory.
    */
-  T* get_pointer() const { return ptr_ + offset_; }
+  MultiPtr get_pointer() const {
+    return cl::sycl::address_space_cast<
+        cl::sycl::access::address_space::generic_space,
+        cl::sycl::access::decorated::no, T>(ptr_ + offset_);
+  }
 
   /**
    * Get the number of elements the pointer spans.
@@ -272,6 +282,7 @@ struct GenericMem<T, Mode, true> {
    */
   size_t offset_;
 };
+#endif
 
 /** Read only accessor for a 1D buffer of type T. */
 template <typename T, bool IsUSM>

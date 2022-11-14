@@ -21,6 +21,20 @@
 
 #include "sycldnn/helpers/macros.h"
 
+#if SNN_ENABLE_USM
+#define MULTI_PTR_TEMPLATE_DECL          \
+  cl::sycl::access::address_space Space, \
+      cl::sycl::access::decorated DecorateAddress
+#else
+#define MULTI_PTR_TEMPLATE_DECL cl::sycl::access::address_space Space
+#endif  // SNN_ENABLE_USM
+
+#if SNN_ENABLE_USM
+#define MULTI_PTR_TEMPLATE Space, DecorateAddress
+#else
+#define MULTI_PTR_TEMPLATE Space
+#endif  // SNN_ENABLE_USM
+
 namespace sycldnn {
 namespace helpers {
 
@@ -43,9 +57,9 @@ struct AsVecIndex {
 /**
  * Adds const to multi_ptr.
  */
-template <typename T, cl::sycl::access::address_space Space>
-cl::sycl::multi_ptr<T const, Space> as_const_ptr(
-    cl::sycl::multi_ptr<T, Space> ptr) {
+template <typename T, MULTI_PTR_TEMPLATE_DECL>
+cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> as_const_ptr(
+    cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> ptr) {
   return ptr;
 }
 
@@ -85,8 +99,8 @@ struct Load {
     return ptr[offset];
   }
 
-  template <typename U, typename Index, cl::sycl::access::address_space Space>
-  T SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<U, Space> ptr,
+  template <typename U, typename Index, MULTI_PTR_TEMPLATE_DECL>
+  T SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<U, MULTI_PTR_TEMPLATE> ptr,
                                  Index const offset) {
     static_assert(std::is_convertible<U, T>::value,
                   "Type U must be convertible to type T.");
@@ -99,17 +113,18 @@ template <typename T, int N>
 struct Load<cl::sycl::vec<T, N>> {
   static_assert(!std::is_const<T>::value,
                 "Cannot load values into a vector of const types.");
-  template <typename Index, cl::sycl::access::address_space Space>
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
-  operator()(cl::sycl::multi_ptr<const T, Space> ptr, Index const offset) {
+  operator()(cl::sycl::multi_ptr<const T, MULTI_PTR_TEMPLATE> ptr,
+             Index const offset) {
     cl::sycl::vec<T, N> result;
     result.load(0, ptr + offset);
     return result;
   }
 
-  template <typename Index, cl::sycl::access::address_space Space>
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   cl::sycl::vec<T, N> SNN_ALWAYS_INLINE
-  operator()(cl::sycl::multi_ptr<const T, Space> ptr,
+  operator()(cl::sycl::multi_ptr<const T, MULTI_PTR_TEMPLATE> ptr,
              internal::AsVecIndex<Index> const offset) {
     cl::sycl::vec<T, N> result;
     result.load(offset, ptr);
@@ -120,9 +135,9 @@ struct Load<cl::sycl::vec<T, N>> {
 /** Load specialisation to treat one element vectors as scalars. */
 template <typename T>
 struct Load<cl::sycl::vec<T, 1>> {
-  template <typename U, typename Index, cl::sycl::access::address_space Space>
-  cl::sycl::vec<T, 1> SNN_ALWAYS_INLINE
-  operator()(cl::sycl::multi_ptr<U, Space> ptr, Index const offset) {
+  template <typename U, typename Index, MULTI_PTR_TEMPLATE_DECL>
+  cl::sycl::vec<T, 1> SNN_ALWAYS_INLINE operator()(
+      cl::sycl::multi_ptr<U, MULTI_PTR_TEMPLATE> ptr, Index const offset) {
     static_assert(std::is_convertible<U, T>::value,
                   "Type U must be convertible to type T.");
     cl::sycl::vec<T, 1> result(ptr[offset]);
@@ -146,9 +161,10 @@ struct Load<cl::sycl::vec<T, 1>> {
  */
 template <typename T>
 struct Store {
-  template <typename Index, cl::sycl::access::address_space Space>
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
-                                    Index const offset, T const val) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> ptr, Index const offset,
+             T const val) {
     *(ptr + offset) = val;
   }
 
@@ -163,17 +179,17 @@ struct Store {
 /** Store specialisation for SYCL vectors. */
 template <typename T, int N>
 struct Store<cl::sycl::vec<T, N>> {
-  template <typename Index, cl::sycl::access::address_space Space>
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
-                                    Index const offset,
-                                    cl::sycl::vec<T, N> const val) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> ptr, Index const offset,
+             cl::sycl::vec<T, N> const val) {
     val.store(0, ptr + offset);
   }
 
-  template <typename Index, cl::sycl::access::address_space Space>
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
-                                    internal::AsVecIndex<Index> const offset,
-                                    cl::sycl::vec<T, N> const val) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE operator()(
+      cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> ptr,
+      internal::AsVecIndex<Index> const offset, cl::sycl::vec<T, N> const val) {
     val.store(offset, ptr);
   }
 
@@ -192,10 +208,10 @@ struct Store<cl::sycl::vec<T, N>> {
 /** Store specialisation to treat single element vectors as scalars. */
 template <typename T>
 struct Store<cl::sycl::vec<T, 1>> {
-  template <typename Index, cl::sycl::access::address_space Space>
-  void SNN_ALWAYS_INLINE operator()(cl::sycl::multi_ptr<T, Space> ptr,
-                                    Index const offset,
-                                    cl::sycl::vec<T, 1> const val) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE
+  operator()(cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> ptr, Index const offset,
+             cl::sycl::vec<T, 1> const val) {
     *(ptr + offset) = val.s0();
   }
 
@@ -207,6 +223,9 @@ struct Store<cl::sycl::vec<T, 1>> {
     ptr[offset] = val.s0();
   }
 };
+
+#undef MULTI_PTR_TEMPLATE_DECL
+#undef MULTI_PTR_TEMPLATE
 
 }  // namespace io
 }  // namespace helpers
