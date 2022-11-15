@@ -30,3 +30,18 @@ foreach(_op IN ITEMS add mean max min)
       sycl_dnn
   )
 endforeach()
+
+if(SNN_ENABLE_USM)
+  set(_target reduce_event_dependencies)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      ${_target}
+    SIZE
+      moderate
+    SOURCES
+      ${_target}.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

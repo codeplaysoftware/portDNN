@@ -25,64 +25,77 @@ namespace internal {
 
 #ifdef SNN_DISABLE_SYCL_PROGRAM
 // Launch the reduce kernel for the passed parameters.
-template <typename T, typename Op>
-SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                 int batches, int outer, int inner, cl::sycl::queue& queue) {
+template <typename T, typename Op, template <typename> class MemObj>
+SNNStatus launch(MemObj<T const>& input, MemObj<T>& output, int batches,
+                 int outer, int inner, cl::sycl::queue& queue,
+                 const std::vector<cl::sycl::event>& events) {
   return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
-                                          outer, queue);
+                                          outer, queue, events);
 }
 #else
 // Launch the reduce kernel for the passed parameters.
-template <typename T, typename Op>
-SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T>& output,
-                 int batches, int outer, int inner, cl::sycl::queue& queue,
+template <typename T, typename Op, template <typename> class MemObj>
+SNNStatus launch(MemObj<T const>& input, MemObj<T>& output, int batches,
+                 int outer, int inner, cl::sycl::queue& queue,
                  cl::sycl::program& program, bool supports_subgroup,
                  sycldnn::internal::types::KernelSubgroupSizesMap&
-                     max_kernel_sub_group_sizes) {
+                     max_kernel_sub_group_sizes,
+                 const std::vector<cl::sycl::event>& events) {
 #if SNN_ENABLE_SUBGROUPS
   if (supports_subgroup && inner == 1) {
-    return queue_subgroup_kernel<T, int, Op>(input, output, batches, outer,
-                                             inner, queue, program,
-                                             max_kernel_sub_group_sizes);
+    return queue_subgroup_kernel<T, int, Op>(
+        input, output, batches, outer, inner, queue, program,
+        max_kernel_sub_group_sizes, events);
   }
 #endif
   SNN_UNUSED_VAR(program);
   SNN_UNUSED_VAR(supports_subgroup);
   SNN_UNUSED_VAR(max_kernel_sub_group_sizes);
   return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
-                                          outer, queue);
+                                          outer, queue, events);
 }
 #endif
 
 #ifdef SNN_DISABLE_SYCL_PROGRAM
-#define INSTANTIATE_LAUNCHER(DTYPE, OP)                                  \
-  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                       \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
-      int batches, int outer, int inner, cl::sycl::queue& queue);
+#define INSTANTIATE_LAUNCHER(DTYPE, OP, MEMOBJ)                         \
+  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                      \
+      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output, int batches, \
+      int outer, int inner, cl::sycl::queue& queue,                     \
+      const std::vector<cl::sycl::event>& events);
 #else
-#define INSTANTIATE_LAUNCHER(DTYPE, OP)                                  \
-  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                       \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
-      int batches, int outer, int inner, cl::sycl::queue& queue,         \
-      cl::sycl::program& program, bool supports_subgroup,                \
-      sycldnn::internal::types::KernelSubgroupSizesMap&                  \
-          max_kernel_sub_group_sizes);
+#define INSTANTIATE_LAUNCHER(DTYPE, OP, MEMOBJ)                         \
+  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                      \
+      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output, int batches, \
+      int outer, int inner, cl::sycl::queue& queue,                     \
+      cl::sycl::program& program, bool supports_subgroup,               \
+      sycldnn::internal::types::KernelSubgroupSizesMap&                 \
+          max_kernel_sub_group_sizes,                                   \
+      const std::vector<cl::sycl::event>& events);
 #endif
 
-#define INSTANTIATE_FOR_TYPE(DTYPE) \
-  INSTANTIATE_LAUNCHER(DTYPE, Add)  \
-  INSTANTIATE_LAUNCHER(DTYPE, Mean) \
-  INSTANTIATE_LAUNCHER(DTYPE, Max)  \
-  INSTANTIATE_LAUNCHER(DTYPE, Min)
+#define INSTANTIATE_FOR_TYPE(DTYPE, MEMOBJ) \
+  INSTANTIATE_LAUNCHER(DTYPE, Add, MEMOBJ)  \
+  INSTANTIATE_LAUNCHER(DTYPE, Mean, MEMOBJ) \
+  INSTANTIATE_LAUNCHER(DTYPE, Max, MEMOBJ)  \
+  INSTANTIATE_LAUNCHER(DTYPE, Min, MEMOBJ)
 
-INSTANTIATE_FOR_TYPE(float);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(float, USMMemObject);
+#endif
+INSTANTIATE_FOR_TYPE(float, BufferMemObject);
 
 #ifdef SNN_USE_DOUBLE
-INSTANTIATE_FOR_TYPE(double);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(double, USMMemObject);
+#endif
+INSTANTIATE_FOR_TYPE(double, BufferMemObject);
 #endif  // SNN_USE_DOUBLE
 
 #ifdef SNN_USE_HALF
-INSTANTIATE_FOR_TYPE(cl::sycl::half);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(cl::sycl::half, USMMemObject);
+#endif
+INSTANTIATE_FOR_TYPE(cl::sycl::half, BufferMemObject);
 #endif  // SNN_USE_HALF
 
 #undef INSTANTIATE_FOR_TYPE

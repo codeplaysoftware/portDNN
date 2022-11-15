@@ -79,10 +79,10 @@ struct Reducer<T, Index, Min> {
 }  // namespace internal
 
 // TODO: Optimize and specialize kernel for certain sizes
-template <typename T, typename Index, typename Op>
+template <typename T, typename Index, typename Op, bool IsUSM>
 struct ReduceKernel {
-  ReduceKernel(ReadAccessor<T const> const& input,
-               WriteAccessor<T> const& output, Index batches, Index outer,
+  ReduceKernel(ReadMem<T const, IsUSM> const& input,
+               WriteMem<T, IsUSM> const& output, Index batches, Index outer,
                Index inner, Index finalizeParam, T init)
       : input_{input},
         output_{output},
@@ -96,8 +96,8 @@ struct ReduceKernel {
     Index batch = item.get_id(0);
     Index inner = item.get_id(1);
 
-    const auto input = input_.get_pointer().get();
-    auto output = output_.get_pointer().get();
+    const auto input = input_.get_pointer();
+    auto output = output_.get_pointer();
     internal::Reducer<T, Index, Op> reducer(init_);
 
     const auto input_n = input + batch * outer_ * inner_ + inner;
@@ -108,8 +108,8 @@ struct ReduceKernel {
   }
 
  private:
-  ReadAccessor<T const> input_;
-  WriteAccessor<T> output_;
+  ReadMem<T const, IsUSM> input_;
+  WriteMem<T, IsUSM> output_;
   Index const batches_;
   Index const outer_;
   Index const inner_;

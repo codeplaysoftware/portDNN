@@ -25,10 +25,19 @@ namespace sycldnn {
 namespace reduce {
 namespace internal {
 
+#ifdef SNN_ENABLE_USM
 template SNNStatus queue_default_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP>(
-    BaseMemObject<SNN_DATA_TYPE const>& input,
-    BaseMemObject<SNN_DATA_TYPE>& output, int batches, int outer, int inner,
-    int finalizeParam, cl::sycl::queue& queue);
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE>& output, int batches, int outer, int inner,
+    int finalizeParam, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+#endif
+
+template SNNStatus queue_default_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE>& output, int batches, int outer, int inner,
+    int finalizeParam, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace reduce

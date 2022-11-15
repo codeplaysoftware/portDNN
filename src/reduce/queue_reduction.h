@@ -27,20 +27,24 @@ namespace reduce {
 namespace internal {
 
 /** Add a reduce kernel to the provided SYCL queue. */
-template <typename T, typename Index, typename Op>
-SNNStatus queue_default_kernel(BaseMemObject<T const>& input,
-                               BaseMemObject<T>& output, int batches, int outer,
-                               int inner, int finalizeParam,
-                               cl::sycl::queue& queue);
+template <typename T, typename Index, typename Op,
+          template <typename> class MemObj,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus queue_default_kernel(MemObj<T const>& input, MemObj<T>& output,
+                               int batches, int outer, int inner,
+                               int finalizeParam, cl::sycl::queue& queue,
+                               const std::vector<cl::sycl::event>& events);
 
 #ifndef SNN_DISABLE_SYCL_PROGRAM
-template <typename T, typename Index, typename Op>
+template <typename T, typename Index, typename Op,
+          template <typename> class MemObj,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
 SNNStatus queue_subgroup_kernel(
-    BaseMemObject<T const>& input_mem, BaseMemObject<T>& output_mem,
-    int batches, int outer, int inner, cl::sycl::queue& queue,
-    cl::sycl::program& program,
+    MemObj<T const>& input_mem, MemObj<T>& output_mem, int batches, int outer,
+    int inner, cl::sycl::queue& queue, cl::sycl::program& program,
     sycldnn::internal::types::KernelSubgroupSizesMap&
-        max_kernel_sub_group_sizes);
+        max_kernel_sub_group_sizes,
+    const std::vector<cl::sycl::event>& events);
 #endif
 }  // namespace internal
 }  // namespace reduce

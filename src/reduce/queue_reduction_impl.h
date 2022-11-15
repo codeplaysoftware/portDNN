@@ -26,6 +26,8 @@
 #include "src/reduce/default_kernel.h"
 #include "src/reduce/queue_reduction.h"
 
+#include "src/helpers/mem_utils.h"
+
 #ifndef SNN_DISABLE_SYCL_PROGRAM
 #include "src/reduce/subgroup_kernel.h"
 #endif
@@ -43,16 +45,19 @@ static constexpr T init_val<T, Max> = std::numeric_limits<T>::min();
 template <class T>
 static constexpr T init_val<T, Min> = std::numeric_limits<T>::max();
 
-template <typename T, typename Index, typename Op>
-SNNStatus queue_default_kernel(BaseMemObject<T const>& input_mem,
-                               BaseMemObject<T>& output_mem, int batches,
-                               int outer, int inner, int finalizeParam,
-                               cl::sycl::queue& queue) {
+template <typename T, typename Index, typename Op,
+          template <typename> class MemObj, bool IsUSM>
+SNNStatus queue_default_kernel(MemObj<T const>& input_mem,
+                               MemObj<T>& output_mem, int batches, int outer,
+                               int inner, int finalizeParam,
+                               cl::sycl::queue& queue,
+                               const std::vector<cl::sycl::event>& events) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
 
-    ReduceKernel<T, Index, Op> functor{
+    ReduceKernel<T, Index, Op, IsUSM> functor{
         input, output, batches, outer, inner, finalizeParam, init_val<T, Op>};
 
     cgh.parallel_for(cl::sycl::range<2>(batches, inner), functor);
@@ -61,14 +66,15 @@ SNNStatus queue_default_kernel(BaseMemObject<T const>& input_mem,
 }
 
 #ifndef SNN_DISABLE_SYCL_PROGRAM
-template <typename T, typename Index, typename Op>
+template <typename T, typename Index, typename Op,
+          template <typename> class MemObj, bool IsUSM>
 SNNStatus queue_subgroup_kernel(
-    BaseMemObject<T const>& input_mem, BaseMemObject<T>& output_mem,
-    int batches, int outer, int inner, cl::sycl::queue& queue,
-    cl::sycl::program& program,
+    MemObj<T const>& input_mem, MemObj<T>& output_mem, int batches, int outer,
+    int inner, cl::sycl::queue& queue, cl::sycl::program& program,
     sycldnn::internal::types::KernelSubgroupSizesMap&
-        max_kernel_sub_group_sizes) {
-  using Kernel = ReduceSubgroupKernel<T, Index, Op>;
+        max_kernel_sub_group_sizes,
+    const std::vector<cl::sycl::event>& events) {
+  using Kernel = ReduceSubgroupKernel<T, Index, Op, IsUSM>;
   using namespace sycldnn::helpers::math;
   auto device = queue.get_device();
   const size_t max_work_group_size =
@@ -81,9 +87,9 @@ SNNStatus queue_subgroup_kernel(
 #endif
   size_t alignment = std::min(max_work_item_sizes[0], max_work_group_size);
 
-  auto fallback = [&](BaseMemObject<T const>& input, size_t outer_size) {
-    return queue_default_kernel<T, Index, Op>(input, output_mem, batches,
-                                              outer_size, inner, outer, queue);
+  auto fallback = [&](MemObj<T const>& input, size_t outer_size) {
+    return queue_default_kernel<T, Index, Op>(
+        input, output_mem, batches, outer_size, inner, outer, queue, events);
   };
   auto query_subgroup_size = [&](cl::sycl::kernel kernel,
                                  const cl::sycl::range<2>& local_range) {
@@ -133,22 +139,24 @@ SNNStatus queue_subgroup_kernel(
 
   size_t reduce_size = input_range[1];
   size_t next_reduce_size = divide_ceil(input_range[1], sub_group_size);
-  cl::sycl::range<2> buffer1_size(input_range[0], next_reduce_size);
-  cl::sycl::range<2> buffer2_size(
-      input_range[0], divide_ceil(next_reduce_size, sub_group_size));
-  cl::sycl::buffer<T, 1> buffer(
-      cl::sycl::range<1>(buffer1_size.size() + buffer2_size.size()));
-  auto buffer_mem1 = make_mem_object(buffer, buffer1_size.size(), 0);
-  auto buffer_mem2 =
-      make_mem_object(buffer, buffer2_size.size(), buffer1_size.size());
+
+  // TODO: Implement this using workspace
+  sycldnn::helpers::mem_utils<T, IsUSM> mem_utils(queue);
+  cl::sycl::range<2> mem1_size(input_range[0], next_reduce_size);
+  cl::sycl::range<2> mem2_size(input_range[0],
+                               divide_ceil(next_reduce_size, sub_group_size));
+  auto sycl_MemObj = mem_utils.alloc(mem1_size.size() + mem2_size.size());
+
+  auto mem1 = _make_mem_object(sycl_MemObj, mem1_size.size(), 0);
+  auto mem2 = _make_mem_object(sycl_MemObj, mem2_size.size(), mem1_size.size());
 
   cl::sycl::nd_range<2> nd_range0(kernel_range, local_wg_range);
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto in_acc = input_mem.read_accessor(cgh);
-    auto out_acc = next_reduce_size == 1 ? output_mem.write_accessor(cgh)
-                                         : buffer_mem1.write_accessor(cgh);
-    size_t out_size1 = out_acc.get_extent() / input_range[0];
-    Kernel functor(in_acc, out_acc, sub_group_size, reduce_size, input_range[1],
+    auto in_mem = input_mem.read_mem(cgh);
+    auto out_mem =
+        next_reduce_size == 1 ? output_mem.write_mem(cgh) : mem1.write_mem(cgh);
+    size_t out_size1 = out_mem.get_extent() / input_range[0];
+    Kernel functor(in_mem, out_mem, sub_group_size, reduce_size, input_range[1],
                    out_size1);
     cgh.parallel_for(kernel, nd_range0, functor);
   });
@@ -159,20 +167,19 @@ SNNStatus queue_subgroup_kernel(
     kernel_range[1] = divide_ceil(kernel_range[1], sub_group_size);
     update_local_range();
     sub_group_size = query_subgroup_size(kernel, local_wg_range);
-    auto buffer_in =
-        iter % 2 == 0 ? buffer_mem1.as_const() : buffer_mem2.as_const();
+    auto mem_in = iter % 2 == 0 ? mem1.as_const() : mem2.as_const();
     // Finish the reduction with the default kernel if the local_wg_range is not
     // suitable to subgroups anymore.
-    if (sub_group_size <= 1) return fallback(buffer_in, reduce_size);
+    if (sub_group_size <= 1) return fallback(mem_in, reduce_size);
     cl::sycl::nd_range<2> nd_range_iter(kernel_range, local_wg_range);
     event = queue.submit([&](cl::sycl::handler& cgh) {
-      auto& buffer_out = iter % 2 == 0 ? buffer_mem2 : buffer_mem1;
-      auto in_acc = buffer_in.read_accessor(cgh);
-      auto out_acc =
-          (next_reduce_size == 1 ? output_mem : buffer_out).write_accessor(cgh);
-      size_t in_size1 = in_acc.get_extent() / input_range[0];
-      size_t out_size1 = out_acc.get_extent() / input_range[0];
-      Kernel functor(in_acc, out_acc, sub_group_size, reduce_size, in_size1,
+      auto& mem_out = iter % 2 == 0 ? mem2 : mem1;
+      auto in_mem = mem_in.read_mem(cgh);
+      auto out_mem =
+          (next_reduce_size == 1 ? output_mem : mem_out).write_mem(cgh);
+      size_t in_size1 = in_mem.get_extent() / input_range[0];
+      size_t out_size1 = out_mem.get_extent() / input_range[0];
+      Kernel functor(in_mem, out_mem, sub_group_size, reduce_size, in_size1,
                      out_size1);
       cgh.parallel_for(kernel, nd_range_iter, functor);
     });
@@ -180,11 +187,12 @@ SNNStatus queue_subgroup_kernel(
   }
   if (SubgroupReducer<T, Index, Op>::RequireFinalize) {
     event = queue.submit([&](cl::sycl::handler& cgh) {
-      auto out_acc = output_mem.read_write_accessor(cgh);
-      ReduceFinalize<T, Index, Op> functor(out_acc, outer);
-      cgh.parallel_for(cl::sycl::range<1>(out_acc.get_extent()), functor);
+      auto out_mem = output_mem.read_write_mem(cgh);
+      ReduceFinalize<T, Index, Op, IsUSM> functor(out_mem, outer);
+      cgh.parallel_for(cl::sycl::range<1>(out_mem.get_extent()), functor);
     });
   }
+  mem_utils.enqueue_free(sycl_MemObj, {event});
   return {event, StatusCode::OK};
 }
 #endif

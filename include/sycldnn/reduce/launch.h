@@ -23,6 +23,7 @@
  */
 #include <type_traits>
 
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -49,27 +50,46 @@ namespace reduce {
  *         launches and a StatusCode enum showing if the launch was OK or
  *         whether it encountered some problem.
  */
-template <typename T, typename Op, typename Backend>
+template <typename T, typename Op, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output, int batches,
                  int outer, int inner, Backend& backend) {
-  static_assert(std::is_same<Op, reduce::Add>::value ||
-                    std::is_same<Op, reduce::Mean>::value ||
-                    std::is_same<Op, reduce::Max>::value ||
-                    std::is_same<Op, reduce::Min>::value,
-                "Invalid Reduction Type");
-  SNN_VALIDATE_PARAM(batches > 0, "The number of batches must be positive.");
-  SNN_VALIDATE_PARAM(outer > 0, "The value of outer must be positive.");
-  SNN_VALIDATE_PARAM(inner > 0, "The value of inner must be positive.");
-
-  size_t in_size = batches * outer * inner;
-  size_t out_size = batches * inner;
-
-  auto in_acc = backend.get_mem_object(input, in_size);
-  auto out_acc = backend.get_mem_object(output, out_size);
-
-  return internal::launch<Op>(in_acc, out_acc, batches, outer, inner, backend);
+  return internal::sublaunch<T, Op, Backend>(input, output, batches, outer,
+                                             inner, backend, {});
 }
+
+#ifdef SNN_ENABLE_USM
+/**
+ * Launch a reduction of [batch, outer, inner] applying Op on the outer
+ * dimension. The output shape is [batch, inner].
+ *
+ * \tparam Op Operation to apply on the reduced dimension
+ * \param input A pointer to the memory representing the input tensor.
+ * \param output A pointer to the memory representing the output tensor.
+ * \param batches The number of batches. Must be a positive value.
+ * \param outer Outer size. This is the dimension that is always reduced. Must
+ * be a positive value.
+ * \param inner Inner size. Must be a positive value.
+ * \param backend The backend implementation, used to map between pointer
+ *                representations.
+ * \param events     Events which should be completed before the operation
+ * \return Returns an SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, typename Op, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> input,
+                 typename Backend::template pointer_type<T> output, int batches,
+                 int outer, int inner, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  return internal::sublaunch<T, Op, Backend>(input, output, batches, outer,
+                                             inner, backend, events);
+}
+#endif
 }  // namespace reduce
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_REDUCE_LAUNCH_H_

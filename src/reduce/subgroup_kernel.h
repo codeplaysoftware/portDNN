@@ -73,10 +73,10 @@ struct SubgroupReducer<T, Index, Min> {
 
 }  // namespace internal
 
-template <typename T, typename Index, typename Op>
+template <typename T, typename Index, typename Op, bool IsUSM>
 struct ReduceSubgroupKernel {
-  ReduceSubgroupKernel(ReadAccessor<T const> const& input,
-                       WriteAccessor<T> const& output, Index sub_group_size,
+  ReduceSubgroupKernel(ReadMem<T const, IsUSM> const& input,
+                       WriteMem<T, IsUSM> const& output, Index sub_group_size,
                        Index reduce_size, Index in_size1, Index out_size1)
       : input_{input},
         output_{output},
@@ -86,8 +86,8 @@ struct ReduceSubgroupKernel {
         out_size1_{out_size1} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::nd_item<2> nd_item) {
-    const auto input = input_.get_pointer().get();
-    auto output = output_.get_pointer().get();
+    const auto input = input_.get_pointer();
+    auto output = output_.get_pointer();
     auto sub_group = nd_item.get_sub_group();
     cl::sycl::id<2> id = nd_item.get_global_id();
     size_t in_id = id[0] * in_size1_ + id[1];
@@ -99,28 +99,28 @@ struct ReduceSubgroupKernel {
   }
 
  private:
-  ReadAccessor<T const> input_;
-  WriteAccessor<T> output_;
+  ReadMem<T const, IsUSM> input_;
+  WriteMem<T, IsUSM> output_;
   Index const sub_group_size_;
   Index const reduce_size_;
   Index const in_size1_;
   Index const out_size1_;
 };
 
-template <typename T, typename Index, typename Op>
+template <typename T, typename Index, typename Op, bool IsUSM>
 struct ReduceFinalize {
-  ReduceFinalize(ReadWriteAccessor<T> const& output, Index finalize_param)
+  ReduceFinalize(ReadWriteMem<T, IsUSM> const& output, Index finalize_param)
       : output_{output}, finalize_param_{finalize_param} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) {
-    auto output = output_.get_pointer().get();
+    auto output = output_.get_pointer();
     internal::SubgroupReducer<T, Index, Op> reducer;
     auto& out = output[item.get_linear_id()];
     out = reducer.finalize(out, finalize_param_);
   }
 
  private:
-  ReadWriteAccessor<T> output_;
+  ReadWriteMem<T, IsUSM> output_;
   Index const finalize_param_;
 };
 

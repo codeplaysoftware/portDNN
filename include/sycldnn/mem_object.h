@@ -310,6 +310,50 @@ USMMemObject<T> make_usm_mem_object(T* ptr, size_t extent, size_t offset = 0) {
 }
 
 /**
+ * Helper function to create MemObjects.
+ *
+ * This is useful as it can automatically deduce the template types, enabling
+ * BufferMemObjects to be constructed as simply as:
+ * \code
+ *   auto mem_object = make_buffer_mem_object(buffer, size, offset);
+ * \endcode
+ *
+ * \param buffer The SYCL buffer to use as the underlying memory object.
+ * \param extent The overall number of elements in the buffer to provide
+ *               access to.
+ * \param offset The offset from the start of the buffer (in number of
+ *               elements) to use as the initial index for the memory object.
+ *
+ * \return A BufferMemObject that provides access to the given SYCL buffer.
+ */
+template <typename T>
+BufferMemObject<T> _make_mem_object(cl::sycl::buffer<T, 1> buffer,
+                                    size_t extent, size_t offset = 0) {
+  return make_buffer_mem_object(buffer, extent, offset);
+}
+
+/**
+ * Helper function to create USMMemObjects.
+ *
+ * This is useful as it can automatically deduce the template types, enabling
+ * USMMemObjects to be constructed as simply as:
+ * \code
+ *   auto mem_object = make_usm_mem_object(ptr, size, offset);
+ * \endcode
+ *
+ * \param ptr The SYCL pointer to use as the underlying memory object.
+ * \param extent The overall number of elements in the memory block.
+ * \param offset The offset from the start of the USM address (in number of
+ *               elements).
+ *
+ * \return A USMMemObject that provides access to the given SYCL USM pointer.
+ */
+template <typename T>
+USMMemObject<T> _make_mem_object(T* ptr, size_t extent, size_t offset = 0) {
+  return make_usm_mem_object(ptr, extent, offset);
+}
+
+/**
  * The implementation of USMMemObject for SYCL pointers.
  */
 template <typename T>

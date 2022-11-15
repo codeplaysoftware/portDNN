@@ -101,9 +101,11 @@ SNNStatus launch_variance(BaseMemObject<T const>& centered_input,
   }
 
   auto const_squared_centered_input = squared_centered_input.as_const();
+  auto _const_squared_centered_input = mo_to_bo(const_squared_centered_input);
+  auto _variance = mo_to_bo(variance);
   status = reduce::internal::launch<reduce::Mean>(
-      const_squared_centered_input, variance, 1, get_non_channel_size(params),
-      params.channels, backend);
+      _const_squared_centered_input, _variance, 1, get_non_channel_size(params),
+      params.channels, backend, {});
   return status;
 }
 
@@ -270,9 +272,10 @@ SNNStatus launch_forward(
     }
   }
 
-  status = reduce::internal::launch<reduce::Mean>(nhwc_input, running_mean, 1,
+  auto _running_mean = mo_to_bo(running_mean);
+  status = reduce::internal::launch<reduce::Mean>(_nhwc_input, _running_mean, 1,
                                                   get_non_channel_size(params),
-                                                  params.channels, backend);
+                                                  params.channels, backend, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -409,9 +412,11 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
 
   cl::sycl::buffer<T, 1> mean_input_buf((cl::sycl::range<1>(params.channels)));
   auto mean_input = make_mem_object(mean_input_buf, params.channels);
-  status = reduce::internal::launch<reduce::Mean>(nhwc_input, mean_input, 1,
+  auto _nhwc_input = mo_to_bo(nhwc_input);
+  auto _mean_input = mo_to_bo(mean_input);
+  status = reduce::internal::launch<reduce::Mean>(_nhwc_input, _mean_input, 1,
                                                   get_non_channel_size(params),
-                                                  params.channels, backend);
+                                                  params.channels, backend, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -419,7 +424,6 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
   auto centered_input = make_mem_object(centered_input_buf, n_items);
   auto const_mean_input = mean_input.as_const();
-  auto _nhwc_input = mo_to_bo(nhwc_input);
   auto _const_mean_input = mo_to_bo(const_mean_input);
   auto _centered_input = mo_to_bo(centered_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
@@ -455,9 +459,11 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
     return status;
   }
 
-  status = reduce::internal::launch<reduce::Add>(nhwc_gradient, beta_grad, 1,
+  auto _nhwc_gradient = mo_to_bo(nhwc_gradient);
+  auto _beta_grad = mo_to_bo(beta_grad);
+  status = reduce::internal::launch<reduce::Add>(_nhwc_gradient, _beta_grad, 1,
                                                  get_non_channel_size(params),
-                                                 params.channels, backend);
+                                                 params.channels, backend, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -481,7 +487,6 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   }
 
   auto const_mean_gradient = mean_gradient.as_const();
-  auto _nhwc_gradient = mo_to_bo(nhwc_gradient);
   auto _const_mean_gradient = mo_to_bo(const_mean_gradient);
   auto _output = mo_to_bo(output);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
@@ -501,9 +506,11 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   }
 
   auto const_scaled_input = scaled_input.as_const();
+  auto _const_scaled_input = mo_to_bo(const_scaled_input);
+  auto _gamma_grad = mo_to_bo(gamma_grad);
   status = reduce::internal::launch<reduce::Add>(
-      const_scaled_input, gamma_grad, 1, get_non_channel_size(params),
-      params.channels, backend);
+      _const_scaled_input, _gamma_grad, 1, get_non_channel_size(params),
+      params.channels, backend, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -578,7 +585,6 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
     }
   }
 
-  auto _gamma_grad = mo_to_bo(gamma_grad);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
       _const_gamma_grad, _const_input_variance, _gamma_grad, params.channels,
       queue, {});
@@ -671,9 +677,11 @@ SNNStatus launch_gradient(
   BaseMemObject<T const>& nhwc_reduce_1 =
       is_nchw ? const_tr_reduce : const_output;
 
-  status = reduce::internal::launch<reduce::Add>(nhwc_reduce_1, gamma_grad, 1,
+  auto _nhwc_reduce_1 = mo_to_bo(nhwc_reduce_1);
+  auto _gamma_grad = mo_to_bo(gamma_grad);
+  status = reduce::internal::launch<reduce::Add>(_nhwc_reduce_1, _gamma_grad, 1,
                                                  get_non_channel_size(params),
-                                                 params.channels, backend);
+                                                 params.channels, backend, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -704,9 +712,11 @@ SNNStatus launch_gradient(
     const_tr_reduce = tr_reduce.as_const();
   }
   BaseMemObject<T const>& nhwc_reduce_2 = is_nchw ? const_tr_reduce : gradient;
-  status = reduce::internal::launch<reduce::Add>(nhwc_reduce_2, beta_grad, 1,
+  auto _nhwc_reduce_2 = mo_to_bo(nhwc_reduce_2);
+  auto _beta_grad = mo_to_bo(beta_grad);
+  status = reduce::internal::launch<reduce::Add>(_nhwc_reduce_2, _beta_grad, 1,
                                                  get_non_channel_size(params),
-                                                 params.channels, backend);
+                                                 params.channels, backend, {});
   return status;
 }
 

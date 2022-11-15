@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_INCLUDE_BACKEND_SNN_REDUCE_PROVIDER_H_
-#define SYCLDNN_INCLUDE_BACKEND_SNN_REDUCE_PROVIDER_H_
+#ifndef SYCLDNN_INCLUDE_BACKEND_SNN_USM_REDUCE_PROVIDER_H_
+#define SYCLDNN_INCLUDE_BACKEND_SNN_USM_REDUCE_PROVIDER_H_
 
 /**
  * \file
@@ -25,7 +25,7 @@
 
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/backend/internal_backend.h"
-#include "sycldnn/internal/reduce/launch.h"
+#include "sycldnn/reduce/launch.h"
 
 namespace sycldnn {
 namespace backend {
@@ -35,7 +35,7 @@ namespace backend {
  * internal SYCL-DNN kernels.
  */
 template <typename Backend>
-struct SNNReduceProvider {
+struct SNNUSMReduceProvider {
  private:
   /** The pointer representation required by the internal handler. */
   template <typename T>
@@ -54,6 +54,7 @@ struct SNNReduceProvider {
    * \param [in]  batch  Batch size.
    * \param [in]  outer  Outer size.
    * \param [in]  inner  Inner size.
+   * \param [in]  events Events which should be completed before the operation.
    *
    * \return A SYCL event corresponding to the reduce kernel launch.
    */
@@ -61,11 +62,12 @@ struct SNNReduceProvider {
   cl::sycl::event reduce(internal_pointer_type<const T> const input,
                          internal_pointer_type<T> const output,
                          Index const batch, Index const outer,
-                         Index const inner) {
+                         Index const inner,
+                         const std::vector<cl::sycl::event> events = {}) {
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
-    auto status = reduce::internal::sublaunch<T, Op>(
-        input, output, batch, outer, inner, internal_backend, {});
+    auto status = reduce::launch<T, Op>(input, output, batch, outer, inner,
+                                        internal_backend, events);
     SNN_ASSERT(status.status == StatusCode::OK,
                "Error launching reduce kernel.");
     return status.event;
@@ -75,4 +77,4 @@ struct SNNReduceProvider {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_INCLUDE_BACKEND_SNN_REDUCE_PROVIDER_H_
+#endif  // SYCLDNN_INCLUDE_BACKEND_SNN_USM_REDUCE_PROVIDER_H_

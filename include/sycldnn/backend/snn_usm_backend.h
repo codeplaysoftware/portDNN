@@ -19,7 +19,7 @@
 #include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/device_mem_pointer.h"
 #include "sycldnn/backend/snn_matmul_provider.h"
-#include "sycldnn/backend/snn_reduce_provider.h"
+#include "sycldnn/backend/snn_usm_reduce_provider.h"
 
 #include <CL/sycl.hpp>
 #include <numeric>
@@ -59,7 +59,7 @@ struct BackendTraits<SNNUSMBackend> {
  */
 struct SNNUSMBackend final : public CommonBackend,
                              public SNNMatmulProvider<SNNUSMBackend>,
-                             public SNNReduceProvider<SNNUSMBackend> {
+                             public SNNUSMReduceProvider<SNNUSMBackend> {
   /** The pointer type used in interface of the SNNUSMBackend. */
   template <typename T>
   using pointer_type =
