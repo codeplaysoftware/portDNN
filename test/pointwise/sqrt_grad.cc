@@ -24,15 +24,25 @@
 #include "sycldnn/pointwise/operators.h"
 
 #include "test/pointwise/pointwise_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 
 #include <vector>
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename DataType>
-using SqrtGrad =
-    PointwiseFixture<DataType, pointwise::Sqrt, pointwise::Gradient>;
-TYPED_TEST_SUITE(SqrtGrad, types::GTestKernelDataTypes);
+
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
+template <typename Pair>
+using SqrtGrad = PointwiseFixture<Pair, pointwise::Sqrt, pointwise::Gradient>;
+TYPED_TEST_SUITE(SqrtGrad, GTestTypePairs);
 TYPED_TEST(SqrtGrad, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> input = iota_initialised_data<DataType>(1, 1);

@@ -44,20 +44,57 @@ using DisableIfGradient =
 
 // The internal pointwise operation launcher for the forward pass.
 template <template <typename> class PointwiseType, typename T,
-          typename Direction = Forward, typename = DisableIfGradient<Direction>>
-SNN_EXPORT SNNStatus launch_pointwise(BaseMemObject<T const>& input,
-                                      BaseMemObject<T>& output,
-                                      size_t const n_items,
-                                      cl::sycl::queue& queue);
+          typename Direction = Forward, template <typename> class MemObj,
+          typename = DisableIfGradient<Direction>>
+SNN_EXPORT SNNStatus launch_pointwise(
+    MemObj<T const>& input, MemObj<T>& output, size_t const n_items,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
 // The internal pointwise operation launcher for the backward pass.
 template <template <typename> class PointwiseType, typename T,
-          typename Direction = Forward, typename = EnableIfGradient<Direction>>
-SNN_EXPORT SNNStatus launch_pointwise(BaseMemObject<T const>& input_forward,
-                                      BaseMemObject<T const>& input_backprop,
-                                      BaseMemObject<T>& output,
-                                      size_t const n_items,
-                                      cl::sycl::queue& queue);
+          typename Direction = Forward, template <typename> class MemObj,
+          typename = EnableIfGradient<Direction>>
+SNN_EXPORT SNNStatus launch_pointwise(
+    MemObj<T const>& input_forward, MemObj<T const>& input_backprop,
+    MemObj<T>& output, size_t const n_items, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+
+template <typename T, template <typename> class PointwiseType,
+          typename Direction, typename Backend,
+          typename = internal::DisableIfGradient<Direction>>
+SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
+                    typename Backend::template pointer_type<T> output,
+                    size_t const n_items, Backend& backend,
+                    const std::vector<cl::sycl::event>& events) {
+  SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
+
+  auto inp_access = backend._get_mem_object(input, n_items);
+  auto outp_access = backend._get_mem_object(output, n_items);
+
+  auto queue = backend.get_queue();
+  return internal::launch_pointwise<PointwiseType, T, Direction>(
+      inp_access, outp_access, n_items, queue, events);
+}
+
+template <typename T, template <typename> class PointwiseType,
+          typename Direction, typename Backend,
+          typename = internal::EnableIfGradient<Direction>>
+SNNStatus sublaunch(
+    typename Backend::template pointer_type<T const> input_forward,
+    typename Backend::template pointer_type<T const> input_backprop,
+    typename Backend::template pointer_type<T> output_backprop,
+    size_t const n_items, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
+  SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
+
+  auto inp_fwd_access = backend._get_mem_object(input_forward, n_items);
+  auto inp_bk_access = backend._get_mem_object(input_backprop, n_items);
+  auto out_bk_access = backend._get_mem_object(output_backprop, n_items);
+
+  auto queue = backend.get_queue();
+  return internal::launch_pointwise<PointwiseType, T, Direction>(
+      inp_fwd_access, inp_bk_access, out_bk_access, n_items, queue, events);
+}
 
 }  // namespace internal
 }  // namespace pointwise

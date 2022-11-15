@@ -30,11 +30,13 @@ namespace internal {
  * Queue a pointwise operation on the SYCL queue queue.
  */
 template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction, int VectorWidth>
-SNNStatus queue_pointwise(BaseMemObject<T const>& in_forward_mem,
-                          BaseMemObject<T const>& in_backprop_mem,
-                          BaseMemObject<T>& out_backprop_mem,
-                          Index const n_items, cl::sycl::queue& queue);
+          typename Direction, int VectorWidth, template <typename> class MemObj,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus queue_pointwise(MemObj<T const>& in_forward_mem,
+                          MemObj<T const>& in_backprop_mem,
+                          MemObj<T>& out_backprop_mem, Index const n_items,
+                          cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events);
 }  // namespace internal
 }  // namespace pointwise
 }  // namespace sycldnn

@@ -33,3 +33,17 @@ foreach(_type IN ITEMS "relu" "tanh" "log" "floor" "sqrt")
     endif()
   endforeach()
 endforeach()
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      pointwise_event_dependencies
+    SIZE
+      short
+    SOURCES
+      pointwise_event_dependencies.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

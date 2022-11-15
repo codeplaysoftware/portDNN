@@ -153,7 +153,7 @@ DType Sqrt<Gradient>::apply(DType val, DType err) {
 }
 
 template <typename T, typename Index, template <typename> class Op,
-          typename Direction, int VectorWidth>
+          typename Direction, int VectorWidth, bool IsUSM>
 class PointwiseOp;
 
 /**
@@ -163,19 +163,19 @@ class PointwiseOp;
  */
 
 template <typename T, typename Index, template <typename> class Op,
-          int VectorWidth>
-class PointwiseOp<T, Index, Op, Forward, VectorWidth> {
+          int VectorWidth, bool IsUSM>
+class PointwiseOp<T, Index, Op, Forward, VectorWidth, IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
 
-  ReadAccessor<T const> input_;
-  WriteAccessor<T> output_;
+  ReadMem<T const, IsUSM> input_;
+  WriteMem<T, IsUSM> output_;
   Index const n_items_;
 
  public:
-  PointwiseOp(ReadAccessor<T const> const& input,
-              WriteAccessor<T> const& output, Index const num_items)
+  PointwiseOp(ReadMem<T const, IsUSM> const& input,
+              WriteMem<T, IsUSM> const& output, Index const num_items)
       : input_{input}, output_{output}, n_items_{num_items} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
@@ -196,21 +196,21 @@ class PointwiseOp<T, Index, Op, Forward, VectorWidth> {
 };
 
 template <typename T, typename Index, template <typename> class Op,
-          int VectorWidth>
-class PointwiseOp<T, Index, Op, Gradient, VectorWidth> {
+          int VectorWidth, bool IsUSM>
+class PointwiseOp<T, Index, Op, Gradient, VectorWidth, IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
 
-  ReadAccessor<T const> output_forward_;
-  ReadAccessor<T const> input_backprop_;
-  WriteAccessor<T> output_backprop_;
+  ReadMem<T const, IsUSM> output_forward_;
+  ReadMem<T const, IsUSM> input_backprop_;
+  WriteMem<T, IsUSM> output_backprop_;
   Index const n_items_;
 
  public:
-  PointwiseOp(ReadAccessor<T const> const& output_forward,
-              ReadAccessor<T const> const& input_backprop,
-              WriteAccessor<T> const& output_backprop, Index const num_items)
+  PointwiseOp(ReadMem<T const, IsUSM> const& output_forward,
+              ReadMem<T const, IsUSM> const& input_backprop,
+              WriteMem<T, IsUSM> const& output_backprop, Index const num_items)
       : output_forward_{output_forward},
         input_backprop_{input_backprop},
         output_backprop_{output_backprop},

@@ -26,6 +26,7 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/helpers/macros.h"
 
 #include "sycldnn/pointwise/direction.h"
@@ -59,18 +60,47 @@ namespace pointwise {
  */
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename Backend,
-          typename = internal::DisableIfGradient<Direction>>
+          typename = internal::DisableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  size_t const n_items, Backend& backend) {
-  SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
+  return internal::sublaunch<T, PointwiseType, Direction, Backend>(
+      input, output, n_items, backend, {});
+}
 
-  auto inp_access = backend.get_mem_object(input, n_items);
-  auto outp_access = backend.get_mem_object(output, n_items);
-
-  auto queue = backend.get_queue();
-  return internal::launch_pointwise<PointwiseType, T, Direction>(
-      inp_access, outp_access, n_items, queue);
+/**
+ * Launch the pointwise operation kernel.
+ *
+ * \tparam T              The data type of the input tensor.
+ * \tparam PointwiseType  The type of pointwise operation used.
+ * \tparam Direction      Whether the pointwise operation computed should
+ *                        be a Forward, Gradient, or GradGrad pass.
+ * \tparam Backend        The type of the Backend.
+ *
+ * \param [in]  input     A pointer to the input tensor.
+ * \param [out] output    A pointer to the output tensor.
+ * \param [in]  n_items   The number of items in the input tensor.
+ * \param [in]  backend   The backend providing access to the SYCL buffers
+ *                        corresponding to the input and output pointers.
+ * \param [in]  events    Events which should be completed before the operation.
+ *
+ * \return An \ref SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a \ref StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, template <typename> class PointwiseType,
+          typename Direction, typename Backend,
+          typename = internal::DisableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> input,
+                 typename Backend::template pointer_type<T> output,
+                 size_t const n_items, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  return internal::sublaunch<T, PointwiseType, Direction, Backend>(
+      input, output, n_items, backend, events);
 }
 
 /**
@@ -97,21 +127,55 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  */
 template <typename T, template <typename> class PointwiseType,
           typename Direction, typename Backend,
-          typename = internal::EnableIfGradient<Direction>>
+          typename = internal::EnableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(
     typename Backend::template pointer_type<T const> input_forward,
     typename Backend::template pointer_type<T const> input_backprop,
     typename Backend::template pointer_type<T> output_backprop,
     size_t const n_items, Backend& backend) {
-  SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
+  return internal::sublaunch<T, PointwiseType, Direction, Backend>(
+      input_forward, input_backprop, output_backprop, n_items, backend, {});
+}
 
-  auto inp_fwd_access = backend.get_mem_object(input_forward, n_items);
-  auto inp_bk_access = backend.get_mem_object(input_backprop, n_items);
-  auto out_bk_access = backend.get_mem_object(output_backprop, n_items);
-
-  auto queue = backend.get_queue();
-  return internal::launch_pointwise<PointwiseType, T, Direction>(
-      inp_fwd_access, inp_bk_access, out_bk_access, n_items, queue);
+/**
+ * Launch the pointwise gradient kernel.
+ *
+ * \tparam T                       The data type of the input tensor.
+ * \tparam PointwiseType           The type of pointwise operation used.
+ * \tparam Direction               Whether the pointwise operation computed
+ *                                 should be a Forward, Gradient, or GradGrad
+ *                                 pass.
+ * \tparam Backend                 The type of the Backend.
+ *
+ * \param [in]  input_forward      A pointer to the forward input tensor.
+ * \param [in]  input_backprop     A pointer to the backprop input tensor.
+ * \param [out] output_backprop    A pointer to the output tensor.
+ * \param [in]  n_items            The number of items in the input tensor.
+ * \param [in]  backend            The backend providing access to the SYCL
+ *                                 buffers corresponding to the input and
+ *                                 output pointers.
+ * \param [in]  events             Events which should be completed before the
+ * operation.
+ *
+ * \return An \ref SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a \ref StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, template <typename> class PointwiseType,
+          typename Direction, typename Backend,
+          typename = internal::EnableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(
+    typename Backend::template pointer_type<T const> input_forward,
+    typename Backend::template pointer_type<T const> input_backprop,
+    typename Backend::template pointer_type<T> output_backprop,
+    size_t const n_items, Backend& backend,
+    const std::vector<cl::sycl::event>& events = {}) {
+  return internal::sublaunch<T, PointwiseType, Direction, Backend>(
+      input_forward, input_backprop, output_backprop, n_items, backend, events);
 }
 
 }  // namespace pointwise

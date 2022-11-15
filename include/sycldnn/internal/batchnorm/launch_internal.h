@@ -125,8 +125,11 @@ inline SNNStatus launch_batchnorm(
   }
 
   auto const_workspace = workspace.as_const();
+  auto _const_workspace = mo_to_bo(const_workspace);
+  auto _workspace = mo_to_bo(workspace);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      const_workspace, workspace, helpers::get_total_size(channel_dims), queue);
+      _const_workspace, _workspace, helpers::get_total_size(channel_dims),
+      queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -491,8 +494,10 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
     return status;
   }
 
+  auto _const_input_variance = mo_to_bo(const_input_variance);
+  auto _input_variance = mo_to_bo(input_variance);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      const_input_variance, input_variance, params.channels, queue);
+      _const_input_variance, _input_variance, params.channels, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -563,8 +568,10 @@ SNNStatus launch_gradient(
   }
 
   auto const_workspace = workspace.as_const();
+  auto _const_workspace = mo_to_bo(const_workspace);
+  auto _workspace = mo_to_bo(workspace);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      const_workspace, workspace, params.channels, queue);
+      _const_workspace, _workspace, params.channels, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }

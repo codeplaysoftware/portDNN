@@ -83,8 +83,10 @@ SNNStatus launch_forward_nhwc(
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
+  auto _const_output_mem = mo_to_bo(const_output_mem);
+  auto _out_mem = mo_to_bo(out_mem);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
-      const_output_mem, out_mem, n_items, queue);
+      _const_output_mem, _out_mem, n_items, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -144,8 +146,10 @@ SNNStatus launch_forward_nchw(
 
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
+  auto _const_output_mem = mo_to_bo(const_output_mem);
+  auto _out_mem = mo_to_bo(out_mem);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
-      const_output_mem, out_mem, n_items, queue);
+      _const_output_mem, _out_mem, n_items, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;

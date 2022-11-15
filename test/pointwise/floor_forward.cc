@@ -24,15 +24,26 @@
 #include "sycldnn/pointwise/operators.h"
 
 #include "test/pointwise/pointwise_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 
 #include <vector>
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename DataType>
+
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
+template <typename Pair>
 using FloorForward =
-    PointwiseFixture<DataType, pointwise::Floor, pointwise::Forward>;
-TYPED_TEST_SUITE(FloorForward, types::GTestKernelDataTypes);
+    PointwiseFixture<Pair, pointwise::Floor, pointwise::Forward>;
+TYPED_TEST_SUITE(FloorForward, GTestTypePairs);
 TYPED_TEST(FloorForward, Shape_1x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> input = iota_initialised_signed_data<DataType>(1);

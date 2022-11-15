@@ -30,19 +30,19 @@ namespace pointwise {
 namespace internal {
 
 template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction>
-SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input,
-                                  BaseMemObject<T>& output, Index const n_items,
-                                  cl::sycl::queue& queue) {
+          typename Direction, template <typename> class MemObj>
+SNNStatus launch_vector_pointwise(MemObj<T const>& input, MemObj<T>& output,
+                                  Index const n_items, cl::sycl::queue& queue,
+                                  const std::vector<cl::sycl::event>& events) {
   if (n_items % 4 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
-        input, output, n_items, queue);
+        input, output, n_items, queue, events);
   } else if (n_items % 2 == 0) {
     return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
-        input, output, n_items, queue);
+        input, output, n_items, queue, events);
   } else {
     return queue_pointwise<T, Index, PointwiseType, Direction, 1>(
-        input, output, n_items, queue);
+        input, output, n_items, queue, events);
   }
 }
 
@@ -51,53 +51,59 @@ SNNStatus launch_vector_pointwise(BaseMemObject<T const>& input,
  * otherwise return an SNNStatus error code.
  */
 template <template <typename> class PointwiseType, typename T,
-          typename Direction, typename EnableIf>
-SNNStatus launch_pointwise(BaseMemObject<T const>& input,
-                           BaseMemObject<T>& output, size_t const n_items,
-                           cl::sycl::queue& queue) {
+          typename Direction, template <typename> class MemObj,
+          typename EnableIf>
+SNNStatus launch_pointwise(MemObj<T const>& input, MemObj<T>& output,
+                           size_t const n_items, cl::sycl::queue& queue,
+                           const std::vector<cl::sycl::event>& events) {
   if (n_items > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_vector_pointwise<T, int64_t, PointwiseType, Direction>(
-        input, output, n_items, queue);
+        input, output, n_items, queue, events);
 #else
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_vector_pointwise<T, int32_t, PointwiseType, Direction>(
-        input, output, n_items, queue);
+        input, output, n_items, queue, events);
   }
 }
 
-#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP)            \
+#define SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, OP, MEMOBJ)    \
   template SNN_EXPORT SNNStatus launch_pointwise<OP, DTYPE, Forward>( \
-      BaseMemObject<DTYPE const> & inp_access,                        \
-      BaseMemObject<DTYPE> & outp_access, size_t const n_items,       \
-      cl::sycl::queue& queue);
+      MEMOBJ<DTYPE const> & inp_access, MEMOBJ<DTYPE> & outp_access,  \
+      size_t const n_items, cl::sycl::queue& queue,                   \
+      const std::vector<cl::sycl::event>& events);
 
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Relu)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Tanh)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Exp)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Log)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Floor)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(float, Sqrt)
+#define SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(DTYPE, MEMOBJ)     \
+  SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, Relu, MEMOBJ)  \
+  SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, Tanh, MEMOBJ)  \
+  SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, Exp, MEMOBJ)   \
+  SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, Log, MEMOBJ)   \
+  SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, Floor, MEMOBJ) \
+  SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(DTYPE, Sqrt, MEMOBJ)
+
+#ifdef SNN_ENABLE_USM
+SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(float, USMMemObject)
+#endif
+SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(float, BufferMemObject)
 
 #ifdef SNN_USE_HALF
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Relu)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Tanh)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Exp)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Log)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Floor)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(cl::sycl::half, Sqrt)
+#ifdef SNN_ENABLE_USM
+SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(cl::sycl::half, USMMemObject)
+#endif
+SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(cl::sycl::half, BufferMemObject)
 #endif  // SNN_USE_HALF
 
 #ifdef SNN_USE_DOUBLE
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Relu)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Tanh)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Exp)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Log)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Floor)
-SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL(double, Sqrt)
+#ifdef SNN_ENABLE_USM
+SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(double, USMMemObject)
+#endif
+SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE(double, BufferMemObject)
 #endif  // SNN_USE_DOUBLE
+
+#undef SNN_INSTANTIATE_LAUNCH_POINTWISE_KERNEL
+#undef SNN_INSTANTIATE_ALL_LAUNCH_POINTWISE
 
 }  // namespace internal
 }  // namespace pointwise

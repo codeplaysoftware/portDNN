@@ -30,11 +30,21 @@ namespace sycldnn {
 namespace pointwise {
 namespace internal {
 
-template SNNStatus queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE,
-                                   SNN_DIRECTION, SNN_WIDTH>(
-    BaseMemObject<SNN_DATA_TYPE const>& in_mem,
-    BaseMemObject<SNN_DATA_TYPE>& out_mem, SNN_INDEX_TYPE const n_items,
-    cl::sycl::queue& queue);
+#ifdef SNN_ENABLE_USM
+template SNNStatus
+queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE, SNN_DIRECTION,
+                SNN_WIDTH, USMMemObject, true>(
+    USMMemObject<SNN_DATA_TYPE const>& in_mem,
+    USMMemObject<SNN_DATA_TYPE>& out_mem, SNN_INDEX_TYPE const n_items,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+#endif  // SNN_ENABLE_USM
+
+template SNNStatus
+queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE, SNN_DIRECTION,
+                SNN_WIDTH, BufferMemObject, false>(
+    BufferMemObject<SNN_DATA_TYPE const>& in_mem,
+    BufferMemObject<SNN_DATA_TYPE>& out_mem, SNN_INDEX_TYPE const n_items,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 }  // namespace internal
 }  // namespace pointwise
 }  // namespace sycldnn

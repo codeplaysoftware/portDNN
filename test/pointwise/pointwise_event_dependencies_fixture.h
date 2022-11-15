@@ -19,6 +19,8 @@
 
 #include <gtest/gtest.h>
 
+#include "sycldnn/backend/snn_usm_backend.h"
+
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/pointwise/direction.h"
@@ -31,13 +33,13 @@
 
 #include <vector>
 
-template <typename Pair, template <typename> class Op, typename Direction>
-struct PointwiseFixture : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
+template <typename T, template <typename> class Op, typename Direction>
+struct PointwiseEventFixture
+    : public BackendTestFixture<sycldnn::backend::SNNUSMBackend> {
+  using DataType = T;
 
-  void test_pointwise(const std::vector<DataType>& input,
-                      const std::vector<DataType>& exp) {
-    const auto size = exp.size();
+  void test_pointwise(const std::vector<DataType>& input) {
+    const auto size = input.size();
 
     std::vector<DataType> output(size);
 
@@ -51,33 +53,26 @@ struct PointwiseFixture : public BackendTestFixture<typename Pair::SecondType> {
       provider.deallocate_ptr(out_gpu);
     };
 
+    dependency_test_params dep_test_params;
+    cl::sycl::event dependee_e = create_event(backend, dep_test_params);
+
     auto status = sycldnn::pointwise::launch<DataType, Op, Direction>(
-        inp_gpu, out_gpu, size, backend);
+        inp_gpu, out_gpu, size, backend,
+        std::vector<cl::sycl::event>{dependee_e});
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait_and_throw();
 
-    provider.copy_device_data_to_host(size, out_gpu, output);
-
-    for (size_t i = 0; i < size; ++i) {
-      SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output[i], 10u);
-    }
+    check_dependency(dependee_e, status.event, backend, dep_test_params);
   }
 };
 
-template <typename Pair, template <typename T> class Op>
-struct PointwiseFixture<Pair, Op, sycldnn::pointwise::Gradient>
-    : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
+template <typename T, template <typename> class Op>
+struct PointwiseEventFixture<T, Op, sycldnn::pointwise::Gradient>
+    : public BackendTestFixture<sycldnn::backend::SNNUSMBackend> {
+  using DataType = T;
 
-  void test_pointwise(const std::vector<DataType>& input,
-                      const std::vector<DataType>& exp) {
-    /* While ULP-based errors are generally better, the expected values
-     * in this test are close to 0, which can result in large ULP errors
-     * even though the answer is "close" to the expected. */
-    const DataType tolerance = 0.00001;
-    const auto size = exp.size();
+  void test_pointwise(const std::vector<DataType>& input) {
+    const auto size = input.size();
 
     std::vector<DataType> input_forward = input;
     std::vector<DataType> output_forward(size);
@@ -110,27 +105,24 @@ struct PointwiseFixture<Pair, Op, sycldnn::pointwise::Gradient>
       provider.deallocate_ptr(out_bk_gpu);
     };
 
+    dependency_test_params dep_test_params;
+    cl::sycl::event dependee_e = create_event(backend, dep_test_params);
+
     sycldnn::SNNStatus bk_status;
     if (std::is_same<Op<DataType>, sycldnn::pointwise::Log<DataType>>::value) {
       bk_status = sycldnn::pointwise::launch<DataType, Op,
                                              sycldnn::pointwise::Gradient>(
-          inp_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend);
+          inp_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend,
+          std::vector<cl::sycl::event>{dependee_e, fwd_status.event});
     } else {
       bk_status = sycldnn::pointwise::launch<DataType, Op,
                                              sycldnn::pointwise::Gradient>(
-          out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend);
+          out_fwd_gpu, inp_bk_gpu, out_bk_gpu, size, backend,
+          std::vector<cl::sycl::event>{dependee_e, fwd_status.event});
     }
     ASSERT_EQ(sycldnn::StatusCode::OK, bk_status.status);
 
-    fwd_status.event.wait_and_throw();
-    bk_status.event.wait_and_throw();
-
-    provider.copy_device_data_to_host(size, out_bk_gpu, output_backprop);
-
-    for (size_t i = 0; i < size; ++i) {
-      SCOPED_TRACE("Element: " + std::to_string(i));
-      EXPECT_NEAR(exp[i], output_backprop[i], tolerance);
-    }
+    check_dependency(dependee_e, bk_status.event, backend, dep_test_params);
   }
 };
 #endif  // SYCLDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
