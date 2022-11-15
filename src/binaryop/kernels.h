@@ -69,17 +69,17 @@ struct Div {
  * Generic scalar vector. Any dimension can be broadcasted and at least one
  * dimension is broadcasted.
  */
-template <typename T, typename Op, typename Index>
+template <typename T, typename Op, typename Index, bool IsUSM>
 class BinaryOp {
-  ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_;
+  ReadMem<T const, IsUSM> lhs_, rhs_;
+  WriteMem<T, IsUSM> out_;
   std::array<Index, MAX_DIMS> lhs_dims_;
   std::array<Index, MAX_DIMS> rhs_dims_;
   std::array<Index, MAX_DIMS> out_dims_;
 
  public:
-  BinaryOp(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-           WriteAccessor<T> out, const std::vector<Index>& lhs_dims,
+  BinaryOp(ReadMem<T const, IsUSM> lhs, ReadMem<T const, IsUSM> rhs,
+           WriteMem<T, IsUSM> out, const std::vector<Index>& lhs_dims,
            const std::vector<Index>& rhs_dims,
            const std::vector<Index>& out_dims)
       : lhs_(lhs), rhs_(rhs), out_(out) {
@@ -139,19 +139,19 @@ class BinaryOp {
 /**
  * 1D kernel with no broadcast.
  */
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename T, typename Op, typename Index, int VectorWidth, bool IsUSM>
 class BinaryOpVec {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
   using Store = helpers::io::Store<DataT>;
 
-  ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_;
+  ReadMem<T const, IsUSM> lhs_, rhs_;
+  WriteMem<T, IsUSM> out_;
   const Index size;
 
  public:
-  BinaryOpVec(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-              WriteAccessor<T> out, const std::vector<Index>&,
+  BinaryOpVec(ReadMem<T const, IsUSM> lhs, ReadMem<T const, IsUSM> rhs,
+              WriteMem<T, IsUSM> out, const std::vector<Index>&,
               const std::vector<Index>&, const std::vector<Index>&)
       : lhs_(lhs), rhs_(rhs), out_(out), size(out.get_extent()) {}
 
@@ -174,20 +174,20 @@ class BinaryOpVec {
 /**
  * 2D kernel where the last lhs dimension is broadcasted.
  */
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename T, typename Op, typename Index, int VectorWidth, bool IsUSM>
 class BinaryOpBcastLhsVec2D {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
   using Store = helpers::io::Store<DataT>;
 
-  ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_;
+  ReadMem<T const, IsUSM> lhs_, rhs_;
+  WriteMem<T, IsUSM> out_;
   const std::array<Index, 2> out_dims_;
 
  public:
-  BinaryOpBcastLhsVec2D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                        WriteAccessor<T> out, const std::vector<Index>&,
-                        const std::vector<Index>&,
+  BinaryOpBcastLhsVec2D(ReadMem<T const, IsUSM> lhs,
+                        ReadMem<T const, IsUSM> rhs, WriteMem<T, IsUSM> out,
+                        const std::vector<Index>&, const std::vector<Index>&,
                         const std::vector<Index>& out_dims)
       : lhs_(lhs), rhs_(rhs), out_(out), out_dims_{out_dims[0], out_dims[1]} {}
 
@@ -214,20 +214,20 @@ class BinaryOpBcastLhsVec2D {
 /**
  * 2D kernel where the last rhs dimension is broadcasted.
  */
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename T, typename Op, typename Index, int VectorWidth, bool IsUSM>
 class BinaryOpBcastRhsVec2D {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
   using Store = helpers::io::Store<DataT>;
 
-  ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_;
+  ReadMem<T const, IsUSM> lhs_, rhs_;
+  WriteMem<T, IsUSM> out_;
   const std::array<Index, 2> out_dims_;
 
  public:
-  BinaryOpBcastRhsVec2D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                        WriteAccessor<T> out, const std::vector<Index>&,
-                        const std::vector<Index>&,
+  BinaryOpBcastRhsVec2D(ReadMem<T const, IsUSM> lhs,
+                        ReadMem<T const, IsUSM> rhs, WriteMem<T, IsUSM> out,
+                        const std::vector<Index>&, const std::vector<Index>&,
                         const std::vector<Index>& out_dims)
       : lhs_(lhs), rhs_(rhs), out_(out), out_dims_{out_dims[0], out_dims[1]} {}
 
@@ -255,20 +255,20 @@ class BinaryOpBcastRhsVec2D {
  * 3D kernel where the outer lhs dimension is broadcasted
  * (in [batch, outer, inner])
  */
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename T, typename Op, typename Index, int VectorWidth, bool IsUSM>
 class BinaryOpBcastLhsVec3D {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
   using Store = helpers::io::Store<DataT>;
 
-  ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_;
+  ReadMem<T const, IsUSM> lhs_, rhs_;
+  WriteMem<T, IsUSM> out_;
   const std::array<Index, 3> out_dims_;
 
  public:
-  BinaryOpBcastLhsVec3D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                        WriteAccessor<T> out, const std::vector<Index>&,
-                        const std::vector<Index>&,
+  BinaryOpBcastLhsVec3D(ReadMem<T const, IsUSM> lhs,
+                        ReadMem<T const, IsUSM> rhs, WriteMem<T, IsUSM> out,
+                        const std::vector<Index>&, const std::vector<Index>&,
                         const std::vector<Index>& out_dims)
       : lhs_(lhs),
         rhs_(rhs),
@@ -303,20 +303,20 @@ class BinaryOpBcastLhsVec3D {
  * 3D kernel where the outer rhs dimension is broadcasted
  * (in [batch, outer, inner])
  */
-template <typename T, typename Op, typename Index, int VectorWidth>
+template <typename T, typename Op, typename Index, int VectorWidth, bool IsUSM>
 class BinaryOpBcastRhsVec3D {
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
   using Store = helpers::io::Store<DataT>;
 
-  ReadAccessor<T const> lhs_, rhs_;
-  WriteAccessor<T> out_;
+  ReadMem<T const, IsUSM> lhs_, rhs_;
+  WriteMem<T, IsUSM> out_;
   const std::array<Index, 3> out_dims_;
 
  public:
-  BinaryOpBcastRhsVec3D(ReadAccessor<T const> lhs, ReadAccessor<T const> rhs,
-                        WriteAccessor<T> out, const std::vector<Index>&,
-                        const std::vector<Index>&,
+  BinaryOpBcastRhsVec3D(ReadMem<T const, IsUSM> lhs,
+                        ReadMem<T const, IsUSM> rhs, WriteMem<T, IsUSM> out,
+                        const std::vector<Index>&, const std::vector<Index>&,
                         const std::vector<Index>& out_dims)
       : lhs_(lhs),
         rhs_(rhs),

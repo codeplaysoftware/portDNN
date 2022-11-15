@@ -33,15 +33,31 @@ namespace sycldnn {
 namespace binaryop {
 namespace internal {
 
-template SNNStatus
-queue_binaryop<SNN_KERNEL_NAME<SNN_DATA_TYPE, SNN_OP_TYPE,
-                               SNN_INDEX_TYPE SNN_KERNEL_EXTRA_ARGS>,
-               SNN_DATA_TYPE, SNN_INDEX_TYPE>(
-    BaseMemObject<SNN_DATA_TYPE const>& lhs,
-    BaseMemObject<SNN_DATA_TYPE const>& rhs, BaseMemObject<SNN_DATA_TYPE>& out,
-    const std::vector<SNN_INDEX_TYPE>& lhs_dims,
-    const std::vector<SNN_INDEX_TYPE>& rhs_dims,
-    const std::vector<SNN_INDEX_TYPE>& out_dims, cl::sycl::queue& queue);
+#ifdef SNN_ENABLE_USM
+template SNNStatus queue_binaryop<
+    SNN_KERNEL_NAME<SNN_DATA_TYPE, SNN_OP_TYPE,
+                    SNN_INDEX_TYPE SNN_KERNEL_EXTRA_ARGS, /*IsUSM*/ true>,
+    SNN_DATA_TYPE, SNN_INDEX_TYPE>(USMMemObject<SNN_DATA_TYPE const>& lhs,
+                                   USMMemObject<SNN_DATA_TYPE const>& rhs,
+                                   USMMemObject<SNN_DATA_TYPE>& out,
+                                   const std::vector<SNN_INDEX_TYPE>& lhs_dims,
+                                   const std::vector<SNN_INDEX_TYPE>& rhs_dims,
+                                   const std::vector<SNN_INDEX_TYPE>& out_dims,
+                                   cl::sycl::queue& queue,
+                                   const std::vector<cl::sycl::event>& events);
+#endif
+
+template SNNStatus queue_binaryop<
+    SNN_KERNEL_NAME<SNN_DATA_TYPE, SNN_OP_TYPE,
+                    SNN_INDEX_TYPE SNN_KERNEL_EXTRA_ARGS, /*IsUSM*/ false>,
+    SNN_DATA_TYPE, SNN_INDEX_TYPE>(BufferMemObject<SNN_DATA_TYPE const>& lhs,
+                                   BufferMemObject<SNN_DATA_TYPE const>& rhs,
+                                   BufferMemObject<SNN_DATA_TYPE>& out,
+                                   const std::vector<SNN_INDEX_TYPE>& lhs_dims,
+                                   const std::vector<SNN_INDEX_TYPE>& rhs_dims,
+                                   const std::vector<SNN_INDEX_TYPE>& out_dims,
+                                   cl::sycl::queue& queue,
+                                   const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace binaryop

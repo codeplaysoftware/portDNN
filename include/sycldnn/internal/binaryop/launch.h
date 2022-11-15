@@ -22,6 +22,11 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
+#include "sycldnn/binaryop/params.h"
+#include "sycldnn/helpers/dims.h"
+
+#include "sycldnn/backend/backend_helpers.h"
+
 #include "sycldnn/export.h"
 
 namespace sycldnn {
@@ -60,38 +65,84 @@ inline SNNStatus compute_out_dims(const std::vector<int>& lhs_dims,
   return StatusCode::OK;
 }
 
-template <typename Op, typename T>
-SNN_EXPORT SNNStatus launch_binaryop(
-    BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
-    BaseMemObject<T>& out, std::vector<int> lhs_dims, std::vector<int> rhs_dims,
-    const std::vector<int>& out_dims, cl::sycl::queue& queue);
+template <typename Op, typename T, template <typename> class MemObj,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNN_EXPORT SNNStatus
+launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs, MemObj<T>& out,
+                std::vector<int> lhs_dims, std::vector<int> rhs_dims,
+                const std::vector<int>& out_dims, cl::sycl::queue& queue,
+                const std::vector<cl::sycl::event>& events);
 
-template <typename Op, typename T>
-SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
-                          BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
-                          const std::vector<int>& lhs_dims,
+template <typename T, typename Op, typename Backend>
+SNNStatus sublaunch(typename Backend::template pointer_type<T const> lhs,
+                    typename Backend::template pointer_type<T const> rhs,
+                    typename Backend::template pointer_type<T> out,
+                    const BinaryParams& params, Backend& backend,
+                    const std::vector<cl::sycl::event>& events) {
+  auto lhs_dims = params.lhs_dims;
+  auto rhs_dims = params.rhs_dims;
+  SNN_VALIDATE_PARAM(
+      lhs_dims.size() <= MAX_DIMS,
+      "Left operand size exceeds the maximum number of dimensions");
+  SNN_VALIDATE_PARAM(
+      rhs_dims.size() <= MAX_DIMS,
+      "Right operand size exceeds the maximum number of dimensions");
+
+  // Empty dimensions may be used to represent scalars.
+  if (lhs_dims.size() == 0) {
+    lhs_dims.push_back(1);
+  }
+  if (rhs_dims.size() == 0) {
+    rhs_dims.push_back(1);
+  }
+
+  size_t lhs_size = helpers::get_total_size(lhs_dims);
+  size_t rhs_size = helpers::get_total_size(rhs_dims);
+  SNN_VALIDATE_PARAM(lhs_size > 0, "Left operand size cannot be zero.");
+  SNN_VALIDATE_PARAM(rhs_size > 0, "Right operand size cannot be zero.");
+
+  std::vector<int> out_dims;
+  auto status = internal::compute_out_dims(lhs_dims, rhs_dims, out_dims);
+  if (status.status != StatusCode::OK) {
+    return status;
+  }
+  size_t out_size = helpers::get_total_size(out_dims);
+
+  auto lhs_mem = backend._get_mem_object(lhs, lhs_size);
+  auto rhs_mem = backend._get_mem_object(rhs, rhs_size);
+  auto out_mem = backend._get_mem_object(out, out_size);
+  auto queue = backend.get_queue();
+  return internal::launch_binaryop<Op>(lhs_mem, rhs_mem, out_mem, lhs_dims,
+                                       rhs_dims, out_dims, queue, events);
+}
+
+template <typename Op, typename T, template <typename> class MemObj>
+SNNStatus launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                          MemObj<T>& out, const std::vector<int>& lhs_dims,
                           const std::vector<int>& rhs_dims,
-                          cl::sycl::queue& queue) {
+                          cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
   std::vector<int> out_dims;
   auto status = compute_out_dims(lhs_dims, rhs_dims, out_dims);
   if (status.status != StatusCode::OK) return status;
-  return launch_binaryop<Op>(lhs, rhs, out, lhs_dims, rhs_dims, out_dims,
-                             queue);
+  return launch_binaryop<Op>(lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue,
+                             events);
 }
 
-template <typename Op, typename T>
-SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
-                          BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
-                          const std::vector<int>& dims,
-                          cl::sycl::queue& queue) {
-  return launch_binaryop<Op>(lhs, rhs, out, dims, dims, dims, queue);
+template <typename Op, typename T, template <typename> class MemObj>
+SNNStatus launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                          MemObj<T>& out, const std::vector<int>& dims,
+                          cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
+  return launch_binaryop<Op>(lhs, rhs, out, dims, dims, dims, queue, events);
 }
 
-template <typename Op, typename T>
-SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
-                          BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
-                          int size, cl::sycl::queue& queue) {
-  return launch_binaryop<Op>(lhs, rhs, out, std::vector<int>{size}, queue);
+template <typename Op, typename T, template <typename> class MemObj>
+SNNStatus launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                          MemObj<T>& out, int size, cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
+  return launch_binaryop<Op>(lhs, rhs, out, std::vector<int>{size}, queue,
+                             events);
 }
 
 }  // namespace internal

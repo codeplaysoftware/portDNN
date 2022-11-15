@@ -29,7 +29,7 @@
 #include "test/types/to_gtest_types.h"
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::AllBackendTypes;
+using Backends = sycldnn::types::AllBackendTypes_;
 
 using TypeBackendPairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;

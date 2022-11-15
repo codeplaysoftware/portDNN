@@ -28,61 +28,71 @@ namespace binaryop {
 
 namespace internal {
 
-template <typename T, typename Op, int VectorWidth>
+template <typename T, typename Op, int VectorWidth,
+          template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
 SNNStatus launch_vec_kernel_with_vec_width(
-    BaseMemObject<T const>& lhs, BaseMemObject<T const>& rhs,
-    BaseMemObject<T>& out, bool bcast_lhs, const std::vector<int>& lhs_dims,
-    const std::vector<int>& rhs_dims, const std::vector<int>& out_dims,
-    cl::sycl::queue& queue) {
+    MemObj<T const>& lhs, MemObj<T const>& rhs, MemObj<T>& out, bool bcast_lhs,
+    const std::vector<int>& lhs_dims, const std::vector<int>& rhs_dims,
+    const std::vector<int>& out_dims, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events) {
   if (lhs_dims.size() == 1) {
-    return queue_binaryop<BinaryOpVec<T, Op, int, VectorWidth>>(
-        lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue);
+    return queue_binaryop<BinaryOpVec<T, Op, int, VectorWidth, IsUSM>>(
+        lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue, events);
   } else if (lhs_dims.size() == 2) {
     if (bcast_lhs) {
-      return queue_binaryop<BinaryOpBcastLhsVec2D<T, Op, int, VectorWidth>>(
-          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue);
+      return queue_binaryop<
+          BinaryOpBcastLhsVec2D<T, Op, int, VectorWidth, IsUSM>>(
+          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue, events);
     } else {
-      return queue_binaryop<BinaryOpBcastRhsVec2D<T, Op, int, VectorWidth>>(
-          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue);
+      return queue_binaryop<
+          BinaryOpBcastRhsVec2D<T, Op, int, VectorWidth, IsUSM>>(
+          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue, events);
     }
   } else {
     SNN_ASSERT(lhs_dims.size() == 3,
                "Invalid internal dimensions for BinaryOp operands");
     if (bcast_lhs) {
-      return queue_binaryop<BinaryOpBcastLhsVec3D<T, Op, int, VectorWidth>>(
-          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue);
+      return queue_binaryop<
+          BinaryOpBcastLhsVec3D<T, Op, int, VectorWidth, IsUSM>>(
+          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue, events);
     } else {
-      return queue_binaryop<BinaryOpBcastRhsVec3D<T, Op, int, VectorWidth>>(
-          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue);
+      return queue_binaryop<
+          BinaryOpBcastRhsVec3D<T, Op, int, VectorWidth, IsUSM>>(
+          lhs, rhs, out, lhs_dims, rhs_dims, out_dims, queue, events);
     }
   }
 }
 
-template <typename T, typename Op>
-SNNStatus launch_vec_kernel(BaseMemObject<T const>& lhs,
-                            BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
-                            bool bcast_lhs, const std::vector<int>& lhs_dims,
+template <typename T, typename Op, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
+SNNStatus launch_vec_kernel(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                            MemObj<T>& out, bool bcast_lhs,
+                            const std::vector<int>& lhs_dims,
                             const std::vector<int>& rhs_dims,
                             const std::vector<int>& out_dims,
-                            cl::sycl::queue& queue) {
+                            cl::sycl::queue& queue,
+                            const std::vector<cl::sycl::event>& events) {
   if (out_dims.back() % 4 == 0) {
     return launch_vec_kernel_with_vec_width<T, Op, 4>(
-        lhs, rhs, out, bcast_lhs, lhs_dims, rhs_dims, out_dims, queue);
+        lhs, rhs, out, bcast_lhs, lhs_dims, rhs_dims, out_dims, queue, events);
   } else if (out_dims.back() % 2 == 0) {
     return launch_vec_kernel_with_vec_width<T, Op, 2>(
-        lhs, rhs, out, bcast_lhs, lhs_dims, rhs_dims, out_dims, queue);
+        lhs, rhs, out, bcast_lhs, lhs_dims, rhs_dims, out_dims, queue, events);
   } else {
     return launch_vec_kernel_with_vec_width<T, Op, 1>(
-        lhs, rhs, out, bcast_lhs, lhs_dims, rhs_dims, out_dims, queue);
+        lhs, rhs, out, bcast_lhs, lhs_dims, rhs_dims, out_dims, queue, events);
   }
 }
 
-template <typename Op, typename T>
-SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
-                          BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
-                          std::vector<int> lhs_dims, std::vector<int> rhs_dims,
+template <typename Op, typename T, template <typename> class MemObj, bool IsUSM>
+SNNStatus launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                          MemObj<T>& out, std::vector<int> lhs_dims,
+                          std::vector<int> rhs_dims,
                           const std::vector<int>& out_dims,
-                          cl::sycl::queue& queue) {
+                          cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(lhs.get_extent() == helpers::get_total_size(lhs_dims),
                      "Mismatching number of lhs elements");
   SNN_VALIDATE_PARAM(rhs.get_extent() == helpers::get_total_size(rhs_dims),
@@ -137,7 +147,8 @@ SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
     SNN_ASSERT(folded_out_dims.size() == 1,
                "Failed to fold BinaryOp dimensions");
     return launch_vec_kernel<T, Op>(lhs, rhs, out, false, folded_lhs_dims,
-                                    folded_rhs_dims, folded_out_dims, queue);
+                                    folded_rhs_dims, folded_out_dims, queue,
+                                    events);
   } else if (broadcasted_dims.size() == 1) {
     // Vectorize on the last dimension of the operands.
     // Set the number of dimensions to 2 or 3 to simplify the kernels.
@@ -161,36 +172,45 @@ SNNStatus launch_binaryop(BaseMemObject<T const>& lhs,
                "Invalid internal dimensions for BinaryOp operands");
     return launch_vec_kernel<T, Op>(lhs, rhs, out, broadcasted_dims[0].second,
                                     folded_lhs_dims, folded_rhs_dims,
-                                    folded_out_dims, queue);
+                                    folded_out_dims, queue, events);
   }
 
   // Fallback to generic implementation
-  return queue_binaryop<BinaryOp<T, Op, int>>(
-      lhs, rhs, out, folded_lhs_dims, folded_rhs_dims, folded_out_dims, queue);
+  return queue_binaryop<BinaryOp<T, Op, int, IsUSM>>(
+      lhs, rhs, out, folded_lhs_dims, folded_rhs_dims, folded_out_dims, queue,
+      events);
 }
 
-#define INSTANTIATE_BINARYOP_LAUNCH(DTYPE, OP)                       \
-  template SNN_EXPORT SNNStatus launch_binaryop<OP, DTYPE>(          \
-      BaseMemObject<DTYPE const> & inp1_access,                      \
-      BaseMemObject<DTYPE const> & inp2_access,                      \
-      BaseMemObject<DTYPE> & outp_access, std::vector<int> lhs_dims, \
-      std::vector<int> rhs_dims, const std::vector<int>& out_dims,   \
-      cl::sycl::queue& queue)
+#define INSTANTIATE_BINARYOP_LAUNCH(DTYPE, OP, MEMOBJ)                      \
+  template SNN_EXPORT SNNStatus launch_binaryop<OP, DTYPE>(                 \
+      MEMOBJ<DTYPE const> & inp1_access, MEMOBJ<DTYPE const> & inp2_access, \
+      MEMOBJ<DTYPE> & outp_access, std::vector<int> lhs_dims,               \
+      std::vector<int> rhs_dims, const std::vector<int>& out_dims,          \
+      cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
-#define INSTANTIATE_BINARYOP_FOR_TYPE(DTYPE) \
-  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Add);   \
-  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Sub);   \
-  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Mul);   \
-  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Div);
+#define INSTANTIATE_BINARYOP_FOR_TYPE(DTYPE, MEMOBJ) \
+  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Add, MEMOBJ)    \
+  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Sub, MEMOBJ)    \
+  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Mul, MEMOBJ)    \
+  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Div, MEMOBJ)
 
-INSTANTIATE_BINARYOP_FOR_TYPE(float);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_BINARYOP_FOR_TYPE(float, USMMemObject);
+#endif
+INSTANTIATE_BINARYOP_FOR_TYPE(float, BufferMemObject);
 
 #ifdef SNN_USE_HALF
-INSTANTIATE_BINARYOP_FOR_TYPE(cl::sycl::half);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_BINARYOP_FOR_TYPE(cl::sycl::half, USMMemObject);
+#endif
+INSTANTIATE_BINARYOP_FOR_TYPE(cl::sycl::half, BufferMemObject);
 #endif  // SNN_USE_HALF
 
 #ifdef SNN_USE_DOUBLE
-INSTANTIATE_BINARYOP_FOR_TYPE(double);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_BINARYOP_FOR_TYPE(double, USMMemObject);
+#endif
+INSTANTIATE_BINARYOP_FOR_TYPE(double, BufferMemObject);
 #endif  // SNN_USE_DOUBLE
 
 }  // namespace internal

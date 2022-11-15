@@ -27,13 +27,14 @@ namespace sycldnn {
 namespace binaryop {
 namespace internal {
 
-template <typename Kernel, typename T, typename Index>
-SNNStatus queue_binaryop(BaseMemObject<T const>& lhs,
-                         BaseMemObject<T const>& rhs, BaseMemObject<T>& out,
-                         const std::vector<Index>& lhs_dims,
+template <typename Kernel, typename T, typename Index,
+          template <typename> class MemObj>
+SNNStatus queue_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
+                         MemObj<T>& out, const std::vector<Index>& lhs_dims,
                          const std::vector<Index>& rhs_dims,
                          const std::vector<Index>& out_dims,
-                         cl::sycl::queue& queue);
+                         cl::sycl::queue& queue,
+                         const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace binaryop

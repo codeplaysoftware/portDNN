@@ -72,10 +72,13 @@ SNNStatus launch_forward_nhwc(
   auto const_workspace_mem =
       backend.get_mem_object(const_workspace, workspace_items);
 
+  auto _in_mem = mo_to_bo(in_mem);
+  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
+  auto _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      in_mem, const_workspace_mem, out_mem,
+      _in_mem, _const_workspace_mem, _out_mem,
       {params.batch, params.rows, params.cols, params.channels},
-      {params.batch, params.rows, params.cols, 1}, queue);
+      {params.batch, params.rows, params.cols, 1}, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -84,7 +87,6 @@ SNNStatus launch_forward_nhwc(
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
   auto _const_output_mem = mo_to_bo(const_output_mem);
-  auto _out_mem = mo_to_bo(out_mem);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
       _const_output_mem, _out_mem, n_items, queue, {});
 
@@ -96,10 +98,12 @@ SNNStatus launch_forward_nhwc(
       ConstPointer{output}, workspace, params.batch * params.rows * params.cols,
       params.channels, 1);
 
+  _const_workspace_mem = mo_to_bo(const_workspace_mem);
+  _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_output_mem, const_workspace_mem, out_mem,
+      _const_output_mem, _const_workspace_mem, _out_mem,
       {params.batch, params.rows, params.cols, params.channels},
-      {params.batch, params.rows, params.cols, 1}, queue);
+      {params.batch, params.rows, params.cols, 1}, queue, {});
   return status;
 }
 
@@ -135,10 +139,13 @@ SNNStatus launch_forward_nchw(
   auto const_workspace_mem =
       backend.get_mem_object(const_workspace, workspace_items);
 
+  auto _in_mem = mo_to_bo(in_mem);
+  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
+  auto _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      in_mem, const_workspace_mem, out_mem,
+      _in_mem, _const_workspace_mem, _out_mem,
       {params.batch, params.channels, params.rows, params.cols},
-      {params.batch, 1, params.rows, params.cols}, queue);
+      {params.batch, 1, params.rows, params.cols}, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -147,7 +154,6 @@ SNNStatus launch_forward_nchw(
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items);
   auto _const_output_mem = mo_to_bo(const_output_mem);
-  auto _out_mem = mo_to_bo(out_mem);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
       _const_output_mem, _out_mem, n_items, queue, {});
 
@@ -160,9 +166,9 @@ SNNStatus launch_forward_nchw(
       params.rows * params.cols);
 
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_output_mem, const_workspace_mem, out_mem,
+      _const_output_mem, _const_workspace_mem, _out_mem,
       {params.batch, params.channels, params.rows, params.cols},
-      {params.batch, 1, params.rows, params.cols}, queue);
+      {params.batch, 1, params.rows, params.cols}, queue, {});
   return status;
 }
 
@@ -215,8 +221,11 @@ SNNStatus launch_gradient_nhwc(
 
   auto queue = backend.get_queue();
 
+  auto _grad_mem = mo_to_bo(grad_mem);
+  auto _in_mem = mo_to_bo(in_mem);
+  auto _workspace_mem = mo_to_bo(workspace_mem);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      grad_mem, in_mem, workspace_mem, n_items1, queue);
+      _grad_mem, _in_mem, _workspace_mem, n_items1, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -234,17 +243,23 @@ SNNStatus launch_gradient_nhwc(
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
+  _grad_mem = mo_to_bo(grad_mem);
+  auto _const_output_mem = mo_to_bo(const_output_mem);
+  _workspace_mem = mo_to_bo(workspace_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      grad_mem, const_output_mem, workspace_mem,
+      _grad_mem, _const_output_mem, _workspace_mem,
       {params.batch, params.rows, params.cols, params.channels},
-      {params.batch, params.rows, params.cols, 1}, queue);
+      {params.batch, params.rows, params.cols, 1}, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
+  _in_mem = mo_to_bo(in_mem);
+  auto _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_workspace_mem, in_mem, out_mem, n_items1, queue);
+      _const_workspace_mem, _in_mem, _out_mem, n_items1, queue, {});
 
   return status;
 }
@@ -272,8 +287,11 @@ SNNStatus launch_gradient_nchw(
 
   auto queue = backend.get_queue();
 
+  auto _grad_mem = mo_to_bo(grad_mem);
+  auto _in_mem = mo_to_bo(in_mem);
+  auto _workspace_mem = mo_to_bo(workspace_mem);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      grad_mem, in_mem, workspace_mem, n_items1, queue);
+      _grad_mem, _in_mem, _workspace_mem, n_items1, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -291,17 +309,23 @@ SNNStatus launch_gradient_nchw(
   auto const_output = ConstPointer{output};
   auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
+  _grad_mem = mo_to_bo(grad_mem);
+  auto _const_output_mem = mo_to_bo(const_output_mem);
+  _workspace_mem = mo_to_bo(workspace_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      grad_mem, const_output_mem, workspace_mem,
+      _grad_mem, _const_output_mem, _workspace_mem,
       {params.batch, params.channels, params.rows, params.cols},
-      {params.batch, 1, params.rows, params.cols}, queue);
+      {params.batch, 1, params.rows, params.cols}, queue, {});
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
+  _in_mem = mo_to_bo(in_mem);
+  auto _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_workspace_mem, in_mem, out_mem, n_items1, queue);
+      _const_workspace_mem, _in_mem, _out_mem, n_items1, queue, {});
 
   return status;
 }

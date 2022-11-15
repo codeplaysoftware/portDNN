@@ -91,9 +91,11 @@ SNNStatus launch_variance(BaseMemObject<T const>& centered_input,
                           BatchNormParams const& params, Backend& backend) {
   auto queue = backend.get_queue();
   SNNStatus status;
+  auto _centered_input = mo_to_bo(centered_input);
+  auto _squared_centered_input = mo_to_bo(squared_centered_input);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      centered_input, centered_input, squared_centered_input,
-      get_total_size(params), queue);
+      _centered_input, _centered_input, _squared_centered_input,
+      get_total_size(params), queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -118,15 +120,18 @@ inline SNNStatus launch_batchnorm(
   cl::sycl::buffer<T const, 1> epsilon_buf(&epsilon, cl::sycl::range<1>(1));
   auto epsilon_mem = make_mem_object<T const>(epsilon_buf, 1);
 
+  auto _current_variance = mo_to_bo(current_variance);
+  auto _epsilon_mem = mo_to_bo(epsilon_mem);
+  auto _workspace = mo_to_bo(workspace);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      current_variance, epsilon_mem, workspace, channel_dims, {1}, queue);
+      _current_variance, _epsilon_mem, _workspace, channel_dims, {1}, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
   auto _const_workspace = mo_to_bo(const_workspace);
-  auto _workspace = mo_to_bo(workspace);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
       _const_workspace, _workspace, helpers::get_total_size(channel_dims),
       queue, {});
@@ -134,21 +139,27 @@ inline SNNStatus launch_batchnorm(
     return status;
   }
 
+  auto _centered_input = mo_to_bo(centered_input);
+  auto _output = mo_to_bo(output);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      centered_input, const_workspace, output, input_dims, channel_dims, queue);
+      _centered_input, _const_workspace, _output, input_dims, channel_dims,
+      queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
+  auto _const_output = mo_to_bo(const_output);
+  auto _gamma = mo_to_bo(gamma);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_output, gamma, output, input_dims, channel_dims, queue);
+      _const_output, _gamma, _output, input_dims, channel_dims, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _beta = mo_to_bo(beta);
   return binaryop::internal::launch_binaryop<binaryop::Add>(
-      const_output, beta, output, input_dims, channel_dims, queue);
+      _const_output, _beta, _output, input_dims, channel_dims, queue, {});
 }
 
 /**
@@ -161,21 +172,28 @@ inline SNNStatus launch_running_mean_variance(
     BaseMemObject<T const>& one_minus_momentum, BaseMemObject<T>& output,
     BaseMemObject<T>& workspace, int size, cl::sycl::queue& queue) {
   auto const_output = output.as_const();
+  auto _const_output = mo_to_bo(const_output);
+  auto _one_minus_momentum = mo_to_bo(one_minus_momentum);
+  auto _output = mo_to_bo(output);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_output, one_minus_momentum, output, {size}, {1}, queue);
+      _const_output, _one_minus_momentum, _output, {size}, {1}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _input = mo_to_bo(input);
+  auto _momentum = mo_to_bo(momentum);
+  auto _workspace = mo_to_bo(workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      input, momentum, workspace, {size}, {1}, queue);
+      _input, _momentum, _workspace, {size}, {1}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
+  auto _const_workspace = mo_to_bo(const_workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      const_output, const_workspace, output, size, queue);
+      _const_output, _const_workspace, _output, size, queue, {});
   return status;
 }
 
@@ -218,8 +236,13 @@ SNNStatus launch_forward(
 
   cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
   auto centered_input = make_mem_object(centered_input_buf, n_items);
+
+  auto _nhwc_input = mo_to_bo(nhwc_input);
+  auto _input_mean = mo_to_bo(input_mean);
+  auto _centered_input = mo_to_bo(centered_input);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      nhwc_input, input_mean, centered_input, nhwc_dims, channel_dims, queue);
+      _nhwc_input, _input_mean, _centered_input, nhwc_dims, channel_dims, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -255,9 +278,10 @@ SNNStatus launch_forward(
   }
 
   auto const_running_mean = running_mean.as_const();
+  auto _const_running_mean = mo_to_bo(const_running_mean);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      nhwc_input, const_running_mean, centered_input, nhwc_dims, channel_dims,
-      queue);
+      _nhwc_input, _const_running_mean, _centered_input, nhwc_dims,
+      channel_dims, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -314,8 +338,12 @@ SNNStatus launch_forward(BaseMemObject<T const>& input,
   cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
   auto centered_input = make_mem_object(centered_input_buf, n_items);
   SNNStatus status;
+  auto _input = mo_to_bo(input);
+  auto _running_mean = mo_to_bo(running_mean);
+  auto _centered_input = mo_to_bo(centered_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      input, running_mean, centered_input, input_dims, channel_dims, queue);
+      _input, _running_mean, _centered_input, input_dims, channel_dims, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -391,9 +419,12 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
   auto centered_input = make_mem_object(centered_input_buf, n_items);
   auto const_mean_input = mean_input.as_const();
+  auto _nhwc_input = mo_to_bo(nhwc_input);
+  auto _const_mean_input = mo_to_bo(const_mean_input);
+  auto _centered_input = mo_to_bo(centered_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      nhwc_input, const_mean_input, centered_input, nhwc_dims,
-      {params.channels}, queue);
+      _nhwc_input, _const_mean_input, _centered_input, nhwc_dims,
+      {params.channels}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -414,9 +445,12 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
                                            cl::sycl::range<1>(1));
   auto epsilon = make_mem_object<T const>(epsilon_buf, 1);
   auto const_input_variance = input_variance.as_const();
+  auto _const_input_variance = mo_to_bo(const_input_variance);
+  auto _epsilon = mo_to_bo(epsilon);
+  auto _input_variance = mo_to_bo(input_variance);
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      const_input_variance, epsilon, input_variance, {params.channels}, {1},
-      queue);
+      _const_input_variance, _epsilon, _input_variance, {params.channels}, {1},
+      queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -436,22 +470,32 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
                                             cl::sycl::range<1>(1));
   auto num_elts = make_mem_object<T const>(num_elts_buf, 1);
   auto const_beta_grad = beta_grad.as_const();
+  auto _const_beta_grad = mo_to_bo(const_beta_grad);
+  auto _num_elts = mo_to_bo(num_elts);
+  auto _mean_gradient = mo_to_bo(mean_gradient);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_beta_grad, num_elts, mean_gradient, {params.channels}, {1}, queue);
+      _const_beta_grad, _num_elts, _mean_gradient, {params.channels}, {1},
+      queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_mean_gradient = mean_gradient.as_const();
+  auto _nhwc_gradient = mo_to_bo(nhwc_gradient);
+  auto _const_mean_gradient = mo_to_bo(const_mean_gradient);
+  auto _output = mo_to_bo(output);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      nhwc_gradient, const_mean_gradient, output, nhwc_dims, {params.channels},
-      queue);
+      _nhwc_gradient, _const_mean_gradient, _output, nhwc_dims,
+      {params.channels}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _const_centered_input = mo_to_bo(const_centered_input);
+  auto _scaled_input = mo_to_bo(scaled_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
-      nhwc_gradient, const_centered_input, scaled_input, nhwc_dims, queue);
+      _nhwc_gradient, _const_centered_input, _scaled_input, nhwc_dims, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -467,51 +511,57 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
   auto workspace = make_mem_object(workspace_buf, params.channels);
   auto const_gamma_grad = gamma_grad.as_const();
+  auto _const_gamma_grad = mo_to_bo(const_gamma_grad);
+  auto _workspace = mo_to_bo(workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_gamma_grad, num_elts, workspace, {params.channels}, {1}, queue);
+      _const_gamma_grad, _num_elts, _workspace, {params.channels}, {1}, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
+  auto _const_workspace = mo_to_bo(const_workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_workspace, const_input_variance, workspace, params.channels, queue);
+      _const_workspace, _const_input_variance, _workspace, params.channels,
+      queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_centered_input, const_workspace, centered_input, nhwc_dims,
-      {params.channels}, queue);
+      _const_centered_input, _const_workspace, _centered_input, nhwc_dims,
+      {params.channels}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
+  auto _const_output = mo_to_bo(const_output);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      const_output, const_centered_input, output, nhwc_dims, queue);
+      _const_output, _const_centered_input, _output, nhwc_dims, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _const_input_variance = mo_to_bo(const_input_variance);
-  auto _input_variance = mo_to_bo(input_variance);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
       _const_input_variance, _input_variance, params.channels, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _gamma = mo_to_bo(gamma);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_output, gamma, output, nhwc_dims, {params.channels}, queue);
+      _const_output, _gamma, _output, nhwc_dims, {params.channels}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto& tr_output = tr_input;  // Re-use temporary buffer
+  auto _tr_output = mo_to_bo(tr_output);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_output, const_input_variance, is_nchw ? tr_output : output,
-      nhwc_dims, {params.channels}, queue);
+      _const_output, _const_input_variance, is_nchw ? _tr_output : _output,
+      nhwc_dims, {params.channels}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -528,9 +578,10 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
     }
   }
 
+  auto _gamma_grad = mo_to_bo(gamma_grad);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_gamma_grad, const_input_variance, gamma_grad, params.channels,
-      queue);
+      _const_gamma_grad, _const_input_variance, _gamma_grad, params.channels,
+      queue, {});
   return status;
 }
 
@@ -561,36 +612,45 @@ SNNStatus launch_gradient(
   auto epsilon = make_mem_object<T const>(epsilon_buf, 1);
   cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
   auto workspace = make_mem_object(workspace_buf, params.channels);
+
+  auto _pop_variance = mo_to_bo(pop_variance);
+  auto _epsilon = mo_to_bo(epsilon);
+  auto _workspace = mo_to_bo(workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      pop_variance, epsilon, workspace, channel_dims, {1}, queue);
+      _pop_variance, _epsilon, _workspace, channel_dims, {1}, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
   auto _const_workspace = mo_to_bo(const_workspace);
-  auto _workspace = mo_to_bo(workspace);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
       _const_workspace, _workspace, params.channels, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto _input = mo_to_bo(input);
+  auto _pop_mean = mo_to_bo(pop_mean);
+  auto _output = mo_to_bo(output);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      input, pop_mean, output, input_dims, channel_dims, queue);
+      _input, _pop_mean, _output, input_dims, channel_dims, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
+  auto _const_output = mo_to_bo(const_output);
+  auto _gradient = mo_to_bo(gradient);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_output, gradient, output, input_dims, queue);
+      _const_output, _gradient, _output, input_dims, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_output, const_workspace, output, input_dims, channel_dims, queue);
+      _const_output, _const_workspace, _output, input_dims, channel_dims, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -601,8 +661,8 @@ SNNStatus launch_gradient(
   if (is_nchw) {
     auto in = mo_to_bo(const_output);
     auto out = mo_to_bo(tr_reduce);
-    status =
-        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
+    status = transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC,
+                                         queue, {});
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -618,14 +678,16 @@ SNNStatus launch_gradient(
     return status;
   }
 
+  auto _gamma = mo_to_bo(gamma);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      gamma, const_workspace, workspace, params.channels, queue);
+      _gamma, _const_workspace, _workspace, params.channels, queue, {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      gradient, const_workspace, output, input_dims, channel_dims, queue);
+      _gradient, _const_workspace, _output, input_dims, channel_dims, queue,
+      {});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
