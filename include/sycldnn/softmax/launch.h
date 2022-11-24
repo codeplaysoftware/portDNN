@@ -88,7 +88,9 @@ SNNStatus inline validate_params(SoftmaxParams const& params) {
  *         whether it encountered some problem.
  */
 template <typename T, typename Direction, typename Backend,
-          typename = internal::DisableIfGradient<Direction>>
+          typename = internal::DisableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> workspace,
                  typename Backend::template pointer_type<T> output,
@@ -99,8 +101,54 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   }
 
   return internal::launch<T, Direction>(input, workspace, output, params,
-                                        backend);
+                                        backend, {});
 }
+
+#ifdef SNN_ENABLE_USM
+/**
+ * Launch the softmax operation kernel in either Forward or Gradient (Backward)
+ * direction.
+ * Softmax is applied along the channel dimension of a 4D tensor - for 2D
+ * matrices with shape (batch x channels), the height and width dimensions can
+ * be set to 1.
+ *
+ * For inputs with height and width > 1, softmax is applied pixel-wise. This
+ * is identical to multiplying the batch-size by the total number of pixels for
+ * performing softmax on (i.e. batch' = batch x height x width), yielding a 2D
+ * matrix as above with dimensions (batch' x channels).
+ *
+ * \tparam T           The data type of the input tensor.
+ * \tparam Direction   The direction of processing, either Forward or Gradient.
+ * \tparam Backend     The type of backend.
+ * \param input        A pointer to the memory representing the input tensor.
+ * \param workspace    A pointer to the memory representing the workspace.
+ * \param output       A pointer to the memory representing the output tensor.
+ * \param params       The softmax parameters, which describe the tensor shape
+ *                     and layout.
+ * \param backend      The backend implementation, used to map between pointer
+ *                     representations.
+ * \return Returns a SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, typename Direction, typename Backend,
+          typename = internal::DisableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> input,
+                 typename Backend::template pointer_type<T> workspace,
+                 typename Backend::template pointer_type<T> output,
+                 SoftmaxParams const& params, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  auto validation_status = internal::validate_params(params);
+  if (validation_status.status != StatusCode::OK) {
+    return validation_status;
+  }
+
+  return internal::launch<T, Direction>(input, workspace, output, params,
+                                        backend, events);
+}
+#endif
 
 /**
  * Launch the softmax operation kernel in either Gradient (Backward)
@@ -122,7 +170,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  */
 
 template <typename T, typename Direction, typename Backend,
-          typename = internal::EnableIfGradient<Direction>>
+          typename = internal::EnableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T const> gradient,
                  typename Backend::template pointer_type<T> workspace,
@@ -134,8 +184,48 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   }
 
   return internal::launch<T, Direction>(input, gradient, workspace, output,
-                                        params, backend);
+                                        params, backend, {});
 }
+
+#ifdef SNN_ENABLE_USM
+/**
+ * Launch the softmax operation kernel in either Gradient (Backward)
+ * direction.
+ * \tparam T           The data type of the input tensor.
+ * \tparam Direction   The direction of processing, either Forward or Gradient.
+ * \tparam Backend     The type of backend.
+ * \param input        A pointer to the memory representing the input tensor.
+ * \param gradient     A pointer to the memory representing the gradient tensor.
+ * \param workspace    A pointer to the memory representing the workspace.
+ * \param output       A pointer to the memory representing the output tensor.
+ * \param params       The softmax parameters, which describe the tensor shape
+ *                     and layout.
+ * \param backend      The backend implementation, used to map between pointer
+ *                     representations.
+ * \return Returns a SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+
+template <typename T, typename Direction, typename Backend,
+          typename = internal::EnableIfGradient<Direction>,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> input,
+                 typename Backend::template pointer_type<T const> gradient,
+                 typename Backend::template pointer_type<T> workspace,
+                 typename Backend::template pointer_type<T> output,
+                 SoftmaxParams const& params, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  auto validation_status = internal::validate_params(params);
+  if (validation_status.status != StatusCode::OK) {
+    return validation_status;
+  }
+
+  return internal::launch<T, Direction>(input, gradient, workspace, output,
+                                        params, backend, events);
+}
+#endif
 
 }  // namespace softmax
 }  // namespace sycldnn

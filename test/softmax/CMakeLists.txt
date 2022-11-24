@@ -26,3 +26,24 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      softmax_event_dependencies_forward_test
+    SOURCES
+      softmax_event_dependencies_forward.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+  snn_test(
+    WITH_SYCL
+    TARGET
+      softmax_event_dependencies_grad_test
+    SOURCES
+      softmax_event_dependencies_grad.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

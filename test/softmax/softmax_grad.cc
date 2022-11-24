@@ -36,7 +36,7 @@
 #include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::AllBackendTypes;
+using Backends = sycldnn::types::AllBackendTypes_;
 using DataFormats = sycldnn::types::DataFormatTypes;
 
 using TypeBackendPairs =

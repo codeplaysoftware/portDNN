@@ -26,6 +26,7 @@
 #include "sycldnn/binaryop/operators.h"
 #include "sycldnn/internal/binaryop/launch.h"
 
+#include "sycldnn/internal/reduce/launch.h"
 #include "sycldnn/reduce/operators.h"
 
 namespace sycldnn {
@@ -49,61 +50,66 @@ SNNStatus launch_forward_nhwc(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T> workspace,
     typename Backend::template pointer_type<T> output,
-    SoftmaxParams const& params, Backend& backend) {
+    SoftmaxParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
                      "Unexpected layout");
   auto n_items = params.batch * params.rows * params.cols * params.channels;
   auto queue = backend.get_queue();
-  auto in_mem = backend.get_mem_object(input, n_items);
-  auto out_mem = backend.get_mem_object(output, n_items);
+  auto in_mem = backend._get_mem_object(input, n_items);
+  auto out_mem = backend._get_mem_object(output, n_items);
   auto workspace_items = params.batch * params.rows * params.cols;
+
+  std::vector<cl::sycl::event> dependencies = events;
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
   SNNStatus status;
-  status.event = backend.template reduce<reduce::Max>(
+  status = reduce::internal::sublaunch<T, reduce::Max>(
       input, workspace, params.batch * params.rows * params.cols,
-      params.channels, 1);
+      params.channels, 1, backend, events);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem =
-      backend.get_mem_object(const_workspace, workspace_items);
+      backend._get_mem_object(const_workspace, workspace_items);
 
-  auto _in_mem = mo_to_bo(in_mem);
-  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
-  auto _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _in_mem, _const_workspace_mem, _out_mem,
+      in_mem, const_workspace_mem, out_mem,
       {params.batch, params.rows, params.cols, params.channels},
-      {params.batch, params.rows, params.cols, 1}, queue, {});
+      {params.batch, params.rows, params.cols, 1}, queue, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_output = ConstPointer{output};
-  auto const_output_mem = backend.get_mem_object(const_output, n_items);
-  auto _const_output_mem = mo_to_bo(const_output_mem);
+  auto const_output_mem = backend._get_mem_object(const_output, n_items);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
-      _const_output_mem, _out_mem, n_items, queue, {});
+      const_output_mem, out_mem, n_items, queue, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
-  status.event = backend.template reduce<reduce::Add>(
+  status = reduce::internal::sublaunch<T, reduce::Add>(
       ConstPointer{output}, workspace, params.batch * params.rows * params.cols,
-      params.channels, 1);
+      params.channels, 1, backend, dependencies);
 
-  _const_workspace_mem = mo_to_bo(const_workspace_mem);
-  _out_mem = mo_to_bo(out_mem);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+  dependencies = std::vector<cl::sycl::event>{status.event};
+
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_output_mem, _const_workspace_mem, _out_mem,
+      const_output_mem, const_workspace_mem, out_mem,
       {params.batch, params.rows, params.cols, params.channels},
-      {params.batch, params.rows, params.cols, 1}, queue, {});
+      {params.batch, params.rows, params.cols, 1}, queue, dependencies);
   return status;
 }
 
@@ -116,59 +122,65 @@ SNNStatus launch_forward_nchw(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T> workspace,
     typename Backend::template pointer_type<T> output,
-    SoftmaxParams const& params, Backend& backend) {
+    SoftmaxParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NCHW,
                      "Unexpected layout");
   auto n_items = params.batch * params.channels * params.rows * params.cols;
   auto queue = backend.get_queue();
-  auto in_mem = backend.get_mem_object(input, n_items);
-  auto out_mem = backend.get_mem_object(output, n_items);
+  auto in_mem = backend._get_mem_object(input, n_items);
+  auto out_mem = backend._get_mem_object(output, n_items);
   auto workspace_items = params.batch * params.rows * params.cols;
+  std::vector<cl::sycl::event> dependencies = events;
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
   SNNStatus status;
-  status.event = backend.template reduce<reduce::Max>(
+  status = reduce::internal::sublaunch<T, reduce::Max>(
       input, workspace, params.batch, params.channels,
-      params.rows * params.cols);
+      params.rows * params.cols, backend, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem =
-      backend.get_mem_object(const_workspace, workspace_items);
+      backend._get_mem_object(const_workspace, workspace_items);
 
-  auto _in_mem = mo_to_bo(in_mem);
-  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
-  auto _out_mem = mo_to_bo(out_mem);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _in_mem, _const_workspace_mem, _out_mem,
+      in_mem, const_workspace_mem, out_mem,
       {params.batch, params.channels, params.rows, params.cols},
-      {params.batch, 1, params.rows, params.cols}, queue, {});
+      {params.batch, 1, params.rows, params.cols}, queue, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_output = ConstPointer{output};
-  auto const_output_mem = backend.get_mem_object(const_output, n_items);
-  auto _const_output_mem = mo_to_bo(const_output_mem);
+  auto const_output_mem = backend._get_mem_object(const_output, n_items);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
-      _const_output_mem, _out_mem, n_items, queue, {});
+      const_output_mem, out_mem, n_items, queue, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
-  status.event = backend.template reduce<reduce::Add>(
+  status = reduce::internal::sublaunch<T, reduce::Add>(
       ConstPointer{output}, workspace, params.batch, params.channels,
-      params.rows * params.cols);
+      params.rows * params.cols, backend, dependencies);
+
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_output_mem, _const_workspace_mem, _out_mem,
+      const_output_mem, const_workspace_mem, out_mem,
       {params.batch, params.channels, params.rows, params.cols},
-      {params.batch, 1, params.rows, params.cols}, queue, {});
+      {params.batch, 1, params.rows, params.cols}, queue, dependencies);
   return status;
 }
 
@@ -186,13 +198,14 @@ template <typename T, typename Direction, typename Backend,
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> workspace,
                  typename Backend::template pointer_type<T> output,
-                 SoftmaxParams const& params, Backend& backend) {
+                 SoftmaxParams const& params, Backend& backend,
+                 const std::vector<cl::sycl::event>& events) {
   if (params.input_format == sycldnn::DataFormat::NHWC) {
     return launch_forward_nhwc<T, Backend>(input, workspace, output, params,
-                                           backend);
+                                           backend, events);
   } else if (params.input_format == sycldnn::DataFormat::NCHW) {
     return launch_forward_nchw<T, Backend>(input, workspace, output, params,
-                                           backend);
+                                           backend, events);
   }
   SNN_ASSERT(false, "Unsupported layout");
   return SNNStatus(StatusCode::InvalidParameter);
@@ -208,58 +221,58 @@ SNNStatus launch_gradient_nhwc(
     typename Backend::template pointer_type<T const> gradient,
     typename Backend::template pointer_type<T> workspace,
     typename Backend::template pointer_type<T> output,
-    SoftmaxParams const& params, Backend& backend) {
+    SoftmaxParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NHWC,
                      "Unexpected layout");
   auto n_items1 = params.batch * params.rows * params.cols * params.channels;
   auto n_items2 = params.batch * params.rows * params.cols;
 
-  auto in_mem = backend.get_mem_object(input, n_items1);
-  auto grad_mem = backend.get_mem_object(gradient, n_items1);
-  auto workspace_mem = backend.get_mem_object(workspace, n_items1);
-  auto out_mem = backend.get_mem_object(output, n_items1);
+  auto in_mem = backend._get_mem_object(input, n_items1);
+  auto grad_mem = backend._get_mem_object(gradient, n_items1);
+  auto workspace_mem = backend._get_mem_object(workspace, n_items1);
+  auto out_mem = backend._get_mem_object(output, n_items1);
+  std::vector<cl::sycl::event> dependencies = events;
 
   auto queue = backend.get_queue();
 
-  auto _grad_mem = mo_to_bo(grad_mem);
-  auto _in_mem = mo_to_bo(in_mem);
-  auto _workspace_mem = mo_to_bo(workspace_mem);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _grad_mem, _in_mem, _workspace_mem, n_items1, queue, {});
+      grad_mem, in_mem, workspace_mem, n_items1, queue, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
 
   auto const_workspace = ConstPointer{workspace};
-  auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
+  auto const_workspace_mem = backend._get_mem_object(const_workspace, n_items1);
 
-  status.event = backend.template reduce<reduce::Add>(
+  status = reduce::internal::sublaunch<T, reduce::Add>(
       const_workspace, output, params.batch * params.rows * params.cols,
-      params.channels, 1);
-
-  auto const_output = ConstPointer{output};
-  auto const_output_mem = backend.get_mem_object(const_output, n_items2);
-
-  _grad_mem = mo_to_bo(grad_mem);
-  auto _const_output_mem = mo_to_bo(const_output_mem);
-  _workspace_mem = mo_to_bo(workspace_mem);
-  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _grad_mem, _const_output_mem, _workspace_mem,
-      {params.batch, params.rows, params.cols, params.channels},
-      {params.batch, params.rows, params.cols, 1}, queue, {});
+      params.channels, 1, backend, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
-  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
-  _in_mem = mo_to_bo(in_mem);
-  auto _out_mem = mo_to_bo(out_mem);
+  auto const_output = ConstPointer{output};
+  auto const_output_mem = backend._get_mem_object(const_output, n_items2);
+
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
+      grad_mem, const_output_mem, workspace_mem,
+      {params.batch, params.rows, params.cols, params.channels},
+      {params.batch, params.rows, params.cols, 1}, queue, dependencies);
+
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+  dependencies = std::vector<cl::sycl::event>{status.event};
+
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_workspace_mem, _in_mem, _out_mem, n_items1, queue, {});
+      const_workspace_mem, in_mem, out_mem, n_items1, queue, dependencies);
 
   return status;
 }
@@ -274,58 +287,58 @@ SNNStatus launch_gradient_nchw(
     typename Backend::template pointer_type<T const> gradient,
     typename Backend::template pointer_type<T> workspace,
     typename Backend::template pointer_type<T> output,
-    SoftmaxParams const& params, Backend& backend) {
+    SoftmaxParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(params.input_format == sycldnn::DataFormat::NCHW,
                      "Unexpected layout");
   auto n_items1 = params.batch * params.channels * params.rows * params.cols;
   auto n_items2 = params.batch * params.rows * params.cols;
 
-  auto in_mem = backend.get_mem_object(input, n_items1);
-  auto grad_mem = backend.get_mem_object(gradient, n_items1);
-  auto workspace_mem = backend.get_mem_object(workspace, n_items1);
-  auto out_mem = backend.get_mem_object(output, n_items1);
+  auto in_mem = backend._get_mem_object(input, n_items1);
+  auto grad_mem = backend._get_mem_object(gradient, n_items1);
+  auto workspace_mem = backend._get_mem_object(workspace, n_items1);
+  auto out_mem = backend._get_mem_object(output, n_items1);
+  std::vector<cl::sycl::event> dependencies = events;
 
   auto queue = backend.get_queue();
 
-  auto _grad_mem = mo_to_bo(grad_mem);
-  auto _in_mem = mo_to_bo(in_mem);
-  auto _workspace_mem = mo_to_bo(workspace_mem);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _grad_mem, _in_mem, _workspace_mem, n_items1, queue, {});
+      grad_mem, in_mem, workspace_mem, n_items1, queue, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
   using ConstPointer = typename Backend::template pointer_type<T const>;
 
   auto const_workspace = ConstPointer{workspace};
-  auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
+  auto const_workspace_mem = backend._get_mem_object(const_workspace, n_items1);
 
-  status.event = backend.template reduce<reduce::Add>(
+  status = reduce::internal::sublaunch<T, reduce::Add>(
       const_workspace, output, params.batch, params.channels,
-      params.rows * params.cols);
-
-  auto const_output = ConstPointer{output};
-  auto const_output_mem = backend.get_mem_object(const_output, n_items2);
-
-  _grad_mem = mo_to_bo(grad_mem);
-  auto _const_output_mem = mo_to_bo(const_output_mem);
-  _workspace_mem = mo_to_bo(workspace_mem);
-  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _grad_mem, _const_output_mem, _workspace_mem,
-      {params.batch, params.channels, params.rows, params.cols},
-      {params.batch, 1, params.rows, params.cols}, queue, {});
+      params.rows * params.cols, backend, dependencies);
 
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
+  dependencies = std::vector<cl::sycl::event>{status.event};
 
-  auto _const_workspace_mem = mo_to_bo(const_workspace_mem);
-  _in_mem = mo_to_bo(in_mem);
-  auto _out_mem = mo_to_bo(out_mem);
+  auto const_output = ConstPointer{output};
+  auto const_output_mem = backend._get_mem_object(const_output, n_items2);
+
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
+      grad_mem, const_output_mem, workspace_mem,
+      {params.batch, params.channels, params.rows, params.cols},
+      {params.batch, 1, params.rows, params.cols}, queue, dependencies);
+
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+  dependencies = std::vector<cl::sycl::event>{status.event};
+
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_workspace_mem, _in_mem, _out_mem, n_items1, queue, {});
+      const_workspace_mem, in_mem, out_mem, n_items1, queue, dependencies);
 
   return status;
 }
@@ -342,13 +355,14 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T const> gradient,
                  typename Backend::template pointer_type<T> workspace,
                  typename Backend::template pointer_type<T> output,
-                 SoftmaxParams const& params, Backend& backend) {
+                 SoftmaxParams const& params, Backend& backend,
+                 const std::vector<cl::sycl::event>& events) {
   if (params.input_format == sycldnn::DataFormat::NHWC) {
     return launch_gradient_nhwc<T, Backend>(input, gradient, workspace, output,
-                                            params, backend);
+                                            params, backend, events);
   } else if (params.input_format == sycldnn::DataFormat::NCHW) {
     return launch_gradient_nchw<T, Backend>(input, gradient, workspace, output,
-                                            params, backend);
+                                            params, backend, events);
   }
   SNN_ASSERT(false, "Unsupported layout");
   return SNNStatus(StatusCode::InvalidParameter);
