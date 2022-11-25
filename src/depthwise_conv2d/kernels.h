@@ -33,32 +33,34 @@ namespace sycldnn {
 namespace depthwise_conv2d {
 namespace internal {
 
-template <typename T, typename Index, typename ConvType, int VectorWidth>
+template <typename T, typename Index, typename ConvType, int VectorWidth,
+          bool IsUSM>
 struct DepthwiseConv2D;
 
-template <typename T, typename Index, int VectorWidth>
-struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward, VectorWidth> {
+template <typename T, typename Index, int VectorWidth, bool IsUSM>
+struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward, VectorWidth,
+                       IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;
 
   DepthwiseConv2D(Index n_elems, DepthwiseConv2DParams const& params,
-                  ReadAccessor<T const> const& input,
-                  ReadAccessor<T const> const& filter,
-                  WriteAccessor<T> const& output)
+                  ReadMem<T const, IsUSM> const& input,
+                  ReadMem<T const, IsUSM> const& filter,
+                  WriteMem<T, IsUSM> const& output)
       : n_elems_{n_elems / VectorWidth},
         features_{params.channels * params.channel_multiplier},
         p_{params},
-        input_accessor_{input},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        input_mem_{input},
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     const Index index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto const input_data = input_accessor_.get_pointer();
-      auto const filter_data = filter_accessor_.get_pointer();
+      auto const input_data = input_mem_.get_pointer();
+      auto const filter_data = filter_mem_.get_pointer();
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten4d(
@@ -117,7 +119,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward, VectorWidth> {
         filter_row_offset += p_.window_cols * features_;
       }  // row loop
 
-      auto output_data = output_accessor_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
       Store()(output_data, index * VectorWidth, out_val);
     }
   }
@@ -126,35 +128,35 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::Forward, VectorWidth> {
   Index const n_elems_;
   Index const features_;
   DepthwiseConv2DParams const p_;
-  ReadAccessor<T const> const input_accessor_;
-  ReadAccessor<T const> const filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> const input_mem_;
+  ReadMem<T const, IsUSM> const filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
-template <typename T, typename Index, int VectorWidth>
-struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop,
-                       VectorWidth> {
+template <typename T, typename Index, int VectorWidth, bool IsUSM>
+struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop, VectorWidth,
+                       IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;
 
   DepthwiseConv2D(Index n_elems, DepthwiseConv2DParams const& params,
-                  ReadAccessor<T const> const& input,
-                  ReadAccessor<T const> const& filter,
-                  WriteAccessor<T> const& output)
+                  ReadMem<T const, IsUSM> const& input,
+                  ReadMem<T const, IsUSM> const& filter,
+                  WriteMem<T, IsUSM> const& output)
       : n_elems_{n_elems / VectorWidth},
         features_{params.channels * params.channel_multiplier},
         p_{params},
-        error_accessor_{input},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        error_mem_{input},
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto const input_data = error_accessor_.get_pointer();
-      auto const filter_data = filter_accessor_.get_pointer();
+      auto const input_data = error_mem_.get_pointer();
+      auto const filter_data = filter_mem_.get_pointer();
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten4d(
@@ -217,7 +219,7 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop,
         filter_row_offset -= p_.stride_rows * p_.window_cols * features_;
       }  // row loop
 
-      auto output_data = output_accessor_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
       Store()(output_data, index * VectorWidth, out_val);
     }
   }
@@ -226,23 +228,24 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::InputBackprop,
   Index const n_elems_;
   Index const features_;
   DepthwiseConv2DParams const p_;
-  ReadAccessor<T const> const error_accessor_;
-  ReadAccessor<T const> const filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> const error_mem_;
+  ReadMem<T const, IsUSM> const filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
-template <typename T, typename Index, int VectorWidth>
-struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
-                       VectorWidth> {
+template <typename T, typename Index, int VectorWidth, bool IsUSM>
+struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop, VectorWidth,
+                       IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = typename helpers::io::Load<DataType>;
   using Store = typename helpers::io::Store<DataType>;
 
   DepthwiseConv2D(Index n_filter_elems, Index n_b_items, Index n_k_items,
                   DepthwiseConv2DParams const& params,
-                  ReadAccessor<T const> const& input,
-                  ReadAccessor<T const> const& filter,
-                  LocalAccessor<T> const& local, WriteAccessor<T> const& output)
+                  ReadMem<T const, IsUSM> const& input,
+                  ReadMem<T const, IsUSM> const& filter,
+                  LocalAccessor<T> const& local,
+                  WriteMem<T, IsUSM> const& output)
       : n_filter_elems_{n_filter_elems / VectorWidth},
         features_{params.channels * params.channel_multiplier},
         workgroup_batch_items_{n_b_items},
@@ -355,10 +358,10 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop,
   Index const workgroup_batch_items_;
   Index const workgroup_col_items_;
   DepthwiseConv2DParams const p_;
-  ReadAccessor<T const> const input_values_;
-  ReadAccessor<T const> const output_errors_;
+  ReadMem<T const, IsUSM> const input_values_;
+  ReadMem<T const, IsUSM> const output_errors_;
   LocalAccessor<T> workspace_;
-  WriteAccessor<T> filter_output_;
+  WriteMem<T, IsUSM> filter_output_;
 };
 
 }  // namespace internal

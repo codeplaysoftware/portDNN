@@ -48,90 +48,106 @@ bool can_vectorize(DepthwiseConv2DParams const& p, int vector_width) {
   return (p.channels * p.channel_multiplier) % vector_width == 0;
 }
 
-template <typename ConvType, typename T, typename Index, int VectorWidth>
+template <typename ConvType, typename T, typename Index, int VectorWidth,
+          template <typename> class MemObj>
 struct Launcher {
-  static SNNStatus launch(BaseMemObject<T const>& input,
-                          BaseMemObject<T const>& filter,
-                          BaseMemObject<T>& output,
+  static SNNStatus launch(MemObj<T const>& input, MemObj<T const>& filter,
+                          MemObj<T>& output,
                           DepthwiseConv2DParams const& params,
-                          Index output_size, cl::sycl::queue& queue) {
+                          Index output_size, cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
     return queue_kernel<ConvType, VectorWidth>(input, filter, output, params,
-                                               output_size, queue);
+                                               output_size, queue, events);
   }
 };
 
-template <typename T, typename Index, int VectorWidth>
-struct Launcher<conv2d::conv_type::FilterBackprop, T, Index, VectorWidth> {
-  static SNNStatus launch(BaseMemObject<T const>& input,
-                          BaseMemObject<T const>& filter,
-                          BaseMemObject<T>& output,
+template <typename T, typename Index, int VectorWidth,
+          template <typename> class MemObj>
+struct Launcher<conv2d::conv_type::FilterBackprop, T, Index, VectorWidth,
+                MemObj> {
+  static SNNStatus launch(MemObj<T const>& input, MemObj<T const>& filter,
+                          MemObj<T>& output,
                           DepthwiseConv2DParams const& params,
-                          Index output_size, cl::sycl::queue& queue) {
+                          Index output_size, cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
     return queue_kernel_fil_bk<VectorWidth>(input, filter, output, params,
-                                            output_size, queue);
+                                            output_size, queue, events);
   }
 };
 
-template <typename ConvType, typename T, typename IndexType>
-SNNStatus launch_vectorised(BaseMemObject<T const>& input,
-                            BaseMemObject<T const>& filter,
-                            BaseMemObject<T>& output,
+template <typename ConvType, typename T, typename IndexType,
+          template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
+SNNStatus launch_vectorised(MemObj<T const>& input, MemObj<T const>& filter,
+                            MemObj<T>& output,
                             DepthwiseConv2DParams const& params,
-                            IndexType output_size, cl::sycl::queue& queue) {
+                            IndexType output_size, cl::sycl::queue& queue,
+                            const std::vector<cl::sycl::event>& events) {
   if (can_vectorize<ConvType>(params, 4)) {
-    return Launcher<ConvType, T, IndexType, 4>::launch(
-        input, filter, output, params, output_size, queue);
+    return Launcher<ConvType, T, IndexType, 4, MemObj>::launch(
+        input, filter, output, params, output_size, queue, events);
   } else if (can_vectorize<ConvType>(params, 2)) {
-    return Launcher<ConvType, T, IndexType, 2>::launch(
-        input, filter, output, params, output_size, queue);
+    return Launcher<ConvType, T, IndexType, 2, MemObj>::launch(
+        input, filter, output, params, output_size, queue, events);
   } else {
-    return Launcher<ConvType, T, IndexType, 1>::launch(
-        input, filter, output, params, output_size, queue);
+    return Launcher<ConvType, T, IndexType, 1, MemObj>::launch(
+        input, filter, output, params, output_size, queue, events);
   }
 }
 
 }  // namespace
 
-template <typename ConvType, typename T>
-SNNStatus launch(BaseMemObject<T const>& input, BaseMemObject<T const>& filter,
-                 BaseMemObject<T>& output, DepthwiseConv2DParams const& params,
-                 cl::sycl::queue& queue) {
+template <typename ConvType, typename T, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
+SNNStatus launch(MemObj<T const>& input, MemObj<T const>& filter,
+                 MemObj<T>& output, DepthwiseConv2DParams const& params,
+                 cl::sycl::queue& queue,
+                 const std::vector<cl::sycl::event>& events) {
   size_t output_size = get_output_size<ConvType>(params);
   auto kernel_params = get_kernel_params<ConvType>(params);
   if (output_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_vectorised<ConvType, T, int64_t>(
         input, filter, output, kernel_params, static_cast<int64_t>(output_size),
-        queue);
+        queue, events);
 #else
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_vectorised<ConvType, T, int32_t>(
         input, filter, output, kernel_params, static_cast<int32_t>(output_size),
-        queue);
+        queue, events);
   }
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, DIRECTION)                                 \
-  template SNN_EXPORT SNNStatus launch<DIRECTION, DTYPE>(                      \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & filter, \
-      BaseMemObject<DTYPE> & output, DepthwiseConv2DParams const& params,      \
-      cl::sycl::queue& queue)
+#define INSTANTIATE_LAUNCHER(DTYPE, DIRECTION, MEM_OBJ)             \
+  template SNN_EXPORT SNNStatus launch<DIRECTION, DTYPE>(           \
+      MEM_OBJ<DTYPE const> & input, MEM_OBJ<DTYPE const> & filter,  \
+      MEM_OBJ<DTYPE> & output, DepthwiseConv2DParams const& params, \
+      cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events)
 
-#define INSTANTIATE_FOR_TYPE(DTYPE)                              \
-  INSTANTIATE_LAUNCHER(DTYPE, conv2d::conv_type::Forward);       \
-  INSTANTIATE_LAUNCHER(DTYPE, conv2d::conv_type::InputBackprop); \
-  INSTANTIATE_LAUNCHER(DTYPE, conv2d::conv_type::FilterBackprop)
+#define INSTANTIATE_FOR_TYPE(DTYPE, MEM_OBJ)                              \
+  INSTANTIATE_LAUNCHER(DTYPE, conv2d::conv_type::Forward, MEM_OBJ);       \
+  INSTANTIATE_LAUNCHER(DTYPE, conv2d::conv_type::InputBackprop, MEM_OBJ); \
+  INSTANTIATE_LAUNCHER(DTYPE, conv2d::conv_type::FilterBackprop, MEM_OBJ)
 
-INSTANTIATE_FOR_TYPE(float);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(float, USMMemObject);
+#endif
+INSTANTIATE_FOR_TYPE(float, BufferMemObject);
 
 #ifdef SNN_USE_DOUBLE
-INSTANTIATE_FOR_TYPE(double);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(double, USMMemObject);
+#endif
+INSTANTIATE_FOR_TYPE(double, BufferMemObject);
 #endif
 
 #ifdef SNN_USE_HALF
-INSTANTIATE_FOR_TYPE(cl::sycl::half);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_TYPE(cl::sycl::half, USMMemObject);
+#endif
+INSTANTIATE_FOR_TYPE(cl::sycl::half, BufferMemObject);
 #endif
 
 #undef INSTANTIATE_FOR_TYPE

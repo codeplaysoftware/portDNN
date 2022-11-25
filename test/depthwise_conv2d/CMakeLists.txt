@@ -67,3 +67,17 @@ foreach(_index RANGE ${_list_len})
     )
   endforeach()
 endforeach()
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      depthwise_conv2d_event_dependencies
+    SIZE
+      moderate
+    SOURCES
+      depthwise_conv2d_event_dependencies.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

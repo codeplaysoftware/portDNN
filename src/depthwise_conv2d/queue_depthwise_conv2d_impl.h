@@ -43,13 +43,15 @@ inline Index pow2_less_than(Index const val) {
 
 }  // namespace
 
-template <typename ConvType, int VectorWidth, typename T, typename Index>
-SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
-                       BaseMemObject<T const>& filter_mem,
-                       BaseMemObject<T>& output_mem,
+template <typename ConvType, int VectorWidth, typename T, typename Index,
+          template <typename> class MemObj>
+SNNStatus queue_kernel(MemObj<T const>& input_mem, MemObj<T const>& filter_mem,
+                       MemObj<T>& output_mem,
                        DepthwiseConv2DParams const& kernel_params,
-                       Index output_size, cl::sycl::queue& queue) {
-  using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth>;
+                       Index output_size, cl::sycl::queue& queue,
+                       const std::vector<cl::sycl::event>& events) {
+  using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth,
+                                  is_usm_obj_v<MemObj<T>, T>>;
 
   cl::sycl::device device = queue.get_device();
   size_t const workgroup_size =
@@ -58,9 +60,10 @@ SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
       static_cast<size_t>(output_size / VectorWidth), workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto filter = filter_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto filter = filter_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
     Functor conv(output_size, kernel_params, input, filter, output);
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, conv);
@@ -68,14 +71,17 @@ SNNStatus queue_kernel(BaseMemObject<T const>& input_mem,
   return {event, StatusCode::OK};
 }
 
-template <int VectorWidth, typename T, typename Index>
-SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input_mem,
-                              BaseMemObject<T const>& filter_mem,
-                              BaseMemObject<T>& output_mem,
+template <int VectorWidth, typename T, typename Index,
+          template <typename> class MemObj>
+SNNStatus queue_kernel_fil_bk(MemObj<T const>& input_mem,
+                              MemObj<T const>& filter_mem,
+                              MemObj<T>& output_mem,
                               DepthwiseConv2DParams const& kernel_params,
-                              Index output_size, cl::sycl::queue& queue) {
+                              Index output_size, cl::sycl::queue& queue,
+                              const std::vector<cl::sycl::event>& events) {
   using ConvType = conv2d::conv_type::FilterBackprop;
-  using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth>;
+  using Functor = DepthwiseConv2D<T, Index, ConvType, VectorWidth,
+                                  is_usm_obj_v<MemObj<T>, T>>;
 
   cl::sycl::device device = queue.get_device();
   size_t const max_wg_size =
@@ -100,9 +106,10 @@ SNNStatus queue_kernel_fil_bk(BaseMemObject<T const>& input_mem,
   size_t const n_outputs = output_size / VectorWidth;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto filter = filter_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto filter = filter_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
 
     LocalAccessor<T> local_access{cl::sycl::range<1>{workspace_size}, cgh};
 

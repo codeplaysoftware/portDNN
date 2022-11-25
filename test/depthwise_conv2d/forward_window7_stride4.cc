@@ -33,7 +33,7 @@
 #include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;

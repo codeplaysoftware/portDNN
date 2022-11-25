@@ -47,7 +47,7 @@ using GTestDefaultBackendTypes = ToGTestTypes<DefaultBackendTypes>::type;
 
 /** List of backend types to use by default in tests.  */
 using DefaultBackendTypes_ = sycldnn::types::TypeList<
-#ifdef SYCL_ENABLE_USM
+#ifdef SNN_ENABLE_USM
     sycldnn::backend::SNNUSMBackend,
 #endif
     sycldnn::backend::SNNBackend>;
