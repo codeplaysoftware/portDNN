@@ -23,150 +23,131 @@
 #include "sycldnn/scatter_nd/operators.h"
 #include "sycldnn/scatter_nd/params.h"
 
-#include "test/scatter_nd/scatter_nd_fixture.h"
-#include "test/types/cartesian_product.h"
+#include "test/scatter_nd/scatter_nd_event_dependencies_fixture.h"
 #include "test/types/kernel_data_types.h"
-#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
 #include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes_;
-
-using TypeBackendPairs =
-    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
-
-using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+using GTestDType = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename Pair>
-using ScatterNdAssign = ScatterNDFixture<Pair, int, scatter_nd::Assign>;
-TYPED_TEST_CASE(ScatterNdAssign, GTestTypePairs);
-TYPED_TEST(ScatterNdAssign, 1x1x1x1_tensor_slice) {
+template <typename DType>
+using ScatterNdAdd = ScatterNDEventFixture<DType, int, scatter_nd::Add>;
+TYPED_TEST_CASE(ScatterNdAdd, GTestDType);
+TYPED_TEST(ScatterNdAdd, 1x1x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {2};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {2};
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {1, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {2};
   const std::vector<int> indices = {0, 0, 0};
   const std::vector<DataType> updates = {6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {1, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {2};
   const std::vector<int> indices = {0, 0, 0, 0};
   const std::vector<DataType> updates = {6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2};
   const std::array<int, 4> in_shape = {{1, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6, 6, 9, 3};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2};
   const std::array<int, 4> in_shape = {{1, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6, 6, 9, 3};
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2};
   const std::array<int, 4> in_shape = {{1, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {1, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6, 6, 9, 3};
   const std::vector<int> indices = {0, 0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 3, 6, 5};
   const std::array<int, 4> in_shape = {{1, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {3, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5, 5};
   const std::vector<int> indices = {0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5, 2, 1};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5, 2, 1};
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {1, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5, 2, 1};
   const std::vector<int> indices = {0, 0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x1x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x1x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 9, 3, 1, 8, 6, 6, 3};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {4, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -174,88 +155,80 @@ TYPED_TEST(ScatterNdAssign, 1x1x1x8_elementwise) {
   const std::vector<int> indices = {0, 0, 0, 1, 0, 0, 0, 2,
                                     0, 0, 0, 4, 0, 0, 0, 7};
   const std::vector<DataType> updates = {9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2};
   const std::array<int, 4> in_shape = {{1, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 3};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2};
   const std::array<int, 4> in_shape = {{1, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 3};
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2};
   const std::array<int, 4> in_shape = {{1, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6};
   const std::vector<int> indices = {0, 0, 0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2};
   const std::array<int, 4> in_shape = {{1, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6};
   const std::vector<int> indices = {0, 0, 0, 0, 0, 0, 1, 0};
   const std::vector<DataType> updates = {3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3};
   const std::array<int, 4> in_shape = {{1, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3};
   const std::array<int, 4> in_shape = {{1, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5};
   const std::array<int, 4> in_shape = {{1, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 2, 1, 2, 6, 6, 9, 7, 2, 9};
   const std::vector<int> indices = {0, 0, 0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 3, 5, 6, 9, 8, 2, 5, 2, 7};
   const std::array<int, 4> in_shape = {{1, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {5, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -263,12 +236,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x2x5_elementwise) {
   const std::vector<int> indices = {0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
                                     1, 2, 0, 0, 0, 2, 0, 0, 1, 3};
   const std::vector<DataType> updates = {8, 3, 5, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6,
-                                         9, 3, 8, 3, 5, 5, 2, 1};
   const std::array<int, 4> in_shape = {{1, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -277,12 +248,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x2x8_tensor_slice) {
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6,
                                          9, 3, 8, 3, 5, 5, 2, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6,
-                                         9, 3, 8, 3, 5, 5, 2, 1};
   const std::array<int, 4> in_shape = {{1, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -291,12 +260,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x2x8_matrix_slice) {
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6,
                                          9, 3, 8, 3, 5, 5, 2, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8,
-                                         3, 5, 5, 2, 1, 2, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -305,12 +272,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x2x8_vector_slice) {
   const std::vector<int> indices = {0, 0, 0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8,
                                          3, 5, 5, 2, 1, 2, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x2x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x2x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 9, 2, 9, 6, 1, 0, 2,
-                                         6, 1, 7, 6, 2, 2, 3, 1};
   const std::array<int, 4> in_shape = {{1, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {7, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -319,44 +284,40 @@ TYPED_TEST(ScatterNdAssign, 1x1x2x8_elementwise) {
   const std::vector<int> indices = {0, 0, 0, 2, 0, 0, 1, 1, 0, 0, 1, 4, 0, 0,
                                     1, 0, 0, 0, 1, 3, 0, 0, 0, 3, 0, 0, 1, 2};
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5, 2, 1};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5, 2, 1};
   const std::vector<int> indices = {0, 0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 9, 3, 1, 8, 6, 6, 3};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {4, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 5, 2, 1, 2, 6, 6, 9};
   const std::vector<int> indices = {0, 0, 1, 0, 0, 2, 0, 0, 4, 0, 0, 7};
   const std::vector<DataType> updates = {9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 9, 3, 1, 8, 6, 6, 3};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {4, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -364,13 +325,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x1_elementwise) {
   const std::vector<int> indices = {0, 0, 1, 0, 0, 0, 2, 0,
                                     0, 0, 4, 0, 0, 0, 7, 0};
   const std::vector<DataType> updates = {9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -381,13 +339,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x5_tensor_slice) {
   const std::vector<DataType> updates = {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
       7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -398,13 +353,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x5_matrix_slice) {
   const std::vector<DataType> updates = {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
       7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 4, 0, 8, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 1, 7, 3, 4, 4,
-      6, 9, 7, 2, 9, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 9, 7, 6, 1, 0};
   const std::array<int, 4> in_shape = {{1, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {4, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -414,13 +366,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x5_vector_slice) {
   const std::vector<int> indices = {0, 0, 1, 0, 0, 2, 0, 0, 4, 0, 0, 7};
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 4, 4, 4, 2, 2, 8, 4, 2, 0, 1, 7, 0, 7, 5, 8, 8, 6, 6, 1,
-      0, 0, 7, 3, 8, 7, 9, 5, 7, 1, 9, 6, 3, 3, 2, 6, 4, 5, 8, 8};
   const std::array<int, 4> in_shape = {{1, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {15, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -433,14 +382,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x5_elementwise) {
       0, 0, 4, 2, 0, 0, 4, 0, 0, 0, 6, 2, 0, 0, 5, 4, 0, 0, 5, 3};
   const std::vector<DataType> updates = {0, 8, 4, 6, 2, 3, 1, 7,
                                          7, 2, 7, 0, 3, 1, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -453,14 +398,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x8_tensor_slice) {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
       9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
   const std::array<int, 4> in_shape = {{1, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {1, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -473,14 +414,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x8_matrix_slice) {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
       9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 0, 3, 1, 7, 3, 4, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 3, 9, 6, 7, 7, 8, 7, 9, 7, 6, 1, 0, 2, 4, 0, 8, 6, 4, 5, 6,
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {4, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -492,14 +429,10 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x8_vector_slice) {
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6,
                                          9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
                                          0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x1x8x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x1x8x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 5, 2, 9, 5, 4, 3, 2, 7, 1, 4, 5, 9, 8, 6, 2, 4, 2, 2, 7, 6, 2,
-      8, 3, 0, 0, 0, 6, 3, 7, 6, 0, 5, 6, 0, 8, 3, 3, 9, 4, 6, 0, 3, 2,
-      7, 4, 5, 1, 5, 2, 1, 6, 8, 2, 6, 8, 0, 1, 5, 6, 6, 4, 7, 2};
   const std::array<int, 4> in_shape = {{1, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {24, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -514,88 +447,80 @@ TYPED_TEST(ScatterNdAssign, 1x1x8x8_elementwise) {
       0, 0, 4, 1, 0, 0, 2, 3, 0, 0, 3, 5, 0, 0, 1, 5, 0, 0, 1, 0, 0, 0, 4, 6};
   const std::vector<DataType> updates = {4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
                                          8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2};
   const std::array<int, 4> in_shape = {{1, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 3};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2};
   const std::array<int, 4> in_shape = {{1, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6};
   const std::vector<int> indices = {0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2};
   const std::array<int, 4> in_shape = {{1, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6};
   const std::vector<int> indices = {0, 0, 0, 0, 1, 0};
   const std::vector<DataType> updates = {3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2};
   const std::array<int, 4> in_shape = {{1, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {7, 6};
   const std::vector<int> indices = {0, 0, 0, 0, 0, 1, 0, 0};
   const std::vector<DataType> updates = {3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3};
   const std::array<int, 4> in_shape = {{1, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5};
   const std::array<int, 4> in_shape = {{1, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 2, 1, 2, 6, 6, 9, 7, 2, 9};
   const std::vector<int> indices = {0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5};
   const std::array<int, 4> in_shape = {{1, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 2, 1, 2, 6, 6, 9, 7, 2, 9};
   const std::vector<int> indices = {0, 0, 0, 0, 1, 0};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 3, 5, 6, 9, 8, 2, 5, 2, 7};
   const std::array<int, 4> in_shape = {{1, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {5, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -603,12 +528,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x1x5_elementwise) {
   const std::vector<int> indices = {0, 1, 0, 0, 0, 0, 0, 1, 0, 1,
                                     0, 2, 0, 0, 0, 2, 0, 1, 0, 3};
   const std::vector<DataType> updates = {8, 3, 5, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6,
-                                         9, 3, 8, 3, 5, 5, 2, 1};
   const std::array<int, 4> in_shape = {{1, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -617,12 +540,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x1x8_tensor_slice) {
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6,
                                          9, 3, 8, 3, 5, 5, 2, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8,
-                                         3, 5, 5, 2, 1, 2, 6, 6};
   const std::array<int, 4> in_shape = {{1, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -631,12 +552,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x1x8_matrix_slice) {
   const std::vector<int> indices = {0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8,
                                          3, 5, 5, 2, 1, 2, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8,
-                                         3, 5, 5, 2, 1, 2, 6, 6};
   const std::array<int, 4> in_shape = {{1, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -645,12 +564,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x1x8_vector_slice) {
   const std::vector<int> indices = {0, 0, 0, 0, 1, 0};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8,
                                          3, 5, 5, 2, 1, 2, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x1x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x1x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 9, 2, 9, 6, 1, 0, 2,
-                                         6, 1, 7, 6, 2, 2, 3, 1};
   const std::array<int, 4> in_shape = {{1, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {7, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -659,56 +576,50 @@ TYPED_TEST(ScatterNdAssign, 1x2x1x8_elementwise) {
   const std::vector<int> indices = {0, 0, 0, 2, 0, 1, 0, 1, 0, 1, 0, 4, 0, 1,
                                     0, 0, 0, 1, 0, 3, 0, 0, 0, 3, 0, 1, 0, 2};
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3};
   const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {2, 7, 6, 6};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6};
   const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {6, 9, 3, 8};
   const std::vector<int> indices = {0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 6, 5};
   const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5};
   const std::vector<int> indices = {0, 0, 1, 0, 1, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 6, 5};
   const std::array<int, 4> in_shape = {{1, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {3, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5};
   const std::vector<int> indices = {0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3,
-                                         8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::array<int, 4> in_shape = {{1, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -717,12 +628,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x5_tensor_slice) {
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3,
                                          8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5,
-                                         5, 2, 1, 2, 6, 6, 9, 7, 2, 9};
   const std::array<int, 4> in_shape = {{1, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -731,12 +640,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x5_matrix_slice) {
   const std::vector<int> indices = {0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5,
                                          5, 2, 1, 2, 6, 6, 9, 7, 2, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 6, 6, 9, 7, 6, 6, 9, 3, 8,
-                                         3, 5, 5, 2, 1, 1, 7, 7, 2, 7};
   const std::array<int, 4> in_shape = {{1, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -745,12 +652,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x5_vector_slice) {
   const std::vector<int> indices = {0, 0, 1, 0, 1, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {7, 6, 6, 9, 7, 4, 0, 8, 4, 6,
-                                         2, 2, 2, 9, 7, 2, 7, 9, 3, 6};
   const std::array<int, 4> in_shape = {{1, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {8, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -760,13 +665,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x5_elementwise) {
                                     2, 0, 1, 0, 3, 0, 0, 0, 4, 0, 1,
                                     0, 1, 0, 1, 1, 2, 0, 0, 0, 3};
   const std::vector<DataType> updates = {2, 6, 6, 9, 7, 2, 9, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8,
-                                         3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-                                         9, 9, 7, 6, 1, 0, 2, 4, 0, 8};
   const std::array<int, 4> in_shape = {{1, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -777,13 +679,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x8_tensor_slice) {
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8,
                                          3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
                                          9, 9, 7, 6, 1, 0, 2, 4, 0, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5,
-                                         2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7,
-                                         6, 1, 0, 2, 4, 0, 8, 4, 6, 2};
   const std::array<int, 4> in_shape = {{1, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -794,13 +693,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x8_matrix_slice) {
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7,
                                          6, 1, 0, 2, 4, 0, 8, 4, 6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 9,
-                                         3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-                                         7, 2, 0, 1, 0, 0, 1, 5, 8, 8};
   const std::array<int, 4> in_shape = {{1, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -810,13 +706,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x8_vector_slice) {
   const std::vector<int> indices = {0, 0, 1, 0, 1, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x2x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x2x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 7, 7, 2, 0, 0, 3, 2, 7, 3, 4,
-                                         1, 4, 2, 5, 8, 8, 6, 7, 0, 0, 0,
-                                         1, 2, 8, 6, 6, 3, 3, 9, 6, 4};
   const std::array<int, 4> in_shape = {{1, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {12, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -827,12 +720,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x2x8_elementwise) {
       0, 1, 0, 2, 0, 1, 1, 1, 0, 0, 1, 3, 0, 0, 0, 4, 0, 1, 0, 7, 0, 1, 1, 7,
       0, 1, 0, 3, 0, 1, 0, 0, 0, 0, 1, 2, 0, 1, 0, 1, 0, 0, 0, 7, 0, 1, 1, 3};
   const std::vector<DataType> updates = {7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6,
-                                         9, 3, 8, 3, 5, 5, 2, 1};
   const std::array<int, 4> in_shape = {{1, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -841,12 +732,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x1_tensor_slice) {
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6,
                                          9, 3, 8, 3, 5, 5, 2, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 2, 7, 6, 6, 9, 3, 8,
-                                         3, 5, 5, 2, 1, 2, 6, 6};
   const std::array<int, 4> in_shape = {{1, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -855,12 +744,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x1_matrix_slice) {
   const std::vector<int> indices = {0, 0, 0, 1};
   const std::vector<DataType> updates = {3, 2, 7, 6, 6, 9, 3, 8,
                                          3, 5, 5, 2, 1, 2, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 9, 2, 9, 6, 1, 0, 2,
-                                         6, 1, 7, 6, 2, 2, 3, 1};
   const std::array<int, 4> in_shape = {{1, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {7, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -869,12 +756,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x1_vector_slice) {
   const std::vector<int> indices = {0, 0, 2, 0, 1, 1, 0, 1, 4, 0, 1,
                                     0, 0, 1, 3, 0, 0, 3, 0, 1, 2};
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 9, 2, 9, 6, 1, 0, 2,
-                                         6, 1, 7, 6, 2, 2, 3, 1};
   const std::array<int, 4> in_shape = {{1, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {7, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -883,15 +768,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x1_elementwise) {
   const std::vector<int> indices = {0, 0, 2, 0, 0, 1, 1, 0, 0, 1, 4, 0, 0, 1,
                                     0, 0, 0, 1, 3, 0, 0, 0, 3, 0, 0, 1, 2, 0};
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2,
-      7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2};
   const std::array<int, 4> in_shape = {{1, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -906,15 +786,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x5_tensor_slice) {
       7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2,
       7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9,
-      9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3,
-      1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6,
-      6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5};
   const std::array<int, 4> in_shape = {{1, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -929,15 +804,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x5_matrix_slice) {
       9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3,
       1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6,
       6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 2, 1, 2, 6, 6, 2, 7, 0, 3, 1,
-      8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4,
-      4, 0, 8, 4, 6, 9, 7, 2, 9, 9, 7, 3, 4, 4, 4, 2, 3, 1, 7, 7,
-      7, 6, 1, 0, 2, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8};
   const std::array<int, 4> in_shape = {{1, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {7, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -951,15 +821,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x5_vector_slice) {
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7,
                                          7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 4, 2, 2, 3, 6, 2, 9, 3, 0, 8, 6, 7, 5, 2, 7, 0, 6, 6, 0,
-      6, 8, 3, 1, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 5, 5, 9, 8, 2,
-      2, 9, 6, 5, 4, 2, 4, 7, 2, 6, 9, 5, 1, 0, 3, 5, 1, 2, 4, 3,
-      6, 8, 2, 8, 7, 6, 3, 3, 0, 4, 5, 7, 5, 1, 8, 3, 1, 9, 2, 6};
   const std::array<int, 4> in_shape = {{1, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {29, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -977,17 +842,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x5_elementwise) {
   const std::vector<DataType> updates = {1, 5, 8, 8, 6, 6, 3, 9, 6, 7,
                                          7, 8, 7, 9, 5, 5, 2, 9, 5, 4,
                                          3, 2, 6, 4, 5, 6, 8, 3, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9,
-      6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9,
-      4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3,
-      9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2};
   const std::array<int, 4> in_shape = {{1, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1006,17 +864,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x8_tensor_slice) {
       6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9,
       4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3,
       9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7,
-      6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4,
-      4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7,
-      8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2,
-      3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6,
-      1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5};
   const std::array<int, 4> in_shape = {{1, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1035,17 +886,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x8_matrix_slice) {
       8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2,
       3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6,
       1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 2, 1, 2, 6, 6, 9,
-      7, 2, 0, 1, 0, 0, 1, 5, 8, 8, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
-      8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2,
-      7, 0, 3, 1, 7, 3, 9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 3, 9, 6, 7, 7, 8,
-      4, 4, 4, 2, 5, 8, 4, 1, 0, 8, 4, 6, 2, 3, 1, 7, 2, 6, 6, 3, 6, 1,
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0};
   const std::array<int, 4> in_shape = {{1, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {7, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1062,17 +906,10 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x8_vector_slice) {
       2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4,
       6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8,
       4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x2x8x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x2x8x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4, 1, 0, 8, 5, 1, 2, 7, 4, 6, 9, 2, 8, 6, 7, 2, 3, 8, 5, 1, 6, 5,
-      0, 6, 1, 6, 6, 2, 5, 2, 4, 0, 8, 8, 6, 5, 2, 6, 4, 3, 6, 1, 2, 0,
-      2, 2, 8, 8, 9, 3, 6, 4, 5, 2, 2, 2, 0, 9, 1, 0, 6, 4, 4, 1, 1, 2,
-      3, 7, 4, 4, 4, 0, 2, 3, 2, 5, 0, 5, 1, 2, 4, 2, 3, 0, 3, 4, 0, 2,
-      2, 9, 1, 0, 6, 6, 3, 2, 0, 7, 8, 3, 2, 1, 5, 8, 7, 7, 8, 3, 6, 5,
-      4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 1, 2, 7, 2, 9, 9, 6};
   const std::array<int, 4> in_shape = {{1, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {46, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1095,44 +932,40 @@ TYPED_TEST(ScatterNdAssign, 1x2x8x8_elementwise) {
   const std::vector<DataType> updates = {
       6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8,
       2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{1, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5, 2, 1};
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 9, 3, 1, 8, 6, 6, 3};
   const std::array<int, 4> in_shape = {{1, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 5, 2, 1, 2, 6, 6, 9};
   const std::vector<int> indices = {0, 1, 0, 2, 0, 4, 0, 7};
   const std::vector<DataType> updates = {9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 9, 3, 1, 8, 6, 6, 3};
   const std::array<int, 4> in_shape = {{1, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {4, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 5, 2, 1, 2, 6, 6, 9};
   const std::vector<int> indices = {0, 1, 0, 0, 2, 0, 0, 4, 0, 0, 7, 0};
   const std::vector<DataType> updates = {9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 9, 3, 1, 8, 6, 6, 3};
   const std::array<int, 4> in_shape = {{1, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {4, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1140,13 +973,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x1_elementwise) {
   const std::vector<int> indices = {0, 1, 0, 0, 0, 2, 0, 0,
                                     0, 4, 0, 0, 0, 7, 0, 0};
   const std::vector<DataType> updates = {9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1157,13 +987,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x5_tensor_slice) {
   const std::vector<DataType> updates = {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
       7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 4, 0, 8, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 1, 7, 3, 4, 4,
-      6, 9, 7, 2, 9, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 9, 7, 6, 1, 0};
   const std::array<int, 4> in_shape = {{1, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1173,13 +1000,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x5_matrix_slice) {
   const std::vector<int> indices = {0, 1, 0, 2, 0, 4, 0, 7};
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 4, 0, 8, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 1, 7, 3, 4, 4,
-      6, 9, 7, 2, 9, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 9, 7, 6, 1, 0};
   const std::array<int, 4> in_shape = {{1, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {4, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1189,13 +1013,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x5_vector_slice) {
   const std::vector<int> indices = {0, 1, 0, 0, 2, 0, 0, 4, 0, 0, 7, 0};
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 4, 4, 4, 2, 2, 8, 4, 2, 0, 1, 7, 0, 7, 5, 8, 8, 6, 6, 1,
-      0, 0, 7, 3, 8, 7, 9, 5, 7, 1, 9, 6, 3, 3, 2, 6, 4, 5, 8, 8};
   const std::array<int, 4> in_shape = {{1, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {15, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1208,14 +1029,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x5_elementwise) {
       0, 4, 0, 2, 0, 4, 0, 0, 0, 6, 0, 2, 0, 5, 0, 4, 0, 5, 0, 3};
   const std::vector<DataType> updates = {0, 8, 4, 6, 2, 3, 1, 7,
                                          7, 2, 7, 0, 3, 1, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
   const std::array<int, 4> in_shape = {{1, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1228,14 +1045,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x8_tensor_slice) {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
       9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 0, 3, 1, 7, 3, 4, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 3, 9, 6, 7, 7, 8, 7, 9, 7, 6, 1, 0, 2, 4, 0, 8, 6, 4, 5, 6,
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1247,14 +1060,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x8_matrix_slice) {
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6,
                                          9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
                                          0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 0, 3, 1, 7, 3, 4, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 3, 9, 6, 7, 7, 8, 7, 9, 7, 6, 1, 0, 2, 4, 0, 8, 6, 4, 5, 6,
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {4, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1266,14 +1075,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x8_vector_slice) {
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6,
                                          9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
                                          0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x1x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x1x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 5, 2, 9, 5, 4, 3, 2, 7, 1, 4, 5, 9, 8, 6, 2, 4, 2, 2, 7, 6, 2,
-      8, 3, 0, 0, 0, 6, 3, 7, 6, 0, 5, 6, 0, 8, 3, 3, 9, 4, 6, 0, 3, 2,
-      7, 4, 5, 1, 5, 2, 1, 6, 8, 2, 6, 8, 0, 1, 5, 6, 6, 4, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {24, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1288,12 +1093,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x1x8_elementwise) {
       0, 4, 0, 1, 0, 2, 0, 3, 0, 3, 0, 5, 0, 1, 0, 5, 0, 1, 0, 0, 0, 4, 0, 6};
   const std::vector<DataType> updates = {4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
                                          8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 2, 7, 3, 2, 7, 6, 6,
-                                         9, 3, 8, 3, 5, 5, 2, 1};
   const std::array<int, 4> in_shape = {{1, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1302,12 +1105,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x1_tensor_slice) {
   const std::vector<int> indices = {0};
   const std::vector<DataType> updates = {6, 2, 7, 3, 2, 7, 6, 6,
                                          9, 3, 8, 3, 5, 5, 2, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 6, 9, 3, 8, 3, 9, 9,
-                                         5, 5, 1, 0, 2, 4, 2, 1};
   const std::array<int, 4> in_shape = {{1, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1315,12 +1116,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x1_matrix_slice) {
                                        7, 6, 1, 0, 2, 4, 0, 8};
   const std::vector<int> indices = {0, 1, 0, 2, 0, 4, 0, 7};
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 9, 2, 9, 6, 1, 0, 2,
-                                         6, 1, 7, 6, 2, 2, 3, 1};
   const std::array<int, 4> in_shape = {{1, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {7, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1329,12 +1128,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x1_vector_slice) {
   const std::vector<int> indices = {0, 1, 0, 0, 4, 1, 0, 6, 0, 0, 4,
                                     0, 0, 5, 1, 0, 1, 1, 0, 5, 0};
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 9, 2, 9, 6, 1, 0, 2,
-                                         6, 1, 7, 6, 2, 2, 3, 1};
   const std::array<int, 4> in_shape = {{1, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {7, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1343,15 +1140,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x1_elementwise) {
   const std::vector<int> indices = {0, 1, 0, 0, 0, 4, 1, 0, 0, 6, 0, 0, 0, 4,
                                     0, 0, 0, 5, 1, 0, 0, 1, 1, 0, 0, 5, 0, 0};
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2,
-      7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2};
   const std::array<int, 4> in_shape = {{1, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1366,15 +1158,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x5_tensor_slice) {
       7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2,
       7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
-      6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9,
-      2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
-      3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4};
   const std::array<int, 4> in_shape = {{1, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1387,15 +1174,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x5_matrix_slice) {
   const std::vector<DataType> updates = {
       9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0,
       2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 2, 1, 2, 6, 6, 2, 7, 0, 3, 1,
-      8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4,
-      4, 0, 8, 4, 6, 9, 7, 2, 9, 9, 7, 3, 4, 4, 4, 2, 3, 1, 7, 7,
-      7, 6, 1, 0, 2, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8};
   const std::array<int, 4> in_shape = {{1, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {7, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1409,15 +1191,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x5_vector_slice) {
   const std::vector<DataType> updates = {2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7,
                                          7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 4, 2, 2, 3, 6, 2, 9, 3, 0, 8, 6, 7, 5, 2, 7, 0, 6, 6, 0,
-      6, 8, 3, 1, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 5, 5, 9, 8, 2,
-      2, 9, 6, 5, 4, 2, 4, 7, 2, 6, 9, 5, 1, 0, 3, 5, 1, 2, 4, 3,
-      6, 8, 2, 8, 7, 6, 3, 3, 0, 4, 5, 7, 5, 1, 8, 3, 1, 9, 2, 6};
   const std::array<int, 4> in_shape = {{1, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {29, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1435,17 +1212,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x5_elementwise) {
   const std::vector<DataType> updates = {1, 5, 8, 8, 6, 6, 3, 9, 6, 7,
                                          7, 8, 7, 9, 5, 5, 2, 9, 5, 4,
                                          3, 2, 6, 4, 5, 6, 8, 3, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9,
-      6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9,
-      4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3,
-      9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2};
   const std::array<int, 4> in_shape = {{1, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1464,17 +1234,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x8_tensor_slice) {
       6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9,
       4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3,
       9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 9, 3, 8, 3, 5, 5,
-      2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 7, 0,
-      3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 3, 2, 3, 0, 4, 6, 7, 5,
-      1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0,
-      2, 2, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9};
   const std::array<int, 4> in_shape = {{1, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1490,17 +1253,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x8_matrix_slice) {
       9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
       0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8,
       4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 2, 1, 2, 6, 6, 9,
-      7, 2, 0, 1, 0, 0, 1, 5, 8, 8, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
-      8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2,
-      7, 0, 3, 1, 7, 3, 9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 3, 9, 6, 7, 7, 8,
-      4, 4, 4, 2, 5, 8, 4, 1, 0, 8, 4, 6, 2, 3, 1, 7, 2, 6, 6, 3, 6, 1,
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0};
   const std::array<int, 4> in_shape = {{1, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {7, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1517,17 +1273,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x8_vector_slice) {
       2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4,
       6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8,
       4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x2x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x2x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4, 1, 0, 8, 5, 1, 2, 7, 4, 6, 9, 2, 8, 6, 7, 2, 3, 8, 5, 1, 6, 5,
-      0, 6, 1, 6, 6, 2, 5, 2, 4, 0, 8, 8, 6, 5, 2, 6, 4, 3, 6, 1, 2, 0,
-      2, 2, 8, 8, 9, 3, 6, 4, 5, 2, 2, 2, 0, 9, 1, 0, 6, 4, 4, 1, 1, 2,
-      3, 7, 4, 4, 4, 0, 2, 3, 2, 5, 0, 5, 1, 2, 4, 2, 3, 0, 3, 4, 0, 2,
-      2, 9, 1, 0, 6, 6, 3, 2, 0, 7, 8, 3, 2, 1, 5, 8, 7, 7, 8, 3, 6, 5,
-      4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 1, 2, 7, 2, 9, 9, 6};
   const std::array<int, 4> in_shape = {{1, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {46, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1550,14 +1299,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x2x8_elementwise) {
   const std::vector<DataType> updates = {
       6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8,
       2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1570,14 +1315,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x1_tensor_slice) {
       6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
       9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 0, 3, 1, 7, 3, 4, 4, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2,
-      9, 9, 3, 9, 6, 7, 7, 8, 7, 9, 7, 6, 1, 0, 2, 4, 0, 8, 6, 4, 5, 6,
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 4, 6, 2, 3, 1, 7, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1589,14 +1330,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x1_matrix_slice) {
   const std::vector<DataType> updates = {9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6,
                                          9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
                                          0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 5, 2, 9, 5, 4, 3, 2, 7, 1, 4, 5, 9, 8, 6, 2, 4, 2, 2, 7, 6, 2,
-      8, 3, 0, 0, 0, 6, 3, 7, 6, 0, 5, 6, 0, 8, 3, 3, 9, 4, 6, 0, 3, 2,
-      7, 4, 5, 1, 5, 2, 1, 6, 8, 2, 6, 8, 0, 1, 5, 6, 6, 4, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {24, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1610,14 +1347,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x1_vector_slice) {
       0, 5, 2, 0, 1, 4, 0, 4, 1, 0, 2, 3, 0, 3, 5, 0, 1, 5, 0, 1, 0, 0, 4, 6};
   const std::vector<DataType> updates = {4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
                                          8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 5, 2, 9, 5, 4, 3, 2, 7, 1, 4, 5, 9, 8, 6, 2, 4, 2, 2, 7, 6, 2,
-      8, 3, 0, 0, 0, 6, 3, 7, 6, 0, 5, 6, 0, 8, 3, 3, 9, 4, 6, 0, 3, 2,
-      7, 4, 5, 1, 5, 2, 1, 6, 8, 2, 6, 8, 0, 1, 5, 6, 6, 4, 7, 2};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {24, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1632,24 +1365,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x1_elementwise) {
       0, 4, 1, 0, 0, 2, 3, 0, 0, 3, 5, 0, 0, 1, 5, 0, 0, 1, 0, 0, 0, 4, 6, 0};
   const std::vector<DataType> updates = {4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
                                          8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7,
-      6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2,
-      5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2,
-      9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6,
-      3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9,
-      2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2,
-      8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2,
-      6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4,
-      4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0,
-      8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0,
-      9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3,
-      6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9,
-      9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9};
   const std::array<int, 4> in_shape = {{1, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1682,24 +1401,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x5_tensor_slice) {
       9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3,
       6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9,
       9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4,
-      2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
-      6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3,
-      1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 0, 3, 8, 0, 5,
-      7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2,
-      7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6,
-      0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2,
-      2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7,
-      1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0, 3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6,
-      3, 6, 0, 3, 7, 0, 6, 4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8,
-      1, 9, 6, 3, 5, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6,
-      8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6};
   const std::array<int, 4> in_shape = {{1, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1726,24 +1431,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x5_matrix_slice) {
       3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1,
       2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7,
       3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4,
-      2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 7, 5, 1, 6, 0, 6, 8, 3, 6, 9,
-      7, 8, 7, 9, 5, 1, 5, 8, 8, 6, 4, 7, 2, 6, 8, 2, 3, 0, 4, 6, 7, 1, 5, 3, 7,
-      1, 0, 1, 0, 0, 4, 2, 5, 8, 4, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 1, 2, 7, 3, 6,
-      1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5,
-      7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 8, 2, 8, 7, 3,
-      7, 9, 7, 9, 1, 4, 2, 2, 3, 6, 1, 5, 4, 1, 2, 4, 1, 0, 8, 5, 8, 9, 0, 9, 5,
-      1, 8, 2, 7, 4, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 1, 9, 2, 5, 6, 1, 1, 1, 5, 8,
-      2, 4, 6, 3, 0, 3, 2, 6, 4, 5, 8, 4, 5, 2, 6, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7,
-      1, 5, 4, 0, 7, 0, 5, 6, 0, 1, 5, 2, 9, 5, 4, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6,
-      3, 6, 0, 3, 7, 2, 9, 2, 6, 2, 6, 3, 9, 6, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8,
-      3, 3, 9, 4, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 7, 3, 3, 4, 8, 4, 4, 5, 2, 1,
-      2, 6, 3, 9, 4, 2, 4, 2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8};
   const std::array<int, 4> in_shape = {{1, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {24, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1771,24 +1462,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x5_vector_slice) {
       0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4,
       5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1,
       2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 4, 9, 5, 5, 8, 6, 9, 6, 3, 1, 0, 3, 7, 0, 7, 8, 2, 0, 3, 4, 1, 7, 3, 8,
-      1, 1, 5, 0, 2, 9, 6, 2, 7, 9, 6, 5, 3, 3, 5, 3, 5, 6, 5, 1, 3, 7, 3, 8, 1,
-      8, 1, 4, 7, 9, 7, 9, 0, 7, 8, 4, 0, 1, 9, 0, 3, 7, 9, 4, 8, 9, 7, 0, 1, 2,
-      9, 0, 3, 8, 1, 6, 0, 3, 7, 7, 6, 4, 8, 1, 8, 9, 6, 3, 7, 2, 7, 0, 4, 6, 4,
-      4, 7, 3, 8, 7, 9, 0, 7, 5, 5, 9, 8, 9, 4, 8, 9, 8, 2, 9, 7, 3, 7, 8, 8, 3,
-      4, 8, 0, 1, 8, 6, 4, 9, 4, 2, 6, 0, 9, 5, 7, 1, 0, 9, 0, 6, 5, 9, 3, 8, 9,
-      8, 8, 9, 1, 7, 1, 1, 3, 3, 6, 8, 9, 1, 0, 0, 0, 0, 9, 5, 2, 3, 5, 3, 1, 8,
-      1, 3, 4, 7, 7, 5, 9, 6, 5, 7, 5, 0, 0, 8, 7, 7, 4, 2, 8, 4, 0, 4, 5, 7, 6,
-      9, 4, 4, 1, 7, 7, 1, 6, 8, 2, 5, 6, 5, 5, 2, 1, 4, 4, 2, 0, 0, 4, 0, 0, 5,
-      9, 7, 5, 9, 0, 8, 7, 9, 2, 9, 7, 2, 3, 0, 9, 3, 0, 7, 7, 2, 3, 1, 3, 9, 4,
-      6, 4, 9, 5, 3, 6, 1, 1, 4, 6, 9, 4, 1, 9, 4, 0, 2, 1, 8, 9, 0, 1, 3, 9, 4,
-      2, 9, 4, 8, 4, 3, 1, 4, 6, 7, 0, 6, 5, 6, 8, 6, 5, 5, 8, 9, 2, 3, 4, 3, 1,
-      3, 9, 4, 5, 0, 9, 4, 2, 1, 6, 2, 0, 2, 1, 7, 7, 3, 8, 9, 5};
   const std::array<int, 4> in_shape = {{1, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {113, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1832,32 +1509,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x5_elementwise) {
       0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6,
       0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2,
       7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 7, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7,
-      6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2,
-      5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2,
-      9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6,
-      3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9,
-      2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2,
-      8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2,
-      6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4,
-      4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0,
-      8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0,
-      9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3,
-      6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9,
-      9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2,
-      7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9, 5, 5, 8, 7, 2, 6, 6, 1,
-      0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9, 6,
-      5, 3, 3, 3, 3, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4,
-      0, 6, 9, 0, 3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0, 6,
-      4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5, 9,
-      8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4,
-      2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6,
-      9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3};
   const std::array<int, 4> in_shape = {{1, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {1, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1906,32 +1561,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x8_tensor_slice) {
       8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4,
       2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6,
       9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0,
-      3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1,
-      4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6,
-      9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7,
-      8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2,
-      8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4,
-      4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 2, 4, 7, 3, 3, 4, 8, 5,
-      4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4, 2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9,
-      6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6, 9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0,
-      7, 6, 4, 7, 4, 5, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3,
-      0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1,
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 3, 1, 3, 9, 4,
-      6, 4, 9, 2, 3, 6, 1, 0, 1, 6, 9, 4, 1, 9, 8, 7, 2, 1, 8, 9, 0, 1, 3, 9, 4,
-      2, 9, 4, 8, 4, 3, 1, 4, 6, 7, 0, 6, 5, 8, 8, 6, 5, 5, 8, 9, 2, 3, 4, 3, 1,
-      3, 6, 4, 5, 0, 6, 4, 9, 3, 5, 2, 5, 2, 1, 7, 5, 3, 2, 9, 5, 4, 7, 6, 3, 3,
-      6, 8, 3, 2, 3, 2, 5, 2, 9, 1, 3, 7, 1, 4, 5, 1, 5, 5, 7, 4, 7, 5, 5, 7, 7,
-      0, 3, 4, 6, 0, 0, 9, 0, 6, 2, 1, 2, 9, 4, 1, 0, 3, 8, 0, 4, 3, 1, 7, 4, 1,
-      1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8,
-      9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9};
   const std::array<int, 4> in_shape = {{1, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {4, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -1970,32 +1603,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x8_matrix_slice) {
       4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4,
       0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5,
       4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9, 9,
-      7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3,
-      8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 0, 8, 8, 9, 1, 0, 9, 9, 5, 6, 0,
-      1, 3, 3, 9, 4, 6, 4, 5, 6, 8, 3, 6, 9, 3, 9, 6, 7, 7, 8, 7, 9, 8, 8, 8, 9,
-      6, 4, 5, 3, 1, 2, 1, 2, 3, 0, 3, 4, 7, 0, 7, 8, 3, 0, 6, 5, 0, 0, 1, 5, 8,
-      8, 6, 6, 4, 2, 5, 8, 4, 1, 0, 1, 3, 3, 3, 3, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4,
-      2, 4, 4, 1, 1, 2, 5, 7, 4, 2, 0, 6, 9, 0, 3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9,
-      0, 6, 6, 3, 6, 0, 3, 7, 0, 6, 4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4,
-      4, 3, 8, 1, 9, 6, 3, 5, 5, 9, 8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4,
-      8, 0, 1, 2, 6, 3, 9, 4, 5, 9, 3, 2, 5, 0, 3, 0, 9, 6, 6, 5, 9, 3, 8, 6, 1,
-      8, 2, 7, 4, 4, 4, 3, 3, 7, 6, 9, 4, 0, 4, 4, 2, 6, 9, 1, 0, 3, 4, 1, 0, 7,
-      6, 4, 7, 4, 5, 3, 2, 3, 0, 4, 6, 7, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9,
-      9, 4, 1, 7, 8, 1, 6, 7, 2, 8, 7, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5, 0,
-      7, 5, 9, 0, 0, 0, 6, 3, 2, 6, 0, 6, 3, 6, 1, 2, 0, 2, 2, 3, 1, 3, 9, 4, 6,
-      4, 9, 2, 3, 6, 1, 0, 1, 6, 9, 4, 1, 9, 8, 7, 2, 1, 8, 6, 8, 4, 1, 0, 8, 5,
-      1, 4, 2, 2, 3, 6, 2, 8, 3, 0, 6, 5, 8, 8, 6, 5, 5, 8, 9, 2, 3, 4, 3, 1, 3,
-      6, 4, 5, 0, 6, 4, 9, 3, 8, 0, 8, 8, 6, 4, 2, 6, 5, 5, 2, 9, 5, 4, 3, 2, 6,
-      8, 3, 2, 3, 2, 5, 2, 9, 1, 3, 7, 1, 4, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 5, 2,
-      1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 0, 3, 8, 0, 4, 3, 1, 7, 1, 6, 0,
-      1, 9, 2, 5, 6, 1, 1, 1, 9, 4, 7, 1, 0, 3, 4, 3, 0, 4, 7, 2, 3, 6, 7, 3, 8,
-      6, 1, 2, 8, 5, 3, 7, 3, 5, 6, 1, 9};
   const std::array<int, 4> in_shape = {{1, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {24, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2034,32 +1645,10 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x8_vector_slice) {
       8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3,
       4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3,
       1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 1x8x8x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 1x8x8x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 4, 3, 7, 7, 0, 6, 8, 0, 3, 8, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5, 0,
-      7, 5, 5, 9, 4, 4, 3, 2, 9, 5, 8, 0, 0, 9, 1, 4, 8, 1, 2, 3, 1, 8, 0, 8, 6,
-      4, 9, 2, 4, 6, 6, 0, 1, 6, 5, 4, 1, 9, 8, 9, 2, 2, 8, 1, 0, 1, 3, 9, 0, 9,
-      0, 4, 6, 4, 1, 1, 6, 6, 7, 4, 6, 9, 9, 8, 6, 5, 1, 8, 9, 2, 0, 4, 4, 3, 3,
-      8, 0, 5, 0, 6, 4, 8, 3, 8, 2, 6, 2, 3, 7, 0, 8, 2, 9, 5, 8, 0, 6, 1, 5, 6,
-      8, 3, 2, 8, 7, 5, 4, 9, 3, 8, 2, 1, 3, 5, 4, 5, 5, 7, 4, 7, 5, 4, 7, 7, 4,
-      3, 9, 6, 0, 0, 9, 0, 6, 2, 7, 2, 9, 1, 1, 0, 3, 8, 4, 4, 3, 1, 4, 0, 1, 9,
-      7, 5, 5, 1, 8, 7, 1, 1, 2, 4, 7, 4, 0, 3, 4, 3, 1, 1, 7, 2, 6, 6, 7, 3, 8,
-      6, 1, 4, 8, 5, 3, 3, 3, 5, 7, 1, 9, 3, 9, 5, 2, 8, 7, 3, 6, 1, 5, 7, 0, 3,
-      3, 4, 9, 2, 1, 8, 3, 5, 9, 4, 1, 8, 6, 3, 5, 6, 6, 6, 1, 7, 3, 1, 9, 3, 7,
-      3, 4, 0, 4, 3, 7, 5, 5, 0, 4, 0, 5, 6, 9, 5, 6, 6, 2, 9, 4, 5, 7, 3, 1, 5,
-      1, 0, 5, 0, 3, 6, 4, 0, 6, 0, 0, 1, 7, 3, 4, 4, 6, 9, 8, 2, 4, 0, 2, 3, 1,
-      1, 8, 3, 2, 4, 1, 7, 3, 4, 2, 6, 7, 5, 8, 8, 9, 3, 8, 1, 3, 7, 9, 6, 9, 4,
-      8, 3, 1, 7, 9, 0, 5, 8, 4, 0, 3, 2, 3, 8, 1, 7, 9, 9, 0, 3, 2, 1, 7, 7, 8,
-      4, 5, 7, 7, 6, 6, 2, 7, 7, 6, 0, 7, 7, 3, 0, 4, 8, 2, 5, 7, 9, 1, 0, 3, 6,
-      5, 2, 3, 9, 9, 0, 7, 7, 9, 3, 3, 8, 4, 4, 6, 2, 0, 7, 1, 5, 4, 2, 1, 4, 5,
-      7, 5, 7, 8, 2, 7, 0, 4, 0, 4, 6, 2, 7, 8, 7, 0, 1, 3, 4, 2, 3, 8, 6, 9, 5,
-      5, 4, 0, 0, 7, 0, 2, 9, 9, 2, 9, 9, 9, 5, 3, 0, 6, 6, 6, 4, 0, 7, 4, 0, 5,
-      1, 6, 8, 7, 5, 3, 7, 2, 2, 6, 5, 7, 9, 9, 5, 1, 6, 7, 5, 8, 9, 0, 7, 9, 3,
-      5, 9, 8, 3, 0, 0, 5, 0, 8, 1, 9, 7, 3, 4, 4, 7, 9, 0, 4, 6, 4, 9, 3, 6, 5,
-      7, 0, 8, 0, 2, 1, 4, 9, 6, 3, 7, 9};
   const std::array<int, 4> in_shape = {{1, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {180, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2124,56 +1713,50 @@ TYPED_TEST(ScatterNdAssign, 1x8x8x8_elementwise) {
       2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3,
       7, 6, 9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6, 4, 7, 4, 5, 8,
       4, 5, 7, 5, 0, 0, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {7, 6, 2};
   const std::array<int, 4> in_shape = {{3, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {6, 6, 9};
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {7, 6, 2};
   const std::array<int, 4> in_shape = {{3, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {6, 6, 9};
   const std::vector<int> indices = {2, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {7, 6, 2};
   const std::array<int, 4> in_shape = {{3, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {6, 6, 9};
   const std::vector<int> indices = {2, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {7, 6, 2};
   const std::array<int, 4> in_shape = {{3, 1, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {6, 6, 9};
   const std::vector<int> indices = {2, 0, 0, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 8, 3, 5, 5, 9, 7, 2,
-                                         9, 9, 2, 7, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2181,12 +1764,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x5_tensor_slice) {
                                        9, 9, 7, 6, 1, 0, 2};
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 8, 3, 5, 5, 9, 7, 2,
-                                         9, 9, 2, 7, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2194,12 +1775,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x5_matrix_slice) {
                                        9, 9, 7, 6, 1, 0, 2};
   const std::vector<int> indices = {2, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {3, 8, 3, 5, 5, 9, 7, 2,
-                                         9, 9, 2, 7, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2207,12 +1786,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x5_vector_slice) {
                                        9, 9, 7, 6, 1, 0, 2};
   const std::vector<int> indices = {2, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 9, 5, 2, 9, 9, 7, 6,
-                                         1, 2, 2, 6, 5, 8, 4};
   const std::array<int, 4> in_shape = {{3, 1, 1, 5}};
   const std::array<int, 2> ind_shape = {6, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2221,12 +1798,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x5_elementwise) {
   const std::vector<int> indices = {2, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3,
                                     1, 0, 0, 3, 1, 0, 0, 4, 2, 0, 0, 1};
   const std::vector<DataType> updates = {5, 5, 2, 1, 2, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 5, 2, 1, 2, 6, 6, 9, 2, 4, 0, 8,
-                                         4, 6, 2, 3, 2, 7, 6, 6, 9, 3, 8, 3};
   const std::array<int, 4> in_shape = {{3, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2235,12 +1810,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x8_tensor_slice) {
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3,
                                          5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 5, 2, 1, 2, 6, 6, 9, 2, 4, 0, 8,
-                                         4, 6, 2, 3, 2, 7, 6, 6, 9, 3, 8, 3};
   const std::array<int, 4> in_shape = {{3, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2249,12 +1822,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x8_matrix_slice) {
   const std::vector<int> indices = {2, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3,
                                          5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 5, 2, 1, 2, 6, 6, 9, 2, 4, 0, 8,
-                                         4, 6, 2, 3, 2, 7, 6, 6, 9, 3, 8, 3};
   const std::array<int, 4> in_shape = {{3, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2263,12 +1834,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x8_vector_slice) {
   const std::vector<int> indices = {2, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3,
                                          5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x1x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x1x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {0, 8, 4, 7, 2, 9, 1, 7, 7, 2, 7, 0,
-                                         1, 1, 6, 0, 4, 4, 4, 2, 2, 9, 4, 1};
   const std::array<int, 4> in_shape = {{3, 1, 1, 8}};
   const std::array<int, 2> ind_shape = {10, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2278,57 +1847,50 @@ TYPED_TEST(ScatterNdAssign, 3x1x1x8_elementwise) {
                                     0, 5, 1, 0, 0, 0, 1, 0, 0, 6, 1, 0, 0, 4,
                                     1, 0, 0, 7, 2, 0, 0, 3, 2, 0, 0, 1};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 6, 8, 3, 2, 7};
   const std::array<int, 4> in_shape = {{3, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5};
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 6, 8, 3, 2, 7};
   const std::array<int, 4> in_shape = {{3, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5};
   const std::vector<int> indices = {2, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 3, 6, 5, 2};
   const std::array<int, 4> in_shape = {{3, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5, 5, 2};
   const std::vector<int> indices = {0, 0, 1, 1, 0, 1, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 3, 6, 5, 2};
   const std::array<int, 4> in_shape = {{3, 1, 2, 1}};
   const std::array<int, 2> ind_shape = {3, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5, 5, 2};
   const std::vector<int> indices = {0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 1, 2, 6, 6, 9, 7, 2, 9, 9,
-                                         2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-                                         2, 7, 6, 6, 9, 3, 8, 3, 5, 5};
   const std::array<int, 4> in_shape = {{3, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2338,13 +1900,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x5_tensor_slice) {
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7, 2, 9, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 1, 2, 6, 6, 9, 7, 2, 9, 9,
-                                         2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-                                         2, 7, 6, 6, 9, 3, 8, 3, 5, 5};
   const std::array<int, 4> in_shape = {{3, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2354,13 +1913,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x5_matrix_slice) {
   const std::vector<int> indices = {2, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7, 2, 9, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 6, 6, 9, 7, 6, 6, 9, 3, 8,
-                                         8, 4, 6, 2, 3, 3, 5, 5, 2, 1,
-                                         0, 3, 1, 7, 3, 4, 4, 4, 2, 5};
   const std::array<int, 4> in_shape = {{3, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2370,13 +1926,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x5_vector_slice) {
   const std::vector<int> indices = {0, 0, 1, 1, 0, 1, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 7, 7, 2, 0, 0, 2, 1, 7, 4,
-                                         1, 4, 4, 2, 5, 6, 7, 4, 0, 1,
-                                         0, 2, 1, 8, 8, 3, 6, 6, 3, 9};
   const std::array<int, 4> in_shape = {{3, 1, 2, 5}};
   const std::array<int, 2> ind_shape = {12, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2387,13 +1940,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x5_elementwise) {
       1, 0, 1, 1, 2, 0, 1, 2, 1, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 1, 1, 0, 1, 2,
       1, 0, 1, 3, 2, 0, 0, 3, 0, 0, 1, 4, 1, 0, 1, 0, 0, 0, 1, 1, 2, 0, 1, 0};
   const std::vector<DataType> updates = {7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2404,13 +1954,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x8_tensor_slice) {
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2,
                                          1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2421,13 +1968,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x8_matrix_slice) {
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2,
                                          1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 9, 3, 8, 3, 5, 5, 4, 4, 4, 2, 5, 8, 4, 1,
-      2, 1, 2, 6, 6, 9, 7, 2, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4};
   const std::array<int, 4> in_shape = {{3, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2437,13 +1981,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x8_vector_slice) {
   const std::vector<int> indices = {0, 0, 1, 1, 0, 1, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x2x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x2x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 1, 0, 0, 1, 5, 8, 3, 2, 5, 7, 9, 6, 1, 7, 4, 7, 9, 5, 5, 2, 9, 5, 0,
-      3, 4, 6, 2, 5, 3, 8, 1, 6, 4, 4, 2, 7, 7, 6, 2, 8, 7, 4, 0, 0, 1, 3, 2};
   const std::array<int, 4> in_shape = {{3, 1, 2, 8}};
   const std::array<int, 2> ind_shape = {18, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2456,12 +1997,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x2x8_elementwise) {
       2, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 6, 2, 0, 1, 2, 1, 0, 1, 7};
   const std::vector<DataType> updates = {1, 7, 7, 2, 7, 0, 3, 1, 7,
                                          3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 5, 2, 1, 2, 6, 6, 9, 2, 4, 0, 8,
-                                         4, 6, 2, 3, 2, 7, 6, 6, 9, 3, 8, 3};
   const std::array<int, 4> in_shape = {{3, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2470,12 +2009,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x1_tensor_slice) {
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3,
                                          5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 5, 2, 1, 2, 6, 6, 9, 2, 4, 0, 8,
-                                         4, 6, 2, 3, 2, 7, 6, 6, 9, 3, 8, 3};
   const std::array<int, 4> in_shape = {{3, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2484,12 +2021,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x1_matrix_slice) {
   const std::vector<int> indices = {2, 0, 0, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3,
                                          5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {0, 8, 4, 7, 2, 9, 1, 7, 7, 2, 7, 0,
-                                         1, 1, 6, 0, 4, 4, 4, 2, 2, 9, 4, 1};
   const std::array<int, 4> in_shape = {{3, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {10, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2499,12 +2034,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x1_vector_slice) {
                                     0, 5, 1, 0, 0, 1, 0, 6, 1, 0,
                                     4, 1, 0, 7, 2, 0, 3, 2, 0, 1};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {0, 8, 4, 7, 2, 9, 1, 7, 7, 2, 7, 0,
-                                         1, 1, 6, 0, 4, 4, 4, 2, 2, 9, 4, 1};
   const std::array<int, 4> in_shape = {{3, 1, 8, 1}};
   const std::array<int, 2> ind_shape = {10, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2514,16 +2047,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x1_elementwise) {
                                     5, 0, 1, 0, 0, 0, 1, 0, 6, 0, 1, 0, 4, 0,
                                     1, 0, 7, 0, 2, 0, 3, 0, 2, 0, 1, 0};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 9, 2, 6, 2, 8, 4, 5, 2,
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1};
   const std::array<int, 4> in_shape = {{3, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2539,16 +2066,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x5_tensor_slice) {
       7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6,
       3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 9, 2, 6, 2, 8, 4, 5, 2,
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1};
   const std::array<int, 4> in_shape = {{3, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2564,16 +2085,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x5_matrix_slice) {
       7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6,
       3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 7, 2, 9, 9, 7, 2, 3, 6, 2,
-      8, 3, 1, 7, 7, 2, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 7, 0, 3, 1, 7, 2, 7, 4,
-      4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 8, 4, 1, 0, 2, 6, 8, 4, 1, 3, 4,
-      4, 4, 2, 1, 0, 0, 1, 5, 8, 7, 3, 2, 3, 9, 6, 7, 7, 8, 1, 6, 0, 1, 9, 8,
-      8, 6, 6, 3, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4};
   const std::array<int, 4> in_shape = {{3, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {10, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2590,16 +2105,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x5_vector_slice) {
                                          6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3,
                                          4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1,
                                          5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4, 5, 2, 6, 4, 7, 2, 2, 8, 5, 1, 0, 8, 6, 1, 2, 8, 4, 6, 0, 2, 0, 7, 0,
-      1, 7, 0, 9, 6, 2, 5, 1, 6, 3, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 0, 6,
-      3, 6, 6, 8, 0, 2, 2, 8, 4, 8, 5, 6, 4, 5, 6, 1, 2, 4, 9, 1, 6, 3, 4, 4,
-      1, 6, 2, 5, 9, 4, 2, 4, 5, 9, 3, 1, 3, 0, 3, 1, 2, 4, 2, 2, 0, 3, 4, 2,
-      8, 8, 6, 1, 6, 0, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 8, 7, 2, 3, 9, 2, 3, 3};
   const std::array<int, 4> in_shape = {{3, 1, 8, 5}};
   const std::array<int, 2> ind_shape = {43, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2620,19 +2129,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x5_elementwise) {
   const std::vector<DataType> updates = {
       6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
       3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
-      6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2,
-      7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7};
   const std::array<int, 4> in_shape = {{3, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2653,19 +2153,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x8_tensor_slice) {
       7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
       6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
       8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
-      6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2,
-      7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7};
   const std::array<int, 4> in_shape = {{3, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {2, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2686,19 +2177,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x8_matrix_slice) {
       7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
       6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
       8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2,
-      7, 2, 9, 9, 7, 6, 1, 0, 6, 4, 7, 2, 6, 8, 4, 1, 7, 3, 4, 4, 4, 2, 5, 8,
-      8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 4, 1, 0, 1, 0, 0, 1, 5,
-      6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 7, 4, 2, 4, 5, 9, 3, 8, 8, 6, 6, 3, 9, 6, 7,
-      5, 4, 3, 2, 6, 4, 5, 6, 1, 0, 9, 9, 8, 1, 6, 7, 6, 2, 8, 3, 0, 0, 0, 6,
-      8, 3, 6, 5, 4, 0, 9, 4, 8, 3, 6, 9, 4, 2, 2, 3, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0};
   const std::array<int, 4> in_shape = {{3, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {10, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2719,19 +2201,10 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x8_vector_slice) {
       7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2,
       6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x1x8x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x1x8x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 7, 4, 2, 2, 5, 9, 3, 2, 5, 0, 9, 1, 0, 1, 2, 6, 0, 4, 3, 0, 8, 0, 3,
-      1, 3, 5, 9, 6, 2, 6, 7, 3, 1, 6, 4, 5, 3, 7, 3, 6, 3, 6, 5, 8, 0, 3, 4,
-      3, 8, 0, 4, 1, 4, 8, 4, 7, 6, 2, 9, 9, 7, 8, 2, 1, 8, 0, 2, 0, 7, 3, 6,
-      1, 5, 4, 8, 9, 1, 9, 6, 8, 2, 0, 2, 0, 3, 8, 9, 0, 7, 6, 0, 6, 0, 1, 9,
-      9, 2, 3, 8, 5, 6, 6, 1, 1, 5, 5, 4, 4, 5, 4, 1, 0, 2, 7, 9, 7, 2, 4, 7,
-      2, 1, 4, 7, 9, 6, 4, 1, 2, 8, 3, 8, 6, 8, 6, 9, 0, 8, 6, 8, 0, 7, 7, 6,
-      6, 1, 0, 3, 4, 0, 7, 2, 3, 0, 6, 5, 7, 1, 7, 1, 1, 1, 5, 8, 2, 4, 8, 3,
-      0, 9, 6, 1, 3, 3, 3, 8, 4, 6, 7, 0, 3, 7, 2, 1, 1, 4, 2, 4, 7, 7, 5, 4};
   const std::array<int, 4> in_shape = {{3, 1, 8, 8}};
   const std::array<int, 2> ind_shape = {68, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2760,57 +2233,50 @@ TYPED_TEST(ScatterNdAssign, 3x1x8x8_elementwise) {
       6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7,
       5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0,
       2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {6, 6, 8, 3, 2, 7};
   const std::array<int, 4> in_shape = {{3, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {9, 3, 8, 3, 5, 5};
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 3, 6, 5, 2};
   const std::array<int, 4> in_shape = {{3, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5, 5, 2};
   const std::vector<int> indices = {0, 1, 1, 1, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 3, 6, 5, 2};
   const std::array<int, 4> in_shape = {{3, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5, 5, 2};
   const std::vector<int> indices = {0, 1, 0, 1, 1, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 6, 3, 6, 5, 2};
   const std::array<int, 4> in_shape = {{3, 2, 1, 1}};
   const std::array<int, 2> ind_shape = {3, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {3, 8, 3, 5, 5, 2};
   const std::vector<int> indices = {0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 1, 2, 6, 6, 9, 7, 2, 9, 9,
-                                         2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-                                         2, 7, 6, 6, 9, 3, 8, 3, 5, 5};
   const std::array<int, 4> in_shape = {{3, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2820,13 +2286,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x5_tensor_slice) {
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7, 2, 9, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 6, 6, 9, 7, 6, 6, 9, 3, 8,
-                                         8, 4, 6, 2, 3, 3, 5, 5, 2, 1,
-                                         0, 3, 1, 7, 3, 4, 4, 4, 2, 5};
   const std::array<int, 4> in_shape = {{3, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2836,13 +2299,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x5_matrix_slice) {
   const std::vector<int> indices = {0, 1, 1, 1, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {2, 6, 6, 9, 7, 6, 6, 9, 3, 8,
-                                         8, 4, 6, 2, 3, 3, 5, 5, 2, 1,
-                                         0, 3, 1, 7, 3, 4, 4, 4, 2, 5};
   const std::array<int, 4> in_shape = {{3, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2852,13 +2312,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x5_vector_slice) {
   const std::vector<int> indices = {0, 1, 0, 1, 1, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5,
                                          2, 1, 2, 6, 6, 9, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 7, 7, 2, 0, 0, 2, 1, 7, 4,
-                                         1, 4, 4, 2, 5, 6, 7, 4, 0, 1,
-                                         0, 2, 1, 8, 8, 3, 6, 6, 3, 9};
   const std::array<int, 4> in_shape = {{3, 2, 1, 5}};
   const std::array<int, 2> ind_shape = {12, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2869,13 +2326,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x5_elementwise) {
       1, 1, 0, 1, 2, 1, 0, 2, 1, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 1, 1, 1, 0, 2,
       1, 1, 0, 3, 2, 0, 0, 3, 0, 1, 0, 4, 1, 1, 0, 0, 0, 1, 0, 1, 2, 1, 0, 0};
   const std::vector<DataType> updates = {7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2886,13 +2340,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x8_tensor_slice) {
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2,
                                          1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 9, 3, 8, 3, 5, 5, 4, 4, 4, 2, 5, 8, 4, 1,
-      2, 1, 2, 6, 6, 9, 7, 2, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4};
   const std::array<int, 4> in_shape = {{3, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2902,13 +2353,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x8_matrix_slice) {
   const std::vector<int> indices = {0, 1, 1, 1, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 9, 3, 8, 3, 5, 5, 4, 4, 4, 2, 5, 8, 4, 1,
-      2, 1, 2, 6, 6, 9, 7, 2, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4};
   const std::array<int, 4> in_shape = {{3, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {3, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2918,13 +2366,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x8_vector_slice) {
   const std::vector<int> indices = {0, 1, 0, 1, 1, 0, 0, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x1x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x1x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 1, 0, 0, 1, 5, 8, 3, 2, 5, 7, 9, 6, 1, 7, 4, 7, 9, 5, 5, 2, 9, 5, 0,
-      3, 4, 6, 2, 5, 3, 8, 1, 6, 4, 4, 2, 7, 7, 6, 2, 8, 7, 4, 0, 0, 1, 3, 2};
   const std::array<int, 4> in_shape = {{3, 2, 1, 8}};
   const std::array<int, 2> ind_shape = {18, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2937,33 +2382,30 @@ TYPED_TEST(ScatterNdAssign, 3x2x1x8_elementwise) {
       2, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 6, 2, 1, 0, 2, 1, 1, 0, 7};
   const std::vector<DataType> updates = {1, 7, 7, 2, 7, 0, 3, 1, 7,
                                          3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {9, 3, 8, 3, 2, 6, 6, 9, 2, 7, 6, 6};
   const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9};
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {8, 3, 6, 6, 2, 6, 9, 3, 7, 2, 9, 9};
   const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
   const std::vector<DataType> input = {5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9};
   const std::vector<int> indices = {0, 1, 1, 1, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 3, 2, 5, 9, 7, 2, 8, 9, 5, 6, 1};
   const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {5, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2971,11 +2413,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x1_vector_slice) {
   const std::vector<int> indices = {1, 1, 1, 0, 0, 1, 2, 0,
                                     1, 0, 1, 1, 0, 1, 0};
   const std::vector<DataType> updates = {8, 3, 5, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {1, 3, 2, 5, 9, 7, 2, 8, 9, 5, 6, 1};
   const std::array<int, 4> in_shape = {{3, 2, 2, 1}};
   const std::array<int, 2> ind_shape = {5, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -2983,14 +2424,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x1_elementwise) {
   const std::vector<int> indices = {1, 1, 1, 0, 0, 0, 1, 0, 2, 0,
                                     1, 0, 0, 1, 1, 0, 0, 1, 0, 0};
   const std::vector<DataType> updates = {8, 3, 5, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6,
-      2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9};
   const std::array<int, 4> in_shape = {{3, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3002,14 +2439,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x5_tensor_slice) {
   const std::vector<DataType> updates = {
       2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9,
       7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1,
-      0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
-      5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3};
   const std::array<int, 4> in_shape = {{3, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3021,14 +2454,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x5_matrix_slice) {
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5, 2, 1,
                                          2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 1, 7, 7, 2, 1, 2, 6, 6, 9, 0, 8, 4, 6, 2, 6, 1, 0, 2, 4,
-      1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 8, 3, 5, 5, 2,
-      9, 5, 4, 3, 2, 7, 2, 9, 9, 7, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8};
   const std::array<int, 4> in_shape = {{3, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {5, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3040,14 +2469,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x5_vector_slice) {
                                     1, 0, 1, 1, 0, 1, 0};
   const std::vector<DataType> updates = {8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9,
                                          9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 7, 7, 8, 7, 9, 5, 5, 4, 4, 5, 6, 6, 2, 9, 4, 7, 6, 1, 3,
-      6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 8, 0, 6, 8, 2, 6, 3, 5, 6,
-      4, 1, 3, 3, 9, 5, 6, 1, 8, 2, 0, 4, 4, 3, 5, 1, 0, 4, 9, 2};
   const std::array<int, 4> in_shape = {{3, 2, 2, 5}};
   const std::array<int, 2> ind_shape = {22, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3062,15 +2487,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x5_elementwise) {
       0, 4, 1, 1, 0, 1, 0, 1, 0, 2, 0, 1, 0, 1, 2, 1, 0, 3, 0, 1, 0, 4};
   const std::vector<DataType> updates = {7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0,
                                          1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2,
-      7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 2, 7, 6, 6, 9, 3, 8, 3,
-      5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
   const std::array<int, 4> in_shape = {{3, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3084,15 +2504,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x8_tensor_slice) {
       2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
       1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4,
       4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 6, 6, 9, 3, 8, 3, 5, 5,
-      2, 1, 2, 6, 6, 9, 7, 2, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2,
-      9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 4, 4, 5, 2, 1, 2, 9, 2,
-      6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2};
   const std::array<int, 4> in_shape = {{3, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3105,15 +2520,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x8_matrix_slice) {
   const std::vector<DataType> updates = {
       6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
       0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 8, 4, 1, 0, 1, 0, 0, 6, 9, 7, 2, 9, 9, 7, 6, 3, 1, 7, 3, 4, 4, 4, 2,
-      2, 3, 1, 7, 7, 2, 7, 0, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0,
-      0, 6, 3, 2, 6, 0, 5, 6, 8, 3, 5, 5, 2, 1, 2, 6, 8, 2, 7, 4, 4, 4, 5, 2,
-      1, 0, 2, 4, 0, 8, 4, 6, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7};
   const std::array<int, 4> in_shape = {{3, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {5, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3127,15 +2537,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x8_vector_slice) {
   const std::vector<DataType> updates = {
       8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
       0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x2x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x2x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 0, 1, 3, 3, 9, 3, 6, 5, 8, 2, 6, 4, 9, 6, 5, 2, 5, 2, 9, 6, 6, 2, 6,
-      4, 5, 2, 3, 4, 7, 2, 0, 8, 4, 1, 0, 8, 5, 1, 8, 7, 0, 6, 3, 9, 5, 7, 3,
-      2, 8, 0, 4, 5, 7, 5, 1, 6, 7, 1, 4, 2, 5, 2, 8, 0, 6, 8, 6, 2, 2, 6, 6,
-      3, 6, 1, 6, 0, 2, 2, 9, 8, 0, 3, 3, 4, 0, 3, 4, 4, 6, 9, 2, 4, 3, 2, 4};
   const std::array<int, 4> in_shape = {{3, 2, 2, 8}};
   const std::array<int, 2> ind_shape = {35, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3154,13 +2559,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x2x8_elementwise) {
   const std::vector<DataType> updates = {7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4,
                                          5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2,
                                          8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3171,13 +2573,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x1_tensor_slice) {
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2,
                                          1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 9, 7, 6, 1, 0, 2, 4, 6, 6, 9, 3, 8, 3, 5, 5, 4, 4, 4, 2, 5, 8, 4, 1,
-      2, 1, 2, 6, 6, 9, 7, 2, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4};
   const std::array<int, 4> in_shape = {{3, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3187,13 +2586,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x1_matrix_slice) {
   const std::vector<int> indices = {0, 1, 1, 1, 0, 0};
   const std::vector<DataType> updates = {6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6,
                                          6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 1, 0, 0, 1, 5, 8, 3, 2, 5, 7, 9, 6, 1, 7, 4, 7, 9, 5, 5, 2, 9, 5, 0,
-      3, 4, 6, 2, 5, 3, 8, 1, 6, 4, 4, 2, 7, 7, 6, 2, 8, 7, 4, 0, 0, 1, 3, 2};
   const std::array<int, 4> in_shape = {{3, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {18, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3206,13 +2602,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x1_vector_slice) {
                                     0, 1, 1, 0, 0, 6, 2, 1, 2, 1, 1, 7};
   const std::vector<DataType> updates = {1, 7, 7, 2, 7, 0, 3, 1, 7,
                                          3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 1, 0, 0, 1, 5, 8, 3, 2, 5, 7, 9, 6, 1, 7, 4, 7, 9, 5, 5, 2, 9, 5, 0,
-      3, 4, 6, 2, 5, 3, 8, 1, 6, 4, 4, 2, 7, 7, 6, 2, 8, 7, 4, 0, 0, 1, 3, 2};
   const std::array<int, 4> in_shape = {{3, 2, 8, 1}};
   const std::array<int, 2> ind_shape = {18, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3225,21 +2618,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x1_elementwise) {
       2, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 6, 0, 2, 1, 2, 0, 1, 1, 7, 0};
   const std::vector<DataType> updates = {1, 7, 7, 2, 7, 0, 3, 1, 7,
                                          3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
-      3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2,
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4,
-      7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2,
-      9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1,
-      1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2, 7, 6, 6, 9, 3, 8, 3,
-      5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6};
   const std::array<int, 4> in_shape = {{3, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3263,21 +2645,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x5_tensor_slice) {
       0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4,
       4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8,
       5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3,
-      9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 6, 9, 3, 8, 3, 5, 5,
-      2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7,
-      7, 2, 7, 0, 3, 1, 7, 3, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0,
-      3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3,
-      4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8,
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 0, 6, 0, 3, 8, 0, 5, 7,
-      6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2,
-      7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9,
-      5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1};
   const std::array<int, 4> in_shape = {{3, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3299,21 +2670,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x5_matrix_slice) {
       0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4,
       3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2,
       6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2,
-      8, 7, 3, 2, 3, 0, 4, 6, 1, 8, 2, 4, 5, 6, 8, 3, 2, 6, 0, 5, 6, 0, 1, 3,
-      3, 9, 5, 4, 3, 2, 6, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 1, 7, 7, 2, 7, 1, 0,
-      3, 4, 4, 3, 6, 2, 8, 3, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0,
-      3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 8, 6, 6, 3, 9,
-      6, 5, 4, 0, 9, 6, 9, 4, 2, 2, 4, 4, 8, 4, 7, 8, 4, 1, 0, 1, 0, 2, 1, 6,
-      0, 6, 7, 7, 8, 7, 1, 9, 4, 8, 9, 2, 1, 2, 9, 2, 0, 6, 0, 3, 8, 0, 0, 0,
-      6, 3, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 4, 4, 4, 2, 5, 0, 3, 1, 7, 3, 4, 2,
-      7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 1, 5, 4, 0, 0, 1, 5, 8, 7, 4, 4, 4, 5, 9,
-      5, 5, 8, 7, 2, 6, 6, 1, 0, 9, 5, 5, 2, 9, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1};
   const std::array<int, 4> in_shape = {{3, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {18, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3337,21 +2697,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x5_vector_slice) {
       5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4,
       5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5,
       6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 4, 4, 8, 4, 4, 7, 2, 9, 9, 7, 0, 2, 2, 6, 7, 3, 0, 7, 3, 6, 1, 2, 4,
-      8, 9, 0, 6, 2, 9, 8, 2, 6, 0, 3, 3, 8, 5, 7, 1, 2, 6, 3, 5, 9, 9, 7, 3,
-      0, 5, 6, 5, 1, 1, 1, 2, 4, 6, 1, 4, 1, 4, 9, 7, 9, 7, 9, 1, 2, 2, 7, 4,
-      5, 3, 5, 4, 1, 8, 8, 9, 8, 2, 7, 8, 9, 0, 9, 5, 8, 8, 7, 2, 6, 1, 1, 3,
-      3, 7, 0, 7, 8, 3, 0, 1, 5, 7, 4, 3, 1, 6, 1, 5, 8, 2, 4, 8, 3, 0, 9, 6,
-      5, 3, 8, 7, 8, 6, 6, 8, 0, 3, 7, 9, 8, 1, 3, 2, 4, 7, 6, 7, 2, 2, 7, 8,
-      4, 0, 6, 9, 1, 4, 2, 9, 2, 8, 9, 7, 0, 1, 9, 9, 2, 1, 6, 9, 0, 0, 3, 7,
-      5, 6, 4, 8, 1, 4, 1, 6, 4, 7, 2, 7, 8, 5, 6, 4, 5, 4, 3, 4, 1, 9, 6, 3,
-      0, 5, 9, 8, 9, 7, 8, 9, 8, 2, 4, 7, 3, 3, 6, 5, 5, 4, 2, 0, 1, 2, 3, 8,
-      9, 0, 2, 6, 4, 9, 0, 7, 6, 8, 9, 6, 6, 5, 8, 4, 8, 3, 3, 9, 1, 1, 2, 1};
   const std::array<int, 4> in_shape = {{3, 2, 8, 5}};
   const std::array<int, 2> ind_shape = {85, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3386,27 +2735,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x5_elementwise) {
       4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5,
       0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7,
       2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1,
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0,
-      3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0, 6, 4, 8, 1,
-      9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5, 9, 8, 9,
-      1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4, 2,
-      9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6,
-      9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6, 2, 7, 6, 6, 9, 3, 8, 3,
-      5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6,
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
-      3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2};
   const std::array<int, 4> in_shape = {{3, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3440,27 +2772,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x8_tensor_slice) {
       1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2,
       3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3,
       8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6,
-      7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0,
-      2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 6, 6, 9, 3, 8, 3, 5, 5,
-      2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7,
-      7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8,
-      6, 6, 3, 9, 6, 7, 7, 8, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9,
-      5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1,
-      5, 8, 2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4,
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2,
-      8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4,
-      4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 9, 8, 2, 4, 7, 3, 3, 4,
-      8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4, 2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9,
-      3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6, 9, 4, 0, 4, 0, 0, 3, 8, 1, 3,
-      5, 3, 1, 0, 7, 6, 4, 7, 4, 5, 8, 4, 5, 7, 5, 0, 0, 5, 2, 7, 4, 3, 8, 8,
-      0, 4, 5, 1, 9, 9, 9, 4, 1, 7, 7, 0, 6, 8, 0, 1, 6, 1, 5, 2, 0, 4, 4, 4,
-      0, 4, 4, 0, 0, 5, 0, 7, 5, 9, 9, 5, 7, 9, 2, 9, 7, 2, 0, 0, 9, 1, 0, 7};
   const std::array<int, 4> in_shape = {{3, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {3, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3491,27 +2806,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x8_matrix_slice) {
       6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2,
       8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4,
       2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      4, 6, 7, 5, 1, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 0, 8, 5, 1, 2, 7, 3, 6,
-      8, 2, 8, 7, 3, 2, 3, 0, 3, 2, 6, 0, 5, 6, 0, 1, 1, 6, 0, 3, 0, 7, 3, 6,
-      1, 9, 4, 8, 9, 0, 9, 2, 1, 7, 7, 2, 7, 0, 3, 1, 5, 7, 6, 0, 6, 0, 8, 9,
-      9, 2, 6, 2, 8, 4, 5, 2, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7,
-      2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9, 5, 5, 8, 7, 2, 6,
-      6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 5, 4, 3, 2, 6, 4, 5, 6,
-      0, 9, 6, 5, 3, 3, 3, 3, 7, 4, 4, 4, 5, 2, 1, 2, 1, 4, 2, 4, 7, 1, 5, 4,
-      8, 8, 6, 6, 3, 9, 6, 7, 3, 2, 9, 2, 8, 9, 7, 0, 8, 3, 6, 9, 4, 2, 2, 3,
-      0, 3, 7, 0, 6, 4, 8, 1, 6, 4, 2, 6, 6, 3, 6, 1, 5, 6, 4, 4, 4, 3, 8, 1,
-      6, 4, 7, 2, 6, 8, 4, 1, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1,
-      4, 1, 0, 1, 0, 0, 1, 5, 7, 3, 4, 4, 4, 2, 5, 8, 5, 9, 3, 8, 9, 6, 8, 1,
-      1, 2, 1, 8, 3, 3, 7, 6, 9, 4, 0, 4, 0, 0, 3, 8, 7, 8, 7, 9, 5, 5, 2, 9,
-      9, 2, 5, 6, 8, 0, 8, 8, 5, 0, 0, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9,
-      6, 2, 8, 3, 0, 0, 0, 6, 0, 1, 6, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5};
   const std::array<int, 4> in_shape = {{3, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {18, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3543,27 +2841,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x8_vector_slice) {
       3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2,
       6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
       4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x2x8x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x2x8x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 6, 2, 8, 9, 7, 0, 2, 7, 9, 0, 2, 6, 3, 6, 0, 3, 7, 0, 6, 8, 8, 8, 6,
-      2, 6, 5, 7, 3, 7, 8, 5, 6, 0, 4, 4, 3, 4, 1, 9, 6, 3, 5, 5, 9, 5, 8, 1,
-      8, 1, 8, 4, 4, 7, 0, 3, 5, 8, 7, 4, 7, 0, 6, 6, 6, 3, 9, 8, 2, 4, 2, 9,
-      8, 5, 6, 0, 9, 6, 6, 4, 7, 7, 8, 9, 6, 8, 3, 1, 1, 6, 8, 3, 1, 7, 0, 9,
-      4, 6, 0, 5, 3, 3, 8, 1, 1, 5, 3, 1, 5, 7, 0, 4, 7, 1, 5, 2, 4, 5, 7, 5,
-      0, 7, 9, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 1, 9, 9, 4, 5, 7, 3, 0, 0, 8, 0,
-      1, 6, 1, 5, 6, 6, 8, 4, 4, 0, 7, 4, 7, 0, 8, 0, 7, 6, 9, 6, 5, 7, 3, 2,
-      9, 7, 2, 0, 0, 1, 1, 8, 7, 7, 1, 1, 1, 3, 5, 4, 9, 4, 9, 9, 0, 0, 1, 3,
-      1, 6, 9, 4, 3, 4, 8, 6, 2, 8, 5, 0, 0, 1, 1, 9, 6, 3, 9, 4, 8, 4, 4, 4,
-      4, 0, 9, 0, 3, 5, 0, 8, 3, 5, 5, 8, 7, 0, 3, 7, 7, 6, 3, 6, 4, 5, 0, 6,
-      4, 9, 3, 5, 9, 5, 2, 6, 1, 1, 3, 2, 3, 5, 9, 7, 6, 3, 7, 6, 8, 3, 8, 3,
-      6, 5, 7, 9, 1, 3, 7, 1, 4, 2, 1, 5, 5, 7, 4, 7, 2, 5, 7, 7, 0, 3, 4, 9,
-      0, 0, 9, 0, 8, 2, 1, 2, 9, 6, 1, 5, 3, 8, 0, 8, 3, 1, 7, 4, 1, 9, 7, 4,
-      4, 8, 8, 5, 1, 1, 9, 1, 9, 1, 0, 3, 4, 3, 0, 4, 7, 2, 3, 6, 7, 3, 8, 0,
-      1, 5, 8, 5, 3, 8, 3, 4, 6, 1, 9, 6, 6, 9, 3, 3, 0, 2, 1, 1, 0, 8, 0, 3,
-      0, 4, 7, 4, 1, 1, 1, 4, 7, 0, 5, 7, 9, 9, 2, 6, 6, 9, 1, 7, 3, 4, 9, 0};
   const std::array<int, 4> in_shape = {{3, 2, 8, 8}};
   const std::array<int, 2> ind_shape = {135, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3614,12 +2895,10 @@ TYPED_TEST(ScatterNdAssign, 3x2x8x8_elementwise) {
       9, 0, 9, 5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1,
       3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3, 6, 6, 7, 1, 3,
       7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {5, 5, 2, 1, 2, 6, 6, 9, 2, 4, 0, 8,
-                                         4, 6, 2, 3, 2, 7, 6, 6, 9, 3, 8, 3};
   const std::array<int, 4> in_shape = {{3, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3628,12 +2907,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x1_tensor_slice) {
   const std::vector<int> indices = {2, 0};
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3,
                                          5, 5, 2, 1, 2, 6, 6, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {0, 8, 4, 7, 2, 9, 1, 7, 7, 2, 7, 0,
-                                         1, 1, 6, 0, 4, 4, 4, 2, 2, 9, 4, 1};
   const std::array<int, 4> in_shape = {{3, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3642,12 +2919,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x1_matrix_slice) {
   const std::vector<int> indices = {0, 3, 2, 4, 2, 5, 0, 5, 1, 0,
                                     1, 6, 1, 4, 1, 7, 2, 3, 2, 1};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {0, 8, 4, 7, 2, 9, 1, 7, 7, 2, 7, 0,
-                                         1, 1, 6, 0, 4, 4, 4, 2, 2, 9, 4, 1};
   const std::array<int, 4> in_shape = {{3, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {10, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3657,12 +2932,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x1_vector_slice) {
                                     5, 0, 1, 0, 0, 1, 6, 0, 1, 4,
                                     0, 1, 7, 0, 2, 3, 0, 2, 1, 0};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {0, 8, 4, 7, 2, 9, 1, 7, 7, 2, 7, 0,
-                                         1, 1, 6, 0, 4, 4, 4, 2, 2, 9, 4, 1};
   const std::array<int, 4> in_shape = {{3, 8, 1, 1}};
   const std::array<int, 2> ind_shape = {10, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3672,16 +2945,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x1_elementwise) {
                                     0, 0, 1, 0, 0, 0, 1, 6, 0, 0, 1, 4, 0, 0,
                                     1, 7, 0, 0, 2, 3, 0, 0, 2, 1, 0, 0};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 9, 2, 6, 2, 8, 4, 5, 2,
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1};
   const std::array<int, 4> in_shape = {{3, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3697,16 +2964,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x5_tensor_slice) {
       7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
       7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6,
       3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 7, 2, 9, 9, 7, 2, 3, 6, 2,
-      8, 3, 1, 7, 7, 2, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 7, 0, 3, 1, 7, 2, 7, 4,
-      4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 8, 4, 1, 0, 2, 6, 8, 4, 1, 3, 4,
-      4, 4, 2, 1, 0, 0, 1, 5, 8, 7, 3, 2, 3, 9, 6, 7, 7, 8, 1, 6, 0, 1, 9, 8,
-      8, 6, 6, 3, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4};
   const std::array<int, 4> in_shape = {{3, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3722,16 +2983,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x5_matrix_slice) {
                                          6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3,
                                          4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1,
                                          5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 7, 2, 9, 9, 7, 2, 3, 6, 2,
-      8, 3, 1, 7, 7, 2, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 7, 0, 3, 1, 7, 2, 7, 4,
-      4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 8, 4, 1, 0, 2, 6, 8, 4, 1, 3, 4,
-      4, 4, 2, 1, 0, 0, 1, 5, 8, 7, 3, 2, 3, 9, 6, 7, 7, 8, 1, 6, 0, 1, 9, 8,
-      8, 6, 6, 3, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4};
   const std::array<int, 4> in_shape = {{3, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {10, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3748,16 +3003,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x5_vector_slice) {
                                          6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3,
                                          4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1,
                                          5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4, 5, 2, 6, 4, 7, 2, 2, 8, 5, 1, 0, 8, 6, 1, 2, 8, 4, 6, 0, 2, 0, 7, 0,
-      1, 7, 0, 9, 6, 2, 5, 1, 6, 3, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 0, 6,
-      3, 6, 6, 8, 0, 2, 2, 8, 4, 8, 5, 6, 4, 5, 6, 1, 2, 4, 9, 1, 6, 3, 4, 4,
-      1, 6, 2, 5, 9, 4, 2, 4, 5, 9, 3, 1, 3, 0, 3, 1, 2, 4, 2, 2, 0, 3, 4, 2,
-      8, 8, 6, 1, 6, 0, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 8, 7, 2, 3, 9, 2, 3, 3};
   const std::array<int, 4> in_shape = {{3, 8, 1, 5}};
   const std::array<int, 2> ind_shape = {43, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3778,19 +3027,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x5_elementwise) {
   const std::vector<DataType> updates = {
       6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
       3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
-      6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2,
-      7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7};
   const std::array<int, 4> in_shape = {{3, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3811,19 +3051,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x8_tensor_slice) {
       7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
       6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
       8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2,
-      7, 2, 9, 9, 7, 6, 1, 0, 6, 4, 7, 2, 6, 8, 4, 1, 7, 3, 4, 4, 4, 2, 5, 8,
-      8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 4, 1, 0, 1, 0, 0, 1, 5,
-      6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 7, 4, 2, 4, 5, 9, 3, 8, 8, 6, 6, 3, 9, 6, 7,
-      5, 4, 3, 2, 6, 4, 5, 6, 1, 0, 9, 9, 8, 1, 6, 7, 6, 2, 8, 3, 0, 0, 0, 6,
-      8, 3, 6, 5, 4, 0, 9, 4, 8, 3, 6, 9, 4, 2, 2, 3, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0};
   const std::array<int, 4> in_shape = {{3, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3843,19 +3074,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x8_matrix_slice) {
       7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2,
       6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2,
-      7, 2, 9, 9, 7, 6, 1, 0, 6, 4, 7, 2, 6, 8, 4, 1, 7, 3, 4, 4, 4, 2, 5, 8,
-      8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 4, 1, 0, 1, 0, 0, 1, 5,
-      6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 7, 4, 2, 4, 5, 9, 3, 8, 8, 6, 6, 3, 9, 6, 7,
-      5, 4, 3, 2, 6, 4, 5, 6, 1, 0, 9, 9, 8, 1, 6, 7, 6, 2, 8, 3, 0, 0, 0, 6,
-      8, 3, 6, 5, 4, 0, 9, 4, 8, 3, 6, 9, 4, 2, 2, 3, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0};
   const std::array<int, 4> in_shape = {{3, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {10, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3876,19 +3098,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x8_vector_slice) {
       7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2,
       6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x1x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x1x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 7, 4, 2, 2, 5, 9, 3, 2, 5, 0, 9, 1, 0, 1, 2, 6, 0, 4, 3, 0, 8, 0, 3,
-      1, 3, 5, 9, 6, 2, 6, 7, 3, 1, 6, 4, 5, 3, 7, 3, 6, 3, 6, 5, 8, 0, 3, 4,
-      3, 8, 0, 4, 1, 4, 8, 4, 7, 6, 2, 9, 9, 7, 8, 2, 1, 8, 0, 2, 0, 7, 3, 6,
-      1, 5, 4, 8, 9, 1, 9, 6, 8, 2, 0, 2, 0, 3, 8, 9, 0, 7, 6, 0, 6, 0, 1, 9,
-      9, 2, 3, 8, 5, 6, 6, 1, 1, 5, 5, 4, 4, 5, 4, 1, 0, 2, 7, 9, 7, 2, 4, 7,
-      2, 1, 4, 7, 9, 6, 4, 1, 2, 8, 3, 8, 6, 8, 6, 9, 0, 8, 6, 8, 0, 7, 7, 6,
-      6, 1, 0, 3, 4, 0, 7, 2, 3, 0, 6, 5, 7, 1, 7, 1, 1, 1, 5, 8, 2, 4, 8, 3,
-      0, 9, 6, 1, 3, 3, 3, 8, 4, 6, 7, 0, 3, 7, 2, 1, 1, 4, 2, 4, 7, 7, 5, 4};
   const std::array<int, 4> in_shape = {{3, 8, 1, 8}};
   const std::array<int, 2> ind_shape = {68, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3917,13 +3130,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x1x8_elementwise) {
       6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7,
       5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0,
       2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9};
   const std::array<int, 4> in_shape = {{3, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3934,13 +3144,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x1_tensor_slice) {
   const std::vector<DataType> updates = {2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2,
                                          1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6,
                                          1, 0, 2, 4, 0, 8, 4, 6, 2, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 0, 3, 1, 7, 3, 7, 2, 4, 2, 1, 0, 4, 1, 0, 1, 2, 4, 1, 5, 8, 8, 6, 6,
-      4, 6, 6, 7, 0, 8, 2, 3, 5, 5, 7, 2, 5, 4, 1, 7, 9, 9, 7, 6, 8, 3, 6, 9};
   const std::array<int, 4> in_shape = {{3, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3951,13 +3158,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x1_matrix_slice) {
                                     1, 6, 1, 4, 1, 7, 2, 3, 2, 1};
   const std::vector<DataType> updates = {7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
                                          0, 8, 4, 6, 2, 3, 1, 7, 7, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 1, 0, 0, 1, 5, 8, 3, 2, 5, 7, 9, 6, 1, 7, 4, 7, 9, 5, 5, 2, 9, 5, 0,
-      3, 4, 6, 2, 5, 3, 8, 1, 6, 4, 4, 2, 7, 7, 6, 2, 8, 7, 4, 0, 0, 1, 3, 2};
   const std::array<int, 4> in_shape = {{3, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {18, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3970,13 +3174,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x1_vector_slice) {
                                     0, 4, 1, 0, 3, 0, 2, 5, 0, 1, 7, 1};
   const std::vector<DataType> updates = {1, 7, 7, 2, 7, 0, 3, 1, 7,
                                          3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 1, 0, 0, 1, 5, 8, 3, 2, 5, 7, 9, 6, 1, 7, 4, 7, 9, 5, 5, 2, 9, 5, 0,
-      3, 4, 6, 2, 5, 3, 8, 1, 6, 4, 4, 2, 7, 7, 6, 2, 8, 7, 4, 0, 0, 1, 3, 2};
   const std::array<int, 4> in_shape = {{3, 8, 2, 1}};
   const std::array<int, 2> ind_shape = {18, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -3989,21 +3190,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x1_elementwise) {
       2, 0, 1, 0, 0, 4, 0, 0, 0, 4, 1, 0, 0, 3, 0, 0, 2, 5, 0, 0, 1, 7, 1, 0};
   const std::vector<DataType> updates = {1, 7, 7, 2, 7, 0, 3, 1, 7,
                                          3, 4, 4, 4, 2, 5, 8, 4, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
-      3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2,
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4,
-      7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2,
-      9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1,
-      1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2, 7, 6, 6, 9, 3, 8, 3,
-      5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6};
   const std::array<int, 4> in_shape = {{3, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4027,21 +3217,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x5_tensor_slice) {
       0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4,
       4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8,
       5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1,
-      2, 7, 3, 6, 8, 2, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 1, 6, 0, 1, 9, 2, 5, 6,
-      8, 0, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3,
-      4, 2, 6, 9, 1, 0, 3, 4, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 9, 3, 2, 5, 0, 3,
-      1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1,
-      6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 9, 5, 5,
-      2, 9, 5, 4, 3, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 9, 0, 9, 2, 9, 8, 0, 6,
-      0, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 3, 2,
-      6, 0, 5, 6, 0, 1, 3, 3, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3,
-      4, 4, 4, 2, 0, 9, 5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5};
   const std::array<int, 4> in_shape = {{3, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4064,21 +3243,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x5_matrix_slice) {
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2,
       6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6,
       3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2,
-      8, 7, 3, 2, 3, 0, 4, 6, 1, 8, 2, 4, 5, 6, 8, 3, 2, 6, 0, 5, 6, 0, 1, 3,
-      3, 9, 5, 4, 3, 2, 6, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 1, 7, 7, 2, 7, 1, 0,
-      3, 4, 4, 3, 6, 2, 8, 3, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0,
-      3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 8, 6, 6, 3, 9,
-      6, 5, 4, 0, 9, 6, 9, 4, 2, 2, 4, 4, 8, 4, 7, 8, 4, 1, 0, 1, 0, 2, 1, 6,
-      0, 6, 7, 7, 8, 7, 1, 9, 4, 8, 9, 2, 1, 2, 9, 2, 0, 6, 0, 3, 8, 0, 0, 0,
-      6, 3, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 4, 4, 4, 2, 5, 0, 3, 1, 7, 3, 4, 2,
-      7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 1, 5, 4, 0, 0, 1, 5, 8, 7, 4, 4, 4, 5, 9,
-      5, 5, 8, 7, 2, 6, 6, 1, 0, 9, 5, 5, 2, 9, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1};
   const std::array<int, 4> in_shape = {{3, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {18, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4102,21 +3270,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x5_vector_slice) {
       5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4,
       5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5,
       6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 4, 4, 8, 4, 4, 7, 2, 9, 9, 7, 0, 2, 2, 6, 7, 3, 0, 7, 3, 6, 1, 2, 4,
-      8, 9, 0, 6, 2, 9, 8, 2, 6, 0, 3, 3, 8, 5, 7, 1, 2, 6, 3, 5, 9, 9, 7, 3,
-      0, 5, 6, 5, 1, 1, 1, 2, 4, 6, 1, 4, 1, 4, 9, 7, 9, 7, 9, 1, 2, 2, 7, 4,
-      5, 3, 5, 4, 1, 8, 8, 9, 8, 2, 7, 8, 9, 0, 9, 5, 8, 8, 7, 2, 6, 1, 1, 3,
-      3, 7, 0, 7, 8, 3, 0, 1, 5, 7, 4, 3, 1, 6, 1, 5, 8, 2, 4, 8, 3, 0, 9, 6,
-      5, 3, 8, 7, 8, 6, 6, 8, 0, 3, 7, 9, 8, 1, 3, 2, 4, 7, 6, 7, 2, 2, 7, 8,
-      4, 0, 6, 9, 1, 4, 2, 9, 2, 8, 9, 7, 0, 1, 9, 9, 2, 1, 6, 9, 0, 0, 3, 7,
-      5, 6, 4, 8, 1, 4, 1, 6, 4, 7, 2, 7, 8, 5, 6, 4, 5, 4, 3, 4, 1, 9, 6, 3,
-      0, 5, 9, 8, 9, 7, 8, 9, 8, 2, 4, 7, 3, 3, 6, 5, 5, 4, 2, 0, 1, 2, 3, 8,
-      9, 0, 2, 6, 4, 9, 0, 7, 6, 8, 9, 6, 6, 5, 8, 4, 8, 3, 3, 9, 1, 1, 2, 1};
   const std::array<int, 4> in_shape = {{3, 8, 2, 5}};
   const std::array<int, 2> ind_shape = {85, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4151,27 +3308,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x5_elementwise) {
       4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5,
       0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7,
       2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1,
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0,
-      3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0, 6, 4, 8, 1,
-      9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5, 9, 8, 9,
-      1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4, 2,
-      9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6,
-      9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6, 2, 7, 6, 6, 9, 3, 8, 3,
-      5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6,
-      8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1,
-      3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2};
   const std::array<int, 4> in_shape = {{3, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4205,27 +3345,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x8_tensor_slice) {
       1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2,
       3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3,
       8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6,
-      1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9,
-      9, 7, 3, 8, 5, 4, 5, 1, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6,
-      2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9, 5, 5, 8, 7, 2, 6,
-      6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2, 4, 6, 3,
-      7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 1, 4, 2, 4, 7, 1, 5, 4,
-      0, 7, 8, 4, 0, 6, 9, 0, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2,
-      6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 5, 6, 4, 4, 4, 3, 8, 1,
-      9, 6, 3, 5, 5, 9, 8, 9, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1,
-      2, 6, 3, 9, 4, 2, 4, 2, 9, 8, 7, 6, 0, 9, 6, 6, 8, 2, 8, 7, 3, 2, 3, 0,
-      4, 6, 7, 5, 1, 6, 0, 1, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8,
-      4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 8, 8, 0, 4, 5, 1, 9, 9,
-      9, 4, 1, 7, 7, 0, 6, 8, 0, 1, 6, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5};
   const std::array<int, 4> in_shape = {{3, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4256,27 +3379,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x8_matrix_slice) {
       6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7,
       2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6,
       7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      4, 6, 7, 5, 1, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 0, 8, 5, 1, 2, 7, 3, 6,
-      8, 2, 8, 7, 3, 2, 3, 0, 3, 2, 6, 0, 5, 6, 0, 1, 1, 6, 0, 3, 0, 7, 3, 6,
-      1, 9, 4, 8, 9, 0, 9, 2, 1, 7, 7, 2, 7, 0, 3, 1, 5, 7, 6, 0, 6, 0, 8, 9,
-      9, 2, 6, 2, 8, 4, 5, 2, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7,
-      2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9, 5, 5, 8, 7, 2, 6,
-      6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 5, 4, 3, 2, 6, 4, 5, 6,
-      0, 9, 6, 5, 3, 3, 3, 3, 7, 4, 4, 4, 5, 2, 1, 2, 1, 4, 2, 4, 7, 1, 5, 4,
-      8, 8, 6, 6, 3, 9, 6, 7, 3, 2, 9, 2, 8, 9, 7, 0, 8, 3, 6, 9, 4, 2, 2, 3,
-      0, 3, 7, 0, 6, 4, 8, 1, 6, 4, 2, 6, 6, 3, 6, 1, 5, 6, 4, 4, 4, 3, 8, 1,
-      6, 4, 7, 2, 6, 8, 4, 1, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1,
-      4, 1, 0, 1, 0, 0, 1, 5, 7, 3, 4, 4, 4, 2, 5, 8, 5, 9, 3, 8, 9, 6, 8, 1,
-      1, 2, 1, 8, 3, 3, 7, 6, 9, 4, 0, 4, 0, 0, 3, 8, 7, 8, 7, 9, 5, 5, 2, 9,
-      9, 2, 5, 6, 8, 0, 8, 8, 5, 0, 0, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9,
-      6, 2, 8, 3, 0, 0, 0, 6, 0, 1, 6, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5};
   const std::array<int, 4> in_shape = {{3, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {18, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4308,27 +3414,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x8_vector_slice) {
       3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2,
       6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0,
       4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x2x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x2x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 6, 2, 8, 9, 7, 0, 2, 7, 9, 0, 2, 6, 3, 6, 0, 3, 7, 0, 6, 8, 8, 8, 6,
-      2, 6, 5, 7, 3, 7, 8, 5, 6, 0, 4, 4, 3, 4, 1, 9, 6, 3, 5, 5, 9, 5, 8, 1,
-      8, 1, 8, 4, 4, 7, 0, 3, 5, 8, 7, 4, 7, 0, 6, 6, 6, 3, 9, 8, 2, 4, 2, 9,
-      8, 5, 6, 0, 9, 6, 6, 4, 7, 7, 8, 9, 6, 8, 3, 1, 1, 6, 8, 3, 1, 7, 0, 9,
-      4, 6, 0, 5, 3, 3, 8, 1, 1, 5, 3, 1, 5, 7, 0, 4, 7, 1, 5, 2, 4, 5, 7, 5,
-      0, 7, 9, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 1, 9, 9, 4, 5, 7, 3, 0, 0, 8, 0,
-      1, 6, 1, 5, 6, 6, 8, 4, 4, 0, 7, 4, 7, 0, 8, 0, 7, 6, 9, 6, 5, 7, 3, 2,
-      9, 7, 2, 0, 0, 1, 1, 8, 7, 7, 1, 1, 1, 3, 5, 4, 9, 4, 9, 9, 0, 0, 1, 3,
-      1, 6, 9, 4, 3, 4, 8, 6, 2, 8, 5, 0, 0, 1, 1, 9, 6, 3, 9, 4, 8, 4, 4, 4,
-      4, 0, 9, 0, 3, 5, 0, 8, 3, 5, 5, 8, 7, 0, 3, 7, 7, 6, 3, 6, 4, 5, 0, 6,
-      4, 9, 3, 5, 9, 5, 2, 6, 1, 1, 3, 2, 3, 5, 9, 7, 6, 3, 7, 6, 8, 3, 8, 3,
-      6, 5, 7, 9, 1, 3, 7, 1, 4, 2, 1, 5, 5, 7, 4, 7, 2, 5, 7, 7, 0, 3, 4, 9,
-      0, 0, 9, 0, 8, 2, 1, 2, 9, 6, 1, 5, 3, 8, 0, 8, 3, 1, 7, 4, 1, 9, 7, 4,
-      4, 8, 8, 5, 1, 1, 9, 1, 9, 1, 0, 3, 4, 3, 0, 4, 7, 2, 3, 6, 7, 3, 8, 0,
-      1, 5, 8, 5, 3, 8, 3, 4, 6, 1, 9, 6, 6, 9, 3, 3, 0, 2, 1, 1, 0, 8, 0, 3,
-      0, 4, 7, 4, 1, 1, 1, 4, 7, 0, 5, 7, 9, 9, 2, 6, 6, 9, 1, 7, 3, 4, 9, 0};
   const std::array<int, 4> in_shape = {{3, 8, 2, 8}};
   const std::array<int, 2> ind_shape = {135, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4379,19 +3468,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x2x8_elementwise) {
       9, 0, 9, 5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1,
       3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3, 6, 6, 7, 1, 3,
       7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x1_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
-      6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2,
-      7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9,
-      1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4,
-      3, 8, 0, 0, 4, 4, 8, 4, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9,
-      7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1,
-      7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7};
   const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4412,19 +3492,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x1_tensor_slice) {
       7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3,
       6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
       8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x1_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x1_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2,
-      7, 2, 9, 9, 7, 6, 1, 0, 6, 4, 7, 2, 6, 8, 4, 1, 7, 3, 4, 4, 4, 2, 5, 8,
-      8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 4, 1, 0, 1, 0, 0, 1, 5,
-      6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9,
-      7, 8, 7, 9, 5, 5, 2, 9, 5, 7, 4, 2, 4, 5, 9, 3, 8, 8, 6, 6, 3, 9, 6, 7,
-      5, 4, 3, 2, 6, 4, 5, 6, 1, 0, 9, 9, 8, 1, 6, 7, 6, 2, 8, 3, 0, 0, 0, 6,
-      8, 3, 6, 5, 4, 0, 9, 4, 8, 3, 6, 9, 4, 2, 2, 3, 2, 4, 0, 8, 4, 6, 2, 3,
-      1, 7, 7, 2, 7, 0, 3, 1, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0};
   const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4444,19 +3515,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x1_matrix_slice) {
       7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5,
       8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2,
       6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x1_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x1_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 7, 4, 2, 2, 5, 9, 3, 2, 5, 0, 9, 1, 0, 1, 2, 6, 0, 4, 3, 0, 8, 0, 3,
-      1, 3, 5, 9, 6, 2, 6, 7, 3, 1, 6, 4, 5, 3, 7, 3, 6, 3, 6, 5, 8, 0, 3, 4,
-      3, 8, 0, 4, 1, 4, 8, 4, 7, 6, 2, 9, 9, 7, 8, 2, 1, 8, 0, 2, 0, 7, 3, 6,
-      1, 5, 4, 8, 9, 1, 9, 6, 8, 2, 0, 2, 0, 3, 8, 9, 0, 7, 6, 0, 6, 0, 1, 9,
-      9, 2, 3, 8, 5, 6, 6, 1, 1, 5, 5, 4, 4, 5, 4, 1, 0, 2, 7, 9, 7, 2, 4, 7,
-      2, 1, 4, 7, 9, 6, 4, 1, 2, 8, 3, 8, 6, 8, 6, 9, 0, 8, 6, 8, 0, 7, 7, 6,
-      6, 1, 0, 3, 4, 0, 7, 2, 3, 0, 6, 5, 7, 1, 7, 1, 1, 1, 5, 8, 2, 4, 8, 3,
-      0, 9, 6, 1, 3, 3, 3, 8, 4, 6, 7, 0, 3, 7, 2, 1, 1, 4, 2, 4, 7, 7, 5, 4};
   const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {68, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4483,19 +3545,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x1_vector_slice) {
       6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7,
       5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0,
       2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x1_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x1_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 7, 4, 2, 2, 5, 9, 3, 2, 5, 0, 9, 1, 0, 1, 2, 6, 0, 4, 3, 0, 8, 0, 3,
-      1, 3, 5, 9, 6, 2, 6, 7, 3, 1, 6, 4, 5, 3, 7, 3, 6, 3, 6, 5, 8, 0, 3, 4,
-      3, 8, 0, 4, 1, 4, 8, 4, 7, 6, 2, 9, 9, 7, 8, 2, 1, 8, 0, 2, 0, 7, 3, 6,
-      1, 5, 4, 8, 9, 1, 9, 6, 8, 2, 0, 2, 0, 3, 8, 9, 0, 7, 6, 0, 6, 0, 1, 9,
-      9, 2, 3, 8, 5, 6, 6, 1, 1, 5, 5, 4, 4, 5, 4, 1, 0, 2, 7, 9, 7, 2, 4, 7,
-      2, 1, 4, 7, 9, 6, 4, 1, 2, 8, 3, 8, 6, 8, 6, 9, 0, 8, 6, 8, 0, 7, 7, 6,
-      6, 1, 0, 3, 4, 0, 7, 2, 3, 0, 6, 5, 7, 1, 7, 1, 1, 1, 5, 8, 2, 4, 8, 3,
-      0, 9, 6, 1, 3, 3, 3, 8, 4, 6, 7, 0, 3, 7, 2, 1, 1, 4, 2, 4, 7, 7, 5, 4};
   const std::array<int, 4> in_shape = {{3, 8, 8, 1}};
   const std::array<int, 2> ind_shape = {68, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4524,50 +3577,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x1_elementwise) {
       6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7,
       5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0,
       2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x5_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x5_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9, 5, 5, 8, 7, 2, 6, 6,
-      1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9,
-      6, 5, 3, 3, 3, 3, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8,
-      4, 0, 6, 9, 0, 3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0,
-      6, 4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5,
-      9, 8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2,
-      4, 2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7,
-      6, 9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6, 4, 7, 4, 5, 8, 4, 5, 7,
-      5, 0, 0, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9, 9, 4, 1, 7, 7, 0, 6, 8, 0,
-      1, 6, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5, 0, 7, 5, 9, 9, 5, 7, 9, 2, 9,
-      7, 2, 0, 0, 9, 1, 0, 7, 7, 2, 3, 1, 3, 9, 4, 6, 4, 9, 2, 3, 6, 1, 0, 1, 6,
-      9, 4, 1, 9, 8, 7, 2, 1, 8, 9, 0, 1, 3, 9, 4, 2, 9, 4, 8, 4, 3, 1, 4, 6, 7,
-      0, 6, 5, 8, 8, 6, 5, 5, 8, 9, 2, 3, 4, 3, 1, 3, 6, 4, 5, 0, 5, 5, 4, 0, 0,
-      7, 4, 2, 3, 4, 2, 6, 9, 9, 3, 3, 9, 6, 0, 0, 4, 0, 7, 4, 0, 5, 2, 2, 8, 7,
-      5, 3, 7, 2, 8, 6, 5, 7, 9, 9, 5, 1, 7, 0, 5, 8, 9, 2, 7, 9, 3, 5, 9, 6, 3,
-      0, 0, 5, 0, 8, 1, 9, 7, 3, 4, 1, 1, 9, 0, 4, 6, 4, 9, 4, 6, 5, 7, 0, 8, 0,
-      2, 7, 4, 6, 5, 3, 7, 6, 0, 7, 1, 2, 9, 3, 5, 2, 5, 1, 0, 5, 4, 7, 1, 6, 0,
-      2, 1, 6, 2, 4, 3, 4, 9, 0, 4, 7, 5, 8, 4, 2, 4, 3, 1, 4, 8, 3, 8, 3, 8, 7,
-      5, 6, 2, 3, 4, 6, 3, 6, 3, 4, 7, 2, 9, 8, 7, 0, 1, 7, 5, 8, 0, 2, 2, 5, 5,
-      9, 4, 3, 6, 6, 5, 4, 0, 4, 5, 7, 4, 5, 7, 2, 3, 7, 8, 5, 8, 3, 9, 5, 7, 7,
-      8, 0, 0, 1, 6, 3, 4, 2, 9, 5, 9, 0, 6, 9, 8, 7, 1, 4, 8, 1, 1, 0, 1, 7, 5,
-      5, 5, 4, 2, 3, 3, 0, 6, 7, 0, 2, 6, 2, 0, 2, 9, 5, 9, 2, 8, 1, 7, 8, 0, 1,
-      6, 2, 8, 7, 8, 4, 8, 9, 8, 8, 8, 5, 0, 1, 3, 3, 7, 6, 4, 2, 7, 5, 2, 1, 9,
-      5, 8, 9, 8, 6, 2, 2, 3, 1, 9, 5, 2, 5, 9, 7, 7, 0, 9, 1, 8, 6, 4, 5, 4, 7,
-      4, 8, 9, 7, 3, 6, 4, 9, 1, 3, 6, 2, 3, 2, 0, 6, 5, 1, 6, 4, 2, 3, 2, 1, 2,
-      8, 0, 8, 4, 2, 1, 0, 4, 6, 4, 2, 1, 5, 1, 3, 2, 7, 6, 6, 9, 3, 8, 3, 5, 5,
-      2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7,
-      2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6,
-      3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8, 3, 6, 9, 4,
-      2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3, 9, 4, 6, 1,
-      8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7, 2, 6, 8, 4,
-      1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1,
-      9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 2, 0, 2, 2, 8, 8, 8, 9, 6,
-      4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5, 9, 3, 2, 5,
-      0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7,
-      1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9,
-      9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0,
-      3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1,
-      4, 1, 4, 2, 7, 9, 7, 9, 1, 7};
   const std::array<int, 4> in_shape = {{3, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4639,50 +3652,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x5_tensor_slice) {
       1, 0, 7, 7, 2, 3, 1, 3, 9, 4, 6, 4, 9, 2, 3, 6, 1, 0, 1, 6, 9, 4, 1, 9, 8,
       7, 2, 1, 8, 9, 0, 1, 3, 9, 4, 2, 9, 4, 8, 4, 3, 1, 4, 6, 7, 0, 6, 5, 8, 8,
       6, 5, 5, 8, 9, 2, 3, 4, 3, 1, 3, 6, 4, 5, 0};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x5_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x5_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      0, 3, 7, 0, 6, 4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8, 1, 9,
-      6, 3, 5, 5, 9, 8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6,
-      3, 9, 4, 2, 4, 2, 9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1,
-      8, 3, 3, 7, 6, 9, 4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6, 4, 7, 4, 5,
-      8, 4, 5, 7, 5, 0, 0, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9, 7, 2, 9, 9, 7,
-      6, 1, 0, 2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2,
-      5, 8, 4, 1, 0, 1, 0, 0, 1, 5, 0, 7, 7, 2, 3, 1, 3, 9, 4, 6, 4, 9, 2, 3, 6,
-      1, 0, 1, 6, 9, 4, 1, 9, 8, 7, 2, 1, 8, 9, 0, 1, 3, 9, 4, 2, 9, 4, 8, 4, 3,
-      0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9,
-      2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1, 7, 6, 3, 3, 6, 8, 3, 2, 3, 2,
-      5, 2, 9, 1, 3, 7, 1, 4, 5, 1, 5, 5, 7, 4, 7, 5, 5, 7, 7, 0, 3, 4, 6, 0, 0,
-      9, 0, 6, 2, 1, 2, 9, 4, 1, 0, 3, 8, 0, 4, 3, 1, 7, 4, 1, 9, 7, 4, 4, 5, 8,
-      1, 1, 1, 9, 4, 7, 1, 0, 3, 4, 3, 0, 4, 7, 2, 3, 6, 7, 3, 8, 2, 0, 2, 2, 8,
-      8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5, 7, 4, 2, 4, 5,
-      9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 6, 6, 6, 1, 7, 3, 1, 9, 4, 7, 3, 4, 0, 4, 5,
-      7, 5, 3, 0, 4, 7, 5, 2, 5, 5, 4, 6, 6, 7, 1, 5, 7, 3, 1, 5, 8, 0, 5, 0, 9,
-      6, 4, 7, 6, 7, 0, 5, 3, 3, 1, 4, 6, 6, 1, 2, 4, 0, 2, 3, 1, 1, 8, 5, 2, 4,
-      0, 7, 3, 4, 2, 6, 7, 5, 6, 8, 9, 2, 8, 1, 3, 7, 8, 6, 2, 4, 8, 3, 1, 7, 9,
-      9, 5, 4, 4, 0, 4, 3, 3, 8, 1, 7, 6, 9, 3, 3, 8, 1, 1, 7, 4, 4, 5, 7, 7, 3,
-      6, 2, 4, 2, 7, 7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8,
-      9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 7, 5, 7, 8, 2,
-      2, 0, 7, 0, 4, 9, 9, 7, 8, 5, 0, 1, 3, 4, 2, 7, 4, 6, 9, 5, 5, 4, 0, 0, 7,
-      4, 2, 3, 4, 2, 6, 9, 9, 3, 3, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6,
-      7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4,
-      9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2,
-      7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 5, 1, 0, 5, 4, 7, 1, 6, 0, 2,
-      1, 6, 2, 4, 3, 4, 9, 0, 4, 7, 5, 8, 4, 2, 4, 3, 1, 4, 8, 3, 8, 3, 8, 7, 5,
-      6, 2, 3, 4, 6, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4,
-      0, 6, 9, 0, 3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6, 9, 5, 7, 7, 8,
-      0, 0, 1, 6, 3, 4, 2, 9, 5, 9, 0, 6, 9, 8, 7, 1, 4, 8, 1, 1, 0, 1, 7, 5, 5,
-      5, 4, 2, 3, 3, 0, 6, 7, 0, 2, 0, 9, 5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7,
-      8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3,
-      8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2, 6, 4, 5, 6, 8,
-      3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5, 6, 0, 1, 3, 3,
-      9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4, 5, 2, 6, 4, 7,
-      2, 6, 8, 4, 1, 2, 4, 3, 5, 8, 8, 6, 9, 7, 4, 6, 9, 1, 2, 7, 2, 4, 6, 1, 5,
-      8, 5, 9, 3, 3, 4, 6, 5, 6, 0, 3, 0, 6, 0, 6, 8, 7, 6, 8, 3, 6, 5, 4, 8, 4,
-      0, 4, 1, 9, 3, 7, 4, 0, 3, 9, 8, 5, 5, 3, 0, 9, 2, 0, 5, 0, 7, 6, 6, 7, 9,
-      2, 3, 5, 6, 0, 9, 5, 4, 6, 1};
   const std::array<int, 4> in_shape = {{3, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4746,50 +3719,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x5_matrix_slice) {
       3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3,
       6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0,
       3, 2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x5_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x5_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      9, 8, 7, 6, 0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 6, 3, 6, 1, 2,
-      4, 0, 4, 0, 0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6, 4, 7, 4, 5, 8, 4, 5, 7, 5, 0,
-      0, 5, 2, 7, 4, 3, 7, 2, 7, 8, 5, 1, 9, 9, 9, 7, 3, 8, 5, 4, 8, 6, 4, 2, 6,
-      1, 5, 2, 0, 4, 2, 6, 6, 1, 0, 0, 0, 5, 0, 7, 2, 4, 7, 3, 3, 0, 1, 2, 9, 0,
-      0, 0, 9, 1, 0, 7, 7, 2, 3, 1, 1, 3, 1, 1, 1, 1, 2, 1, 2, 3, 0, 1, 6, 9, 4,
-      9, 5, 5, 8, 7, 4, 3, 8, 0, 0, 3, 9, 4, 2, 9, 1, 2, 8, 6, 8, 5, 8, 2, 4, 6,
-      5, 8, 8, 6, 5, 5, 8, 9, 2, 3, 3, 5, 5, 9, 8, 5, 6, 4, 4, 4, 4, 2, 7, 9, 7,
-      3, 6, 8, 2, 8, 2, 9, 5, 4, 7, 6, 3, 3, 6, 8, 3, 2, 3, 2, 5, 2, 9, 1, 3, 7,
-      6, 7, 8, 9, 0, 5, 7, 4, 7, 5, 5, 7, 7, 0, 3, 4, 6, 0, 0, 9, 4, 6, 1, 4, 1,
-      9, 4, 1, 0, 3, 8, 9, 6, 4, 5, 7, 4, 1, 9, 7, 4, 4, 5, 8, 1, 1, 1, 9, 4, 7,
-      1, 0, 3, 4, 3, 9, 1, 8, 9, 8, 3, 0, 7, 3, 6, 1, 2, 8, 5, 3, 7, 3, 5, 6, 1,
-      9, 6, 6, 4, 2, 6, 0, 5, 1, 1, 7, 2, 9, 9, 7, 4, 9, 2, 1, 6, 3, 5, 9, 0, 5,
-      8, 6, 9, 2, 6, 6, 6, 1, 7, 3, 6, 8, 1, 4, 2, 4, 0, 4, 5, 7, 5, 3, 0, 4, 7,
-      6, 0, 1, 9, 2, 6, 6, 7, 1, 5, 3, 0, 6, 5, 7, 0, 5, 0, 9, 6, 4, 7, 6, 7, 0,
-      5, 3, 3, 1, 4, 6, 6, 1, 2, 4, 0, 2, 3, 1, 1, 9, 2, 8, 9, 7, 7, 3, 4, 2, 6,
-      7, 5, 6, 8, 9, 2, 8, 1, 3, 7, 3, 7, 0, 7, 8, 3, 1, 7, 9, 9, 6, 8, 4, 1, 0,
-      6, 7, 1, 3, 7, 3, 0, 9, 6, 5, 1, 1, 7, 4, 4, 0, 9, 2, 9, 8, 2, 4, 2, 7, 0,
-      7, 7, 3, 0, 4, 8, 3, 5, 7, 9, 4, 7, 1, 5, 4, 4, 6, 7, 5, 1, 9, 7, 9, 3, 1,
-      8, 4, 4, 9, 6, 0, 7, 2, 5, 4, 2, 2, 4, 5, 7, 5, 7, 8, 2, 2, 4, 4, 8, 4, 7,
-      9, 7, 8, 5, 0, 1, 3, 4, 2, 7, 1, 1, 2, 5, 7, 4, 0, 0, 7, 4, 4, 2, 4, 5, 9,
-      9, 9, 3, 3, 9, 0, 5, 7, 6, 0, 3, 7, 3, 8, 3, 2, 8, 7, 5, 3, 7, 2, 8, 6, 5,
-      7, 9, 9, 5, 1, 7, 0, 5, 8, 9, 2, 7, 9, 3, 5, 9, 1, 7, 2, 7, 5, 6, 8, 0, 8,
-      7, 3, 4, 1, 1, 9, 0, 4, 6, 4, 9, 8, 1, 6, 7, 0, 8, 0, 2, 7, 4, 6, 5, 3, 7,
-      6, 0, 7, 1, 2, 9, 3, 5, 2, 5, 4, 7, 1, 5, 4, 6, 6, 3, 6, 0, 6, 2, 4, 3, 4,
-      9, 0, 4, 7, 5, 4, 8, 5, 4, 8, 1, 4, 8, 3, 8, 3, 8, 7, 5, 6, 1, 9, 4, 8, 9,
-      3, 4, 2, 6, 9, 9, 8, 7, 0, 1, 7, 5, 8, 0, 2, 2, 5, 5, 9, 4, 3, 6, 6, 5, 4,
-      8, 9, 1, 0, 9, 5, 7, 2, 3, 7, 8, 5, 8, 3, 9, 5, 1, 1, 5, 5, 8, 1, 9, 4, 6,
-      2, 9, 5, 9, 0, 6, 9, 8, 7, 1, 8, 5, 1, 2, 7, 0, 7, 8, 4, 0, 3, 3, 3, 3, 6,
-      3, 8, 1, 9, 6, 2, 0, 2, 9, 5, 3, 2, 5, 0, 3, 8, 0, 1, 6, 2, 8, 7, 8, 4, 8,
-      9, 8, 8, 8, 5, 0, 1, 3, 3, 7, 6, 4, 2, 7, 5, 2, 8, 7, 1, 5, 9, 8, 6, 2, 2,
-      3, 1, 9, 5, 2, 0, 3, 4, 0, 8, 9, 1, 8, 6, 4, 5, 4, 7, 4, 8, 9, 7, 3, 6, 4,
-      9, 1, 3, 6, 2, 3, 2, 0, 6, 5, 1, 6, 4, 2, 3, 0, 2, 2, 8, 8, 8, 4, 2, 1, 0,
-      4, 6, 4, 2, 1, 5, 1, 3, 5, 8, 0, 6, 0, 3, 8, 0, 2, 3, 8, 9, 2, 1, 2, 7, 2,
-      4, 3, 5, 8, 8, 1, 0, 3, 4, 4, 9, 1, 2, 7, 2, 4, 6, 1, 5, 8, 5, 9, 3, 3, 4,
-      6, 5, 6, 0, 3, 0, 1, 2, 6, 3, 7, 6, 8, 3, 6, 5, 4, 8, 4, 0, 4, 1, 9, 3, 7,
-      6, 0, 8, 9, 9, 6, 9, 0, 3, 2, 2, 0, 5, 0, 7, 6, 6, 7, 9, 2, 0, 2, 1, 6, 0,
-      5, 4, 6, 1, 4, 2, 0, 4, 1, 1, 9, 4, 2, 4, 2, 7, 3, 2, 3, 0, 3, 6, 9, 0, 7,
-      6, 8, 5, 6, 6, 3, 7, 0, 6, 4, 5, 1, 9, 5, 1, 8, 5, 4, 8, 3, 6, 5, 4, 0, 9,
-      9, 7, 8, 6, 8, 2, 2, 9, 2, 0};
   const std::array<int, 4> in_shape = {{3, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {68, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -4858,50 +3791,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x5_vector_slice) {
       0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0, 6, 4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8,
       5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5, 9, 8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3,
       4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x5_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x5_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      2, 6, 4, 6, 5, 9, 6, 2, 0, 0, 5, 0, 8, 1, 9, 7, 5, 4, 5, 1, 9, 0, 7, 2, 4,
-      9, 4, 6, 5, 7, 0, 8, 0, 2, 7, 4, 6, 5, 3, 7, 6, 9, 7, 1, 2, 9, 3, 8, 2, 2,
-      0, 0, 5, 4, 0, 4, 6, 0, 2, 1, 6, 2, 8, 3, 8, 9, 6, 4, 7, 5, 1, 4, 1, 5, 3,
-      1, 5, 2, 3, 9, 3, 8, 7, 4, 4, 5, 3, 5, 6, 3, 3, 3, 4, 7, 2, 9, 8, 7, 0, 1,
-      7, 4, 8, 0, 7, 2, 9, 4, 9, 4, 8, 0, 9, 5, 4, 4, 4, 5, 6, 8, 5, 7, 2, 3, 7,
-      8, 5, 8, 5, 9, 5, 7, 7, 8, 0, 6, 5, 3, 1, 6, 2, 4, 5, 4, 6, 9, 7, 8, 7, 1,
-      4, 8, 5, 1, 0, 7, 7, 6, 5, 0, 4, 7, 3, 3, 0, 6, 7, 0, 2, 1, 2, 0, 2, 2, 3,
-      9, 2, 8, 1, 4, 8, 0, 1, 2, 2, 4, 1, 8, 4, 8, 9, 8, 2, 6, 5, 3, 1, 3, 7, 4,
-      6, 4, 9, 7, 4, 0, 1, 9, 3, 8, 9, 7, 6, 0, 8, 3, 1, 9, 5, 2, 5, 7, 9, 7, 0,
-      0, 1, 4, 6, 4, 5, 4, 7, 4, 5, 9, 7, 1, 6, 4, 9, 1, 2, 7, 2, 3, 2, 2, 5, 5,
-      3, 6, 4, 2, 3, 6, 1, 2, 8, 3, 1, 4, 2, 5, 0, 4, 6, 2, 2, 1, 5, 1, 1, 5, 8,
-      1, 3, 6, 5, 5, 0, 2, 3, 8, 4, 1, 4, 2, 0, 2, 2, 3, 3, 8, 8, 6, 9, 7, 4, 6,
-      9, 0, 2, 7, 2, 4, 3, 1, 7, 8, 4, 1, 6, 3, 4, 6, 0, 6, 4, 2, 0, 6, 0, 3, 8,
-      7, 4, 2, 3, 6, 5, 4, 8, 4, 3, 3, 0, 7, 3, 8, 4, 7, 3, 9, 8, 5, 7, 3, 0, 9,
-      2, 9, 5, 8, 2, 3, 6, 7, 2, 2, 2, 5, 6, 5, 9, 1, 4, 6, 1, 8, 2, 0, 4, 1, 1,
-      7, 6, 7, 9, 8, 3, 5, 5, 5, 9, 2, 3, 5, 0, 4, 7, 8, 8, 8, 6, 4, 2, 2, 7, 6,
-      1, 1, 9, 5, 4, 8, 5, 4, 2, 3, 1, 1, 5, 2, 9, 5, 7, 8, 8, 4, 2, 2, 9, 2, 9,
-      1, 7, 0, 0, 6, 1, 7, 8, 2, 5, 7, 2, 9, 6, 2, 7, 4, 6, 1, 3, 0, 2, 4, 4, 9,
-      9, 3, 4, 3, 9, 9, 2, 9, 4, 2, 0, 9, 2, 4, 3, 1, 8, 1, 1, 4, 7, 7, 7, 0, 1,
-      7, 8, 0, 0, 9, 0, 0, 0, 0, 7, 5, 9, 9, 9, 7, 1, 6, 9, 4, 6, 1, 5, 6, 3, 4,
-      7, 5, 4, 4, 4, 5, 4, 7, 4, 8, 1, 6, 9, 2, 5, 3, 7, 5, 6, 7, 9, 7, 5, 4, 3,
-      6, 1, 2, 1, 3, 5, 1, 7, 5, 5, 4, 8, 0, 1, 0, 8, 5, 9, 4, 8, 7, 1, 3, 1, 4,
-      5, 8, 2, 1, 7, 1, 3, 8, 7, 4, 3, 5, 4, 8, 9, 3, 6, 9, 0, 8, 9, 7, 1, 0, 2,
-      4, 6, 0, 0, 3, 7, 1, 4, 5, 3, 4, 3, 8, 5, 9, 3, 2, 8, 0, 8, 7, 3, 7, 0, 9,
-      0, 3, 0, 5, 5, 5, 6, 9, 2, 4, 5, 2, 2, 8, 9, 8, 9, 6, 5, 8, 6, 8, 5, 2, 1,
-      9, 9, 9, 1, 9, 8, 9, 1, 1, 6, 2, 0, 3, 6, 3, 1, 9, 6, 3, 8, 0, 0, 9, 3, 1,
-      1, 3, 2, 5, 1, 5, 9, 3, 5, 0, 6, 8, 2, 5, 8, 0, 5, 3, 6, 9, 5, 3, 3, 6, 1,
-      9, 8, 1, 5, 4, 5, 3, 7, 0, 2, 1, 7, 0, 0, 6, 7, 5, 7, 0, 6, 7, 7, 6, 0, 6,
-      5, 3, 3, 6, 5, 7, 0, 8, 7, 6, 9, 9, 7, 6, 6, 5, 0, 8, 2, 8, 0, 4, 4, 5, 6,
-      2, 9, 5, 3, 1, 3, 7, 1, 0, 0, 2, 6, 3, 1, 4, 5, 9, 7, 3, 4, 3, 8, 3, 7, 3,
-      5, 9, 8, 5, 7, 0, 7, 4, 2, 8, 7, 0, 3, 4, 1, 8, 4, 9, 4, 4, 0, 0, 7, 2, 5,
-      2, 2, 0, 8, 1, 1, 5, 4, 0, 6, 1, 0, 1, 0, 8, 7, 2, 9, 9, 3, 2, 5, 4, 9, 7,
-      4, 6, 0, 1, 5, 0, 5, 3, 5, 6, 9, 1, 3, 4, 1, 4, 3, 3, 1, 6, 0, 8, 1, 3, 8,
-      7, 8, 1, 4, 5, 0, 4, 9, 1, 0, 3, 4, 0, 4, 0, 9, 3, 4, 4, 2, 5, 8, 4, 5, 7,
-      1, 7, 1, 9, 6, 1, 0, 0, 9, 1, 0, 1, 7, 2, 5, 9, 1, 0, 0, 5, 6, 3, 3, 9, 5,
-      7, 1, 4, 1, 7, 1, 2, 1, 3, 2, 8, 2, 9, 2, 9, 3, 1, 4, 6, 2, 6, 5, 3, 3, 0,
-      4, 9, 4, 9, 5, 9, 8, 6, 6, 2, 5, 2, 6, 7, 0, 6, 0, 8, 4, 5, 9, 9, 7, 9, 9,
-      2, 5, 7, 6, 6, 4, 6, 9, 7, 9, 3, 6, 5, 4, 5, 7, 5, 9, 4, 4, 7, 6, 4, 0, 5,
-      5, 7, 3, 9, 7, 8, 5, 4, 2, 6};
   const std::array<int, 4> in_shape = {{3, 8, 8, 5}};
   const std::array<int, 2> ind_shape = {337, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -5015,73 +3908,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x5_elementwise) {
       4, 9, 9, 7, 8, 5, 0, 1, 3, 4, 2, 7, 4, 6, 9, 5, 5, 4, 0, 0, 7, 4, 2, 3, 4,
       2, 6, 9, 9, 3, 3, 9, 6, 0, 0, 4, 0, 7, 4, 0, 5, 2, 2, 8, 7, 5, 3, 7, 2, 8,
       6, 5, 7, 9, 9, 5, 1, 7, 0, 5, 8, 9};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x8_tensor_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x8_tensor_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      4, 7, 4, 5, 8, 4, 5, 7, 5, 0, 0, 5, 2, 7, 4, 3, 8, 8, 0, 4, 5, 1, 9, 9, 9,
-      4, 1, 7, 7, 0, 6, 8, 0, 1, 6, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5, 0, 7,
-      5, 9, 9, 5, 7, 9, 2, 9, 7, 2, 0, 0, 9, 1, 0, 7, 7, 2, 3, 1, 3, 9, 4, 6, 4,
-      9, 2, 3, 6, 1, 0, 1, 6, 9, 4, 1, 9, 8, 7, 2, 1, 8, 9, 0, 1, 3, 9, 4, 2, 9,
-      4, 8, 4, 3, 1, 4, 6, 7, 0, 6, 5, 8, 8, 6, 5, 5, 8, 9, 2, 3, 4, 3, 1, 3, 6,
-      4, 5, 0, 6, 4, 9, 3, 5, 2, 5, 2, 1, 7, 5, 3, 2, 9, 5, 4, 7, 6, 3, 3, 6, 8,
-      3, 2, 3, 2, 5, 2, 9, 1, 3, 7, 1, 4, 5, 1, 5, 5, 7, 4, 7, 5, 5, 7, 7, 0, 3,
-      4, 6, 0, 0, 9, 0, 6, 2, 1, 2, 9, 4, 1, 0, 3, 8, 0, 4, 3, 1, 7, 4, 1, 9, 7,
-      4, 4, 5, 8, 1, 1, 1, 9, 4, 7, 1, 0, 3, 4, 3, 0, 4, 7, 2, 3, 6, 7, 3, 8, 6,
-      1, 2, 8, 5, 3, 7, 3, 5, 6, 1, 9, 6, 6, 4, 2, 6, 0, 5, 1, 1, 2, 8, 0, 3, 0,
-      4, 9, 2, 1, 6, 3, 5, 9, 0, 5, 8, 6, 9, 2, 6, 6, 6, 1, 7, 3, 1, 9, 4, 7, 3,
-      4, 0, 4, 5, 7, 5, 3, 0, 4, 7, 5, 2, 5, 5, 4, 6, 6, 7, 1, 5, 7, 3, 1, 5, 8,
-      0, 5, 0, 9, 6, 4, 7, 6, 7, 0, 5, 3, 3, 1, 4, 6, 6, 1, 2, 4, 0, 2, 3, 1, 1,
-      8, 5, 2, 4, 0, 7, 3, 4, 2, 6, 7, 5, 6, 8, 9, 2, 8, 1, 3, 7, 8, 6, 2, 4, 8,
-      3, 1, 7, 9, 9, 5, 4, 4, 0, 4, 3, 3, 8, 1, 7, 6, 9, 3, 3, 8, 1, 1, 7, 4, 4,
-      5, 7, 7, 3, 6, 2, 4, 2, 7, 0, 7, 7, 3, 0, 4, 8, 3, 5, 7, 9, 1, 0, 8, 8, 5,
-      2, 3, 5, 9, 0, 9, 7, 9, 3, 1, 8, 4, 4, 9, 6, 0, 7, 2, 5, 4, 2, 2, 4, 5, 7,
-      5, 7, 8, 2, 2, 0, 7, 0, 4, 9, 9, 7, 8, 5, 0, 1, 3, 4, 2, 7, 4, 6, 9, 5, 5,
-      4, 0, 0, 7, 4, 2, 3, 4, 2, 6, 9, 9, 3, 3, 9, 6, 0, 0, 4, 0, 7, 4, 0, 5, 2,
-      2, 8, 7, 5, 3, 7, 2, 8, 6, 5, 7, 9, 9, 5, 1, 7, 0, 5, 8, 9, 2, 7, 9, 3, 5,
-      9, 6, 3, 0, 0, 5, 0, 8, 1, 9, 7, 3, 3, 5, 4, 7, 5, 5, 1, 8, 2, 1, 1, 8, 4,
-      9, 4, 8, 9, 3, 3, 1, 6, 5, 1, 2, 1, 7, 1, 3, 8, 7, 4, 3, 5, 4, 8, 9, 3, 3,
-      6, 0, 8, 9, 0, 1, 0, 2, 4, 7, 7, 0, 1, 7, 1, 4, 5, 6, 4, 3, 8, 3, 9, 9, 2,
-      8, 0, 6, 8, 3, 4, 0, 9, 0, 9, 2, 5, 7, 5, 2, 9, 2, 4, 5, 2, 7, 8, 9, 8, 9,
-      6, 5, 8, 6, 8, 3, 1, 1, 9, 6, 9, 1, 6, 8, 9, 1, 1, 6, 3, 0, 8, 6, 3, 1, 5,
-      6, 3, 8, 9, 0, 9, 3, 2, 1, 3, 2, 3, 3, 5, 9, 3, 3, 0, 6, 4, 2, 5, 2, 7, 3,
-      3, 6, 9, 5, 3, 3, 6, 1, 9, 8, 1, 5, 0, 5, 0, 7, 0, 2, 1, 9, 0, 7, 8, 7, 8,
-      7, 0, 2, 5, 6, 6, 2, 6, 5, 3, 8, 6, 5, 0, 0, 8, 7, 9, 9, 9, 7, 6, 6, 5, 0,
-      2, 2, 8, 0, 4, 4, 5, 6, 2, 8, 5, 3, 5, 3, 7, 1, 0, 0, 2, 6, 3, 4, 4, 5, 6,
-      7, 6, 4, 4, 8, 5, 4, 0, 5, 9, 8, 5, 2, 0, 7, 8, 2, 8, 7, 0, 6, 4, 9, 8, 4,
-      9, 7, 4, 0, 9, 7, 2, 5, 2, 2, 0, 8, 1, 1, 7, 5, 1, 6, 5, 0, 7, 5, 8, 1, 2,
-      9, 9, 2, 2, 5, 4, 9, 9, 4, 6, 0, 1, 3, 3, 5, 3, 5, 3, 9, 1, 0, 4, 1, 6, 3,
-      3, 4, 5, 8, 8, 1, 3, 0, 2, 7, 1, 4, 1, 0, 4, 9, 1, 0, 3, 4, 0, 3, 7, 9, 0,
-      4, 2, 2, 5, 8, 4, 5, 2, 1, 2, 1, 9, 6, 1, 0, 8, 3, 1, 6, 1, 7, 2, 6, 9, 1,
-      7, 0, 2, 6, 1, 3, 8, 5, 7, 1, 2, 1, 7, 1, 8, 7, 3, 2, 8, 2, 9, 8, 9, 3, 6,
-      8, 0, 5, 6, 5, 3, 3, 0, 4, 9, 4, 3, 5, 9, 8, 2, 6, 2, 5, 2, 6, 5, 0, 6, 2,
-      8, 4, 5, 9, 9, 7, 9, 9, 3, 5, 1, 8, 6, 4, 8, 9, 7, 9, 2, 6, 5, 4, 6, 7, 5,
-      9, 2, 4, 5, 6, 9, 0, 8, 5, 7, 3, 0, 7, 8, 2, 4, 6, 6, 4, 8, 9, 7, 8, 5, 0,
-      9, 9, 8, 7, 7, 1, 3, 7, 6, 9, 2, 3, 1, 5, 7, 1, 9, 3, 0, 4, 8, 4, 6, 1, 3,
-      9, 9, 0, 1, 1, 2, 2, 5, 2, 5, 0, 5, 4, 4, 2, 1, 3, 5, 1, 8, 8, 9, 7, 0, 0,
-      9, 0, 7, 6, 6, 2, 8, 3, 4, 4, 0, 9, 2, 1, 3, 3, 8, 7, 2, 5, 9, 3, 9, 5, 2,
-      7, 6, 6, 9, 3, 8, 3, 5, 5, 2, 1, 2, 6, 6, 9, 7, 2, 9, 9, 7, 6, 1, 0, 2, 4,
-      0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4, 1, 0,
-      1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4, 3, 2,
-      6, 4, 5, 6, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0, 5,
-      6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8, 4,
-      5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2, 3,
-      0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6, 1,
-      2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2, 5,
-      7, 4, 2, 4, 5, 9, 3, 2, 5, 0, 3, 1, 2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0,
-      9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3, 7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0,
-      0, 4, 4, 8, 4, 7, 7, 2, 9, 9, 7, 0, 2, 1, 6, 0, 3, 0, 7, 3, 6, 1, 9, 4, 8,
-      9, 0, 9, 2, 9, 8, 0, 6, 0, 3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5,
-      4, 5, 1, 1, 5, 5, 4, 6, 1, 4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 1, 5,
-      4, 1, 2, 8, 6, 8, 6, 7, 8, 9, 0, 9, 5, 5, 8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7,
-      8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2, 4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3,
-      6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7, 1, 5, 4, 0, 7, 8, 4, 0, 6, 9, 0, 3,
-      2, 9, 2, 8, 9, 7, 0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0, 6, 4, 8, 1, 9, 4,
-      6, 3, 7, 2, 7, 8, 5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5, 9, 8, 9, 1, 8, 9,
-      8, 2, 4, 7, 3, 3, 4, 8, 5, 4, 8, 0, 1, 2, 6, 3, 9, 4, 2, 4, 2, 9, 8, 7, 6,
-      0, 9, 6, 6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6, 9, 4, 0, 4, 0,
-      0, 3, 8, 1, 3, 5, 3, 1, 0, 7, 6};
   const std::array<int, 4> in_shape = {{3, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {2, 1};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -5191,73 +4021,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x8_tensor_slice) {
       5, 0, 1, 3, 4, 2, 7, 4, 6, 9, 5, 5, 4, 0, 0, 7, 4, 2, 3, 4, 2, 6, 9, 9, 3,
       3, 9, 6, 0, 0, 4, 0, 7, 4, 0, 5, 2, 2, 8, 7, 5, 3, 7, 2, 8, 6, 5, 7, 9, 9,
       5, 1, 7, 0, 5, 8, 9, 2, 7, 9, 3, 5, 9, 6, 3, 0, 0, 5, 0, 8, 1, 9, 7, 3};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x8_matrix_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x8_matrix_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      7, 6, 3, 3, 6, 8, 3, 2, 3, 2, 5, 2, 9, 1, 3, 7, 1, 4, 5, 1, 5, 5, 7, 4, 7,
-      5, 5, 7, 7, 0, 3, 4, 6, 0, 0, 9, 0, 6, 2, 1, 2, 9, 4, 1, 0, 3, 8, 0, 4, 3,
-      1, 7, 4, 1, 9, 7, 4, 4, 5, 8, 1, 1, 1, 9, 4, 7, 1, 0, 3, 4, 3, 0, 4, 7, 2,
-      3, 6, 7, 3, 8, 6, 1, 2, 8, 5, 3, 7, 3, 5, 6, 1, 9, 6, 6, 4, 2, 6, 0, 5, 1,
-      1, 2, 8, 0, 3, 0, 4, 9, 2, 1, 6, 3, 5, 9, 0, 5, 8, 6, 9, 2, 6, 6, 6, 1, 7,
-      3, 1, 9, 4, 7, 3, 4, 0, 4, 5, 7, 5, 3, 0, 4, 7, 5, 2, 5, 5, 4, 6, 6, 7, 1,
-      5, 7, 3, 1, 5, 8, 0, 5, 0, 9, 6, 4, 7, 6, 7, 0, 5, 3, 3, 1, 4, 6, 6, 1, 2,
-      4, 0, 2, 3, 1, 1, 8, 5, 2, 4, 0, 7, 3, 4, 2, 6, 7, 7, 2, 9, 9, 7, 6, 1, 0,
-      2, 4, 0, 8, 4, 6, 2, 3, 1, 7, 7, 2, 7, 0, 3, 1, 7, 3, 4, 4, 4, 2, 5, 8, 4,
-      1, 0, 1, 0, 0, 1, 5, 8, 8, 6, 6, 3, 9, 6, 7, 7, 8, 7, 9, 5, 5, 2, 9, 5, 4,
-      3, 2, 6, 4, 5, 6, 2, 3, 5, 9, 0, 9, 7, 9, 3, 1, 8, 4, 4, 9, 6, 0, 7, 2, 5,
-      4, 2, 2, 4, 5, 7, 5, 7, 8, 2, 2, 0, 7, 0, 4, 9, 9, 7, 8, 5, 0, 1, 3, 4, 2,
-      7, 4, 6, 9, 5, 5, 4, 0, 0, 7, 4, 2, 3, 4, 2, 6, 9, 9, 3, 3, 2, 5, 0, 3, 1,
-      2, 1, 2, 3, 0, 3, 4, 0, 8, 8, 9, 1, 0, 9, 9, 8, 1, 6, 7, 2, 8, 7, 1, 5, 3,
-      7, 3, 8, 3, 6, 5, 4, 0, 9, 4, 3, 8, 0, 0, 4, 4, 8, 4, 7, 7, 2, 9, 9, 7, 0,
-      2, 1, 6, 0, 3, 0, 7, 3, 6, 2, 7, 4, 6, 5, 3, 7, 6, 0, 7, 1, 2, 9, 3, 5, 2,
-      5, 1, 0, 5, 4, 7, 1, 6, 0, 2, 1, 6, 2, 4, 3, 4, 9, 0, 4, 7, 5, 8, 4, 2, 4,
-      3, 1, 4, 8, 3, 8, 3, 8, 7, 5, 6, 2, 3, 4, 6, 3, 6, 3, 4, 7, 2, 9, 8, 7, 0,
-      1, 7, 5, 8, 0, 2, 2, 5, 5, 9, 4, 3, 6, 6, 5, 4, 0, 4, 5, 7, 4, 5, 7, 2, 3,
-      7, 8, 5, 8, 3, 9, 5, 7, 7, 8, 0, 0, 1, 6, 3, 4, 2, 9, 5, 9, 0, 6, 9, 8, 7,
-      1, 4, 8, 1, 1, 0, 1, 7, 5, 5, 5, 4, 1, 9, 4, 8, 9, 0, 9, 2, 9, 8, 0, 6, 0,
-      3, 8, 0, 5, 7, 6, 0, 6, 0, 8, 9, 9, 7, 3, 8, 5, 4, 5, 1, 1, 5, 5, 4, 6, 1,
-      4, 1, 4, 2, 7, 9, 7, 9, 1, 7, 2, 7, 4, 7, 1, 5, 4, 1, 2, 8, 6, 8, 6, 7, 8,
-      9, 9, 1, 8, 6, 4, 5, 4, 7, 4, 8, 9, 7, 3, 6, 4, 9, 1, 3, 6, 2, 3, 2, 0, 6,
-      5, 1, 6, 4, 2, 3, 2, 1, 2, 8, 0, 8, 4, 2, 1, 0, 4, 6, 4, 2, 1, 5, 1, 3, 5,
-      8, 1, 3, 6, 5, 6, 0, 2, 3, 8, 9, 2, 1, 2, 7, 2, 4, 3, 5, 8, 8, 6, 9, 7, 4,
-      6, 9, 1, 2, 7, 2, 4, 6, 1, 5, 8, 5, 9, 3, 3, 4, 6, 5, 6, 0, 3, 0, 6, 0, 6,
-      8, 7, 6, 8, 3, 6, 5, 4, 8, 4, 0, 4, 1, 9, 3, 7, 4, 0, 3, 9, 8, 5, 5, 3, 0,
-      9, 2, 0, 5, 0, 7, 6, 6, 7, 9, 2, 3, 5, 6, 0, 9, 5, 4, 6, 1, 4, 2, 0, 4, 1,
-      1, 1, 4, 7, 9, 8, 8, 5, 5, 5, 9, 3, 6, 9, 0, 7, 6, 8, 5, 6, 6, 4, 2, 3, 7,
-      6, 5, 1, 9, 5, 1, 8, 5, 4, 8, 3, 1, 1, 7, 2, 9, 9, 7, 3, 2, 9, 2, 8, 9, 7,
-      0, 1, 2, 9, 0, 6, 6, 3, 6, 0, 3, 7, 0, 6, 4, 8, 1, 9, 4, 6, 3, 7, 2, 7, 8,
-      5, 6, 4, 4, 4, 3, 8, 1, 9, 6, 3, 5, 5, 9, 8, 9, 1, 8, 9, 8, 2, 4, 7, 3, 3,
-      4, 8, 5, 4, 8, 0, 1, 0, 9, 9, 5, 5, 1, 9, 9, 7, 1, 6, 1, 6, 6, 1, 7, 8, 1,
-      4, 3, 5, 4, 4, 4, 5, 4, 0, 4, 8, 0, 0, 9, 2, 5, 3, 7, 5, 6, 7, 9, 7, 5, 4,
-      3, 6, 7, 2, 1, 3, 5, 4, 7, 5, 5, 1, 8, 2, 1, 1, 8, 4, 9, 4, 8, 0, 9, 5, 5,
-      8, 7, 2, 6, 6, 1, 0, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7, 1, 3, 1, 1, 1, 5, 8, 2,
-      4, 6, 3, 0, 9, 6, 5, 3, 3, 3, 3, 6, 6, 7, 1, 3, 7, 6, 8, 1, 4, 2, 4, 7, 1,
-      5, 4, 0, 7, 8, 4, 0, 6, 9, 0, 2, 6, 3, 9, 4, 2, 4, 2, 9, 8, 7, 6, 0, 9, 6,
-      6, 5, 9, 3, 8, 9, 6, 8, 1, 1, 2, 1, 8, 3, 3, 7, 6, 9, 4, 0, 4, 0, 0, 3, 8,
-      1, 3, 5, 3, 1, 0, 7, 6, 4, 7, 4, 5, 8, 4, 5, 7, 5, 0, 0, 5, 2, 7, 4, 3, 6,
-      1, 9, 8, 1, 5, 0, 5, 0, 7, 0, 2, 1, 9, 0, 7, 8, 7, 8, 7, 0, 2, 5, 6, 6, 2,
-      6, 5, 3, 8, 6, 5, 0, 0, 8, 7, 9, 9, 9, 7, 6, 6, 5, 0, 2, 2, 8, 0, 4, 4, 5,
-      6, 2, 8, 5, 3, 5, 3, 7, 1, 0, 0, 2, 6, 0, 1, 6, 9, 4, 1, 9, 8, 7, 2, 1, 8,
-      9, 0, 1, 3, 9, 4, 2, 9, 4, 8, 4, 3, 1, 4, 6, 7, 0, 6, 5, 8, 8, 6, 5, 5, 8,
-      9, 2, 3, 4, 3, 1, 3, 6, 4, 5, 0, 6, 4, 9, 3, 5, 2, 5, 2, 1, 7, 5, 3, 2, 9,
-      5, 4, 6, 0, 1, 3, 3, 5, 3, 5, 3, 9, 1, 0, 4, 1, 6, 3, 3, 4, 5, 8, 8, 1, 3,
-      0, 2, 7, 1, 4, 1, 0, 4, 9, 1, 0, 3, 4, 0, 3, 7, 9, 0, 4, 2, 2, 5, 8, 4, 5,
-      2, 1, 2, 1, 9, 6, 1, 0, 8, 3, 1, 6, 1, 7, 2, 6, 8, 8, 0, 4, 5, 1, 9, 9, 9,
-      4, 1, 7, 7, 0, 6, 8, 0, 1, 6, 1, 5, 2, 0, 4, 4, 4, 0, 4, 4, 0, 0, 5, 0, 7,
-      5, 9, 9, 5, 7, 9, 2, 9, 7, 2, 0, 0, 9, 1, 0, 7, 7, 2, 3, 1, 3, 9, 4, 6, 4,
-      9, 2, 3, 6, 1, 8, 3, 6, 9, 4, 2, 2, 3, 6, 2, 8, 3, 0, 0, 0, 6, 3, 2, 6, 0,
-      5, 6, 0, 1, 3, 3, 9, 4, 6, 1, 8, 2, 7, 4, 4, 4, 5, 2, 1, 2, 9, 2, 6, 2, 8,
-      4, 5, 2, 6, 4, 7, 2, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 3, 6, 8, 2, 8, 7, 3, 2,
-      3, 0, 4, 6, 7, 5, 1, 6, 0, 1, 9, 2, 5, 6, 8, 0, 8, 8, 6, 4, 2, 6, 6, 3, 6,
-      1, 2, 0, 2, 2, 8, 8, 8, 9, 6, 4, 5, 3, 4, 2, 6, 9, 1, 0, 3, 4, 4, 1, 1, 2,
-      5, 7, 4, 2, 4, 5, 9, 3, 5, 2, 2, 1, 1, 2, 2, 7, 8, 5, 3, 7, 5, 8, 2, 7, 3,
-      2, 8, 3, 3, 2, 6, 7, 2, 6, 0, 6, 8, 8, 0, 2, 7, 2, 1, 6, 2, 8, 8, 0, 9, 9,
-      5, 2, 0, 3, 8, 6, 5, 9, 8, 0, 8, 4, 1, 8, 4, 4, 4, 6, 8, 7, 4, 6, 3, 0, 4,
-      8, 9, 2, 2, 4, 8, 8, 2, 3, 6, 4, 0, 6, 7, 3, 5, 2, 9, 5, 0, 1, 3, 3, 7, 2,
-      3, 1, 3, 9, 5, 8, 4, 9, 9, 4, 8, 2, 4, 8, 7, 2, 2, 4, 5, 6, 0, 2, 4, 4, 9,
-      7, 7, 5, 5, 3, 0, 1, 0, 4, 4, 4};
   const std::array<int, 4> in_shape = {{3, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {10, 2};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -5353,73 +4120,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x8_matrix_slice) {
       1, 0, 1, 6, 9, 4, 1, 9, 8, 7, 2, 1, 8, 9, 0, 1, 3, 9, 4, 2, 9, 4, 8, 4, 3,
       1, 4, 6, 7, 0, 6, 5, 8, 8, 6, 5, 5, 8, 9, 2, 3, 4, 3, 1, 3, 6, 4, 5, 0, 6,
       4, 9, 3, 5, 2, 5, 2, 1, 7, 5, 3, 2, 9, 5, 4};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x8_vector_slice) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x8_vector_slice) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 5, 7, 4, 7, 5, 5, 7, 7, 0, 3, 4, 6, 0, 0, 9, 0, 6, 2, 1, 2, 9, 4, 1, 0,
-      3, 8, 0, 4, 3, 1, 7, 4, 1, 1, 2, 5, 7, 4, 2, 1, 1, 1, 9, 4, 7, 1, 0, 3, 4,
-      3, 0, 4, 7, 2, 3, 6, 7, 3, 8, 6, 1, 2, 8, 5, 3, 7, 3, 5, 6, 1, 9, 6, 6, 4,
-      2, 6, 0, 5, 1, 1, 2, 8, 0, 3, 0, 4, 9, 9, 0, 1, 3, 9, 4, 2, 9, 8, 6, 9, 2,
-      6, 6, 6, 1, 0, 6, 9, 0, 3, 2, 9, 2, 4, 2, 6, 9, 1, 0, 3, 4, 7, 5, 2, 5, 5,
-      4, 6, 6, 4, 2, 4, 2, 9, 8, 7, 6, 0, 5, 0, 9, 6, 4, 7, 6, 5, 2, 5, 2, 1, 7,
-      5, 3, 0, 0, 9, 1, 0, 7, 7, 2, 1, 8, 5, 2, 4, 0, 7, 3, 4, 2, 6, 7, 5, 6, 8,
-      9, 3, 3, 7, 6, 9, 4, 0, 4, 9, 7, 0, 2, 1, 6, 0, 3, 4, 4, 0, 4, 3, 3, 8, 1,
-      4, 8, 0, 1, 2, 6, 3, 9, 7, 9, 1, 7, 2, 7, 4, 7, 2, 4, 2, 7, 0, 7, 7, 3, 5,
-      9, 8, 9, 1, 8, 9, 8, 0, 0, 3, 8, 1, 3, 5, 3, 0, 9, 7, 9, 3, 1, 8, 4, 4, 9,
-      6, 0, 7, 2, 5, 4, 8, 9, 2, 3, 4, 3, 1, 3, 4, 8, 4, 3, 1, 4, 6, 7, 6, 4, 8,
-      1, 9, 4, 6, 3, 3, 2, 3, 0, 4, 6, 7, 5, 0, 7, 4, 2, 3, 4, 2, 6, 9, 9, 3, 3,
-      9, 6, 0, 0, 4, 0, 7, 4, 0, 5, 2, 2, 8, 7, 5, 3, 7, 2, 8, 6, 2, 4, 7, 3, 3,
-      4, 8, 5, 5, 8, 9, 2, 7, 9, 3, 5, 9, 6, 3, 0, 0, 5, 0, 8, 1, 9, 7, 3, 4, 1,
-      1, 9, 6, 6, 3, 6, 0, 3, 7, 0, 7, 0, 8, 0, 2, 7, 4, 6, 1, 2, 1, 2, 3, 0, 3,
-      4, 9, 3, 5, 2, 5, 1, 0, 5, 4, 7, 1, 6, 0, 2, 1, 6, 2, 4, 3, 4, 9, 0, 4, 7,
-      5, 8, 4, 2, 4, 3, 1, 4, 6, 4, 5, 0, 6, 4, 9, 3, 7, 0, 7, 8, 3, 0, 6, 5, 7,
-      2, 9, 8, 7, 0, 1, 7, 5, 8, 0, 2, 2, 5, 5, 9, 4, 3, 6, 6, 5, 4, 0, 4, 5, 7,
-      4, 5, 7, 2, 3, 7, 6, 7, 8, 9, 0, 9, 5, 5, 8, 0, 0, 1, 6, 3, 4, 2, 9, 5, 9,
-      0, 6, 9, 8, 7, 1, 4, 8, 1, 1, 0, 1, 7, 5, 5, 5, 4, 2, 3, 3, 0, 5, 1, 9, 9,
-      9, 4, 1, 7, 9, 5, 9, 2, 8, 1, 7, 8, 0, 1, 6, 2, 8, 7, 8, 4, 6, 3, 6, 1, 2,
-      0, 2, 2, 3, 3, 7, 6, 4, 2, 7, 5, 9, 6, 8, 1, 1, 2, 1, 8, 2, 2, 3, 1, 9, 5,
-      2, 5, 9, 7, 7, 0, 9, 1, 8, 6, 4, 5, 4, 7, 4, 8, 9, 7, 3, 6, 4, 9, 1, 3, 6,
-      2, 3, 2, 0, 6, 5, 1, 6, 4, 9, 5, 7, 9, 2, 9, 7, 2, 4, 2, 1, 0, 4, 6, 4, 2,
-      1, 5, 1, 3, 5, 8, 1, 3, 6, 5, 6, 0, 2, 3, 8, 9, 0, 9, 6, 6, 5, 9, 3, 8, 8,
-      8, 6, 9, 7, 4, 6, 9, 6, 8, 4, 1, 0, 8, 5, 1, 2, 7, 4, 3, 8, 8, 0, 4, 1, 0,
-      7, 6, 4, 7, 4, 5, 7, 6, 8, 3, 6, 5, 4, 8, 2, 4, 6, 3, 0, 9, 6, 5, 0, 3, 9,
-      8, 5, 5, 3, 0, 9, 2, 0, 5, 0, 7, 6, 6, 7, 9, 2, 3, 5, 6, 0, 9, 7, 0, 6, 8,
-      0, 1, 6, 1, 8, 0, 8, 8, 6, 4, 2, 6, 5, 5, 5, 9, 3, 6, 9, 0, 7, 6, 8, 5, 6,
-      6, 4, 2, 3, 7, 6, 5, 1, 9, 5, 1, 8, 5, 4, 8, 3, 1, 1, 7, 2, 9, 9, 7, 8, 6,
-      8, 2, 1, 5, 4, 1, 2, 8, 6, 8, 6, 4, 7, 7, 2, 5, 7, 2, 9, 6, 2, 7, 1, 2, 1,
-      3, 5, 3, 7, 3, 8, 3, 6, 5, 1, 0, 9, 2, 0, 9, 5, 0, 4, 0, 9, 4, 3, 8, 0, 0,
-      3, 9, 2, 7, 9, 8, 5, 8, 3, 7, 6, 8, 1, 4, 2, 4, 5, 4, 5, 1, 1, 5, 5, 4, 6,
-      6, 1, 7, 8, 1, 4, 3, 5, 4, 4, 4, 5, 4, 0, 4, 8, 0, 0, 9, 2, 5, 3, 7, 5, 6,
-      7, 9, 7, 5, 4, 3, 6, 7, 2, 1, 3, 5, 4, 7, 7, 2, 7, 8, 5, 6, 4, 4, 8, 8, 8,
-      9, 6, 4, 5, 3, 6, 5, 1, 2, 1, 7, 1, 3, 8, 7, 4, 3, 5, 4, 8, 9, 0, 3, 8, 0,
-      5, 7, 6, 0, 0, 2, 4, 7, 7, 0, 1, 7, 1, 4, 5, 6, 4, 3, 8, 3, 9, 9, 2, 8, 0,
-      6, 8, 3, 4, 0, 9, 0, 9, 2, 5, 7, 4, 3, 8, 1, 9, 6, 3, 5, 3, 1, 3, 9, 4, 6,
-      4, 9, 8, 3, 1, 1, 9, 6, 9, 1, 6, 8, 9, 1, 1, 6, 3, 0, 2, 9, 5, 4, 7, 6, 3,
-      3, 9, 0, 9, 3, 2, 1, 3, 2, 3, 3, 5, 9, 3, 3, 0, 6, 7, 1, 3, 1, 1, 1, 5, 8,
-      0, 8, 8, 9, 1, 0, 9, 9, 1, 5, 0, 5, 0, 7, 0, 2, 1, 9, 0, 7, 8, 7, 8, 7, 0,
-      2, 5, 6, 6, 2, 6, 5, 3, 8, 6, 5, 0, 0, 8, 7, 9, 0, 9, 2, 9, 8, 0, 6, 2, 2,
-      8, 0, 4, 4, 5, 6, 2, 8, 5, 3, 5, 3, 7, 1, 8, 9, 7, 0, 1, 2, 9, 0, 4, 1, 9,
-      8, 7, 2, 1, 8, 0, 5, 9, 8, 5, 2, 0, 7, 8, 2, 8, 7, 0, 6, 4, 9, 2, 7, 3, 6,
-      8, 2, 8, 7, 5, 2, 0, 4, 4, 4, 0, 4, 8, 4, 5, 7, 5, 0, 0, 5, 0, 6, 5, 8, 8,
-      6, 5, 5, 4, 9, 9, 4, 6, 0, 1, 3, 4, 4, 8, 4, 7, 7, 2, 9, 4, 1, 6, 3, 3, 4,
-      5, 8, 8, 1, 3, 0, 2, 7, 1, 4, 1, 0, 4, 9, 1, 0, 3, 4, 0, 3, 7, 9, 0, 4, 2,
-      2, 5, 8, 4, 5, 2, 1, 2, 1, 6, 0, 8, 9, 9, 7, 3, 8, 1, 7, 2, 6, 9, 1, 7, 0,
-      2, 6, 1, 3, 8, 5, 7, 1, 0, 7, 3, 6, 1, 9, 4, 8, 8, 2, 9, 8, 9, 3, 6, 8, 0,
-      5, 6, 5, 3, 3, 0, 4, 9, 4, 3, 5, 9, 8, 2, 6, 2, 5, 2, 6, 5, 0, 6, 2, 8, 4,
-      5, 9, 9, 7, 9, 9, 3, 5, 1, 8, 6, 4, 8, 9, 4, 5, 9, 3, 2, 5, 0, 3, 5, 9, 2,
-      4, 5, 6, 9, 0, 8, 5, 7, 3, 0, 7, 8, 2, 4, 6, 6, 4, 8, 9, 7, 8, 3, 3, 3, 3,
-      6, 6, 7, 1, 3, 7, 6, 9, 2, 3, 1, 5, 7, 1, 9, 3, 0, 4, 8, 4, 6, 1, 3, 9, 9,
-      0, 1, 1, 8, 1, 6, 7, 2, 8, 7, 1, 4, 2, 1, 3, 5, 1, 8, 8, 9, 7, 0, 0, 9, 0,
-      7, 6, 6, 2, 8, 3, 4, 4, 0, 9, 2, 1, 3, 3, 8, 7, 2, 5, 6, 8, 3, 2, 3, 2, 5,
-      2, 1, 6, 8, 0, 9, 4, 6, 1, 1, 1, 3, 3, 5, 2, 2, 1, 1, 2, 2, 7, 8, 5, 3, 7,
-      7, 1, 5, 4, 0, 7, 8, 4, 4, 0, 0, 5, 0, 7, 5, 9, 8, 8, 0, 2, 7, 2, 1, 6, 2,
-      8, 8, 0, 9, 9, 5, 2, 8, 7, 2, 6, 6, 1, 0, 3, 8, 4, 1, 8, 4, 4, 4, 6, 8, 7,
-      4, 6, 3, 0, 4, 8, 9, 1, 3, 7, 1, 4, 5, 1, 1, 6, 0, 1, 9, 2, 5, 6, 9, 5, 0,
-      1, 3, 3, 7, 2, 3, 1, 3, 9, 5, 8, 4, 9, 2, 3, 6, 1, 0, 1, 6, 9, 2, 4, 5, 6,
-      0, 2, 4, 4, 9, 7, 7, 5, 5, 3, 0, 1, 6, 1, 4, 1, 4, 2, 7, 9, 2, 3, 5, 1, 5,
-      9, 0, 7, 6, 6, 7, 2, 6, 5, 9, 3};
   const std::array<int, 4> in_shape = {{3, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {68, 3};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -5519,73 +4223,10 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x8_vector_slice) {
       3, 9, 4, 2, 9, 4, 8, 4, 3, 1, 4, 6, 7, 0, 6, 5, 8, 8, 6, 5, 5, 8, 9, 2, 3,
       4, 3, 1, 3, 6, 4, 5, 0, 6, 4, 9, 3, 5, 2, 5, 2, 1, 7, 5, 3, 2, 9, 5, 4, 7,
       6, 3, 3, 6, 8, 3, 2, 3, 2, 5, 2, 9, 1, 3, 7, 1, 4, 5, 1};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }
-TYPED_TEST(ScatterNdAssign, 3x8x8x8_elementwise) {
+TYPED_TEST(ScatterNdAdd, 3x8x8x8_elementwise) {
   using DataType = typename TestFixture::DataType;
-  const std::vector<DataType> exp_out = {
-      5, 1, 5, 8, 1, 5, 4, 5, 2, 7, 8, 3, 8, 9, 6, 9, 8, 6, 8, 0, 1, 1, 9, 6, 9,
-      0, 6, 2, 9, 9, 8, 6, 4, 9, 8, 1, 3, 1, 5, 6, 3, 8, 9, 0, 1, 3, 2, 1, 3, 2,
-      3, 5, 5, 4, 3, 3, 0, 6, 4, 0, 0, 5, 7, 3, 3, 6, 9, 2, 3, 6, 1, 0, 9, 3, 3,
-      5, 0, 5, 0, 7, 0, 2, 6, 9, 6, 3, 8, 7, 8, 7, 0, 3, 5, 6, 8, 2, 8, 5, 7, 1,
-      6, 5, 0, 0, 4, 7, 9, 9, 8, 1, 6, 6, 5, 0, 4, 2, 8, 0, 4, 5, 2, 4, 2, 8, 5,
-      1, 5, 3, 7, 4, 0, 0, 2, 4, 3, 1, 9, 9, 6, 7, 6, 4, 4, 8, 5, 4, 2, 0, 7, 1,
-      5, 2, 0, 7, 4, 6, 8, 3, 0, 6, 4, 9, 9, 4, 9, 7, 3, 4, 5, 7, 2, 5, 2, 2, 0,
-      8, 1, 9, 7, 5, 1, 6, 5, 0, 7, 5, 8, 1, 2, 4, 9, 2, 2, 5, 3, 9, 0, 4, 6, 4,
-      5, 3, 1, 1, 1, 5, 3, 2, 1, 0, 2, 1, 6, 4, 3, 7, 4, 2, 8, 9, 0, 9, 2, 7, 1,
-      4, 0, 9, 5, 9, 1, 0, 1, 4, 0, 3, 7, 9, 0, 0, 2, 2, 8, 8, 9, 2, 2, 1, 2, 1,
-      9, 6, 4, 0, 8, 3, 1, 6, 1, 7, 2, 6, 9, 1, 7, 2, 2, 6, 1, 1, 8, 5, 7, 4, 2,
-      1, 7, 1, 7, 0, 3, 2, 3, 2, 9, 3, 6, 3, 1, 8, 0, 5, 6, 5, 8, 3, 0, 4, 9, 4,
-      3, 6, 9, 3, 2, 6, 2, 5, 9, 6, 4, 0, 6, 5, 7, 7, 0, 5, 7, 7, 9, 9, 3, 5, 1,
-      8, 6, 5, 9, 9, 7, 3, 2, 2, 5, 4, 1, 8, 5, 2, 1, 4, 0, 7, 9, 0, 3, 5, 7, 3,
-      0, 7, 2, 2, 0, 6, 0, 4, 4, 9, 7, 8, 5, 0, 9, 9, 8, 5, 7, 1, 8, 8, 6, 9, 7,
-      3, 1, 5, 7, 1, 8, 3, 0, 4, 8, 9, 6, 1, 6, 9, 9, 0, 1, 3, 2, 2, 4, 2, 5, 0,
-      5, 4, 9, 2, 5, 3, 5, 3, 8, 8, 8, 7, 0, 0, 9, 0, 7, 9, 6, 3, 8, 3, 3, 1, 8,
-      9, 2, 4, 3, 3, 8, 7, 2, 5, 1, 3, 9, 5, 2, 8, 4, 7, 1, 2, 8, 0, 9, 4, 6, 1,
-      6, 1, 3, 7, 5, 2, 2, 1, 2, 2, 5, 7, 8, 5, 3, 7, 9, 8, 2, 1, 3, 2, 8, 3, 3,
-      2, 6, 7, 5, 3, 0, 6, 8, 8, 0, 2, 4, 8, 2, 1, 2, 8, 8, 7, 6, 5, 5, 7, 8, 0,
-      8, 6, 9, 9, 8, 0, 2, 4, 1, 8, 6, 3, 4, 6, 9, 7, 4, 6, 3, 0, 4, 8, 3, 1, 7,
-      4, 8, 1, 5, 3, 5, 4, 2, 6, 7, 3, 5, 2, 9, 5, 7, 1, 3, 3, 7, 2, 3, 2, 3, 9,
-      5, 0, 4, 1, 9, 4, 8, 9, 4, 8, 2, 2, 2, 9, 6, 6, 0, 2, 4, 2, 9, 7, 7, 9, 5,
-      9, 0, 1, 6, 6, 4, 4, 1, 2, 9, 3, 2, 3, 8, 1, 5, 9, 7, 4, 6, 6, 5, 2, 6, 2,
-      9, 3, 8, 2, 4, 2, 3, 7, 6, 5, 0, 6, 3, 6, 5, 7, 7, 8, 8, 5, 2, 8, 2, 7, 2,
-      2, 3, 0, 9, 3, 6, 1, 9, 1, 0, 2, 0, 3, 4, 9, 1, 1, 1, 6, 1, 7, 1, 8, 0, 1,
-      9, 3, 6, 4, 6, 9, 0, 5, 5, 8, 3, 7, 2, 5, 5, 9, 0, 6, 1, 6, 0, 9, 6, 8, 5,
-      9, 3, 9, 8, 9, 1, 9, 8, 5, 8, 4, 6, 3, 3, 5, 4, 0, 2, 8, 3, 4, 3, 8, 9, 4,
-      5, 3, 3, 3, 2, 3, 0, 5, 1, 2, 0, 9, 7, 4, 7, 2, 2, 3, 0, 0, 3, 9, 6, 1, 6,
-      8, 8, 9, 0, 4, 2, 3, 0, 2, 3, 8, 1, 8, 6, 4, 4, 9, 2, 0, 7, 6, 6, 0, 6, 5,
-      8, 7, 6, 1, 3, 0, 2, 2, 5, 1, 5, 5, 0, 5, 4, 1, 5, 5, 2, 8, 9, 3, 0, 0, 8,
-      3, 7, 5, 1, 0, 3, 4, 4, 1, 1, 8, 5, 6, 9, 3, 1, 4, 2, 9, 7, 0, 0, 8, 2, 9,
-      9, 5, 2, 9, 1, 3, 8, 0, 1, 4, 2, 2, 5, 1, 1, 4, 4, 2, 7, 4, 5, 3, 4, 8, 6,
-      0, 9, 0, 6, 9, 8, 4, 9, 0, 3, 7, 4, 2, 7, 9, 3, 6, 5, 0, 4, 9, 5, 4, 9, 4,
-      1, 7, 3, 8, 8, 2, 1, 3, 0, 0, 9, 3, 0, 9, 1, 7, 8, 8, 9, 4, 3, 9, 6, 4, 3,
-      6, 1, 8, 1, 7, 0, 7, 0, 5, 9, 5, 2, 7, 7, 3, 8, 5, 1, 7, 4, 4, 7, 5, 8, 4,
-      4, 8, 5, 4, 7, 7, 3, 1, 4, 5, 3, 9, 8, 8, 2, 0, 8, 9, 1, 5, 7, 8, 9, 8, 6,
-      6, 7, 8, 8, 8, 6, 4, 8, 9, 0, 3, 9, 2, 0, 2, 1, 5, 5, 4, 3, 4, 1, 8, 3, 1,
-      9, 6, 7, 8, 6, 8, 6, 5, 5, 1, 9, 0, 9, 4, 0, 4, 7, 5, 1, 7, 1, 2, 1, 4, 4,
-      7, 5, 0, 7, 2, 4, 0, 6, 3, 7, 5, 5, 3, 8, 8, 4, 1, 2, 0, 5, 3, 0, 4, 1, 8,
-      7, 5, 5, 1, 5, 1, 2, 5, 6, 7, 8, 4, 2, 2, 1, 3, 4, 6, 7, 8, 3, 9, 2, 1, 1,
-      0, 7, 5, 1, 3, 5, 5, 3, 9, 0, 7, 3, 3, 0, 0, 6, 6, 8, 8, 9, 8, 7, 8, 1, 7,
-      9, 5, 2, 6, 7, 3, 1, 7, 7, 6, 2, 9, 5, 7, 4, 0, 7, 1, 9, 0, 6, 2, 4, 3, 0,
-      3, 2, 3, 7, 0, 6, 8, 4, 4, 9, 5, 6, 6, 1, 0, 6, 5, 2, 2, 5, 2, 6, 6, 5, 4,
-      2, 0, 3, 0, 5, 5, 1, 5, 9, 8, 7, 9, 0, 4, 0, 4, 8, 0, 0, 5, 9, 8, 4, 9, 5,
-      7, 9, 7, 3, 2, 5, 4, 6, 8, 3, 7, 6, 2, 6, 3, 5, 6, 8, 4, 9, 1, 8, 1, 2, 7,
-      3, 2, 9, 6, 4, 4, 9, 1, 7, 3, 0, 2, 7, 7, 6, 0, 2, 4, 8, 4, 7, 9, 1, 2, 7,
-      0, 5, 2, 2, 3, 7, 7, 3, 0, 1, 9, 3, 4, 3, 0, 0, 6, 9, 7, 7, 8, 2, 5, 0, 5,
-      1, 6, 2, 3, 7, 2, 8, 4, 3, 4, 2, 6, 6, 4, 3, 8, 7, 1, 1, 8, 4, 8, 6, 0, 0,
-      5, 6, 3, 7, 2, 9, 5, 9, 6, 1, 9, 0, 3, 4, 5, 3, 9, 0, 4, 7, 9, 8, 9, 6, 7,
-      2, 4, 0, 9, 6, 6, 4, 1, 4, 7, 0, 5, 5, 1, 6, 8, 3, 6, 8, 0, 9, 8, 6, 7, 1,
-      1, 0, 0, 2, 0, 5, 5, 4, 0, 6, 4, 1, 9, 9, 6, 5, 0, 4, 8, 7, 3, 1, 4, 4, 7,
-      5, 3, 3, 8, 0, 1, 1, 1, 8, 8, 8, 8, 8, 5, 7, 6, 7, 8, 8, 8, 6, 7, 5, 9, 5,
-      7, 5, 6, 2, 0, 0, 2, 6, 8, 5, 6, 4, 5, 0, 5, 1, 4, 9, 2, 5, 4, 2, 7, 9, 4,
-      8, 2, 6, 1, 9, 3, 1, 5, 2, 6, 4, 3, 0, 8, 5, 6, 5, 5, 5, 8, 2, 8, 9, 4, 0,
-      0, 6, 7, 8, 1, 5, 8, 3, 8, 6, 6, 5, 6, 8, 4, 3, 1, 7, 4, 3, 0, 2, 2, 0, 9,
-      2, 3, 2, 9, 7, 7, 1, 0, 5, 1, 4, 9, 1, 3, 1, 2, 2, 3, 6, 3, 4, 8, 1, 3, 6,
-      4, 4, 9, 5, 7, 9, 6, 7, 5, 1, 0, 6, 4, 0, 5, 4, 9, 8, 5, 4, 3, 9, 1, 9, 8,
-      7, 3, 5, 5, 6, 8, 6, 6, 4, 8, 6, 5, 1, 8, 0, 5, 1, 4, 1, 7, 7, 3, 8, 1, 6,
-      5, 1, 0, 3, 0, 1, 2, 6, 0, 2, 1, 9, 5, 5, 2, 5, 2, 4, 0, 2, 7, 7, 9, 8, 2,
-      8, 6, 0, 5, 2, 3, 2, 9, 2, 9, 3, 7, 2, 0, 0, 0, 9, 8, 0, 2, 5, 8, 6, 1, 6,
-      6, 2, 6, 9, 6, 2, 7, 1, 2, 2, 6};
   const std::array<int, 4> in_shape = {{3, 8, 8, 8}};
   const std::array<int, 2> ind_shape = {538, 4};
   const auto params = getScatterNDParams(in_shape, ind_shape);
@@ -5763,5 +4404,5 @@ TYPED_TEST(ScatterNdAssign, 3x8x8x8_elementwise) {
       8, 4, 9, 4, 8, 9, 3, 3, 1, 6, 5, 1, 2, 1, 7, 1, 3, 8, 7, 4, 3, 5, 4, 8, 9,
       3, 3, 6, 0, 8, 9, 0, 1, 0, 2, 4, 7, 7, 0, 1, 7, 1, 4, 5, 6, 4, 3, 8, 3, 9,
       9, 2, 8, 0, 6, 8, 3, 4, 0, 9, 0, 9, 2};
-  this->test_scatter_nd(input, indices, updates, exp_out, params);
+  this->test_scatter_nd(input, indices, updates, params);
 }

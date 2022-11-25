@@ -24,14 +24,25 @@
 #include "sycldnn/scatter_nd/params.h"
 
 #include "test/scatter_nd/scatter_nd_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include <vector>
 
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
-template <typename DataType>
-using ScatterNdAdd = ScatterNDFixture<DataType, int, scatter_nd::Add>;
-TYPED_TEST_CASE(ScatterNdAdd, types::GTestKernelDataTypes);
+template <typename Pair>
+using ScatterNdAdd = ScatterNDFixture<Pair, int, scatter_nd::Add>;
+TYPED_TEST_CASE(ScatterNdAdd, GTestTypePairs);
 TYPED_TEST(ScatterNdAdd, 1x1x1x1_tensor_slice) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {8};

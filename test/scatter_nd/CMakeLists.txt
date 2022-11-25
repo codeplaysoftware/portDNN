@@ -32,3 +32,19 @@ snn_test(
   CXX_OPTS
     ${_cxx_opts}
 )
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      scatter_nd_event_dependencies_test
+    SOURCES
+      scatter_nd_assign_event_dependencies.cc
+      scatter_nd_add_event_dependencies.cc
+      scatter_nd_advanced_event_dependencies.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+    CXX_OPTS
+      ${_cxx_opts}
+  )
+endif()

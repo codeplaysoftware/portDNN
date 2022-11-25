@@ -54,21 +54,21 @@ void Div::apply(MultiPtr& ptr, IndexType offset, DataType val) {
 }
 
 template <typename DType, typename IType, typename UpdateOp, int IndexDepth,
-          int VectorWidth = 1>
+          int VectorWidth, bool IsUSM>
 class ScatterNDOp {
   using DataType = typename helpers::VectorType<DType, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
-  ReadAccessor<IType const> ind_data_;
-  ReadAccessor<DType const> upd_data_;
-  WriteAccessor<DType> out_data_;
+  ReadMem<IType const, IsUSM> ind_data_;
+  ReadMem<DType const, IsUSM> upd_data_;
+  WriteMem<DType, IsUSM> out_data_;
   IndexHelper<IndexDepth> index_helper_;
   size_t slice_size_;
   size_t n_updates_;
 
  public:
-  ScatterNDOp(ReadAccessor<IType const> ind_data,
-              ReadAccessor<DType const> upd_data, WriteAccessor<DType> out_data,
-              ScatterNDSizes const& ss)
+  ScatterNDOp(ReadMem<IType const, IsUSM> ind_data,
+              ReadMem<DType const, IsUSM> upd_data,
+              WriteMem<DType, IsUSM> out_data, ScatterNDSizes const& ss)
       : ind_data_(ind_data),
         upd_data_(upd_data),
         out_data_(out_data),

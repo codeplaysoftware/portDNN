@@ -35,12 +35,22 @@ namespace sycldnn {
 namespace scatter_nd {
 namespace internal {
 
-template SNNStatus queue_scatter_nd<
-    SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_SCATTER_ND_TYPE, SNN_INDEX_DEPTH,
-    SNN_VECTOR_WIDTH>(BaseMemObject<SNN_INDEX_TYPE const>& ind_mem,
-                      BaseMemObject<SNN_DATA_TYPE const>& upd_mem,
-                      BaseMemObject<SNN_DATA_TYPE>& out_mem,
-                      ScatterNDSizes const& sizes, cl::sycl::queue& queue);
+#ifdef SNN_ENABLE_USM
+template SNNStatus
+queue_scatter_nd<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_SCATTER_ND_TYPE,
+                 SNN_INDEX_DEPTH, SNN_VECTOR_WIDTH>(
+    USMMemObject<SNN_INDEX_TYPE const>& ind_mem,
+    USMMemObject<SNN_DATA_TYPE const>& upd_mem,
+    USMMemObject<SNN_DATA_TYPE>& out_mem, ScatterNDSizes const& sizes,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+#endif
+template SNNStatus
+queue_scatter_nd<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_SCATTER_ND_TYPE,
+                 SNN_INDEX_DEPTH, SNN_VECTOR_WIDTH>(
+    BufferMemObject<SNN_INDEX_TYPE const>& ind_mem,
+    BufferMemObject<SNN_DATA_TYPE const>& upd_mem,
+    BufferMemObject<SNN_DATA_TYPE>& out_mem, ScatterNDSizes const& sizes,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace scatter_nd

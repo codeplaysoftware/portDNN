@@ -27,11 +27,11 @@ namespace scatter_nd {
 namespace internal {
 
 template <typename T, typename Index, typename ScatterNDType, int IndexDepth,
-          int VectorWidth>
-SNNStatus queue_scatter_nd(BaseMemObject<Index const>& ind_mem,
-                           BaseMemObject<T const>& upd_mem,
-                           BaseMemObject<T>& out_mem,
-                           ScatterNDSizes const& sizes, cl::sycl::queue& queue);
+          int VectorWidth, template <typename> class MemObj>
+SNNStatus queue_scatter_nd(MemObj<Index const>& ind_mem,
+                           MemObj<T const>& upd_mem, MemObj<T>& out_mem,
+                           ScatterNDSizes const& sizes, cl::sycl::queue& queue,
+                           const std::vector<cl::sycl::event>& events);
 }  // namespace internal
 }  // namespace scatter_nd
 }  // namespace sycldnn

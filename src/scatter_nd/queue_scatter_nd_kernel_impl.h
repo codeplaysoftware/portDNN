@@ -29,20 +29,21 @@ namespace scatter_nd {
 namespace internal {
 
 template <typename T, typename Index, typename ScatterNDType, int IndexDepth,
-          int VectorWidth>
-SNNStatus queue_scatter_nd(BaseMemObject<Index const>& ind_mem,
-                           BaseMemObject<T const>& upd_mem,
-                           BaseMemObject<T>& out_mem,
-                           const ScatterNDSizes& sizes,
-                           cl::sycl::queue& queue) {
+          int VectorWidth, template <typename> class MemObj>
+SNNStatus queue_scatter_nd(MemObj<Index const>& ind_mem,
+                           MemObj<T const>& upd_mem, MemObj<T>& out_mem,
+                           const ScatterNDSizes& sizes, cl::sycl::queue& queue,
+                           const std::vector<cl::sycl::event>& events) {
   size_t num_updates = sizes.num_updates;
   size_t slice_size = sizes.slice_size;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto indices_acc = ind_mem.read_accessor(cgh);
-    auto update_acc = upd_mem.read_accessor(cgh);
-    auto output_acc = out_mem.write_accessor(cgh);
-    ScatterNDOp<T, Index, ScatterNDType, IndexDepth, VectorWidth> op{
-        indices_acc, update_acc, output_acc, sizes};
+    cgh.depends_on(events);
+    auto indices_mem = ind_mem.read_mem(cgh);
+    auto update_mem = upd_mem.read_mem(cgh);
+    auto output_mem = out_mem.write_mem(cgh);
+    ScatterNDOp<T, Index, ScatterNDType, IndexDepth, VectorWidth,
+                is_usm_obj_v<MemObj<T>, T>>
+        op{indices_mem, update_mem, output_mem, sizes};
 
     cgh.parallel_for(cl::sycl::range<2>{num_updates, slice_size / VectorWidth},
                      op);

@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "sycldnn/backend/snn_usm_backend.h"
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/scatter_nd/launch.h"
@@ -27,6 +28,7 @@
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
+#include "test/helpers/dependency_check.h"
 #include "test/helpers/float_comparison.h"
 
 inline sycldnn::scatter_nd::ScatterNDParams getScatterNDParams(
@@ -37,14 +39,14 @@ inline sycldnn::scatter_nd::ScatterNDParams getScatterNDParams(
   return params;
 }
 
-template <typename Pair, typename IType, typename ScatterNDType>
-struct ScatterNDFixture : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
+template <typename DType, typename IType, typename ScatterNDType>
+struct ScatterNDEventFixture
+    : public BackendTestFixture<sycldnn::backend::SNNUSMBackend> {
+  using DataType = DType;
   using IndexType = IType;
   void test_scatter_nd(std::vector<DataType> const& input,
                        std::vector<IndexType> const& indices,
                        std::vector<DataType> const& updates,
-                       std::vector<DataType> const& exp,
                        sycldnn::scatter_nd::ScatterNDParams const& params) {
     auto sizes = get_sizes(params);
     auto input_size = sizes.output_size;
@@ -52,7 +54,6 @@ struct ScatterNDFixture : public BackendTestFixture<typename Pair::SecondType> {
     auto index_depth = sizes.index_depth;
     auto indices_size = num_updates * index_depth;
     auto updates_size = num_updates * sizes.slice_size;
-    ASSERT_EQ(input_size, exp.size());
 
     std::vector<DataType> output(input_size);
 
@@ -73,19 +74,16 @@ struct ScatterNDFixture : public BackendTestFixture<typename Pair::SecondType> {
       provider.deallocate_ptr(out_gpu);
     };
 
+    dependency_test_params dep_test_params;
+    cl::sycl::event dependee_e = create_event(backend, dep_test_params);
+
     auto status =
         sycldnn::scatter_nd::launch<DataType, IndexType, ScatterNDType>(
-            inp_gpu, ind_gpu, upd_gpu, out_gpu, params, backend);
+            inp_gpu, ind_gpu, upd_gpu, out_gpu, params, backend,
+            std::vector<cl::sycl::event>{dependee_e});
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait_and_throw();
-
-    provider.copy_device_data_to_host(input_size, out_gpu, output);
-
-    for (int i = 0; i < input_size; ++i) {
-      SCOPED_TRACE("Element: " + std::to_string(i));
-      SNN_ALMOST_EQUAL(exp[i], output[i], 0U);
-    }
+    check_dependency(dependee_e, status.event, backend, dep_test_params);
   }
 };
 

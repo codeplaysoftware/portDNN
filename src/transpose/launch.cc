@@ -17,6 +17,7 @@
 
 #include "sycldnn/mem_object.h"
 
+#include "src/helpers/mem_utils.h"
 #include "src/transpose/queue_kernel.h"
 
 #include <iterator>
@@ -43,53 +44,19 @@ struct Transposer {
   }
 };
 
-template <typename T, typename Index>
-struct Transposer<T, Index, 1, BufferMemObject> {
+template <typename T, typename Index, template <typename> class MemObj>
+struct Transposer<T, Index, 1, MemObj> {
   // A 1D transpose can only possibly be an identity operation, so just copy
   // from the input to the output.
-  static SNNStatus transpose(BufferMemObject<T const>& input_mem,
-                             BufferMemObject<T>& output_mem,
+  static SNNStatus transpose(MemObj<T const>& input_mem, MemObj<T>& output_mem,
                              std::vector<int> const& /*dimensions*/,
                              std::vector<int> const& /*permutation*/,
                              cl::sycl::queue& queue,
-                             const std::vector<cl::sycl::event>& /*events*/) {
-    auto event = queue.submit([&](cl::sycl::handler& cgh) {
-      auto input = input_mem.read_accessor(cgh).get_accessor();
-      auto output = output_mem.write_accessor(cgh).get_accessor();
-      cgh.copy(input, output);
-    });
-    return {event, StatusCode::OK};
-  }
-};
-
-#ifdef SNN_ENABLE_USM
-template <typename T, typename Index>
-struct Transposer<T, Index, 1, USMMemObject> {
-  // A 1D transpose can only possibly be an identity operation, so just copy
-  // from the input to the output.
-  static SNNStatus transpose(USMMemObject<T const>& input_mem,
-                             USMMemObject<T>& output_mem,
-                             std::vector<int> const& dimensions,
-                             std::vector<int> const& /*permutation*/,
-                             cl::sycl::queue& queue,
                              const std::vector<cl::sycl::event>& events) {
-    auto event = queue.submit([&](cl::sycl::handler& cgh) {
-      cgh.depends_on(events);
-      auto input = input_mem.read_mem(cgh).get_pointer();
-      auto output = output_mem.write_mem(cgh).get_pointer();
-
-      size_t count = 0;
-      for (unsigned int i = 0; i < dimensions.size(); ++i)
-        count += dimensions[i];
-
-      // TODO: make copy when ComputeCpp implements it
-      cgh.memcpy(static_cast<void*>(output), static_cast<const void*>(input),
-                 count * sizeof(T));
-    });
+    auto event = sycldnn::helpers::cpy(input_mem, output_mem, queue, events);
     return {event, StatusCode::OK};
   }
 };
-#endif  // SNN_ENABLE_USM
 
 void merge_consecutive_indices(int index, std::vector<int>& dimensions,
                                std::vector<int>& permutation) {
