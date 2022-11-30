@@ -28,9 +28,7 @@
 namespace sycldnn {
 /** Local memory accessor for a given dimension of type T. */
 template <typename T, int Dimension = 1>
-using LocalAccessor =
-    cl::sycl::accessor<T, Dimension, cl::sycl::access::mode::read_write,
-                       cl::sycl::access::target::local>;
+using LocalAccessor = cl::sycl::local_accessor<T, Dimension>;
 
 /**
  * SYCL Accessor wrapper.
@@ -41,7 +39,7 @@ using LocalAccessor =
 template <typename T, cl::sycl::access::mode Mode>
 struct BaseAccessor {
  private:
-  static auto constexpr GlobalTarget = cl::sycl::access::target::global_buffer;
+  static auto constexpr GlobalTarget = cl::sycl::access::target::device;
   static auto constexpr GlobalSpace =
       cl::sycl::access::address_space::global_space;
 
@@ -136,7 +134,7 @@ using ReadWriteAccessor = BaseAccessor<T, cl::sycl::access::mode::read_write>;
 template <typename T, cl::sycl::access::mode Mode, bool IsUSM>
 struct GenericMem {
  private:
-  static auto constexpr GlobalTarget = cl::sycl::access::target::global_buffer;
+  static auto constexpr GlobalTarget = cl::sycl::access::target::device;
   static auto constexpr GlobalSpace =
       cl::sycl::access::address_space::global_space;
 

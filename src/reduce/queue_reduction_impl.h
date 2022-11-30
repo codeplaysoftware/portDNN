@@ -141,11 +141,11 @@ SNNStatus queue_subgroup_kernel(
   size_t next_reduce_size = divide_ceil(input_range[1], sub_group_size);
 
   // TODO: Implement this using workspace
-  sycldnn::helpers::mem_utils<T, IsUSM> mem_utils(queue);
   cl::sycl::range<2> mem1_size(input_range[0], next_reduce_size);
   cl::sycl::range<2> mem2_size(input_range[0],
                                divide_ceil(next_reduce_size, sub_group_size));
-  auto sycl_MemObj = mem_utils.alloc(mem1_size.size() + mem2_size.size());
+  auto sycl_MemObj = sycldnn::helpers::alloc<T, IsUSM>(
+      mem1_size.size() + mem2_size.size(), queue);
 
   auto mem1 = _make_mem_object(sycl_MemObj, mem1_size.size(), 0);
   auto mem2 = _make_mem_object(sycl_MemObj, mem2_size.size(), mem1_size.size());
@@ -192,7 +192,7 @@ SNNStatus queue_subgroup_kernel(
       cgh.parallel_for(cl::sycl::range<1>(out_mem.get_extent()), functor);
     });
   }
-  mem_utils.enqueue_free(sycl_MemObj, {event});
+  sycldnn::helpers::enqueue_free(sycl_MemObj, {event}, queue);
   return {event, StatusCode::OK};
 }
 #endif

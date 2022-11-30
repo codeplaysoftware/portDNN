@@ -34,6 +34,7 @@
 #include "sycldnn/internal/reduce/launch.h"
 #include "sycldnn/reduce/operators.h"
 
+#include "src/helpers/mem_utils.h"
 #include "sycldnn/internal/transpose/launch.h"
 
 namespace sycldnn {
@@ -84,118 +85,115 @@ inline int get_non_channel_size(BatchNormParams const& params) {
 /**
  * The internal launcher for computing variance.
  */
-template <typename T, typename Backend>
-SNNStatus launch_variance(BaseMemObject<T const>& centered_input,
-                          BaseMemObject<T>& variance,
-                          BaseMemObject<T>& squared_centered_input,
-                          BatchNormParams const& params, Backend& backend) {
+template <typename T, typename Backend, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus launch_variance(MemObj<T const>& centered_input, MemObj<T>& variance,
+                          MemObj<T>& squared_centered_input,
+                          BatchNormParams const& params, Backend& backend,
+                          const std::vector<cl::sycl::event>& events) {
   auto queue = backend.get_queue();
   SNNStatus status;
-  auto _centered_input = mo_to_bo(centered_input);
-  auto _squared_centered_input = mo_to_bo(squared_centered_input);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _centered_input, _centered_input, _squared_centered_input,
-      get_total_size(params), queue, {});
+      centered_input, centered_input, squared_centered_input,
+      get_total_size(params), queue, events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_squared_centered_input = squared_centered_input.as_const();
-  auto _const_squared_centered_input = mo_to_bo(const_squared_centered_input);
-  auto _variance = mo_to_bo(variance);
   status = reduce::internal::launch<reduce::Mean>(
-      _const_squared_centered_input, _variance, 1, get_non_channel_size(params),
-      params.channels, backend, {});
+      const_squared_centered_input, variance, 1, get_non_channel_size(params),
+      params.channels, backend, std::vector<cl::sycl::event>{status.event});
   return status;
 }
 
 /**
  * The internal launcher for computing batchnorm.
  */
-template <typename T>
+template <typename T, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
 inline SNNStatus launch_batchnorm(
-    BaseMemObject<T const>& centered_input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& current_variance,
-    BaseMemObject<T>& output, BaseMemObject<T>& workspace, const float epsilon,
+    MemObj<T const>& centered_input, MemObj<T const>& beta,
+    MemObj<T const>& gamma, MemObj<T const>& current_variance,
+    MemObj<T>& output, MemObj<T>& workspace, const float epsilon,
     const std::vector<int>& input_dims, const std::vector<int>& channel_dims,
-    cl::sycl::queue& queue) {
-  cl::sycl::buffer<T const, 1> epsilon_buf(&epsilon, cl::sycl::range<1>(1));
-  auto epsilon_mem = make_mem_object<T const>(epsilon_buf, 1);
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events) {
+  auto sycl_epsilon =
+      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &epsilon, queue);
+  auto epsilon_mem = _make_mem_object<T const>(sycl_epsilon, 1);
 
-  auto _current_variance = mo_to_bo(current_variance);
-  auto _epsilon_mem = mo_to_bo(epsilon_mem);
-  auto _workspace = mo_to_bo(workspace);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      _current_variance, _epsilon_mem, _workspace, channel_dims, {1}, queue,
-      {});
+      current_variance, epsilon_mem, workspace, channel_dims, {1}, queue,
+      events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
-  auto _const_workspace = mo_to_bo(const_workspace);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      _const_workspace, _workspace, helpers::get_total_size(channel_dims),
-      queue, {});
+      const_workspace, workspace, helpers::get_total_size(channel_dims), queue,
+      std::vector<cl::sycl::event>{status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _centered_input = mo_to_bo(centered_input);
-  auto _output = mo_to_bo(output);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _centered_input, _const_workspace, _output, input_dims, channel_dims,
-      queue, {});
+      centered_input, const_workspace, output, input_dims, channel_dims, queue,
+      std::vector<cl::sycl::event>{status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
-  auto _const_output = mo_to_bo(const_output);
-  auto _gamma = mo_to_bo(gamma);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_output, _gamma, _output, input_dims, channel_dims, queue, {});
+      const_output, gamma, output, input_dims, channel_dims, queue,
+      std::vector<cl::sycl::event>{status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _beta = mo_to_bo(beta);
-  return binaryop::internal::launch_binaryop<binaryop::Add>(
-      _const_output, _beta, _output, input_dims, channel_dims, queue, {});
+  status = binaryop::internal::launch_binaryop<binaryop::Add>(
+      const_output, beta, output, input_dims, channel_dims, queue,
+      std::vector<cl::sycl::event>{status.event});
+
+  status.event = sycldnn::helpers::enqueue_free(
+      sycl_epsilon, std::vector<cl::sycl::event>{status.event}, queue);
+
+  return status;
 }
 
 /**
  * Compute running mean and running variance:
  * output = input * momentum + output * (1 - momentum)
  */
-template <typename T>
+template <typename T, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
 inline SNNStatus launch_running_mean_variance(
-    BaseMemObject<T const>& input, BaseMemObject<T const>& momentum,
-    BaseMemObject<T const>& one_minus_momentum, BaseMemObject<T>& output,
-    BaseMemObject<T>& workspace, int size, cl::sycl::queue& queue) {
+    MemObj<T const>& input, MemObj<T const>& momentum,
+    MemObj<T const>& one_minus_momentum, MemObj<T>& output,
+    MemObj<T>& workspace, int size, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events) {
   auto const_output = output.as_const();
-  auto _const_output = mo_to_bo(const_output);
-  auto _one_minus_momentum = mo_to_bo(one_minus_momentum);
-  auto _output = mo_to_bo(output);
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_output, _one_minus_momentum, _output, {size}, {1}, queue, {});
+      const_output, one_minus_momentum, output, {size}, {1}, queue, events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _input = mo_to_bo(input);
-  auto _momentum = mo_to_bo(momentum);
-  auto _workspace = mo_to_bo(workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _input, _momentum, _workspace, {size}, {1}, queue, {});
+      input, momentum, workspace, {size}, {1}, queue,
+      std::vector<cl::sycl::event>{status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
-  auto _const_workspace = mo_to_bo(const_workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      _const_output, _const_workspace, _output, size, queue, {});
+      const_output, const_workspace, output, size, queue,
+      std::vector<cl::sycl::event>{status.event});
   return status;
 }
 
@@ -206,29 +204,32 @@ inline SNNStatus launch_running_mean_variance(
  * Calculates Mean, then Variance and then Batchnorm.
  */
 
-template <typename T, typename Backend>
-SNNStatus launch_forward(
-    BaseMemObject<T const>& input, BaseMemObject<T const>& beta,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& input_mean,
-    BaseMemObject<T const>& input_variance, BaseMemObject<T>& running_mean,
-    BaseMemObject<T>& running_variance, BaseMemObject<T>& output,
-    BatchNormParams const& params, Backend& backend) {
+template <typename T, typename Backend, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
+                         MemObj<T const>& gamma, MemObj<T const>& input_mean,
+                         MemObj<T const>& input_variance,
+                         MemObj<T>& running_mean, MemObj<T>& running_variance,
+                         MemObj<T>& output, BatchNormParams const& params,
+                         Backend& backend,
+                         const std::vector<cl::sycl::event>& events) {
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
   auto channel_dims = {params.channels};
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   SNNStatus status;
+  std::vector<cl::sycl::event> dependencies = events;
 
-  cl::sycl::buffer<T, 1> tr_input_buf((cl::sycl::range<1>(n_items)));
-  auto tr_input = make_mem_object(tr_input_buf, n_items);
+  auto sycl_tr_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto tr_input = _make_mem_object(sycl_tr_input, n_items);
   // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
     auto input_dims = get_input_dims(params);
-    auto in = mo_to_bo(input);
-    auto out = mo_to_bo(tr_input);
-    status =
-        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
+    status = transpose::internal::launch(input, tr_input, input_dims,
+                                         NCHW_TO_NHWC, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -236,26 +237,27 @@ SNNStatus launch_forward(
   auto const_tr_input = tr_input.as_const();
   auto& nhwc_input = is_nchw ? const_tr_input : input;
 
-  cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
-  auto centered_input = make_mem_object(centered_input_buf, n_items);
+  auto sycl_centered_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto centered_input = _make_mem_object(sycl_centered_input, n_items);
 
-  auto _nhwc_input = mo_to_bo(nhwc_input);
-  auto _input_mean = mo_to_bo(input_mean);
-  auto _centered_input = mo_to_bo(centered_input);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _nhwc_input, _input_mean, _centered_input, nhwc_dims, channel_dims, queue,
-      {});
+      nhwc_input, input_mean, centered_input, nhwc_dims, channel_dims, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
-  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto sycl_workspace =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto workspace = _make_mem_object(sycl_workspace, params.channels);
   auto const_centered_input = centered_input.as_const();
-  auto& tr_output = centered_input;  // Re-use temporary buffer
-  status = launch_batchnorm(const_centered_input, beta, gamma, input_variance,
-                            is_nchw ? tr_output : output, workspace,
-                            params.epsilon, nhwc_dims, channel_dims, queue);
+  auto& tr_output = centered_input;  // Re-use temporary memory
+  status =
+      launch_batchnorm(const_centered_input, beta, gamma, input_variance,
+                       is_nchw ? tr_output : output, workspace, params.epsilon,
+                       nhwc_dims, channel_dims, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -263,57 +265,72 @@ SNNStatus launch_forward(
   // Transpose NHWC output back to NCHW.
   if (is_nchw) {
     auto const_tr_output = tr_output.as_const();
-    auto in = mo_to_bo(const_tr_output);
-    auto out = mo_to_bo(output);
-    status =
-        transpose::internal::launch(in, out, nhwc_dims, NHWC_TO_NCHW, queue);
+    status = transpose::internal::launch(const_tr_output, output, nhwc_dims,
+                                         NHWC_TO_NCHW, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
   }
 
-  auto _running_mean = mo_to_bo(running_mean);
-  status = reduce::internal::launch<reduce::Mean>(_nhwc_input, _running_mean, 1,
-                                                  get_non_channel_size(params),
-                                                  params.channels, backend, {});
+  status = reduce::internal::launch<reduce::Mean>(
+      nhwc_input, running_mean, 1, get_non_channel_size(params),
+      params.channels, backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_running_mean = running_mean.as_const();
-  auto _const_running_mean = mo_to_bo(const_running_mean);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _nhwc_input, _const_running_mean, _centered_input, nhwc_dims,
-      channel_dims, queue, {});
+      nhwc_input, const_running_mean, centered_input, nhwc_dims, channel_dims,
+      queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T const, 1> momentum_buf(&params.momentum,
-                                            cl::sycl::range<1>(1));
-  auto momentum = make_mem_object<T const>(momentum_buf, 1);
+  auto sycl_momentum =
+      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &params.momentum, queue);
+  auto momentum = _make_mem_object<T const>(sycl_momentum, 1);
   const T one_minus_momentum_val = 1 - params.momentum;
-  cl::sycl::buffer<T const, 1> one_minus_momentum_buf(&one_minus_momentum_val,
-                                                      cl::sycl::range<1>(1));
-  auto one_minus_momentum = make_mem_object<T const>(one_minus_momentum_buf, 1);
+  auto sycl_one_minus_momentum = sycldnn::helpers::alloc_and_assign<T, IsUSM>(
+      1, &one_minus_momentum_val, queue);
+  auto one_minus_momentum =
+      _make_mem_object<T const>(sycl_one_minus_momentum, 1);
 
-  status = launch_running_mean_variance(input_mean, momentum,
-                                        one_minus_momentum, running_mean,
-                                        workspace, params.channels, queue);
+  status = launch_running_mean_variance(
+      input_mean, momentum, one_minus_momentum, running_mean, workspace,
+      params.channels, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto& squared_centered_input = tr_input;  // Re-use temporary buffer
-  status = launch_variance(const_centered_input, running_variance,
-                           squared_centered_input, params, backend);
+  auto& squared_centered_input = tr_input;  // Re-use temporary memory
+  status =
+      launch_variance(const_centered_input, running_variance,
+                      squared_centered_input, params, backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  status = launch_running_mean_variance(input_variance, momentum,
-                                        one_minus_momentum, running_variance,
-                                        workspace, params.channels, queue);
+  status = launch_running_mean_variance(
+      input_variance, momentum, one_minus_momentum, running_variance, workspace,
+      params.channels, queue, dependencies);
+
+  sycldnn::helpers::enqueue_free(
+      sycl_tr_input, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_centered_input, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_momentum, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(sycl_one_minus_momentum,
+                                 std::vector<cl::sycl::event>{status.event},
+                                 queue);
   return status;
 }
 
@@ -325,38 +342,49 @@ SNNStatus launch_forward(
  * provided by the user.
  */
 
-template <typename T, typename Backend>
-SNNStatus launch_forward(BaseMemObject<T const>& input,
-                         BaseMemObject<T const>& beta,
-                         BaseMemObject<T const>& gamma,
-                         BaseMemObject<T const>& running_mean,
-                         BaseMemObject<T const>& running_variance,
-                         BaseMemObject<T>& output,
-                         BatchNormParams const& params, Backend& backend) {
+template <typename T, typename Backend, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
+                         MemObj<T const>& gamma, MemObj<T const>& running_mean,
+                         MemObj<T const>& running_variance, MemObj<T>& output,
+                         BatchNormParams const& params, Backend& backend,
+                         const std::vector<cl::sycl::event>& events) {
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   auto input_dims = get_input_dims(params);
   auto channel_dims = get_4d_channel_dims(params);
 
-  cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
-  auto centered_input = make_mem_object(centered_input_buf, n_items);
+  auto sycl_centered_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto centered_input = _make_mem_object(sycl_centered_input, n_items);
   SNNStatus status;
-  auto _input = mo_to_bo(input);
-  auto _running_mean = mo_to_bo(running_mean);
-  auto _centered_input = mo_to_bo(centered_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      _input, _running_mean, _centered_input, input_dims, channel_dims, queue,
-      {});
+      input, running_mean, centered_input, input_dims, channel_dims, queue,
+      events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
-  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto sycl_workspace =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto workspace = _make_mem_object(sycl_workspace, params.channels);
   auto const_centered_input = centered_input.as_const();
-  return launch_batchnorm(const_centered_input, beta, gamma, running_variance,
-                          output, workspace, params.epsilon, input_dims,
-                          channel_dims, queue);
+  status = launch_batchnorm(const_centered_input, beta, gamma, running_variance,
+                            output, workspace, params.epsilon, input_dims,
+                            channel_dims, queue,
+                            std::vector<cl::sycl::event>{status.event});
+
+  auto event1 = sycldnn::helpers::enqueue_free(
+      sycl_centered_input, std::vector<cl::sycl::event>{status.event}, queue);
+  auto event2 = sycldnn::helpers::enqueue_free(
+      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
+
+  status.event = queue.submit([=](cl::sycl::handler& cgh) {
+    cgh.depends_on(event1);
+    cgh.depends_on(event2);
+    cgh.host_task([=]() {});
+  });
+  return status;
 }
 
 /**
@@ -367,40 +395,39 @@ SNNStatus launch_forward(BaseMemObject<T const>& input,
  * https://github.com/tensorflow/tensorflow/blob/d916f20e1f1897696a19158ac7f5bd8d83e1b857/tensorflow/python/ops/nn_grad.py#L924
  */
 
-template <typename T, typename Backend>
-SNNStatus launch_gradient(BaseMemObject<T const>& input,
-                          BaseMemObject<T const>& gradient,
-                          BaseMemObject<T const>& gamma,
-                          BaseMemObject<T>& beta_grad,
-                          BaseMemObject<T>& gamma_grad,
-                          BaseMemObject<T>& output,
-                          BatchNormParams const& params, Backend& backend) {
+template <typename T, typename Backend, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
+                          MemObj<T const>& gamma, MemObj<T>& beta_grad,
+                          MemObj<T>& gamma_grad, MemObj<T>& output,
+                          BatchNormParams const& params, Backend& backend,
+                          const std::vector<cl::sycl::event>& events) {
   auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   SNNStatus status;
+  std::vector<cl::sycl::event> dependencies = events;
 
-  cl::sycl::buffer<T, 1> tr_input_buf((cl::sycl::range<1>(n_items)));
-  auto tr_input = make_mem_object(tr_input_buf, n_items);
-  cl::sycl::buffer<T, 1> tr_gradient_buf((cl::sycl::range<1>(n_items)));
-  auto tr_gradient = make_mem_object(tr_gradient_buf, n_items);
+  auto sycl_tr_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto tr_input = _make_mem_object(sycl_tr_input, n_items);
+  auto sycl_tr_gradient = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto tr_gradient = _make_mem_object(sycl_tr_gradient, n_items);
   // Transpose NCHW input and gradient to NHWC to reduce NHW dimensions in one
   // go.
   if (is_nchw) {
     auto input_dims = get_input_dims(params);
-    auto in = mo_to_bo(input);
-    auto out = mo_to_bo(tr_input);
-    status =
-        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
+    status = transpose::internal::launch(input, tr_input, input_dims,
+                                         NCHW_TO_NHWC, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
 
-    auto in2 = mo_to_bo(gradient);
-    auto out2 = mo_to_bo(tr_gradient);
-    status =
-        transpose::internal::launch(in2, out2, input_dims, NCHW_TO_NHWC, queue);
+    status = transpose::internal::launch(gradient, tr_gradient, input_dims,
+                                         NCHW_TO_NHWC, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -410,165 +437,162 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   auto& nhwc_input = is_nchw ? const_tr_input : input;
   auto& nhwc_gradient = is_nchw ? const_tr_gradient : gradient;
 
-  cl::sycl::buffer<T, 1> mean_input_buf((cl::sycl::range<1>(params.channels)));
-  auto mean_input = make_mem_object(mean_input_buf, params.channels);
-  auto _nhwc_input = mo_to_bo(nhwc_input);
-  auto _mean_input = mo_to_bo(mean_input);
-  status = reduce::internal::launch<reduce::Mean>(_nhwc_input, _mean_input, 1,
-                                                  get_non_channel_size(params),
-                                                  params.channels, backend, {});
+  auto sycl_mean_input =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto mean_input = _make_mem_object(sycl_mean_input, params.channels);
+  status = reduce::internal::launch<reduce::Mean>(
+      nhwc_input, mean_input, 1, get_non_channel_size(params), params.channels,
+      backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> centered_input_buf((cl::sycl::range<1>(n_items)));
-  auto centered_input = make_mem_object(centered_input_buf, n_items);
+  auto sycl_centered_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto centered_input = _make_mem_object(sycl_centered_input, n_items);
   auto const_mean_input = mean_input.as_const();
-  auto _const_mean_input = mo_to_bo(const_mean_input);
-  auto _centered_input = mo_to_bo(centered_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      _nhwc_input, _const_mean_input, _centered_input, nhwc_dims,
-      {params.channels}, queue, {});
+      nhwc_input, const_mean_input, centered_input, nhwc_dims,
+      {params.channels}, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> scaled_input_buf((cl::sycl::range<1>(n_items)));
-  auto scaled_input = make_mem_object(scaled_input_buf, n_items);
+  auto sycl_scaled_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto scaled_input = _make_mem_object(sycl_scaled_input, n_items);
   auto const_centered_input = centered_input.as_const();
-  cl::sycl::buffer<T, 1> input_variance_buf(
-      (cl::sycl::range<1>(params.channels)));
-  auto input_variance = make_mem_object(input_variance_buf, params.channels);
+  auto sycl_input_variance =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto input_variance = _make_mem_object(sycl_input_variance, params.channels);
   status = launch_variance(const_centered_input, input_variance, scaled_input,
-                           params, backend);
+                           params, backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T const, 1> epsilon_buf(&params.epsilon,
-                                           cl::sycl::range<1>(1));
-  auto epsilon = make_mem_object<T const>(epsilon_buf, 1);
+  auto sycl_epsilon =
+      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &params.epsilon, queue);
+  auto epsilon = _make_mem_object<T const>(sycl_epsilon, 1);
   auto const_input_variance = input_variance.as_const();
-  auto _const_input_variance = mo_to_bo(const_input_variance);
-  auto _epsilon = mo_to_bo(epsilon);
-  auto _input_variance = mo_to_bo(input_variance);
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      _const_input_variance, _epsilon, _input_variance, {params.channels}, {1},
-      queue, {});
+      const_input_variance, epsilon, input_variance, {params.channels}, {1},
+      queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _nhwc_gradient = mo_to_bo(nhwc_gradient);
-  auto _beta_grad = mo_to_bo(beta_grad);
-  status = reduce::internal::launch<reduce::Add>(_nhwc_gradient, _beta_grad, 1,
-                                                 get_non_channel_size(params),
-                                                 params.channels, backend, {});
+  status = reduce::internal::launch<reduce::Add>(
+      nhwc_gradient, beta_grad, 1, get_non_channel_size(params),
+      params.channels, backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> mean_gradient_buf(
-      (cl::sycl::range<1>(params.channels)));
-  auto mean_gradient = make_mem_object(mean_gradient_buf, params.channels);
+  auto sycl_mean_gradient =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto mean_gradient = _make_mem_object(sycl_mean_gradient, params.channels);
   T num_elts_val = get_non_channel_size(params);
-  cl::sycl::buffer<T const, 1> num_elts_buf(&num_elts_val,
-                                            cl::sycl::range<1>(1));
-  auto num_elts = make_mem_object<T const>(num_elts_buf, 1);
+  auto sycl_num_elts =
+      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &num_elts_val, queue);
+  auto num_elts = _make_mem_object<T const>(sycl_num_elts, 1);
   auto const_beta_grad = beta_grad.as_const();
-  auto _const_beta_grad = mo_to_bo(const_beta_grad);
-  auto _num_elts = mo_to_bo(num_elts);
-  auto _mean_gradient = mo_to_bo(mean_gradient);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_beta_grad, _num_elts, _mean_gradient, {params.channels}, {1},
-      queue, {});
+      const_beta_grad, num_elts, mean_gradient, {params.channels}, {1}, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_mean_gradient = mean_gradient.as_const();
-  auto _const_mean_gradient = mo_to_bo(const_mean_gradient);
-  auto _output = mo_to_bo(output);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      _nhwc_gradient, _const_mean_gradient, _output, nhwc_dims,
-      {params.channels}, queue, {});
+      nhwc_gradient, const_mean_gradient, output, nhwc_dims, {params.channels},
+      queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _const_centered_input = mo_to_bo(const_centered_input);
-  auto _scaled_input = mo_to_bo(scaled_input);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
-      _nhwc_gradient, _const_centered_input, _scaled_input, nhwc_dims, queue,
-      {});
+      nhwc_gradient, const_centered_input, scaled_input, nhwc_dims, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_scaled_input = scaled_input.as_const();
-  auto _const_scaled_input = mo_to_bo(const_scaled_input);
-  auto _gamma_grad = mo_to_bo(gamma_grad);
   status = reduce::internal::launch<reduce::Add>(
-      _const_scaled_input, _gamma_grad, 1, get_non_channel_size(params),
-      params.channels, backend, {});
+      const_scaled_input, gamma_grad, 1, get_non_channel_size(params),
+      params.channels, backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
-  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto sycl_workspace =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto workspace = _make_mem_object(sycl_workspace, params.channels);
   auto const_gamma_grad = gamma_grad.as_const();
-  auto _const_gamma_grad = mo_to_bo(const_gamma_grad);
-  auto _workspace = mo_to_bo(workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_gamma_grad, _num_elts, _workspace, {params.channels}, {1}, queue,
-      {});
+      const_gamma_grad, num_elts, workspace, {params.channels}, {1}, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
-  auto _const_workspace = mo_to_bo(const_workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_workspace, _const_input_variance, _workspace, params.channels,
-      queue, {});
+      const_workspace, const_input_variance, workspace, params.channels, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_centered_input, _const_workspace, _centered_input, nhwc_dims,
-      {params.channels}, queue, {});
+      const_centered_input, const_workspace, centered_input, nhwc_dims,
+      {params.channels}, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
-  auto _const_output = mo_to_bo(const_output);
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      _const_output, _const_centered_input, _output, nhwc_dims, queue, {});
+      const_output, const_centered_input, output, nhwc_dims, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      _const_input_variance, _input_variance, params.channels, queue, {});
+      const_input_variance, input_variance, params.channels, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _gamma = mo_to_bo(gamma);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_output, _gamma, _output, nhwc_dims, {params.channels}, queue, {});
+      const_output, gamma, output, nhwc_dims, {params.channels}, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto& tr_output = tr_input;  // Re-use temporary buffer
-  auto _tr_output = mo_to_bo(tr_output);
+  auto& tr_output = tr_input;  // Re-use temporary memory
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_output, _const_input_variance, is_nchw ? _tr_output : _output,
-      nhwc_dims, {params.channels}, queue, {});
+      const_output, const_input_variance, is_nchw ? tr_output : output,
+      nhwc_dims, {params.channels}, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -576,18 +600,38 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
   // Transpose NHWC output back to NCHW.
   if (is_nchw) {
     auto const_tr_output = tr_output.as_const();
-    auto in = mo_to_bo(const_tr_output);
-    auto out = mo_to_bo(output);
-    status =
-        transpose::internal::launch(in, out, nhwc_dims, NHWC_TO_NCHW, queue);
+    status = transpose::internal::launch(const_tr_output, output, nhwc_dims,
+                                         NHWC_TO_NCHW, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_gamma_grad, _const_input_variance, _gamma_grad, params.channels,
-      queue, {});
+      const_gamma_grad, const_input_variance, gamma_grad, params.channels,
+      queue, dependencies);
+
+  sycldnn::helpers::enqueue_free(
+      sycl_tr_input, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_tr_gradient, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_mean_input, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_centered_input, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_scaled_input, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_input_variance, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_epsilon, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_mean_gradient, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_num_elts, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
   return status;
 }
 
@@ -599,124 +643,126 @@ SNNStatus launch_gradient(BaseMemObject<T const>& input,
  * provided by the user.
  */
 
-template <typename T, typename Backend>
-SNNStatus launch_gradient(
-    BaseMemObject<T const>& input, BaseMemObject<T const>& gradient,
-    BaseMemObject<T const>& gamma, BaseMemObject<T const>& pop_mean,
-    BaseMemObject<T const>& pop_variance, BaseMemObject<T>& beta_grad,
-    BaseMemObject<T>& gamma_grad, BaseMemObject<T>& output,
-    BatchNormParams const& params, Backend& backend) {
+template <typename T, typename Backend, template <typename> class MemObj,
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
+          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
+                          MemObj<T const>& gamma, MemObj<T const>& pop_mean,
+                          MemObj<T const>& pop_variance, MemObj<T>& beta_grad,
+                          MemObj<T>& gamma_grad, MemObj<T>& output,
+                          BatchNormParams const& params, Backend& backend,
+                          const std::vector<cl::sycl::event>& events) {
   auto input_dims = get_input_dims(params);
   auto channel_dims = get_4d_channel_dims(params);
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   SNNStatus status;
+  std::vector<cl::sycl::event> dependencies = events;
 
-  cl::sycl::buffer<T const, 1> epsilon_buf(&params.epsilon,
-                                           cl::sycl::range<1>(1));
-  auto epsilon = make_mem_object<T const>(epsilon_buf, 1);
-  cl::sycl::buffer<T, 1> workspace_buf((cl::sycl::range<1>(params.channels)));
-  auto workspace = make_mem_object(workspace_buf, params.channels);
+  auto sycl_epsilon =
+      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &params.epsilon, queue);
+  auto epsilon = _make_mem_object<T const>(sycl_epsilon, 1);
+  auto sycl_workspace =
+      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+  auto workspace = _make_mem_object(sycl_workspace, params.channels);
 
-  auto _pop_variance = mo_to_bo(pop_variance);
-  auto _epsilon = mo_to_bo(epsilon);
-  auto _workspace = mo_to_bo(workspace);
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      _pop_variance, _epsilon, _workspace, channel_dims, {1}, queue, {});
+      pop_variance, epsilon, workspace, channel_dims, {1}, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_workspace = workspace.as_const();
-  auto _const_workspace = mo_to_bo(const_workspace);
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      _const_workspace, _workspace, params.channels, queue, {});
+      const_workspace, workspace, params.channels, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _input = mo_to_bo(input);
-  auto _pop_mean = mo_to_bo(pop_mean);
-  auto _output = mo_to_bo(output);
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      _input, _pop_mean, _output, input_dims, channel_dims, queue, {});
+      input, pop_mean, output, input_dims, channel_dims, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
-  auto _const_output = mo_to_bo(const_output);
-  auto _gradient = mo_to_bo(gradient);
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _const_output, _gradient, _output, input_dims, queue, {});
+      const_output, gradient, output, input_dims, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _const_output, _const_workspace, _output, input_dims, channel_dims, queue,
-      {});
+      const_output, const_workspace, output, input_dims, channel_dims, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  cl::sycl::buffer<T, 1> tr_reduce_buf((cl::sycl::range<1>(n_items)));
-  auto tr_reduce = make_mem_object(tr_reduce_buf, n_items);
+  auto sycl_tr_reduce = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto tr_reduce = _make_mem_object(sycl_tr_reduce, n_items);
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
-    auto in = mo_to_bo(const_output);
-    auto out = mo_to_bo(tr_reduce);
-    status = transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC,
-                                         queue, {});
+    status = transpose::internal::launch(const_output, tr_reduce, input_dims,
+                                         NCHW_TO_NHWC, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
   }
   auto const_tr_reduce = tr_reduce.as_const();
-  BaseMemObject<T const>& nhwc_reduce_1 =
-      is_nchw ? const_tr_reduce : const_output;
+  MemObj<T const>& nhwc_reduce_1 = is_nchw ? const_tr_reduce : const_output;
 
-  auto _nhwc_reduce_1 = mo_to_bo(nhwc_reduce_1);
-  auto _gamma_grad = mo_to_bo(gamma_grad);
-  status = reduce::internal::launch<reduce::Add>(_nhwc_reduce_1, _gamma_grad, 1,
-                                                 get_non_channel_size(params),
-                                                 params.channels, backend, {});
+  status = reduce::internal::launch<reduce::Add>(
+      nhwc_reduce_1, gamma_grad, 1, get_non_channel_size(params),
+      params.channels, backend, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto _gamma = mo_to_bo(gamma);
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      _gamma, _const_workspace, _workspace, params.channels, queue, {});
+      gamma, const_workspace, workspace, params.channels, queue, dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      _gradient, _const_workspace, _output, input_dims, channel_dims, queue,
-      {});
+      gradient, const_workspace, output, input_dims, channel_dims, queue,
+      dependencies);
+  dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
-    auto in = mo_to_bo(gradient);
-    auto out = mo_to_bo(tr_reduce);
-    status =
-        transpose::internal::launch(in, out, input_dims, NCHW_TO_NHWC, queue);
+    status = transpose::internal::launch(gradient, tr_reduce, input_dims,
+                                         NCHW_TO_NHWC, queue, dependencies);
+    dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
     const_tr_reduce = tr_reduce.as_const();
   }
-  BaseMemObject<T const>& nhwc_reduce_2 = is_nchw ? const_tr_reduce : gradient;
-  auto _nhwc_reduce_2 = mo_to_bo(nhwc_reduce_2);
-  auto _beta_grad = mo_to_bo(beta_grad);
-  status = reduce::internal::launch<reduce::Add>(_nhwc_reduce_2, _beta_grad, 1,
-                                                 get_non_channel_size(params),
-                                                 params.channels, backend, {});
+  MemObj<T const>& nhwc_reduce_2 = is_nchw ? const_tr_reduce : gradient;
+  status = reduce::internal::launch<reduce::Add>(
+      nhwc_reduce_2, beta_grad, 1, get_non_channel_size(params),
+      params.channels, backend, dependencies);
+
+  sycldnn::helpers::enqueue_free(
+      sycl_epsilon, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
+  sycldnn::helpers::enqueue_free(
+      sycl_tr_reduce, std::vector<cl::sycl::event>{status.event}, queue);
   return status;
 }
 

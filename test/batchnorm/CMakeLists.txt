@@ -30,5 +30,19 @@ foreach(_dir IN ITEMS forward gradient)
       PUBLIC_LIBRARIES
         sycl_dnn
     )
+    if (SNN_ENABLE_USM)
+      set(_target batchnorm_event_dependencies_${_dir}_${_op})
+      snn_test(
+        WITH_SYCL
+        TARGET
+          ${_target}
+        SIZE
+          moderate
+        SOURCES
+          ${_target}.cc
+        PUBLIC_LIBRARIES
+          sycl_dnn
+      )
+    endif()
   endforeach()
 endforeach()

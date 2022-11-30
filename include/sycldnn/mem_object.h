@@ -66,7 +66,7 @@ using BaseMemObject = MemObject<T, Alloc>;
 template <typename T, typename Alloc>
 MemObject<T, Alloc> make_mem_object(cl::sycl::buffer<T, 1, Alloc> buffer,
                                     size_t extent, size_t offset = 0) {
-  SNN_ASSERT(buffer.get_count() >= extent + offset,
+  SNN_ASSERT(buffer.size() >= extent + offset,
              "Buffer must contain at least extent + offset elements");
   return MemObject<T, Alloc>{buffer, extent, offset};
 }
@@ -159,7 +159,7 @@ struct MemObject {
    * Get the number of elements in a buffer.
    * \return number of elements.
    */
-  size_t get_count() const { return buffer_.get_count(); }
+  size_t get_count() const { return buffer_.size(); }
 
   /**
    * Return the same MemObject as a read-only one.
@@ -283,7 +283,7 @@ BufferMemObject<T> mo_to_bo(MemObject<T, Alloc> mo) {
 template <typename T>
 BufferMemObject<T> make_buffer_mem_object(cl::sycl::buffer<T, 1> buffer,
                                           size_t extent, size_t offset = 0) {
-  SNN_ASSERT(buffer.get_count() >= extent + offset,
+  SNN_ASSERT(buffer.size() >= extent + offset,
              "Buffer must contain at least extent + offset elements");
   return BufferMemObject<T>{buffer, extent, offset};
 }
@@ -333,6 +333,31 @@ BufferMemObject<T> _make_mem_object(cl::sycl::buffer<T, 1> buffer,
 }
 
 /**
+ * Helper function to create MemObjects.
+ *
+ * This is useful as it can automatically deduce the template types, enabling
+ * BufferMemObjects to be constructed as simply as:
+ * \code
+ *   auto mem_object = make_buffer_mem_object(buffer, size, offset);
+ * \endcode
+ *
+ * \param buffer The SYCL buffer to use as the underlying memory object.
+ * \param extent The overall number of elements in the buffer to provide
+ *               access to.
+ * \param offset The offset from the start of the buffer (in number of
+ *               elements) to use as the initial index for the memory object.
+ *
+ * \return A BufferMemObject that provides access to the given SYCL buffer.
+ */
+template <typename T, typename = std::enable_if<std::is_const_v<T>>>
+BufferMemObject<T> _make_mem_object(
+    cl::sycl::buffer<typename std::remove_const<T>::type, 1> buffer,
+    size_t extent, size_t offset = 0) {
+  return make_buffer_mem_object(buffer.template reinterpret<T>(), extent,
+                                offset);
+}
+
+/**
  * Helper function to create USMMemObjects.
  *
  * This is useful as it can automatically deduce the template types, enabling
@@ -367,8 +392,6 @@ class USMMemObject {
  public:
   /**
    * Construct a USMMemObject wrapper around the given SYCL pointer.
-   * This constructor allows the implicit conversion from non const T*
-   * to USMMemObject<const T>.
    *
    * \param ptr SYCL pointer to use as underlying memory.
    * \param extent The overall number of elements the pointer spans.
@@ -486,7 +509,7 @@ class BufferMemObject {
    */
   BufferMemObject(Buffer buffer, size_t extent, size_t offset)
       : buffer_(buffer), extent_(extent), offset_(offset) {
-    SNN_ASSERT(buffer_.get_count() >= extent_ + offset_,
+    SNN_ASSERT(buffer_.size() >= extent_ + offset_,
                "Buffer must contain at least extent + offset elements");
   };
 

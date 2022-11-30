@@ -89,7 +89,7 @@ struct EigenInternalHandler
     // We cannot assume that std::allocator is used.
     auto eigen_device = this->underlying_backend().get_eigen_device();
     auto raw_buffer = eigen_device.get_sycl_buffer(ptr);
-    auto buffer_size = raw_buffer.get_size();
+    auto buffer_size = raw_buffer.byte_size();
     SNN_ASSERT(buffer_size % sizeof(T) == 0,
                "Buffer size must exactly divide the size of its type.");
     auto cast_size = buffer_size / sizeof(T);

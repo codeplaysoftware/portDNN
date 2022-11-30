@@ -45,7 +45,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
   cmake_policy(SET CMP0116 OLD)
 endif()
 
-set(SYCL_LANGUAGE_VERSION "2017" CACHE STRING "SYCL version to use. Defaults to 1.2.1.")
+set(SYCL_LANGUAGE_VERSION "2020" CACHE STRING "SYCL version to use. Defaults to 1.2.1.")
 
 find_package(OpenCL QUIET)
 

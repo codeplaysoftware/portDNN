@@ -17,55 +17,60 @@
 #define SYCLDNN_SRC_HELPERS_MEM_UTILS_H_
 
 #include <CL/sycl.hpp>
+#include <type_traits>
+
+#include <iostream>
 
 namespace sycldnn {
 namespace helpers {
 
 template <typename T, bool IsUSM>
-class mem_utils {
- public:
-  mem_utils(cl::sycl::queue& queue) : queue_(queue){};
-
-  cl::sycl::buffer<T, 1> alloc(size_t size) const {
+auto alloc(size_t size, cl::sycl::queue& queue) {
+  if constexpr (IsUSM) {
+    return cl::sycl::malloc_device<T>(size, queue);
+  } else {
     return cl::sycl::buffer<T, 1>(cl::sycl::range<1>(size));
   }
+}
 
-  // No-op, buffer is freed by end of scope
-  void free(cl::sycl::buffer<T, 1> /*buffer*/) const {};
+template <typename T, bool IsUSM>
+auto alloc_and_assign(size_t size, const T* values, cl::sycl::queue& queue) {
+  if constexpr (IsUSM) {
+    auto ptr = cl::sycl::malloc_device<T>(size, queue);
+    auto e = queue.memcpy(static_cast<void*>(ptr),
+                          static_cast<const void*>(values), sizeof(T) * size);
+    e.wait();
+    return ptr;
+  } else {
+    return cl::sycl::buffer<T, 1>(values, cl::sycl::range<1>(size));
+  }
+}
 
-  // No-op, buffer is freed by end of scope
-  cl::sycl::event enqueue_free(cl::sycl::buffer<T, 1> /*buffer*/,
-                               const std::vector<cl::sycl::event>& /*events*/) {
-    // return dummy event
-    return queue_.submit(
-        [&](cl::sycl::handler& cgh) { cgh.host_task([=]() {}); });
-  };
+// No-op, buffer is freed by end of scope
+template <typename T>
+void free(cl::sycl::buffer<T, 1> /*buffer*/, cl::sycl::queue& /*queue*/){};
 
- private:
-  cl::sycl::queue queue_;
+template <typename T>
+void free(T* ptr, cl::sycl::queue& queue) {
+  cl::sycl::free(ptr, queue);
+};
+
+// No-op, buffer is freed by end of scope
+template <typename T>
+cl::sycl::event enqueue_free(cl::sycl::buffer<T, 1> /*buffer*/,
+                             const std::vector<cl::sycl::event>& /*events*/,
+                             cl::sycl::queue& queue) {
+  // return dummy event
+  return queue.submit([&](cl::sycl::handler& cgh) { cgh.host_task([=]() {}); });
 };
 
 template <typename T>
-class mem_utils<T, true> {
- public:
-  mem_utils(cl::sycl::queue& queue) : queue_(queue){};
-
-  T* alloc(size_t size) const {
-    return cl::sycl::malloc_device<T>(size, queue_);
-  }
-
-  void free(T* ptr) const { cl::sycl::free(ptr, queue_); };
-
-  cl::sycl::event enqueue_free(T* ptr,
-                               const std::vector<cl::sycl::event>& events) {
-    return queue_.submit([&](cl::sycl::handler& cgh) {
-      cgh.depends_on(events);
-      cgh.host_task([=]() { cl::sycl::free(ptr, queue_); });
-    });
-  };
-
- private:
-  cl::sycl::queue queue_;
+cl::sycl::event enqueue_free(T* ptr, const std::vector<cl::sycl::event>& events,
+                             cl::sycl::queue& queue) {
+  return queue.submit([=](cl::sycl::handler& cgh) {
+    cgh.depends_on(events);
+    cgh.host_task([=]() { cl::sycl::free(ptr, queue); });
+  });
 };
 
 }  // namespace helpers
