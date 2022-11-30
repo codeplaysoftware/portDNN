@@ -57,7 +57,7 @@ template <typename SrcT, typename DstT, template <typename> class MemObj,
 SNNStatus launch_cast(MemObj<SrcT const>& input, MemObj<SrcT>& output,
                       std::vector<int> dimensions, std::vector<int> permutation,
                       cl::sycl::queue& queue,
-                      const std::vector<cl::sycl::event>& events = {}) {
+                      const std::vector<cl::sycl::event>& events) {
   if (std::is_same<SrcT, DstT>::value) {
     return launch_impl(input, output, dimensions, permutation, queue, events);
   }
@@ -74,7 +74,7 @@ SNNStatus launch_cast(MemObj<SrcT const>& input, MemObj<SrcT>& output,
   SNNStatus launch(MEM_OBJ<T const>& input, MEM_OBJ<T>& output,               \
                    std::vector<int> dimensions, std::vector<int> permutation, \
                    cl::sycl::queue& queue,                                    \
-                   const std::vector<cl::sycl::event>& events = {}) {         \
+                   const std::vector<cl::sycl::event>& events) {              \
     return launch_cast<T, DST_T>(input, output, dimensions, permutation,      \
                                  queue, events);                              \
   }
@@ -102,7 +102,7 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
                     typename Backend::template pointer_type<T> output,
                     std::vector<int> const& dimensions,
                     std::vector<int> const& permutation, Backend& backend,
-                    const std::vector<cl::sycl::event>& events = {}) {
+                    const std::vector<cl::sycl::event>& events) {
   auto n_dimensions = dimensions.size();
   SNN_VALIDATE_PARAM(n_dimensions > 0,
                      "The number of dimensions must be positive.");

@@ -67,8 +67,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  std::vector<int> const& dimensions,
                  std::vector<int> const& permutation, Backend& backend) {
-  return internal::sublaunch<T>(input, output, dimensions, permutation,
-                                backend);
+  return internal::sublaunch<T>(input, output, dimensions, permutation, backend,
+                                {});
 }
 
 #ifdef SNN_ENABLE_USM
@@ -140,7 +140,7 @@ SNNStatus convert_nhwc_to_nchw(
       dimensions.size() == 4,
       "Conversion from NHWC to NCHW is only valid on 4D tensors.");
   return internal::sublaunch<T>(input, output, dimensions, NHWC_TO_NCHW,
-                                backend);
+                                backend, {});
 }
 
 #ifdef SNN_ENABLE_USM
@@ -209,7 +209,7 @@ SNNStatus convert_nchw_to_nhwc(
       dimensions.size() == 4,
       "Conversion from NCHW to NHWC is only valid on 4D tensors.");
   return internal::sublaunch<T>(input, output, dimensions, NCHW_TO_NHWC,
-                                backend);
+                                backend, {});
 }
 
 #ifdef SNN_ENABLE_USM
