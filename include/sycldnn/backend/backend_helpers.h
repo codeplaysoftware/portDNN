@@ -17,6 +17,8 @@
 #ifndef SYCLDNN_INCLUDE_BACKEND_HELPERS_H_
 #define SYCLDNN_INCLUDE_BACKEND_HELPERS_H_
 
+#include <type_traits>
+
 namespace sycldnn {
 namespace backend {
 
