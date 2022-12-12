@@ -199,6 +199,8 @@ class CLBlastBackend final : public CommonBackend,
    * \param [in]     k         Number of columns in the LHS matrix and rows in
    *                           the RHS matrix.
    * \param [in]     n         Number of columns in the RHS matrix.
+   * \param [in]     events    Passed to keep func signature same, not used in
+   *                           this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -206,7 +208,10 @@ class CLBlastBackend final : public CommonBackend,
   cl::sycl::event matmul(internal_pointer_type<const T> const lhs,
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
-                         Index const m, Index const k, Index const n) {
+                         Index const m, Index const k, Index const n,
+                         const std::vector<cl::sycl::event>& events = {}) {
+    SNN_UNUSED_VAR(events)
+
     using namespace clblast;
     auto a_buf = lhs.get_buffer();
     auto b_buf = rhs.get_buffer();
@@ -281,15 +286,20 @@ class CLBlastBackend final : public CommonBackend,
    * \param [in]     k         Number of columns in the LHS matrix and rows in
    *                           the RHS matrix.
    * \param [in]     n         Number of columns in the RHS matrix.
+   * \param [in]     events    Passed to keep func signature same, not used in
+   * this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  cl::sycl::event batch_matmul(internal_pointer_type<const T> const lhs,
-                               internal_pointer_type<const T> const rhs,
-                               internal_pointer_type<T> const output,
-                               Index const n_batches, Index const m,
-                               Index const k, Index const n) {
+  cl::sycl::event batch_matmul(
+      internal_pointer_type<const T> const lhs,
+      internal_pointer_type<const T> const rhs,
+      internal_pointer_type<T> const output, Index const n_batches,
+      Index const m, Index const k, Index const n,
+      const std::vector<cl::sycl::event>& events = {}) {
+    SNN_UNUSED_VAR(events)
+
     using namespace clblast;
     auto lda = TransposeLHS ? m : k;
     auto ldb = TransposeRHS ? k : n;

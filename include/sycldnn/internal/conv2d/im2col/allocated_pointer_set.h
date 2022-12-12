@@ -57,6 +57,11 @@ struct AllocatedPointerSet {
     return {input, filter, transform.get(), output};
   }
 
+  /** Add events to pointer on which to wait for before releasing memory */
+  inline void pass_event_to_ptrs(const cl::sycl::event& event) {
+    transform.set_event(event);
+  }
+
   size_t allocated_transform_size;
   ConstPointer input;
   ConstPointer filter;
@@ -102,6 +107,12 @@ struct AllocatedPointerSet<T, Backend, conv_type::InputBackprop> {
 
   FullPointerSet<T, Backend, conv_type::InputBackprop> to_full_pointer_set() {
     return {input, original_filter, filter.get(), transform.get(), output};
+  }
+
+  /** Add events to pointer on which to wait for before releasing memory */
+  inline void pass_event_to_ptrs(const cl::sycl::event& event) {
+    filter.set_event(event);
+    transform.set_event(event);
   }
 
   size_t allocated_transform_size;

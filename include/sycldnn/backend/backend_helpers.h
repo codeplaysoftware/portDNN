@@ -21,7 +21,10 @@
 
 namespace sycldnn {
 namespace backend {
-
+namespace internal {
+template <typename Backend>
+struct InternalBackend;
+}
 // Forward declerations
 struct SNNBackend;
 struct SNNUSMBackend;
@@ -32,8 +35,11 @@ struct EigenBackend;
 // Helpers to check if backend uses USM or buffers
 template <typename Backend>
 struct is_usm_backend
-    : std::integral_constant<bool,
-                             std::is_same<Backend, SNNUSMBackend>::value> {};
+    : std::integral_constant<
+          bool,
+          std::is_same<Backend, SNNUSMBackend>::value ||
+              std::is_same<Backend,
+                           internal::InternalBackend<SNNUSMBackend>>::value> {};
 
 template <typename Backend>
 inline constexpr bool is_usm_backend_v = is_usm_backend<Backend>::value;
@@ -41,10 +47,19 @@ inline constexpr bool is_usm_backend_v = is_usm_backend<Backend>::value;
 template <typename Backend>
 struct is_buffer_backend
     : std::integral_constant<
-          bool, std::is_same<Backend, SNNBackend>::value ||
-                    std::is_same<Backend, SyclBLASBackend>::value ||
-                    std::is_same<Backend, CLBlasBackend>::value ||
-                    std::is_same<Backend, EigenBackend>::value> {};
+          bool,
+          std::is_same<Backend, SNNBackend>::value ||
+              std::is_same<Backend, SyclBLASBackend>::value ||
+              std::is_same<Backend, CLBlasBackend>::value ||
+              std::is_same<Backend, EigenBackend>::value ||
+              std::is_same<Backend,
+                           internal::InternalBackend<SNNBackend>>::value ||
+              std::is_same<Backend,
+                           internal::InternalBackend<SyclBLASBackend>>::value ||
+              std::is_same<Backend,
+                           internal::InternalBackend<CLBlasBackend>>::value ||
+              std::is_same<Backend,
+                           internal::InternalBackend<EigenBackend>>::value> {};
 
 template <typename Backend>
 inline constexpr bool is_buffer_backend_v = is_buffer_backend<Backend>::value;

@@ -33,12 +33,15 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, typename Index>
-SNNStatus queue_filter_transform(BaseMemObject<T const>& input_mem,
-                                 BaseMemObject<T>& output_mem,
+template <typename T, typename Index, template <typename> class MemObj>
+SNNStatus queue_filter_transform(MemObj<T const>& input_mem,
+                                 MemObj<T>& output_mem,
                                  Conv2DParams const& params, Index thread_size,
-                                 cl::sycl::queue& queue) {
-  using Functor = ExtractFilterTiles<T, Index>;
+                                 cl::sycl::queue& queue,
+                                 const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
+
+  using Functor = ExtractFilterTiles<T, Index, is_usm>;
   cl::sycl::device device = queue.get_device();
   Index const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
@@ -46,8 +49,9 @@ SNNStatus queue_filter_transform(BaseMemObject<T const>& input_mem,
       helpers::round_up_to_nearest_multiple(thread_size, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
     Functor conv{params, input, output};
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, conv);

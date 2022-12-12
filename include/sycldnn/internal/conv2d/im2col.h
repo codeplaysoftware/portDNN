@@ -46,15 +46,15 @@ template <typename T, typename ConvType, typename Backend,
 static SNNStatus launch_im2col_for_minibatch(
     FullPointerSet<T, Backend, ConvType> const& pointers, size_t in_offset,
     size_t out_offset, TileInfo const& tile_info, Conv2DParams const& params,
-    Backend& backend) {
+    Backend& backend, const std::vector<cl::sycl::event>& events) {
   using ConstPointer =
       typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
-  auto status =
-      launch_input_transform(pointers, in_offset, tile_info, params, backend);
+  auto status = launch_input_transform(pointers, in_offset, tile_info, params,
+                                       backend, events);
   if (status.status != StatusCode::OK) {
     return status;
   }
-
+  std::vector<cl::sycl::event> dependencies{status.event};
   int matmul_size;
   if (std::is_same<ConvType, conv_type::InputBackprop>::value) {
     matmul_size = params.channels;
@@ -66,7 +66,7 @@ static SNNStatus launch_im2col_for_minibatch(
   auto event = backend.template matmul<false, false>(
       ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
       pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
-      matmul_size);
+      matmul_size, dependencies);
   return {event, StatusCode::OK};
 }
 
@@ -81,28 +81,28 @@ template <typename T, typename ConvType, typename Backend,
 static SNNStatus launch_im2col_for_minibatch(
     FullPointerSet<T, Backend, ConvType> const& pointers, size_t in_offset,
     size_t out_offset, TileInfo const& tile_info, Conv2DParams const& params,
-    Backend& backend) {
+    Backend& backend, const std::vector<cl::sycl::event>& events) {
   using ConstPointer =
       typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
-  auto status =
-      launch_input_transform(pointers, in_offset, tile_info, params, backend);
+  auto status = launch_input_transform(pointers, in_offset, tile_info, params,
+                                       backend, events);
   if (status.status != StatusCode::OK) {
     return status;
   }
-
+  std::vector<cl::sycl::event> dependencies{status.event};
   const int n_tiles = tile_info.number;
   const int tile_size = params.batch * tile_info.size;
   cl::sycl::event matmul_event;
   if (in_offset == 0) {
     matmul_event = backend.template matmul<false, false>(
         ConstPointer{pointers.transform}, pointers.filter + out_offset,
-        pointers.output, static_cast<T>(0), n_tiles, tile_size,
-        params.features);
+        pointers.output, static_cast<T>(0), n_tiles, tile_size, params.features,
+        dependencies);
   } else {
     matmul_event = backend.template matmul<false, false>(
         ConstPointer{pointers.transform}, pointers.filter + out_offset,
-        pointers.output, static_cast<T>(1), n_tiles, tile_size,
-        params.features);
+        pointers.output, static_cast<T>(1), n_tiles, tile_size, params.features,
+        dependencies);
   }
   return {matmul_event, StatusCode::OK};
 }
@@ -112,28 +112,33 @@ template <typename T, typename ConvType, typename Backend>
 static SNNStatus launch_im2col_for_all_minibatches(
     FullPointerSet<T, Backend, ConvType> const& pointers,
     TileInfo const& tile_info, BatchInfo const& batch_info,
-    Conv2DParams const& params, Backend& backend) {
-  auto filter_status = launch_filter_transform(pointers, params, backend);
+    Conv2DParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
+  auto filter_status =
+      launch_filter_transform(pointers, params, backend, events);
   if (filter_status.status != StatusCode::OK) {
     return filter_status;
   }
   auto kernel_params = get_kernel_params<ConvType>(params);
   kernel_params.batch = batch_info.images_per_batch;
-  cl::sycl::event event;
+  cl::sycl::event dep_event = filter_status.event;
   for (size_t i = 0; i < batch_info.n_batches; ++i) {
     auto offset =
         calculate_offsets<ConvType>(i, batch_info.images_per_batch, params);
     if (i == batch_info.n_batches - 1) {
       kernel_params.batch = batch_info.last_batch_size;
     }
-    auto status = launch_im2col_for_minibatch(
-        pointers, offset.in, offset.out, tile_info, kernel_params, backend);
-    event = status.event;
+    auto status =
+        launch_im2col_for_minibatch(pointers, offset.in, offset.out, tile_info,
+                                    kernel_params, backend, {dep_event});
+    // Each minibatch depends on previous for safe re-use of transform buffer
+    dep_event = status.event;
     if (status.status != StatusCode::OK) {
       return status;
     }
   }
-  return SNNStatus{event, StatusCode::OK};
+
+  return SNNStatus{dep_event, StatusCode::OK};
 }
 
 /**
@@ -146,7 +151,8 @@ SNNStatus allocate_and_launch_im2col(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
-    Conv2DParams const& params, Backend& backend) {
+    Conv2DParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   InternalPointerSet<T, Backend> pointers{input, filter, output, backend};
 
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
@@ -157,9 +163,11 @@ SNNStatus allocate_and_launch_im2col(
   auto const batch_info = get_batch_info(all_pointers.allocated_transform_size,
                                          params.batch, size_per_image);
 
-  return im2col::launch_im2col_for_all_minibatches(
+  const auto launch_status = im2col::launch_im2col_for_all_minibatches(
       all_pointers.to_full_pointer_set(), tile_info, batch_info, params,
-      backend);
+      backend, events);
+  all_pointers.pass_event_to_ptrs(launch_status.event);
+  return launch_status;
 }
 
 /**
@@ -174,7 +182,8 @@ SNNStatus launch_im2col_with_workspace(
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
     typename Backend::template pointer_type<T> workspace,
-    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+    Conv2DParams const& params, size_t workspace_size, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   InternalPointerSet<T, Backend> pointers{input, filter, output, backend};
 
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
@@ -187,7 +196,7 @@ SNNStatus launch_im2col_with_workspace(
 
   return im2col::launch_im2col_for_all_minibatches(
       all_pointers.to_full_pointer_set(), tile_info, batch_info, params,
-      backend);
+      backend, events);
 }
 
 }  // namespace im2col
@@ -204,13 +213,15 @@ SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
                         typename Backend::template pointer_type<T> output,
                         typename Backend::template pointer_type<T> workspace,
                         Conv2DParams const& params, size_t workspace_size,
-                        Backend& backend) {
+                        Backend& backend,
+                        const std::vector<cl::sycl::event>& events) {
   if (workspace_size == 0) {
     return im2col::allocate_and_launch_im2col<T, ConvType>(
-        input, filter, output, params, backend);
+        input, filter, output, params, backend, events);
   } else {
     return im2col::launch_im2col_with_workspace<T, ConvType>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
 }
 

@@ -42,11 +42,10 @@ namespace im2col {
  * \param [in]  queue  SYCL queue to enqueue the kernel to
  * \return An SNNStatus with event linked to the kernel launch or an error code.
  */
-template <typename T>
-SNN_EXPORT SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
-                                             BaseMemObject<T>& output,
-                                             Conv2DParams const& params,
-                                             cl::sycl::queue& queue);
+template <typename T, template <typename> class MemObj>
+SNN_EXPORT SNNStatus launch_filter_transform(
+    MemObj<T const>& input, MemObj<T>& output, Conv2DParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
 /**
  * For forward and filter backprop the original filter is used, so just return.
@@ -57,8 +56,13 @@ template <typename T, typename ConvType, typename Backend,
               int>::type = 0>
 static SNNStatus launch_filter_transform(
     FullPointerSet<T, Backend, ConvType> const& /*pointers*/,
-    Conv2DParams const& /*params*/, Backend& /*backend*/) {
-  return StatusCode::OK;
+    Conv2DParams const& /*params*/, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
+  auto event = backend.get_queue().submit([=](sycl::handler& cgh) {
+    cgh.depends_on(events);
+    cgh.host_task([]() {});
+  });
+  return {event, StatusCode::OK};
 }
 
 /**
@@ -73,18 +77,19 @@ template <
         std::is_same<ConvType, conv_type::InputBackprop>::value, int>::type = 0>
 static SNNStatus launch_filter_transform(
     FullPointerSet<T, Backend, ConvType> const& pointers,
-    Conv2DParams const& params, Backend& backend) {
+    Conv2DParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   size_t const filter_size = params.window_rows * params.window_cols *
                              params.channels * params.features;
   auto filter_access =
-      backend.get_mem_object_internal(pointers.original_filter, filter_size);
+      backend._get_mem_object_internal(pointers.original_filter, filter_size);
 
   auto transform_access =
-      backend.get_mem_object_internal(pointers.filter, filter_size);
+      backend._get_mem_object_internal(pointers.filter, filter_size);
 
   cl::sycl::queue queue = backend.get_queue();
-  return launch_filter_transform(filter_access, transform_access, params,
-                                 queue);
+  return launch_filter_transform(filter_access, transform_access, params, queue,
+                                 events);
 }
 
 }  // namespace im2col

@@ -34,22 +34,23 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, typename Index, int VectorWidth, typename ConvType>
+template <typename T, typename Index, int VectorWidth, typename ConvType,
+          bool isUSM>
 struct ExtractInputTiles;
 /**
  * Have one thread per input entry. That thread is then responsible for writing
  * its one entry to each point in the intermediate tensor as required for the
  * contraction.
  */
-template <typename T, typename Index, int VectorWidth>
-struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
+template <typename T, typename Index, int VectorWidth, bool isUSM>
+struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<VecType>;
   using Store = helpers::io::Store<VecType>;
 
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
-                    ReadAccessor<T const> const& input,
-                    WriteAccessor<T> const& output)
+                    ReadMem<T const, isUSM> const& input,
+                    WriteMem<T, isUSM> const& output)
       : tile_size_{tile_size},
         channels_{params.channels},
         features_{params.features},
@@ -137,19 +138,20 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward> {
   Index const out_cols_;
   Index const pad_rows_;
   Index const pad_cols_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, isUSM> input_accessor_;
+  WriteMem<T, isUSM> output_accessor_;
 };
 
-template <typename T, typename Index, int VectorWidth>
-struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
+template <typename T, typename Index, int VectorWidth, bool isUSM>
+struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop,
+                         isUSM> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<VecType>;
   using Store = helpers::io::Store<VecType>;
 
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
-                    ReadAccessor<T const> const& input,
-                    WriteAccessor<T> const& output)
+                    ReadMem<T const, isUSM> const& input,
+                    WriteMem<T, isUSM> const& output)
       : tile_size_{tile_size},
         channels_{params.channels},
         features_{params.features},
@@ -228,19 +230,20 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop> {
   Index const out_cols_;
   Index const pad_rows_;
   Index const pad_cols_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, isUSM> input_accessor_;
+  WriteMem<T, isUSM> output_accessor_;
 };
 
-template <typename T, typename Index, int VectorWidth>
-struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
+template <typename T, typename Index, int VectorWidth, bool isUSM>
+struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop,
+                         isUSM> {
   using VecType = typename helpers::VectorType<T, 1>::type;
   using Load = helpers::io::Load<VecType>;
   using Store = helpers::io::Store<VecType>;
 
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
-                    ReadAccessor<T const> const& input,
-                    WriteAccessor<T> const& output)
+                    ReadMem<T const, isUSM> const& input,
+                    WriteMem<T, isUSM> const& output)
       : tile_size_{tile_size},
         channels_{params.channels},
         features_{params.features},
@@ -353,8 +356,8 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop> {
   Index const pad_cols_;
   Index const dilation_rows_;
   Index const dilation_cols_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, isUSM> input_accessor_;
+  WriteMem<T, isUSM> output_accessor_;
 };
 
 }  // namespace im2col

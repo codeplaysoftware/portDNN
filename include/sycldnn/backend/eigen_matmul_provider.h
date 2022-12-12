@@ -58,13 +58,17 @@ struct EigenMatmulProvider
    * \param [in]     k      Number of columns in the LHS matrix and rows in the
    *                        RHS matrix.
    * \param [in]     n      Number of columns in the RHS matrix.
+   * \param [in]     events Passed to keep func signature same, not used in this
+   *                        backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
   cl::sycl::event matmul(T const* const lhs, T const* const rhs,
                          T* const output, T const alpha, Index const m,
-                         Index const k, Index const n) {
+                         Index const k, Index const n,
+                         const std::vector<cl::sycl::event>& events = {}) {
+    SNN_UNUSED_VAR(events)
     static constexpr auto lhs_dim = TransposeLHS ? 0 : 1;
     static constexpr auto rhs_dim = TransposeRHS ? 1 : 0;
     using ConstTensorType = Eigen::Tensor<T const, 2, Eigen::RowMajor, Index>;
@@ -118,13 +122,18 @@ struct EigenMatmulProvider
    * \param [in]     k         Number of columns in the LHS matrix and rows in
    *                           the RHS matrix.
    * \param [in]     n         Number of columns in the RHS matrix.
+   *                           will wait on before launching the kernels.
+   * \param [in]     events    Passed to keep func signature same, not used in
+   *                           this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  cl::sycl::event batch_matmul(T const* const lhs, T const* const rhs,
-                               T* const output, Index const n_batches,
-                               Index const m, Index const k, Index const n) {
+  cl::sycl::event batch_matmul(
+      T const* const lhs, T const* const rhs, T* const output,
+      Index const n_batches, Index const m, Index const k, Index const n,
+      const std::vector<cl::sycl::event>& events = {}) {
+    SNN_UNUSED_VAR(events)
     Index const lhs_size = m * k;
     Index const rhs_size = k * n;
     Index const out_size = m * n;

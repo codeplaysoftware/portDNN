@@ -222,9 +222,12 @@ SNNStatus allocate_and_launch_with_tiles(
   auto batch_info =
       get_batch_info(allocated_pointers.minibatch_size, params.batch);
 
-  return launch_with_transforms<T, M, N, R, S, ConvType>(
+  const auto launch_status = launch_with_transforms<T, M, N, R, S, ConvType>(
       allocated_pointers.to_full_pointer_set(), kernel_params, tile_info,
       batch_info, backend);
+
+  allocated_pointers.pass_event_to_ptrs(launch_status.event);
+  return launch_status;
 }
 
 /**

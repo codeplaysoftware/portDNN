@@ -34,52 +34,63 @@ namespace internal {
 namespace im2col {
 namespace {
 
-template <typename T, typename Index>
-SNNStatus launch_with_index(BaseMemObject<T const>& input,
-                            BaseMemObject<T>& output,
+template <typename T, typename Index, template <typename> class MemObj>
+SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
                             Conv2DParams const& params, size_t thread_size,
-                            cl::sycl::queue& queue) {
+                            cl::sycl::queue& queue,
+                            const std::vector<cl::sycl::event>& events) {
   return queue_filter_transform<T, Index>(input, output, params, thread_size,
-                                          queue);
+                                          queue, events);
 }
 }  // namespace
 
-template <typename T>
-SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
-                                  BaseMemObject<T>& output,
+template <typename T, template <typename> class MemObj>
+SNNStatus launch_filter_transform(MemObj<T const>& input, MemObj<T>& output,
                                   Conv2DParams const& params,
-                                  cl::sycl::queue& queue) {
+                                  cl::sycl::queue& queue,
+                                  const std::vector<cl::sycl::event>& events) {
   size_t thread_size = params.window_rows * params.window_cols *
                        params.channels * params.features;
   if (thread_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, int64_t>(input, output, params, thread_size,
-                                         queue);
+                                         queue, events);
 #else
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, int32_t>(input, output, params, thread_size,
-                                         queue);
+                                         queue, events);
   }
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE)                                      \
-  template SNN_EXPORT SNNStatus launch_filter_transform<DTYPE>(          \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
-      Conv2DParams const& params, cl::sycl::queue& queue);
+#define INSTANTIATE_LAUNCHER(DTYPE, MEMOBJ)                     \
+  template SNN_EXPORT SNNStatus launch_filter_transform<DTYPE>( \
+      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output,      \
+      Conv2DParams const& params, cl::sycl::queue& queue,       \
+      const std::vector<cl::sycl::event>& events);
 
-INSTANTIATE_LAUNCHER(float)
+#ifdef SNN_ENABLE_USM
+#define INSTANTIATE_FOR_MEMOBJ(DTYPE)       \
+  INSTANTIATE_LAUNCHER(DTYPE, USMMemObject) \
+  INSTANTIATE_LAUNCHER(DTYPE, BufferMemObject)
+#else
+#define INSTANTIATE_FOR_MEMOBJ(DTYPE) \
+  INSTANTIATE_LAUNCHER(DTYPE, BufferMemObject)
+#endif
+
+INSTANTIATE_FOR_MEMOBJ(float)
 
 #ifdef SNN_USE_DOUBLE
-INSTANTIATE_LAUNCHER(double)
+INSTANTIATE_FOR_MEMOBJ(double)
 #endif  // SNN_USE_DOUBLE
 
 #ifdef SNN_USE_HALF
-INSTANTIATE_LAUNCHER(cl::sycl::half)
+INSTANTIATE_FOR_MEMOBJ(cl::sycl::half)
 #endif  // SNN_USE_HALF
 
 #undef INSTANTIATE_LAUNCHER
+#undef INSTANTIATE_FOR_MEMOBJ
 
 }  // namespace im2col
 }  // namespace internal

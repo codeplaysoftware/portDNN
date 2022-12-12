@@ -46,22 +46,22 @@ namespace im2col {
  * \param [in]  tile_size Number of elements in each im2col tile
  * \return An SNNStatus with event linked to the kernel launch or an error code.
  */
-template <typename T, typename ConvType>
-SNN_EXPORT SNNStatus launch_input_transform(BaseMemObject<T const>& input,
-                                            BaseMemObject<T>& output,
-                                            Conv2DParams const& params,
-                                            int n_tiles, int tile_size,
-                                            cl::sycl::queue& queue);
+template <typename T, typename ConvType, template <typename> class MemObj>
+SNN_EXPORT SNNStatus launch_input_transform(
+    MemObj<T const>& input, MemObj<T>& output, Conv2DParams const& params,
+    int n_tiles, int tile_size, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
 
 /** Extract the buffers from the backend and call the kernel launcher. */
 template <typename T, typename ConvType, typename Backend>
 static SNNStatus launch_input_transform(
     FullPointerSet<T, Backend, ConvType> const& pointers, size_t in_offset,
-    TileInfo const& tile_info, Conv2DParams const& params, Backend& backend) {
+    TileInfo const& tile_info, Conv2DParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   auto const conv_sizes = get_sizes<ConvType>(params);
   size_t const input_size = conv_sizes.input_size;
   auto input_acc =
-      backend.get_mem_object_internal(pointers.input + in_offset, input_size);
+      backend._get_mem_object_internal(pointers.input + in_offset, input_size);
 
   int n_tiles;
   int tile_size;
@@ -74,11 +74,11 @@ static SNNStatus launch_input_transform(
   }
   size_t const transform_size = n_tiles * tile_size;
   auto transform_acc =
-      backend.get_mem_object_internal(pointers.transform, transform_size);
+      backend._get_mem_object_internal(pointers.transform, transform_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_input_transform<T, ConvType>(input_acc, transform_acc, params,
-                                             n_tiles, tile_size, queue);
+                                             n_tiles, tile_size, queue, events);
 }
 
 }  // namespace im2col

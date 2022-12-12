@@ -64,16 +64,21 @@ cl::sycl::range<3> get_thread_range(Conv2DParams const& params) {
 
 }  // namespace
 
-template <typename T, typename Index, int VectorWidth, typename ConvType>
-SNNStatus queue_input_transform(BaseMemObject<T const>& input_mem,
-                                BaseMemObject<T>& output_mem,
+template <typename T, typename Index, int VectorWidth, typename ConvType,
+          template <typename> class MemObj>
+SNNStatus queue_input_transform(MemObj<T const>& input_mem,
+                                MemObj<T>& output_mem,
                                 Conv2DParams const& params, int tile_size,
-                                cl::sycl::queue& queue) {
-  using Functor = ExtractInputTiles<T, Index, VectorWidth, ConvType>;
+                                cl::sycl::queue& queue,
+                                const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
+
+  using Functor = ExtractInputTiles<T, Index, VectorWidth, ConvType, is_usm>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
     auto range = get_thread_range<VectorWidth, ConvType>(params);
     Functor conv{tile_size, params, input, output};
 

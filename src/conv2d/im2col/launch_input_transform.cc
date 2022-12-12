@@ -68,80 +68,92 @@ bool can_use_vector<conv_type::FilterBackprop>(Conv2DParams const& /*params*/,
   return false;
 }
 
-template <typename T, typename Index, int VectorWidth, typename ConvType>
-SNNStatus launch_with_index(BaseMemObject<T const>& input,
-                            BaseMemObject<T>& output,
+template <typename T, typename Index, int VectorWidth, typename ConvType,
+          template <typename> class MemObj>
+SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
                             Conv2DParams const& params, int n_tiles,
-                            int tile_size, cl::sycl::queue& queue) {
-  auto status = queue_zero_out_transform<T, VectorWidth>(output, n_tiles,
-                                                         tile_size, queue);
+                            int tile_size, cl::sycl::queue& queue,
+                            const std::vector<cl::sycl::event>& events) {
+  auto status = queue_zero_out_transform<T, VectorWidth>(
+      output, n_tiles, tile_size, queue, events);
   if (status.status != StatusCode::OK) {
     return status;
   } else {
+    std::vector<cl::sycl::event> dependencies{status.event};
     return queue_input_transform<T, Index, VectorWidth, ConvType>(
-        input, output, params, tile_size, queue);
+        input, output, params, tile_size, queue, dependencies);
   }
 }
 
-template <typename T, int VectorWidth, typename ConvType>
-SNNStatus launch_with_vector(BaseMemObject<T const>& input,
-                             BaseMemObject<T>& output,
+template <typename T, int VectorWidth, typename ConvType,
+          template <typename> class MemObj>
+SNNStatus launch_with_vector(MemObj<T const>& input, MemObj<T>& output,
                              Conv2DParams const& params, int n_tiles,
-                             int tile_size, cl::sycl::queue& queue) {
+                             int tile_size, cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events) {
   size_t thread_size = get_thread_size<ConvType>(params, VectorWidth);
   if (thread_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
     return launch_with_index<T, int64_t, VectorWidth, ConvType>(
-        input, output, params, n_tiles, tile_size, queue);
+        input, output, params, n_tiles, tile_size, queue, events);
 #else
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
     return launch_with_index<T, int32_t, VectorWidth, ConvType>(
-        input, output, params, n_tiles, tile_size, queue);
+        input, output, params, n_tiles, tile_size, queue, events);
   }
 }
 }  // namespace
 
-template <typename T, typename ConvType>
-SNNStatus launch_input_transform(BaseMemObject<T const>& input,
-                                 BaseMemObject<T>& output,
+template <typename T, typename ConvType, template <typename> class MemObj>
+SNNStatus launch_input_transform(MemObj<T const>& input, MemObj<T>& output,
                                  Conv2DParams const& params, int n_tiles,
-                                 int tile_size, cl::sycl::queue& queue) {
+                                 int tile_size, cl::sycl::queue& queue,
+                                 const std::vector<cl::sycl::event>& events) {
   if (can_use_vector<ConvType>(params, 4)) {
     return launch_with_vector<T, 4, ConvType>(input, output, params, n_tiles,
-                                              tile_size, queue);
+                                              tile_size, queue, events);
   } else if (can_use_vector<ConvType>(params, 2)) {
     return launch_with_vector<T, 2, ConvType>(input, output, params, n_tiles,
-                                              tile_size, queue);
+                                              tile_size, queue, events);
   } else {
     return launch_with_vector<T, 1, ConvType>(input, output, params, n_tiles,
-                                              tile_size, queue);
+                                              tile_size, queue, events);
   }
 }
 
-#define INSTANTIATE_LAUNCHER(DTYPE, CTYPE)                               \
-  template SNN_EXPORT SNNStatus launch_input_transform<DTYPE, CTYPE>(    \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE> & output, \
-      Conv2DParams const& params, int n_tiles, int tile_size,            \
-      cl::sycl::queue& queue);
+#define INSTANTIATE_LAUNCHER(DTYPE, CTYPE, MEMOBJ)                            \
+  template SNN_EXPORT SNNStatus launch_input_transform<DTYPE, CTYPE, MEMOBJ>( \
+      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output,                    \
+      Conv2DParams const& params, int n_tiles, int tile_size,                 \
+      cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
-#define INSTANTIATE_FOR_TYPE(DTYPE)                     \
-  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward)       \
-  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop) \
-  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop)
+#define INSTANTIATE_FOR_TYPE(DTYPE, MEMOBJ)                     \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::Forward, MEMOBJ)       \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::InputBackprop, MEMOBJ) \
+  INSTANTIATE_LAUNCHER(DTYPE, conv_type::FilterBackprop, MEMOBJ)
 
-INSTANTIATE_FOR_TYPE(float)
+#ifdef SNN_ENABLE_USM
+#define INSTANTIATE_FOR_MEMOBJ(DTYPE)       \
+  INSTANTIATE_FOR_TYPE(DTYPE, USMMemObject) \
+  INSTANTIATE_FOR_TYPE(DTYPE, BufferMemObject)
+#else
+#define INSTANTIATE_FOR_MEMOBJ(DTYPE) \
+  INSTANTIATE_FOR_TYPE(DTYPE, BufferMemObject)
+#endif
+INSTANTIATE_FOR_MEMOBJ(float)
 
 #ifdef SNN_USE_DOUBLE
-INSTANTIATE_FOR_TYPE(double)
+INSTANTIATE_FOR_MEMOBJ(double)
 #endif  // SNN_USE_DOUBLE
 
 #ifdef SNN_USE_HALF
-INSTANTIATE_FOR_TYPE(cl::sycl::half)
+INSTANTIATE_FOR_MEMOBJ(cl::sycl::half)
 #endif  // SNN_USE_HALF
 
 #undef INSTANTIATE_FOR_TYPE
+#undef INSTANTIATE_FOR_MEMOBJ
 #undef INSTANTIATE_LAUNCHER
 
 }  // namespace im2col

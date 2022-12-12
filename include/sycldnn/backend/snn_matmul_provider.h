@@ -63,6 +63,8 @@ struct SNNMatmulProvider {
    * \param [in]     k      Number of columns in the LHS matrix and rows in the
    *                        RHS matrix.
    * \param [in]     n      Number of columns in the RHS matrix.
+   * \param [in]     events Passed to keep func signature same, not used in this
+   *                        backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -70,7 +72,9 @@ struct SNNMatmulProvider {
   cl::sycl::event matmul(internal_pointer_type<const T> const lhs,
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
-                         Index const m, Index const k, Index const n) {
+                         Index const m, Index const k, Index const n,
+                         const std::vector<cl::sycl::event>& events = {}) {
+    SNN_UNUSED_VAR(events)
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
@@ -101,15 +105,19 @@ struct SNNMatmulProvider {
    * \param [in]     k         Number of columns in the LHS matrix and rows in
    *                           the RHS matrix.
    * \param [in]     n         Number of columns in the RHS matrix.
+   * \param [in]     events    Passed to keep func signature same, not used in
+   *                           this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  cl::sycl::event batch_matmul(internal_pointer_type<const T> const lhs,
-                               internal_pointer_type<const T> const rhs,
-                               internal_pointer_type<T> const output,
-                               Index const n_batches, Index const m,
-                               Index const k, Index const n) {
+  cl::sycl::event batch_matmul(
+      internal_pointer_type<const T> const lhs,
+      internal_pointer_type<const T> const rhs,
+      internal_pointer_type<T> const output, Index const n_batches,
+      Index const m, Index const k, Index const n,
+      const std::vector<cl::sycl::event>& events = {}) {
+    SNN_UNUSED_VAR(events)
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(

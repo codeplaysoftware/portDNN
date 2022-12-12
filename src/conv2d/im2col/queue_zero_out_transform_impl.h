@@ -33,10 +33,12 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, int VectorWidth>
-SNNStatus queue_zero_out_transform(BaseMemObject<T>& output_mem, size_t n_tiles,
-                                   size_t tile_size, cl::sycl::queue& queue) {
-  using Functor = ZeroFunctor<T, VectorWidth>;
+template <typename T, int VectorWidth, template <typename> class MemObj>
+SNNStatus queue_zero_out_transform(MemObj<T>& output_mem, size_t n_tiles,
+                                   size_t tile_size, cl::sycl::queue& queue,
+                                   const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
+  using Functor = ZeroFunctor<T, VectorWidth, is_usm>;
   cl::sycl::device device = queue.get_device();
   size_t const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
@@ -46,7 +48,8 @@ SNNStatus queue_zero_out_transform(BaseMemObject<T>& output_mem, size_t n_tiles,
       transform_size / VectorWidth, workgroup_size);
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto output = output_mem.write_mem(cgh);
     Functor functor{transform_size, output};
     cgh.parallel_for(cl::sycl::range<1>{zero_threads}, functor);
   });

@@ -29,11 +29,11 @@ namespace internal {
 namespace im2col {
 
 /** Kernel to fill a buffer with zeros. */
-template <typename T, int VectorWidth>
+template <typename T, int VectorWidth, bool isUSM>
 struct ZeroFunctor {
   using StoreType = typename helpers::VectorType<T, VectorWidth>::type;
 
-  ZeroFunctor(size_t output_size, WriteAccessor<T> const& output)
+  ZeroFunctor(size_t output_size, WriteMem<T, isUSM> const& output)
       : output_size_{output_size}, output_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
@@ -49,7 +49,7 @@ struct ZeroFunctor {
   /** Number of elements in the output buffer to set to zero. */
   size_t output_size_;
   /** Accessor to the output buffer. */
-  WriteAccessor<T> output_;
+  WriteMem<T, isUSM> output_;
 };
 
 }  // namespace im2col

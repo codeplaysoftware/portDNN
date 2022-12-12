@@ -31,29 +31,29 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, typename Index>
+template <typename T, typename Index, bool isUSM>
 struct ExtractFilterTiles {
   using Load = helpers::io::Load<T>;
   using Store = helpers::io::Store<T>;
 
   ExtractFilterTiles(Conv2DParams const& params,
-                     ReadAccessor<T const> const& input,
-                     WriteAccessor<T> const& output)
+                     ReadMem<T const, isUSM> const& input,
+                     WriteMem<T, isUSM> const& output)
       : n_items_{params.window_rows * params.window_cols * params.channels *
                  params.features},
         n_window_rows_{params.window_rows},
         n_window_cols_{params.window_cols},
         n_channels_{params.channels},
         n_features_{params.features},
-        input_accessor_{input},
-        output_accessor_{output} {}
+        input_mem_{input},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index index = item.get_id(0);
 
     if (index < n_items_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       T in_val = Load()(input_data, index);
 
@@ -82,8 +82,8 @@ struct ExtractFilterTiles {
   Index const n_window_cols_;
   Index const n_channels_;
   Index const n_features_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, isUSM> input_mem_;
+  WriteMem<T, isUSM> output_mem_;
 };
 
 }  // namespace im2col

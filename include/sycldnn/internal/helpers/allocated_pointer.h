@@ -22,6 +22,14 @@ namespace sycldnn {
 namespace internal {
 namespace helpers {
 
+template <typename T>
+void enqueue_free(T* pointer, cl::sycl::queue& q, cl::sycl::event event) {
+  q.submit([=](cl::sycl::handler& cgh) {
+    cgh.depends_on(event);
+    cgh.host_task([=]() { cl::sycl::free(pointer, q); });
+  });
+}
+
 /** Helper pointer type to automatically allocate and deallocate a pointer. */
 template <typename T, typename Backend>
 struct AllocatedPointer {
@@ -40,13 +48,24 @@ struct AllocatedPointer {
   SNN_DISABLE_MOVE(AllocatedPointer);
 
   /** Deallocate pointer on destruction. */
-  ~AllocatedPointer() { backend.deallocate(pointer); }
+  ~AllocatedPointer() {
+    if constexpr (!sycldnn::backend::is_usm_backend_v<Backend>) {
+      backend.release_internal_pointer(pointer);
+    } else {
+      auto q = backend.get_queue();
+      enqueue_free(pointer, q, event_);
+    }
+  }
 
   /** Get the underlying pointer type. */
   Pointer get() const { return pointer; }
 
+  /** Add events to pointer on which to wait for before releasing memory */
+  inline void set_event(const cl::sycl::event& event) { event_ = event; }
+
  private:
   Pointer pointer;
+  cl::sycl::event event_;
   Backend& backend;
 };
 

@@ -18,7 +18,7 @@
 
 /**
  * \file
- * Contains the implementation of \ref sycldnn::backend::SNNMatmulProvider,
+ * Contains the implementation of \ref sycldnn::backend::SNNUSMMatmulProvider,
  * which provides matmul and batch_matmul implementations using the internal
  * SYCL-DNN matmul kernels.
  */
@@ -37,7 +37,7 @@ namespace backend {
  * internal SYCL-DNN kernels.
  */
 template <typename Backend>
-struct SNNMatmulProvider {
+struct SNNUSMMatmulProvider {
  private:
   /** The pointer representation required by the internal handler. */
   template <typename T>
@@ -70,8 +70,9 @@ struct SNNMatmulProvider {
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index,
+            typename U = Backend,
             typename = typename std::enable_if<
-                sycldnn::backend::is_usm_backend_v<Backend>>::type>
+                sycldnn::backend::is_usm_backend_v<U>>::type>
   cl::sycl::event matmul(internal_pointer_type<const T> const lhs,
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
@@ -109,8 +110,9 @@ struct SNNMatmulProvider {
    * \return A SYCL event corresponding to the matmuul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index,
+            typename U = Backend,
             typename = typename std::enable_if<
-                sycldnn::backend::is_buffer_backend_v<Backend>>::type>
+                sycldnn::backend::is_buffer_backend_v<U>>::type>
   cl::sycl::event matmul(internal_pointer_type<const T> const lhs,
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
@@ -148,7 +150,10 @@ struct SNNMatmulProvider {
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
-  template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
+  template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index,
+            typename U = Backend,
+            typename = typename std::enable_if<
+                sycldnn::backend::is_buffer_backend_v<U>>::type>
   cl::sycl::event batch_matmul(internal_pointer_type<const T> const lhs,
                                internal_pointer_type<const T> const rhs,
                                internal_pointer_type<T> const output,
@@ -160,6 +165,52 @@ struct SNNMatmulProvider {
         lhs, rhs, output,
         sycldnn::matmul::MatmulParams{n_batches, m, k, n, T{0}},
         internal_backend);
+    SNN_ASSERT(status.status == StatusCode::OK,
+               "Error launching matmul kernel.");
+    return status.event;
+  }
+
+  /**
+   * Compute a batch of matrix multiplies.
+   *
+   * Perform the batched matrix multiply operation:
+   * \code
+   *   output[i] = lhs[i] * rhs[i]
+   * \endcode
+   * for 0 <= i < batch, where lhs is a [batch x m x k] tensor and rhs is a
+   * [batch x k x n] tensor. Each matrix is assumed to be contiguous in memory
+   * and in row-major format. The `bool` template parameters determine whether
+   * or not to transpose the matrices.
+   *
+   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output    Pointer to a buffer containing the output matrix.
+   * \param [in]     n_batches Scale multiplier for the output matrix.
+   * \param [in]     m         Number of rows in the LHS matrix.
+   * \param [in]     k         Number of columns in the LHS matrix and rows in
+   *                           the RHS matrix.
+   * \param [in]     n         Number of columns in the RHS matrix.
+   * \param [in]     events    Events which should be completed before the
+   *                           operation
+   *
+   * \return A SYCL event corresponding to the matmul kernel launch.
+   */
+  template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index,
+            typename U = Backend,
+            typename = typename std::enable_if<
+                sycldnn::backend::is_usm_backend_v<U>>::type>
+  cl::sycl::event batch_matmul(
+      internal_pointer_type<const T> const lhs,
+      internal_pointer_type<const T> const rhs,
+      internal_pointer_type<T> const output, Index const n_batches,
+      Index const m, Index const k, Index const n,
+      const std::vector<cl::sycl::event>& events = {}) {
+    auto& underlying_backend = static_cast<Backend&>(*this);
+    internal::InternalBackend<Backend> internal_backend{underlying_backend};
+    auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
+        lhs, rhs, output,
+        sycldnn::matmul::MatmulParams{n_batches, m, k, n, T{0}},
+        internal_backend, events);
     SNN_ASSERT(status.status == StatusCode::OK,
                "Error launching matmul kernel.");
     return status.event;

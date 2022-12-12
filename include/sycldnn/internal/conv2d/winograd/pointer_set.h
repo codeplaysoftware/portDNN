@@ -132,6 +132,16 @@ struct AllocatedPointerSet {
             intermediate.get()};
   }
 
+  /**
+   * Pass events for the Allocated pointers to wait on before releasing USM
+   * memory.
+   */
+  inline void pass_event_to_ptrs(const cl::sycl::event& event) {
+    input_transform.set_event(event);
+    filter_transform.set_event(event);
+    intermediate.set_event(event);
+  }
+
   /** Minibatch size used to allocate the temporary buffers. */
   size_t minibatch_size;
   /** The user provided input pointer. */

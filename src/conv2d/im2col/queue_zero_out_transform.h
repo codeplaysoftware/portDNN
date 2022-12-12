@@ -29,9 +29,10 @@ namespace internal {
 namespace im2col {
 
 /** Zero out the im2col transform temporary buffer. */
-template <typename T, int VectorWidth>
-SNNStatus queue_zero_out_transform(BaseMemObject<T>& output, size_t n_tiles,
-                                   size_t tile_size, cl::sycl::queue& queue);
+template <typename T, int VectorWidth, template <typename> class MemObj>
+SNNStatus queue_zero_out_transform(MemObj<T>& output, size_t n_tiles,
+                                   size_t tile_size, cl::sycl::queue& queue,
+                                   const std::vector<cl::sycl::event>& events);
 
 }  // namespace im2col
 }  // namespace internal

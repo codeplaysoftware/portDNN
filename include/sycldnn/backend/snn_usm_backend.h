@@ -18,7 +18,7 @@
 
 #include "sycldnn/backend/common_backend.h"
 #include "sycldnn/backend/device_mem_pointer.h"
-#include "sycldnn/backend/snn_matmul_provider.h"
+#include "sycldnn/backend/snn_usm_matmul_provider.h"
 #include "sycldnn/backend/snn_usm_reduce_provider.h"
 
 #include <CL/sycl.hpp>
@@ -58,7 +58,7 @@ struct BackendTraits<SNNUSMBackend> {
  * kernels.
  */
 struct SNNUSMBackend final : public CommonBackend,
-                             public SNNMatmulProvider<SNNUSMBackend>,
+                             public SNNUSMMatmulProvider<SNNUSMBackend>,
                              public SNNUSMReduceProvider<SNNUSMBackend> {
   /** The pointer type used in interface of the SNNUSMBackend. */
   template <typename T>
@@ -137,8 +137,8 @@ struct SNNUSMBackend final : public CommonBackend,
   template <typename T>
   auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems,
                                 size_t offset = 0)
-      -> decltype(get_usm_mem_object(ptr, n_elems, offset)) {
-    return get_usm_mem_object(ptr, n_elems, offset);
+      -> decltype(make_usm_mem_object(ptr, n_elems, offset)) {
+    return make_usm_mem_object(ptr, n_elems, offset);
   }
 
   /**

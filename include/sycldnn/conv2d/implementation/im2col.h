@@ -38,9 +38,11 @@ inline SNNStatus launch_im2col(
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
     typename Backend::template pointer_type<T> workspace,
-    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+    Conv2DParams const& params, size_t workspace_size, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   return internal::launch_im2col<T, ConvType>(input, filter, output, workspace,
-                                              params, workspace_size, backend);
+                                              params, workspace_size, backend,
+                                              events);
 }
 }  // namespace conv2d
 }  // namespace sycldnn

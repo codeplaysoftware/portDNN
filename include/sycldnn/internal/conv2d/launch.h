@@ -88,18 +88,18 @@ SNNStatus select_and_launch(
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
     Conv2DParams const& params, Algorithm& algo_tag, Backend& backend,
-    typename Backend::template pointer_type<T> workspace, size_t workspace_size,
-    const std::vector<cl::sycl::event>& events) {
+    typename Backend::template pointer_type<T> workspace,
+    size_t workspace_size) {
   switch (algo_tag) {
     case Algorithm::Direct:
       return launch_direct<T, ConvType>(input, filter, output, params, backend,
-                                        events);
+                                        {});
     case Algorithm::Tiled:
       return launch_tiled<T, ConvType>(input, filter, output, params, backend,
                                        {});
     case Algorithm::Im2col:
       return launch_im2col<T, ConvType>(input, filter, output, workspace,
-                                        params, workspace_size, backend);
+                                        params, workspace_size, backend, {});
     case Algorithm::Winograd:
       return launch_winograd<T, ConvType>(input, filter, output, workspace,
                                           params, workspace_size, backend);
@@ -122,12 +122,14 @@ SNNStatus select_and_launch_usm(
     Conv2DParams const& params, Algorithm& algo_tag, Backend& backend,
     typename Backend::template pointer_type<T> workspace, size_t workspace_size,
     const std::vector<cl::sycl::event>& events) {
-  SNN_UNUSED_VAR(workspace)
-  SNN_UNUSED_VAR(workspace_size)
   // TODO Expand switch statement with more supported USM algos
   switch (algo_tag) {
     case Algorithm::Direct:
       return launch_direct<T, ConvType>(input, filter, output, params, backend,
+                                        events);
+    case Algorithm::Im2col:
+      return launch_im2col<T, ConvType>(input, filter, output, workspace,
+                                        params, workspace_size, backend,
                                         events);
     case Algorithm::Tiled:
       return launch_tiled<T, ConvType>(input, filter, output, params, backend,
@@ -161,9 +163,9 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
         input, filter, output, params, algo_tag, backend, workspace,
         workspace_size, events);
   } else {
-    return select_and_launch<T, ConvType, Backend>(
-        input, filter, output, params, algo_tag, backend, workspace,
-        workspace_size, events);
+    return select_and_launch<T, ConvType, Backend>(input, filter, output,
+                                                   params, algo_tag, backend,
+                                                   workspace, workspace_size);
   }
 }
 
