@@ -56,6 +56,7 @@ INCLUDES = r"""
 #include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
 #include "test/types/test_backend_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/to_gtest_types.h"
 
 #include "test/pooling/pooling_fixture.h"
@@ -66,16 +67,21 @@ DATA_TYPES = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using DataFormatList = sycldnn::types::DataFormatTypes;
+using BackendList = sycldnn::types::DefaultBackendTypes_;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;"""
+using SNNTypeBackendPairs =
+    sycldnn::types::CartesianProduct<SNNTypePairs, BackendList>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<SNNTypeBackendPairs>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;"""
 TYPED_TEST_SUITE_DECL_TPL = r"""
-template <typename Pair>
+template <typename Triple>
 using {test_case} =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, {operation}, {direction}>;
-TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, {operation}, {direction}>;
+TYPED_TEST_SUITE({test_case}, GTestTypeTriples);"""
 
 TestCaseParams = namedtuple(
     'TestCaseParams',

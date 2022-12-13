@@ -38,15 +38,31 @@ namespace sycldnn {
 namespace pooling {
 namespace internal {
 
+template SNNStatus queue_max_grad_pooling<
+    SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OPERATOR,
+    sycldnn::pooling::Backpropagate, SNN_VECTOR_WIDTH, SNN_USE_FASTDIV,
+    layout::SNN_DATA_FORMAT, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& input_mem,
+    BufferMemObject<SNN_DATA_TYPE const>& output_mem,
+    BufferMemObject<SNN_DATA_TYPE const>& input_backprop_mem,
+    BufferMemObject<SNN_DATA_TYPE>& output_backprop_mem,
+    const PoolingParams& pp, size_t threads, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+
+#ifdef SNN_ENABLE_USM
+
 template SNNStatus
 queue_max_grad_pooling<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OPERATOR,
                        sycldnn::pooling::Backpropagate, SNN_VECTOR_WIDTH,
-                       SNN_USE_FASTDIV, layout::SNN_DATA_FORMAT>(
-    BaseMemObject<SNN_DATA_TYPE const>& input_mem,
-    BaseMemObject<SNN_DATA_TYPE const>& output_mem,
-    BaseMemObject<SNN_DATA_TYPE const>& input_backprop_mem,
-    BaseMemObject<SNN_DATA_TYPE>& output_backprop_mem, const PoolingParams& pp,
-    size_t threads, cl::sycl::queue& queue);
+                       SNN_USE_FASTDIV, layout::SNN_DATA_FORMAT, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& input_mem,
+    USMMemObject<SNN_DATA_TYPE const>& output_mem,
+    USMMemObject<SNN_DATA_TYPE const>& input_backprop_mem,
+    USMMemObject<SNN_DATA_TYPE>& output_backprop_mem, const PoolingParams& pp,
+    size_t threads, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+
+#endif  // SNN_ENABLE_USM
 
 }  // namespace internal
 }  // namespace pooling

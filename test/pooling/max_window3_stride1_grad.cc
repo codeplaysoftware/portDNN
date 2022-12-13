@@ -27,6 +27,7 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -38,17 +39,22 @@
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using DataFormatList = sycldnn::types::DataFormatTypes;
+using BackendList = sycldnn::types::DefaultBackendTypes_;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+using SNNTypeBackendPairs =
+    sycldnn::types::CartesianProduct<SNNTypePairs, BackendList>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<SNNTypeBackendPairs>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
-template <typename Pair>
+template <typename Triple>
 using MaxWindow3Stride1Grad =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, pooling::Max,
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, pooling::Max,
                    pooling::Backpropagate>;
-TYPED_TEST_SUITE(MaxWindow3Stride1Grad, GTestTypePairs);
+TYPED_TEST_SUITE(MaxWindow3Stride1Grad, GTestTypeTriples);
 TYPED_TEST(MaxWindow3Stride1Grad, SAME1x4x4x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0., 0., 0., 0.,  0., 1.,  2.,  7.,

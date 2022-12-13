@@ -27,6 +27,7 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -38,17 +39,22 @@
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using DataFormatList = sycldnn::types::DataFormatTypes;
+using BackendList = sycldnn::types::DefaultBackendTypes_;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+using SNNTypeBackendPairs =
+    sycldnn::types::CartesianProduct<SNNTypePairs, BackendList>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<SNNTypeBackendPairs>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
-template <typename Pair>
+template <typename Triple>
 using AvgWindow5Stride2Grad =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, pooling::Average,
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, pooling::Average,
                    pooling::Backpropagate>;
-TYPED_TEST_SUITE(AvgWindow5Stride2Grad, GTestTypePairs);
+TYPED_TEST_SUITE(AvgWindow5Stride2Grad, GTestTypeTriples);
 TYPED_TEST(AvgWindow5Stride2Grad, SAME1x7x7x1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {0.8177777777777777,

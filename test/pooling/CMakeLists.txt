@@ -74,3 +74,14 @@ snn_test(
   SOURCES pooling_fastdiv.cc
   PUBLIC_LIBRARIES sycl_dnn
 )
+if(SNN_ENABLE_USM)
+snn_test(
+  WITH_SYCL
+  TARGET
+    pooling_event_deps
+  SOURCES
+    pooling_event_dependencies_test.cc
+  OBJECTS
+    $<TARGET_OBJECTS:pooling>
+)
+endif()

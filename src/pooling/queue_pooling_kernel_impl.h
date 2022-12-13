@@ -32,14 +32,18 @@ namespace pooling {
 namespace internal {
 
 template <typename T, typename Index, template <typename> class PoolType,
-          typename Direction, int VectorWidth, bool UseFastDiv, typename Format>
-SNNStatus queue_pooling(BaseMemObject<T const>& in_mem,
-                        BaseMemObject<T>& out_mem, PoolingParams const& pp,
-                        size_t threads, cl::sycl::queue& queue) {
+          typename Direction, int VectorWidth, bool UseFastDiv, typename Format,
+          template <typename> class MemObj>
+SNNStatus queue_pooling(MemObj<T const>& in_mem, MemObj<T>& out_mem,
+                        PoolingParams const& pp, size_t threads,
+                        cl::sycl::queue& queue,
+                        const std::vector<cl::sycl::event>& events) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
-    PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv, Format>
+    cgh.depends_on(events);
+    auto input = in_mem.read_mem(cgh);
+    auto output = out_mem.write_mem(cgh);
+    PoolingOp<T, Index, PoolType, Direction, VectorWidth, UseFastDiv, Format,
+              is_usm_obj_v<MemObj<T>, T>>
         pool{input, output, pp};
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, pool);

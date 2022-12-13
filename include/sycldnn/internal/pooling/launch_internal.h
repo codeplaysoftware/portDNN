@@ -63,20 +63,63 @@ using EnableIfMaxGradient =
                             int>::type;
 
 template <typename T, template <typename> class PoolType, typename Direction,
+          template <typename> class MemObj,
           DisableIfMaxGradient<T, PoolType, Direction> = 0>
-SNN_EXPORT SNNStatus launch_pooling(BaseMemObject<T const>& input,
-                                    BaseMemObject<T>& output,
-                                    const PoolingParams& pp,
-                                    cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus launch_pooling(
+    MemObj<T const>& input, MemObj<T>& output, const PoolingParams& pp,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events = {});
 
 template <typename T, template <typename> class PoolType, typename Direction,
+          template <typename> class MemObj,
           EnableIfMaxGradient<T, PoolType, Direction> = 0>
-SNN_EXPORT SNNStatus launch_pooling(BaseMemObject<T const>& inp_data,
-                                    BaseMemObject<T const>& outp_data,
-                                    BaseMemObject<T const>& inp_backprop,
-                                    BaseMemObject<T>& outp_backprop,
-                                    const PoolingParams& pp,
-                                    cl::sycl::queue& queue);
+SNN_EXPORT SNNStatus
+launch_pooling(MemObj<T const>& inp_data, MemObj<T const>& outp_data,
+               MemObj<T const>& inp_backprop, MemObj<T>& outp_backprop,
+               const PoolingParams& pp, cl::sycl::queue& queue,
+               const std::vector<cl::sycl::event>& events = {});
+
+template <typename T, template <typename> class PoolType, typename Direction,
+          typename Backend, DisableIfMaxGradient<T, PoolType, Direction> = 0>
+SNN_EXPORT SNNStatus sublaunch(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T> output, const PoolingParams& pp,
+    Backend& backend, const std::vector<cl::sycl::event>& events = {}) {
+  auto sizes = get_sizes<Direction>(pp);
+
+  auto inp_mem = backend._get_mem_object(input, sizes.input_size);
+  auto outp_mem = backend._get_mem_object(output, sizes.output_size);
+
+  auto queue = backend.get_queue();
+  return internal::launch_pooling<T, PoolType, Direction>(inp_mem, outp_mem, pp,
+                                                          queue, events);
+}
+
+template <typename T, template <typename> class PoolType, typename Direction,
+          typename Backend, EnableIfMaxGradient<T, PoolType, Direction> = 0>
+SNN_EXPORT SNNStatus
+sublaunch(typename Backend::template pointer_type<T const> inp_data,
+          typename Backend::template pointer_type<T const> outp_data,
+          typename Backend::template pointer_type<T const> inp_backprop,
+          typename Backend::template pointer_type<T> outp_backprop,
+          const PoolingParams& pp, Backend& backend,
+          const std::vector<cl::sycl::event>& events = {}) {
+  auto fwd_sizes = get_sizes<Forward>(pp);
+  auto back_sizes = get_sizes<Backpropagate>(pp);
+
+  auto inp_data_access =
+      backend._get_mem_object(inp_data, fwd_sizes.input_size);
+  auto outp_data_access =
+      backend._get_mem_object(outp_data, fwd_sizes.output_size);
+  auto inp_backprop_access =
+      backend._get_mem_object(inp_backprop, back_sizes.input_size);
+  auto outp_backprop_access =
+      backend._get_mem_object(outp_backprop, back_sizes.output_size);
+
+  auto queue = backend.get_queue();
+  return internal::launch_pooling<T, PoolType, Direction>(
+      inp_data_access, outp_data_access, inp_backprop_access,
+      outp_backprop_access, pp, queue, events);
+}
 
 }  // namespace internal
 }  // namespace pooling

@@ -23,6 +23,7 @@
  * dispatches the SYCL kernels to compute a 2D pooling operation.
  */
 
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -110,7 +111,10 @@ SNNStatus inline validate_params(PoolingParams const& params) {
  */
 template <typename T, template <typename> class PoolType, typename Direction,
           typename Backend,
-          typename internal::DisableIfMaxGradient<T, PoolType, Direction> = 0>
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend> &&
+                  !internal::IsMaxGradient<T, PoolType, Direction>::value,
+              int>::type>
 SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  const PoolingParams& pp, Backend& backend) {
@@ -118,14 +122,9 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }
-  auto sizes = get_sizes<Direction>(pp);
 
-  auto inp_mem = backend.get_mem_object(input, sizes.input_size);
-  auto outp_mem = backend.get_mem_object(output, sizes.output_size);
-
-  auto queue = backend.get_queue();
-  return internal::launch_pooling<T, PoolType, Direction>(inp_mem, outp_mem, pp,
-                                                          queue);
+  return internal::sublaunch<T, PoolType, Direction, Backend>(input, output, pp,
+                                                              backend, {});
 }
 
 /**
@@ -153,7 +152,10 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  */
 template <typename T, template <typename> class PoolType, typename Direction,
           typename Backend,
-          typename internal::EnableIfMaxGradient<T, PoolType, Direction> = 0>
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend> &&
+                  internal::IsMaxGradient<T, PoolType, Direction>::value,
+              int>::type>
 SNNStatus launch(
     typename Backend::template pointer_type<T const> input_data,
     typename Backend::template pointer_type<T const> output_data,
@@ -164,22 +166,94 @@ SNNStatus launch(
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }
-  auto fwd_sizes = get_sizes<Forward>(pp);
-  auto back_sizes = get_sizes<Backpropagate>(pp);
 
-  auto inp_data_access =
-      backend.get_mem_object(input_data, fwd_sizes.input_size);
-  auto outp_data_access =
-      backend.get_mem_object(output_data, fwd_sizes.output_size);
-  auto inp_backprop_access =
-      backend.get_mem_object(input_backprop, back_sizes.input_size);
-  auto outp_backprop_access =
-      backend.get_mem_object(output, back_sizes.output_size);
+  return internal::sublaunch<T, PoolType, Direction, Backend>(
+      input_data, output_data, input_backprop, output, pp, backend, {});
+}
 
-  auto queue = backend.get_queue();
-  return internal::launch_pooling<T, PoolType, Direction>(
-      inp_data_access, outp_data_access, inp_backprop_access,
-      outp_backprop_access, pp, queue);
+/**
+ * Launch the pooling operation kernel.
+ *
+ * \tparam T         The data type of the input tensor.
+ * \tparam PoolType  The type of pooling used depends on the PoolType template
+ *                   parameter, which can be used to specify either Max or
+ *                   Average pooling.
+ * \tparam Direction Whether the pooling operation computed should be the
+ *                   Forward or Backpropagate pass.
+ * \tparam Backend   The type of the Backend.
+ *
+ * \param [in]  input    A pointer to the input tensor.
+ * \param [out] output   A pointer to the output tensor.
+ * \param [in]  pp       The parameters of the pooling operation.
+ * \param [in]  backend  The backend that provides access to the SYCL buffers
+ *                       corresponding to the input and output pointers.
+ * \param [in] events    USM dependency events.
+ * \return An \ref SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a \ref StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, template <typename> class PoolType, typename Direction,
+          typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend> &&
+                  !internal::IsMaxGradient<T, PoolType, Direction>::value,
+              int>::type>
+SNNStatus launch(typename Backend::template pointer_type<T const> input,
+                 typename Backend::template pointer_type<T> output,
+                 const PoolingParams& pp, Backend& backend,
+                 const std::vector<cl::sycl::event>& events = {}) {
+  auto validation_status = internal::validate_params<Direction>(pp);
+  if (validation_status.status != StatusCode::OK) {
+    return validation_status;
+  }
+
+  return internal::sublaunch<T, PoolType, Direction, Backend>(input, output, pp,
+                                                              backend, events);
+}
+
+/**
+ * Launch the max pooling gradient kernel.
+ *
+ * \tparam T         The data type of the input tensor.
+ * \tparam PoolType  The type of pooling used depends on the PoolType template
+ *                   parameter, which can be used to specify either Max or
+ *                   Average pooling.
+ * \tparam Direction Whether the pooling operation computed should be the
+ *                   Forward or Backpropagate pass.
+ * \tparam Backend   The type of the Backend.
+ *
+ * \param [in]  input_data     A pointer to the original input tensor.
+ * \param [in]  output_data    A pointer to the original output tensor.
+ * \param [in]  input_backprop A pointer to the backprop error tensor.
+ * \param [out] output         A pointer to the output tensor.
+ * \param [in]  pp             The parameters of the pooling operation.
+ * \param [in]  backend        The backend that provides access to the SYCL
+ *                             buffers corresponding to the input and output
+ *                             pointers.
+ * \param [in] events          USM dependency events.
+ * \return An \ref SNNStatus containing the SYCL event tied to the kernel
+ *         launches and a \ref StatusCode enum showing if the launch was OK or
+ *         whether it encountered some problem.
+ */
+template <typename T, template <typename> class PoolType, typename Direction,
+          typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend> &&
+                  internal::IsMaxGradient<T, PoolType, Direction>::value,
+              int>::type>
+SNNStatus launch(
+    typename Backend::template pointer_type<T const> input_data,
+    typename Backend::template pointer_type<T const> output_data,
+    typename Backend::template pointer_type<T const> input_backprop,
+    typename Backend::template pointer_type<T> output, const PoolingParams& pp,
+    Backend& backend, const std::vector<cl::sycl::event>& events = {}) {
+  auto validation_status = internal::validate_params<Direction>(pp);
+  if (validation_status.status != StatusCode::OK) {
+    return validation_status;
+  }
+
+  return internal::sublaunch<T, PoolType, Direction, Backend>(
+      input_data, output_data, input_backprop, output, pp, backend, events);
 }
 
 }  // namespace pooling

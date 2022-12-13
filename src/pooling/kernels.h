@@ -36,19 +36,21 @@ namespace sycldnn {
 namespace pooling {
 
 template <typename T, typename Index, template <typename> class Op,
-          typename Direction, int VectorWidth, bool UseFastDiv, typename Layout>
+          typename Direction, int VectorWidth, bool UseFastDiv, typename Layout,
+          bool IsUSM>
 class PoolingOp;
 
 template <typename T, typename Index, template <typename> class Op,
-          int VectorWidth, bool UseFastDiv>
-class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv, layout::NHWC> {
+          int VectorWidth, bool UseFastDiv, bool IsUSM>
+class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv, layout::NHWC,
+                IsUSM> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   using DataT = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<DataT>;
   using Store = helpers::io::Store<DataT>;
 
-  ReadAccessor<T const> in_data_;
-  WriteAccessor<T> out_data_;
+  ReadMem<T const, IsUSM> in_data_;
+  WriteMem<T, IsUSM> out_data_;
   const Index n_items_;
   PoolingParams params_;
   const IndexDivType div_out_rows_;
@@ -96,7 +98,7 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv, layout::NHWC> {
     }
   }
 
-  PoolingOp(ReadAccessor<T const> in_data, WriteAccessor<T> out_data,
+  PoolingOp(ReadMem<T const, IsUSM> in_data, WriteMem<T, IsUSM> out_data,
             PoolingParams const& pp)
       : in_data_(std::move(in_data)),
         out_data_(std::move(out_data)),
@@ -114,19 +116,19 @@ class PoolingOp<T, Index, Op, Forward, VectorWidth, UseFastDiv, layout::NHWC> {
  * Expects to be run with one thread per output value in the backprop kernel.
  */
 template <typename T, typename Index, template <typename> class MaxOp,
-          int VectorWidth, bool UseFastDiv>
+          int VectorWidth, bool UseFastDiv, bool IsUSM>
 class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv,
-                layout::NHWC> {
+                layout::NHWC, IsUSM> {
   using DataType = typename helpers::VectorType<T, 1>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
 
  public:
-  PoolingOp(ReadAccessor<T const> const& in_data,
-            ReadAccessor<T const> const& out_data,
-            ReadAccessor<T const> const& in_backprop,
-            WriteAccessor<T> const& out_backprop, PoolingParams const& pp)
+  PoolingOp(ReadMem<T const, IsUSM> const& in_data,
+            ReadMem<T const, IsUSM> const& out_data,
+            ReadMem<T const, IsUSM> const& in_backprop,
+            WriteMem<T, IsUSM> const& out_backprop, PoolingParams const& pp)
       : in_data_{in_data},
         out_data_{out_data},
         in_backprop_{in_backprop},
@@ -270,10 +272,10 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv,
     return Window{begin, end};
   }
 
-  ReadAccessor<T const> in_data_;
-  ReadAccessor<T const> out_data_;
-  ReadAccessor<T const> in_backprop_;
-  WriteAccessor<T> out_backprop_;
+  ReadMem<T const, IsUSM> in_data_;
+  ReadMem<T const, IsUSM> out_data_;
+  ReadMem<T const, IsUSM> in_backprop_;
+  WriteMem<T, IsUSM> out_backprop_;
   Index n_items_;
   PoolingParams params_;
   const IndexDivType div_in_rows_;
@@ -286,17 +288,18 @@ class PoolingOp<T, Index, MaxOp, Backpropagate, VectorWidth, UseFastDiv,
  *
  * Expects to be run with one thread per output value in the backprop kernel.
  */
-template <typename T, typename Index, int VectorWidth, bool UseFastDiv>
+template <typename T, typename Index, int VectorWidth, bool UseFastDiv,
+          bool IsUSM>
 class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv,
-                layout::NHWC> {
+                layout::NHWC, IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
 
  public:
-  PoolingOp(ReadAccessor<T const> const& in_data,
-            WriteAccessor<T> const& out_data, PoolingParams const& pp)
+  PoolingOp(ReadMem<T const, IsUSM> const& in_data,
+            WriteMem<T, IsUSM> const& out_data, PoolingParams const& pp)
       : in_backprop_{in_data},
         out_backprop_{out_data},
         n_items_{pp.batch * pp.in_rows * pp.in_cols * pp.channels /
@@ -401,8 +404,8 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv,
     return InputWindow{begin, end};
   }
 
-  ReadAccessor<T const> in_backprop_;
-  WriteAccessor<T> out_backprop_;
+  ReadMem<T const, IsUSM> in_backprop_;
+  WriteMem<T, IsUSM> out_backprop_;
   Index n_items_;
   PoolingParams params_;
   const IndexDivType div_in_rows_;
@@ -411,15 +414,15 @@ class PoolingOp<T, Index, Average, Backpropagate, VectorWidth, UseFastDiv,
 };
 
 template <typename T, typename Index, template <typename> class Op,
-          bool UseFastDiv>
+          bool UseFastDiv, bool IsUSM>
 class PoolingOp<T, Index, Op, Forward, /*VectorWidth=*/1, UseFastDiv,
-                layout::NCHW> {
+                layout::NCHW, IsUSM> {
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   using Load = helpers::io::Load<T>;
   using Store = helpers::io::Store<T>;
 
-  ReadAccessor<T const> in_data_;
-  WriteAccessor<T> out_data_;
+  ReadMem<T const, IsUSM> in_data_;
+  WriteMem<T, IsUSM> out_data_;
   const Index n_items_;
   PoolingParams params_;
   const IndexDivType div_out_rows_;
@@ -467,7 +470,7 @@ class PoolingOp<T, Index, Op, Forward, /*VectorWidth=*/1, UseFastDiv,
     }
   }
 
-  PoolingOp(ReadAccessor<T const> in_data, WriteAccessor<T> out_data,
+  PoolingOp(ReadMem<T const, IsUSM> in_data, WriteMem<T, IsUSM> out_data,
             PoolingParams const& pp)
       : in_data_(std::move(in_data)),
         out_data_(std::move(out_data)),

@@ -24,6 +24,7 @@
 #include "test/types/cartesian_product.h"
 #include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/nested_pairs_to_triple.h"
 #include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
@@ -33,35 +34,41 @@
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 using DataFormatList = sycldnn::types::DataFormatTypes;
+using BackendList = sycldnn::types::DefaultBackendTypes_;
+
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;
-using GTestTypePairs = sycldnn::types::ToGTestTypes<SNNTypePairs>::type;
+using SNNTypeBackendPairs =
+    sycldnn::types::CartesianProduct<SNNTypePairs, BackendList>::type;
+using TestTriples =
+    sycldnn::types::NestedPairsToTriple<SNNTypeBackendPairs>::type;
+using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 
-template <typename Pair>
+template <typename Triple>
 using PoolingOffsetAvgForward =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, sycldnn::pooling::Average,
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, sycldnn::pooling::Average,
                    sycldnn::pooling::Forward>;
 
-template <typename Pair>
+template <typename Triple>
 using PoolingOffsetMaxForward =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, sycldnn::pooling::Max,
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, sycldnn::pooling::Max,
                    sycldnn::pooling::Forward>;
 
-template <typename Pair>
+template <typename Triple>
 using PoolingOffsetAvgBackprop =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, sycldnn::pooling::Average,
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, sycldnn::pooling::Average,
                    sycldnn::pooling::Backpropagate>;
 
-template <typename Pair>
+template <typename Triple>
 using PoolingOffsetMaxBackprop =
-    PoolingFixture<typename Pair::FirstType, typename Pair::SecondType,
-                   sycldnn::backend::SNNBackend, sycldnn::pooling::Max,
+    PoolingFixture<typename Triple::FirstType, typename Triple::SecondType,
+                   typename Triple::ThirdType, sycldnn::pooling::Max,
                    sycldnn::pooling::Backpropagate>;
 
-TYPED_TEST_SUITE(PoolingOffsetAvgForward, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetAvgForward, GTestTypeTriples);
 TYPED_TEST(PoolingOffsetAvgForward, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {181., 182., 183., 184., 197., 198.,
@@ -94,7 +101,7 @@ TYPED_TEST(PoolingOffsetAvgForward, Same) {
   this->test_pool(exp_out, params, max_input_val, 338, 0);
 }
 
-TYPED_TEST_SUITE(PoolingOffsetMaxForward, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetMaxForward, GTestTypeTriples);
 TYPED_TEST(PoolingOffsetMaxForward, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp = {11., 12., 15., 16.};
@@ -116,7 +123,7 @@ TYPED_TEST(PoolingOffsetMaxForward, Same) {
   this->test_pool(exp_out, params, max_input_val, 2048, 2048);
 }
 
-TYPED_TEST_SUITE(PoolingOffsetAvgBackprop, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetAvgBackprop, GTestTypeTriples);
 TYPED_TEST(PoolingOffsetAvgBackprop, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
@@ -158,7 +165,7 @@ TYPED_TEST(PoolingOffsetAvgBackprop, Same) {
   this->test_pool(exp_out, params, max_input_val, 128, 42);
 }
 
-TYPED_TEST_SUITE(PoolingOffsetMaxBackprop, GTestTypePairs);
+TYPED_TEST_SUITE(PoolingOffsetMaxBackprop, GTestTypeTriples);
 TYPED_TEST(PoolingOffsetMaxBackprop, Valid) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {
