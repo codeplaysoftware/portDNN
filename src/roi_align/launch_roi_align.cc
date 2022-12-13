@@ -33,63 +33,68 @@ namespace sycldnn {
 namespace roi_align {
 namespace internal {
 
-template <typename T, typename BatchIndicesT, typename Index,
-          template <typename> class PoolType>
-SNNStatus launch_with_index(BaseMemObject<T const>& input,
-                            BaseMemObject<T const>& rois,
-                            BaseMemObject<BatchIndicesT const>& batch_indices,
-                            BaseMemObject<T>& output, const RoiAlignParams& rap,
-                            size_t threads, cl::sycl::queue& queue) {
-  return queue_roi_align<T, BatchIndicesT, Index, PoolType>(
-      input, rois, batch_indices, output, rap, threads, queue);
-}
-
 template <typename T, typename BatchIndicesT,
-          template <typename> class PoolType>
-SNNStatus launch_roi_align(BaseMemObject<T const>& input,
-                           BaseMemObject<T const>& rois,
-                           BaseMemObject<BatchIndicesT const>& batch_indices,
-                           BaseMemObject<T>& output, const RoiAlignParams& rap,
-                           cl::sycl::queue& queue) {
-  const size_t threads = output.get_count();
+          template <typename> class PoolType, template <typename> class MemObj>
+SNNStatus launch_roi_align(MemObj<T const>& input, MemObj<T const>& rois,
+                           MemObj<BatchIndicesT const>& batch_indices,
+                           MemObj<T>& output, const RoiAlignParams& rap,
+                           cl::sycl::queue& queue,
+                           const std::vector<cl::sycl::event>& events) {
+  const size_t threads = output.get_extent();
   if (threads > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
-    return launch_with_index<T, BatchIndicesT, int64_t, PoolType>(
-        input, rois, batch_indices, output, rap, threads, queue);
+    return queue_roi_align<T, BatchIndicesT, int64_t, PoolType>(
+        input, rois, batch_indices, output, rap, threads, queue, events);
 #else
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
-    return launch_with_index<T, BatchIndicesT, int32_t, PoolType>(
-        input, rois, batch_indices, output, rap, threads, queue);
+    return queue_roi_align<T, BatchIndicesT, int32_t, PoolType>(
+        input, rois, batch_indices, output, rap, threads, queue, events);
   }
 }
 
-#define INSTANTIATE_LAUNCH(DTYPE, BITYPE, OP)                                \
-  template SNN_EXPORT SNNStatus launch_roi_align<DTYPE, BITYPE, OP>(         \
-      BaseMemObject<DTYPE const> & input, BaseMemObject<DTYPE const> & rois, \
-      BaseMemObject<BITYPE const> & batch_indices,                           \
-      BaseMemObject<DTYPE> & output, const RoiAlignParams& rap,              \
-      cl::sycl::queue& queue)
+#define INSTANTIATE_LAUNCH(DTYPE, BITYPE, OP, MEM_OBJ_TYPE)                \
+  template SNN_EXPORT SNNStatus                                            \
+  launch_roi_align<DTYPE, BITYPE, OP, MEM_OBJ_TYPE>(                       \
+      MEM_OBJ_TYPE<DTYPE const> & input, MEM_OBJ_TYPE<DTYPE const> & rois, \
+      MEM_OBJ_TYPE<BITYPE const> & batch_indices,                          \
+      MEM_OBJ_TYPE<DTYPE> & output, const RoiAlignParams& rap,             \
+      cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events)
 
-#define INSTANTIATE_FOR_TYPE(DTYPE, BI_TYPE)   \
-  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, MaxPool); \
-  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, AveragePool)
+#define INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(DTYPE, BI_TYPE, MEM_OBJ_TYPE) \
+  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, MaxPool, MEM_OBJ_TYPE);                 \
+  INSTANTIATE_LAUNCH(DTYPE, BI_TYPE, AveragePool, MEM_OBJ_TYPE)
 
-INSTANTIATE_FOR_TYPE(float, int32_t);
-INSTANTIATE_FOR_TYPE(float, int64_t);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(float, int32_t, BufferMemObject);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(float, int64_t, BufferMemObject);
+
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(float, int32_t, USMMemObject);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(float, int64_t, USMMemObject);
+#endif  // SNN_ENABLE_USM
 
 #ifdef SNN_USE_HALF
-INSTANTIATE_FOR_TYPE(cl::sycl::half, int32_t);
-INSTANTIATE_FOR_TYPE(cl::sycl::half, int64_t);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(cl::sycl::half, int32_t,
+                                       BufferMemObject);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(cl::sycl::half, int64_t,
+                                       BufferMemObject);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(cl::sycl::half, int32_t, USMMemObject);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(cl::sycl::half, int64_t, USMMemObject);
+#endif  // SNN_ENABLE_USM
 #endif  // SNN_USE_HALF
 
 #ifdef SNN_USE_DOUBLE
-INSTANTIATE_FOR_TYPE(double, int32_t);
-INSTANTIATE_FOR_TYPE(double, int64_t);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(double, int32_t, BufferMemObject);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(double, int64_t, BufferMemObject);
+#ifdef SNN_ENABLE_USM
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(double, int32_t, USMMemObject);
+INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(double, int64_t, USMMemObject);
+#endif  // SNN_ENABLE_USM
 #endif  // SNN_USE_DOUBLE
 
-#undef INSTANTIATE_FOR_TYPE
+#undef INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE
 #undef INSTANTIATE_LAUNCH
 
 }  // namespace internal

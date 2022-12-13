@@ -23,6 +23,7 @@
  * asynchronously dispatches the SYCL kernels to compute a 2D pooling operation.
  */
 
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -99,6 +100,7 @@ SNNStatus inline validate_params(RoiAlignParams const& params) {
  * \param [in]  backend         The backend that provides access to the SYCL
  *                              buffers corresponding to the input and output
  *                              pointers.
+ * \param [in]  events          USM dependency events
  *
  * \return An \ref SNNStatus containing the SYCL event tied to the kernel
  * launches and a \ref StatusCode enum showing if the launch was OK or whether
@@ -111,23 +113,64 @@ SNNStatus launch(
     typename Backend::template pointer_type<T const> rois,
     typename Backend::template pointer_type<BatchIndicesT const> batch_indices,
     typename Backend::template pointer_type<T> output,
-    const RoiAlignParams& rap, Backend& backend) {
+    const RoiAlignParams& rap, Backend& backend,
+    const std::vector<cl::sycl::event>& events = {}) {
   auto validation_status = internal::validate_params(rap);
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }
 
-  auto inp_mem = backend.get_mem_object(
-      input, rap.batch * rap.channels * rap.in_height * rap.in_width);
-  auto rois_mem = backend.get_mem_object(rois, rap.num_rois * rap.roi_cols);
-  auto batch_indices_mem = backend.get_mem_object(batch_indices, rap.num_rois);
-  auto outp_mem = backend.get_mem_object(
-      output, rap.num_rois * rap.channels * rap.out_height * rap.out_width);
-  auto queue = backend.get_queue();
-
-  return internal::launch_roi_align<T, BatchIndicesT, PoolType>(
-      inp_mem, rois_mem, batch_indices_mem, outp_mem, rap, queue);
+  return internal::sublaunch<T, BatchIndicesT, PoolType>(
+      input, rois, batch_indices, output, rap, backend, events);
 }
+
+#ifdef SNN_USE_USM
+
+/**
+ * Launch the ROI Align operation kernel.
+ *
+ * \tparam T              The data type of the input and rois tensors.
+ * \tparam BatchIndicesT  The type of the batch indices tensor.
+ * \tparam PoolType       The type of pooling used depends on the PoolType
+ *                        template parameter, which can be used to specify
+ *                        either Max or Average pooling.
+ * \tparam Backend        The type of the Backend.
+ *
+ * \param [in]  input           A pointer to the input tensor.
+ * \param [in]  rois            A pointer to the ROIs tensor.
+ * \param [in]  batch_indices   A pointer to the batch indices tensor.
+ * \param [out] output          A pointer to the output tensor.
+ * \param [in]  rap             The parameters of the ROI Align operation.
+ * \param [in]  backend         The backend that provides access to the SYCL
+ *                              buffers corresponding to the input and output
+ *                              pointers.
+ * \param [in]  events          USM dependency events
+ *
+ * \return An \ref SNNStatus containing the SYCL event tied to the kernel
+ * launches and a \ref StatusCode enum showing if the launch was OK or whether
+ * it encountered some problem.
+ */
+template <typename T, typename BatchIndicesT,
+          template <typename> class PoolType, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_usm_backend_v<Backend>>::type>
+SNNStatus launch(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> rois,
+    typename Backend::template pointer_type<BatchIndicesT const> batch_indices,
+    typename Backend::template pointer_type<T> output,
+    const RoiAlignParams& rap, Backend& backend,
+    const std::vector<cl::sycl::event>& events = {}) {
+  auto validation_status = internal::validate_params(rap);
+  if (validation_status.status != StatusCode::OK) {
+    return validation_status;
+  }
+
+  return internal::sublaunch<T, BatchIndicesT, PoolType>(
+      input, rois, batch_indices, output, rap, backend);
+}
+
+#endif  // SNN_USE_USM
 
 }  // namespace roi_align
 }  // namespace sycldnn

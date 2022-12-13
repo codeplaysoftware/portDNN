@@ -34,13 +34,28 @@ namespace sycldnn {
 namespace roi_align {
 namespace internal {
 
+template SNNStatus
+queue_roi_align<SNN_DATA_TYPE, SNN_BATCH_INDICES_TYPE, SNN_INDEX_TYPE,
+                SNN_OPERATOR, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& in_mem,
+    BufferMemObject<SNN_DATA_TYPE const>& roi_mem,
+    BufferMemObject<SNN_BATCH_INDICES_TYPE const>& batch_indices_mem,
+    BufferMemObject<SNN_DATA_TYPE>& out_mem, const RoiAlignParams& rap,
+    size_t threads, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+
+#ifdef SNN_ENABLE_USM
+
 template SNNStatus queue_roi_align<SNN_DATA_TYPE, SNN_BATCH_INDICES_TYPE,
-                                   SNN_INDEX_TYPE, SNN_OPERATOR>(
-    BaseMemObject<SNN_DATA_TYPE const>& in_mem,
-    BaseMemObject<SNN_DATA_TYPE const>& roi_mem,
-    BaseMemObject<SNN_BATCH_INDICES_TYPE const>& batch_indices_mem,
-    BaseMemObject<SNN_DATA_TYPE>& out_mem, const RoiAlignParams& rap,
-    size_t threads, cl::sycl::queue& queue);
+                                   SNN_INDEX_TYPE, SNN_OPERATOR, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& in_mem,
+    USMMemObject<SNN_DATA_TYPE const>& roi_mem,
+    USMMemObject<SNN_BATCH_INDICES_TYPE const>& batch_indices_mem,
+    USMMemObject<SNN_DATA_TYPE>& out_mem, const RoiAlignParams& rap,
+    size_t threads, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+
+#endif  // SNN_ENABLE_USM
 
 }  // namespace internal
 }  // namespace roi_align

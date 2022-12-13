@@ -53,12 +53,12 @@ struct interpolated_value<T, AveragePool> {
 };
 
 template <typename T, typename BatchIndicesT, typename Index,
-          template <typename> class Op>
+          template <typename> class Op, bool IsUSM>
 class RoiAlignOp {
-  ReadAccessor<T const> in_data_;
-  ReadAccessor<T const> roi_data_;
-  ReadAccessor<BatchIndicesT const> batch_indices_data_;
-  WriteAccessor<T> out_data_;
+  ReadMem<T const, IsUSM> in_data_;
+  ReadMem<T const, IsUSM> roi_data_;
+  ReadMem<BatchIndicesT const, IsUSM> batch_indices_data_;
+  WriteMem<T, IsUSM> out_data_;
   RoiAlignParams params_;
   size_t const n_threads_;
 
@@ -180,9 +180,9 @@ class RoiAlignOp {
     }
   }
 
-  RoiAlignOp(ReadAccessor<T const> in_data, ReadAccessor<T const> roi_data,
-             ReadAccessor<BatchIndicesT const> batch_indices_data,
-             WriteAccessor<T> out_data, RoiAlignParams const& rap,
+  RoiAlignOp(ReadMem<T const, IsUSM> in_data, ReadMem<T const, IsUSM> roi_data,
+             ReadMem<BatchIndicesT const, IsUSM> batch_indices_data,
+             WriteMem<T, IsUSM> out_data, RoiAlignParams const& rap,
              size_t n_threads)
       : in_data_(std::move(in_data)),
         roi_data_(std::move(roi_data)),

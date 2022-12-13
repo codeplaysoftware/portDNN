@@ -26,3 +26,14 @@ snn_test(
     $<TARGET_OBJECTS:roi_align>
 )
 
+if(SNN_ENABLE_USM)
+snn_test(
+  WITH_SYCL
+  TARGET
+    roi_align_event_deps
+  SOURCES
+    roi_align_event_dependencies_test.cc
+  OBJECTS
+    $<TARGET_OBJECTS:roi_align>
+)
+endif()

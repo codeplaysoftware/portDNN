@@ -33,19 +33,20 @@ namespace roi_align {
 namespace internal {
 
 template <typename T, typename BatchIndicesT, typename Index,
-          template <typename> class PoolType>
-SNNStatus queue_roi_align(BaseMemObject<T const>& in_mem,
-                          BaseMemObject<T const>& rois_mem,
-                          BaseMemObject<BatchIndicesT const>& batch_indices_mem,
-                          BaseMemObject<T>& out_mem, RoiAlignParams const& rap,
-                          size_t threads, cl::sycl::queue& queue) {
+          template <typename> class PoolType, template <typename> class MemObj>
+SNNStatus queue_roi_align(MemObj<T const>& in_mem, MemObj<T const>& rois_mem,
+                          MemObj<BatchIndicesT const>& batch_indices_mem,
+                          MemObj<T>& out_mem, RoiAlignParams const& rap,
+                          size_t threads, cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events) {
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto rois = rois_mem.read_accessor(cgh);
-    auto batch_indices = batch_indices_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
-    RoiAlignOp<T, BatchIndicesT, Index, PoolType> roi_align{
-        input, rois, batch_indices, output, rap, threads};
+    cgh.depends_on(events);
+    auto input = in_mem.read_mem(cgh);
+    auto rois = rois_mem.read_mem(cgh);
+    auto batch_indices = batch_indices_mem.read_mem(cgh);
+    auto output = out_mem.write_mem(cgh);
+    RoiAlignOp<T, BatchIndicesT, Index, PoolType, is_usm_obj_v<MemObj<T>, T>>
+        roi_align{input, rois, batch_indices, output, rap, threads};
 
     cgh.parallel_for(cl::sycl::range<1>{threads}, roi_align);
   });

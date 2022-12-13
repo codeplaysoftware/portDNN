@@ -25,7 +25,7 @@
 
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
@@ -39,6 +39,7 @@ template <typename Pair>
 using RoiAlignTestFixtureInt64 =
     RoiAlignFixture<typename Pair::FirstType, /*batch indices type*/ int64_t,
                     typename Pair::SecondType>;
+
 TYPED_TEST_SUITE(RoiAlignTestFixture, GTestTypePairs);
 TYPED_TEST_SUITE(RoiAlignTestFixtureInt64, GTestTypePairs);
 TYPED_TEST(RoiAlignTestFixture, 2x2_TO_1x1_DEFAULT_PARAMS) {

@@ -28,13 +28,34 @@ namespace sycldnn {
 namespace roi_align {
 namespace internal {
 
-template <typename T, typename Index, template <typename> class PoolType>
-SNN_EXPORT SNNStatus launch_roi_align(BaseMemObject<T const>& input,
-                                      BaseMemObject<T const>& rois,
-                                      BaseMemObject<Index const>& batch_indices,
-                                      BaseMemObject<T>& output,
-                                      const RoiAlignParams& rap,
-                                      cl::sycl::queue& queue);
+template <typename T, typename Index, template <typename> class PoolType,
+          template <typename> class MemObj>
+SNN_EXPORT SNNStatus
+launch_roi_align(MemObj<T const>& input, MemObj<T const>& rois,
+                 MemObj<Index const>& batch_indices, MemObj<T>& output,
+                 const RoiAlignParams& rap, cl::sycl::queue& queue,
+                 const std::vector<cl::sycl::event>& events = {});
+
+template <typename T, typename BatchIndicesT,
+          template <typename> class PoolType, typename Backend>
+SNNStatus sublaunch(
+    typename Backend::template pointer_type<T const> input,
+    typename Backend::template pointer_type<T const> rois,
+    typename Backend::template pointer_type<BatchIndicesT const> batch_indices,
+    typename Backend::template pointer_type<T> output,
+    const RoiAlignParams& rap, Backend& backend,
+    const std::vector<cl::sycl::event>& events = {}) {
+  auto inp_mem = backend._get_mem_object(
+      input, rap.batch * rap.channels * rap.in_height * rap.in_width);
+  auto rois_mem = backend._get_mem_object(rois, rap.num_rois * rap.roi_cols);
+  auto batch_indices_mem = backend._get_mem_object(batch_indices, rap.num_rois);
+  auto outp_mem = backend._get_mem_object(
+      output, rap.num_rois * rap.channels * rap.out_height * rap.out_width);
+  auto queue = backend.get_queue();
+
+  return internal::launch_roi_align<T, BatchIndicesT, PoolType>(
+      inp_mem, rois_mem, batch_indices_mem, outp_mem, rap, queue, events);
+}
 
 }  // namespace internal
 }  // namespace roi_align

@@ -27,12 +27,12 @@ namespace roi_align {
 namespace internal {
 
 template <typename T, typename BatchIndicesT, typename Index,
-          template <typename> class PoolType>
-SNNStatus queue_roi_align(BaseMemObject<T const>& input,
-                          BaseMemObject<T const>& rois,
-                          BaseMemObject<BatchIndicesT const>& batch_indices,
-                          BaseMemObject<T>& output, const RoiAlignParams& rap,
-                          size_t threads, cl::sycl::queue& queue);
+          template <typename> class PoolType, template <typename> class MemObj>
+SNNStatus queue_roi_align(MemObj<T const>& input, MemObj<T const>& rois,
+                          MemObj<BatchIndicesT const>& batch_indices,
+                          MemObj<T>& output, const RoiAlignParams& rap,
+                          size_t threads, cl::sycl::queue& queue,
+                          const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace roi_align
