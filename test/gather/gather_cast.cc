@@ -17,11 +17,10 @@
 #include <vector>
 
 #include "test/gather/gather_fixture.h"
-#include "test/types/concatenate.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
-
-using namespace sycldnn;
 
 using IntDataTypeList =
     sycldnn::types::TypeList<int8_t, int16_t, int32_t, int64_t, uint8_t,
@@ -29,14 +28,18 @@ using IntDataTypeList =
 using DataTypeList =
     sycldnn::types::Concatenate<sycldnn::types::KernelDataTypes,
                                 IntDataTypeList>::type;
-using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using namespace sycldnn;
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
 using IndexDataType = int32_t;  // or int64_t
 
-template <typename DataType>
-using GatherCastTestFixture = GatherFixture<DataType, IndexDataType>;
-TYPED_TEST_SUITE(GatherCastTestFixture, GTestTypeList);
-
+template <typename Pair>
+using GatherCastTestFixture = GatherFixture<Pair, IndexDataType>;
+TYPED_TEST_SUITE(GatherCastTestFixture, GTestTypePairs);
 TYPED_TEST(GatherCastTestFixture, INDEX_1_AXIS_0_INPUT_2) {
   using DataType = typename TestFixture::DataType;
 

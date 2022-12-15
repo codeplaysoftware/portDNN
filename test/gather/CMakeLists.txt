@@ -49,3 +49,15 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+
+if(SNN_ENABLE_USM)
+  snn_test(
+    WITH_SYCL
+    TARGET
+      gather_event_dependencies
+    SOURCES
+      gather_event_dependencies.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endif()

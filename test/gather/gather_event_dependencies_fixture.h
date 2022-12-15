@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_GATHER_GATHER_FIXTURE_H_
-#define SYCLDNN_TEST_GATHER_GATHER_FIXTURE_H_
+#ifndef SYCLDNN_TEST_GATHER_GATHER_EVENT_DEPENDENCIES_FIXTURE_H_
+#define SYCLDNN_TEST_GATHER_GATHER_EVENT_DEPENDENCIES_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
@@ -26,19 +26,20 @@
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
+#include "test/helpers/dependency_check.h"
 
 #include <numeric>
 #include <string>
 #include <vector>
 
-template <typename Pair, typename Index>
-struct GatherFixture : public BackendTestFixture<typename Pair::SecondType> {
-  using DataType = typename Pair::FirstType;
+template <typename T, typename Index>
+struct GatherEventFixture
+    : public BackendTestFixture<sycldnn::backend::SNNUSMBackend> {
+  using DataType = T;
 
-  void test_gather(std::vector<DataType> const& exp,
-                   sycldnn::gather::GatherParams const& params,
+  void test_gather(sycldnn::gather::GatherParams const& params,
                    std::vector<Index> const& indices,
-                   DataType max_val = DataType{0}) {
+                   DataType max_val = DataType(0)) {
     sycldnn::gather::GatherSizes gather_sizes =
         sycldnn::gather::get_sizes(params);
 
@@ -62,19 +63,17 @@ struct GatherFixture : public BackendTestFixture<typename Pair::SecondType> {
       provider.deallocate_ptr(out_gpu);
     };
 
+    dependency_test_params dep_test_params;
+    cl::sycl::event dependee_e = create_event(backend, dep_test_params);
+
     auto status = sycldnn::gather::launch<DataType, Index>(
-        inp_gpu, indices_gpu, out_gpu, params, backend);
+        inp_gpu, indices_gpu, out_gpu, params, backend,
+        std::vector<cl::sycl::event>{dependee_e});
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
-    status.event.wait_and_throw();
 
-    provider.copy_device_data_to_host(out_size, out_gpu, output);
-
-    for (size_t i = 0; i < exp.size(); ++i) {
-      SCOPED_TRACE("Element: " + std::to_string(i));
-      EXPECT_EQ(exp[i], output[i]);
-    }
+    check_dependency(dependee_e, status.event, backend, dep_test_params);
   }
 };
 
-#endif  // SYCLDNN_TEST_GATHER_GATHER__FIXTURE_H_
+#endif  // SYCLDNN_TEST_GATHER_GATHER_EVENT_DEPENDENCIES_FIXTURE_H_

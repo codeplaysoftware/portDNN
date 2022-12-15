@@ -26,11 +26,11 @@ namespace sycldnn {
 namespace gather {
 namespace internal {
 
-template <typename T, typename Index>
-SNNStatus queue_gather(BaseMemObject<T const>& in_mem,
-                       BaseMemObject<Index const>& indices_mem,
-                       BaseMemObject<T>& out_mem, const GatherSizes& gs,
-                       cl::sycl::queue& queue);
+template <typename T, typename Index, template <typename> class MemObj>
+SNNStatus queue_gather(MemObj<T const>& in_mem,
+                       MemObj<Index const>& indices_mem, MemObj<T>& out_mem,
+                       const GatherSizes& gs, cl::sycl::queue& queue,
+                       const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace gather

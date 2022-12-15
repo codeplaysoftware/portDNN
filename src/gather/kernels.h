@@ -30,14 +30,14 @@
 namespace sycldnn {
 namespace gather {
 
-template <typename T, typename Index>
+template <typename T, typename Index, bool IsUSM>
 class GatherOp {
   using LoadData = helpers::io::Load<T>;
   using StoreData = helpers::io::Store<T>;
 
-  ReadAccessor<T const> in_data_;
-  ReadAccessor<Index const> indices_data_;
-  WriteAccessor<T> out_data_;
+  ReadMem<T const, IsUSM> in_data_;
+  ReadMem<Index const, IsUSM> indices_data_;
+  WriteMem<T, IsUSM> out_data_;
 
   const Index block_size_;
   const Index max_indices_;
@@ -45,10 +45,10 @@ class GatherOp {
   const Index n_items_;
 
  public:
-  GatherOp(ReadAccessor<T const> const& input,
-           ReadAccessor<Index const> const& indices,
-           WriteAccessor<T> const& output, Index block_size, Index max_indices,
-           Index n_indices, Index n_items)
+  GatherOp(ReadMem<T const, IsUSM> const& input,
+           ReadMem<Index const, IsUSM> const& indices,
+           WriteMem<T, IsUSM> const& output, Index block_size,
+           Index max_indices, Index n_indices, Index n_items)
       : in_data_{input},
         indices_data_{indices},
         out_data_{output},

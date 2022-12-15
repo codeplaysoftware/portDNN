@@ -23,17 +23,24 @@
 #include <vector>
 
 #include "test/gather/gather_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
-using namespace sycldnn;
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes_;
 
-using GTestTypeList = sycldnn::types::GTestKernelDataTypes;
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using namespace sycldnn;
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
 using IndexDataType = int32_t;  // or int64_t
 
-template <typename DataType>
-using Gather1D = GatherFixture<DataType, IndexDataType>;
-TYPED_TEST_SUITE(Gather1D, GTestTypeList);
+template <typename Pair>
+using Gather1D = GatherFixture<Pair, IndexDataType>;
+TYPED_TEST_SUITE(Gather1D, GTestTypePairs);
 TYPED_TEST(Gather1D, G1D_Axis_Neg1_Inp5_Ind1) {
   using DataType = typename TestFixture::DataType;
   const std::vector<DataType> exp_out = {3.};

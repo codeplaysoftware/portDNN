@@ -25,11 +25,19 @@ namespace sycldnn {
 namespace gather {
 namespace internal {
 
+#ifdef SNN_ENABLE_USM
 template SNNStatus queue_gather<SNN_DATA_TYPE, SNN_INDEX_TYPE>(
-    BaseMemObject<SNN_DATA_TYPE const>& in_mem,
-    BaseMemObject<SNN_INDEX_TYPE const>& indices_mem,
-    BaseMemObject<SNN_DATA_TYPE>& out_mem, const GatherSizes& gs,
-    cl::sycl::queue& queue);
+    USMMemObject<SNN_DATA_TYPE const>& in_mem,
+    USMMemObject<SNN_INDEX_TYPE const>& indices_mem,
+    USMMemObject<SNN_DATA_TYPE>& out_mem, const GatherSizes& gs,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+#endif
+
+template SNNStatus queue_gather<SNN_DATA_TYPE, SNN_INDEX_TYPE>(
+    BufferMemObject<SNN_DATA_TYPE const>& in_mem,
+    BufferMemObject<SNN_INDEX_TYPE const>& indices_mem,
+    BufferMemObject<SNN_DATA_TYPE>& out_mem, const GatherSizes& gs,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace gather

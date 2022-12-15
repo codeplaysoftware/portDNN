@@ -24,11 +24,11 @@ namespace sycldnn {
 namespace gather {
 namespace internal {
 
-template <typename T, typename Index>
-SNNStatus queue_gather(BaseMemObject<T const>& in_mem,
-                       BaseMemObject<Index const>& indices_mem,
-                       BaseMemObject<T>& out_mem, const GatherSizes& gs,
-                       cl::sycl::queue& queue) {
+template <typename T, typename Index, template <typename> class MemObj>
+SNNStatus queue_gather(MemObj<T const>& in_mem,
+                       MemObj<Index const>& indices_mem, MemObj<T>& out_mem,
+                       const GatherSizes& gs, cl::sycl::queue& queue,
+                       const std::vector<cl::sycl::event>& events) {
   size_t const n_items = gs.output_size;
 
   Index indices_size = gs.indices_size;
@@ -37,13 +37,14 @@ SNNStatus queue_gather(BaseMemObject<T const>& in_mem,
   Index output_size = gs.output_size;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto indices = indices_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = in_mem.read_mem(cgh);
+    auto indices = indices_mem.read_mem(cgh);
+    auto output = out_mem.write_mem(cgh);
 
-    GatherOp<T, Index> gatherFunc{input,      indices,   output,
-                                  block_size, max_index, indices_size,
-                                  output_size};
+    GatherOp<T, Index, is_usm_obj_v<MemObj<T>, T>> gatherFunc{
+        input,     indices,      output,     block_size,
+        max_index, indices_size, output_size};
 
     cgh.parallel_for(cl::sycl::range<1>{n_items}, gatherFunc);
   });
