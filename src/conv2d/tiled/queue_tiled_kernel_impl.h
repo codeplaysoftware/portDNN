@@ -56,22 +56,24 @@ cl::sycl::range<1> get_thread_range(Conv2DParams const& params,
 
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
-          bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
-SNNStatus queue_tiled_kernel(BaseMemObject<T const>& in_mem,
-                             BaseMemObject<T const>& fil_mem,
-                             BaseMemObject<T>& out_mem,
+          bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
+          template <typename> class MemObj>
+SNNStatus queue_tiled_kernel(MemObj<T const>& in_mem, MemObj<T const>& fil_mem,
+                             MemObj<T>& out_mem,
                              Conv2DParams const& kernel_params,
                              tiled::TileInfo const& tile_info,
-                             cl::sycl::queue& queue) {
-  using Functor =
-      tiled::TiledConv2D<T, Index, ConvType, TileRows, TileCols,
-                         ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
-                         WindowRows, WindowCols, Stride>;
+                             cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events) {
+  using Functor = tiled::TiledConv2D<T, Index, ConvType, TileRows, TileCols,
+                                     ChannelVectorWidth, FeatureVectorWidth,
+                                     UseFastDiv, WindowRows, WindowCols, Stride,
+                                     is_usm_obj_v<MemObj<T>, T>>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = in_mem.read_accessor(cgh);
-    auto filter = fil_mem.read_accessor(cgh);
-    auto output = out_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = in_mem.read_mem(cgh);
+    auto filter = fil_mem.read_mem(cgh);
+    auto output = out_mem.write_mem(cgh);
 
     Functor conv{input, filter, output, kernel_params, tile_info};
     auto threads = get_thread_range(kernel_params, tile_info, queue);

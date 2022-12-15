@@ -40,7 +40,8 @@ namespace tiled {
 
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
-          bool UseFastDiv, int WindowRows, int WindowCols, int Stride = 0>
+          bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
+          bool IsUSM>
 struct TiledConv2D;
 
 /**
@@ -55,10 +56,10 @@ struct TiledConv2D;
  */
 template <typename T, typename Index, int OutTileRows, int OutTileCols,
           int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
-          int WindowRows, int WindowCols, int Stride>
+          int WindowRows, int WindowCols, int Stride, bool IsUSM>
 struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
                    ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
-                   WindowRows, WindowCols, Stride> {
+                   WindowRows, WindowCols, Stride, IsUSM> {
  private:
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   static constexpr auto InputTileCols = (OutTileCols - 1) * Stride + WindowCols;
@@ -71,8 +72,8 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   using OutVecType = typename Output::VecType;
 
  public:
-  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> filter,
-              WriteAccessor<T> output, Conv2DParams const& params,
+  TiledConv2D(ReadMem<T const, IsUSM> input, ReadMem<T const, IsUSM> filter,
+              WriteMem<T, IsUSM> output, Conv2DParams const& params,
               TileInfo const& tile_info)
       : n_tile_cols_{tile_info.n_cols},
         n_tile_rows_{tile_info.n_rows},
@@ -91,17 +92,17 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
         out_cols_{params.out_cols},
         pad_rows_{params.pad_rows},
         pad_cols_{params.pad_cols},
-        input_accessor_{std::move(input)},
-        filter_accessor_{std::move(filter)},
-        output_accessor_{std::move(output)} {}
+        input_mem_{std::move(input)},
+        filter_mem_{std::move(filter)},
+        output_mem_{std::move(output)} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto filter_data = filter_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -204,16 +205,16 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   const Index out_cols_;
   const Index pad_rows_;
   const Index pad_cols_;
-  const ReadAccessor<const T> input_accessor_;
-  const ReadAccessor<const T> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  const ReadMem<const T, IsUSM> input_mem_;
+  const ReadMem<const T, IsUSM> filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 template <typename T, typename Index, int OutTileRows, int OutTileCols,
           int ChannelVectorWidth, int FeatureVectorWidth, bool UseFastDiv,
-          int WindowRows, int WindowCols, int Stride>
+          int WindowRows, int WindowCols, int Stride, bool IsUSM>
 struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
                    ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
-                   WindowRows, WindowCols, Stride> {
+                   WindowRows, WindowCols, Stride, IsUSM> {
  private:
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   static constexpr auto InputTileCols = (OutTileCols + WindowCols - 1) / Stride;
@@ -226,8 +227,8 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   using OutVecType = typename Output::VecType;
 
  public:
-  TiledConv2D(ReadAccessor<T const> input, ReadAccessor<T const> filter,
-              WriteAccessor<T> output, Conv2DParams const& params,
+  TiledConv2D(ReadMem<T const, IsUSM> input, ReadMem<T const, IsUSM> filter,
+              WriteMem<T, IsUSM> output, Conv2DParams const& params,
               TileInfo const& tile_info)
       : n_tile_cols_{tile_info.n_cols},
         n_tile_rows_{tile_info.n_rows},
@@ -246,17 +247,17 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
         out_cols_{params.out_cols},
         pad_rows_{params.pad_rows},
         pad_cols_{params.pad_cols},
-        input_accessor_{std::move(input)},
-        filter_accessor_{std::move(filter)},
-        output_accessor_{std::move(output)} {}
+        input_mem_{std::move(input)},
+        filter_mem_{std::move(filter)},
+        output_mem_{std::move(output)} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
 
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto filter_data = filter_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
@@ -388,9 +389,9 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   const Index out_cols_;
   const Index pad_rows_;
   const Index pad_cols_;
-  const ReadAccessor<const T> input_accessor_;
-  const ReadAccessor<const T> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  const ReadMem<const T, IsUSM> input_mem_;
+  const ReadMem<const T, IsUSM> filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
 }  // namespace tiled

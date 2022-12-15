@@ -34,21 +34,43 @@ namespace sycldnn {
 namespace conv2d {
 namespace internal {
 
+#ifdef SNN_ENABLE_USM
 template SNNStatus queue_tiled_kernel<
     SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_TILE_ROW, SNN_TILE_COL,
     SNN_CH_VECTOR, SNN_FET_VECTOR, true, SNN_WINDOW, SNN_WINDOW, SNN_STRIDE>(
-    BaseMemObject<SNN_DATA_TYPE const>& input,
-    BaseMemObject<SNN_DATA_TYPE const>& filter,
-    BaseMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
-    tiled::TileInfo const& tile_info, cl::sycl::queue& queue);
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE const>& filter,
+    USMMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
+    tiled::TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
 
 template SNNStatus queue_tiled_kernel<
     SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_TILE_ROW, SNN_TILE_COL,
     SNN_CH_VECTOR, SNN_FET_VECTOR, false, SNN_WINDOW, SNN_WINDOW, SNN_STRIDE>(
-    BaseMemObject<SNN_DATA_TYPE const>& input,
-    BaseMemObject<SNN_DATA_TYPE const>& filter,
-    BaseMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
-    tiled::TileInfo const& tile_info, cl::sycl::queue& queue);
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE const>& filter,
+    USMMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
+    tiled::TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+#endif
+
+template SNNStatus queue_tiled_kernel<
+    SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_TILE_ROW, SNN_TILE_COL,
+    SNN_CH_VECTOR, SNN_FET_VECTOR, true, SNN_WINDOW, SNN_WINDOW, SNN_STRIDE>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE const>& filter,
+    BufferMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
+    tiled::TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+
+template SNNStatus queue_tiled_kernel<
+    SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_TILE_ROW, SNN_TILE_COL,
+    SNN_CH_VECTOR, SNN_FET_VECTOR, false, SNN_WINDOW, SNN_WINDOW, SNN_STRIDE>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE const>& filter,
+    BufferMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
+    tiled::TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
 
 }  // namespace internal
 }  // namespace conv2d

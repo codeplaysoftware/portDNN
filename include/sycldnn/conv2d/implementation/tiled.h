@@ -37,16 +37,17 @@ inline SNNStatus launch_tiled(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
-    Conv2DParams const& params, Backend& backend) {
+    Conv2DParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   auto conv_sizes = get_sizes<ConvType>(params);
 
-  auto inp_access = backend.get_mem_object(input, conv_sizes.input_size);
-  auto fil_access = backend.get_mem_object(filter, conv_sizes.filter_size);
-  auto out_access = backend.get_mem_object(output, conv_sizes.output_size);
+  auto inp_access = backend._get_mem_object(input, conv_sizes.input_size);
+  auto fil_access = backend._get_mem_object(filter, conv_sizes.filter_size);
+  auto out_access = backend._get_mem_object(output, conv_sizes.output_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return internal::launch_tiled<T, ConvType>(inp_access, fil_access, out_access,
-                                             params, queue);
+                                             params, queue, events);
 }
 }  // namespace conv2d
 }  // namespace sycldnn

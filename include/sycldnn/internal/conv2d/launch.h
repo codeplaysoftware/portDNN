@@ -95,7 +95,8 @@ SNNStatus select_and_launch(
       return launch_direct<T, ConvType>(input, filter, output, params, backend,
                                         events);
     case Algorithm::Tiled:
-      return launch_tiled<T, ConvType>(input, filter, output, params, backend);
+      return launch_tiled<T, ConvType>(input, filter, output, params, backend,
+                                       {});
     case Algorithm::Im2col:
       return launch_im2col<T, ConvType>(input, filter, output, workspace,
                                         params, workspace_size, backend);
@@ -128,6 +129,9 @@ SNNStatus select_and_launch_usm(
     case Algorithm::Direct:
       return launch_direct<T, ConvType>(input, filter, output, params, backend,
                                         events);
+    case Algorithm::Tiled:
+      return launch_tiled<T, ConvType>(input, filter, output, params, backend,
+                                       events);
     default:
       return StatusCode::InvalidAlgorithm;
   }

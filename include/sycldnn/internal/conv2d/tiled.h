@@ -30,12 +30,12 @@ namespace internal {
  *
  * Implemented in the compiled SYCL DNN library.
  */
-template <typename T, typename ConvType>
-SNN_EXPORT SNNStatus launch_tiled(BaseMemObject<T const>& input,
-                                  BaseMemObject<T const>& filter,
-                                  BaseMemObject<T>& output,
+template <typename T, typename ConvType, template <typename> class MemObj>
+SNN_EXPORT SNNStatus launch_tiled(MemObj<T const>& input,
+                                  MemObj<T const>& filter, MemObj<T>& output,
                                   Conv2DParams const& params,
-                                  cl::sycl::queue& queue);
+                                  cl::sycl::queue& queue,
+                                  const std::vector<cl::sycl::event>& events);
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

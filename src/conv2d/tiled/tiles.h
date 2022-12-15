@@ -40,6 +40,20 @@ namespace tiled {
 struct check_bounds_tag {};
 struct mirror_filter_tag {};
 
+#if SNN_ENABLE_USM
+#define MULTI_PTR_TEMPLATE_DECL          \
+  cl::sycl::access::address_space Space, \
+      cl::sycl::access::decorated DecorateAddress
+#else
+#define MULTI_PTR_TEMPLATE_DECL cl::sycl::access::address_space Space
+#endif  // SNN_ENABLE_USM
+
+#if SNN_ENABLE_USM
+#define MULTI_PTR_TEMPLATE Space, DecorateAddress
+#else
+#define MULTI_PTR_TEMPLATE Space
+#endif  // SNN_ENABLE_USM
+
 /** A 1 x Width row from the input tensor. */
 template <typename T, int ChannelVector, int Width>
 struct InputRow final
@@ -53,10 +67,11 @@ struct InputRow final
    * Input row factory method. Will load the input data specified by row, col
    * and channel into an InputRow tile from the given multi pointer.
    */
-  template <typename Index, cl::sycl::access::address_space Space>
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   static InputRow SNN_ALWAYS_INLINE
-  load_input_row(cl::sycl::multi_ptr<T const, Space> input, Index const offset,
-                 Index const col, Index const n_cols, Index const n_channels) {
+  load_input_row(cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
+                 Index const offset, Index const col, Index const n_cols,
+                 Index const n_channels) {
     if (col >= 0 && col + Width < n_cols) {
       return {input, offset, col, n_cols, n_channels};
     } else {
@@ -65,10 +80,11 @@ struct InputRow final
   }
 
  private:
-  template <typename Index, cl::sycl::access::address_space Space>
-  SNN_ALWAYS_INLINE InputRow(cl::sycl::multi_ptr<T const, Space> input,
-                             Index const offset, Index const col,
-                             Index const /*n_cols*/, Index const n_channels) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  SNN_ALWAYS_INLINE InputRow(
+      cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
+      Index const offset, Index const col, Index const /*n_cols*/,
+      Index const n_channels) {
     Index idx = offset + col * n_channels;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < Width; ++i) {
@@ -77,11 +93,11 @@ struct InputRow final
     }
   }
 
-  template <typename Index, cl::sycl::access::address_space Space>
-  SNN_ALWAYS_INLINE InputRow(cl::sycl::multi_ptr<T const, Space> input,
-                             Index const offset, Index const col,
-                             Index const n_cols, Index const n_channels,
-                             check_bounds_tag) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  SNN_ALWAYS_INLINE InputRow(
+      cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
+      Index const offset, Index const col, Index const n_cols,
+      Index const n_channels, check_bounds_tag) {
     Index idx = offset + col * n_channels;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < Width; ++i) {
@@ -103,10 +119,10 @@ struct FilterTile : public helpers::RegisterTile3D<
   using helpers::RegisterTile3D<VecType, WindowRows, WindowCols,
                                 ChannelVector>::data;
 
-  template <typename Index, cl::sycl::access::address_space Space>
-  SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<T const, Space> input,
-                               Index const offset, Index const n_channels,
-                               Index const n_features) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  SNN_ALWAYS_INLINE FilterTile(
+      cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
+      Index const offset, Index const n_channels, Index const n_features) {
     Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < WindowRows; ++i) {
@@ -125,10 +141,11 @@ struct FilterTile : public helpers::RegisterTile3D<
     }
   }
 
-  template <typename Index, cl::sycl::access::address_space Space>
-  SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<T const, Space> input,
-                               Index const offset, Index const n_channels,
-                               Index const n_features, mirror_filter_tag) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  SNN_ALWAYS_INLINE FilterTile(
+      cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
+      Index const offset, Index const n_channels, Index const n_features,
+      mirror_filter_tag) {
     Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < WindowRows; ++i) {
@@ -158,12 +175,11 @@ struct OutputTile final
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   using helpers::RegisterTile2D<VecType, OutTileRows, OutTileCols>::data;
 
-  template <typename Index, cl::sycl::access::address_space Space>
-  void SNN_ALWAYS_INLINE write_out(cl::sycl::multi_ptr<T, Space> output,
-                                   Index const batch, Index const out_row,
-                                   Index const n_rows, Index const out_col,
-                                   Index const n_cols, Index const feature,
-                                   Index const n_features) {
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE write_out(
+      cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
+      Index const out_row, Index const n_rows, Index const out_col,
+      Index const n_cols, Index const feature, Index const n_features) {
     if (out_row + OutTileRows < n_rows && out_col + OutTileCols < n_cols) {
       write_out_no_check(output, batch, out_row, n_rows, out_col, n_cols,
                          feature, n_features);
@@ -174,9 +190,9 @@ struct OutputTile final
   }
 
  private:
-  template <typename Index, cl::sycl::access::address_space Space>
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   void SNN_ALWAYS_INLINE write_out_checked(
-      cl::sycl::multi_ptr<T, Space> output, Index const batch,
+      cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
       Index const out_row, Index const n_rows, Index const out_col,
       Index const n_cols, Index const feature, Index const n_features) {
     Index const offset =
@@ -200,9 +216,9 @@ struct OutputTile final
     }
   }
 
-  template <typename Index, cl::sycl::access::address_space Space>
+  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   void SNN_ALWAYS_INLINE write_out_no_check(
-      cl::sycl::multi_ptr<T, Space> output, Index const batch,
+      cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
       Index const out_row, Index const n_rows, Index const out_col,
       Index const n_cols, Index const feature, Index const n_features) {
     Index const offset =
@@ -221,6 +237,9 @@ struct OutputTile final
     }
   }
 };
+
+#undef MULTI_PTR_TEMPLATE_DECL
+#undef MULTI_PTR_TEMPLATE
 
 }  // namespace tiled
 }  // namespace internal
