@@ -34,11 +34,12 @@ struct MatmulLauncher<conv_type::Forward> {
       typename Backend::template pointer_type<T const> input,
       typename Backend::template pointer_type<T const> filter,
       typename Backend::template pointer_type<T> output,
-      Conv2DParams const& params, Backend& backend) {
+      Conv2DParams const& params, Backend& backend,
+      const std::vector<cl::sycl::event>& events) {
     auto conv_width = params.batch * params.in_rows * params.in_cols;
     auto event = backend.template matmul<false, false>(
         input, filter, output, T{0}, conv_width, params.channels,
-        params.features);
+        params.features, events);
     return {event, StatusCode::OK};
   }
 };
@@ -50,11 +51,12 @@ struct MatmulLauncher<conv_type::InputBackprop> {
       typename Backend::template pointer_type<T const> input,
       typename Backend::template pointer_type<T const> filter,
       typename Backend::template pointer_type<T> output,
-      Conv2DParams const& params, Backend& backend) {
+      Conv2DParams const& params, Backend& backend,
+      const std::vector<cl::sycl::event>& events) {
     auto conv_width = params.batch * params.in_rows * params.in_cols;
     auto event = backend.template matmul<false, true>(
         input, filter, output, T{0}, conv_width, params.features,
-        params.channels);
+        params.channels, events);
     return {event, StatusCode::OK};
   }
 };
@@ -66,11 +68,12 @@ struct MatmulLauncher<conv_type::FilterBackprop> {
       typename Backend::template pointer_type<T const> input,
       typename Backend::template pointer_type<T const> filter,
       typename Backend::template pointer_type<T> output,
-      Conv2DParams const& params, Backend& backend) {
+      Conv2DParams const& params, Backend& backend,
+      const std::vector<cl::sycl::event>& events) {
     auto conv_width = params.batch * params.in_rows * params.in_cols;
     auto event = backend.template matmul<true, false>(
         input, filter, output, T{0}, params.channels, conv_width,
-        params.features);
+        params.features, events);
     return {event, StatusCode::OK};
   }
 };
@@ -89,7 +92,8 @@ inline SNNStatus launch_matmul(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
-    Conv2DParams const& params, Backend& backend) {
+    Conv2DParams const& params, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(params.window_rows == 1,
                      "Matmul can only be used for 1x1 NHWC convolutions.");
   SNN_VALIDATE_PARAM(params.window_cols == 1,
@@ -104,7 +108,7 @@ inline SNNStatus launch_matmul(
                      "Matmul can only be used with zero padding.");
 
   return internal::MatmulLauncher<ConvType>::template launch<T>(
-      input, filter, output, params, backend);
+      input, filter, output, params, backend, events);
 }
 
 }  // namespace conv2d

@@ -107,7 +107,8 @@ SNNStatus select_and_launch(
       return launch_winograd_large<T, ConvType>(
           input, filter, output, workspace, params, workspace_size, backend);
     case Algorithm::Matmul:
-      return launch_matmul<T, ConvType>(input, filter, output, params, backend);
+      return launch_matmul<T, ConvType>(input, filter, output, params, backend,
+                                        {});
     case Algorithm::NotSupported:
     default:
       return StatusCode::InvalidAlgorithm;
@@ -126,6 +127,9 @@ SNNStatus select_and_launch_usm(
   switch (algo_tag) {
     case Algorithm::Direct:
       return launch_direct<T, ConvType>(input, filter, output, params, backend,
+                                        events);
+    case Algorithm::Matmul:
+      return launch_matmul<T, ConvType>(input, filter, output, params, backend,
                                         events);
     case Algorithm::Im2col:
       return launch_im2col<T, ConvType>(input, filter, output, workspace,
