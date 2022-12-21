@@ -11,16 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+cmake_minimum_required(VERSION 3.10.2)
 
-if(NOT DPCPP_FOUND)
-  include(HandleEigen)
-  add_subdirectory(conv2d)
-  add_subdirectory(pooling)
-endif()
-add_subdirectory(bias)
-add_subdirectory(networks)
-add_subdirectory(softmax)
-if(SNN_ENABLE_USM)
-  add_subdirectory(compat)
-endif()
+include(HandleGTest)
+include(SNNHelpers)
+
+snn_test(
+  WITH_SYCL
+  TARGET
+    conv2d_compat
+  SIZE
+    short
+  SOURCES
+    conv2d_compat.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)
