@@ -17,14 +17,15 @@
 #ifndef SYCLDNN_INCLUDE_COMPAT_CONVOLUTION_HPP
 #define SYCLDNN_INCLUDE_COMPAT_CONVOLUTION_HPP
 
-#include <sycldnn/conv2d/algorithm.h>
-#include <sycldnn/conv2d/launch.h>
-#include <sycldnn/conv2d/params.h>
-#include <sycldnn/conv2d/selector/direct_selector.h>
-#include <sycldnn/conv2d/selector/im2col_selector.h>
-#include <sycldnn/conv2d/selector/tiled_selector.h>
-#include <sycldnn/conv2d/selector/winograd_selector.h>
 #include "utils.hpp"
+
+#include "sycldnn/conv2d/algorithm.h"
+#include "sycldnn/conv2d/launch.h"
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
 
 #include <memory>
 #include <vector>

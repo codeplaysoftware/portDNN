@@ -16,10 +16,12 @@
 
 #ifndef SYCLDNN_INCLUDE_COMPAT_UTILS_HPP
 #define SYCLDNN_INCLUDE_COMPAT_UTILS_HPP
-#include <sycldnn/backend/snn_usm_backend.h>
-#include <sycldnn/data_format.h>
-#include <sycldnn/filter_format.h>
-#include <sycldnn/status.h>
+
+#include "sycldnn/backend/snn_usm_backend.h"
+#include "sycldnn/data_format.h"
+#include "sycldnn/filter_format.h"
+#include "sycldnn/status.h"
+
 #include <memory>
 #include <vector>
 

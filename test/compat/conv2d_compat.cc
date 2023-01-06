@@ -16,9 +16,10 @@
 
 #include <gtest/gtest.h>
 
-#include <sycldnn/compat/convolution.hpp>
-#include <type_traits>
+#include "sycldnn/compat/convolution.hpp"
 #include "test/gen/iota_initialised_data.h"
+
+#include <type_traits>
 
 using namespace sycldnn;
 using namespace sycldnn::compat;

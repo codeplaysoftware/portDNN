@@ -16,14 +16,16 @@
 
 // Original cuDNN sample from
 // https://gist.github.com/odashi/1c20ba90388cf02330e1b95963d78039
+
+#include <CL/sycl.hpp>
+
+#include "sycldnn/backend/snn_backend.h"
+#include "sycldnn/compat/convolution.hpp"
+
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <vector>
-
-#include <sycldnn/backend/snn_backend.h>
-#include <CL/sycl.hpp>
-#include <sycldnn/compat/convolution.hpp>
 
 using namespace sycldnn::compat;
 
