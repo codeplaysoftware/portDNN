@@ -42,6 +42,7 @@ void print(const float* data, int n, int c, int h, int w, sycl::queue q) {
 
 int main() {
   SNNHandle handle;
+  SNNCreate(handle);
 
   // input
   const int in_n = 1;

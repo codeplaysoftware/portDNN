@@ -11,6 +11,8 @@ class Conv2DCompatTest : public ::testing::Test {
  protected:
   SNNHandle handle;
 
+  void SetUp() override { SNNCreate(handle); }
+
   size_t mul_all(const std::vector<int>& v) {
     size_t res = 1;
     for (auto& el : v) {

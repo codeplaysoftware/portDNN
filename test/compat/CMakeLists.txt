@@ -27,3 +27,15 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+
+snn_test(
+  WITH_SYCL
+  TARGET
+    queue
+  SIZE
+    short
+  SOURCES
+    queue.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)
