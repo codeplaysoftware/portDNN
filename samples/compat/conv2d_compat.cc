@@ -114,8 +114,8 @@ int main() {
   std::cout << std::endl;
 
   ConvolutionDescriptor conv_desc;
-
-  conv_desc.set2d(pad_h, pad_w, str_h, str_w, dil_h, dil_w);
+  setConvolution2dDescriptor(conv_desc, pad_h, pad_w, str_h, str_w, dil_h,
+                             dil_w, ConvolutionMode::CROSS_CORRELATION);
 
   // output
   int out_n;

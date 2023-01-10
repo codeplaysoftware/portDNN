@@ -39,6 +39,17 @@ namespace sycldnn {
 namespace compat {
 
 /**
+ * The Convolution mode.
+ *
+ */
+enum class ConvolutionMode {
+  CONVOLUTION = 0,    // Do a convolution operation, applying the filter to the
+                      // input. Currently not supported.
+  CROSS_CORRELATION,  // Do a cross-correlation operation, applying the rotated
+                      // filter to the images.
+};
+
+/**
  * class containing the padding, stride and dilation of the convolution
  * operation. Currently only 2D convolution is supported.
  */
@@ -48,13 +59,32 @@ class ConvolutionDescriptor {
   std::vector<Index_t> padding_;
   std::vector<Index_t> stride_;
   std::vector<Index_t> dilation_;
+  ConvolutionMode mode_;
 
   void check2d() const {
     SNN_ASSERT(nDims_ == 2, "Cannot call method on non 4-D tensor desc.");
   }
 
  public:
-  /** \return the stride across the _height dimension */
+  /** \return the number of spatial dimensions */
+  size_t getNumDims() const { return nDims_; }
+
+  /** \return an std::vector<int> containing the padding values across the
+   * spatial dimensions */
+  std::vector<Index_t> getPadding() const { return padding_; }
+
+  /** \return an std::vector<int> containing the stride values across the
+   * spatial dimensions */
+  std::vector<Index_t> getStride() const { return stride_; }
+
+  /** \return an std::vector<int> containing the dilation values across the
+   * spatial dimensions */
+  std::vector<Index_t> getDilation() const { return dilation_; }
+
+  /** \return the convolution mode */
+  ConvolutionMode getMode() const { return mode_; }
+
+  /** \return the stride across the height dimension */
   Index_t getStrideH() const {
     check2d();
     return stride_[0];
@@ -91,30 +121,133 @@ class ConvolutionDescriptor {
   };
 
   /**
-   * sets the descriptor as a 2D convolution descriptor.
+   * Sets the descriptor as a 2D convolution descriptor.
    * \param pad_h padding across the height dimension
    * \param pad_w padding across the width dimension
    * \param stride_h stride across the height dimension
    * \param stride_w stride across the width dimension
    * \param dilation_h dilation across the height dimension
    * \param dilation_w dilation across the width dimension
+   * \param mode The ConvolutionMode to use
    * \return sycldnn::StatusCode
    */
-  sycldnn::StatusCode set2d(int pad_h, int pad_w, int stride_h, int stride_w,
-                            int dilation_h, int dilation_w) {
+  sycldnn::StatusCode set2d(
+      int pad_h, int pad_w, int stride_h, int stride_w, int dilation_h,
+      int dilation_w,
+      ConvolutionMode mode = ConvolutionMode::CROSS_CORRELATION) {
     SNN_VALIDATE_PARAM(pad_h >= 0, "Invalid padding");
     SNN_VALIDATE_PARAM(pad_w >= 0, "Invalid padding");
     SNN_VALIDATE_PARAM(stride_h > 0, "Invalid stride");
     SNN_VALIDATE_PARAM(stride_w > 0, "Invalid stride");
     SNN_VALIDATE_PARAM(dilation_h >= 0, "Invalid dilation");
     SNN_VALIDATE_PARAM(dilation_w >= 0, "Invalid dilation");
+    SNN_VALIDATE_PARAM(
+        mode == ConvolutionMode::CROSS_CORRELATION,
+        "Only ConvolutionMode::CROSS_CORRELATION is currently supported");
     nDims_ = 2;
     padding_ = {pad_h, pad_w};
     stride_ = {stride_h, stride_w};
     dilation_ = {dilation_h, dilation_w};
+    mode_ = mode;
+    return sycldnn::StatusCode::OK;
+  }
+
+  /**
+   * Sets the descriptor as an N-dimensional convolution descriptor.
+   *
+   * \param pads              Vector containing the padding values across each
+   *                          spatial dimension
+   * \param strides           Vector containing the stride values across each
+   *                          spatial dimension
+   * \param dilations         Vector containing the dilation values
+   *                          across each spatial dimension
+   * \param mode              The sycldnn::compat::ConvolutionMode to use
+   * \return                  sycldnn::StatusCode
+   */
+  sycldnn::StatusCode setNd(
+      const std::vector<int>& pads, const std::vector<int>& strides,
+      const std::vector<int>& dilations,
+      ConvolutionMode mode = ConvolutionMode::CROSS_CORRELATION) {
+    const bool num_dims_match =
+        pads.size() == strides.size() && pads.size() == dilations.size();
+    SNN_VALIDATE_PARAM(
+        num_dims_match,
+        "Pads, strides and dilations must have the same number of elements");
+    for (auto pad : pads) {
+      SNN_VALIDATE_PARAM(pad >= 0, "Invalid padding");
+    }
+    for (auto stride : strides) {
+      SNN_VALIDATE_PARAM(stride > 0, "Invalid stride");
+    }
+    for (auto dilation : dilations) {
+      SNN_VALIDATE_PARAM(dilation >= 1, "Invalid dilation");
+    }
+    SNN_VALIDATE_PARAM(
+        mode == ConvolutionMode::CROSS_CORRELATION,
+        "Only ConvolutionMode::CROSS_CORRELATION is currently supported");
+    nDims_ = pads.size();
+    padding_ = pads;
+    stride_ = strides;
+    dilation_ = dilations;
+    mode_ = mode;
     return sycldnn::StatusCode::OK;
   }
 };
+
+/**
+ * Sets the descriptor as a 2D convolution descriptor.
+ * \param desc The descriptor to set the parameters of
+ * \param pad_h padding across the height dimension
+ * \param pad_w padding across the width dimension
+ * \param stride_h stride across the height dimension
+ * \param stride_w stride across the width dimension
+ * \param dilation_h dilation across the height dimension
+ * \param dilation_w dilation across the width dimension
+ * \param mode The ConvolutionMode to use
+ * \return sycldnn::StatusCode::OK if the descriptor was created successfully.
+ *         sycldnn::StatusCode::InvalidParameter if one of the parameters had an
+ *         incorrect value.
+ */
+sycldnn::StatusCode setConvolution2dDescriptor(ConvolutionDescriptor& desc,
+                                               int pad_h, int pad_w,
+                                               int stride_h, int stride_w,
+                                               int dilation_h, int dilation_w,
+                                               ConvolutionMode mode) {
+  return desc.set2d(pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
+                    mode);
+}
+
+/**
+ * Sets the descriptor as an N-dimensional convolution descriptor.
+ *
+ * \param desc              The descriptor to set the parameters of
+ * \param num_spatial_dims  The number of Convolution dimensions
+ * \param pads              Vector containing the padding values across each
+ *                          spatial dimension
+ * \param strides           Vector containing the stride values across each
+ *                          spatial dimension
+ * \param dilations         Vector containing the dilation values
+ *                          across each spatial dimension
+ * \param mode              The sycldnn::compat::ConvolutionMode to use
+ * \return                  sycldnn::StatusCode::OK if the descriptor was
+ *                          created successfully.
+ *                          sycldnn::StatusCode::InvalidParameter if
+ *                          num_spatial_dims != 2 (currently only 2D
+ *                          Convolution is supported)
+ */
+sycldnn::StatusCode setConvolutionNdDescriptor(
+    ConvolutionDescriptor& desc, int num_spatial_dims, const int* pads,
+    const int* strides, const int* dilations, ConvolutionMode mode) {
+  if (num_spatial_dims != 2) {
+    return sycldnn::StatusCode::InvalidParameter;
+  }
+
+  const std::vector<int> pads_vec(pads, pads + num_spatial_dims),
+      strides_vec(strides, strides + num_spatial_dims),
+      dilations_vec(dilations, dilations + num_spatial_dims);
+
+  return desc.setNd(pads_vec, strides_vec, dilations_vec, mode);
+}
 
 /**
  * descriptor for the filter in a convolution operation.

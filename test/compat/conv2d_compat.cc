@@ -24,6 +24,48 @@
 using namespace sycldnn;
 using namespace sycldnn::compat;
 
+TEST(ConvDesc, desc_2d_test) {
+  ConvolutionDescriptor desc;
+  constexpr int pad_h = 1, pad_w = 2;
+  constexpr int stride_h = 3, stride_w = 4;
+  constexpr int dilation_h = 5, dilation_w = 6;
+  constexpr ConvolutionMode mode = ConvolutionMode::CROSS_CORRELATION;
+  const auto status = setConvolution2dDescriptor(
+      desc, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w, mode);
+
+  EXPECT_TRUE(status == StatusCode::OK);
+  EXPECT_TRUE(desc.getPadH() == pad_h);
+  EXPECT_TRUE(desc.getPadW() == pad_w);
+  EXPECT_TRUE(desc.getStrideH() == stride_h);
+  EXPECT_TRUE(desc.getStrideW() == stride_w);
+  EXPECT_TRUE(desc.getDilationH() == dilation_h);
+  EXPECT_TRUE(desc.getDilationW() == dilation_w);
+  EXPECT_TRUE(desc.getMode() == mode);
+}
+
+TEST(ConvDesc, desc_nd_test) {
+  ConvolutionDescriptor desc;
+  constexpr int spatial_dims = 2;
+  constexpr int pads[spatial_dims] = {1, 2};
+  constexpr int strides[spatial_dims] = {3, 4};
+  constexpr int dilations[spatial_dims] = {5, 6};
+  constexpr ConvolutionMode mode = ConvolutionMode::CROSS_CORRELATION;
+  const auto status = setConvolutionNdDescriptor(desc, spatial_dims, pads,
+                                                 strides, dilations, mode);
+
+  EXPECT_TRUE(status == StatusCode::OK);
+  EXPECT_TRUE(desc.getNumDims() == spatial_dims);
+  EXPECT_TRUE(desc.getPadding().size() == spatial_dims);
+  EXPECT_TRUE(desc.getStride().size() == spatial_dims);
+  EXPECT_TRUE(desc.getDilation().size() == spatial_dims);
+  for (int i = 0; i < spatial_dims; ++i) {
+    EXPECT_TRUE(desc.getPadding()[i] == pads[i]);
+    EXPECT_TRUE(desc.getStride()[i] == strides[i]);
+    EXPECT_TRUE(desc.getDilation()[i] == dilations[i]);
+  }
+  EXPECT_TRUE(desc.getMode() == mode);
+}
+
 class Conv2DCompatTest : public ::testing::Test {
  protected:
   SNNHandle handle;
