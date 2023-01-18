@@ -72,22 +72,14 @@ class Conv2DCompatTest : public ::testing::Test {
 
   void SetUp() override { SNNCreate(handle); }
 
-  size_t mul_all(const std::vector<int>& v) {
-    size_t res = 1;
-    for (auto& el : v) {
-      SNN_ASSERT(el > 0, "Non strictly positive index value");
-      res *= el;
-    }
-    return res;
-  }
-
   template <typename DescriptorT>
   std::pair<float*, DescriptorT> get_ptr_and_desc(
       SNNHandle& handle, const sycldnn::DataFormat format,
       const std::vector<int>& sizes, const std::vector<float>& in_data) {
     DescriptorT desc;
     desc.set4d(format, sizes[0], sizes[1], sizes[2], sizes[3]);
-    size_t tot_count = mul_all(sizes);
+    size_t tot_count =
+        std::accumulate(sizes.begin(), sizes.end(), 1, std::multiplies<int>());
     float* ptr = sycl::malloc_device<float>(tot_count, handle.getQueue());
     handle.getQueue()
         .memcpy(ptr, in_data.data(), tot_count * sizeof(float))
@@ -116,11 +108,15 @@ class Conv2DCompatTest : public ::testing::Test {
       const std::vector<int>& conv_sizes,  // padhw, stridehw, dilationhw
       const std::vector<float>& expect, const sycldnn::DataFormat format) {
     const float max_val = 2048;
-    auto input = iota_initialised_data(mul_all(in_sizes), max_val);
+    size_t in_tot_count = std::accumulate(in_sizes.begin(), in_sizes.end(), 1,
+                                          std::multiplies<int>());
+    auto input = iota_initialised_data(in_tot_count, max_val);
     auto [in_ptr, in_desc] =
         get_ptr_and_desc<TensorDescriptor>(handle, format, in_sizes, input);
 
-    auto filter = iota_initialised_data(mul_all(filt_sizes), max_val);
+    size_t filt_tot_count = std::accumulate(
+        filt_sizes.begin(), filt_sizes.end(), 1, std::multiplies<int>());
+    auto filter = iota_initialised_data(filt_tot_count, max_val);
     auto [filt_ptr, filt_desc] =
         get_ptr_and_desc<FilterDescriptor>(handle, format, filt_sizes, filter);
 

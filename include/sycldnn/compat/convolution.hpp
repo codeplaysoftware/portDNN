@@ -448,6 +448,47 @@ SNNStatus convolutionForward(SNNHandle& handle, const void* alpha,
       static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
 }
 
+/**
+ * Performs the convolution backward data operation.
+ * \param handle The SNNHandle.
+ * \param alpha Scaling factor, currently unused.
+ * \param wDesc Descriptor for the filter.
+ * \param w Pointer to device memory for the filter.
+ * \param dyDesc Descriptor for the input differential tensor.
+ * \param dy Pointer to device memory for the input differential tensor.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param algo Convolution algorithm to be employed.
+ * \param workSpace Pointer to device scratchpad memory, currently unused.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
+ * \param beta Scaling factor, currently unused.
+ * \param dxDesc Descriptor for the output tensor, its dimension can be obtained
+ * with getConvolution2dForwardOutputDim.
+ * \param dx Pointer to device memory for the output.
+ * \return SNNStatus for the operation.
+ */
+template <typename ValueT = float>
+SNNStatus convolutionBackwardData(SNNHandle& handle, const void* alpha,
+                                  const FilterDescriptor wDesc, const void* w,
+                                  const TensorDescriptor dyDesc, const void* dy,
+                                  const ConvolutionDescriptor convDesc,
+                                  conv2d::Algorithm algo, void* workSpace,
+                                  size_t workSpaceSizeInBytes, const void* beta,
+                                  const TensorDescriptor dxDesc, void* dx) {
+  SNN_UNUSED_VAR(alpha);
+  SNN_UNUSED_VAR(beta);
+
+  sycldnn::conv2d::Conv2DParams conv1_params =
+      internal::descToSnnParams(dxDesc, dyDesc, wDesc, convDesc);
+
+  std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
+  SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+  return sycldnn::conv2d::launch<ValueT,
+                                 sycldnn::conv2d::conv_type::InputBackprop>(
+      static_cast<const ValueT*>(dy), static_cast<const ValueT*>(w),
+      static_cast<ValueT*>(dx), conv1_params, *selector, handle.getBackend(),
+      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+}
+
 }  // namespace compat
 
 }  // namespace sycldnn

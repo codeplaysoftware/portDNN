@@ -19,11 +19,23 @@ include(SNNHelpers)
 snn_test(
   WITH_SYCL
   TARGET
-    conv2d_compat
+    conv2d_forward_compat
   SIZE
     short
   SOURCES
-    conv2d_compat.cc
+    conv2d_forward_compat.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)
+
+snn_test(
+  WITH_SYCL
+  TARGET
+    conv2d_backward_data_compat
+  SIZE
+    short
+  SOURCES
+    conv2d_backward_data_compat.cc
   PUBLIC_LIBRARIES
     sycl_dnn
 )
