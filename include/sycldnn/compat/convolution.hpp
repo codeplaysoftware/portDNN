@@ -288,6 +288,12 @@ class FilterDescriptor {
     return dimensions_[3];
   };
 
+  /** \return total size of the 4D filter (number of elements)*/
+  size_t getSize() const {
+    return std::accumulate(dimensions_.begin(), dimensions_.end(), 1,
+                           std::multiplies<size_t>());
+  }
+
   /** \return data format for the filter */
   sycldnn::FilterFormat getFormat() const { return format_; };
 
@@ -486,6 +492,45 @@ SNNStatus convolutionBackwardData(SNNHandle& handle, const void* alpha,
                                  sycldnn::conv2d::conv_type::InputBackprop>(
       static_cast<const ValueT*>(dy), static_cast<const ValueT*>(w),
       static_cast<ValueT*>(dx), conv1_params, *selector, handle.getBackend(),
+      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+}
+
+/**
+ * Performs the convolution backward filter operation.
+ * \param handle The SNNHandle.
+ * \param alpha Scaling factor, currently unused.
+ * \param xDesc Descriptor for the input tensor.
+ * \param x Pointer to device memory for the input tensor.
+ * \param dyDesc Descriptor for the input differential tensor.
+ * \param dy Pointer to device memory for the input differential tensor.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param algo Convolution algorithm to be employed.
+ * \param workSpace Pointer to device scratchpad memory, currently unused.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
+ * \param beta Scaling factor, currently unused.
+ * \param dwDesc Descriptor for the filter gradient.
+ * \param dw Pointer to device memory for the filter gradient.
+ * \return SNNStatus for the operation.
+ */
+template <typename ValueT = float>
+SNNStatus convolutionBackwardFilter(
+    SNNHandle& handle, const void* alpha, const TensorDescriptor& xDesc,
+    const void* x, const TensorDescriptor& dyDesc, const void* dy,
+    const ConvolutionDescriptor& convDesc, conv2d::Algorithm algo,
+    void* workSpace, size_t workSpaceSizeInBytes, const void* beta,
+    const FilterDescriptor& dwDesc, void* dw) {
+  SNN_UNUSED_VAR(alpha);
+  SNN_UNUSED_VAR(beta);
+
+  sycldnn::conv2d::Conv2DParams conv1_params =
+      internal::descToSnnParams(xDesc, dyDesc, dwDesc, convDesc);
+
+  std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
+  SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+  return sycldnn::conv2d::launch<ValueT,
+                                 sycldnn::conv2d::conv_type::FilterBackprop>(
+      static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
+      static_cast<ValueT*>(dw), conv1_params, *selector, handle.getBackend(),
       static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
 }
 

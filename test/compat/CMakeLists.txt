@@ -43,6 +43,18 @@ snn_test(
 snn_test(
   WITH_SYCL
   TARGET
+    conv2d_backward_filter_compat
+  SIZE
+    short
+  SOURCES
+    conv2d_backward_filter_compat.cc
+  PUBLIC_LIBRARIES
+    sycl_dnn
+)
+
+snn_test(
+  WITH_SYCL
+  TARGET
     queue
   SIZE
     short
@@ -51,3 +63,4 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
+
