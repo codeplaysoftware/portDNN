@@ -82,6 +82,18 @@ cmake .. -DComputeCpp_DIR=/path/to/computecpp -DSNN_ENABLE_USM=OFF
 make -j$(nproc)
 ```
 
+### Undefined reference linker errors
+
+SYCL-DNN exposes optional features (`double` and `half` data types, `NCHW` data format, USM support), 
+that can be enabled and disabled when building the library.
+
+Attempting to use those feature in an application that links to a build of SYCL-DNN that doesn't support them may 
+cause `undefined reference` error at link time. Please ensure that your build of SYCL-DNN has the required features enabled.
+
+You can refer to [OPTIONS.md](docs/OPTIONS.md) for a full list of the supported CMake options.
+
+
+
 ### Sample Code
 
 The "samples" directory contains sample code for the 2D convolution and pooling
