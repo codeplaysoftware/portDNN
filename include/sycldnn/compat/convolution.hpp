@@ -22,10 +22,13 @@
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/selector/default_selector.h"
 #include "sycldnn/conv2d/selector/direct_selector.h"
 #include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/matmul_selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
 #include <memory>
 #include <vector>
@@ -341,7 +344,7 @@ class FilterDescriptor : public DescriptorBase {
  * \param filterDesc  Input a previously created filter descriptor.
  * \param format      Format of the filter descriptor KCHW or KHWC
  * \param k           Output number of output feature maps.
- * \param c           Output number of input feature maps per image.
+ * \param c           Output number of input feature maps.
  * \param h           Output height of each feature map.
  * \param w           Output width of each feature map.
  * \return            sycldnn::StatusCode::OK or
@@ -419,7 +422,6 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
 
   sycldnn::FilterFormat format;
   int filterK, filterC, filterH, filterW;
-
   getFilter4dDescriptor(wDesc, &descDataType, &format, &filterK, &filterC,
                         &filterH, &filterW);
 
@@ -452,25 +454,6 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
   return conv_params;
 }
 
-/** This function queries the parameters of the previously initialized
- * descriptor object.
- * \param dataType    Output data type.
- * \param filterDesc  Input a previously created filter descriptor.
- * \param format      Format of the filter descriptor KCHW or KHWC
- * \param k           Output number of output feature maps.
- * \param c           Output number of input feature maps.
- * \param h           Output height of each feature map.
- * \param w           Output width of each feature map.
- * \return            sycldnn::StatusCode::OK or
- *                    sycldnn::StatusCode::InvalidParameter
- */
-sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
-                                          SNNDataType* dataType,
-                                          sycldnn::FilterFormat* format, int* k,
-                                          int* c, int* h, int* w) {
-  return filterDesc.getFilter4dDescriptor(dataType, format, k, c, h, w);
-}
-
 /** Returns the constant selector for a given algorithm
  * \param algo The algorithm
  * \return The constant selector
@@ -478,11 +461,43 @@ sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
 inline std::unique_ptr<conv2d::Selector> getSelector(conv2d::Algorithm algo) {
   using algo_t = conv2d::Algorithm;
   switch (algo) {
+    case algo_t::Im2col:
+      return std::make_unique<conv2d::Im2colSelector>();
+    case algo_t::Winograd:
+      return std::make_unique<conv2d::WinogradSelector>();
+    case algo_t::Tiled:
+      return std::make_unique<conv2d::TiledSelector>();
+    case algo_t::Matmul:
+      return std::make_unique<conv2d::MatmulSelector>();
     case algo_t::Direct:
       return std::make_unique<conv2d::DirectSelector>();
     default:
       return nullptr;
   }
+}
+
+/**
+ * Queries the required workspace size for conv2d.
+ * \param handle The SNNHandle.
+ * \param xDesc Descriptor for the input tensor.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param wDesc Descriptor for the filter.
+ * \param yDesc Descriptor for the output tensor, its dimension can be obtained
+ * with getConvolution2dForwardOutputDim.
+ * \param algo Convolution algorithm to be employed.
+ * \return SNNStatus for the operation.
+ */
+template <typename ConvType>
+sycldnn::conv2d::WorkspaceSize getConvolutionWorkspaceSize(
+    SNNHandle& handle, const TensorDescriptor& xDesc,
+    const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc,
+    const TensorDescriptor& yDesc, conv2d::Algorithm algo) {
+  SNN_UNUSED_VAR(handle);
+  sycldnn::conv2d::Conv2DParams conv_params =
+      internal::descToSnnParams(xDesc, yDesc, wDesc, convDesc);
+  std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
+
+  return conv2d::query_workspace_size<ConvType>(conv_params, *selector);
 }
 
 /**
@@ -565,6 +580,48 @@ sycldnn::StatusCode findConvolutionAlgorithm(
 
   return StatusCode::OK;
 }
+/**
+ * Computes the dimension of the output descriptor.
+ * \param desc  Descriptor for the convolution operation.
+ * \param in    Descriptor for the input tensor.
+ * \param filt  Descriptor for the filter tensor.
+ * \param n     Output, pointer to the resulting batch size.
+ * \param c     Output, pointer to the resulting number of channels.
+ * \param h     Output, pointer to the resulting height.
+ * \param w     Output, pointer to the resulting width.
+ * \return      sycldnn::StatusCode::OK or
+ * sycldnn::StatusCode::InvalidParameter
+ */
+inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
+    const ConvolutionDescriptor& desc, const TensorDescriptor& in,
+    const FilterDescriptor& filt, int* n, int* c, int* h, int* w) {
+  SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
+  SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
+  SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
+  SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
+  using Index_t = int;
+  auto computeNewDim = [](Index_t inputDim, Index_t filterDim, Index_t pad,
+                          Index_t dilation, Index_t convolutionStride) {
+    return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
+                   convolutionStride;
+  };
+  SNNDataType descDataType;
+  int inN, inC, inH, inW, inStrideN, inStrideC, inStrideH, inStrideW;
+  getTensor4dDescriptor(in, &descDataType, &inN, &inC, &inH, &inW, &inStrideN,
+                        &inStrideC, &inStrideH, &inStrideW);
+
+  sycldnn::FilterFormat format;
+  int filterK, filterC, filterH, filterW;
+  getFilter4dDescriptor(filt, &descDataType, &format, &filterK, &filterC,
+                        &filterH, &filterW);
+  *n = inN;
+  *c = filterK;
+  *h = computeNewDim(inH, filterH, desc.getPadH(), desc.getDilationH(),
+                     desc.getStrideH());
+  *w = computeNewDim(inW, filterW, desc.getPadW(), desc.getDilationW(),
+                     desc.getStrideW());
+  return sycldnn::StatusCode::OK;
+}
 
 }  // namespace internal
 
@@ -609,6 +666,78 @@ SNNStatus convolutionForward(SNNHandle& handle, const void* alpha,
       static_cast<const ValueT*>(x), static_cast<const ValueT*>(w),
       static_cast<ValueT*>(y), conv1_params, *selector, handle.getBackend(),
       static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+}
+
+/**
+ * Queries the required workspace size for forward conv2d.
+ * \param handle The SNNHandle.
+ * \param xDesc Descriptor for the input tensor.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param wDesc Descriptor for the filter.
+ * \param yDesc Descriptor for the output tensor, its dimension can be obtained
+ * with getConvolution2dForwardOutputDim.
+ * \param algo Convolution algorithm to be employed.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
+ * \return SNNStatus for the operation.
+ */
+sycldnn::StatusCode getConvolutionForwardWorkspaceSize(
+    SNNHandle& handle, const TensorDescriptor& xDesc,
+    const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc,
+    const TensorDescriptor& yDesc, conv2d::Algorithm algo,
+    size_t* workSpaceSizeInBytes) {
+  auto workspace = internal::getConvolutionWorkspaceSize<
+      sycldnn::conv2d::conv_type::Forward>(handle, xDesc, wDesc, convDesc,
+                                           yDesc, algo);
+  *workSpaceSizeInBytes = workspace.recommended_size;
+  return StatusCode::OK;
+}
+
+/**
+ * Queries the required workspace size for backwards filter conv2d.
+ * \param handle The SNNHandle.
+ * \param xDesc Descriptor for the input tensor.
+ * \param dyDesc Descriptor for the output tensor, its dimension can be obtained
+ * with getConvolution2dForwardOutputDim.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param dwDesc Descriptor for the filter.
+ * \param algo Convolution algorithm to be employed.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
+ * \return SNNStatus for the operation.
+ */
+SNNStatus getConvolutionBackwardFilterWorkspaceSize(
+    SNNHandle& handle, const TensorDescriptor& xDesc,
+    const TensorDescriptor& dyDesc, const ConvolutionDescriptor& convDesc,
+    const FilterDescriptor& dwDesc, conv2d::Algorithm algo,
+    size_t* workSpaceSizeInBytes) {
+  auto workspace = internal::getConvolutionWorkspaceSize<
+      sycldnn::conv2d::conv_type::FilterBackprop>(handle, xDesc, dwDesc,
+                                                  convDesc, dyDesc, algo);
+  *workSpaceSizeInBytes = workspace.recommended_size;
+  return {StatusCode::OK};
+}
+
+/**
+ * Queries the required workspace size for backwards data conv2d.
+ * \param handle The SNNHandle.
+ * \param wDesc Descriptor for the filter.
+ * \param dyDesc Descriptor for the output tensor, its dimension can be obtained
+ * with getConvolution2dForwardOutputDim.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param dxDesc Descriptor for the input tensor.
+ * \param algo Convolution algorithm to be employed.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
+ * \return SNNStatus for the operation.
+ */
+SNNStatus getConvolutionBackwardDataWorkspaceSize(
+    SNNHandle& handle, const FilterDescriptor& wDesc,
+    const TensorDescriptor& dyDesc, const ConvolutionDescriptor& convDesc,
+    const TensorDescriptor& dxDesc, conv2d::Algorithm algo,
+    size_t* workSpaceSizeInBytes) {
+  auto workspace = internal::getConvolutionWorkspaceSize<
+      sycldnn::conv2d::conv_type::InputBackprop>(handle, dxDesc, wDesc,
+                                                 convDesc, dyDesc, algo);
+  *workSpaceSizeInBytes = workspace.recommended_size;
+  return {StatusCode::OK};
 }
 
 /**
