@@ -22,6 +22,8 @@
 #include "sycldnn/filter_format.h"
 #include "sycldnn/status.h"
 
+#include <exception>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -30,9 +32,21 @@
  * Contains descriptor and helper classes used in the rest of the compat API.
  */
 
-namespace sycldnn {
+/** Assertion to provide an error and terminate execution for the compat wrapper
+ */
+#define SNN_COMPAT_ASSERT(condition, message) \
+  do {                                        \
+    if (!(condition)) {                       \
+      std::cerr << message << std::endl;      \
+      std::terminate();                       \
+    }                                         \
+  } while (0)
 
+namespace sycldnn {
 namespace compat {
+
+/** The data type of tensor */
+enum class SNNDataType { SNN_FLOAT = 0, SNN_DOUBLE, SNN_HALF };
 
 /**
  * Wrapper around the sycl-dnn backends.
@@ -132,90 +146,226 @@ sycldnn::StatusCode queueSet(SNNHandle& handle, sycl::queue queue) {
 }
 
 /**
+ * Base class for abstracting common features of the Tensor and Filter
+ * descriptor classes
+ */
+class DescriptorBase {
+ protected:
+  /** Index type for dimensions */
+  using Index_t = int;
+  /** Number of tensor dimensions (default to 4)*/
+  size_t nDims_;
+  /** vector containing dimensions of tensor */
+  std::vector<Index_t> dims_;
+
+ public:
+  /** defaults constructor, empty tensor with format set from derived classes */
+  DescriptorBase() : nDims_(4), dims_(4, 0) {}
+
+  /** Constructor which takes number of dimensions descriptor with format set
+   * from derived classes
+   * \param nDims   Number of dimensions to set for the descriptor (supports 1
+   * to 4-D)
+   */
+  DescriptorBase(int nDims) : nDims_(nDims), dims_(nDims, 0) {
+    SNN_COMPAT_ASSERT(nDims > 0 || nDims <= 4,
+                      "Unsupported number of dimensions requested!");
+  }
+
+  /** defaults destructor */
+  virtual ~DescriptorBase() {}
+
+  /** sets the tensor as a 4D tensor.
+   * \param format The data format.
+   * \param dim0   Value to set in dimension 1
+   * \param dim1   Value to set in dimension 2
+   * \param dim2   Value to set in dimension 3
+   * \param dim3   Value to set in dimension 4
+   * \return       A sycldnn::StatusCode showing wheter there were some
+   * invalid parameters, or sycldnn::StatusCode::OK
+   */
+  virtual sycldnn::StatusCode set4d(sycldnn::DataFormat format, int dim0,
+                                    int dim1, int dim2, int dim3) = 0;
+};
+
+/**
  * class that describes the dimensions, strides, and data format for a
  * tensor. Currently only 4D tensors are supported, with the NCHW or NHWC
  * formats.
  */
-class TensorDescriptor {
-  using Index_t = int;
-  size_t nDims_;
-  std::vector<Index_t> dims_;
-  std::vector<Index_t> stride_;
+class TensorDescriptor : public DescriptorBase {
+  /** Vector containing size of stride of tensor for each dimension */
+  std::vector<int> stride_;
+  /** Data format of tensor defaults to NCHW*/
   sycldnn::DataFormat format_;
-  void check4d() const {
-    SNN_ASSERT(nDims_ == 4, "Cannot call method on non 4-D tensor desc.");
-  }
 
  public:
-  /** \return batch size of a 4D tensor. */
-  Index_t getN() const {
-    check4d();
-    return dims_[0];
-  }
-
-  /** \return number of channels of a 4D tensor. */
-  Index_t getC() const {
-    check4d();
-    return dims_[1];
-  }
-
-  /** \return height of a 4D tensor. */
-  Index_t getH() const {
-    check4d();
-    return dims_[2];
-  }
-
-  /** \return width of a 4D tensor. */
-  Index_t getW() const {
-    check4d();
-    return dims_[3];
-  }
-
-  /** \return total size of the tensor (number of elements)*/
-  size_t getSize() const {
-    check4d();
-    return dims_[0] * dims_[1] * dims_[2] * dims_[3];
-  }
-
   /** \return data format. */
   sycldnn::DataFormat getFormat() const { return format_; }
 
+  /** \return total size of the tensor (number of elements)*/
+  size_t getSize() const { return dims_[0] * dims_[1] * dims_[2] * dims_[3]; }
+
   /** defaults constructor, empty tensor with NCHW format */
   TensorDescriptor()
-      : nDims_(0), dims_{}, stride_{}, format_(sycldnn::DataFormat::NCHW) {}
+      : DescriptorBase(), stride_(4, 1), format_(sycldnn::DataFormat::NCHW) {
+    SNN_COMPAT_ASSERT(nDims_ == 4,
+                      "Cannot call method on non 4-D tensor desc.");
+  }
 
-  /** sets the tensor as a 4D tensor.
-   * \param format The data format.
-   * \param n Batch size.
-   * \param c Number of channels.
-   * \param h Height.
-   * \param w Width.
-   * \return A sycldnn::StatusCode showing wheter there were some invalid
-   * parameters, or sycldnn::StatusCode::OK
-   */
-  sycldnn::StatusCode set4d(sycldnn::DataFormat format, int n, int c, int h,
-                            int w) {
-    SNN_VALIDATE_PARAM(n > 0,
-                       "Non strictly positive dimensions are not supported.");
-    SNN_VALIDATE_PARAM(c > 0,
-                       "Non strictly positive dimensions are not supported.");
-    SNN_VALIDATE_PARAM(h > 0,
-                       "Non strictly positive dimensions are not supported.");
-    SNN_VALIDATE_PARAM(w > 0,
+  /** \copydoc DescriptorBase::set4d */
+  sycldnn::StatusCode set4d(sycldnn::DataFormat format, int dim0, int dim1,
+                            int dim2, int dim3) override final {
+    SNN_VALIDATE_PARAM(dim0 > 0 && dim1 > 0 && dim2 > 0 && dim3 > 0,
                        "Non strictly positive dimensions are not supported.");
     nDims_ = 4;
-    dims_ = {n, c, h, w};
     format_ = format;
-    if (format == sycldnn::DataFormat::NCHW)
-      stride_ = {c * h * w, h * w, w, 1};
-    else if (format == sycldnn::DataFormat::NHWC)
-      stride_ = {c * h * w, 1, w * c, c};
-    else
+    if (format == sycldnn::DataFormat::NCHW) {
+      stride_ = {dim1 * dim2 * dim3, dim2 * dim3, dim3, 1};
+      dims_ = {dim0, dim1, dim2, dim3};
+
+    } else if (format == sycldnn::DataFormat::NHWC) {
+      stride_ = {dim1 * dim2 * dim3, 1, dim3 * dim1, dim1};
+      dims_ = {dim0, dim2, dim3, dim1};
+
+    } else
       return sycldnn::StatusCode::InvalidParameter;
 
     return sycldnn::StatusCode::OK;
   }
+
+  /** This function queries the NCHW params of the previously initialized
+   * descriptor object.
+   * \param n   Output number of images.
+   * \param c   Output number of feature maps per image.
+   * \param h   Output height of each feature map.
+   * \param w   Output width of each feature map.
+   * \return    sycldnn::StatusCode::OK or sycldnn::StatusCode::InvalidParameter
+   */
+  sycldnn::StatusCode get4dDescriptorDims(int* n, int* c, int* h, int* w) {
+    SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
+
+    *n = dims_[0];
+    if (format_ == sycldnn::DataFormat::NCHW) {
+      *c = dims_[1];
+      *h = dims_[2];
+      *w = dims_[3];
+    } else if (format_ == sycldnn::DataFormat::NHWC) {
+      *h = dims_[1];
+      *w = dims_[2];
+      *c = dims_[3];
+
+    } else {
+      return sycldnn::StatusCode::InvalidParameter;
+    }
+    return sycldnn::StatusCode::OK;
+  }
+
+  /** This function queries the parameters of the previously initialized
+   * descriptor object.
+   * \param nStride   Output. Stride between two consecutive images.
+   * \param cStride   Output. Stride between two consecutive feature maps.
+   * \param hStride   Output. Stride between two consecutive rows.
+   * \param wStride   Output. Stride between two consecutive columns.
+   * \return          sycldnn::StatusCode::OK or
+   *                  sycldnn::StatusCode::InvalidParameter
+   */
+  sycldnn::StatusCode get4dDescriptorStride(int* nStride, int* cStride,
+                                            int* hStride, int* wStride) {
+    SNN_VALIDATE_PARAM(nStride != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(cStride != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(hStride != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(wStride != nullptr, "Output pointer cannot be null");
+
+    *nStride = stride_[0];
+    if (format_ == sycldnn::DataFormat::NCHW) {
+      *cStride = stride_[1];
+      *hStride = stride_[2];
+      *wStride = stride_[3];
+    } else if (format_ == sycldnn::DataFormat::NHWC) {
+      *hStride = stride_[1];
+      *wStride = stride_[2];
+      *cStride = stride_[3];
+    } else {
+      return sycldnn::StatusCode::InvalidParameter;
+    }
+    return sycldnn::StatusCode::OK;
+  }
+
+  /** This function queries the parameters of the previously initialized
+   * descriptor object.
+   * \param dataType  Output data type.
+   * \param n         Output number of images.
+   * \param c         Output number of feature maps per image.
+   * \param h         Output height of each feature map.
+   * \param w         Output width of each feature map.
+   * \param nStride   Output stride between two consecutive images.
+   * \param cStride   Output stride between two consecutive feature maps.
+   * \param hStride   Output stride between two consecutive rows.
+   * \param wStride   Output stride between two consecutive columns.
+   * \return          sycldnn::StatusCode::OK or
+   *                  sycldnn::StatusCode::InvalidParameter
+   */
+  sycldnn::StatusCode getTensor4dDescriptor(SNNDataType* dataType, int* n,
+                                            int* c, int* h, int* w,
+                                            int* nStride, int* cStride,
+                                            int* hStride, int* wStride) {
+    SNN_VALIDATE_PARAM(dataType != nullptr, "Output pointer cannot be null");
+    *dataType = SNNDataType::SNN_FLOAT;
+    auto returnStatus = get4dDescriptorDims(n, c, h, w);
+    if (returnStatus != sycldnn::StatusCode::OK) {
+      return returnStatus;
+    }
+    return get4dDescriptorStride(nStride, cStride, hStride, wStride);
+  }
 };
+
+/** This function queries the parameters of the previously initialized
+ * descriptor object.
+ * \param tensorDesc  Input a previously initialized tensor descriptor.
+ * \param dataType    Output data type.
+ * \param n           Output number of images.
+ * \param c           Output number of feature maps per image.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \param nStride     Output stride between two consecutive images.
+ * \param cStride     Output stride between two consecutive feature maps.
+ * \param hStride     Output stride between two consecutive rows.
+ * \param wStride     Output stride between two consecutive columns.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+sycldnn::StatusCode getTensor4dDescriptor(TensorDescriptor tensorDesc,
+                                          SNNDataType* dataType, int* n, int* c,
+                                          int* h, int* w, int* nStride,
+                                          int* cStride, int* hStride,
+                                          int* wStride) {
+  return tensorDesc.getTensor4dDescriptor(dataType, n, c, h, w, nStride,
+                                          cStride, hStride, wStride);
+}
+
+/** This function sets the parameters of the previously initialized
+ * descriptor object.
+ * \param tensorDesc  Input a previously initialized tensor descriptor.
+ * \param format      Format of the tensor descriptor KCHW or KHWC
+ * \param dataType    Output data type.
+ * \param n           Output number of images.
+ * \param c           Output number of feature maps per image.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+sycldnn::StatusCode setTensor4dDescriptor(TensorDescriptor& tensorDesc,
+                                          sycldnn::DataFormat format,
+                                          SNNDataType dataType, int n, int c,
+                                          int h, int w) {
+  SNN_UNUSED_VAR(dataType);
+  return tensorDesc.set4d(format, n, c, h, w);
+}
 
 }  // namespace compat
 

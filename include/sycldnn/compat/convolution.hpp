@@ -38,10 +38,7 @@
 namespace sycldnn {
 namespace compat {
 
-/**
- * The Convolution mode.
- *
- */
+/** The Convolution mode */
 enum class ConvolutionMode {
   CONVOLUTION = 0,    // Do a convolution operation, applying the filter to the
                       // input. Currently not supported.
@@ -55,17 +52,28 @@ enum class ConvolutionMode {
  */
 class ConvolutionDescriptor {
   using Index_t = int;
+  /** Number of convlolution dimensions (default to 2)*/
   size_t nDims_;
+
+  /** Vector containing size of padding of descriptor for each dimension */
   std::vector<Index_t> padding_;
+  /** Vector containing size of stride of descriptor for each dimension */
   std::vector<Index_t> stride_;
+  /** Vector containing size of dilation of descriptor for each dimension */
   std::vector<Index_t> dilation_;
+  /** Enum of convolution type of descriptor \ref
+   * sycldnn::compat::ConvolutionMode */
   ConvolutionMode mode_;
 
-  void check2d() const {
-    SNN_ASSERT(nDims_ == 2, "Cannot call method on non 4-D tensor desc.");
-  }
-
  public:
+  /**
+   * Default constructor
+   */
+  ConvolutionDescriptor()
+      : nDims_(2), padding_(2, 0), stride_(2, 1), dilation_(2, 1) {
+    SNN_COMPAT_ASSERT(nDims_ == 2,
+                      "Cannot call method on non 2-D convolution desc.");
+  }
   /** \return the number of spatial dimensions */
   size_t getNumDims() const { return nDims_; }
 
@@ -85,51 +93,33 @@ class ConvolutionDescriptor {
   ConvolutionMode getMode() const { return mode_; }
 
   /** \return the stride across the height dimension */
-  Index_t getStrideH() const {
-    check2d();
-    return stride_[0];
-  };
+  Index_t getStrideH() const { return stride_[0]; };
 
   /** \return the stride across the width dimension */
-  Index_t getStrideW() const {
-    check2d();
-    return stride_[1];
-  };
+  Index_t getStrideW() const { return stride_[1]; };
 
   /** \return the padding across the height dimension */
-  Index_t getPadH() const {
-    check2d();
-    return padding_[0];
-  };
+  Index_t getPadH() const { return padding_[0]; };
 
   /** \return the padding across the width dimension */
-  Index_t getPadW() const {
-    check2d();
-    return padding_[1];
-  };
+  Index_t getPadW() const { return padding_[1]; };
 
   /** \return the dilation across the height dimension */
-  Index_t getDilationH() const {
-    check2d();
-    return dilation_[0];
-  };
+  Index_t getDilationH() const { return dilation_[0]; };
 
   /** \return the dilation across the width dimension */
-  Index_t getDilationW() const {
-    check2d();
-    return dilation_[1];
-  };
+  Index_t getDilationW() const { return dilation_[1]; };
 
   /**
    * Sets the descriptor as a 2D convolution descriptor.
-   * \param pad_h padding across the height dimension
-   * \param pad_w padding across the width dimension
-   * \param stride_h stride across the height dimension
-   * \param stride_w stride across the width dimension
-   * \param dilation_h dilation across the height dimension
-   * \param dilation_w dilation across the width dimension
-   * \param mode The ConvolutionMode to use
-   * \return sycldnn::StatusCode
+   * \param pad_h       Padding across the height dimension
+   * \param pad_w       Padding across the width dimension
+   * \param stride_h    Stride across the height dimension
+   * \param stride_w    Stride across the width dimension
+   * \param dilation_h  Dilation across the height dimension
+   * \param dilation_w  Dilation across the width dimension
+   * \param mode        The ConvolutionMode to use
+   * \return            sycldnn::StatusCode
    */
   sycldnn::StatusCode set2d(
       int pad_h, int pad_w, int stride_h, int stride_w, int dilation_h,
@@ -196,17 +186,17 @@ class ConvolutionDescriptor {
 
 /**
  * Sets the descriptor as a 2D convolution descriptor.
- * \param desc The descriptor to set the parameters of
- * \param pad_h padding across the height dimension
- * \param pad_w padding across the width dimension
- * \param stride_h stride across the height dimension
- * \param stride_w stride across the width dimension
- * \param dilation_h dilation across the height dimension
- * \param dilation_w dilation across the width dimension
- * \param mode The ConvolutionMode to use
- * \return sycldnn::StatusCode::OK if the descriptor was created successfully.
- *         sycldnn::StatusCode::InvalidParameter if one of the parameters had an
- *         incorrect value.
+ * \param desc        The descriptor to set the parameters of
+ * \param pad_h       padding across the height dimension
+ * \param pad_w       padding across the width dimension
+ * \param stride_h    stride across the height dimension
+ * \param stride_w    stride across the width dimension
+ * \param dilation_h  dilation across the height dimension
+ * \param dilation_w  dilation across the width dimension
+ * \param mode        The ConvolutionMode to use
+ * \return            sycldnn::StatusCode::OK if the descriptor was created
+ *                    successfully. sycldnn::StatusCode::InvalidParameter if one
+ *                    of the parameters had an incorrect value.
  */
 sycldnn::StatusCode setConvolution2dDescriptor(ConvolutionDescriptor& desc,
                                                int pad_h, int pad_w,
@@ -250,118 +240,188 @@ sycldnn::StatusCode setConvolutionNdDescriptor(
 }
 
 /**
- * descriptor for the filter in a convolution operation.
- * Currently only 4D filters are supported.
+ * Descriptor for the filter in a convolution operation.
+ * currently only 4D filters are supported.
  */
-class FilterDescriptor {
-  using Index_t = int;
-  size_t nDims_;
-  std::vector<Index_t> dimensions_;
+class FilterDescriptor : public DescriptorBase {
   sycldnn::FilterFormat format_;
 
-  void check4d() const {
-    SNN_ASSERT(nDims_ == 4, "Cannot call method on non 4-D tensor desc.");
-  }
-
  public:
-  /** \return number of output feature maps of a 4D filter descriptor */
-  Index_t getK() const {
-    check4d();
-    return dimensions_[0];
-  };
-
-  /** \return number of input feature maps of a 4D filter descriptor */
-  Index_t getC() const {
-    check4d();
-    return dimensions_[1];
-  };
-
-  /** \return filter height of a 4D filter descriptor */
-  Index_t getH() const {
-    check4d();
-    return dimensions_[2];
-  };
-
-  /** \return filter width of a 4D filter descriptor */
-  Index_t getW() const {
-    check4d();
-    return dimensions_[3];
-  };
+  /**
+   * Default constructor, dimensions set to be 4
+   */
+  FilterDescriptor() : DescriptorBase() {}
+  /**
+   * Constructor which takes in number of dimensions
+   * @param nDims   Number of dimensions to initialize the descriptor to
+   */
+  FilterDescriptor(size_t nDims) : DescriptorBase(nDims) {}
 
   /** \return total size of the 4D filter (number of elements)*/
   size_t getSize() const {
-    return std::accumulate(dimensions_.begin(), dimensions_.end(), 1,
+    return std::accumulate(dims_.begin(), dims_.end(), 1,
                            std::multiplies<size_t>());
   }
 
-  /** \return data format for the filter */
-  sycldnn::FilterFormat getFormat() const { return format_; };
-
-  /**
-   * sets the descriptor as a 4D filter descriptor
-   * \param format Data format.
-   * \param k Number of output feature maps.
-   * \param c Number of input feature maps.
-   * \param h Filter height.
-   * \param w Filter width.
-   * \return sycldnn::StatusCode with the success/fail result.*/
-  sycldnn::StatusCode set4d(sycldnn::DataFormat format, int k, int c, int h,
-                            int w) {
-    SNN_VALIDATE_PARAM(k > 0,
-                       "Non strictly positive dimensions are not supported.");
-    SNN_VALIDATE_PARAM(c > 0,
-                       "Non strictly positive dimensions are not supported.");
-    SNN_VALIDATE_PARAM(h > 0,
-                       "Non strictly positive dimensions are not supported.");
-    SNN_VALIDATE_PARAM(w > 0,
+  /** \copydoc DescriptorBase::set4d */
+  sycldnn::StatusCode set4d(sycldnn::DataFormat format, int dim0, int dim1,
+                            int dim2, int dim3) override final {
+    SNN_VALIDATE_PARAM(dim0 > 0 && dim1 > 0 && dim2 > 0 && dim3 > 0,
                        "Non strictly positive dimensions are not supported.");
     nDims_ = 4;
-    dimensions_ = {k, c, h, w};
-    if (format == sycldnn::DataFormat::NCHW)
+    if (format == sycldnn::DataFormat::NCHW) {
       format_ = sycldnn::FilterFormat::FCHW;
-    else if (format == sycldnn::DataFormat::NHWC)
+      dims_ = {dim0, dim1, dim2, dim3};
+
+    } else if (format == sycldnn::DataFormat::NHWC) {
       format_ = sycldnn::FilterFormat::HWCF;
-    else
+      dims_ = {dim2, dim3, dim1, dim0};
+
+    } else {
       return sycldnn::StatusCode::InvalidParameter;
+    }
     return sycldnn::StatusCode::OK;
   }
+
+  /** This function queries the NCHW params of the previously initialized
+   * descriptor object.
+   * \param k   Output number of output feature maps.
+   * \param c   Output number of input feature maps per image.
+   * \param h   Output height of each feature map.
+   * \param w   Output width of each feature map.
+   * \return    sycldnn::StatusCode::OK or sycldnn::StatusCode::InvalidParameter
+   */
+  sycldnn::StatusCode get4dDescriptorDims(int* k, int* c, int* h, int* w) {
+    SNN_VALIDATE_PARAM(k != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
+
+    if (format_ == sycldnn::FilterFormat::FCHW) {
+      *k = dims_[0];
+      *c = dims_[1];
+      *h = dims_[2];
+      *w = dims_[3];
+    } else if (format_ == sycldnn::FilterFormat::HWCF) {
+      *h = dims_[0];
+      *w = dims_[1];
+      *c = dims_[2];
+      *k = dims_[3];
+    } else {
+      return sycldnn::StatusCode::InvalidParameter;
+    }
+    return sycldnn::StatusCode::OK;
+  }
+
+  /** This function queries the parameters of the previously initialized
+   * descriptor object.
+   * \param dataType  Output data type.
+   * \param format    Format of the filter descriptor KCHW or KHWC
+   * \param k   Output number of output feature maps.
+   * \param c   Output number of input feature maps per image.
+   * \param h         Output height of each feature map.
+   * \param w         Output width of each feature map.
+   * \return          sycldnn::StatusCode::OK or
+   *                  sycldnn::StatusCode::InvalidParameter
+   */
+  sycldnn::StatusCode getFilter4dDescriptor(SNNDataType* dataType,
+                                            sycldnn::FilterFormat* format,
+                                            int* k, int* c, int* h, int* w) {
+    SNN_VALIDATE_PARAM(dataType != nullptr, "Output pointer cannot be null");
+    SNN_VALIDATE_PARAM(format != nullptr, "Output pointer cannot be null");
+    *dataType = SNNDataType::SNN_FLOAT;
+    *format = format_;
+    return get4dDescriptorDims(k, c, h, w);
+  }
 };
+
+/** This function queries the parameters of the previously initialized
+ * descriptor object.
+ * \param dataType    Output data type.
+ * \param filterDesc  Input a previously created filter descriptor.
+ * \param format      Format of the filter descriptor KCHW or KHWC
+ * \param k           Output number of output feature maps.
+ * \param c           Output number of input feature maps per image.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
+                                          SNNDataType* dataType,
+                                          sycldnn::FilterFormat* format, int* k,
+                                          int* c, int* h, int* w) {
+  return filterDesc.getFilter4dDescriptor(dataType, format, k, c, h, w);
+}
 
 namespace internal {
 
 /**
  * Converts the descriptor into a sycldnn::conv2d::Conv2DParam
- * \param xDesc Input descriptor.
- * \param yDesc Output descriptor.
- * \param wDesc Filter descriptor.
- * \param convDesc Convolution descriptor.
- * \return Converted sycldnn::conv2d::Conv2DParam
+ * \param xDesc     Input descriptor.
+ * \param yDesc     Output descriptor.
+ * \param wDesc     Filter descriptor.
+ * \param convDesc  Convolution descriptor.
+ * \return          Converted sycldnn::conv2d::Conv2DParam
  */
 inline sycldnn::conv2d::Conv2DParams descToSnnParams(
     const TensorDescriptor& xDesc, const TensorDescriptor& yDesc,
     const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc) {
   sycldnn::conv2d::Conv2DParams conv_params{};
-  conv_params.channels = xDesc.getC();
-  conv_params.features = wDesc.getK();
-  conv_params.batch = xDesc.getN();
 
-  conv_params.in_rows = xDesc.getH();
-  conv_params.in_cols = xDesc.getW();
+  SNNDataType descDataType;
+  int inN;
+  int inC;
+  int inH;
+  int inW;
+  int inStrideN;
+  int inStrideC;
+  int inStrideH;
+  int inStrideW;
+  getTensor4dDescriptor(xDesc, &descDataType, &inN, &inC, &inH, &inW,
+                        &inStrideN, &inStrideC, &inStrideH, &inStrideW);
 
-  conv_params.window_rows = wDesc.getH();
-  conv_params.window_cols = wDesc.getW();
+  sycldnn::FilterFormat format;
+  int filterK;
+  int filterC;
+  int filterH;
+  int filterW;
+  getFilter4dDescriptor(wDesc, &descDataType, &format, &filterK, &filterC,
+                        &filterH, &filterW);
+
+  int outN;
+  int outC;
+  int outH;
+  int outW;
+  int outStrideN;
+  int outStrideC;
+  int outStrideH;
+  int outStrideW;
+  getTensor4dDescriptor(yDesc, &descDataType, &outN, &outC, &outH, &outW,
+                        &outStrideN, &outStrideC, &outStrideH, &outStrideW);
+
+  conv_params.channels = inC;
+  conv_params.features = filterK;
+  conv_params.batch = inN;
+
+  conv_params.in_rows = inH;
+  conv_params.in_cols = inW;
+
+  conv_params.window_rows = filterH;
+  conv_params.window_cols = filterW;
   conv_params.stride_rows = convDesc.getStrideH();
   conv_params.stride_cols = convDesc.getStrideW();
 
-  conv_params.out_rows = yDesc.getH();
-  conv_params.out_cols = yDesc.getW();
+  conv_params.out_rows = outH;
+  conv_params.out_cols = outW;
   conv_params.pad_rows = convDesc.getPadH();
   conv_params.pad_cols = convDesc.getPadW();
   conv_params.dilation_rows = convDesc.getDilationH();
   conv_params.dilation_cols = convDesc.getDilationW();
 
-  conv_params.filter_format = wDesc.getFormat();
+  conv_params.filter_format = format;
   conv_params.input_format = xDesc.getFormat();
+
   return conv_params;
 }
 
@@ -383,14 +443,15 @@ inline std::unique_ptr<conv2d::Selector> getSelector(conv2d::Algorithm algo) {
 
 /**
  * Computes the dimension of the output descriptor.
- * \param desc Descriptor for the convolution operation.
- * \param in Descriptor for the input tensor.
- * \param filt Descriptor for the filter tensor.
- * \param n Output, pointer to the resulting batch size.
- * \param c Output, poitner to the resulting number of channels.
- * \param h Output, pointer to the resulting height.
- * \param w Output, pointer to the resulting width.
- * \return SNNStaus::OK or SNNStatus::InvalidParameter
+ * \param desc  Descriptor for the convolution operation.
+ * \param in    Descriptor for the input tensor.
+ * \param filt  Descriptor for the filter tensor.
+ * \param n     Output, pointer to the resulting batch size.
+ * \param c     Output, poitner to the resulting number of channels.
+ * \param h     Output, pointer to the resulting height.
+ * \param w     Output, pointer to the resulting width.
+ * \return      sycldnn::StatusCode::OK or
+ * sycldnn::StatusCode::InvalidParameter
  */
 inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
     const ConvolutionDescriptor& desc, const TensorDescriptor& in,
@@ -400,37 +461,59 @@ inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
   SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
   SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
   using Index_t = int;
-  *n = in.getN();
-  *c = filt.getK();
   auto computeNewDim = [](Index_t inputDim, Index_t filterDim, Index_t pad,
                           Index_t dilation, Index_t convolutionStride) {
     return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
                    convolutionStride;
   };
-  *h = computeNewDim(in.getH(), filt.getH(), desc.getPadH(),
-                     desc.getDilationH(), desc.getStrideH());
-  *w = computeNewDim(in.getW(), filt.getW(), desc.getPadW(),
-                     desc.getDilationW(), desc.getStrideW());
+  SNNDataType descDataType;
+  int inN;
+  int inC;
+  int inH;
+  int inW;
+  int inStrideN;
+  int inStrideC;
+  int inStrideH;
+  int inStrideW;
+  getTensor4dDescriptor(in, &descDataType, &inN, &inC, &inH, &inW, &inStrideN,
+                        &inStrideC, &inStrideH, &inStrideW);
+
+  sycldnn::FilterFormat format;
+  int filterK;
+  int filterC;
+  int filterH;
+  int filterW;
+  getFilter4dDescriptor(filt, &descDataType, &format, &filterK, &filterC,
+                        &filterH, &filterW);
+  *n = inN;
+  *c = filterK;
+  *h = computeNewDim(inH, filterH, desc.getPadH(), desc.getDilationH(),
+                     desc.getStrideH());
+  *w = computeNewDim(inW, filterW, desc.getPadW(), desc.getDilationW(),
+                     desc.getStrideW());
   return sycldnn::StatusCode::OK;
 }
 
 /**
  * Performs the convolution forward operation.
- * \param handle The SNNHandle.
- * \param alpha Scaling factor, currently unused.
- * \param xDesc Descriptor for the input tensor.
- * \param x Pointer to device memory for the input tensor.
- * \param wDesc Descriptor for the filter.
- * \param w Pointer to device memory for the filter.
- * \param convDesc Descriptor for the convolution operation.
- * \param algo Convolution algorithm to be employed.
- * \param workSpace Pointer to device scratchpad memory, currently unused.
- * \param workSpaceSizeInBytes size of the scratchpad memory, currentl unused.
- * \param beta Scaling factor, currently unused.
- * \param yDesc Descriptor for the output tensor, its dimension can be obtained
- * with getConvolution2dForwardOutputDim.
- * \param y Pointer to device memory for the output.
- * \return SNNStatus for the operation.
+ * \param handle                The SNNHandle.
+ * \param alpha                 Scaling factor, currently unused.
+ * \param xDesc                 Descriptor for the input tensor.
+ * \param x                     Pointer to device memory for the input tensor.
+ * \param wDesc                 Descriptor for the filter.
+ * \param w                     Pointer to device memory for the filter.
+ * \param convDesc              Descriptor for the convolution operation.
+ * \param algo                  Convolution algorithm to be employed.
+ * \param workSpace             Pointer to device scratchpad memory, currently
+ *                              unused.
+ * \param workSpaceSizeInBytes  Size of the scratchpad memory, currentl
+ *                              unused.
+ * \param beta                  Scaling factor, currently unused.
+ * \param yDesc                 Descriptor for the output tensor, its dimension
+ *                              can be obtained with
+ *                              getConvolution2dForwardOutputDim.
+ * \param y                     Pointer to device memory for the output.
+ * \return                      SNNStatus for the operation.
  */
 template <typename ValueT = float>
 SNNStatus convolutionForward(SNNHandle& handle, const void* alpha,
@@ -532,6 +615,26 @@ SNNStatus convolutionBackwardFilter(
       static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
       static_cast<ValueT*>(dw), conv1_params, *selector, handle.getBackend(),
       static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+}
+
+/** This function queries the parameters of the previously initialized
+ * descriptor object.
+ * \param filterDesc  Input a previously initialized filter descriptor.
+ * \param dataType    Output data type.
+ * \param format      Format of the filter descriptor KCHW or KHWC
+ * \param k           Output number of output feature maps.
+ * \param c           Output number of input feature maps per image.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+sycldnn::StatusCode setFilter4dDescriptor(FilterDescriptor& filterDesc,
+                                          SNNDataType dataType,
+                                          sycldnn::DataFormat format, int k,
+                                          int c, int h, int w) {
+  SNN_UNUSED_VAR(dataType);
+  return filterDesc.set4d(format, k, c, h, w);
 }
 
 }  // namespace compat

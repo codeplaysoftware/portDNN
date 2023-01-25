@@ -16,51 +16,17 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-snn_test(
-  WITH_SYCL
-  TARGET
-    conv2d_forward_compat
-  SIZE
-    short
-  SOURCES
-    conv2d_forward_compat.cc
-  PUBLIC_LIBRARIES
-    sycl_dnn
-)
-
-snn_test(
-  WITH_SYCL
-  TARGET
-    conv2d_backward_data_compat
-  SIZE
-    short
-  SOURCES
-    conv2d_backward_data_compat.cc
-  PUBLIC_LIBRARIES
-    sycl_dnn
-)
-
-snn_test(
-  WITH_SYCL
-  TARGET
-    conv2d_backward_filter_compat
-  SIZE
-    short
-  SOURCES
-    conv2d_backward_filter_compat.cc
-  PUBLIC_LIBRARIES
-    sycl_dnn
-)
-
-snn_test(
-  WITH_SYCL
-  TARGET
-    queue
-  SIZE
-    short
-  SOURCES
-    queue.cc
-  PUBLIC_LIBRARIES
-    sycl_dnn
-)
-
+foreach(_op IN ITEMS conv2d_forward_compat conv2d_backward_data_compat conv2d_backward_filter_compat queue compat_descriptor)
+  set(_target ${_op})
+  snn_test(
+    WITH_SYCL
+    TARGET
+      ${_target}
+    SIZE
+      moderate
+    SOURCES
+      ${_target}.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endforeach()
