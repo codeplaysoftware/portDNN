@@ -67,7 +67,7 @@ DATA_TYPES = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using DataFormatList = sycldnn::types::DataFormatTypes;
-using BackendList = sycldnn::types::DefaultBackendTypes_;
+using BackendList = sycldnn::types::DefaultBackendTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;

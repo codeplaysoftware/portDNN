@@ -35,20 +35,30 @@ INCLUDES = r"""
 #include <vector>
 
 #include "test/gather/gather_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 
-using namespace sycldnn;
 """
 
 DATA_TYPES = r"""
-using GTestTypeList = sycldnn::types::GTestKernelDataTypes;
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using namespace sycldnn;
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
 using IndexDataType = int32_t;  // or int64_t"""
 
 TYPED_TEST_SUITE_DECL_TPL = r"""
-template <typename DataType>
-using {test_case} = GatherFixture<DataType, IndexDataType>;
-TYPED_TEST_SUITE({test_case}, GTestTypeList);"""
+template <typename Pair>
+using {test_case} = GatherFixture<Pair, IndexDataType>;
+TYPED_TEST_SUITE({test_case}, GTestTypePairs);
+"""
 TEST_CASE_TPL = r"Gather{n_dimensions}D"
 TEST_NAME_TPL = r"G{n_dimensions}D_Axis_"
 

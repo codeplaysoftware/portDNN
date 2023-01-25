@@ -24,7 +24,7 @@
 #include "test/types/to_gtest_types.h"
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using BackendTypeList = sycldnn::types::DefaultBackendTypes_;
+using BackendTypeList = sycldnn::types::DefaultBackendTypes;
 using TypePairList =
     sycldnn::types::CartesianProduct<DataTypeList, BackendTypeList>::type;
 using GTestTypeList = sycldnn::types::ToGTestTypes<TypePairList>::type;

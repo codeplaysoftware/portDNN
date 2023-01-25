@@ -36,7 +36,7 @@ using OneByOneInputConvolutionTest = ConvolutionFixture<Pair>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using Selectors = sycldnn::types::SelectorList;
-using Backends = sycldnn::types::DefaultBackendTypes_;
+using Backends = sycldnn::types::DefaultBackendTypes;
 using DataFormats = sycldnn::types::DataFormatTypes;
 
 using SNNTypePairs =

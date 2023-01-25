@@ -33,15 +33,24 @@ INCLUDES = r"""
 #include <vector>
 
 #include "test/transpose/transpose_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 """
 DATA_TYPES = r"""
-using GTestTypeList = sycldnn::types::GTestKernelDataTypes;"""
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+"""
 TYPED_TEST_SUITE_DECL_TPL = r"""
-template <typename DataType>
-using {test_case} = TransposeFixture<DataType>;
-TYPED_TEST_SUITE({test_case}, GTestTypeList);"""
+template <typename Pair>
+using {test_case} = TransposeFixture<Pair>;
+TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
 TEST_CASE_TPL = r"Transpose{n_dimensions}D"
 TEST_NAME_TPL = r"T{n_dimensions}D_"
 

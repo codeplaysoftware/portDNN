@@ -48,14 +48,25 @@ INCLUDES = r"""
 #include "sycldnn/scatter_nd/params.h"
 
 #include "test/scatter_nd/scatter_nd_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
+#include "test/types/to_gtest_types.h"
 
 #include <vector>"""
 TYPED_TEST_CASE_DECL_TPL = r"""
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
-template <typename DataType>
-using {test_case} = ScatterNDFixture<DataType, int, {operator}>;
-TYPED_TEST_CASE({test_case}, types::GTestKernelDataTypes);"""
+template <typename Pair>
+using {test_case} = ScatterNDFixture<Pair, int, {operator}>;
+TYPED_TEST_CASE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple('TestCaseParams', ['test_type'])
 TestParams = namedtuple('TestParams', ['in_shape', 'index_depth'])

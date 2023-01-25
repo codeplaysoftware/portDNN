@@ -34,7 +34,7 @@
 using DataTypeList = sycldnn::types::KernelDataTypes;
 using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;
 using DataFormatList = sycldnn::types::DataFormatTypes;
-using BackendList = sycldnn::types::DefaultBackendTypes_;
+using BackendList = sycldnn::types::DefaultBackendTypes;
 
 using SNNTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, DataFormatList>::type;

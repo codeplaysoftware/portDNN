@@ -39,15 +39,25 @@ INCLUDES = r"""
 #include "sycldnn/pointwise/operators.h"
 
 #include "test/pointwise/pointwise_fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
-
-#include <vector>"""
+#include "test/types/test_backend_types.h"
+"""
 TYPED_TEST_SUITE_DECL_TPL = r"""
 using namespace sycldnn;  // NOLINT(google-build-using-namespace)
+
+using DataTypeList = sycldnn::types::KernelDataTypes;
+using Backends = sycldnn::types::DefaultBackendTypes;
+
+using TypeBackendPairs =
+    sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;
+
+using GTestTypePairs = sycldnn::types::ToGTestTypes<TypeBackendPairs>::type;
+
 template <typename DataType>
 using {test_case} =
     PointwiseFixture<DataType, {operation}, {direction}>;
-TYPED_TEST_SUITE({test_case}, types::GTestKernelDataTypes);"""
+TYPED_TEST_SUITE({test_case}, GTestTypePairs);"""
 
 TestCaseParams = namedtuple("TestCaseParams", ["test_type", "direction"])
 TestParams = namedtuple("TestParams", ["in_size"])

@@ -33,12 +33,18 @@ INCLUDES = r"""
 #include <vector>
 
 #include "test/matmul/fixture.h"
+#include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"
+#include "test/types/test_backend_types.h"
 #include "test/types/to_gtest_types.h"
 """
 DATA_TYPES = r"""
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using GTestTypeList = sycldnn::types::ToGTestTypes<DataTypeList>::type;"""
+using BackendTypeList = sycldnn::types::DefaultBackendTypes;
+using TypePairList =
+    sycldnn::types::CartesianProduct<DataTypeList, BackendTypeList>::type;
+using GTestTypeList = sycldnn::types::ToGTestTypes<TypePairList>::type;
+"""
 TYPED_TEST_SUITE_DECL_TPL = r"""
 template <typename DataType>
 using {test_case} = MatmulFixture<DataType, {trans_lhs}, {trans_rhs}>;

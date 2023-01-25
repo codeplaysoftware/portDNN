@@ -28,7 +28,7 @@ using IntDataTypeList =
 using DataTypeList =
     sycldnn::types::Concatenate<sycldnn::types::KernelDataTypes,
                                 IntDataTypeList>::type;
-using Backends = sycldnn::types::DefaultBackendTypes_;
+using Backends = sycldnn::types::DefaultBackendTypes;
 
 using TypeBackendPairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;

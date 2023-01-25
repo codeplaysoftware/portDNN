@@ -28,7 +28,7 @@
 #include <vector>
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes_;
+using Backends = sycldnn::types::DefaultBackendTypes;
 
 using TypeBackendPairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;

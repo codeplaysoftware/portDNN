@@ -35,7 +35,7 @@ using OneByOneInputDepthConvTest =
     sycldnn::depthwise_conv2d::DepthwiseConv2DFixture<Pair>;
 
 using DataTypeList = sycldnn::types::KernelDataTypes;
-using Backends = sycldnn::types::DefaultBackendTypes_;
+using Backends = sycldnn::types::DefaultBackendTypes;
 
 using BackendTypePairs =
     sycldnn::types::CartesianProduct<DataTypeList, Backends>::type;

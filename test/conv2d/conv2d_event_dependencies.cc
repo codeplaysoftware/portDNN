@@ -121,7 +121,6 @@ sycldnn::conv2d::Conv2DParams get_1x1_params() {
  *         +66+91+112+135)   +72+98+120+144)
  */
 TYPED_TEST(DependencyConvolutionTest, Simple3x3) {
-  using DataType = typename TestFixture::DataType;
   auto params = get_3x3_params();
   this->template run<sycldnn::conv2d::conv_type::Forward>(params);
 }
@@ -145,8 +144,6 @@ TYPED_TEST(DependencyConvolutionTest, Simple3x3) {
  *            26+56  30+64  34+72
  */
 TYPED_TEST(DependencyConvolutionTest, Simple1x1) {
-  using DataType = typename TestFixture::DataType;
-
   auto params = get_1x1_params();
   this->template run<sycldnn::conv2d::conv_type::Forward>(params);
 }
@@ -161,8 +158,6 @@ TYPED_TEST(DependencyConvolutionTest, Simple1x1) {
  *          21      24+28       27+32      36
  */
 TYPED_TEST(DependencyConvolutionTest, InputBackprop3x3) {
-  using DataType = typename TestFixture::DataType;
-
   auto params = get_3x3_params();
   this->template run<sycldnn::conv2d::conv_type::InputBackprop>(params);
 }
@@ -177,8 +172,6 @@ TYPED_TEST(DependencyConvolutionTest, InputBackprop3x3) {
  *          3x4      3x5        3x6+4x4        4x5
  */
 TYPED_TEST(DependencyConvolutionTest, InputBackprop3x3Stride2) {
-  using DataType = typename TestFixture::DataType;
-
   auto params = get_3x3_stride2_params();
   this->template run<sycldnn::conv2d::conv_type::InputBackprop>(params);
 }
@@ -203,8 +196,6 @@ TYPED_TEST(DependencyConvolutionTest, InputBackprop3x3Stride2) {
  *           13x3+14x4   15x3+16x4   17x3+18x4
  */
 TYPED_TEST(DependencyConvolutionTest, InputBackprop1x1) {
-  using DataType = typename TestFixture::DataType;
-
   auto params = get_1x1_params();
   this->template run<sycldnn::conv2d::conv_type::InputBackprop>(params);
 }
@@ -223,8 +214,6 @@ TYPED_TEST(DependencyConvolutionTest, InputBackprop1x1) {
  *         9x1+10x2+13x3+14x4   10x1+11x2+14x3+15x4   11x1+12x2+15x3+16x4
  */
 TYPED_TEST(DependencyConvolutionTest, FilterBackprop3x3) {
-  using DataType = typename TestFixture::DataType;
-
   auto params = get_3x3_params();
   this->template run<sycldnn::conv2d::conv_type::FilterBackprop>(params);
 }
@@ -245,8 +234,6 @@ TYPED_TEST(DependencyConvolutionTest, FilterBackprop3x3) {
  *           2x2+4x4+6x6+8x8+10x10+12x12+14x14+16x16+18x18
  */
 TYPED_TEST(DependencyConvolutionTest, FilterBackprop1x1) {
-  using DataType = typename TestFixture::DataType;
-
   auto params = get_1x1_params();
   this->template run<sycldnn::conv2d::conv_type::FilterBackprop>(params);
 }

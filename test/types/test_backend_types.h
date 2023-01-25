@@ -40,22 +40,17 @@ namespace sycldnn {
 namespace types {
 
 /** List of backend types to use by default in tests.  */
-using DefaultBackendTypes =
-    sycldnn::types::TypeList<sycldnn::backend::SNNBackend>;
-/** The same as DefaultBackends but in the googletest Types format. */
-using GTestDefaultBackendTypes = ToGTestTypes<DefaultBackendTypes>::type;
-
-/** List of backend types to use by default in tests.  */
-using DefaultBackendTypes_ = sycldnn::types::TypeList<
+using DefaultBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_ENABLE_USM
     sycldnn::backend::SNNUSMBackend,
 #endif
     sycldnn::backend::SNNBackend>;
 /** The same as DefaultBackends but in the googletest Types format. */
-using GTestDefaultBackendTypes_ = ToGTestTypes<DefaultBackendTypes>::type;
+using GTestDefaultBackendTypes = ToGTestTypes<DefaultBackendTypes>::type;
 
 /**
- * Expanded list of all supported backend types to use in tests using matmuls.
+ * Expanded list of all supported backend types to use in tests using matmuls
+ * with USM backend added.
  */
 using AllMatmulBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN_MATMULS
@@ -67,43 +62,14 @@ using AllMatmulBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_CLBLAST_MATMULS
     sycldnn::backend::CLBlastBackend,
 #endif
-    sycldnn::backend::SNNBackend>;
-
-/**
- * Expanded list of all supported backend types to use in tests using matmuls
- * with USM backend added.
- */
-using AllMatmulBackendTypes_ = sycldnn::types::TypeList<
-#ifdef SNN_TEST_EIGEN_MATMULS
-    sycldnn::backend::EigenBackend,
-#endif
-#ifdef SNN_TEST_SYCLBLAS_MATMULS
-    sycldnn::backend::SyclBLASBackend,
-#endif
-#ifdef SNN_TEST_CLBLAST_MATMULS
-    sycldnn::backend::CLBlastBackend,
-#endif
 #ifdef SNN_ENABLE_USM
     sycldnn::backend::SNNUSMBackend,
 #endif
     sycldnn::backend::SNNBackend>;
 
 /** Expanded list of all supported backend types to use in tests. */
-using AllBackendTypes = sycldnn::types::TypeList<
-#ifdef SNN_TEST_EIGEN
-    sycldnn::backend::EigenBackend,
-#endif
-#ifdef SNN_TEST_SYCLBLAS
-    sycldnn::backend::SyclBLASBackend,
-#endif
-#ifdef SNN_TEST_CLBLAST
-    sycldnn::backend::CLBlastBackend,
-#endif
-    sycldnn::backend::SNNBackend>;
-
-/** Expanded list of all supported backend types to use in tests. */
 // TODO: Remove _AllBackendTypes once all testing supports USM
-using AllBackendTypes_ = sycldnn::types::TypeList<
+using AllBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN
     sycldnn::backend::EigenBackend,
 #endif
