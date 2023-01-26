@@ -95,18 +95,15 @@ SNNStatus launch_cast(MemObj<SrcT const>& input, MemObj<Index const>& indices,
                                         events);                              \
   }
 
-#ifdef SNN_ENABLE_USM
 SNN_LAUNCH_CAST(uint8_t, USMMemObject);
 SNN_LAUNCH_CAST(uint16_t, USMMemObject);
 SNN_LAUNCH_CAST(uint32_t, USMMemObject);
 SNN_LAUNCH_CAST(uint64_t, USMMemObject);
-#endif
 
 SNN_LAUNCH_CAST(uint8_t, BufferMemObject);
 SNN_LAUNCH_CAST(uint16_t, BufferMemObject);
 SNN_LAUNCH_CAST(uint32_t, BufferMemObject);
 SNN_LAUNCH_CAST(uint64_t, BufferMemObject);
-
 #undef SNN_LAUNCH_CAST
 
 /**

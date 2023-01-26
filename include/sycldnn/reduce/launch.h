@@ -60,7 +60,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                                              inner, backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Launch a reduction of [batch, outer, inner] applying Op on the outer
  * dimension. The output shape is [batch, inner].
@@ -89,7 +88,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return internal::sublaunch<T, Op, Backend>(input, output, batches, outer,
                                              inner, backend, events);
 }
-#endif
 }  // namespace reduce
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_REDUCE_LAUNCH_H_

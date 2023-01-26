@@ -100,31 +100,29 @@ SNNStatus inline validate_params(RoiAlignParams const& params) {
  * \param [in]  backend         The backend that provides access to the SYCL
  *                              buffers corresponding to the input and output
  *                              pointers.
- * \param [in]  events          USM dependency events
  *
  * \return An \ref SNNStatus containing the SYCL event tied to the kernel
  * launches and a \ref StatusCode enum showing if the launch was OK or whether
  * it encountered some problem.
  */
 template <typename T, typename BatchIndicesT,
-          template <typename> class PoolType, typename Backend>
+          template <typename> class PoolType, typename Backend,
+          typename = typename std::enable_if<
+              sycldnn::backend::is_buffer_backend_v<Backend>>::type>
 SNNStatus launch(
     typename Backend::template pointer_type<T const> input,
     typename Backend::template pointer_type<T const> rois,
     typename Backend::template pointer_type<BatchIndicesT const> batch_indices,
     typename Backend::template pointer_type<T> output,
-    const RoiAlignParams& rap, Backend& backend,
-    const std::vector<cl::sycl::event>& events = {}) {
+    const RoiAlignParams& rap, Backend& backend) {
   auto validation_status = internal::validate_params(rap);
   if (validation_status.status != StatusCode::OK) {
     return validation_status;
   }
 
   return internal::sublaunch<T, BatchIndicesT, PoolType>(
-      input, rois, batch_indices, output, rap, backend, events);
+      input, rois, batch_indices, output, rap, backend, {});
 }
-
-#ifdef SNN_USE_USM
 
 /**
  * Launch the ROI Align operation kernel.
@@ -169,8 +167,6 @@ SNNStatus launch(
   return internal::sublaunch<T, BatchIndicesT, PoolType>(
       input, rois, batch_indices, output, rap, backend);
 }
-
-#endif  // SNN_USE_USM
 
 }  // namespace roi_align
 }  // namespace sycldnn

@@ -236,7 +236,6 @@ SNNStatus launch(
       backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Generic function to launch batchnorm frozen or training, forward or gradient.
  *
@@ -298,7 +297,6 @@ SNNStatus launch(
       running_mean_or_beta_grad, running_variance_or_gamma_grad, output, params,
       backend, events);
 }
-#endif
 
 /**
  * Helper function to launch a forward batchnorm in frozen mode.
@@ -337,7 +335,6 @@ SNNStatus launch(
       params, backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Helper function to launch a forward batchnorm in frozen mode.
  *
@@ -376,7 +373,6 @@ SNNStatus launch(
       input, beta, gamma, input_mean, input_variance, null, null, output,
       params, backend, events);
 }
-#endif
 
 /**
  * \cond Doxygen_Suppress
@@ -418,7 +414,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * \cond Doxygen_Suppress
  * Disabling documentation for this function as Doxygen does not differentiate
@@ -460,7 +455,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       input, gradient, gamma, null, null, beta_grad, gamma_grad, output, params,
       backend, events);
 }
-#endif
 
 }  // namespace batchnorm
 }  // namespace sycldnn

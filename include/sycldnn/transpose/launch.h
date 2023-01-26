@@ -71,7 +71,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                                 {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Transpose an ND tensor using any permutation of the input dimensions.
  *
@@ -108,7 +107,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return internal::sublaunch<T>(input, output, dimensions, permutation, backend,
                                 events);
 }
-#endif  // SNN_ENABLE_USM
 
 /**
  * Convert an NHWC tensor to an NCHW tensor.
@@ -143,7 +141,6 @@ SNNStatus convert_nhwc_to_nchw(
                                 backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Convert an NHWC tensor to an NCHW tensor.
  *
@@ -177,7 +174,6 @@ SNNStatus convert_nhwc_to_nchw(
   return internal::sublaunch<T>(input, output, dimensions, NHWC_TO_NCHW,
                                 backend, events);
 }
-#endif  // SNN_ENABLE_USM
 
 /**
  * Convert an NCHW tensor to an NHWC tensor.
@@ -212,7 +208,6 @@ SNNStatus convert_nchw_to_nhwc(
                                 backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Convert an NCHW tensor to an NHWC tensor.
  *
@@ -246,7 +241,6 @@ SNNStatus convert_nchw_to_nhwc(
   return internal::sublaunch<T>(input, output, dimensions, NCHW_TO_NHWC,
                                 backend, events);
 }
-#endif  // SNN_ENABLE_USM
 
 }  // namespace transpose
 }  // namespace sycldnn

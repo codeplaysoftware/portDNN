@@ -68,7 +68,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
       input, indices, update, output, params, backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Launch the scatter_nd operation kernel.
  *
@@ -82,6 +81,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  * \param output        A pointer to the memory representing the output tensor.
  * \param params        The scatter_nd parameters, which describe the tensor
  * shape and layout.
+ * \param events Events which should be completed before the operation.
  * \param backend       The backend implementation, used to
  * map between pointer representations.
  * \return Returns a SNNStatus containing
@@ -100,7 +100,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return internal::sublaunch<T, Index, ScatterNDType, Backend>(
       input, indices, update, output, params, backend, events);
 }
-#endif
 
 }  // namespace scatter_nd
 }  // namespace sycldnn

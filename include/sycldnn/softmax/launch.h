@@ -104,7 +104,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                                         backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Launch the softmax operation kernel in either Forward or Gradient (Backward)
  * direction.
@@ -127,6 +126,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  *                     and layout.
  * \param backend      The backend implementation, used to map between pointer
  *                     representations.
+ * \param events       Events which should be completed before the operation.
  * \return Returns a SNNStatus containing the SYCL event tied to the kernel
  *         launches and a StatusCode enum showing if the launch was OK or
  *         whether it encountered some problem.
@@ -148,7 +148,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return internal::launch<T, Direction>(input, workspace, output, params,
                                         backend, events);
 }
-#endif
 
 /**
  * Launch the softmax operation kernel in either Gradient (Backward)
@@ -187,7 +186,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                                         params, backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Launch the softmax operation kernel in either Gradient (Backward)
  * direction.
@@ -202,6 +200,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  *                     and layout.
  * \param backend      The backend implementation, used to map between pointer
  *                     representations.
+ * \param events       Events which should be completed before the operation.
  * \return Returns a SNNStatus containing the SYCL event tied to the kernel
  *         launches and a StatusCode enum showing if the launch was OK or
  *         whether it encountered some problem.
@@ -225,7 +224,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return internal::launch<T, Direction>(input, gradient, workspace, output,
                                         params, backend, events);
 }
-#endif
 
 }  // namespace softmax
 }  // namespace sycldnn

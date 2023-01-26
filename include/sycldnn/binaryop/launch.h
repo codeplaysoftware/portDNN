@@ -66,7 +66,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
                                              {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Launch the binary operation kernel.
  *
@@ -96,7 +95,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> lhs,
   return internal::sublaunch<T, Op, Backend>(lhs, rhs, out, params, backend,
                                              events);
 }
-#endif
 
 }  // namespace binaryop
 }  // namespace sycldnn

@@ -213,7 +213,7 @@ struct GenericMem {
   size_t offset_;
 };
 
-#ifdef SNN_ENABLE_USM
+#ifdef SYCL_IMPLEMENTATION_INTEL
 /**
  * SYCL USM wrapper.
  *
@@ -280,7 +280,7 @@ struct GenericMem<T, Mode, true> {
    */
   size_t offset_;
 };
-#endif
+#endif  // SYCL_IMPLEMENTATION_INTEL
 
 /** Read only accessor for a 1D buffer of type T. */
 template <typename T, bool IsUSM>

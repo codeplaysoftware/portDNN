@@ -62,7 +62,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                                           backend, {});
 }
 
-#ifdef SNN_ENABLE_USM
 /**
  * Launch a 2D depthwise convolution.
  *
@@ -74,6 +73,7 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  *               and convolution strides.
  * \param backend The backend implementation, used to provide optimized matrix
  *                multiplies and to map between pointer represntations.
+ * \param events Events which should be completed before the operation.
  * \return Returns an SNNStatus containing the SYCL event tied to the kernel
  * launches and a StatusCode enum showing if the launch was OK or whether it
  * encountered some problem.
@@ -89,7 +89,6 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
   return internal::sublaunch<T, ConvType>(input, filter, output, params,
                                           backend, events);
 }
-#endif
 }  // namespace depthwise_conv2d
 }  // namespace sycldnn
 
