@@ -242,7 +242,8 @@ class TensorDescriptor : public DescriptorBase {
    * \param w   Output width of each feature map.
    * \return    sycldnn::StatusCode::OK or sycldnn::StatusCode::InvalidParameter
    */
-  sycldnn::StatusCode get4dDescriptorDims(int* n, int* c, int* h, int* w) {
+  sycldnn::StatusCode get4dDescriptorDims(int* n, int* c, int* h,
+                                          int* w) const {
     SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");

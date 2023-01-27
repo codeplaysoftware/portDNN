@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-foreach(_op IN ITEMS conv2d_forward_compat conv2d_backward_data_compat conv2d_backward_filter_compat queue compat_descriptor)
+foreach(_op IN ITEMS conv2d_forward_compat conv2d_backward_data_compat conv2d_backward_filter_compat queue compat_descriptor pooling_compat)
   set(_target ${_op})
   snn_test(
     WITH_SYCL
