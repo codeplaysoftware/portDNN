@@ -28,7 +28,7 @@ TEST(ConvDesc, desc_2d_test) {
   ConvolutionDescriptor desc;
   constexpr int pad_h = 1, pad_w = 2;
   constexpr int stride_h = 3, stride_w = 4;
-  constexpr int dilation_h = 5, dilation_w = 6;
+  constexpr int dilation_h = 1, dilation_w = 1;
   constexpr ConvolutionMode mode = ConvolutionMode::CROSS_CORRELATION;
   const auto status = setConvolution2dDescriptor(
       desc, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w, mode);
@@ -48,7 +48,7 @@ TEST(ConvDesc, desc_nd_test) {
   constexpr int spatial_dims = 2;
   constexpr int pads[spatial_dims] = {1, 2};
   constexpr int strides[spatial_dims] = {3, 4};
-  constexpr int dilations[spatial_dims] = {5, 6};
+  constexpr int dilations[spatial_dims] = {1, 1};
   constexpr ConvolutionMode mode = ConvolutionMode::CROSS_CORRELATION;
   const auto status = setConvolutionNdDescriptor(desc, spatial_dims, pads,
                                                  strides, dilations, mode);

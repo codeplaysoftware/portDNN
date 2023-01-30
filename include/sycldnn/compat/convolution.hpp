@@ -354,6 +354,49 @@ sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
   return filterDesc.getFilter4dDescriptor(dataType, format, k, c, h, w);
 }
 
+/**
+ * Computes the dimension of the output descriptor.
+ * \param desc  Descriptor for the convolution operation.
+ * \param in    Descriptor for the input tensor.
+ * \param filt  Descriptor for the filter tensor.
+ * \param n     Output, pointer to the resulting batch size.
+ * \param c     Output, pointer to the resulting number of channels.
+ * \param h     Output, pointer to the resulting height.
+ * \param w     Output, pointer to the resulting width.
+ * \return      sycldnn::StatusCode::OK or
+ *              sycldnn::StatusCode::InvalidParameter
+ */
+inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
+    const ConvolutionDescriptor& desc, const TensorDescriptor& in,
+    const FilterDescriptor& filt, int* n, int* c, int* h, int* w) {
+  SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
+  SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
+  SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
+  SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
+  using Index_t = int;
+  auto computeNewDim = [](Index_t inputDim, Index_t filterDim, Index_t pad,
+                          Index_t dilation, Index_t convolutionStride) {
+    return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
+                   convolutionStride;
+  };
+  SNNDataType descDataType;
+  int inN, inC, inH, inW, inStrideN, inStrideC, inStrideH, inStrideW;
+  getTensor4dDescriptor(in, &descDataType, &inN, &inC, &inH, &inW, &inStrideN,
+                        &inStrideC, &inStrideH, &inStrideW);
+
+  sycldnn::FilterFormat format;
+  int filterK, filterC, filterH, filterW;
+  getFilter4dDescriptor(filt, &descDataType, &format, &filterK, &filterC,
+                        &filterH, &filterW);
+  *n = inN;
+  *c = filterK;
+  *h = computeNewDim(inH, filterH, desc.getPadH(), desc.getDilationH(),
+                     desc.getStrideH());
+  *w = computeNewDim(inW, filterW, desc.getPadW(), desc.getDilationW(),
+                     desc.getStrideW());
+  return sycldnn::StatusCode::OK;
+}
+
 namespace internal {
 
 /**
@@ -370,33 +413,17 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
   sycldnn::conv2d::Conv2DParams conv_params{};
 
   SNNDataType descDataType;
-  int inN;
-  int inC;
-  int inH;
-  int inW;
-  int inStrideN;
-  int inStrideC;
-  int inStrideH;
-  int inStrideW;
+  int inN, inC, inH, inW, inStrideN, inStrideC, inStrideH, inStrideW;
   getTensor4dDescriptor(xDesc, &descDataType, &inN, &inC, &inH, &inW,
                         &inStrideN, &inStrideC, &inStrideH, &inStrideW);
 
   sycldnn::FilterFormat format;
-  int filterK;
-  int filterC;
-  int filterH;
-  int filterW;
+  int filterK, filterC, filterH, filterW;
+
   getFilter4dDescriptor(wDesc, &descDataType, &format, &filterK, &filterC,
                         &filterH, &filterW);
 
-  int outN;
-  int outC;
-  int outH;
-  int outW;
-  int outStrideN;
-  int outStrideC;
-  int outStrideH;
-  int outStrideW;
+  int outN, outC, outH, outW, outStrideN, outStrideC, outStrideH, outStrideW;
   getTensor4dDescriptor(yDesc, &descDataType, &outN, &outC, &outH, &outW,
                         &outStrideN, &outStrideC, &outStrideH, &outStrideW);
 
@@ -425,6 +452,25 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
   return conv_params;
 }
 
+/** This function queries the parameters of the previously initialized
+ * descriptor object.
+ * \param dataType    Output data type.
+ * \param filterDesc  Input a previously created filter descriptor.
+ * \param format      Format of the filter descriptor KCHW or KHWC
+ * \param k           Output number of output feature maps.
+ * \param c           Output number of input feature maps.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
+                                          SNNDataType* dataType,
+                                          sycldnn::FilterFormat* format, int* k,
+                                          int* c, int* h, int* w) {
+  return filterDesc.getFilter4dDescriptor(dataType, format, k, c, h, w);
+}
+
 /** Returns the constant selector for a given algorithm
  * \param algo The algorithm
  * \return The constant selector
@@ -439,60 +485,88 @@ inline std::unique_ptr<conv2d::Selector> getSelector(conv2d::Algorithm algo) {
   }
 }
 
-}  // namespace internal
-
 /**
- * Computes the dimension of the output descriptor.
- * \param desc  Descriptor for the convolution operation.
- * \param in    Descriptor for the input tensor.
- * \param filt  Descriptor for the filter tensor.
- * \param n     Output, pointer to the resulting batch size.
- * \param c     Output, poitner to the resulting number of channels.
- * \param h     Output, pointer to the resulting height.
- * \param w     Output, pointer to the resulting width.
- * \return      sycldnn::StatusCode::OK or
- * sycldnn::StatusCode::InvalidParameter
+ * Produces a set of recommended algorithms and their performance metrics
+ * \param handle              The SNNHandle.
+ * \param xDesc               Descriptor for the input tensor.
+ * \param wDesc               Descriptor for the filter.
+ * \param convDesc            Descriptor for the convolution operation.
+ * \param yDesc               Descriptor for the output tensor
+ * \param requestedAlgoCount  Number of algos to be run for
+ *                            performance.
+ * \param returnedAlgoCount   Output number of alogs run for
+ *                            performance.
+ * \param perfResults         Struct containg the results of
+ *                            running algo.
+ * \return                    sycldnn::StatusCode for the operation.
  */
-inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
-    const ConvolutionDescriptor& desc, const TensorDescriptor& in,
-    const FilterDescriptor& filt, int* n, int* c, int* h, int* w) {
-  SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
-  SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
-  SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
-  SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
-  using Index_t = int;
-  auto computeNewDim = [](Index_t inputDim, Index_t filterDim, Index_t pad,
-                          Index_t dilation, Index_t convolutionStride) {
-    return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
-                   convolutionStride;
-  };
-  SNNDataType descDataType;
-  int inN;
-  int inC;
-  int inH;
-  int inW;
-  int inStrideN;
-  int inStrideC;
-  int inStrideH;
-  int inStrideW;
-  getTensor4dDescriptor(in, &descDataType, &inN, &inC, &inH, &inW, &inStrideN,
-                        &inStrideC, &inStrideH, &inStrideW);
+template <typename ConvType>
+sycldnn::StatusCode findConvolutionAlgorithm(
+    SNNHandle& handle, const TensorDescriptor xDesc,
+    const FilterDescriptor wDesc, const ConvolutionDescriptor convDesc,
+    const TensorDescriptor yDesc, const int requestedAlgoCount,
+    int* returnedAlgoCount, convolutionFwdAlgoPerf_t* perfResults) {
+  // TODO: This function will be investigated and refactored to use a already
+  // exisiting map of performance mentrics for algortithms for each device or
+  // run kernels and return metrics for each algo selected
+  using ValueT = float;
+  SNN_UNUSED_VAR(requestedAlgoCount);
+  sycldnn::conv2d::Conv2DParams conv1_params =
+      internal::descToSnnParams(xDesc, yDesc, wDesc, convDesc);
+  std::unique_ptr<conv2d::Selector> selector =
+      std::make_unique<conv2d::DirectSelector>();
+  if (!selector) return StatusCode::InvalidAlgorithm;
 
-  sycldnn::FilterFormat format;
-  int filterK;
-  int filterC;
-  int filterH;
-  int filterW;
-  getFilter4dDescriptor(filt, &descDataType, &format, &filterK, &filterC,
-                        &filterH, &filterW);
-  *n = inN;
-  *c = filterK;
-  *h = computeNewDim(inH, filterH, desc.getPadH(), desc.getDilationH(),
-                     desc.getStrideH());
-  *w = computeNewDim(inW, filterW, desc.getPadW(), desc.getDilationW(),
-                     desc.getStrideW());
-  return sycldnn::StatusCode::OK;
+  // Allocate memory
+  ValueT* x = handle.getBackend().allocate<ValueT>(
+      conv1_params.batch * conv1_params.channels * conv1_params.in_rows *
+      conv1_params.in_cols);
+
+  ValueT* w = handle.getBackend().allocate<ValueT>(
+      conv1_params.channels * conv1_params.features * conv1_params.window_rows *
+      conv1_params.window_cols);
+
+  // output
+  int out_n, out_c, out_h, out_w;
+
+  getConvolution2dForwardOutputDim(convDesc, xDesc, wDesc, &out_n, &out_c,
+                                   &out_h, &out_w);
+
+  ValueT* y =
+      handle.getBackend().allocate<ValueT>(out_n * out_c * out_h * out_w);
+
+  // Run warmup
+  auto warmup_status = sycldnn::conv2d::launch<ValueT, ConvType>(
+      x, w, y, conv1_params, *selector, handle.getBackend());
+  if (warmup_status.status != StatusCode::OK) {
+    return warmup_status.status;
+  }
+  warmup_status.event.wait();
+
+  // Start timing
+  auto start = std::chrono::high_resolution_clock::now();
+  auto run_status = sycldnn::conv2d::launch<ValueT, ConvType>(
+      x, w, y, conv1_params, *selector, handle.getBackend());
+  run_status.event.wait();
+  auto stop = std::chrono::high_resolution_clock::now();
+  // Finish timing
+
+  auto resultTime =
+      std::chrono::duration<double, std::milli>(stop - start).count();
+  perfResults->time.push_back(resultTime);
+  perfResults->algo.push_back(
+      selector->select<sycldnn::conv2d::conv_type::Forward>(conv1_params));
+  perfResults->status.push_back(run_status);
+  *returnedAlgoCount = 1;
+
+  sycl::free(x, handle.getQueue());
+  sycl::free(w, handle.getQueue());
+  sycl::free(y, handle.getQueue());
+
+  return StatusCode::OK;
 }
+
+}  // namespace internal
 
 /**
  * Performs the convolution forward operation.
@@ -635,6 +709,60 @@ sycldnn::StatusCode setFilter4dDescriptor(FilterDescriptor& filterDesc,
                                           int c, int h, int w) {
   SNN_UNUSED_VAR(dataType);
   return filterDesc.set4d(format, k, c, h, w);
+}
+
+/**
+ * Produces a set of recommended of conv2d forward algorithms and their
+ * performance metrics
+ * \param handle              The SNNHandle.
+ * \param xDesc               Descriptor for the input tensor.
+ * \param wDesc               Descriptor for the filter.
+ * \param convDesc            Descriptor for the convolution operation.
+ * \param yDesc               Descriptor for the output tensor
+ * \param requestedAlgoCount  Number of algos to be run for
+ *                            performance.
+ * \param returnedAlgoCount   Output number of alogs run for
+ *                            performance.
+ * \param perfResults         Struct containg the results of
+ *                            running algo.
+ * \return SNNStatus for the operation.
+ */
+SNNStatus findConvolutionForwardAlgorithm(
+    SNNHandle& handle, const TensorDescriptor xDesc,
+    const FilterDescriptor wDesc, const ConvolutionDescriptor convDesc,
+    const TensorDescriptor yDesc, const int requestedAlgoCount,
+    int* returnedAlgoCount, convolutionFwdAlgoPerf_t* perfResults) {
+  return internal::findConvolutionAlgorithm<
+      sycldnn::conv2d::conv_type::Forward>(handle, xDesc, wDesc, convDesc,
+                                           yDesc, requestedAlgoCount,
+                                           returnedAlgoCount, perfResults);
+}
+
+/**
+ * Produces a set of recommended of conv2d backwards data algorithms and their
+ * performance metrics
+ * \param handle              The SNNHandle.
+ * \param wDesc               Descriptor for the filter.
+ * \param yDesc               Descriptor for the output tensor
+ * \param convDesc            Descriptor for the convolution operation.
+ * \param xDesc               Descriptor for the input tensor.
+ * \param requestedAlgoCount  Number of algos to be run for
+ *                            performance.
+ * \param returnedAlgoCount   Output number of alogs run for
+ *                            performance.
+ * \param perfResults         Struct containg the results of
+ *                            running algo.
+ * \return SNNStatus for the operation.
+ */
+SNNStatus findConvolutionBackwardDataAlgorithm(
+    SNNHandle& handle, const FilterDescriptor wDesc,
+    const TensorDescriptor yDesc, const ConvolutionDescriptor convDesc,
+    const TensorDescriptor xDesc, const int requestedAlgoCount,
+    int* returnedAlgoCount, convolutionFwdAlgoPerf_t* perfResults) {
+  return internal::findConvolutionAlgorithm<
+      sycldnn::conv2d::conv_type::InputBackprop>(
+      handle, xDesc, wDesc, convDesc, yDesc, requestedAlgoCount,
+      returnedAlgoCount, perfResults);
 }
 
 }  // namespace compat

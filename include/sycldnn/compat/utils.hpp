@@ -18,6 +18,7 @@
 #define SYCLDNN_INCLUDE_COMPAT_UTILS_HPP
 
 #include "sycldnn/backend/snn_usm_backend.h"
+#include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/data_format.h"
 #include "sycldnn/filter_format.h"
 #include "sycldnn/status.h"
@@ -25,6 +26,7 @@
 #include <exception>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <vector>
 
 /**
@@ -47,6 +49,18 @@ namespace compat {
 
 /** The data type of tensor */
 enum class SNNDataType { SNN_FLOAT = 0, SNN_DOUBLE, SNN_HALF };
+
+/** Struct containing performance results */
+struct convolutionFwdAlgoPerf_t {
+  /** \param algo Vector of selected convolution algorithms. */
+  std::vector<conv2d::Algorithm> algo;
+  /** \param status Vector of status of convolution algorithms.*/
+  std::vector<SNNStatus> status;
+  /** \param time Vector of performance timing of convolution algorithm.*/
+  std::vector<float> time;
+  /** \param memory Vector of workspace size required (defaults to 0).*/
+  std::vector<size_t> memory;
+};
 
 /**
  * Wrapper around the sycl-dnn backends.
@@ -204,7 +218,10 @@ class TensorDescriptor : public DescriptorBase {
   sycldnn::DataFormat getFormat() const { return format_; }
 
   /** \return total size of the tensor (number of elements)*/
-  size_t getSize() const { return dims_[0] * dims_[1] * dims_[2] * dims_[3]; }
+  size_t getSize() const {
+    return std::accumulate(dims_.begin(), dims_.end(), 1,
+                           std::multiplies<int>());
+  }
 
   /** defaults constructor, empty tensor with NCHW format */
   TensorDescriptor()

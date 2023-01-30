@@ -118,6 +118,7 @@ class PoolingDescriptor {
     stride_ = {stride_h, stride_w};
     window_dim_ = {window_h, window_w};
     mode_ = mode;
+    max_pooling_nan_opt_ = max_pooling_nan_opt;
     return sycldnn::StatusCode::OK;
   }
 };
