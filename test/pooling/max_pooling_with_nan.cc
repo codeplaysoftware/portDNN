@@ -125,13 +125,14 @@ struct MaxPoolingWithNan
       provider.deallocate_ptr(out_backprop_gpu);
     };
 
+    fwd_status.event.wait_and_throw();
+
     auto back_status =
         sycldnn::pooling::launch<DataType, Op, sycldnn::pooling::Backpropagate>(
             inp_data_gpu, out_data_gpu, inp_backprop_gpu, out_backprop_gpu,
             params, backend);
     ASSERT_EQ(sycldnn::StatusCode::OK, back_status.status);
 
-    fwd_status.event.wait_and_throw();
     back_status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(in_size, out_backprop_gpu,

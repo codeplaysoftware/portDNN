@@ -110,6 +110,8 @@ struct PointwiseFixture<Pair, Op, sycldnn::pointwise::Gradient>
       provider.deallocate_ptr(out_bk_gpu);
     };
 
+    fwd_status.event.wait_and_throw();
+
     sycldnn::SNNStatus bk_status;
     if (std::is_same<Op<DataType>, sycldnn::pointwise::Log<DataType>>::value) {
       bk_status = sycldnn::pointwise::launch<DataType, Op,
@@ -122,7 +124,6 @@ struct PointwiseFixture<Pair, Op, sycldnn::pointwise::Gradient>
     }
     ASSERT_EQ(sycldnn::StatusCode::OK, bk_status.status);
 
-    fwd_status.event.wait_and_throw();
     bk_status.event.wait_and_throw();
 
     provider.copy_device_data_to_host(size, out_bk_gpu, output_backprop);
