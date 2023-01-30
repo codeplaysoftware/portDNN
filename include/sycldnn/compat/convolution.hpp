@@ -362,7 +362,7 @@ namespace internal {
  * \param yDesc     Output descriptor.
  * \param wDesc     Filter descriptor.
  * \param convDesc  Convolution descriptor.
- * \return          Converted sycldnn::conv2d::Conv2DParam
+ * \return          Converted sycldnn::conv2d::Conv2DParam.
  */
 inline sycldnn::conv2d::Conv2DParams descToSnnParams(
     const TensorDescriptor& xDesc, const TensorDescriptor& yDesc,

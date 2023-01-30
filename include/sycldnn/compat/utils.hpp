@@ -275,7 +275,7 @@ class TensorDescriptor : public DescriptorBase {
    *                  sycldnn::StatusCode::InvalidParameter
    */
   sycldnn::StatusCode get4dDescriptorStride(int* nStride, int* cStride,
-                                            int* hStride, int* wStride) {
+                                            int* hStride, int* wStride) const {
     SNN_VALIDATE_PARAM(nStride != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(cStride != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(hStride != nullptr, "Output pointer cannot be null");
@@ -313,7 +313,7 @@ class TensorDescriptor : public DescriptorBase {
   sycldnn::StatusCode getTensor4dDescriptor(SNNDataType* dataType, int* n,
                                             int* c, int* h, int* w,
                                             int* nStride, int* cStride,
-                                            int* hStride, int* wStride) {
+                                            int* hStride, int* wStride) const {
     SNN_VALIDATE_PARAM(dataType != nullptr, "Output pointer cannot be null");
     *dataType = SNNDataType::SNN_FLOAT;
     auto returnStatus = get4dDescriptorDims(n, c, h, w);
