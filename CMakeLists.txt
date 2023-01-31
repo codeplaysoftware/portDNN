@@ -134,6 +134,9 @@ if(NOT SNN_FASTBUILD)
 endif()
 
 find_package(ComputeCpp QUIET)
+set(SNN_DEVICE_TRIPLE "spir64" CACHE STRING
+  "Device triple(s) to use when building with DPCPP (semicolon-separated if multiple triples are used)")
+set(SNN_DPCPP_USER_FLAGS "" CACHE STRING "Extra flags to pass to the DPC++ compiler (semicolon-separated)")
 find_package(DPCPP QUIET)
 
 if(ComputeCpp_FOUND AND DPCPP_FOUND)

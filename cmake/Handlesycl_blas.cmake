@@ -47,7 +47,7 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
         set(ComputeCpp_CMAKE_FLAGS "-DComputeCpp_DIR=${ComputeCpp_DIR}")
     endif()
     if (DPCPP_FOUND)
-        set(DPCPP_CMAKE_FLAGS "-DDPCPP_SYCL_TARGET=${DPCPP_SYCL_TARGET}")
+        set(DPCPP_CMAKE_FLAGS "-DDPCPP_SYCL_TARGET=${SNN_DEVICE_TRIPLE}")
     endif()
     ExternalProject_Add(sycl_blas_download
       GIT_REPOSITORY    ${sycl_blas_REPO}

@@ -20,6 +20,8 @@ Option                             | Type     | Default   | Description
 `SNN_VISIBILITY_HIDDEN`            | `BOOL`   | `ON`      | Hides library symbols by default, exporting select functions
 `SNN_FORCE_COLOUR_DIAGNOSTICS`     | `BOOL`   | `ON`      | Forces compilers to output error messages in colour
 `SNN_HIGH_MEM_JOB_LIMIT`           | `INT`    | `8`       | Number of concurrent build jobs for high memory targets (Ninja only)
+`SNN_DEVICE_TRIPLE`                | `LIST`   | `spir64`  | Sets the DPC++ device triple(s). Semicolon-separated if multiple flags are passed
+`SNN_DPCPP_USER_FLAGS`             | `LIST`   | Empty     | Sets the extra compiler flags to pass to DPC++. Semicolon-separated if multiple flags are passed
 
 ## Download options
 

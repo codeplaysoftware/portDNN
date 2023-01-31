@@ -33,8 +33,6 @@ if(NOT DPCPP_FOUND)
   return()
 endif()
 
-set(DPCPP_SYCL_TARGET "spir64" CACHE STRING "SYCL TARGET")
-
 mark_as_advanced(DPCPP_FOUND
                  DPCPP_LIB
 )
@@ -42,9 +40,10 @@ mark_as_advanced(DPCPP_FOUND
 if(DPCPP_FOUND AND NOT TARGET DPCPP::DPCPP)
   set(CMAKE_CXX_STANDARD 17)
   add_library(DPCPP::DPCPP INTERFACE IMPORTED)
+  set(DEVICE_TRIPLE_STR "$<JOIN:${SNN_DEVICE_TRIPLE},,>")
   set_target_properties(DPCPP::DPCPP PROPERTIES
-    INTERFACE_COMPILE_OPTIONS "-fsycl;-fsycl-targets=${DPCPP_SYCL_TARGET};-Xclang;-cl-mad-enable;-fsycl-unnamed-lambda"
-    INTERFACE_LINK_OPTIONS "-fsycl;-fsycl-targets=${DPCPP_SYCL_TARGET}"
+    INTERFACE_COMPILE_OPTIONS "-fsycl;-fsycl-targets=${DEVICE_TRIPLE_STR};-Xclang;-cl-mad-enable;-fsycl-unnamed-lambda;${SNN_DPCPP_USER_FLAGS}"
+    INTERFACE_LINK_OPTIONS "-fsycl;-fsycl-targets=${DEVICE_TRIPLE_STR};${SNN_DPCPP_USER_FLAGS}"
     INTERFACE_LINK_LIBRARIES ${DPCPP_LIB}
     INTERFACE_INCLUDE_DIRECTORIES "${DPCPP_BIN_DIR}/../include/sycl;${DPCPP_BIN_DIR}/../include")
 endif()
