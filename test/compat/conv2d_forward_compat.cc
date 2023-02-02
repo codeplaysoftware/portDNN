@@ -106,7 +106,10 @@ class Conv2DCompatTest : public ::testing::Test {
       const std::vector<int>& in_sizes,    // nchw
       const std::vector<int>& filt_sizes,  // kchw
       const std::vector<int>& conv_sizes,  // padhw, stridehw, dilationhw
-      const std::vector<float>& expect, const sycldnn::DataFormat format) {
+      const std::vector<float>& expect, const sycldnn::DataFormat format,
+      const sycldnn::conv2d::Algorithm algo =
+          sycldnn::conv2d::Algorithm::Direct,
+      int groupCount = 1) {
     const float max_val = 2048;
     size_t in_tot_count = std::accumulate(in_sizes.begin(), in_sizes.end(), 1,
                                           std::multiplies<int>());
@@ -124,14 +127,16 @@ class Conv2DCompatTest : public ::testing::Test {
     ConvolutionDescriptor conv_desc;
     conv_desc.set2d(conv_sizes[0], conv_sizes[1], conv_sizes[2], conv_sizes[3],
                     conv_sizes[4], conv_sizes[5]);
-
+    if (groupCount > 1) {
+      setConvolutionGroupCount(conv_desc, groupCount);
+    }
     auto [out_ptr, out_desc] =
         get_out_ptr_and_desc(handle, in_desc, filt_desc, conv_desc);
 
-    SNNStatus status = convolutionForward(
-        handle, /*alpha*/ nullptr, in_desc, in_ptr, filt_desc, filt_ptr,
-        conv_desc, sycldnn::conv2d::Algorithm::Direct, nullptr, 0,
-        /*beta*/ nullptr, out_desc, out_ptr);
+    SNNStatus status =
+        convolutionForward(handle, /*alpha*/ nullptr, in_desc, in_ptr,
+                           filt_desc, filt_ptr, conv_desc, algo, nullptr, 0,
+                           /*beta*/ nullptr, out_desc, out_ptr);
     EXPECT_EQ(status.status, StatusCode::OK);
     handle.getQueue().wait();
 
@@ -245,4 +250,20 @@ TEST_F(Conv2DCompatTest, ForwardWindow7Stride4SAME1x11x11x1x2) {
                  127260., 177037., 180026., 126980., 129220., 91975., 94250.,
                  126210., 129500., 87825., 90250.},
                 sycldnn::DataFormat::NHWC);
+}
+
+TEST_F(Conv2DCompatTest, ForwardGroup2Window2Stride1SAME1x5x5x2x2) {
+  const int groupCount = 2;
+  this->do_test({1, 2, 5, 5}, {2, 1, 2, 2}, {0, 0, 1, 1, 1, 1},
+                {156, 204, 188, 244, 220, 284, 252, 324, 316, 404, 348,
+                 444, 380, 484, 412, 524, 476, 604, 508, 644, 540, 684,
+                 572, 724, 636, 804, 668, 844, 700, 884, 732, 924},
+                sycldnn::DataFormat::NHWC, sycldnn::conv2d::Algorithm::Im2col,
+                groupCount);
+}
+
+TEST_F(Conv2DCompatTest, SetGetGroupCount) {
+  ConvolutionDescriptor conv_desc;
+  setConvolutionGroupCount(conv_desc, 5);
+  EXPECT_EQ(conv_desc.getGroupCount(), 5);
 }

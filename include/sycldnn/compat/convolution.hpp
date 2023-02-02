@@ -67,6 +67,8 @@ class ConvolutionDescriptor {
   /** Enum of convolution type of descriptor \ref
    * sycldnn::compat::ConvolutionMode */
   ConvolutionMode mode_;
+  /** Number of groups in grouped convolution*/
+  Index_t groupCount_ = 1;
 
  public:
   /**
@@ -114,6 +116,21 @@ class ConvolutionDescriptor {
   Index_t getDilationW() const { return dilation_[1]; };
 
   /**
+   * \return Returns the number of groups
+   **/
+  Index_t getGroupCount() const { return groupCount_; };
+
+  /** Sets the group count.
+   * \param groupCount Number of groups
+   * \return sycldnn::StatusCode
+   **/
+  sycldnn::StatusCode setGroupCount(int groupCount) {
+    SNN_VALIDATE_PARAM(groupCount > 0, "Invalid group count");
+    groupCount_ = groupCount;
+    return sycldnn::StatusCode::OK;
+  };
+
+  /**
    * Sets the descriptor as a 2D convolution descriptor.
    * \param pad_h       Padding across the height dimension
    * \param pad_w       Padding across the width dimension
@@ -132,8 +149,8 @@ class ConvolutionDescriptor {
     SNN_VALIDATE_PARAM(pad_w >= 0, "Invalid padding");
     SNN_VALIDATE_PARAM(stride_h > 0, "Invalid stride");
     SNN_VALIDATE_PARAM(stride_w > 0, "Invalid stride");
-    SNN_VALIDATE_PARAM(dilation_h >= 0, "Invalid dilation");
-    SNN_VALIDATE_PARAM(dilation_w >= 0, "Invalid dilation");
+    SNN_VALIDATE_PARAM(dilation_h > 0, "Invalid dilation");
+    SNN_VALIDATE_PARAM(dilation_w > 0, "Invalid dilation");
     SNN_VALIDATE_PARAM(
         mode == ConvolutionMode::CROSS_CORRELATION,
         "Only ConvolutionMode::CROSS_CORRELATION is currently supported");
@@ -243,6 +260,17 @@ sycldnn::StatusCode setConvolutionNdDescriptor(
 }
 
 /**
+ * Sets the number of groups to be used in the associated convolution.
+ * \param desc Descriptor for the convolution operation.
+ * \param groupCount Number of groups.
+ * \return SNNStaus::OK or SNNStatus::InvalidParameter
+ */
+inline sycldnn::StatusCode setConvolutionGroupCount(ConvolutionDescriptor& desc,
+                                                    int groupCount) {
+  return desc.setGroupCount(groupCount);
+}
+
+/**
  * Descriptor for the filter in a convolution operation.
  * currently only 4D filters are supported.
  */
@@ -294,7 +322,8 @@ class FilterDescriptor : public DescriptorBase {
    * \param w   Output width of each feature map.
    * \return    sycldnn::StatusCode::OK or sycldnn::StatusCode::InvalidParameter
    */
-  sycldnn::StatusCode get4dDescriptorDims(int* k, int* c, int* h, int* w) {
+  sycldnn::StatusCode get4dDescriptorDims(int* k, int* c, int* h,
+                                          int* w) const {
     SNN_VALIDATE_PARAM(k != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
@@ -329,7 +358,8 @@ class FilterDescriptor : public DescriptorBase {
    */
   sycldnn::StatusCode getFilter4dDescriptor(SNNDataType* dataType,
                                             sycldnn::FilterFormat* format,
-                                            int* k, int* c, int* h, int* w) {
+                                            int* k, int* c, int* h,
+                                            int* w) const {
     SNN_VALIDATE_PARAM(dataType != nullptr, "Output pointer cannot be null");
     SNN_VALIDATE_PARAM(format != nullptr, "Output pointer cannot be null");
     *dataType = SNNDataType::SNN_FLOAT;
@@ -413,6 +443,19 @@ namespace internal {
 inline sycldnn::conv2d::Conv2DParams descToSnnParams(
     const TensorDescriptor& xDesc, const TensorDescriptor& yDesc,
     const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc) {
+  int n, x_c, w_c, h, w;
+  xDesc.get4dDescriptorDims(&n, &x_c, &h, &w);
+  wDesc.get4dDescriptorDims(&n, &w_c, &h, &w);
+
+  const int groupCount = convDesc.getGroupCount();
+  SNN_COMPAT_ASSERT(
+      (x_c / groupCount) == w_c,
+      "Filter channels must be equal to the per group input channels.");
+
+  SNN_UNUSED_VAR(n);
+  SNN_UNUSED_VAR(h);
+  SNN_UNUSED_VAR(w);
+
   sycldnn::conv2d::Conv2DParams conv_params{};
 
   SNNDataType descDataType;
@@ -450,6 +493,8 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
 
   conv_params.filter_format = format;
   conv_params.input_format = xDesc.getFormat();
+
+  conv_params.groups = groupCount;
 
   return conv_params;
 }
