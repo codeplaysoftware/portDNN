@@ -125,8 +125,8 @@ template <>
 inline ConvSizes get_channel_sizes<conv_type::Forward>(
     Conv2DParams const& params) {
   size_t inp_size = params.channels;
-  size_t fil_size = params.channels * params.features;
-  size_t out_size = params.features;
+  size_t fil_size = params.channels * params.features / params.groups;
+  size_t out_size = params.features / params.groups;
   ConvSizes sizes{inp_size, fil_size, out_size};
   return sizes;
 }
@@ -171,7 +171,7 @@ inline ConvSizes get_sizes(Conv2DParams const& params) {
   size_t fil_size = batch_sizes.filter_size * spatial_sizes.filter_size *
                     channel_sizes.filter_size;
   size_t out_size = batch_sizes.output_size * spatial_sizes.output_size *
-                    channel_sizes.output_size;
+                    channel_sizes.output_size * params.groups;
   ConvSizes sizes{inp_size, fil_size, out_size};
   return sizes;
 }

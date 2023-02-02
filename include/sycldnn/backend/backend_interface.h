@@ -110,11 +110,12 @@ struct InternalHandler {
    * here, otherwise it can fall back to calling `matmul` a number of times.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
-  cl::sycl::event batch_matmul(internal_pointer_type<const T> const lhs,
-                               internal_pointer_type<const T> const rhs,
-                               internal_pointer_type<T> const output,
-                               Index const n_batches, Index const m,
-                               Index const k, Index const n);
+  cl::sycl::event batch_matmul(
+      internal_pointer_type<const T> const lhs,
+      internal_pointer_type<const T> const rhs,
+      internal_pointer_type<T> const output, Index const n_batches,
+      Index const m, Index const k, Index const n,
+      sycldnn::BatchFormat const batch_type = sycldnn::BatchFormat::STRIDED);
   /**
    * A wrapper around a call to reduce.
    *

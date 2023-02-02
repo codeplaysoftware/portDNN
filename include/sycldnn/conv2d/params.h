@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
 #define SYCLDNN_INCLUDE_CONV2D_PARAMS_H_
 
+#include "sycldnn/batch_format.h"
 #include "sycldnn/data_format.h"
 #include "sycldnn/filter_format.h"
 
@@ -94,11 +95,20 @@ struct Conv2DParams {
    */
   Index dilation_cols = 1;
 
+  /**
+   * Number of feature map groups for grouped convolution.
+   */
+  Index groups = 1;
+
   /** The data format used in the input and output tensors. */
   sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
 
   /** The data format used in the filter tensor. */
   sycldnn::FilterFormat filter_format = sycldnn::FilterFormat::HWCF;
+
+  /** The data format used in the input tensor to specify how the groups are
+   * laid out*/
+  sycldnn::BatchFormat group_format = sycldnn::BatchFormat::STRIDED;
 };
 }  // namespace conv2d
 }  // namespace sycldnn

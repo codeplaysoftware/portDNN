@@ -254,8 +254,6 @@ struct SyclBLASBackend final : public CommonBackend {
    * \param [in]     k         Number of columns in the LHS matrix and rows in
    *                           the RHS matrix.
    * \param [in]     n         Number of columns in the RHS matrix.
-   * \param [in]     events    Passed to keep func signature same, not used in
-   *                           this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -264,8 +262,7 @@ struct SyclBLASBackend final : public CommonBackend {
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
                          Index const m, Index const k, Index const n,
-                         const std::vector<cl::sycl::event>& events = {}) {
-    SNN_UNUSED_VAR(events)
+                         const std::vector<cl::sycl::event>& = {}) {
     // We are flipping the lhs/rhs, so we need to flip m/n
     auto trans_m = n;
     auto trans_n = m;
@@ -314,15 +311,16 @@ struct SyclBLASBackend final : public CommonBackend {
    * in row-major format. The `bool` template parameters determine whether or
    * not to transpose the matrices.
    *
-   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
-   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
-   * \param [in,out] output    Pointer to a buffer containing the output matrix.
-   * \param [in]     n_batches The number of matrices in the batch.
-   * \param [in]     m         Number of rows in the LHS matrix.
-   * \param [in]     k         Number of columns in the LHS matrix and rows in
-   *                           the RHS matrix.
-   * \param [in]     n         Number of columns in the RHS matrix.
-   * \param [in]     events    Passed to keep func signature same, not used in
+   * \param [in]     lhs        Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs        Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output     Pointer to a buffer containing the output
+   *                            matrix.
+   * \param [in]     n_batches  The number of matrices in the batch.
+   * \param [in]     m          Number of rows in the LHS matrix.
+   * \param [in]     k          Number of columns in the LHS matrix and rows in
+   *                            the RHS matrix.
+   * \param [in]     n          Number of columns in the RHS matrix.
+   * \param [in]     batch_type Format indicating how the batches are layed out.
    * this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
@@ -333,8 +331,11 @@ struct SyclBLASBackend final : public CommonBackend {
       internal_pointer_type<const T> const rhs,
       internal_pointer_type<T> const output, Index const n_batches,
       Index const m, Index const k, Index const n,
-      const std::vector<cl::sycl::event>& events = {}) {
-    SNN_UNUSED_VAR(events)
+      sycldnn::BatchFormat const batch_type = sycldnn::BatchFormat::STRIDED,
+      const std::vector<cl::sycl::event>& = {}) {
+    auto gemm_batch_type = batch_type == sycldnn::BatchFormat::STRIDED
+                               ? blas::gemm_batch_type_t::strided
+                               : blas::gemm_batch_type_t::interleaved;
     auto trans_m = n;
     auto trans_n = m;
 
@@ -342,10 +343,10 @@ struct SyclBLASBackend final : public CommonBackend {
     auto lda = TransposeRHS ? k : trans_m;
     auto ldb = TransposeLHS ? trans_n : k;
     cl::sycl::event e =
-        blas::_gemm_batched(sb_handle_, TransposeRHS ? 't' : 'n',
-                            TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
-                            static_cast<T>(1), rhs, lda, lhs, ldb,
-                            static_cast<T>(0), output, ldc, n_batches)
+        blas::_gemm_batched(
+            sb_handle_, TransposeRHS ? 't' : 'n', TransposeLHS ? 't' : 'n',
+            trans_m, trans_n, k, static_cast<T>(1), rhs, lda, lhs, ldb,
+            static_cast<T>(0), output, ldc, n_batches, gemm_batch_type)
             .back();
     return e;
   }

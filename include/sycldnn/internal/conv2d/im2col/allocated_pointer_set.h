@@ -46,8 +46,8 @@ struct AllocatedPointerSet {
   AllocatedPointerSet(InternalPointerSet<T, Backend> const& set,
                       size_t size_per_image, Conv2DParams const& params,
                       Backend& backend)
-      : allocated_transform_size{get_transform_size(size_per_image,
-                                                    params.batch, backend)},
+      : allocated_transform_size{get_transform_size(size_per_image, params,
+                                                    backend)},
         input{set.input.get()},
         filter{set.filter.get()},
         transform{sizeof(T) * allocated_transform_size, backend},
@@ -77,7 +77,54 @@ struct AllocatedPointerSet {
         get_alloc_info(device, n_images, size_per_image * sizeof(T));
     return size_per_image * alloc_info.images_per_alloc;
   }
-};
+
+  static size_t get_transform_size(size_t size_per_image,
+                                   Conv2DParams const& params,
+                                   Backend& backend) {
+    size_t const n_images = params.batch;
+    if (params.groups == 1 ||
+        params.group_format == sycldnn::BatchFormat::INTERLEAVED) {
+      return get_transform_size(size_per_image, n_images, backend);
+    }
+
+    auto queue = backend.get_queue();
+    auto device = queue.get_device();
+
+    size_t const alloc_limit =
+        device.template get_info<cl::sycl::info::device::max_mem_alloc_size>() /
+        sizeof(T);
+    size_t const filter_size = get_filter_size(params);
+
+    /** An extra transpose is needed at the end of each matmul when the group
+     * format is strided*/
+    size_t const transpose_size_per_image =
+        params.features * params.out_rows * params.out_cols;
+
+    size_t const alloc_size_per_image =
+        size_per_image + transpose_size_per_image;
+    SNN_ASSERT(alloc_size_per_image + filter_size < alloc_limit,
+               "There is not enough available memory to safely allocate "
+               "transformation memory");
+
+    size_t const images_per_alloc =
+        std::min((alloc_limit - filter_size) / alloc_size_per_image, n_images);
+    return images_per_alloc * alloc_size_per_image + filter_size;
+  }
+
+  /** Get the number of elements in the filter tensor. */
+  static size_t get_filter_size(Conv2DParams const& params) {
+    if (params.groups == 1 ||
+        (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
+         params.filter_format == sycldnn::FilterFormat::HWCF) ||
+        (params.group_format == sycldnn::BatchFormat::STRIDED &&
+         params.filter_format == sycldnn::FilterFormat::FHWC)) {
+      return 0;
+    }
+    return params.window_rows * params.window_cols * params.channels *
+           params.features / params.groups;
+  }
+
+};  // namespace im2col
 
 /**
  * Set of all pointers required for input backprop.

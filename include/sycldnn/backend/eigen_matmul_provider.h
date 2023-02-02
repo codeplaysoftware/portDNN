@@ -24,6 +24,7 @@
 
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/backend/crtp_backend.h"
+#include "sycldnn/batch_format.h"
 
 namespace sycldnn {
 namespace backend {
@@ -58,8 +59,6 @@ struct EigenMatmulProvider
    * \param [in]     k      Number of columns in the LHS matrix and rows in the
    *                        RHS matrix.
    * \param [in]     n      Number of columns in the RHS matrix.
-   * \param [in]     events Passed to keep func signature same, not used in this
-   *                        backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -67,8 +66,7 @@ struct EigenMatmulProvider
   cl::sycl::event matmul(T const* const lhs, T const* const rhs,
                          T* const output, T const alpha, Index const m,
                          Index const k, Index const n,
-                         const std::vector<cl::sycl::event>& events = {}) {
-    SNN_UNUSED_VAR(events)
+                         const std::vector<cl::sycl::event>& = {}) {
     static constexpr auto lhs_dim = TransposeLHS ? 0 : 1;
     static constexpr auto rhs_dim = TransposeRHS ? 1 : 0;
     using ConstTensorType = Eigen::Tensor<T const, 2, Eigen::RowMajor, Index>;
@@ -114,26 +112,29 @@ struct EigenMatmulProvider
    * As Eigen Tensor does not have a batch matrix multiply, just fall back to
    * multiple calls to the standard matrix multiply.
    *
-   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
-   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
-   * \param [in,out] output    Pointer to a buffer containing the output matrix.
-   * \param [in]     n_batches Scale multiplier for the output matrix.
-   * \param [in]     m         Number of rows in the LHS matrix.
-   * \param [in]     k         Number of columns in the LHS matrix and rows in
-   *                           the RHS matrix.
-   * \param [in]     n         Number of columns in the RHS matrix.
-   *                           will wait on before launching the kernels.
-   * \param [in]     events    Passed to keep func signature same, not used in
-   *                           this backend
-   *
+   * \param [in]     lhs        Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs        Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output     Pointer to a buffer containing the output
+   *                            matrix.
+   * \param [in]     n_batches  Scale multiplier for the output matrix.
+   * \param [in]     m          Number of rows in the LHS matrix.
+   * \param [in]     k          Number of columns in the LHS matrix and rows in
+   *                            the RHS matrix.
+   * \param [in]     n          Number of columns in the RHS matrix.
+   *                            will wait on before launching the kernels.
+   * \param [in]     batch_type Format indicating how the batches are layed out.
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
   template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
   cl::sycl::event batch_matmul(
       T const* const lhs, T const* const rhs, T* const output,
       Index const n_batches, Index const m, Index const k, Index const n,
-      const std::vector<cl::sycl::event>& events = {}) {
-    SNN_UNUSED_VAR(events)
+      sycldnn::BatchFormat const batch_type = sycldnn::BatchFormat::STRIDED,
+      const std::vector<cl::sycl::event>& = {}) {
+    if (batch_type != sycldnn::BatchFormat::STRIDED) {
+      throw std::runtime_error(
+          "Eigen batch matmul only supports strided batch format.");
+    }
     Index const lhs_size = m * k;
     Index const rhs_size = k * n;
     Index const out_size = m * n;

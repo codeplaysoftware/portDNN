@@ -48,7 +48,7 @@ template <>
 inline TileInfo get_tile_info<conv_type::Forward>(Conv2DParams const& params) {
   const int n_tiles = params.out_rows * params.out_cols;
   const int tile_size =
-      params.window_rows * params.window_cols * params.channels;
+      params.window_rows * params.window_cols * params.channels / params.groups;
   return TileInfo{n_tiles, tile_size};
 }
 template <>

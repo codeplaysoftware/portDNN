@@ -32,7 +32,7 @@
 #include "sycldnn/internal/conv2d/im2col/offsets.h"
 #include "sycldnn/internal/conv2d/im2col/tile_info.h"
 #include "sycldnn/internal/conv2d/im2col/workspace_pointer_set.h"
-
+#include "sycldnn/internal/transpose/launch.h"
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -49,24 +49,84 @@ static SNNStatus launch_im2col_for_minibatch(
     Backend& backend, const std::vector<cl::sycl::event>& events) {
   using ConstPointer =
       typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
-  auto status = launch_input_transform(pointers, in_offset, tile_info, params,
-                                       backend, events);
+  const auto filter_size = get_filter_transform_size(params);
+  auto status = launch_input_transform(pointers, in_offset, filter_size,
+                                       tile_info, params, backend, events);
   if (status.status != StatusCode::OK) {
     return status;
   }
   std::vector<cl::sycl::event> dependencies{status.event};
   int matmul_size;
   if (std::is_same<ConvType, conv_type::InputBackprop>::value) {
-    matmul_size = params.channels;
+    matmul_size = params.channels / params.groups;
   } else {
-    matmul_size = params.features;
+    matmul_size = params.features / params.groups;
   }
+
   int const n_tiles = params.batch * tile_info.number;
   int const tile_size = tile_info.size;
-  auto event = backend.template matmul<false, false>(
-      ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
-      pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
-      matmul_size, dependencies);
+
+  cl::sycl::event event;
+  if (params.groups == 1) {
+    if (params.filter_format == sycldnn::FilterFormat::FHWC) {
+      event = backend.template matmul<false, true>(
+          ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
+          pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
+          matmul_size, dependencies);
+    } else {
+      event = backend.template matmul<false, false>(
+          ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
+          pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
+          matmul_size, dependencies);
+    }
+  } else {
+    if (params.group_format == sycldnn::BatchFormat::STRIDED) {
+      auto matmul_offset = n_tiles * tile_size * params.groups;
+
+      if (params.filter_format == sycldnn::FilterFormat::FHWC) {
+        event = backend.template batch_matmul<false, true>(
+            ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
+            pointers.transform + matmul_offset, params.groups, n_tiles,
+            tile_size, matmul_size, params.group_format, dependencies);
+      } else {
+        event = backend.template batch_matmul<false, false>(
+            ConstPointer{pointers.transform + filter_size},
+            ConstPointer{pointers.transform},
+            pointers.transform + filter_size + matmul_offset, params.groups,
+            n_tiles, tile_size, matmul_size, params.group_format, dependencies);
+      }
+
+      // Transpose needed at the end to reshape the output from GNHWC to NHWGC
+      size_t const trans_size = params.groups * n_tiles * matmul_size;
+
+      auto in_mem_obj =
+          backend
+              ._get_mem_object(pointers.transform + filter_size + matmul_offset,
+                               trans_size)
+              .as_const();
+      auto out_mem_obj =
+          backend._get_mem_object(pointers.output + out_offset, trans_size);
+
+      const std::vector<int> GNHWC_TO_NHWGC = {1, 2, 0, 3};
+      auto queue = backend.get_queue();
+      auto status = sycldnn::transpose::internal::launch(
+          in_mem_obj, out_mem_obj,
+          {params.groups, params.batch, tile_info.number, matmul_size},
+          GNHWC_TO_NHWGC, queue, {event});
+
+      if (status.status != StatusCode::OK) {
+        return status;
+      }
+
+      event = status.event;
+    } else {
+      // Interleaved group format case.
+      event = backend.template batch_matmul<false, false>(
+          ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
+          pointers.output + out_offset, params.groups, n_tiles, tile_size,
+          matmul_size, params.group_format, dependencies);
+    }
+  }
   return {event, StatusCode::OK};
 }
 
@@ -84,8 +144,8 @@ static SNNStatus launch_im2col_for_minibatch(
     Backend& backend, const std::vector<cl::sycl::event>& events) {
   using ConstPointer =
       typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
-  auto status = launch_input_transform(pointers, in_offset, tile_info, params,
-                                       backend, events);
+  auto status = launch_input_transform(pointers, in_offset, 0, tile_info,
+                                       params, backend, events);
   if (status.status != StatusCode::OK) {
     return status;
   }
@@ -156,7 +216,8 @@ SNNStatus allocate_and_launch_im2col(
   InternalPointerSet<T, Backend> pointers{input, filter, output, backend};
 
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
-  size_t const size_per_image = tile_info.number * tile_info.size;
+  size_t const size_per_image =
+      params.groups * tile_info.number * tile_info.size;
   im2col::AllocatedPointerSet<T, Backend, ConvType> all_pointers{
       pointers, size_per_image, params, backend};
 
@@ -215,6 +276,31 @@ SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
                         Conv2DParams const& params, size_t workspace_size,
                         Backend& backend,
                         const std::vector<cl::sycl::event>& events) {
+  if (sycldnn::backend::supports_interleaved_matmul<Backend>::value &&
+      (params.groups == params.channels) &&
+      (params.groups == params.features) &&
+      params.group_format == sycldnn::BatchFormat::STRIDED &&
+      params.filter_format == sycldnn::FilterFormat::HWCF) {
+    /**
+     * Degenerate case of depthwise convolution where the feature_multiplier==1.
+     * In this case the input and filter dimensions become NHWG and HWG
+     * respectively. Thus, the groups are interleaved into the data and an
+     * interleaved batch_matmul can be used. This prevents us from having to do
+     * a filter transpose and transposing the result.
+     */
+
+    Conv2DParams interleaved_params = params;
+    interleaved_params.group_format = sycldnn::BatchFormat::INTERLEAVED;
+    if (workspace_size == 0) {
+      return im2col::allocate_and_launch_im2col<T, ConvType>(
+          input, filter, output, interleaved_params, backend, events);
+    } else {
+      return im2col::launch_im2col_with_workspace<T, ConvType>(
+          input, filter, output, workspace, interleaved_params, workspace_size,
+          backend, events);
+    }
+  }
+
   if (workspace_size == 0) {
     return im2col::allocate_and_launch_im2col<T, ConvType>(
         input, filter, output, params, backend, events);
@@ -224,7 +310,6 @@ SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
         events);
   }
 }
-
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn

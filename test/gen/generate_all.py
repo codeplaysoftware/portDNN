@@ -27,6 +27,7 @@ from generate_reduce_tests import generate_reduce_tests
 from generate_binaryop_tests import generate_binaryop_tests
 from generate_scatter_nd_tests import generate_scatter_nd_tests
 from generate_gather_tests import generate_gather_tests
+from generate_grouped_conv2d_tests import generate_grouped_conv2d_tests
 
 
 def generate_all():
@@ -44,6 +45,7 @@ def generate_all():
     generate_binaryop_tests()
     generate_scatter_nd_tests()
     generate_gather_tests()
+    generate_grouped_conv2d_tests()
 
 
 if __name__ == "__main__":

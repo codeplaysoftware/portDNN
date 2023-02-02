@@ -15,6 +15,7 @@
  */
 #ifndef SYCLDNN_INCLUDE_MATMUL_PARAMS_H_
 #define SYCLDNN_INCLUDE_MATMUL_PARAMS_H_
+#include "sycldnn/batch_format.h"
 
 /**
  * \file
@@ -48,6 +49,9 @@ struct MatmulParams {
 
   /**A scalar value to scale the output tensor.*/
   float beta;
+
+  /** Specifies how the batches are strided in the tensor*/
+  sycldnn::BatchFormat batch_type = sycldnn::BatchFormat::STRIDED;
 };
 
 }  // namespace matmul

@@ -48,6 +48,10 @@ class DefaultSelector : public sycldnn::conv2d::Selector {
    */
   sycldnn::conv2d::Algorithm select_forward(
       sycldnn::conv2d::Conv2DParams const& params) override {
+    // Im2Col is the only algorithm that supports Grouped Convolution.
+    if (params.groups > 1) {
+      return sycldnn::conv2d::Algorithm::Im2col;
+    }
     // For 1x1s1 the convolution is equivalent to a matrix multiply.
     if (params.stride_rows == 1 && params.stride_cols == 1 &&
         params.window_rows == 1 && params.window_cols == 1) {

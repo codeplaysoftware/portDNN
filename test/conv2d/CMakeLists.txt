@@ -127,3 +127,35 @@ if(SNN_ENABLE_USM)
       sycl_dnn
   )
 endif()
+set(_windows 1 1 3 3 5 5 7 7 11 11)
+set(_strides 1 2 1 2 1 2 1 4 1 4)
+set(_groups 2 2 3 2 3 4 4 5 6 7)
+list(LENGTH _windows _list_len_raw)
+math(EXPR _list_len "${_list_len_raw} - 1")
+foreach(_index RANGE ${_list_len})
+  list(GET _windows ${_index} _window)
+  list(GET _strides ${_index} _stride)
+  list(GET _groups ${_index} _group)
+  foreach(_type IN ITEMS "forward") # "input_backprop" "filter_backprop")
+    if(SNN_TEST_EIGEN_MATMULS OR SNN_TEST_SYCLBLAS_MATMULS)
+      set(_kernel_src KERNEL_SOURCES
+        ${_type}_window${_window}_stride${_stride}_groups${_group}.cc
+      )
+    endif()
+    snn_test(
+      WITH_SYCL
+      HIGH_MEM
+      TARGET
+        conv2d_${_type}_window${_window}_stride${_stride}_groups${_group}
+      SIZE
+        moderate
+      SOURCES
+        ${_type}_window${_window}_stride${_stride}_groups${_group}.cc
+      PUBLIC_LIBRARIES
+        sycl_dnn
+        ${_matmul_providers}
+      ${_cxx_opts}
+      ${_kernel_src}
+    )
+  endforeach()
+endforeach()

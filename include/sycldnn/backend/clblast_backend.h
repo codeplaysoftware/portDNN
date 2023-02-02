@@ -199,8 +199,6 @@ class CLBlastBackend final : public CommonBackend,
    * \param [in]     k         Number of columns in the LHS matrix and rows in
    *                           the RHS matrix.
    * \param [in]     n         Number of columns in the RHS matrix.
-   * \param [in]     events    Passed to keep func signature same, not used in
-   *                           this backend
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -209,9 +207,7 @@ class CLBlastBackend final : public CommonBackend,
                          internal_pointer_type<const T> const rhs,
                          internal_pointer_type<T> const output, T const beta,
                          Index const m, Index const k, Index const n,
-                         const std::vector<cl::sycl::event>& events = {}) {
-    SNN_UNUSED_VAR(events)
-
+                         const std::vector<cl::sycl::event>& = {}) {
     using namespace clblast;
     auto a_buf = lhs.get_buffer();
     auto b_buf = rhs.get_buffer();
@@ -278,16 +274,16 @@ class CLBlastBackend final : public CommonBackend,
    * in row-major format. The `bool` template parameters determine whether or
    * not to transpose the matrices.
    *
-   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
-   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
-   * \param [in,out] output    Pointer to a buffer containing the output matrix.
-   * \param [in]     n_batches The number of matrices in the batch.
-   * \param [in]     m         Number of rows in the LHS matrix.
-   * \param [in]     k         Number of columns in the LHS matrix and rows in
-   *                           the RHS matrix.
-   * \param [in]     n         Number of columns in the RHS matrix.
-   * \param [in]     events    Passed to keep func signature same, not used in
-   * this backend
+   * \param [in]     lhs        Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs        Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output     Pointer to a buffer containing the output
+   *                            matrix.
+   * \param [in]     n_batches  The number of matrices in the batch.
+   * \param [in]     m          Number of rows in the LHS matrix.
+   * \param [in]     k          Number of columns in the LHS matrix and rows in
+   *                            the RHS matrix.
+   * \param [in]     n          Number of columns in the RHS matrix.
+   * \param [in]     batch_type Format indicating how the batches are layed out.
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -297,8 +293,12 @@ class CLBlastBackend final : public CommonBackend,
       internal_pointer_type<const T> const rhs,
       internal_pointer_type<T> const output, Index const n_batches,
       Index const m, Index const k, Index const n,
-      const std::vector<cl::sycl::event>& events = {}) {
-    SNN_UNUSED_VAR(events)
+      sycldnn::BatchFormat const batch_type = sycldnn::BatchFormat::STRIDED,
+      const std::vector<cl::sycl::event>& = {}) {
+    if (batch_type != sycldnn::BatchFormat::STRIDED) {
+      throw std::runtime_error(
+          "CLBlast batch matmul only supports strided batch format.");
+    }
 
     using namespace clblast;
     auto lda = TransposeLHS ? m : k;
@@ -341,7 +341,7 @@ class CLBlastBackend final : public CommonBackend,
     });
     return ev;
   }
-};
+};  // namespace backend
 
 }  // namespace backend
 }  // namespace sycldnn

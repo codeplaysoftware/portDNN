@@ -16,6 +16,7 @@
 #ifndef SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_FILTER_TRANSFORM_H_
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_FILTER_TRANSFORM_H_
 
+#include "sycldnn/backend/backend_helpers.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -25,6 +26,7 @@
 
 #include "sycldnn/export.h"
 
+#include "sycldnn/internal/transpose/launch.h"
 namespace sycldnn {
 namespace conv2d {
 namespace internal {
@@ -47,29 +49,62 @@ SNN_EXPORT SNNStatus launch_filter_transform(
     MemObj<T const>& input, MemObj<T>& output, Conv2DParams const& params,
     cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
+SNN_ALWAYS_INLINE size_t get_filter_transform_size(Conv2DParams const& params) {
+  if (params.groups == 1 ||
+      (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
+       params.filter_format == sycldnn::FilterFormat::HWCF) ||
+      (params.group_format == sycldnn::BatchFormat::STRIDED &&
+       params.filter_format == sycldnn::FilterFormat::FHWC)) {
+    return 0;
+  }
+  return params.window_rows * params.window_cols * params.channels *
+         params.features / params.groups;
+}
+
 /**
- * For forward and filter backprop the original filter is used, so just return.
- */
+ * For forward and filter backprop the original filter is used,
+ *  so just return.*/
 template <typename T, typename ConvType, typename Backend,
           typename std::enable_if<
               !std::is_same<ConvType, conv_type::InputBackprop>::value,
               int>::type = 0>
 static SNNStatus launch_filter_transform(
-    FullPointerSet<T, Backend, ConvType> const& /*pointers*/,
-    Conv2DParams const& /*params*/, Backend& backend,
+    FullPointerSet<T, Backend, ConvType> const& pointers,
+    Conv2DParams const& params, Backend& backend,
     const std::vector<cl::sycl::event>& events) {
-  auto event = backend.get_queue().submit([=](sycl::handler& cgh) {
-    cgh.depends_on(events);
-    cgh.host_task([]() {});
-  });
-  return {event, StatusCode::OK};
+  if (get_filter_transform_size(params) == 0) {
+    auto event = backend.get_queue().submit([=](sycl::handler& cgh) {
+      cgh.depends_on(events);
+      cgh.host_task([]() {});
+    });
+    return {event, StatusCode::OK};
+  }
+
+  SNN_VALIDATE_PARAM(
+      params.group_format != sycldnn::BatchFormat::INTERLEAVED ||
+          params.filter_format == sycldnn::FilterFormat::HWCF,
+      "Interleaved group format is only supported for HWCF filter format.");
+
+  int const features_per_group = params.features / params.groups;
+  int const channels_per_group = params.channels / params.groups;
+  int const total_size = params.window_rows * params.window_cols *
+                         channels_per_group * params.features;
+  auto in_mem_obj = backend._get_mem_object(pointers.filter, total_size);
+  auto out_mem_obj = backend._get_mem_object(pointers.transform, total_size);
+  const std::vector<int> HWCGF_TO_HWCFG = {3, 0, 1, 2, 4};
+  auto queue = backend.get_queue();
+  return sycldnn::transpose::internal::launch(
+      in_mem_obj, out_mem_obj,
+      {params.window_rows, params.window_cols, channels_per_group,
+       params.groups, features_per_group},
+      HWCGF_TO_HWCFG, queue, events);
 }
 
 /**
  * For the input backprop the filter needs to be mirrored.
  *
- * The AllocatedPointerSet will already have a temporary filter transform buffer
- * for this mirrored filter, so fill this with the filter values.
+ * The AllocatedPointerSet will already have a temporary filter transform
+ * buffer for this mirrored filter, so fill this with the filter values.
  */
 template <
     typename T, typename ConvType, typename Backend,

@@ -67,18 +67,32 @@ SNNStatus validate_params(Conv2DParams const& params) {
   SNN_VALIDATE_PARAM(
       params.pad_cols >= 0,
       "The padding in the column direction must be non-negative.");
+  SNN_VALIDATE_PARAM(params.groups >= 0,
+                     "The number of groups must be non-negative.");
+  SNN_VALIDATE_PARAM(params.channels % params.groups == 0,
+                     "Channels must be divisble by groups.");
+  SNN_VALIDATE_PARAM(params.features % params.groups == 0,
+                     "Features must be divisble by groups.");
   SNN_VALIDATE_PARAM(params.dilation_rows == 1,
                      "Currently SYCL-DNN only supports dilation 1.");
   SNN_VALIDATE_PARAM(params.dilation_cols == 1,
                      "Currently SYCL-DNN only supports dilation 1.");
 
-  auto implies = [](bool x, bool y) { return !x || (x && y); };
+  auto implies = [](bool x, bool y) { return !x || y; };
   SNN_VALIDATE_PARAM(implies(params.input_format == DataFormat::NHWC,
-                             params.filter_format == FilterFormat::HWCF),
+                             params.filter_format == FilterFormat::HWCF ||
+                                 params.filter_format == FilterFormat::FHWC),
                      "Unsupported layout combination.");
   SNN_VALIDATE_PARAM(implies(params.input_format == DataFormat::NCHW,
                              params.filter_format == FilterFormat::FCHW),
                      "Unsupported layout combination.");
+  SNN_VALIDATE_PARAM(
+      implies(params.groups == 1, params.group_format == BatchFormat::STRIDED),
+      "Interleaved is unsupported when group size is one.");
+  SNN_VALIDATE_PARAM(implies(params.group_format == BatchFormat::INTERLEAVED,
+                             params.filter_format == FilterFormat::HWCF),
+                     "Unsupported group and filter format combination.");
+
   return StatusCode::OK;
 }
 
@@ -156,10 +170,20 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
   if (status.status != StatusCode::OK) {
     return status;
   }
+  SNN_VALIDATE_PARAM(
+      (params.groups == 1 || std::is_same<ConvType, conv_type::Forward>::value),
+      "Grouped convolution is only supported for the forward pass.");
+  SNN_VALIDATE_PARAM((params.group_format != BatchFormat::INTERLEAVED) ||
+                         backend::supports_interleaved_matmul<Backend>::value,
+                     "The chosen backend does not support interleaved batched "
+                     "matmul, used in im2col algorithm.");
 
   Algorithm algo_tag = selector.select<ConvType>(params);
   if (params.input_format == DataFormat::NCHW &&
       algo_tag != Algorithm::Direct) {
+    return StatusCode::InvalidAlgorithm;
+  }
+  if (params.groups > 1 && algo_tag != Algorithm::Im2col) {
     return StatusCode::InvalidAlgorithm;
   }
   if constexpr (backend::is_usm_backend<Backend>::value) {

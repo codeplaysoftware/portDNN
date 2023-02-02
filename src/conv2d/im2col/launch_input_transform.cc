@@ -55,12 +55,16 @@ size_t get_thread_size<conv_type::InputBackprop>(Conv2DParams const& params,
 /** Check whether a certain vector size can be used for the given parameters. */
 template <typename ConvType>
 bool can_use_vector(Conv2DParams const& params, int vector_width) {
-  return params.channels % vector_width == 0;
+  if (params.group_format == sycldnn::BatchFormat::STRIDED) {
+    return (params.channels / params.groups) % vector_width == 0;
+  } else {
+    return params.channels % vector_width == 0;
+  }
 }
 template <>
 bool can_use_vector<conv_type::InputBackprop>(Conv2DParams const& params,
                                               int vector_width) {
-  return params.features % vector_width == 0;
+  return (params.features / params.groups) % vector_width == 0;
 }
 template <>
 bool can_use_vector<conv_type::FilterBackprop>(Conv2DParams const& /*params*/,
@@ -75,7 +79,7 @@ SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
                             int tile_size, cl::sycl::queue& queue,
                             const std::vector<cl::sycl::event>& events) {
   auto status = queue_zero_out_transform<T, VectorWidth>(
-      output, n_tiles, tile_size, queue, events);
+      output, n_tiles, params.groups * tile_size, queue, events);
   if (status.status != StatusCode::OK) {
     return status;
   } else {

@@ -51,8 +51,15 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
   ExtractInputTiles(Index tile_size, Conv2DParams const& params,
                     ReadMem<T const, isUSM> const& input,
                     WriteMem<T, isUSM> const& output)
-      : tile_size_{tile_size},
-        channels_{params.channels},
+      : tile_size_{params.group_format == sycldnn::BatchFormat::STRIDED
+                       ? tile_size
+                       : tile_size * params.groups},
+        groups_{params.group_format == sycldnn::BatchFormat::STRIDED
+                    ? params.groups
+                    : 1},
+        channels_{params.group_format == sycldnn::BatchFormat::STRIDED
+                      ? params.channels / params.groups
+                      : params.channels},
         features_{params.features},
         batch_{params.batch},
         in_rows_{params.in_rows},
@@ -84,14 +91,30 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
       batch = tensor_idx.s0;
     }
 
-    if (channel < channels_ && col_idx < in_cols_ && row_idx < in_rows_ &&
-        batch < batch_) {
+    Index group;
+    Index group_channel;
+    if (groups_ == 1) {
+      group = 0;
+      group_channel = channel;
+    } else {
+      auto channel_groups_idx =
+          helpers::TensorIndexHelper<Index, false>::unflatten2d(
+              channel, channels_, channels_);
+
+      group = channel_groups_idx.s0;
+      group_channel = channel_groups_idx.s1;
+    }
+
+    if (group_channel < channels_ && group < groups_ && col_idx < in_cols_ &&
+        row_idx < in_rows_ && batch < batch_) {
       auto input_data = input_accessor_.get_pointer();
       auto output_data = output_accessor_.get_pointer();
 
       Index const in_idx =
-          ((batch * in_rows_ + row_idx) * in_cols_ + col_idx) * channels_ +
-          channel;
+          (((batch * in_rows_ + row_idx) * in_cols_ + col_idx) * groups_ +
+           group) *
+              channels_ +
+          group_channel;
       VecType in_val = Load()(input_data, in_idx);
 
       auto const col_window_struct =
@@ -112,9 +135,10 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
             if (c >= 0 && c < out_cols_) {
               auto tile_start =
                   output_data +
-                  ((batch * out_rows_ + r) * out_cols_ + c) * tile_size_;
+                  (((group * batch_ + batch) * out_rows_ + r) * out_cols_ + c) *
+                      tile_size_;
               Index tile_idx =
-                  (in_r * window_cols_ + in_c) * channels_ + channel;
+                  (in_r * window_cols_ + in_c) * channels_ + group_channel;
               Store()(tile_start, tile_idx, in_val);
             }
           }
@@ -125,6 +149,7 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
 
  private:
   Index const tile_size_;
+  Index const groups_;
   Index const channels_;
   Index const features_;
   Index const batch_;

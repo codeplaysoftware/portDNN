@@ -64,6 +64,11 @@ struct is_buffer_backend
 template <typename Backend>
 inline constexpr bool is_buffer_backend_v = is_buffer_backend<Backend>::value;
 
+template <typename Backend>
+struct supports_interleaved_matmul
+    : std::integral_constant<bool,
+                             std::is_same<Backend, SyclBLASBackend>::value> {};
+
 }  // namespace backend
 }  // namespace sycldnn
 

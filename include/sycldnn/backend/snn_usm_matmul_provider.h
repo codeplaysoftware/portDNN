@@ -139,14 +139,15 @@ struct SNNUSMMatmulProvider {
    * and in row-major format. The `bool` template parameters determine whether
    * or not to transpose the matrices.
    *
-   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
-   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
-   * \param [in,out] output    Pointer to a buffer containing the output matrix.
-   * \param [in]     n_batches Scale multiplier for the output matrix.
-   * \param [in]     m         Number of rows in the LHS matrix.
-   * \param [in]     k         Number of columns in the LHS matrix and rows in
-   *                           the RHS matrix.
-   * \param [in]     n         Number of columns in the RHS matrix.
+   * \param [in]     lhs        Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs        Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output     Pointer to a buffer containing the output
+   * matrix. \param [in]     n_batches  Scale multiplier for the output matrix.
+   * \param [in]     m          Number of rows in the LHS matrix.
+   * \param [in]     k          Number of columns in the LHS matrix and rows in
+   *                            the RHS matrix.
+   * \param [in]     n          Number of columns in the RHS matrix.
+   * \param [in]     batch_type Format indicating how the batches are layed out.
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -154,11 +155,17 @@ struct SNNUSMMatmulProvider {
             typename U = Backend,
             typename = typename std::enable_if<
                 sycldnn::backend::is_buffer_backend_v<U>>::type>
-  cl::sycl::event batch_matmul(internal_pointer_type<const T> const lhs,
-                               internal_pointer_type<const T> const rhs,
-                               internal_pointer_type<T> const output,
-                               Index const n_batches, Index const m,
-                               Index const k, Index const n) {
+  cl::sycl::event batch_matmul(
+      internal_pointer_type<const T> const lhs,
+      internal_pointer_type<const T> const rhs,
+      internal_pointer_type<T> const output, Index const n_batches,
+      Index const m, Index const k, Index const n,
+      sycldnn::BatchFormat const batch_type = sycldnn::BatchFormat::STRIDED) {
+    if (batch_type != sycldnn::BatchFormat::STRIDED) {
+      throw std::runtime_error(
+          "SNN batch matmul only supports strided batch format.");
+    }
+
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(
@@ -182,16 +189,17 @@ struct SNNUSMMatmulProvider {
    * and in row-major format. The `bool` template parameters determine whether
    * or not to transpose the matrices.
    *
-   * \param [in]     lhs       Pointer to a buffer containing the LHS matrix.
-   * \param [in]     rhs       Pointer to a buffer containing the RHS matrix.
-   * \param [in,out] output    Pointer to a buffer containing the output matrix.
-   * \param [in]     n_batches Scale multiplier for the output matrix.
-   * \param [in]     m         Number of rows in the LHS matrix.
-   * \param [in]     k         Number of columns in the LHS matrix and rows in
-   *                           the RHS matrix.
-   * \param [in]     n         Number of columns in the RHS matrix.
-   * \param [in]     events    Events which should be completed before the
-   *                           operation
+   * \param [in]     lhs        Pointer to a buffer containing the LHS matrix.
+   * \param [in]     rhs        Pointer to a buffer containing the RHS matrix.
+   * \param [in,out] output     Pointer to a buffer containing the output
+   * matrix. \param [in]     n_batches  Scale multiplier for the output matrix.
+   * \param [in]     m          Number of rows in the LHS matrix.
+   * \param [in]     k          Number of columns in the LHS matrix and rows in
+   *                            the RHS matrix.
+   * \param [in]     n          Number of columns in the RHS matrix.
+   * \param [in]     batch_type Format indicating how the batches are layed out.
+   * \param [in]     events     Events which should be completed before the
+   *                            operation
    *
    * \return A SYCL event corresponding to the matmul kernel launch.
    */
@@ -204,7 +212,13 @@ struct SNNUSMMatmulProvider {
       internal_pointer_type<const T> const rhs,
       internal_pointer_type<T> const output, Index const n_batches,
       Index const m, Index const k, Index const n,
+      sycldnn::BatchFormat const batch_type = sycldnn::BatchFormat::STRIDED,
       const std::vector<cl::sycl::event>& events = {}) {
+    if (batch_type != sycldnn::BatchFormat::STRIDED) {
+      throw std::runtime_error(
+          "SNN batch matmul only supports strided batch format.");
+    }
+
     auto& underlying_backend = static_cast<Backend&>(*this);
     internal::InternalBackend<Backend> internal_backend{underlying_backend};
     auto status = matmul::launch<T, TransposeLHS, TransposeRHS>(

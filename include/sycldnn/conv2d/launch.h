@@ -95,7 +95,8 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
  *                       buffer.
  * \param events Optional vector of
  *               events which the convolution will wait on before launching the
- * kernels, required for USM \return Returns an SNNStatus containing the SYCL
+ *               kernels, required for USM
+ * \return Returns an SNNStatus containing the SYCL
  * event tied to the kernel launches and a StatusCode enum showing if the launch
  * was OK or whether it encountered some problem.
  */
