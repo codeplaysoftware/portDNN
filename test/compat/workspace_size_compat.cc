@@ -59,8 +59,9 @@ static void snnParamsToDesc(TensorDescriptor& xDesc, TensorDescriptor& yDesc,
                         conv_params.out_cols);
 
   setFilter4dDescriptor(wDesc, SNNDataType::SNN_FLOAT,
-                        sycldnn::DataFormat::NCHW, conv_params.features, 1,
-                        conv_params.window_rows, conv_params.window_cols);
+                        sycldnn::DataFormat::NCHW, conv_params.features,
+                        conv_params.channels, conv_params.window_rows,
+                        conv_params.window_cols);
 
   convDesc.set2d(conv_params.pad_rows, conv_params.pad_cols,
                  conv_params.stride_rows, conv_params.stride_cols,

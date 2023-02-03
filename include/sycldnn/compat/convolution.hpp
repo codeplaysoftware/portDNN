@@ -448,9 +448,9 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
   wDesc.get4dDescriptorDims(&n, &w_c, &h, &w);
 
   const int groupCount = convDesc.getGroupCount();
-  SNN_COMPAT_ASSERT(
-      (x_c / groupCount) == w_c,
-      "Filter channels must be equal to the per group input channels.");
+  SNN_COMPAT_ASSERT((x_c / groupCount) == w_c,
+                    "Filter channels must be equal to the input channels "
+                    "divided by the number of groups");
 
   SNN_UNUSED_VAR(n);
   SNN_UNUSED_VAR(h);
