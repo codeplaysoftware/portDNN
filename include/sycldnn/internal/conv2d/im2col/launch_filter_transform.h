@@ -23,6 +23,7 @@
 #include "sycldnn/conv2d/params.h"
 
 #include "sycldnn/internal/conv2d/im2col/full_pointer_set.h"
+#include "sycldnn/internal/conv2d/im2col/transform_sizes.h"
 
 #include "sycldnn/export.h"
 
@@ -49,18 +50,6 @@ SNN_EXPORT SNNStatus launch_filter_transform(
     MemObj<T const>& input, MemObj<T>& output, Conv2DParams const& params,
     cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
-SNN_ALWAYS_INLINE size_t get_filter_transform_size(Conv2DParams const& params) {
-  if (params.groups == 1 ||
-      (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
-       params.filter_format == sycldnn::FilterFormat::HWCF) ||
-      (params.group_format == sycldnn::BatchFormat::STRIDED &&
-       params.filter_format == sycldnn::FilterFormat::FHWC)) {
-    return 0;
-  }
-  return params.window_rows * params.window_cols * params.channels *
-         params.features / params.groups;
-}
-
 /**
  * For forward and filter backprop the original filter is used,
  *  so just return.*/
@@ -72,7 +61,7 @@ static SNNStatus launch_filter_transform(
     FullPointerSet<T, Backend, ConvType> const& pointers,
     Conv2DParams const& params, Backend& backend,
     const std::vector<cl::sycl::event>& events) {
-  if (get_filter_transform_size(params) == 0) {
+  if (filter_transform_size<ConvType>(params) == 0) {
     auto event = backend.get_queue().submit([=](sycl::handler& cgh) {
       cgh.depends_on(events);
       cgh.host_task([]() {});

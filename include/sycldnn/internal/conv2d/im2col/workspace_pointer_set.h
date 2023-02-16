@@ -21,6 +21,7 @@
 #include "sycldnn/internal/conv2d/alloc_info.h"
 
 #include "sycldnn/internal/conv2d/im2col/full_pointer_set.h"
+#include "sycldnn/internal/conv2d/im2col/transform_sizes.h"
 
 #include "sycldnn/internal/helpers/allocated_pointer.h"
 
@@ -47,7 +48,7 @@ struct WorkspacePointerSet {
                       size_t size_per_image, Conv2DParams const& params,
                       size_t workspace_size, Backend& backend)
       : minibatch_size{get_minibatch_size(workspace_size, size_per_image,
-                                          (size_t)params.groups)},
+                                          params)},
         input{set.input.get()},
         filter{set.filter.get()},
         transform{workspace, backend},
@@ -66,8 +67,10 @@ struct WorkspacePointerSet {
  private:
   /** Get the size of minibatch to use for the given workspace size. */
   static size_t get_minibatch_size(size_t workspace_size, size_t size_per_image,
-                                   size_t groups) {
-    return workspace_size / (size_per_image * ((groups > 1) + 1));
+                                   Conv2DParams const& params) {
+    auto const transform_sizes = get_transform_sizes<ConvType>(params);
+    return (workspace_size - transform_sizes.get_transform_offset()) /
+           size_per_image;
   }
 };
 
@@ -93,13 +96,16 @@ struct WorkspacePointerSet<T, Backend, conv_type::InputBackprop> {
                       typename Backend::template pointer_type<T> workspace,
                       size_t size_per_image, Conv2DParams const& params,
                       size_t workspace_size, Backend& backend)
-      : minibatch_size{get_minibatch_size(workspace_size,
-                                          get_filter_size(params),
-                                          size_per_image, params.groups)},
+      : minibatch_size{get_minibatch_size(
+            workspace_size,
+            filter_transform_size<conv_type::InputBackprop>(params),
+            size_per_image)},
         input{set.input.get()},
         original_filter{set.filter.get()},
         filter{workspace, backend},
-        transform{workspace + get_filter_size(params), backend},
+        transform{
+            workspace + filter_transform_size<conv_type::InputBackprop>(params),
+            backend},
         output{set.output.get()} {}
 
   FullPointerSet<T, Backend, conv_type::InputBackprop> to_full_pointer_set() {
@@ -116,14 +122,9 @@ struct WorkspacePointerSet<T, Backend, conv_type::InputBackprop> {
  private:
   /** Get the size of minibatch to use for the given workspace size. */
   static size_t get_minibatch_size(size_t workspace_size, size_t filter_size,
-                                   size_t size_per_image, int groups) {
+                                   size_t size_per_image) {
     size_t transform_workspace_size = workspace_size - filter_size;
     return transform_workspace_size / size_per_image;
-  }
-  /** Get the number of elements in the filter tensor. */
-  static size_t get_filter_size(Conv2DParams const& params) {
-    return params.window_rows * params.window_cols * params.channels *
-           params.features / params.groups;
   }
 };
 

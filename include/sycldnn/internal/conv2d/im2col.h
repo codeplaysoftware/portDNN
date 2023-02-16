@@ -31,6 +31,7 @@
 #include "sycldnn/internal/conv2d/im2col/launch_input_transform.h"
 #include "sycldnn/internal/conv2d/im2col/offsets.h"
 #include "sycldnn/internal/conv2d/im2col/tile_info.h"
+#include "sycldnn/internal/conv2d/im2col/transform_sizes.h"
 #include "sycldnn/internal/conv2d/im2col/workspace_pointer_set.h"
 #include "sycldnn/internal/transpose/launch.h"
 namespace sycldnn {
@@ -49,13 +50,19 @@ static SNNStatus launch_im2col_for_minibatch(
     Backend& backend, const std::vector<cl::sycl::event>& events) {
   using ConstPointer =
       typename FullPointerSet<T, Backend, ConvType>::ConstPointer;
-  const auto filter_size = get_filter_transform_size(params);
+
+  const auto filter_size =
+      std::is_same<ConvType, conv_type::InputBackprop>::value
+          ? 0
+          : filter_transform_size<ConvType>(params);
   auto status = launch_input_transform(pointers, in_offset, filter_size,
                                        tile_info, params, backend, events);
   if (status.status != StatusCode::OK) {
     return status;
   }
+
   std::vector<cl::sycl::event> dependencies{status.event};
+
   int matmul_size;
   if (std::is_same<ConvType, conv_type::InputBackprop>::value) {
     matmul_size = params.channels / params.groups;
@@ -68,6 +75,7 @@ static SNNStatus launch_im2col_for_minibatch(
 
   cl::sycl::event event;
   if (params.groups == 1) {
+    // Regular convolution, no filter/output transformations are needed.
     if (params.filter_format == sycldnn::FilterFormat::FHWC) {
       event = backend.template matmul<false, true>(
           ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
@@ -80,6 +88,7 @@ static SNNStatus launch_im2col_for_minibatch(
           matmul_size, dependencies);
     }
   } else {
+    // Group convolution cases
     if (params.group_format == sycldnn::BatchFormat::STRIDED) {
       auto matmul_offset = n_tiles * tile_size * params.groups;
 
@@ -120,7 +129,7 @@ static SNNStatus launch_im2col_for_minibatch(
 
       event = status.event;
     } else {
-      // Interleaved group format case.
+      // Interleaved group format case. No filter/output transpose is needed.
       event = backend.template batch_matmul<false, false>(
           ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
           pointers.output + out_offset, params.groups, n_tiles, tile_size,
@@ -149,9 +158,12 @@ static SNNStatus launch_im2col_for_minibatch(
   if (status.status != StatusCode::OK) {
     return status;
   }
+
   std::vector<cl::sycl::event> dependencies{status.event};
+
   const int n_tiles = tile_info.number;
   const int tile_size = params.batch * tile_info.size;
+
   cl::sycl::event matmul_event;
   if (in_offset == 0) {
     matmul_event = backend.template matmul<false, false>(
@@ -179,8 +191,10 @@ static SNNStatus launch_im2col_for_all_minibatches(
   if (filter_status.status != StatusCode::OK) {
     return filter_status;
   }
+
   auto kernel_params = get_kernel_params<ConvType>(params);
   kernel_params.batch = batch_info.images_per_batch;
+
   cl::sycl::event dep_event = filter_status.event;
   for (size_t i = 0; i < batch_info.n_batches; ++i) {
     auto offset =
@@ -286,7 +300,7 @@ SNNStatus launch_im2col(typename Backend::template pointer_type<T const> input,
      * In this case the input and filter dimensions become NHWG and HWG
      * respectively. Thus, the groups are interleaved into the data and an
      * interleaved batch_matmul can be used. This prevents us from having to do
-     * a filter transpose and transposing the result.
+     * a filter and output transpose.
      */
 
     Conv2DParams interleaved_params = params;

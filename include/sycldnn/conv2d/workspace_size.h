@@ -22,6 +22,7 @@
 
 #include "sycldnn/internal/conv2d/im2col/kernel_params.h"
 #include "sycldnn/internal/conv2d/im2col/tile_info.h"
+#include "sycldnn/internal/conv2d/im2col/transform_sizes.h"
 
 #include "sycldnn/internal/conv2d/winograd/kernel_params.h"
 #include "sycldnn/internal/conv2d/winograd/tile_info.h"
@@ -98,28 +99,22 @@ WorkspaceSize workspace_size_for_winograd_large(Conv2DParams const& params) {
 /** Get the workspace sizes needed for the Im2col transform tensors. */
 template <typename ConvType>
 WorkspaceSize workspace_size_for_im2col(Conv2DParams const& params) {
-  auto const tile_info = im2col::get_tile_info<ConvType>(params);
-  auto const needs_filter_transform =
-      std::is_same<ConvType, conv_type::InputBackprop>::value ||
-      (params.groups > 1 &&
-       (params.group_format == sycldnn::BatchFormat::STRIDED &&
-        params.filter_format == sycldnn::FilterFormat::HWCF));
+  auto const transform_sizes = im2col::get_transform_sizes<ConvType>(params);
 
-  size_t filter_size = needs_filter_transform
-                           ? params.window_rows * params.window_cols *
-                                 params.channels * params.features /
-                                 params.groups
-                           : 0;
   size_t required_size;
   size_t recommended_size;
+  // im2col convolution needs a workspace buffer large enough to hold
+  // the input transform and the filter transform tensors for one image.
+  required_size = transform_sizes.input_transform_size +
+                  transform_sizes.filter_transform_size;
+  recommended_size = (params.batch * transform_sizes.input_transform_size) +
+                     transform_sizes.filter_transform_size;
   if (params.groups > 1 &&
       params.group_format == sycldnn::BatchFormat::STRIDED) {
-    // TODO fix this
-    required_size = (tile_info.number + 1) * tile_info.size + filter_size;
-    recommended_size = 2 * params.batch * required_size + filter_size;
-  } else {
-    required_size = tile_info.number * tile_info.size + filter_size;
-    recommended_size = params.batch * required_size + filter_size;
+    // NHWC strided group convolution also requires memory in the
+    // workspace buffer large enough to transpose the output result
+    required_size += transform_sizes.output_transform_size;
+    recommended_size += transform_sizes.output_transform_size;
   }
   return {required_size, recommended_size};
 }
