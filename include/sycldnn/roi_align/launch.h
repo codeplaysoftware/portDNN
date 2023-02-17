@@ -165,7 +165,7 @@ SNNStatus launch(
   }
 
   return internal::sublaunch<T, BatchIndicesT, PoolType>(
-      input, rois, batch_indices, output, rap, backend);
+      input, rois, batch_indices, output, rap, backend, events);
 }
 
 }  // namespace roi_align
