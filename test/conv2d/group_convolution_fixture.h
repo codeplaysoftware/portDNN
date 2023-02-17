@@ -153,15 +153,16 @@ struct ConvolutionFixture
     if ((params.group_format == sycldnn::BatchFormat::INTERLEAVED) &&
         !sycldnn::backend::supports_interleaved_matmul<Backend>::value) {
       // Do not run if backend does not support interleaved.
-      GTEST_SKIP()
-          << "Skipping because backend does not support interleaved matmul.";
+      GTEST_SKIP() << "Skipping test because backend does not support "
+                      "interleaved matmul.";
     }
 
     SelectorType selector{};
     if (selector.template select<ConvType>(params) ==
         sycldnn::conv2d::Algorithm::NotSupported) {
       // Do not run the test if the implementation is not supported.
-      GTEST_SKIP() << "Skipping because the implementation is not supported";
+      GTEST_SKIP()
+          << "Skipping test because the implementation is not supported";
     }
     try {
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
@@ -169,8 +170,9 @@ struct ConvolutionFixture
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
         // Do not check results if the implementation is not supported.
-        GTEST_SKIP() << "Skipping because the selected convolution algorithm "
-                        "does not support group convolution.";
+        GTEST_SKIP()
+            << "Skipping test because the selected convolution algorithm "
+               "does not support group convolution.";
       }
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
       status.event.wait_and_throw();

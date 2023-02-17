@@ -75,7 +75,7 @@ struct DepthwiseConv2DEventFixture
 
     if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
       // Do not check results if the implementation is not supported.
-      return;
+      GTEST_SKIP() << "Skipping test because implementation is not supported.";
     }
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
 

@@ -107,7 +107,8 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
     if (selector.template select<ConvType>(params) ==
         sycldnn::conv2d::Algorithm::NotSupported) {
       // Do not run the test if the implementation is not supported.
-      return;
+      GTEST_SKIP()
+          << "Skipping test because the implementation is not supported";
     }
     try {
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
@@ -116,7 +117,9 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
         // Do not check results if the implementation is not supported.
-        return;
+        GTEST_SKIP()
+            << "Skipping test because the selected convolution algorithm "
+               "does not support the provided parameters.";
       }
       ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
       status.event.wait_and_throw();

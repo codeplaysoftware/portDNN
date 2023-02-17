@@ -114,9 +114,8 @@ struct WorkspaceReductionTest
     size_t max_workgroup_dims = device.template get_info<
         cl::sycl::info::device::max_work_item_dimensions>();
     if (Dims > max_workgroup_dims) {
-      // Skip test as the hardware does not support a workgroup with this many
-      // dimensions.
-      return;
+      GTEST_SKIP() << "Skipping test because the hardware does not support a "
+                      "workgroup with this many dimensions.";
     }
     auto max_workitem_sizes =
 #ifndef SYCL_IMPLEMENTATION_ONEAPI
@@ -128,17 +127,17 @@ struct WorkspaceReductionTest
 
     for (int i = 0; i < Dims; ++i) {
       if (workgroup_sizes[i] > max_workitem_sizes[i]) {
-        // Skip test as the hardware does not support this many work items in
-        // the i-th dimension.
-        return;
+        GTEST_SKIP() << "Skipping test because the hardware does not support "
+                        "this many items in the "
+                     << i << " dimensions.";
       }
     }
     size_t total_workgroup_size = workgroup_sizes.size();
     size_t max_workgroup_size =
         device.template get_info<cl::sycl::info::device::max_work_group_size>();
     if (total_workgroup_size > max_workgroup_size) {
-      // Skip test as the hardware does not support this workgroup size.
-      return;
+      GTEST_SKIP() << "Skipping test because the hardware does not support "
+                      "this workgroup size.";
     }
 
     size_t flat_size = data_sizes.size();
