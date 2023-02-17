@@ -96,6 +96,8 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
     auto out_gpu =
         provider.get_initialised_device_memory(outputData.size(), outputData);
     SNN_ON_SCOPE_EXIT {
+      // Fixes FE-306
+      backend.get_queue().wait_and_throw();
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(fil_gpu);
       provider.deallocate_ptr(out_gpu);
