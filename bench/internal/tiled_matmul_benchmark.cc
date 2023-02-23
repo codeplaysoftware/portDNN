@@ -119,9 +119,9 @@ struct SNNMatmulExecutor : public BaseExecutor {
     ConstPointer const_lhs_gpu = lhs_gpu;
     ConstPointer const_rhs_gpu = rhs_gpu;
 
-    auto lhs_mem = backend.get_mem_object(const_lhs_gpu, lhs_vec.size());
-    auto rhs_mem = backend.get_mem_object(const_rhs_gpu, rhs_vec.size());
-    auto out_mem = backend.get_mem_object(out_gpu, out_vec.size());
+    auto lhs_mem = backend._get_mem_object(const_lhs_gpu, lhs_vec.size());
+    auto rhs_mem = backend._get_mem_object(const_rhs_gpu, rhs_vec.size());
+    auto out_mem = backend._get_mem_object(out_gpu, out_vec.size());
 
     {  // Ensure the kernel is built before benchmarking
       SNNStatus status;
@@ -133,13 +133,13 @@ struct SNNMatmulExecutor : public BaseExecutor {
                                                  ColTile, false>(
                       lhs_mem, rhs_mem, out_mem,
                       sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
-                      workgroup_rows, workgroup_cols, workgroup_batch)
+                      workgroup_rows, workgroup_cols, workgroup_batch, {})
                 : matmul::internal::queue_kernel<DataType, int32_t, false,
                                                  false, RowTile, AccTile,
                                                  ColTile, true>(
                       lhs_mem, rhs_mem, out_mem,
                       sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
-                      workgroup_rows, workgroup_cols, workgroup_batch);
+                      workgroup_rows, workgroup_cols, workgroup_batch, {});
 
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
@@ -171,18 +171,20 @@ struct SNNMatmulExecutor : public BaseExecutor {
     for (auto _ : state) {
       this->start_timing();
       try {
-        auto benchmark_function =
+        auto status =
             ((m % RowTile == 0) && (k % AccTile == 0) && (n % ColTile == 0))
                 ? matmul::internal::queue_kernel<DataType, int32_t, false,
                                                  false, RowTile, AccTile,
-                                                 ColTile, false>
+                                                 ColTile, false>(
+                      lhs_mem, rhs_mem, out_mem,
+                      sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
+                      workgroup_rows, workgroup_cols, workgroup_batch, {})
                 : matmul::internal::queue_kernel<DataType, int32_t, false,
                                                  false, RowTile, AccTile,
-                                                 ColTile, true>;
-        SNNStatus status = benchmark_function(
-            lhs_mem, rhs_mem, out_mem,
-            sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
-            workgroup_rows, workgroup_cols, workgroup_batch);
+                                                 ColTile, true>(
+                      lhs_mem, rhs_mem, out_mem,
+                      sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
+                      workgroup_rows, workgroup_cols, workgroup_batch, {});
         wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {

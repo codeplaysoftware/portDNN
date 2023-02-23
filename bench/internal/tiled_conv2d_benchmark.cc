@@ -56,9 +56,9 @@ sycldnn::SNNStatus launch_kernel(
     typename Backend::template pointer_type<T> output,
     sycldnn::conv2d::Conv2DParams const& params,
     sycldnn::conv2d::ConvSizes const& sizes, Backend& backend) {
-  auto in_acc = backend.get_mem_object(input, sizes.input_size);
-  auto fil_acc = backend.get_mem_object(filter, sizes.filter_size);
-  auto out_acc = backend.get_mem_object(output, sizes.output_size);
+  auto in_acc = backend._get_mem_object(input, sizes.input_size);
+  auto fil_acc = backend._get_mem_object(filter, sizes.filter_size);
+  auto out_acc = backend._get_mem_object(output, sizes.output_size);
 
   auto queue = backend.get_queue();
   auto tile_info = sycldnn::conv2d::internal::tiled::get_tile_info<ConvType>(
@@ -70,7 +70,7 @@ sycldnn::SNNStatus launch_kernel(
   auto status = sycldnn::conv2d::internal::queue_tiled_kernel<
       T, Index, ConvType, TileRows, TileCols, ChannelVectorWidth,
       FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride>(
-      in_acc, fil_acc, out_acc, kernel_params, tile_info, queue);
+      in_acc, fil_acc, out_acc, kernel_params, tile_info, queue, {});
   return status;
 }
 
