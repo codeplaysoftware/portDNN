@@ -29,7 +29,7 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
   set(sycl_blas_REPO "https://github.com/codeplaysoftware/sycl-blas.git" CACHE STRING
     "sycl_blas git repository to clone"
   )
-  set(sycl_blas_GIT_TAG "80b3cd7" CACHE STRING
+  set(sycl_blas_GIT_TAG "ba739c7" CACHE STRING
     "Git tag, branch or commit to use for the sycl_blas library"
   )
   set(sycl_blas_SOURCE_DIR ${sycldnn_BINARY_DIR}/sycl_blas-src)
@@ -49,6 +49,14 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
     if (DPCPP_FOUND)
         set(DPCPP_CMAKE_FLAGS "-DDPCPP_SYCL_TARGET=${SNN_DEVICE_TRIPLE}")
     endif()
+
+    if(${SNN_DEVICE_TRIPLE})
+      set(SYCLBLAS_TARGET_TRIPLE_OPT "-DDPCPP_SYCL_TARGET=${SNN_DEVICE_TRIPLE}")
+      if(${SNN_DPCPP_USER_FLAGS})
+        set(SYCLBLAS_ARCH_OPT "-DDPCPP_SYCL_ARCH=${SNN_DPCPP_USER_FLAGS}")
+      endif()
+    endif()
+
     ExternalProject_Add(sycl_blas_download
       GIT_REPOSITORY    ${sycl_blas_REPO}
       GIT_TAG           ${sycl_blas_GIT_TAG}
@@ -62,6 +70,8 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
                         -DBLAS_ENABLE_BENCHMARK=OFF
                         -DBLAS_BUILD_SAMPLES=OFF
                         -DBLAS_ENABLE_CONST_INPUT=ON
+                        ${SYCLBLAS_TARGET_TRIPLE_OPT}
+                        ${SYCLBLAS_ARCH_OPT}
                         ${ComputeCpp_CMAKE_FLAGS}
                         ${DPCPP_CMAKE_FLAGS}
                         -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}

@@ -55,11 +55,10 @@ struct BackendProvider<SyclBLASBackend> {
       return Pointer<T>{};
     }
     auto gpu_ptr = get_backend().allocate<T>(size);
-    auto executor = get_backend().get_executor().get_policy_handler();
-    auto event_list = executor.copy_to_device(data.data(), gpu_ptr, size);
-    for (auto& event : event_list) {
-      event.wait_and_throw();
-    }
+    auto& handle = get_backend().get_handle();
+    auto event = blas::helper::copy_to_device(handle.get_queue(), data.data(),
+                                              gpu_ptr, size);
+    event.wait_and_throw();
     return gpu_ptr;
   }
 
@@ -68,12 +67,11 @@ struct BackendProvider<SyclBLASBackend> {
   void copy_device_data_to_host(size_t size, Pointer<T> gpu_ptr,
                                 std::vector<T>& host_data) {
     host_data.resize(size);
-    auto executor = get_backend().get_executor().get_policy_handler();
+    auto handle = get_backend().get_handle();
     if (size != 0u) {
-      auto event_list = executor.copy_to_host(gpu_ptr, host_data.data(), size);
-      for (auto& event : event_list) {
-        event.wait_and_throw();
-      }
+      auto event = blas::helper::copy_to_host(handle.get_queue(), gpu_ptr,
+                                              host_data.data(), size);
+      event.wait_and_throw();
     }
   }
   /** Deallocate a device pointer. */

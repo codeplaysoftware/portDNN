@@ -75,13 +75,13 @@ struct BackendTraits<SyclBLASBackend> {
    * The external pointer type for SyclBLASBackend.
    */
   template <typename T>
-  using pointer_type = blas::BufferIterator<T, blas::codeplay_policy>;
+  using pointer_type = blas::BufferIterator<T>;
 
   /**
    * The internal pointer type for SyclBLASBackend.
    */
   template <typename T>
-  using internal_pointer_type = blas::BufferIterator<T, blas::codeplay_policy>;
+  using internal_pointer_type = blas::BufferIterator<T>;
 };
 
 /**
@@ -91,9 +91,8 @@ struct BackendTraits<SyclBLASBackend> {
  */
 struct SyclBLASBackend final : public CommonBackend {
  private:
-  /** Alias for the SYCL-BLAS executor type. */
-  using Executor = blas::Executor<blas::PolicyHandler<blas::codeplay_policy>>;
-  Executor executor_;
+  /** SYCL-BLAS handle. */
+  blas::SB_Handle sb_handle_;
 
  public:
   /** The pointer type used in interface of the SyclBLASBackend. */
@@ -111,7 +110,7 @@ struct SyclBLASBackend final : public CommonBackend {
    * \param queue The SYCL queue to construct the backend from.
    */
   SyclBLASBackend(cl::sycl::queue& queue)
-      : CommonBackend(queue), executor_{queue} {}
+      : CommonBackend(queue), sb_handle_{queue} {}
 
   /**
    * Deleted copy constructor.
@@ -132,21 +131,19 @@ struct SyclBLASBackend final : public CommonBackend {
    * Gets the SYCL queue that the backend is bound to.
    * \return Returns the SYCL queue that the backend is bound to.
    */
-  cl::sycl::queue get_queue() {
-    return executor_.get_policy_handler().get_queue();
-  }
+  cl::sycl::queue get_queue() { return sb_handle_.get_queue(); }
 
   /**
    * Get a const reference to the SyclBLAS executor used in this backend.
    * \return A const reference to the SyclBLAS executor.
    */
-  Executor const& get_executor() const { return executor_; }
+  blas::SB_Handle const& get_handle() const { return sb_handle_; }
 
   /**
    * Get a reference to the SyclBLAS executor used in this backend.
    * \return A reference to the SyclBLAS executor.
    */
-  Executor& get_executor() { return executor_; }
+  blas::SB_Handle& get_handle() { return sb_handle_; }
 
   /**
    * Maps from external to internal pointer representations. This is a no-op
@@ -181,9 +178,8 @@ struct SyclBLASBackend final : public CommonBackend {
    */
   template <typename T>
   auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_mem_object(
-          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-          static_cast<int>(n_elems), 0u)) {
+      -> decltype(make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
+                                  0u)) {
     return make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
                            ptr.get_offset());
   }
@@ -191,9 +187,8 @@ struct SyclBLASBackend final : public CommonBackend {
   /** \copydoc get_mem_object */
   template <typename T>
   auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_mem_object(
-          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-          static_cast<int>(n_elems), 0u)) {
+      -> decltype(make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
+                                  0u)) {
     return make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
                            ptr.get_offset());
   }
@@ -257,7 +252,7 @@ struct SyclBLASBackend final : public CommonBackend {
       auto gemv_n = TransposeRHS ? trans_m : k;
       auto gemv_lda = gemv_m;
       constexpr Index increment = 1;
-      e = blas::_gemv(executor_, TransposeRHS ? 't' : 'n', gemv_m, gemv_n,
+      e = blas::_gemv(sb_handle_, TransposeRHS ? 't' : 'n', gemv_m, gemv_n,
                       static_cast<T>(1), rhs, gemv_lda, lhs, increment, beta,
                       output, increment)
               .back();
@@ -267,7 +262,7 @@ struct SyclBLASBackend final : public CommonBackend {
       auto gemv_n = TransposeLHS ? k : trans_n;
       auto gemv_lda = gemv_m;
       constexpr Index increment = 1;
-      e = blas::_gemv(executor_, TransposeLHS ? 'n' : 't', gemv_m, gemv_n,
+      e = blas::_gemv(sb_handle_, TransposeLHS ? 'n' : 't', gemv_m, gemv_n,
                       static_cast<T>(1), lhs, gemv_lda, rhs, increment, beta,
                       output, increment)
               .back();
@@ -275,7 +270,7 @@ struct SyclBLASBackend final : public CommonBackend {
       auto ldc = trans_m;
       auto lda = TransposeRHS ? k : trans_m;
       auto ldb = TransposeLHS ? trans_n : k;
-      e = blas::_gemm(executor_, TransposeRHS ? 't' : 'n',
+      e = blas::_gemm(sb_handle_, TransposeRHS ? 't' : 'n',
                       TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
                       static_cast<T>(1), rhs, lda, lhs, ldb, beta, output, ldc)
               .back();
@@ -318,7 +313,7 @@ struct SyclBLASBackend final : public CommonBackend {
     auto lda = TransposeRHS ? k : trans_m;
     auto ldb = TransposeLHS ? trans_n : k;
     cl::sycl::event e =
-        blas::_gemm_batched(executor_, TransposeRHS ? 't' : 'n',
+        blas::_gemm_batched(sb_handle_, TransposeRHS ? 't' : 'n',
                             TransposeLHS ? 't' : 'n', trans_m, trans_n, k,
                             static_cast<T>(1), rhs, lda, lhs, ldb,
                             static_cast<T>(0), output, ldc, n_batches)
@@ -348,14 +343,14 @@ struct SyclBLASBackend final : public CommonBackend {
     // with batch>1 and inner>1 we have to perform multiple outer reductions.
     if (inner == 1) {
       return blas::extension::_reduction<BlasOp, T>(
-                 executor_, input, outer, output, outer, batch,
+                 sb_handle_, input, outer, output, outer, batch,
                  blas::reduction_dim_t::inner)
           .back();
     }
     cl::sycl::event e;
     for (Index b = 0; b < batch; ++b) {
       e = blas::extension::_reduction<BlasOp, T>(
-              executor_, input + b * outer * inner, inner, output + b * inner,
+              sb_handle_, input + b * outer * inner, inner, output + b * inner,
               inner, outer, blas::reduction_dim_t::outer)
               .back();
     }
