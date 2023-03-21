@@ -26,8 +26,8 @@
 #include "sycldnn/scatter_nd/operators.h"
 #include "sycldnn/scatter_nd/sizes.h"
 
-#include "src/helpers/mem_utils.h"
 #include "src/scatter_nd/queue_scatter_nd_kernel.h"
+#include "sycldnn/helpers/mem_utils.h"
 #include "sycldnn/internal/scatter_nd/launch_internal.h"
 
 #include <CL/sycl.hpp>

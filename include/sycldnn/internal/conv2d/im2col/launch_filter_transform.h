@@ -17,6 +17,7 @@
 #define SYCLDNN_INCLUDE_INTERNAL_CONV2D_IM2COL_LAUNCH_FILTER_TRANSFORM_H_
 
 #include "sycldnn/backend/backend_helpers.h"
+#include "sycldnn/helpers/event_handling.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -61,13 +62,10 @@ static SNNStatus launch_filter_transform(
     FullPointerSet<T, Backend, ConvType> const& pointers,
     Conv2DParams const& params, Backend& backend,
     const std::vector<cl::sycl::event>& events) {
-  if (filter_transform_size<ConvType>(params) == 0) {
-    auto event = backend.get_queue().submit([=](sycl::handler& cgh) {
-      cgh.depends_on(events);
-      cgh.host_task([]() {});
-    });
-    return {event, StatusCode::OK};
-  }
+  auto queue = backend.get_queue();
+  if (filter_transform_size<ConvType>(params) == 0)
+    return {sycldnn::helpers::multi_event_to_one(events, queue),
+            StatusCode::OK};
 
   SNN_VALIDATE_PARAM(
       params.group_format != sycldnn::BatchFormat::INTERLEAVED ||
@@ -81,7 +79,6 @@ static SNNStatus launch_filter_transform(
   auto in_mem_obj = backend._get_mem_object(pointers.filter, total_size);
   auto out_mem_obj = backend._get_mem_object(pointers.transform, total_size);
   const std::vector<int> HWCGF_TO_HWCFG = {3, 0, 1, 2, 4};
-  auto queue = backend.get_queue();
   return sycldnn::transpose::internal::launch(
       in_mem_obj, out_mem_obj,
       {params.window_rows, params.window_cols, channels_per_group,

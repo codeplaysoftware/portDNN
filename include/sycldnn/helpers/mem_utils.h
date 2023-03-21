@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_HELPERS_MEM_UTILS_H_
-#define SYCLDNN_SRC_HELPERS_MEM_UTILS_H_
+#ifndef INCLUDE_SYCLDNN_HELPERS_MEM_UTILS_H_
+#define INCLUDE_SYCLDNN_HELPERS_MEM_UTILS_H_
 
 #include <CL/sycl.hpp>
 #include <type_traits>
@@ -77,33 +77,52 @@ cl::sycl::event cpy(BufferMemObject<T const> in_mem, BufferMemObject<T> out_mem,
   });
 };
 
-// No-op, buffer is freed by end of scope
 template <typename T>
-void free(cl::sycl::buffer<T, 1> /*buffer*/, cl::sycl::queue& /*queue*/){};
-
-template <typename T>
-void free(T* ptr, cl::sycl::queue& queue) {
+inline __attribute__((always_inline)) void free_ptr(
+    const cl::sycl::queue& queue, T* ptr) {
   cl::sycl::free(ptr, queue);
-};
+}
 
-// No-op, buffer is freed by end of scope
-template <typename T>
-cl::sycl::event enqueue_free(cl::sycl::buffer<T, 1> /*buffer*/,
-                             const std::vector<cl::sycl::event>& /*events*/,
-                             cl::sycl::queue& queue) {
-  // return dummy event
-  return queue.submit([&](cl::sycl::handler& cgh) { cgh.host_task([=]() {}); });
-};
+template <typename T, typename... Args>
+inline __attribute__((always_inline)) void free_ptr(
+    const cl::sycl::queue& queue, T* ptr, Args... ptrs) {
+  cl::sycl::free(ptr, queue);
+  free_ptr(queue, ptrs...);
+}
 
-template <typename T>
-cl::sycl::event enqueue_free(T* ptr, const std::vector<cl::sycl::event>& events,
-                             cl::sycl::queue& queue) {
+template <typename... Args>
+cl::sycl::event enqueue_free(cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events,
+                             Args... ptrs) {
   return queue.submit([=](cl::sycl::handler& cgh) {
     cgh.depends_on(events);
-    cgh.host_task([=]() { cl::sycl::free(ptr, queue); });
+    cgh.host_task([=]() { free_ptr(queue, ptrs...); });
   });
-};
+}
+
+template <typename T>
+cl::sycl::event enqueue_free(cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events,
+                             cl::sycl::buffer<T, 1>& buffer) {
+  SNN_UNUSED_VAR(buffer);
+  return queue.submit([=](cl::sycl::handler& cgh) {
+    cgh.depends_on(events);
+    cgh.host_task([=]() {});
+  });
+}
+
+template <typename T, typename... Args>
+cl::sycl::event enqueue_free(cl::sycl::queue& queue,
+                             const std::vector<cl::sycl::event>& events,
+                             cl::sycl::buffer<T, 1>& buffer,
+                             Args... /* buffers */) {
+  SNN_UNUSED_VAR(buffer);
+  return queue.submit([=](cl::sycl::handler& cgh) {
+    cgh.depends_on(events);
+    cgh.host_task([=]() {});
+  });
+}
 
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_HELPERS_MEM_UTILS_H_
+#endif  // INCLUDE_SYCLDNN_HELPERS_MEM_UTILS_H_

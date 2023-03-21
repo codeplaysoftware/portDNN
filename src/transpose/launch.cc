@@ -17,8 +17,8 @@
 
 #include "sycldnn/mem_object.h"
 
-#include "src/helpers/mem_utils.h"
 #include "src/transpose/queue_kernel.h"
+#include "sycldnn/helpers/mem_utils.h"
 
 #include <iterator>
 #include <vector>

@@ -26,7 +26,7 @@
 #include "src/reduce/default_kernel.h"
 #include "src/reduce/queue_reduction.h"
 
-#include "src/helpers/mem_utils.h"
+#include "sycldnn/helpers/mem_utils.h"
 
 #ifndef SNN_DISABLE_SYCL_PROGRAM
 #include "src/reduce/subgroup_kernel.h"
@@ -192,7 +192,7 @@ SNNStatus queue_subgroup_kernel(
       cgh.parallel_for(cl::sycl::range<1>(out_mem.get_extent()), functor);
     });
   }
-  sycldnn::helpers::enqueue_free(sycl_MemObj, {event}, queue);
+  sycldnn::helpers::enqueue_free(queue, {event}, sycl_MemObj);
   return {event, StatusCode::OK};
 }
 #endif

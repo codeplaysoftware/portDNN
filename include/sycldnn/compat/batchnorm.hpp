@@ -4,6 +4,8 @@
 #include "sycldnn/batchnorm/params.h"
 #include "utils.hpp"
 
+#include "sycldnn/helpers/event_handling.h"
+
 /**
  * \file
  * Wrapper API for batch normalization.
@@ -229,10 +231,7 @@ SNNStatus batchNormalizationForwardTraining(
       });
     });
   } else {
-    final_event = q.submit([&](sycl::handler& cgh) {
-      cgh.depends_on(dep_events);
-      cgh.host_task([=]() {});
-    });
+    final_event = sycldnn::helpers::multi_event_to_one(dep_events, q);
   }
 
   return {final_event, sycldnn::StatusCode::OK};

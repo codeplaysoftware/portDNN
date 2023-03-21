@@ -34,7 +34,8 @@
 #include "sycldnn/internal/reduce/launch.h"
 #include "sycldnn/reduce/operators.h"
 
-#include "src/helpers/mem_utils.h"
+#include "sycldnn/helpers/event_handling.h"
+#include "sycldnn/helpers/mem_utils.h"
 #include "sycldnn/internal/transpose/launch.h"
 
 namespace sycldnn {
@@ -159,7 +160,7 @@ inline SNNStatus launch_batchnorm(
       std::vector<cl::sycl::event>{status.event});
 
   status.event = sycldnn::helpers::enqueue_free(
-      sycl_epsilon, std::vector<cl::sycl::event>{status.event}, queue);
+      queue, std::vector<cl::sycl::event>{status.event}, sycl_epsilon);
 
   return status;
 }
@@ -320,17 +321,10 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
       input_variance, momentum, one_minus_momentum, running_variance, workspace,
       params.channels, queue, dependencies);
 
-  sycldnn::helpers::enqueue_free(
-      sycl_tr_input, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_centered_input, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_momentum, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(sycl_one_minus_momentum,
-                                 std::vector<cl::sycl::event>{status.event},
-                                 queue);
+  status.event = sycldnn::helpers::enqueue_free(
+      queue, std::vector<cl::sycl::event>{status.event}, sycl_tr_input,
+      sycl_centered_input, sycl_workspace, sycl_momentum,
+      sycl_one_minus_momentum);
   return status;
 }
 
@@ -374,16 +368,10 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
                             channel_dims, queue,
                             std::vector<cl::sycl::event>{status.event});
 
-  auto event1 = sycldnn::helpers::enqueue_free(
-      sycl_centered_input, std::vector<cl::sycl::event>{status.event}, queue);
-  auto event2 = sycldnn::helpers::enqueue_free(
-      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
+  status.event = sycldnn::helpers::enqueue_free(
+      queue, std::vector<cl::sycl::event>{status.event}, sycl_centered_input,
+      sycl_workspace);
 
-  status.event = queue.submit([=](cl::sycl::handler& cgh) {
-    cgh.depends_on(event1);
-    cgh.depends_on(event2);
-    cgh.host_task([=]() {});
-  });
   return status;
 }
 
@@ -612,26 +600,11 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
       const_gamma_grad, const_input_variance, gamma_grad, params.channels,
       queue, dependencies);
 
-  sycldnn::helpers::enqueue_free(
-      sycl_tr_input, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_tr_gradient, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_mean_input, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_centered_input, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_scaled_input, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_input_variance, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_epsilon, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_mean_gradient, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_num_elts, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
+  status.event = sycldnn::helpers::enqueue_free(
+      queue, std::vector<cl::sycl::event>{status.event}, sycl_tr_input,
+      sycl_tr_gradient, sycl_mean_input, sycl_centered_input, sycl_scaled_input,
+      sycl_input_variance, sycl_epsilon, sycl_mean_gradient, sycl_num_elts,
+      sycl_workspace);
   return status;
 }
 
@@ -757,12 +730,9 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
       nhwc_reduce_2, beta_grad, 1, get_non_channel_size(params),
       params.channels, backend, dependencies);
 
-  sycldnn::helpers::enqueue_free(
-      sycl_epsilon, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_workspace, std::vector<cl::sycl::event>{status.event}, queue);
-  sycldnn::helpers::enqueue_free(
-      sycl_tr_reduce, std::vector<cl::sycl::event>{status.event}, queue);
+  status.event = sycldnn::helpers::enqueue_free(
+      queue, std::vector<cl::sycl::event>{status.event}, sycl_epsilon,
+      sycl_workspace, sycl_tr_reduce);
   return status;
 }
 
