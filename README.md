@@ -63,6 +63,8 @@ the Eigen linear algebra library). Even if you already have these on your
 machine, downloading them as part of the SYCL-DNN means a more consistent
 configuration.
 
+#### Building with ComputeCpp
+
 You will need to provide the location of the ComputeCpp install you are
 using in the variable `ComputeCpp_DIR`. It should point to the folder
 where `bin/`, `lib/` etc. are. This should be the only argument that is
@@ -78,6 +80,21 @@ The following command shows how to compile SYCL-DNN.
 # Setup build environment
 mkdir build && cd build
 cmake .. -DComputeCpp_DIR=/path/to/computecpp -DSNN_ENABLE_USM=OFF
+# Compile SYCL-DNN
+make -j$(nproc)
+```
+
+#### Building with DPC++
+
+You will need to provide the location of the DPC++ compiler to CMake to
+build with DPC++.
+
+DPC++ does support USM. USM support will be automatically built unless you
+disable it with `-DSNN_ENABLE_USM=OFF`.
+
+```bash
+mkdir build && cd build
+cmake .. -DCMAKE_CXX_COMPILER=/path/to/llvm/bin/clang++ -DSNN_BUILD_BENCHMARKS=OFF -DSNN_BENCH_SYCLBLAS=OFF 
 # Compile SYCL-DNN
 make -j$(nproc)
 ```
