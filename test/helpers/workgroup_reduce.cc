@@ -71,8 +71,9 @@ struct Reducer {
           sycldnn::helpers::internal::as_const_ptr(input.get_pointer());
       auto data = Load()(input_ptr, lin_idx);
       data = sycldnn::helpers::reduce::workgroup_reduce<
-          sycldnn::helpers::reduce::Sum, size_t>(data, item,
-                                                 workspace.get_pointer());
+          sycldnn::helpers::reduce::Sum, size_t>(
+          data, item,
+          workspace.template get_multi_ptr<sycl::access::decorated::legacy>());
       if (sycldnn::helpers::get_flattened_local_id(item) == 0) {
         size_t group_id = sycldnn::helpers::get_flattened_group_id(item);
         Store()(output.get_pointer(), group_id * Width, data);

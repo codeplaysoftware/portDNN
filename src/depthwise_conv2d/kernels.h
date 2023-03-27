@@ -344,7 +344,8 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop, VectorWidth,
     // The reduce has to be outside any conditional, to ensure that all threads
     // reach the barriers used in the reduction.
     out_val = helpers::reduce::workgroup_reduce<helpers::reduce::Sum, Index>(
-        out_val, item, workspace_.get_pointer());
+        out_val, item,
+        workspace_.template get_multi_ptr<sycl::access::decorated::legacy>());
 
     if (local_idx == 0 && fil_idx < n_filter_elems_) {
       auto output_data = filter_output_.get_pointer();
