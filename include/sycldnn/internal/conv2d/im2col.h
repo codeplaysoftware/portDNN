@@ -262,7 +262,8 @@ SNNStatus launch_im2col_with_workspace(
   InternalPointerSet<T, Backend> pointers{input, filter, output, backend};
 
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
-  size_t const size_per_image = tile_info.number * tile_info.size;
+  size_t const size_per_image =
+      params.groups * tile_info.number * tile_info.size;
   im2col::WorkspacePointerSet<T, Backend, ConvType> all_pointers{
       pointers, workspace, size_per_image, params, workspace_size, backend};
 

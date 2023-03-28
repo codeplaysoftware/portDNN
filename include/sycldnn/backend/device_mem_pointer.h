@@ -77,7 +77,17 @@ struct DeviceMemPointer {
    * \param n_elements Size of the buffer to create.
    */
   explicit DeviceMemPointer(size_t n_elements)
-      : buffer{cl::sycl::range<1>{n_elements}}, offset{} {}
+#ifdef SYCL_IMPLEMENTATION_ONEAPI
+      : buffer{cl::sycl::range<1>{n_elements}}, offset{} {
+  }
+#else
+      : offset{} {
+    if (n_elements == 0)
+      buffer = cl::sycl::buffer<T>();
+    else
+      buffer = cl::sycl::buffer<T>(cl::sycl::range<1>(n_elements));
+  }
+#endif
 
   /**
    * Construct a DeviceMemPointer to point to a known offset into the given SYCL

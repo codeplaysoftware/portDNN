@@ -64,11 +64,11 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  Conv2DParams const& params, Selector& selector,
                  Backend& backend,
-                 typename Backend::template pointer_type<T> workspace = {},
-                 size_t workspace_size = 0) {
+                 typename Backend::template pointer_type<T> workspace,
+                 size_t workspace_size) {
   return sublaunch<T, ConvType, Backend>(input, filter, output, params,
                                          selector, backend, workspace,
-                                         workspace_size);
+                                         workspace_size, {});
 }
 
 /**
@@ -109,49 +109,14 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  Conv2DParams const& params, Selector& selector,
                  Backend& backend,
-                 typename Backend::template pointer_type<T> workspace = {},
-                 size_t workspace_size = {},
+                 typename Backend::template pointer_type<T> workspace,
+                 size_t workspace_size,
                  const std::vector<cl::sycl::event>& events = {}) {
   return sublaunch<T, ConvType, Backend>(input, filter, output, params,
                                          selector, backend, workspace,
                                          workspace_size, events);
 }
 
-/**
- * Launch a 2D convolution, with the implementation chosen by the Selector.
- *
- * The selector will be used to select which implementation to use, and the
- * corresponding kernels will be launched. If any additional temporary memory is
- * required then it will be allocated through the backend.
- *
- * \param input A pointer to the memory representing the input tensor.
- * \param filter A pointer to the memory representing the tensor of filter
- *               coefficients.
- * \param output A pointer to the memory representing the output tensor.
- * \param params The convolution parameters, which describe the tensor shapes
- *               and convolution strides.
- * \param selector An instance of \ref sycldnn::conv2d::Selector, used to guide
- *                 the selection of the most appropriate convolution algorithm
- *                 for a specific target platform or problem size.
- * \param backend The backend implementation, used to provide optimized matrix
- *                multiplies and to map between pointer representations.
- * \param events Optional vector of events which the convolution will wait on
- *               before launching the kernels, required for USM
- * \return Returns an SNNStatus containing the SYCL event tied to the kernel
- *         launches and a StatusCode enum showing if the launch was OK or
- *         whether it encountered some problem.
- */
-template <typename T, typename ConvType, typename Backend,
-          typename = typename std::enable_if<
-              sycldnn::backend::is_usm_backend_v<Backend>>::type>
-SNNStatus launch(typename Backend::template pointer_type<T const> input,
-                 typename Backend::template pointer_type<T const> filter,
-                 typename Backend::template pointer_type<T> output,
-                 Conv2DParams const& params, Selector& selector,
-                 Backend& backend, const std::vector<cl::sycl::event>& events) {
-  return sublaunch<T, ConvType, Backend>(input, filter, output, params,
-                                         selector, backend, nullptr, 0, events);
-}
 }  // namespace conv2d
 }  // namespace sycldnn
 #endif  // SYCLDNN_INCLUDE_CONV2D_LAUNCH_H_

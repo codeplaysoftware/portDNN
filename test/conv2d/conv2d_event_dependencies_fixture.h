@@ -29,6 +29,7 @@
 #include "sycldnn/helpers/scope_exit.h"
 
 #include "sycldnn/conv2d/launch.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -60,6 +61,9 @@ struct Conv2DEventFixture : public BackendTestFixture<typename Tuple::T2> {
                 input_format == sycldnn::DataFormat::NCHW);
     ASSERT_TRUE(filter_format == sycldnn::FilterFormat::HWCF ||
                 filter_format == sycldnn::FilterFormat::FCHW);
+
+    SelectorType selector{};
+
     params.input_format = input_format;
     params.filter_format = filter_format;
     auto conv_batch_sizes = sycldnn::conv2d::get_batch_sizes<ConvType>(params);
@@ -69,6 +73,9 @@ struct Conv2DEventFixture : public BackendTestFixture<typename Tuple::T2> {
         sycldnn::conv2d::get_channel_sizes<ConvType>(params);
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
     transpose_helper<ConvType> helper;
+
+    auto workspace_size =
+        sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
 
     std::vector<DataType> inputData =
         iota_initialised_data(conv_sizes.input_size, max_val);
@@ -97,13 +104,15 @@ struct Conv2DEventFixture : public BackendTestFixture<typename Tuple::T2> {
         provider.get_initialised_device_memory(filter.size(), filter);
     auto out_gpu =
         provider.get_initialised_device_memory(outputData.size(), outputData);
+    auto workspace_gpu =
+        backend.template allocate<DataType>(workspace_size.recommended_size);
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(fil_gpu);
       provider.deallocate_ptr(out_gpu);
+      provider.deallocate_ptr(workspace_gpu);
     };
 
-    SelectorType selector{};
     if (selector.template select<ConvType>(params) ==
         sycldnn::conv2d::Algorithm::NotSupported) {
       // Do not run the test if the implementation is not supported.
@@ -114,7 +123,8 @@ struct Conv2DEventFixture : public BackendTestFixture<typename Tuple::T2> {
       cl::sycl::event dependee_e = create_event(backend, dep_test_params);
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
           inp_gpu + input_offset, fil_gpu + filter_offset,
-          out_gpu + output_offset, params, selector, backend,
+          out_gpu + output_offset, params, selector, backend, workspace_gpu,
+          workspace_size.recommended_size,
           std::vector<cl::sycl::event>{dependee_e});
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {

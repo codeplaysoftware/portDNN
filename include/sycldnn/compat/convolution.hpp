@@ -577,6 +577,10 @@ sycldnn::StatusCode findConvolutionAlgorithm(
       std::make_unique<conv2d::DirectSelector>();
   if (!selector) return StatusCode::InvalidAlgorithm;
 
+  // Get workspace size
+  auto workspace_size =
+      sycldnn::conv2d::query_workspace_size<ConvType>(conv1_params, *selector);
+
   // Allocate memory
   ValueT* x = handle.getBackend().allocate<ValueT>(
       conv1_params.batch * conv1_params.channels * conv1_params.in_rows *
@@ -585,6 +589,9 @@ sycldnn::StatusCode findConvolutionAlgorithm(
   ValueT* w = handle.getBackend().allocate<ValueT>(
       conv1_params.channels * conv1_params.features * conv1_params.window_rows *
       conv1_params.window_cols);
+
+  ValueT* workspace =
+      handle.getBackend().allocate<ValueT>(workspace_size.recommended_size);
 
   // output
   int out_n, out_c, out_h, out_w;
@@ -597,7 +604,8 @@ sycldnn::StatusCode findConvolutionAlgorithm(
 
   // Run warmup
   auto warmup_status = sycldnn::conv2d::launch<ValueT, ConvType>(
-      x, w, y, conv1_params, *selector, handle.getBackend());
+      x, w, y, conv1_params, *selector, handle.getBackend(), workspace,
+      workspace_size.recommended_size);
   if (warmup_status.status != StatusCode::OK) {
     return warmup_status.status;
   }
@@ -606,7 +614,8 @@ sycldnn::StatusCode findConvolutionAlgorithm(
   // Start timing
   auto start = std::chrono::high_resolution_clock::now();
   auto run_status = sycldnn::conv2d::launch<ValueT, ConvType>(
-      x, w, y, conv1_params, *selector, handle.getBackend());
+      x, w, y, conv1_params, *selector, handle.getBackend(), workspace,
+      workspace_size.recommended_size);
   run_status.event.wait();
   auto stop = std::chrono::high_resolution_clock::now();
   // Finish timing
@@ -710,7 +719,7 @@ SNNStatus convolutionForward(SNNHandle& handle, const void* alpha,
   return sycldnn::conv2d::launch<ValueT, sycldnn::conv2d::conv_type::Forward>(
       static_cast<const ValueT*>(x), static_cast<const ValueT*>(w),
       static_cast<ValueT*>(y), conv1_params, *selector, handle.getBackend(),
-      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes / sizeof(ValueT));
 }
 
 /**
@@ -823,7 +832,7 @@ SNNStatus convolutionBackwardData(SNNHandle& handle, const void* alpha,
                                  sycldnn::conv2d::conv_type::InputBackprop>(
       static_cast<const ValueT*>(dy), static_cast<const ValueT*>(w),
       static_cast<ValueT*>(dx), conv1_params, *selector, handle.getBackend(),
-      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes / sizeof(ValueT));
 }
 
 /**
@@ -862,7 +871,7 @@ SNNStatus convolutionBackwardFilter(
                                  sycldnn::conv2d::conv_type::FilterBackprop>(
       static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
       static_cast<ValueT*>(dw), conv1_params, *selector, handle.getBackend(),
-      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes, {});
+      static_cast<ValueT*>(workSpace), workSpaceSizeInBytes / sizeof(ValueT));
 }
 
 /** This function queries the parameters of the previously initialized

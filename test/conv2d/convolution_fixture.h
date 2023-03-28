@@ -22,6 +22,7 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
 #include "sycldnn/helpers/scope_exit.h"
 
@@ -59,12 +60,16 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
                 filter_format == sycldnn::FilterFormat::FCHW);
     params.input_format = input_format;
     params.filter_format = filter_format;
+    SelectorType selector{};
+
     auto conv_batch_sizes = sycldnn::conv2d::get_batch_sizes<ConvType>(params);
     auto conv_spatial_sizes =
         sycldnn::conv2d::get_spatial_sizes<ConvType>(params);
     auto conv_channel_sizes =
         sycldnn::conv2d::get_channel_sizes<ConvType>(params);
     auto conv_sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
+    auto workspace_size =
+        sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
     ASSERT_EQ(conv_sizes.output_size, nhwc_exp.size());
     transpose_helper<ConvType> helper;
 
@@ -95,15 +100,17 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
         provider.get_initialised_device_memory(filter.size(), filter);
     auto out_gpu =
         provider.get_initialised_device_memory(outputData.size(), outputData);
+    auto workspace_gpu =
+        backend.template allocate<DataType>(workspace_size.recommended_size);
     SNN_ON_SCOPE_EXIT {
       // Fixes FE-306
       backend.get_queue().wait_and_throw();
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(fil_gpu);
       provider.deallocate_ptr(out_gpu);
+      provider.deallocate_ptr(workspace_gpu);
     };
 
-    SelectorType selector{};
     if (selector.template select<ConvType>(params) ==
         sycldnn::conv2d::Algorithm::NotSupported) {
       // Do not run the test if the implementation is not supported.
@@ -113,7 +120,8 @@ struct ConvolutionFixture : public BackendTestFixture<typename Tuple::T2> {
     try {
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
           inp_gpu + input_offset, fil_gpu + filter_offset,
-          out_gpu + output_offset, params, selector, backend);
+          out_gpu + output_offset, params, selector, backend, workspace_gpu,
+          workspace_size.recommended_size);
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
         // Do not check results if the implementation is not supported.

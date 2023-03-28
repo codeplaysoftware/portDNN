@@ -18,6 +18,7 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/selector/default_selector.h"
 #include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
 #include "src/backend/snn_backend_provider.h"
 #include "src/backend/snn_usm_backend_provider.h"
@@ -43,8 +44,11 @@ struct DefaultSelectorFixture : public BackendTestFixture<Backend> {
 
     auto& provider = this->provider_;
     auto device = provider.get_backend().get_queue().get_device();
+    auto selector = sycldnn::conv2d::get_default_selector(device);
 
     auto sizes = sycldnn::conv2d::get_sizes<ConvType>(params);
+    auto workspace_size =
+        sycldnn::conv2d::query_workspace_size<ConvType>(params, *selector);
     HostData input(sizes.input_size);
     HostData filter(sizes.filter_size);
     HostData output(sizes.output_size);
@@ -55,14 +59,15 @@ struct DefaultSelectorFixture : public BackendTestFixture<Backend> {
         provider.get_initialised_device_memory(sizes.filter_size, filter);
     auto output_gpu =
         provider.get_initialised_device_memory(sizes.output_size, output);
+    auto workspace_gpu = provider.get_backend().template allocate<float>(
+        workspace_size.recommended_size);
 
     // Use the queue to get a device reference, then validate that we return a
     // non-null selector.
-    auto selector = sycldnn::conv2d::get_default_selector(device);
     EXPECT_TRUE(nullptr != selector);
     auto status = sycldnn::conv2d::launch<float, ConvType>(
         input_gpu, filter_gpu, output_gpu, params, *selector,
-        provider.get_backend());
+        provider.get_backend(), workspace_gpu, workspace_size.recommended_size);
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
     status.event.wait_and_throw();
   }
@@ -72,7 +77,6 @@ template <typename Backend>
 using DefaultSelectorTest = DefaultSelectorFixture<Backend>;
 
 TYPED_TEST_SUITE(DefaultSelectorTest, sycldnn::types::GTestDefaultBackendTypes);
-
 TYPED_TEST(DefaultSelectorTest, GetValidSelectionFor5x5s2) {
   sycldnn::conv2d::Conv2DParams params;
   params.channels = 3;

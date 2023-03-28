@@ -69,8 +69,8 @@ struct WorkspacePointerSet {
   static size_t get_minibatch_size(size_t workspace_size, size_t size_per_image,
                                    Conv2DParams const& params) {
     auto const transform_sizes = get_transform_sizes<ConvType>(params);
-    return (workspace_size - transform_sizes.get_transform_offset()) /
-           size_per_image;
+    return (workspace_size - transform_sizes.filter_transform_size) /
+           (size_per_image + transform_sizes.output_transform_size);
   }
 };
 

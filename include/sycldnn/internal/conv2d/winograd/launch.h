@@ -196,45 +196,6 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> pointers,
  * required temporary buffers, compute the Winograd tile sizes and then launch
  * the convolution with launch_with_transforms().
  *
- * \param input   User provided input pointer
- * \param filter  User provided filter pointer
- * \param output  User provided output pointer
- * \param params  User provided convolution parameters
- * \param backend User provided backend to handle allocations and matrix
- *                multiplies
- * \return An SNNStatus object containing a SYCL event corresponding to the last
- * kernel launched.
- */
-template <typename T, typename ConvType, int M, int N, int R, int S,
-          typename Backend>
-SNNStatus allocate_and_launch_with_tiles(
-    typename Backend::template pointer_type<T const> input,
-    typename Backend::template pointer_type<T const> filter,
-    typename Backend::template pointer_type<T> output,
-    Conv2DParams const& params, Backend& backend) {
-  constexpr int A = M + R - 1;
-  constexpr int B = N + S - 1;
-  auto kernel_params = get_params<ConvType>(params);
-  InternalPointerSet<T, Backend> input_pointers{input, filter, output, backend};
-  auto const tile_info = get_tile_info<ConvType, M, N, R, S>(kernel_params);
-  AllocatedPointerSet<T, Backend> allocated_pointers{
-      input_pointers, kernel_params, A * B, tile_info, backend};
-  auto batch_info =
-      get_batch_info(allocated_pointers.minibatch_size, params.batch);
-
-  const auto launch_status = launch_with_transforms<T, M, N, R, S, ConvType>(
-      allocated_pointers.to_full_pointer_set(), kernel_params, tile_info,
-      batch_info, backend);
-
-  allocated_pointers.pass_event_to_ptrs(launch_status.event);
-  return launch_status;
-}
-
-/**
- * Convert the user provided pointers into internal pointers, allocate any
- * required temporary buffers, compute the Winograd tile sizes and then launch
- * the convolution with launch_with_transforms().
- *
  * \param input          User provided input pointer
  * \param filter         User provided filter pointer
  * \param output         User provided output pointer
@@ -304,14 +265,11 @@ SNNStatus launch_with_tiles(
     typename Backend::template pointer_type<T> output,
     typename Backend::template pointer_type<T> workspace,
     Conv2DParams const& params, size_t workspace_size, Backend& backend) {
-  if (workspace_size == 0) {
-    return allocate_and_launch_with_tiles<T, ConvType, M, N, R, S, Backend>(
-        input, filter, output, params, backend);
-  } else {
-    return split_workspace_and_launch_with_tiles<T, ConvType, M, N, R, S,
-                                                 Backend>(
-        input, filter, output, workspace, params, workspace_size, backend);
-  }
+  if (workspace_size == 0) return StatusCode::InsufficientWorkspace;
+
+  return split_workspace_and_launch_with_tiles<T, ConvType, M, N, R, S,
+                                               Backend>(
+      input, filter, output, workspace, params, workspace_size, backend);
 }
 
 /**

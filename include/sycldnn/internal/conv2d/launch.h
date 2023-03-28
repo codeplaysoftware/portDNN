@@ -163,9 +163,9 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
                     typename Backend::template pointer_type<T> output,
                     Conv2DParams const& params, Selector& selector,
                     Backend& backend,
-                    typename Backend::template pointer_type<T> workspace = {},
-                    size_t workspace_size = 0,
-                    const std::vector<cl::sycl::event>& events = {}) {
+                    typename Backend::template pointer_type<T> workspace,
+                    size_t workspace_size,
+                    const std::vector<cl::sycl::event>& events) {
   auto status = validate_params(params);
   if (status.status != StatusCode::OK) {
     return status;

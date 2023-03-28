@@ -114,7 +114,7 @@ WorkspaceSize workspace_size_for_im2col(Conv2DParams const& params) {
     // NHWC strided group convolution also requires memory in the
     // workspace buffer large enough to transpose the output result
     required_size += transform_sizes.output_transform_size;
-    recommended_size += transform_sizes.output_transform_size;
+    recommended_size += params.batch * transform_sizes.output_transform_size;
   }
   return {required_size, recommended_size};
 }

@@ -53,17 +53,6 @@ snn_test(
   PUBLIC_LIBRARIES
     sycl_dnn
 )
-snn_test(
-  WITH_SYCL
-  TARGET
-    workspace_comparative
-  SIZE
-    moderate
-  SOURCES
-    workspace_comparative_test.cc
-  PUBLIC_LIBRARIES
-    sycl_dnn
-)
 
 set(_cxx_opts CXX_OPTS)
 set(_matmul_providers)

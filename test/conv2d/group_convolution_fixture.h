@@ -21,6 +21,7 @@
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
 #include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
 #include "sycldnn/transpose/launch.h"
 
@@ -120,6 +121,7 @@ struct ConvolutionFixture
     ASSERT_EQ(conv_sizes.output_size, nhwc_exp.size());
 
     transpose_helper<ConvType> helper;
+    SelectorType selector{};
 
     std::vector<DataType> inputData =
         iota_initialised_data(conv_sizes.input_size, max_val);
@@ -132,6 +134,8 @@ struct ConvolutionFixture
     std::vector<DataType> trFilterData;
     std::vector<DataType>& filter =
         helper.transpose_filter(params, filterData, trFilterData);
+    auto workspace_size =
+        sycldnn::conv2d::query_workspace_size<ConvType>(params, selector);
 
     std::vector<DataType> outputData(conv_sizes.output_size,
                                      static_cast<DataType>(0));
@@ -144,10 +148,14 @@ struct ConvolutionFixture
         provider.get_initialised_device_memory(filter.size(), filter);
     auto out_gpu =
         provider.get_initialised_device_memory(outputData.size(), outputData);
+    auto workspace_gpu =
+        backend.template allocate<DataType>(workspace_size.recommended_size);
     SNN_ON_SCOPE_EXIT {
+      backend.get_queue().wait_and_throw();
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(fil_gpu);
       provider.deallocate_ptr(out_gpu);
+      provider.deallocate_ptr(workspace_gpu);
     };
 
     if ((params.group_format == sycldnn::BatchFormat::INTERLEAVED) &&
@@ -157,7 +165,6 @@ struct ConvolutionFixture
                       "interleaved matmul.";
     }
 
-    SelectorType selector{};
     if (selector.template select<ConvType>(params) ==
         sycldnn::conv2d::Algorithm::NotSupported) {
       // Do not run the test if the implementation is not supported.
@@ -166,7 +173,8 @@ struct ConvolutionFixture
     }
     try {
       auto status = sycldnn::conv2d::launch<DataType, ConvType>(
-          inp_gpu, fil_gpu, out_gpu, params, selector, backend);
+          inp_gpu, fil_gpu, out_gpu, params, selector, backend, workspace_gpu,
+          workspace_size.recommended_size);
 
       if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
         // Do not check results if the implementation is not supported.

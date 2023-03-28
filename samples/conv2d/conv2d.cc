@@ -27,6 +27,7 @@
 #include "sycldnn/conv2d/selector/im2col_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 #include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/conv2d/workspace_size.h"
 #include "sycldnn/status.h"
 
 #include <iterator>
@@ -44,6 +45,11 @@ int main() {
   // Users can provide their own custom selectors for more fine-grained control,
   // but here we simply use the default selector.
   auto device_selector = cl::sycl::default_selector{};
+
+  // Construct different algorithm selector algorithms.
+  auto direct_algo_selector = sycldnn::conv2d::DirectSelector{};
+  auto im2col_algo_selector = sycldnn::conv2d::Im2colSelector{};
+  auto winograd_algo_selector = sycldnn::conv2d::WinogradSelector{};
 
   // This sample relies upon SYCL-DNN's Eigen backend. Here, we construct the
   // necessary Eigen objects, a dispatch queue and associated device.
@@ -131,6 +137,15 @@ int main() {
       sycldnn::conv2d::get_sizes<sycldnn::conv2d::conv_type::Forward>(
           conv3_params);
 
+  // We can get the workspace memory sizes from query_workspace_size.
+  auto conv1_workspace_size = sycldnn::conv2d::query_workspace_size<
+      sycldnn::conv2d::conv_type::Forward>(conv1_params, direct_algo_selector);
+  auto conv2_workspace_size = sycldnn::conv2d::query_workspace_size<
+      sycldnn::conv2d::conv_type::Forward>(conv2_params, im2col_algo_selector);
+  auto conv3_workspace_size = sycldnn::conv2d::query_workspace_size<
+      sycldnn::conv2d::conv_type::Forward>(conv3_params,
+                                           winograd_algo_selector);
+
   // A 2D convolution requires an input tensor representing a batch of images,
   // a filter tensor containing a filter kernel for each feature, and an output
   // tensor to hold the generated feature maps.
@@ -147,6 +162,13 @@ int main() {
   auto filter2_nbytes = conv2_sizes.filter_size * sizeof(value_type);
   auto filter3_nbytes = conv3_sizes.filter_size * sizeof(value_type);
 
+  auto workspace1_nbytes =
+      conv1_workspace_size.recommended_size * sizeof(value_type);
+  auto workspace2_nbytes =
+      conv2_workspace_size.recommended_size * sizeof(value_type);
+  auto workspace3_nbytes =
+      conv3_workspace_size.recommended_size * sizeof(value_type);
+
   auto* input_gpu_buffer =
       static_cast<value_type*>(device.allocate(input_nbytes));
   auto* intermediate1_gpu_buffer =
@@ -162,6 +184,13 @@ int main() {
       static_cast<value_type*>(device.allocate(filter2_nbytes));
   auto* filter3_gpu_buffer =
       static_cast<value_type*>(device.allocate(filter3_nbytes));
+
+  auto* workspace1_gpu_buffer =
+      static_cast<value_type*>(device.allocate(workspace1_nbytes));
+  auto* workspace2_gpu_buffer =
+      static_cast<value_type*>(device.allocate(workspace2_nbytes));
+  auto* workspace3_gpu_buffer =
+      static_cast<value_type*>(device.allocate(workspace3_nbytes));
 
   // The GPU buffers are initially unpopulated. Here we fill the input and
   // filter tensors. The output tensors are left undefined.
@@ -189,11 +218,11 @@ int main() {
   // Now that all of our buffers are populated, and parameters configured, we
   // can execute the convolution itself. This happens asynchronously, so we
   // follow the launch of the convolution kernel with a blocking wait.
-  auto direct_algo_selector = sycldnn::conv2d::DirectSelector{};
   auto status =
       sycldnn::conv2d::launch<value_type, sycldnn::conv2d::conv_type::Forward>(
           input_gpu_buffer, filter1_gpu_buffer, intermediate1_gpu_buffer,
-          conv1_params, direct_algo_selector, backend);
+          conv1_params, direct_algo_selector, backend, workspace1_gpu_buffer,
+          conv1_workspace_size.recommended_size);
   if (sycldnn::StatusCode::OK != status.status) {
     // If the launch failed, then clean up our GPU buffers and return failure.
     device.deallocate(input_gpu_buffer);
@@ -209,12 +238,11 @@ int main() {
   // We can now launch the second layer. We use a different algorithm selector
   // to force the use of the im2col algorithm rather than the direct convolution
   // algorithm.
-  auto im2col_algo_selector = sycldnn::conv2d::Im2colSelector{};
   status =
       sycldnn::conv2d::launch<value_type, sycldnn::conv2d::conv_type::Forward>(
           intermediate1_gpu_buffer, filter2_gpu_buffer,
-          intermediate2_gpu_buffer, conv2_params, im2col_algo_selector,
-          backend);
+          intermediate2_gpu_buffer, conv2_params, im2col_algo_selector, backend,
+          workspace2_gpu_buffer, conv2_workspace_size.recommended_size);
   if (sycldnn::StatusCode::OK != status.status) {
     // If the launch failed, then clean up our GPU buffers and return failure.
     device.deallocate(input_gpu_buffer);
@@ -232,11 +260,11 @@ int main() {
   // implemented for filters of size 3. If this selector were used on one of the
   // previous 5 x 5 convolutions then the launch function would return a status
   // which contains an InvalidAlgorithm StatusCode.
-  auto winograd_algo_selector = sycldnn::conv2d::WinogradSelector{};
   status =
       sycldnn::conv2d::launch<value_type, sycldnn::conv2d::conv_type::Forward>(
           intermediate2_gpu_buffer, filter3_gpu_buffer, output_gpu_buffer,
-          conv3_params, winograd_algo_selector, backend);
+          conv3_params, winograd_algo_selector, backend, workspace3_gpu_buffer,
+          conv3_workspace_size.recommended_size);
   if (sycldnn::StatusCode::OK != status.status) {
     // If the launch failed, then clean up our GPU buffers and return failure.
     device.deallocate(input_gpu_buffer);

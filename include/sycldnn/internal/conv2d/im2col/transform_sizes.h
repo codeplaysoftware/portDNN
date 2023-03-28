@@ -54,7 +54,7 @@ template <>
 size_t filter_transform_size<conv_type::InputBackprop>(
     Conv2DParams const& params) {
   return params.window_rows * params.window_cols * params.channels *
-         params.features;
+         params.features / params.groups;
 }
 
 /** Get the tensor size needed for the output transform. */
@@ -73,7 +73,7 @@ size_t output_transform_size(Conv2DParams const& params) {
 template <typename ConvType>
 size_t input_transform_size(Conv2DParams const& params) {
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
-  return tile_info.number * tile_info.size;
+  return params.groups * tile_info.number * tile_info.size;
 }
 
 template <typename ConvType>

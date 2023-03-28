@@ -67,6 +67,7 @@
 #include "sycldnn/conv2d/selector/selector.h"
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/sizes.h"
+#include "sycldnn/conv2d/workspace_size.h"
 #include "sycldnn/status.h"
 
 // Include the codeplay specific onchip_memory buffer property
@@ -97,10 +98,15 @@ void time_convolution(float const* const input, float const* const filter,
   static constexpr int warmup_iterations = 64;
   static constexpr int num_iterations = 128;
 
+  auto workspace_size = sycldnn::conv2d::query_workspace_size<
+      sycldnn::conv2d::conv_type::Forward>(params, selector);
+  auto workspace = backend.allocate<float>(workspace_size.recommended_size);
+
   // Run once to make sure the kernel runs without error
   auto status =
       sycldnn::conv2d::launch<float, sycldnn::conv2d::conv_type::Forward>(
-          input, filter, output, params, selector, backend);
+          input, filter, output, params, selector, backend, workspace,
+          workspace_size.recommended_size);
   if (sycldnn::StatusCode::OK != status.status) {
     throw std::runtime_error(
         std::string{"Error launching initial kernel for "} + selector.name());
@@ -110,7 +116,8 @@ void time_convolution(float const* const input, float const* const filter,
   for (int i = 0; i < warmup_iterations; ++i) {
     status =
         sycldnn::conv2d::launch<float, sycldnn::conv2d::conv_type::Forward>(
-            input, filter, output, params, selector, backend);
+            input, filter, output, params, selector, backend, workspace,
+            workspace_size.recommended_size);
     if (sycldnn::StatusCode::OK != status.status) {
       throw std::runtime_error(
           std::string{"Error launching warmup kernel for "} + selector.name());
@@ -122,7 +129,8 @@ void time_convolution(float const* const input, float const* const filter,
   for (int i = 0; i < num_iterations; ++i) {
     status =
         sycldnn::conv2d::launch<float, sycldnn::conv2d::conv_type::Forward>(
-            input, filter, output, params, selector, backend);
+            input, filter, output, params, selector, backend, workspace,
+            workspace_size.recommended_size);
     if (sycldnn::StatusCode::OK != status.status) {
       throw std::runtime_error(std::string{"Error launching kernel for "} +
                                selector.name());
