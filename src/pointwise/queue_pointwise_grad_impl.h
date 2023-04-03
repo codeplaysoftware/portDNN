@@ -37,13 +37,13 @@ namespace internal {
  * to the output gradient size scaled by the vector size.
  * */
 template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction, int VectorWidth, template <typename> class MemObj,
-          bool IsUSM>
+          typename Direction, int VectorWidth, template <typename> class MemObj>
 SNNStatus queue_pointwise(MemObj<T const>& in_forward_mem,
                           MemObj<T const>& in_backprop_mem,
                           MemObj<T>& out_backprop_mem, Index const n_items,
                           cl::sycl::queue& queue,
                           const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.depends_on(events);
     auto input_forward = in_forward_mem.read_mem(cgh);
@@ -51,7 +51,7 @@ SNNStatus queue_pointwise(MemObj<T const>& in_forward_mem,
     auto output_backprop = out_backprop_mem.write_mem(cgh);
     Index const n_vecs = n_items / VectorWidth;
     size_t const n_threads = helpers::round_up_to_nearest_multiple(n_vecs, 64);
-    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth, IsUSM>
+    PointwiseOp<T, Index, PointwiseType, Direction, VectorWidth, is_usm>
         pointwise_op{input_forward, input_backprop, output_backprop, n_vecs};
 
     cgh.parallel_for(cl::sycl::range<1>{n_threads}, pointwise_op);

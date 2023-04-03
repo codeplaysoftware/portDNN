@@ -65,8 +65,7 @@ inline SNNStatus compute_out_dims(const std::vector<int>& lhs_dims,
   return StatusCode::OK;
 }
 
-template <typename Op, typename T, template <typename> class MemObj,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+template <typename Op, typename T, template <typename> class MemObj>
 SNN_EXPORT SNNStatus
 launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs, MemObj<T>& out,
                 std::vector<int> lhs_dims, std::vector<int> rhs_dims,

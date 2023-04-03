@@ -87,8 +87,7 @@ inline int get_non_channel_size(BatchNormParams const& params) {
  * The internal launcher for computing variance.
  */
 template <typename T, typename Backend, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 SNNStatus launch_variance(MemObj<T const>& centered_input, MemObj<T>& variance,
                           MemObj<T>& squared_centered_input,
                           BatchNormParams const& params, Backend& backend,
@@ -113,16 +112,16 @@ SNNStatus launch_variance(MemObj<T const>& centered_input, MemObj<T>& variance,
  * The internal launcher for computing batchnorm.
  */
 template <typename T, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 inline SNNStatus launch_batchnorm(
     MemObj<T const>& centered_input, MemObj<T const>& beta,
     MemObj<T const>& gamma, MemObj<T const>& current_variance,
     MemObj<T>& output, MemObj<T>& workspace, const float epsilon,
     const std::vector<int>& input_dims, const std::vector<int>& channel_dims,
     cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto sycl_epsilon =
-      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &epsilon, queue);
+      sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &epsilon, queue);
   auto epsilon_mem = _make_mem_object<T const>(sycl_epsilon, 1);
 
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Add>(
@@ -170,8 +169,7 @@ inline SNNStatus launch_batchnorm(
  * output = input * momentum + output * (1 - momentum)
  */
 template <typename T, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 inline SNNStatus launch_running_mean_variance(
     MemObj<T const>& input, MemObj<T const>& momentum,
     MemObj<T const>& one_minus_momentum, MemObj<T>& output,
@@ -206,8 +204,7 @@ inline SNNStatus launch_running_mean_variance(
  */
 
 template <typename T, typename Backend, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
                          MemObj<T const>& gamma, MemObj<T const>& input_mean,
                          MemObj<T const>& input_variance,
@@ -215,6 +212,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
                          MemObj<T>& output, BatchNormParams const& params,
                          Backend& backend,
                          const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
@@ -223,7 +221,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   SNNStatus status;
   std::vector<cl::sycl::event> dependencies = events;
 
-  auto sycl_tr_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto tr_input = _make_mem_object(sycl_tr_input, n_items);
   // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
@@ -238,7 +236,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   auto const_tr_input = tr_input.as_const();
   auto& nhwc_input = is_nchw ? const_tr_input : input;
 
-  auto sycl_centered_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto centered_input = _make_mem_object(sycl_centered_input, n_items);
 
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
@@ -250,7 +248,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   }
 
   auto sycl_workspace =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = _make_mem_object(sycl_workspace, params.channels);
   auto const_centered_input = centered_input.as_const();
   auto& tr_output = centered_input;  // Re-use temporary memory
@@ -292,10 +290,10 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   }
 
   auto sycl_momentum =
-      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &params.momentum, queue);
+      sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &params.momentum, queue);
   auto momentum = _make_mem_object<T const>(sycl_momentum, 1);
   const T one_minus_momentum_val = 1 - params.momentum;
-  auto sycl_one_minus_momentum = sycldnn::helpers::alloc_and_assign<T, IsUSM>(
+  auto sycl_one_minus_momentum = sycldnn::helpers::alloc_and_assign<T, is_usm>(
       1, &one_minus_momentum_val, queue);
   auto one_minus_momentum =
       _make_mem_object<T const>(sycl_one_minus_momentum, 1);
@@ -337,19 +335,19 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
  */
 
 template <typename T, typename Backend, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
                          MemObj<T const>& gamma, MemObj<T const>& running_mean,
                          MemObj<T const>& running_variance, MemObj<T>& output,
                          BatchNormParams const& params, Backend& backend,
                          const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   auto input_dims = get_input_dims(params);
   auto channel_dims = get_4d_channel_dims(params);
 
-  auto sycl_centered_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto centered_input = _make_mem_object(sycl_centered_input, n_items);
   SNNStatus status;
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
@@ -360,7 +358,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   }
 
   auto sycl_workspace =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = _make_mem_object(sycl_workspace, params.channels);
   auto const_centered_input = centered_input.as_const();
   status = launch_batchnorm(const_centered_input, beta, gamma, running_variance,
@@ -384,13 +382,13 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
  */
 
 template <typename T, typename Backend, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
                           MemObj<T const>& gamma, MemObj<T>& beta_grad,
                           MemObj<T>& gamma_grad, MemObj<T>& output,
                           BatchNormParams const& params, Backend& backend,
                           const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
@@ -398,9 +396,9 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   SNNStatus status;
   std::vector<cl::sycl::event> dependencies = events;
 
-  auto sycl_tr_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto tr_input = _make_mem_object(sycl_tr_input, n_items);
-  auto sycl_tr_gradient = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_tr_gradient = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto tr_gradient = _make_mem_object(sycl_tr_gradient, n_items);
   // Transpose NCHW input and gradient to NHWC to reduce NHW dimensions in one
   // go.
@@ -426,7 +424,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto& nhwc_gradient = is_nchw ? const_tr_gradient : gradient;
 
   auto sycl_mean_input =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto mean_input = _make_mem_object(sycl_mean_input, params.channels);
   status = reduce::internal::launch<reduce::Mean>(
       nhwc_input, mean_input, 1, get_non_channel_size(params), params.channels,
@@ -436,7 +434,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status;
   }
 
-  auto sycl_centered_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto centered_input = _make_mem_object(sycl_centered_input, n_items);
   auto const_mean_input = mean_input.as_const();
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
@@ -447,11 +445,11 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status;
   }
 
-  auto sycl_scaled_input = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_scaled_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto scaled_input = _make_mem_object(sycl_scaled_input, n_items);
   auto const_centered_input = centered_input.as_const();
   auto sycl_input_variance =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto input_variance = _make_mem_object(sycl_input_variance, params.channels);
   status = launch_variance(const_centered_input, input_variance, scaled_input,
                            params, backend, dependencies);
@@ -461,7 +459,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   }
 
   auto sycl_epsilon =
-      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &params.epsilon, queue);
+      sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &params.epsilon, queue);
   auto epsilon = _make_mem_object<T const>(sycl_epsilon, 1);
   auto const_input_variance = input_variance.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
@@ -481,11 +479,11 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   }
 
   auto sycl_mean_gradient =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto mean_gradient = _make_mem_object(sycl_mean_gradient, params.channels);
   T num_elts_val = get_non_channel_size(params);
   auto sycl_num_elts =
-      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &num_elts_val, queue);
+      sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &num_elts_val, queue);
   auto num_elts = _make_mem_object<T const>(sycl_num_elts, 1);
   auto const_beta_grad = beta_grad.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
@@ -523,7 +521,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   }
 
   auto sycl_workspace =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = _make_mem_object(sycl_workspace, params.channels);
   auto const_gamma_grad = gamma_grad.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
@@ -617,14 +615,14 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
  */
 
 template <typename T, typename Backend, template <typename> class MemObj,
-          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
                           MemObj<T const>& gamma, MemObj<T const>& pop_mean,
                           MemObj<T const>& pop_variance, MemObj<T>& beta_grad,
                           MemObj<T>& gamma_grad, MemObj<T>& output,
                           BatchNormParams const& params, Backend& backend,
                           const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto input_dims = get_input_dims(params);
   auto channel_dims = get_4d_channel_dims(params);
   auto n_items = get_total_size(params);
@@ -634,10 +632,10 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   std::vector<cl::sycl::event> dependencies = events;
 
   auto sycl_epsilon =
-      sycldnn::helpers::alloc_and_assign<T, IsUSM>(1, &params.epsilon, queue);
+      sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &params.epsilon, queue);
   auto epsilon = _make_mem_object<T const>(sycl_epsilon, 1);
   auto sycl_workspace =
-      sycldnn::helpers::alloc<T, IsUSM>(params.channels, queue);
+      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = _make_mem_object(sycl_workspace, params.channels);
 
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
@@ -678,7 +676,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status;
   }
 
-  auto sycl_tr_reduce = sycldnn::helpers::alloc<T, IsUSM>(n_items, queue);
+  auto sycl_tr_reduce = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto tr_reduce = _make_mem_object(sycl_tr_reduce, n_items);
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {

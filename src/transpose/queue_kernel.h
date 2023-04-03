@@ -23,8 +23,7 @@ namespace sycldnn {
 namespace transpose {
 namespace internal {
 
-template <typename T, typename Index, int ND, template <typename> class MemObj,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+template <typename T, typename Index, int ND, template <typename> class MemObj>
 SNNStatus queue_kernel(MemObj<T const>& input_mem, MemObj<T>& output_mem,
                        std::vector<int> const& dimensions,
                        std::vector<int> const& permutation,

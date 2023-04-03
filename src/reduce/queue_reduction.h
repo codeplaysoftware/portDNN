@@ -28,8 +28,7 @@ namespace internal {
 
 /** Add a reduce kernel to the provided SYCL queue. */
 template <typename T, typename Index, typename Op,
-          template <typename> class MemObj,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          template <typename> class MemObj>
 SNNStatus queue_default_kernel(MemObj<T const>& input, MemObj<T>& output,
                                int batches, int outer, int inner,
                                int finalizeParam, cl::sycl::queue& queue,
@@ -37,8 +36,7 @@ SNNStatus queue_default_kernel(MemObj<T const>& input, MemObj<T>& output,
 
 #ifndef SNN_DISABLE_SYCL_PROGRAM
 template <typename T, typename Index, typename Op,
-          template <typename> class MemObj,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          template <typename> class MemObj>
 SNNStatus queue_subgroup_kernel(
     MemObj<T const>& input_mem, MemObj<T>& output_mem, int batches, int outer,
     int inner, cl::sycl::queue& queue, cl::sycl::program& program,

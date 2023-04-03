@@ -30,8 +30,7 @@ namespace internal {
  * Submit a pointwise transformation to a SYCL queue.
  */
 template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction, int VectorWidth, template <typename> class MemObj,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+          typename Direction, int VectorWidth, template <typename> class MemObj>
 SNNStatus queue_pointwise(MemObj<T const>& in_mem, MemObj<T>& out_mem,
                           Index const n_items, cl::sycl::queue& queue,
                           const std::vector<cl::sycl::event>& events);

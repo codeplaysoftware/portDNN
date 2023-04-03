@@ -46,18 +46,19 @@ template <class T>
 static constexpr T init_val<T, Min> = std::numeric_limits<T>::max();
 
 template <typename T, typename Index, typename Op,
-          template <typename> class MemObj, bool IsUSM>
+          template <typename> class MemObj>
 SNNStatus queue_default_kernel(MemObj<T const>& input_mem,
                                MemObj<T>& output_mem, int batches, int outer,
                                int inner, int finalizeParam,
                                cl::sycl::queue& queue,
                                const std::vector<cl::sycl::event>& events) {
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.depends_on(events);
     auto input = input_mem.read_mem(cgh);
     auto output = output_mem.write_mem(cgh);
 
-    ReduceKernel<T, Index, Op, IsUSM> functor{
+    ReduceKernel<T, Index, Op, is_usm> functor{
         input, output, batches, outer, inner, finalizeParam, init_val<T, Op>};
 
     cgh.parallel_for(cl::sycl::range<2>(batches, inner), functor);
@@ -67,14 +68,15 @@ SNNStatus queue_default_kernel(MemObj<T const>& input_mem,
 
 #ifndef SNN_DISABLE_SYCL_PROGRAM
 template <typename T, typename Index, typename Op,
-          template <typename> class MemObj, bool IsUSM>
+          template <typename> class MemObj>
 SNNStatus queue_subgroup_kernel(
     MemObj<T const>& input_mem, MemObj<T>& output_mem, int batches, int outer,
     int inner, cl::sycl::queue& queue, cl::sycl::program& program,
     sycldnn::internal::types::KernelSubgroupSizesMap&
         max_kernel_sub_group_sizes,
     const std::vector<cl::sycl::event>& events) {
-  using Kernel = ReduceSubgroupKernel<T, Index, Op, IsUSM>;
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
+  using Kernel = ReduceSubgroupKernel<T, Index, Op, is_usm>;
   using namespace sycldnn::helpers::math;
   auto device = queue.get_device();
   const size_t max_work_group_size =
@@ -144,7 +146,7 @@ SNNStatus queue_subgroup_kernel(
   cl::sycl::range<2> mem1_size(input_range[0], next_reduce_size);
   cl::sycl::range<2> mem2_size(input_range[0],
                                divide_ceil(next_reduce_size, sub_group_size));
-  auto sycl_MemObj = sycldnn::helpers::alloc<T, IsUSM>(
+  auto sycl_MemObj = sycldnn::helpers::alloc<T, is_usm>(
       mem1_size.size() + mem2_size.size(), queue);
 
   auto mem1 = _make_mem_object(sycl_MemObj, mem1_size.size(), 0);
@@ -188,7 +190,7 @@ SNNStatus queue_subgroup_kernel(
   if (SubgroupReducer<T, Index, Op>::RequireFinalize) {
     event = queue.submit([&](cl::sycl::handler& cgh) {
       auto out_mem = output_mem.read_write_mem(cgh);
-      ReduceFinalize<T, Index, Op, IsUSM> functor(out_mem, outer);
+      ReduceFinalize<T, Index, Op, is_usm> functor(out_mem, outer);
       cgh.parallel_for(cl::sycl::range<1>(out_mem.get_extent()), functor);
     });
   }

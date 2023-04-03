@@ -25,14 +25,14 @@ namespace sycldnn {
 namespace transpose {
 namespace internal {
 
-template <typename T, typename Index, int ND, template <typename> class MemObj,
-          bool IsUSM = is_usm_obj_v<MemObj<T>, T>>
+template <typename T, typename Index, int ND, template <typename> class MemObj>
 SNNStatus queue_kernel(MemObj<T const>& input_mem, MemObj<T>& output_mem,
                        std::vector<int> const& dimensions,
                        std::vector<int> const& permutation,
                        cl::sycl::queue& queue,
                        const std::vector<cl::sycl::event>& events) {
-  using Functor = TransposeKernel<T, Index, ND, IsUSM>;
+  constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
+  using Functor = TransposeKernel<T, Index, ND, is_usm>;
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.depends_on(events);
     auto input = input_mem.read_mem(cgh);
