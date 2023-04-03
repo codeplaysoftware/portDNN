@@ -30,12 +30,13 @@ namespace internal {
 namespace winograd {
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
-          int S, bool Accumulate>
-SNNStatus queue_output_transform(BaseMemObject<T const>& intermediate,
-                                 BaseMemObject<T>& output,
+          int S, bool Accumulate, template <typename> class MemObj>
+SNNStatus queue_output_transform(MemObj<T const>& intermediate,
+                                 MemObj<T>& output,
                                  Conv2DParams const& kernel_params,
                                  TileInfo const& tile_info,
-                                 cl::sycl::queue& queue);
+                                 cl::sycl::queue& queue,
+                                 const std::vector<cl::sycl::event>& events);
 
 }  // namespace winograd
 }  // namespace internal

@@ -57,17 +57,20 @@ inline cl::sycl::range<1> get_thread_range<conv_type::FilterBackprop>(
 }  // namespace
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
-          int S>
-SNNStatus queue_filter_transform(BaseMemObject<T const>& filter_mem,
-                                 BaseMemObject<T>& transform_mem,
+          int S, template <typename> class MemObj>
+SNNStatus queue_filter_transform(MemObj<T const>& filter_mem,
+                                 MemObj<T>& transform_mem,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
-                                 cl::sycl::queue& queue) {
-  using Functor = ExtractFilterTiles<T, Index, M, N, R, S, ConvType>;
+                                 cl::sycl::queue& queue,
+                                 const std::vector<cl::sycl::event>& events) {
+  using Functor = ExtractFilterTiles<T, Index, M, N, R, S, ConvType,
+                                     is_usm_obj_v<MemObj<T>, T>>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto filter = filter_mem.read_accessor(cgh);
-    auto transform = transform_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto filter = filter_mem.read_mem(cgh);
+    auto transform = transform_mem.write_mem(cgh);
     auto range = get_thread_range<ConvType>(params, tile_info);
     Functor conv{params, tile_info, filter, transform};
 

@@ -116,10 +116,11 @@ SNNStatus select_and_launch(
                                         params, workspace_size, backend, {});
     case Algorithm::Winograd:
       return launch_winograd<T, ConvType>(input, filter, output, workspace,
-                                          params, workspace_size, backend);
+                                          params, workspace_size, backend, {});
     case Algorithm::WinogradLarge:
-      return launch_winograd_large<T, ConvType>(
-          input, filter, output, workspace, params, workspace_size, backend);
+      return launch_winograd_large<T, ConvType>(input, filter, output,
+                                                workspace, params,
+                                                workspace_size, backend, {});
     case Algorithm::Matmul:
       return launch_matmul<T, ConvType>(input, filter, output, params, backend,
                                         {});
@@ -149,6 +150,14 @@ SNNStatus select_and_launch_usm(
       return launch_im2col<T, ConvType>(input, filter, output, workspace,
                                         params, workspace_size, backend,
                                         events);
+    case Algorithm::Winograd:
+      return launch_winograd<T, ConvType>(input, filter, output, workspace,
+                                          params, workspace_size, backend,
+                                          events);
+    case Algorithm::WinogradLarge:
+      return launch_winograd_large<T, ConvType>(
+          input, filter, output, workspace, params, workspace_size, backend,
+          events);
     case Algorithm::Tiled:
       return launch_tiled<T, ConvType>(input, filter, output, params, backend,
                                        events);

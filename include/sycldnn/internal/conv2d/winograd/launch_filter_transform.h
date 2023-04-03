@@ -53,15 +53,16 @@ namespace winograd {
  * \param params    Kernel parameters for the convolution
  * \param tile_info Winograd tile information
  * \param queue     SYCL queue to enqueue the kernels to
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus event containing an event corresponding to the last
  * kernel launched.
  */
-template <typename T, typename ConvType, int M, int N, int R, int S>
-SNN_EXPORT SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
-                                             BaseMemObject<T>& transform,
-                                             Conv2DParams const& params,
-                                             TileInfo const& tile_info,
-                                             cl::sycl::queue& queue);
+template <typename T, typename ConvType, int M, int N, int R, int S,
+          template <typename> class MemObj>
+SNN_EXPORT SNNStatus launch_filter_transform(
+    MemObj<T const>& input, MemObj<T>& transform, Conv2DParams const& params,
+    TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
 
 /**
  * Extract the buffers from the backend and launch the Winograd filter transform
@@ -72,6 +73,7 @@ SNN_EXPORT SNNStatus launch_filter_transform(BaseMemObject<T const>& input,
  * \param params    Kernel parameters for the convolution
  * \param tile_info Winograd tile information
  * \param backend   Backend to provide SYCL buffers from the pointers
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus event containing an event corresponding to the last
  * kernel launched.
  */
@@ -80,20 +82,21 @@ template <typename T, typename ConvType, int M, int N, int R, int S,
 SNNStatus launch_filter_transform(
     typename Backend::template internal_pointer_type<T const> filter,
     typename Backend::template internal_pointer_type<T> transform,
-    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend) {
+    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
 
   size_t const filter_size = R * S * params.channels * params.features;
-  auto filter_acc = backend.get_mem_object_internal(filter, filter_size);
+  auto filter_acc = backend._get_mem_object_internal(filter, filter_size);
 
   size_t const transform_size = A * B * params.channels * params.features;
   auto transform_acc =
-      backend.get_mem_object_internal(transform, transform_size);
+      backend._get_mem_object_internal(transform, transform_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform<T, ConvType, M, N, R, S>(
-      filter_acc, transform_acc, params, tile_info, queue);
+      filter_acc, transform_acc, params, tile_info, queue, events);
 }
 
 /**
@@ -105,6 +108,7 @@ SNNStatus launch_filter_transform(
  * \param params    Kernel parameters for the convolution
  * \param tile_info Winograd tile information
  * \param backend   Backend to provide SYCL buffers from the pointers
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus event containing an event corresponding to the last
  * kernel launched.
  */
@@ -112,23 +116,24 @@ template <typename T, int M, int N, int R, int S, typename Backend>
 SNNStatus launch_filter_transform_filter_backprop(
     typename Backend::template internal_pointer_type<T const> filter,
     typename Backend::template internal_pointer_type<T> transform,
-    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend) {
+    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   using ConvType = conv_type::FilterBackprop;
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
 
   size_t const filter_size =
       params.batch * params.window_rows * params.window_cols * params.features;
-  auto filter_acc = backend.get_mem_object_internal(filter, filter_size);
+  auto filter_acc = backend._get_mem_object_internal(filter, filter_size);
 
   size_t const transform_size =
       A * B * params.batch * tile_info.number * params.features;
   auto transform_acc =
-      backend.get_mem_object_internal(transform, transform_size);
+      backend._get_mem_object_internal(transform, transform_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform<T, ConvType, M, N, R, S>(
-      filter_acc, transform_acc, params, tile_info, queue);
+      filter_acc, transform_acc, params, tile_info, queue, events);
 }
 
 }  // namespace winograd

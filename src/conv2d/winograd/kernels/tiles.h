@@ -50,13 +50,12 @@ struct InputTile final
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
-  SNN_ALWAYS_INLINE InputTile(cl::sycl::multi_ptr<PtrT const, Space> input,
-                              Index const batch, Index const rstart,
-                              Index const n_rows, Index const cstart,
-                              Index const n_cols, Index const channel,
-                              Index const n_channels)
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
+  SNN_ALWAYS_INLINE InputTile(
+      cl::sycl::multi_ptr<PtrT const, MULTI_PTR_TEMPLATE> input,
+      Index const batch, Index const rstart, Index const n_rows,
+      Index const cstart, Index const n_cols, Index const channel,
+      Index const n_channels)
       : helpers::RegisterTile2D<T, A, B>{} {
     Index const offset =
         ((batch * n_rows + rstart) * n_cols + cstart) * n_channels + channel;
@@ -101,11 +100,11 @@ struct FilterTile<T, M, N, R, S, conv_type::Forward> final
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
-  SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<PtrT const, Space> input,
-                               Index const channel, Index const feature,
-                               Index const n_channels, Index const n_features) {
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
+  SNN_ALWAYS_INLINE FilterTile(
+      cl::sycl::multi_ptr<PtrT const, MULTI_PTR_TEMPLATE> input,
+      Index const channel, Index const feature, Index const n_channels,
+      Index const n_features) {
     input += channel * n_features + feature;
     SNN_PRAGMA_UNROLL
     for (int r = 0; r < R; ++r) {
@@ -133,11 +132,11 @@ struct FilterTile<T, M, N, R, S, conv_type::InputBackprop> final
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
-  SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<PtrT const, Space> input,
-                               Index const channel, Index const feature,
-                               Index const n_channels, Index const n_features) {
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
+  SNN_ALWAYS_INLINE FilterTile(
+      cl::sycl::multi_ptr<PtrT const, MULTI_PTR_TEMPLATE> input,
+      Index const channel, Index const feature, Index const n_channels,
+      Index const n_features) {
     input += channel * n_features + feature;
     SNN_PRAGMA_UNROLL
     for (int r = 0; r < R; ++r) {
@@ -166,11 +165,11 @@ struct FilterTile<T, M, N, R, S, conv_type::FilterBackprop> final
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
-  SNN_ALWAYS_INLINE FilterTile(cl::sycl::multi_ptr<PtrT const, Space> input,
-                               SYCLOutputWindow<Index> const& w,
-                               Index const n_cols, Index const n_features) {
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
+  SNN_ALWAYS_INLINE FilterTile(
+      cl::sycl::multi_ptr<PtrT const, MULTI_PTR_TEMPLATE> input,
+      SYCLOutputWindow<Index> const& w, Index const n_cols,
+      Index const n_features) {
     input += w.offset;
     for (int r = 0; r < R; ++r) {
       for (int c = 0; c < S; ++c) {
@@ -250,11 +249,11 @@ struct IntermediateTile final
    * expected to be
    *   [ (M+R-1)(N+S-1), (batch * tile_rows * tile_cols), features ].
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
   SNN_ALWAYS_INLINE IntermediateTile(
-      cl::sycl::multi_ptr<PtrT const, Space> input, Index const tile_idx,
-      Index const n_tiles, Index const feature, Index const n_features) {
+      cl::sycl::multi_ptr<PtrT const, MULTI_PTR_TEMPLATE> input,
+      Index const tile_idx, Index const n_tiles, Index const feature,
+      Index const n_features) {
     input += tile_idx * n_features + feature;
     for (int r = 0; r < A; ++r) {
       for (int c = 0; c < B; ++c) {
@@ -306,12 +305,11 @@ struct OutputData {
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
   static SNN_ALWAYS_INLINE void write_transformed_input(
-      cl::sycl::multi_ptr<PtrT, Space> output, Index const tile_idx,
-      Index const channel, Index const n_tiles, Index const n_channels,
-      TransformedInputTile<T, M, N, R, S> const& tile) {
+      cl::sycl::multi_ptr<PtrT, MULTI_PTR_TEMPLATE> output,
+      Index const tile_idx, Index const channel, Index const n_tiles,
+      Index const n_channels, TransformedInputTile<T, M, N, R, S> const& tile) {
     output += tile_idx * n_channels + channel;
     Index idx = 0;
     for (int r = 0; r < A; ++r) {
@@ -334,10 +332,9 @@ struct OutputData {
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
   static SNN_ALWAYS_INLINE void write_transformed_filter(
-      cl::sycl::multi_ptr<PtrT, Space> output, Index const channel,
+      cl::sycl::multi_ptr<PtrT, MULTI_PTR_TEMPLATE> output, Index const channel,
       Index const feature, Index const n_channels, Index const n_features,
       TransformedFilterTile<T, M, N, R, S> const& tile) {
     output += feature * n_channels + channel;
@@ -357,10 +354,9 @@ struct OutputData {
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <typename PtrT, cl::sycl::access::address_space Space,
-            typename Index>
+  template <typename PtrT, MULTI_PTR_TEMPLATE_DECL, typename Index>
   static SNN_ALWAYS_INLINE void write_output(
-      cl::sycl::multi_ptr<PtrT, Space> output,
+      cl::sycl::multi_ptr<PtrT, MULTI_PTR_TEMPLATE> output,
       SYCLOutputWindow<Index> const& window, Index const n_cols,
       Index const n_channels, OutputTile<T, M, N, R, S> const& tile) {
     output += window.offset;
@@ -383,10 +379,10 @@ struct OutputData {
    * passed with the pointer, rather than specifying the pointer will be to
    * global memory or to local memory.
    */
-  template <bool accumulate_output, typename PtrT,
-            cl::sycl::access::address_space Space, typename Index>
+  template <bool accumulate_output, typename PtrT, MULTI_PTR_TEMPLATE_DECL,
+            typename Index>
   static SNN_ALWAYS_INLINE void write_filter_output(
-      cl::sycl::multi_ptr<PtrT, Space> output, Index const channel,
+      cl::sycl::multi_ptr<PtrT, MULTI_PTR_TEMPLATE> output, Index const channel,
       Index const feature, Index const n_channels, Index const n_features,
       OutputTile<T, M, N, R, S> const& tile) {
     output += channel * n_features + feature;

@@ -31,12 +31,23 @@ namespace conv2d {
 namespace internal {
 namespace winograd {
 
+#ifdef SNN_ENABLE_USM
 template SNNStatus
 queue_output_transform<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_M, SNN_N,
                        SNN_R, SNN_S, SNN_ACC>(
-    BaseMemObject<SNN_DATA_TYPE const>& intermediate,
-    BaseMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
-    TileInfo const& tile_info, cl::sycl::queue& queue);
+    USMMemObject<SNN_DATA_TYPE const>& intermediate,
+    USMMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
+    TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
+#endif  // SNN_ENABLE_USM
+
+template SNNStatus
+queue_output_transform<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_CTYPE, SNN_M, SNN_N,
+                       SNN_R, SNN_S, SNN_ACC>(
+    BufferMemObject<SNN_DATA_TYPE const>& intermediate,
+    BufferMemObject<SNN_DATA_TYPE>& output, Conv2DParams const& kernel_params,
+    TileInfo const& tile_info, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events);
 
 }  // namespace winograd
 }  // namespace internal

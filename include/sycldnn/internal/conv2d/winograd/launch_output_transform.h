@@ -53,15 +53,16 @@ namespace winograd {
  * \param params       Kernel parameters for the convolution
  * \param tile_info    Winograd tile information
  * \param queue        SYCL queue to enqueue the kernels to
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus event containing an event corresponding to the last
  * kernel launched.
  */
 template <typename T, typename ConvType, int M, int N, int R, int S,
-          bool Accumulate = false>
-SNN_EXPORT SNNStatus
-launch_output_transform(BaseMemObject<T const>& intermediate,
-                        BaseMemObject<T>& output, Conv2DParams const& params,
-                        TileInfo const& tile_info, cl::sycl::queue& queue);
+          bool Accumulate, template <typename> class MemObj>
+SNN_EXPORT SNNStatus launch_output_transform(
+    MemObj<T const>& intermediate, MemObj<T>& output,
+    Conv2DParams const& params, TileInfo const& tile_info,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
 
 /**
  * Extract the buffers from the backend and launch the Winograd output transform
@@ -72,6 +73,7 @@ launch_output_transform(BaseMemObject<T const>& intermediate,
  * \param params    Kernel parameters for the convolution
  * \param tile_info Winograd tile information
  * \param backend   Backend to provide SYCL buffers from the pointers
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus event containing an event corresponding to the last
  * kernel launched.
  */
@@ -80,21 +82,22 @@ template <typename T, typename ConvType, int M, int N, int R, int S,
 SNNStatus launch_output_transform(
     typename Backend::template internal_pointer_type<T const> inter,
     typename Backend::template internal_pointer_type<T> output,
-    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend) {
+    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
 
   size_t const inter_size =
       A * B * params.batch * tile_info.number * params.features;
-  auto inter_acc = backend.get_mem_object_internal(inter, inter_size);
+  auto inter_acc = backend._get_mem_object_internal(inter, inter_size);
 
   size_t const output_size =
       params.batch * params.out_rows * params.out_cols * params.features;
-  auto output_acc = backend.get_mem_object_internal(output, output_size);
+  auto output_acc = backend._get_mem_object_internal(output, output_size);
 
   cl::sycl::queue queue = backend.get_queue();
-  return launch_output_transform<T, ConvType, M, N, R, S>(
-      inter_acc, output_acc, params, tile_info, queue);
+  return launch_output_transform<T, ConvType, M, N, R, S, false>(
+      inter_acc, output_acc, params, tile_info, queue, events);
 }
 
 /**
@@ -114,20 +117,21 @@ template <typename T, int M, int N, int R, int S, bool Accumulate,
 SNNStatus launch_output_transform_filter_backprop(
     typename Backend::template internal_pointer_type<T const> inter,
     typename Backend::template internal_pointer_type<T> output,
-    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend) {
+    Conv2DParams const& params, TileInfo const& tile_info, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   using ConvType = conv_type::FilterBackprop;
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
 
   size_t const inter_size = A * B * params.channels * params.features;
-  auto inter_acc = backend.get_mem_object_internal(inter, inter_size);
+  auto inter_acc = backend._get_mem_object_internal(inter, inter_size);
 
   size_t const output_size = M * N * params.channels * params.features;
-  auto output_acc = backend.get_mem_object_internal(output, output_size);
+  auto output_acc = backend._get_mem_object_internal(output, output_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_output_transform<T, ConvType, M, N, R, S, Accumulate>(
-      inter_acc, output_acc, params, tile_info, queue);
+      inter_acc, output_acc, params, tile_info, queue, events);
 }
 
 }  // namespace winograd

@@ -56,6 +56,7 @@ namespace winograd {
  * \param tile_info  Information about the number of Winograd tiles
  * \param batch_info Information about the minibatch size
  * \param backend    Backend to use for matrix multiplication
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus object containing a SYCL event corresponding to the last
  * kernel launched.
  */
@@ -67,8 +68,8 @@ template <
 SNNStatus launch_with_transforms(FullPointerSet<T, Backend> const& pointers,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
-                                 BatchInfo const& batch_info,
-                                 Backend& backend) {
+                                 BatchInfo const& batch_info, Backend& backend,
+                                 const std::vector<cl::sycl::event>& events) {
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
   constexpr bool transpose_input = false;
@@ -76,12 +77,13 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> const& pointers,
   constexpr bool transpose_filter =
       std::is_same<ConvType, conv_type::InputBackprop>::value;
   auto fil_status = launch_filter_transform<T, ConvType, M, N, R, S>(
-      pointers.filter, pointers.filter_transform, params, tile_info, backend);
+      pointers.filter, pointers.filter_transform, params, tile_info, backend,
+      events);
   if (fil_status.status != StatusCode::OK) {
     return fil_status;
   }
 
-  cl::sycl::event last_event;
+  cl::sycl::event last_event = fil_status.event;
   Conv2DParams kernel_params{params};
   kernel_params.batch = batch_info.images_per_batch;
   for (size_t i = 0; i < batch_info.n_batches; ++i) {
@@ -93,19 +95,23 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> const& pointers,
 
     auto inp_status = launch_input_transform<T, ConvType, M, N, R, S>(
         pointers.input + offset.in, pointers.input_transform, kernel_params,
-        tile_info, backend);
+        tile_info, backend, std::vector<cl::sycl::event>{last_event});
     if (inp_status.status != StatusCode::OK) {
       return inp_status;
     }
+    last_event = inp_status.event;
 
-    backend.template batch_matmul<transpose_input, transpose_filter, T>(
-        pointers.input_transform, pointers.filter_transform,
-        pointers.intermediate, A * B, tile_info.number * kernel_params.batch,
-        kernel_params.channels, kernel_params.features);
+    last_event =
+        backend.template batch_matmul<transpose_input, transpose_filter, T>(
+            pointers.input_transform, pointers.filter_transform,
+            pointers.intermediate, A * B,
+            tile_info.number * kernel_params.batch, kernel_params.channels,
+            kernel_params.features, sycldnn::BatchFormat::STRIDED,
+            std::vector<cl::sycl::event>{last_event});
 
     auto out_status = launch_output_transform<T, ConvType, M, N, R, S>(
         pointers.intermediate, pointers.output + offset.out, kernel_params,
-        tile_info, backend);
+        tile_info, backend, std::vector<cl::sycl::event>{last_event});
     if (out_status.status != StatusCode::OK) {
       return out_status;
     }
@@ -123,8 +129,8 @@ template <
 SNNStatus launch_with_transforms(FullPointerSet<T, Backend> pointers,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
-                                 BatchInfo const& batch_info,
-                                 Backend& backend) {
+                                 BatchInfo const& batch_info, Backend& backend,
+                                 const std::vector<cl::sycl::event>& events) {
   constexpr int A = M + R - 1;
   constexpr int B = N + S - 1;
   constexpr bool transpose_input = true;
@@ -148,29 +154,32 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> pointers,
     }
     auto inp_status = launch_input_transform<T, ConvType, M, N, R, S>(
         pointers.input + offset.in, pointers.input_transform, kernel_params,
-        tile_info, backend);
+        tile_info, backend, events);
     if (inp_status.status != StatusCode::OK) {
       return inp_status;
     }
 
     auto fil_status = launch_filter_transform_filter_backprop<T, M, N, R, S>(
         pointers.filter + offset.out, pointers.filter_transform, kernel_params,
-        tile_info, backend);
+        tile_info, backend, std::vector<cl::sycl::event>{inp_status.event});
     if (fil_status.status != StatusCode::OK) {
       return fil_status;
     }
 
-    backend.template batch_matmul<transpose_input, transpose_filter, T>(
-        pointers.input_transform, pointers.filter_transform,
-        pointers.intermediate, A * B, kernel_params.channels,
-        tile_info.number * kernel_params.batch, kernel_params.features);
+    last_event =
+        backend.template batch_matmul<transpose_input, transpose_filter, T>(
+            pointers.input_transform, pointers.filter_transform,
+            pointers.intermediate, A * B, kernel_params.channels,
+            tile_info.number * kernel_params.batch, kernel_params.features,
+            sycldnn::BatchFormat::STRIDED,
+            std::vector<cl::sycl::event>{fil_status.event});
 
     if (i == 0) {
       // For the first mini-batch we want to overwrite the output buffer
       auto out_status =
           launch_output_transform_filter_backprop<T, M, N, R, S, false>(
               pointers.intermediate, pointers.output, kernel_params, tile_info,
-              backend);
+              backend, std::vector<cl::sycl::event>{last_event});
       if (out_status.status != StatusCode::OK) {
         return out_status;
       }
@@ -181,7 +190,7 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> pointers,
       auto out_status =
           launch_output_transform_filter_backprop<T, M, N, R, S, true>(
               pointers.intermediate, pointers.output, kernel_params, tile_info,
-              backend);
+              backend, std::vector<cl::sycl::event>{last_event});
       if (out_status.status != StatusCode::OK) {
         return out_status;
       }
@@ -204,6 +213,7 @@ SNNStatus launch_with_transforms(FullPointerSet<T, Backend> pointers,
  * \param workspace_size Number of elements available in the workspace buffer
  * \param backend        User provided backend to handle allocations and matrix
  *                       multiplies
+ * \param events    Vector of events to synchronize on before launching kernel
  * \return An SNNStatus object containing a SYCL event corresponding to the last
  * kernel launched.
  */
@@ -214,7 +224,8 @@ SNNStatus split_workspace_and_launch_with_tiles(
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
     typename Backend::template pointer_type<T> workspace,
-    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+    Conv2DParams const& params, size_t workspace_size, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   using InternalPointer =
       ::sycldnn::internal::helpers::InternalPointer<T, Backend>;
   constexpr int A = M + R - 1;
@@ -249,7 +260,7 @@ SNNStatus split_workspace_and_launch_with_tiles(
 
   auto batch_info = get_batch_info(minibatch_size, params.batch);
   return launch_with_transforms<T, M, N, R, S, ConvType>(
-      all_pointers, kernel_params, tile_info, batch_info, backend);
+      all_pointers, kernel_params, tile_info, batch_info, backend, events);
 }
 
 /**
@@ -264,12 +275,14 @@ SNNStatus launch_with_tiles(
     typename Backend::template pointer_type<T const> filter,
     typename Backend::template pointer_type<T> output,
     typename Backend::template pointer_type<T> workspace,
-    Conv2DParams const& params, size_t workspace_size, Backend& backend) {
+    Conv2DParams const& params, size_t workspace_size, Backend& backend,
+    const std::vector<cl::sycl::event>& events) {
   if (workspace_size == 0) return StatusCode::InsufficientWorkspace;
 
   return split_workspace_and_launch_with_tiles<T, ConvType, M, N, R, S,
                                                Backend>(
-      input, filter, output, workspace, params, workspace_size, backend);
+      input, filter, output, workspace, params, workspace_size, backend,
+      events);
 }
 
 /**
@@ -295,18 +308,21 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  typename Backend::template pointer_type<T> workspace,
                  Conv2DParams const& params, size_t workspace_size,
-                 Backend& backend) {
+                 Backend& backend, const std::vector<cl::sycl::event>& events) {
   if (params.window_rows == 3 && params.window_cols == 3) {
     return launch_with_tiles<T, ConvType, 2, 2, 3, 3>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   if (params.window_rows == 3 && params.window_cols == 1) {
     return launch_with_tiles<T, ConvType, 2, 1, 3, 1>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   if (params.window_rows == 1 && params.window_cols == 3) {
     return launch_with_tiles<T, ConvType, 1, 2, 1, 3>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   return StatusCode::InvalidAlgorithm;
 }
@@ -321,18 +337,21 @@ SNNStatus launch(typename Backend::template pointer_type<T const> input,
                  typename Backend::template pointer_type<T> output,
                  typename Backend::template pointer_type<T> workspace,
                  Conv2DParams const& params, size_t workspace_size,
-                 Backend& backend) {
+                 Backend& backend, const std::vector<cl::sycl::event>& events) {
   if (params.window_rows == 3 && params.window_cols == 3) {
     return launch_with_tiles<T, ConvType, 3, 3, 2, 2>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   if (params.window_rows == 3 && params.window_cols == 1) {
     return launch_with_tiles<T, ConvType, 3, 1, 2, 1>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   if (params.window_rows == 1 && params.window_cols == 3) {
     return launch_with_tiles<T, ConvType, 1, 3, 1, 2>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   return StatusCode::InvalidAlgorithm;
 }
@@ -347,10 +366,12 @@ SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
                        typename Backend::template pointer_type<T> output,
                        typename Backend::template pointer_type<T> workspace,
                        Conv2DParams const& params, size_t workspace_size,
-                       Backend& backend) {
+                       Backend& backend,
+                       const std::vector<cl::sycl::event>& events) {
   if (params.window_rows == 3 && params.window_cols == 3) {
     return launch_with_tiles<T, ConvType, 4, 4, 3, 3>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   return StatusCode::InvalidAlgorithm;
 }
@@ -365,10 +386,12 @@ SNNStatus launch_large(typename Backend::template pointer_type<T const> input,
                        typename Backend::template pointer_type<T> output,
                        typename Backend::template pointer_type<T> workspace,
                        Conv2DParams const& params, size_t workspace_size,
-                       Backend& backend) {
+                       Backend& backend,
+                       const std::vector<cl::sycl::event>& events) {
   if (params.window_rows == 3 && params.window_cols == 3) {
     return launch_with_tiles<T, ConvType, 3, 3, 3, 3>(
-        input, filter, output, workspace, params, workspace_size, backend);
+        input, filter, output, workspace, params, workspace_size, backend,
+        events);
   }
   return StatusCode::InvalidAlgorithm;
 }

@@ -47,18 +47,20 @@ inline cl::sycl::range<1> get_thread_range(Conv2DParams const& params,
 }  // namespace
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
-          int S, int ChannelVector>
-SNNStatus queue_input_transform(BaseMemObject<T const>& input_mem,
-                                BaseMemObject<T>& transform_mem,
+          int S, int ChannelVector, template <typename> class MemObj>
+SNNStatus queue_input_transform(MemObj<T const>& input_mem,
+                                MemObj<T>& transform_mem,
                                 Conv2DParams const& params,
                                 TileInfo const& tile_info,
-                                cl::sycl::queue& queue) {
-  using Functor =
-      ExtractInputTiles<T, Index, ChannelVector, M, N, R, S, ConvType>;
+                                cl::sycl::queue& queue,
+                                const std::vector<cl::sycl::event>& events) {
+  using Functor = ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
+                                    ConvType, is_usm_obj_v<MemObj<T>, T>>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto input = input_mem.read_accessor(cgh);
-    auto transform = transform_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto input = input_mem.read_mem(cgh);
+    auto transform = transform_mem.write_mem(cgh);
     auto range = get_thread_range(params, tile_info, ChannelVector);
     Functor conv{params, tile_info, input, transform};
 

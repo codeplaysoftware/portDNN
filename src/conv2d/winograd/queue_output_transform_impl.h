@@ -59,18 +59,20 @@ inline cl::sycl::range<1> get_thread_range<conv_type::FilterBackprop>(
 }  // namespace
 
 template <typename T, typename Index, typename ConvType, int M, int N, int R,
-          int S, bool Accumulate>
-SNNStatus queue_output_transform(BaseMemObject<T const>& intermediate_mem,
-                                 BaseMemObject<T>& output_mem,
+          int S, bool Accumulate, template <typename> class MemObj>
+SNNStatus queue_output_transform(MemObj<T const>& intermediate_mem,
+                                 MemObj<T>& output_mem,
                                  Conv2DParams const& params,
                                  TileInfo const& tile_info,
-                                 cl::sycl::queue& queue) {
-  using Functor =
-      ExtractOutputTiles<T, Index, M, N, R, S, ConvType, Accumulate>;
+                                 cl::sycl::queue& queue,
+                                 const std::vector<cl::sycl::event>& events) {
+  using Functor = ExtractOutputTiles<T, Index, M, N, R, S, ConvType, Accumulate,
+                                     is_usm_obj_v<MemObj<T>, T>>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
-    auto intermediate = intermediate_mem.read_accessor(cgh);
-    auto output = output_mem.write_accessor(cgh);
+    cgh.depends_on(events);
+    auto intermediate = intermediate_mem.read_mem(cgh);
+    auto output = output_mem.write_mem(cgh);
     auto range = get_thread_range<ConvType>(params, tile_info);
     Functor conv{params, tile_info, intermediate, output};
 

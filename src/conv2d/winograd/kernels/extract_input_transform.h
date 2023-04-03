@@ -35,13 +35,13 @@ namespace internal {
 namespace winograd {
 
 template <typename T, typename Index, int ChannelVector, int M, int N, int R,
-          int S, typename ConvType>
+          int S, typename ConvType, bool IsUSM>
 struct ExtractInputTiles {
   using VecType = typename helpers::VectorType<T, ChannelVector>::type;
 
   ExtractInputTiles(Conv2DParams const& params, TileInfo const& tile_info,
-                    ReadAccessor<T const> const& input,
-                    WriteAccessor<T> const& output)
+                    ReadMem<T const, IsUSM> const& input,
+                    WriteMem<T, IsUSM> const& output)
       : n_elems_{params.batch * tile_info.rows * tile_info.cols *
                  params.channels / ChannelVector},
         n_tiles_{tile_info.number * params.batch},
@@ -52,14 +52,14 @@ struct ExtractInputTiles {
         n_channels_{params.channels},
         n_pad_cols_{params.pad_cols},
         n_pad_rows_{params.pad_rows},
-        input_accessor_{input},
-        output_accessor_{output} {}
+        input_mem_{input},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const tile_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -97,19 +97,19 @@ struct ExtractInputTiles {
   Index const n_channels_;
   Index const n_pad_cols_;
   Index const n_pad_rows_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> input_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
 template <typename T, typename Index, int ChannelVector, int M, int N, int R,
-          int S>
+          int S, bool IsUSM>
 struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
-                         conv_type::FilterBackprop> {
+                         conv_type::FilterBackprop, IsUSM> {
   using VecType = typename helpers::VectorType<T, ChannelVector>::type;
 
   ExtractInputTiles(Conv2DParams const& params, TileInfo const& tile_info,
-                    ReadAccessor<T const> const& input,
-                    WriteAccessor<T> const& output)
+                    ReadMem<T const, IsUSM> const& input,
+                    WriteMem<T, IsUSM> const& output)
       : n_elems_{params.batch * tile_info.rows * tile_info.cols *
                  params.channels / ChannelVector},
         n_tiles_{tile_info.number * params.batch},
@@ -120,14 +120,14 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
         n_channels_{params.channels},
         n_pad_cols_{params.pad_cols},
         n_pad_rows_{params.pad_rows},
-        input_accessor_{input},
-        output_accessor_{output} {}
+        input_mem_{input},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_elems_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const tile_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -165,8 +165,8 @@ struct ExtractInputTiles<T, Index, ChannelVector, M, N, R, S,
   Index const n_channels_;
   Index const n_pad_cols_;
   Index const n_pad_rows_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> input_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
 }  // namespace winograd

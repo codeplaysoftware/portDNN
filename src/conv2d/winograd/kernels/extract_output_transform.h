@@ -32,11 +32,11 @@ namespace internal {
 namespace winograd {
 
 template <typename T, typename Index, int M, int N, int R, int S,
-          typename ConvType, bool Accumulate = false>
+          typename ConvType, bool Accumulate, bool IsUSM>
 struct ExtractOutputTiles {
   ExtractOutputTiles(Conv2DParams const& params, TileInfo const& tile_info,
-                     ReadAccessor<T const> const& input,
-                     WriteAccessor<T> const& output)
+                     ReadMem<T const, IsUSM> const& input,
+                     WriteMem<T, IsUSM> const& output)
       : n_threads_{params.batch * tile_info.rows * tile_info.cols *
                    params.features},
         n_tiles_{tile_info.number * params.batch},
@@ -45,14 +45,14 @@ struct ExtractOutputTiles {
         n_out_rows_{params.out_rows},
         n_out_cols_{params.out_cols},
         n_features_{params.features},
-        input_accessor_{input},
-        output_accessor_{output} {}
+        input_mem_{input},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_threads_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const tile_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -96,28 +96,28 @@ struct ExtractOutputTiles {
   Index const n_out_rows_;
   Index const n_out_cols_;
   Index const n_features_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> input_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
 template <typename T, typename Index, int M, int N, int R, int S,
-          bool Accumulate>
+          bool Accumulate, bool IsUSM>
 struct ExtractOutputTiles<T, Index, M, N, R, S, conv_type::FilterBackprop,
-                          Accumulate> {
+                          Accumulate, IsUSM> {
   ExtractOutputTiles(Conv2DParams const& params, TileInfo const& /*unused*/,
-                     ReadAccessor<T const> const& input,
-                     WriteAccessor<T> const& output)
+                     ReadMem<T const, IsUSM> const& input,
+                     WriteMem<T, IsUSM> const& output)
       : n_threads_{params.features * params.channels},
         n_features_{params.features},
         n_channels_{params.channels},
-        input_accessor_{input},
-        output_accessor_{output} {}
+        input_mem_{input},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_threads_) {
-      auto input_data = input_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto input_data = input_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const channel_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -137,8 +137,8 @@ struct ExtractOutputTiles<T, Index, M, N, R, S, conv_type::FilterBackprop,
   Index const n_threads_;
   Index const n_features_;
   Index const n_channels_;
-  ReadAccessor<T const> input_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> input_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
 }  // namespace winograd

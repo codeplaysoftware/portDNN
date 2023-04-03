@@ -31,22 +31,22 @@ namespace internal {
 namespace winograd {
 
 template <typename T, typename Index, int M, int N, int R, int S,
-          typename ConvType>
+          typename ConvType, bool IsUSM>
 struct ExtractFilterTiles {
   ExtractFilterTiles(Conv2DParams const& params, TileInfo const& /*unused*/,
-                     ReadAccessor<T const> const& filter,
-                     WriteAccessor<T> const& output)
+                     ReadMem<T const, IsUSM> const& filter,
+                     WriteMem<T, IsUSM> const& output)
       : n_tiles_{params.channels * params.features},
         n_channels_{params.channels},
         n_features_{params.features},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto filter_data = filter_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const channel_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -68,12 +68,13 @@ struct ExtractFilterTiles {
   Index const n_tiles_;
   Index const n_channels_;
   Index const n_features_;
-  ReadAccessor<T const> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
-template <typename T, typename Index, int M, int N, int R, int S>
-struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
+template <typename T, typename Index, int M, int N, int R, int S, bool IsUSM>
+struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop,
+                          IsUSM> {
   using ConvType = conv_type::InputBackprop;
 
   /*
@@ -83,19 +84,19 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
    * so they are as expected.
    */
   ExtractFilterTiles(Conv2DParams const& params, TileInfo const& /*unused*/,
-                     ReadAccessor<T const> const& filter,
-                     WriteAccessor<T> const& output)
+                     ReadMem<T const, IsUSM> const& filter,
+                     WriteMem<T, IsUSM> const& output)
       : n_tiles_{params.channels * params.features},
         n_features_{params.channels},
         n_channels_{params.features},
-        filter_accessor_{filter},
-        output_accessor_{output} {}
+        filter_mem_{filter},
+        output_mem_{output} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_tiles_) {
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto filter_data = filter_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const feature_channel_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -117,17 +118,18 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::InputBackprop> {
   Index const n_tiles_;
   Index const n_features_;
   Index const n_channels_;
-  ReadAccessor<T const> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
-template <typename T, typename Index, int M, int N, int R, int S>
-struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
+template <typename T, typename Index, int M, int N, int R, int S, bool IsUSM>
+struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop,
+                          IsUSM> {
   using ConvType = conv_type::FilterBackprop;
 
   ExtractFilterTiles(Conv2DParams const& params, TileInfo const& tile_info,
-                     ReadAccessor<T const> const& filter,
-                     WriteAccessor<T> const& output)
+                     ReadMem<T const, IsUSM> const& filter,
+                     WriteMem<T, IsUSM> const& output)
       : n_threads_{params.batch * tile_info.rows * tile_info.cols *
                    params.features},
         n_tiles_{tile_info.number * params.batch},
@@ -136,14 +138,14 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
         n_window_rows_{params.window_rows},
         n_window_cols_{params.window_cols},
         n_features_{params.features},
-        filter_accessor_{std::move(filter)},
-        output_accessor_{std::move(output)} {}
+        filter_mem_{std::move(filter)},
+        output_mem_{std::move(output)} {}
 
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const index = item.get_id(0);
     if (index < n_threads_) {
-      auto filter_data = filter_accessor_.get_pointer();
-      auto output_data = output_accessor_.get_pointer();
+      auto filter_data = filter_mem_.get_pointer();
+      auto output_data = output_mem_.get_pointer();
 
       auto const tile_feature_idx =
           helpers::TensorIndexHelper<Index, false>::unflatten2d(
@@ -187,8 +189,8 @@ struct ExtractFilterTiles<T, Index, M, N, R, S, conv_type::FilterBackprop> {
   Index const n_window_rows_;
   Index const n_window_cols_;
   Index const n_features_;
-  ReadAccessor<T const> filter_accessor_;
-  WriteAccessor<T> output_accessor_;
+  ReadMem<T const, IsUSM> filter_mem_;
+  WriteMem<T, IsUSM> output_mem_;
 };
 
 }  // namespace winograd
