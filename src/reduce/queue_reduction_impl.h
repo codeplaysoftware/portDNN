@@ -165,14 +165,18 @@ SNNStatus queue_subgroup_kernel(
   int iter = 0;
   while (next_reduce_size > 1) {
     reduce_size = next_reduce_size;
-    next_reduce_size = divide_ceil(next_reduce_size, sub_group_size);
     kernel_range[1] = divide_ceil(kernel_range[1], sub_group_size);
     update_local_range();
     sub_group_size = query_subgroup_size(kernel, local_wg_range);
+    next_reduce_size = divide_ceil(next_reduce_size, sub_group_size);
     auto mem_in = iter % 2 == 0 ? mem1.as_const() : mem2.as_const();
     // Finish the reduction with the default kernel if the local_wg_range is not
     // suitable to subgroups anymore.
-    if (sub_group_size <= 1) return fallback(mem_in, reduce_size);
+    if (sub_group_size <= 1) {
+      SNNStatus status = fallback(mem_in, reduce_size);
+      sycldnn::helpers::enqueue_free(queue, {status.event}, sycl_MemObj);
+      return status;
+    }
     cl::sycl::nd_range<2> nd_range_iter(kernel_range, local_wg_range);
     event = queue.submit([&](cl::sycl::handler& cgh) {
       auto& mem_out = iter % 2 == 0 ? mem2 : mem1;
