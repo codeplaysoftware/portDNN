@@ -83,7 +83,6 @@ SNNStatus validateBatchnormParams(const TensorDescriptor xDesc,
 batchnorm::BatchNormParams descToSnnBatchnormParams(
     const TensorDescriptor& xDesc, bool is_training, float epsilon) {
   batchnorm::BatchNormParams params{};
-  SNNDataType descDataType;
   int n, c, h, w;
   xDesc.get4dDescriptorDims(&n, &c, &h, &w);
 
