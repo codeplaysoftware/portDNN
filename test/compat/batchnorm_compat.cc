@@ -35,7 +35,7 @@ class BatchnormCompatTest : public ::testing::Test {
     const int h = in_shape[1];
     const int w = in_shape[2];
     auto input_size = n * c * h * w;
-    const auto size = exp_out_grad.size();
+    const int size = exp_out_grad.size();
     std::vector<DataType> inputData =
         iota_initialised_data<DataType>(input_size, max_input_val);
     std::vector<DataType> gradientData =
