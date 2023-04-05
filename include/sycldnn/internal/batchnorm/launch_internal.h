@@ -215,32 +215,17 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
-  auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
-  auto channel_dims = {params.channels};
-  const bool is_nchw = params.input_format == DataFormat::NCHW;
+  auto dims = get_input_dims(params);
+  auto channel_dims = get_4d_channel_dims(params);
+
   SNNStatus status;
   std::vector<cl::sycl::event> dependencies = events;
 
-  auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
-  auto tr_input = make_mem_object(sycl_tr_input, n_items);
-  // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
-  if (is_nchw) {
-    auto input_dims = get_input_dims(params);
-    status = transpose::internal::launch(input, tr_input, input_dims,
-                                         NCHW_TO_NHWC, queue, dependencies);
-    dependencies = std::vector<cl::sycl::event>{status.event};
-    if (sycldnn::StatusCode::OK != status.status) {
-      return status;
-    }
-  }
-  auto const_tr_input = tr_input.as_const();
-  auto& nhwc_input = is_nchw ? const_tr_input : input;
-
+  auto const_input = input.as_const();
   auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto centered_input = make_mem_object(sycl_centered_input, n_items);
-
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      nhwc_input, input_mean, centered_input, nhwc_dims, channel_dims, queue,
+      const_input, input_mean, centered_input, dims, channel_dims, queue,
       dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
@@ -251,26 +236,30 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
       sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = make_mem_object(sycl_workspace, params.channels);
   auto const_centered_input = centered_input.as_const();
-  auto& tr_output = centered_input;  // Re-use temporary memory
-  status =
-      launch_batchnorm(const_centered_input, beta, gamma, input_variance,
-                       is_nchw ? tr_output : output, workspace, params.epsilon,
-                       nhwc_dims, channel_dims, queue, dependencies);
+  status = launch_batchnorm(const_centered_input, beta, gamma, input_variance,
+                            output, workspace, params.epsilon, dims,
+                            channel_dims, queue, dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  // Transpose NHWC output back to NCHW.
+  auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
+  auto tr_input = make_mem_object(sycl_tr_input, n_items);
+  // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
+  const bool is_nchw = params.input_format == DataFormat::NCHW;
   if (is_nchw) {
-    auto const_tr_output = tr_output.as_const();
-    status = transpose::internal::launch(const_tr_output, output, nhwc_dims,
-                                         NHWC_TO_NCHW, queue, dependencies);
+    auto input_dims = get_input_dims(params);
+    status = transpose::internal::launch(input, tr_input, input_dims,
+                                         NCHW_TO_NHWC, queue, dependencies);
     dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
   }
+  auto const_tr_input = tr_input.as_const();
+  auto& nhwc_input = is_nchw ? const_tr_input : const_input;
+  auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
 
   status = reduce::internal::launch<reduce::Mean>(
       nhwc_input, running_mean, 1, get_non_channel_size(params),
@@ -282,8 +271,8 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
 
   auto const_running_mean = running_mean.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      nhwc_input, const_running_mean, centered_input, nhwc_dims, channel_dims,
-      queue, dependencies);
+      nhwc_input, const_running_mean, centered_input, nhwc_dims,
+      {params.channels}, queue, dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -306,7 +295,9 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
     return status;
   }
 
-  auto& squared_centered_input = tr_input;  // Re-use temporary memory
+  // const_centered_input is read to calculate centered_input_squared, and not
+  // used again
+  auto& squared_centered_input = tr_input;
   status =
       launch_variance(const_centered_input, running_variance,
                       squared_centered_input, params, backend, dependencies);
