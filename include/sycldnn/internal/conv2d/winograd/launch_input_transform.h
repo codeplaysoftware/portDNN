@@ -87,12 +87,12 @@ SNNStatus launch_input_transform(
 
   size_t const input_size =
       params.batch * params.in_rows * params.in_cols * params.channels;
-  auto input_acc = backend._get_mem_object_internal(input, input_size);
+  auto input_acc = backend.get_mem_object_internal(input, input_size);
 
   size_t const transform_size =
       A * B * params.batch * tile_info.number * params.channels;
   auto transform_acc =
-      backend._get_mem_object_internal(transform, transform_size);
+      backend.get_mem_object_internal(transform, transform_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_input_transform<T, ConvType, M, N, R, S>(

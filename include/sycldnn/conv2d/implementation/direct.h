@@ -41,9 +41,9 @@ inline SNNStatus launch_direct(
     const std::vector<cl::sycl::event>& events) {
   auto conv_sizes = get_sizes<ConvType>(params);
 
-  auto inp_access = backend._get_mem_object(input, conv_sizes.input_size);
-  auto fil_access = backend._get_mem_object(filter, conv_sizes.filter_size);
-  auto out_access = backend._get_mem_object(output, conv_sizes.output_size);
+  auto inp_access = backend.get_mem_object(input, conv_sizes.input_size);
+  auto fil_access = backend.get_mem_object(filter, conv_sizes.filter_size);
+  auto out_access = backend.get_mem_object(output, conv_sizes.output_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return internal::launch_direct<T, ConvType>(

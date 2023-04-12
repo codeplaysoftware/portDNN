@@ -84,8 +84,8 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
   size_t in_size = batches * outer * inner;
   size_t out_size = batches * inner;
 
-  auto in_acc = backend._get_mem_object(input, in_size);
-  auto out_acc = backend._get_mem_object(output, out_size);
+  auto in_acc = backend.get_mem_object(input, in_size);
+  auto out_acc = backend.get_mem_object(output, out_size);
 
   return internal::launch<Op>(in_acc, out_acc, batches, outer, inner, backend,
                               events);

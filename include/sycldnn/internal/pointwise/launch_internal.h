@@ -68,8 +68,8 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
                     const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
 
-  auto inp_access = backend._get_mem_object(input, n_items);
-  auto outp_access = backend._get_mem_object(output, n_items);
+  auto inp_access = backend.get_mem_object(input, n_items);
+  auto outp_access = backend.get_mem_object(output, n_items);
 
   auto queue = backend.get_queue();
   return internal::launch_pointwise<PointwiseType, T, Direction>(
@@ -87,9 +87,9 @@ SNNStatus sublaunch(
     const std::vector<cl::sycl::event>& events) {
   SNN_VALIDATE_PARAM(n_items > 0, "The number of items must be positive.");
 
-  auto inp_fwd_access = backend._get_mem_object(input_forward, n_items);
-  auto inp_bk_access = backend._get_mem_object(input_backprop, n_items);
-  auto out_bk_access = backend._get_mem_object(output_backprop, n_items);
+  auto inp_fwd_access = backend.get_mem_object(input_forward, n_items);
+  auto inp_bk_access = backend.get_mem_object(input_backprop, n_items);
+  auto out_bk_access = backend.get_mem_object(output_backprop, n_items);
 
   auto queue = backend.get_queue();
   return internal::launch_pointwise<PointwiseType, T, Direction>(

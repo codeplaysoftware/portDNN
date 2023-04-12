@@ -123,19 +123,19 @@ SNNStatus sublaunch(
   }
 
   auto n_items = params.batch * params.channels * params.rows * params.cols;
-  auto input_mem = backend._get_mem_object(input, n_items);
-  auto gamma_mem = backend._get_mem_object(gamma, params.channels);
-  auto output_mem = backend._get_mem_object(output, n_items);
+  auto input_mem = backend.get_mem_object(input, n_items);
+  auto gamma_mem = backend.get_mem_object(gamma, params.channels);
+  auto output_mem = backend.get_mem_object(output, n_items);
 
   if (!internal::IsGradient<Direction>) {
-    auto beta_mem = backend._get_mem_object(beta_or_gradient, params.channels);
-    auto input_mean_mem = backend._get_mem_object(input_mean, params.channels);
+    auto beta_mem = backend.get_mem_object(beta_or_gradient, params.channels);
+    auto input_mean_mem = backend.get_mem_object(input_mean, params.channels);
     auto input_variance_mem =
-        backend._get_mem_object(input_variance, params.channels);
+        backend.get_mem_object(input_variance, params.channels);
     if (params.is_training) {
       auto running_mean_mem =
-          backend._get_mem_object(running_mean_or_beta_grad, params.channels);
-      auto running_variance_mem = backend._get_mem_object(
+          backend.get_mem_object(running_mean_or_beta_grad, params.channels);
+      auto running_variance_mem = backend.get_mem_object(
           running_variance_or_gamma_grad, params.channels);
       // Launch forward training
       return internal::launch_forward<T, Backend>(
@@ -149,21 +149,20 @@ SNNStatus sublaunch(
           output_mem, params, backend, events);
     }
   } else {
-    auto gradient_mem = backend._get_mem_object(beta_or_gradient, n_items);
+    auto gradient_mem = backend.get_mem_object(beta_or_gradient, n_items);
     auto beta_grad_mem =
-        backend._get_mem_object(running_mean_or_beta_grad, params.channels);
-    auto gamma_grad_mem = backend._get_mem_object(
-        running_variance_or_gamma_grad, params.channels);
+        backend.get_mem_object(running_mean_or_beta_grad, params.channels);
+    auto gamma_grad_mem =
+        backend.get_mem_object(running_variance_or_gamma_grad, params.channels);
     if (params.is_training) {
       // Launch gradient training
       return internal::launch_gradient<T, Backend>(
           input_mem, gradient_mem, gamma_mem, beta_grad_mem, gamma_grad_mem,
           output_mem, params, backend, events);
     } else {
-      auto input_mean_mem =
-          backend._get_mem_object(input_mean, params.channels);
+      auto input_mean_mem = backend.get_mem_object(input_mean, params.channels);
       auto input_variance_mem =
-          backend._get_mem_object(input_variance, params.channels);
+          backend.get_mem_object(input_variance, params.channels);
       // Launch gradient frozen
       return internal::launch_gradient<T, Backend>(
           input_mem, gradient_mem, gamma_mem, input_mean_mem,

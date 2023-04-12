@@ -86,8 +86,8 @@ SNN_EXPORT SNNStatus sublaunch(
     Backend& backend, const std::vector<cl::sycl::event>& events = {}) {
   auto sizes = get_sizes<Direction>(pp);
 
-  auto inp_mem = backend._get_mem_object(input, sizes.input_size);
-  auto outp_mem = backend._get_mem_object(output, sizes.output_size);
+  auto inp_mem = backend.get_mem_object(input, sizes.input_size);
+  auto outp_mem = backend.get_mem_object(output, sizes.output_size);
 
   auto queue = backend.get_queue();
   return internal::launch_pooling<T, PoolType, Direction>(inp_mem, outp_mem, pp,
@@ -106,14 +106,13 @@ sublaunch(typename Backend::template pointer_type<T const> inp_data,
   auto fwd_sizes = get_sizes<Forward>(pp);
   auto back_sizes = get_sizes<Backpropagate>(pp);
 
-  auto inp_data_access =
-      backend._get_mem_object(inp_data, fwd_sizes.input_size);
+  auto inp_data_access = backend.get_mem_object(inp_data, fwd_sizes.input_size);
   auto outp_data_access =
-      backend._get_mem_object(outp_data, fwd_sizes.output_size);
+      backend.get_mem_object(outp_data, fwd_sizes.output_size);
   auto inp_backprop_access =
-      backend._get_mem_object(inp_backprop, back_sizes.input_size);
+      backend.get_mem_object(inp_backprop, back_sizes.input_size);
   auto outp_backprop_access =
-      backend._get_mem_object(outp_backprop, back_sizes.output_size);
+      backend.get_mem_object(outp_backprop, back_sizes.output_size);
 
   auto queue = backend.get_queue();
   return internal::launch_pooling<T, PoolType, Direction>(

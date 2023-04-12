@@ -107,35 +107,14 @@ struct SNNBackend final : public CommonBackend,
    */
   template <typename T>
   auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_mem_object(ptr.get_buffer(), n_elems,
-                                  ptr.get_offset())) {
-    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
-  }
-
-  /** \copydoc get_mem_object */
-  template <typename T>
-  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(make_mem_object(ptr.get_buffer(), n_elems,
-                                  ptr.get_offset())) {
-    return make_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
-  }
-
-  /**
-   * Get a MemObject containing the buffer corresponding to a given pointer.
-   * \param ptr     A pointer referring to a SYCL buffer with some offset.
-   * \param n_elems The number of elements required within the MemObject.
-   * \return Returns a MemObject corresponding to the pointer.
-   */
-  template <typename T>
-  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems)
       -> decltype(make_buffer_mem_object(ptr.get_buffer(), n_elems,
                                          ptr.get_offset())) {
     return make_buffer_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());
   }
 
-  /** \copydoc _get_mem_object */
+  /** \copydoc get_mem_object */
   template <typename T>
-  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
+  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
       -> decltype(make_buffer_mem_object(ptr.get_buffer(), n_elems,
                                          ptr.get_offset())) {
     return make_buffer_mem_object(ptr.get_buffer(), n_elems, ptr.get_offset());

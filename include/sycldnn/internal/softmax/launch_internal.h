@@ -56,8 +56,8 @@ SNNStatus launch_forward_nhwc(
                      "Unexpected layout");
   auto n_items = params.batch * params.rows * params.cols * params.channels;
   auto queue = backend.get_queue();
-  auto in_mem = backend._get_mem_object(input, n_items);
-  auto out_mem = backend._get_mem_object(output, n_items);
+  auto in_mem = backend.get_mem_object(input, n_items);
+  auto out_mem = backend.get_mem_object(output, n_items);
   auto workspace_items = params.batch * params.rows * params.cols;
 
   std::vector<cl::sycl::event> dependencies = events;
@@ -75,7 +75,7 @@ SNNStatus launch_forward_nhwc(
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem =
-      backend._get_mem_object(const_workspace, workspace_items);
+      backend.get_mem_object(const_workspace, workspace_items);
 
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       in_mem, const_workspace_mem, out_mem,
@@ -88,7 +88,7 @@ SNNStatus launch_forward_nhwc(
   dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_output = ConstPointer{output};
-  auto const_output_mem = backend._get_mem_object(const_output, n_items);
+  auto const_output_mem = backend.get_mem_object(const_output, n_items);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
       const_output_mem, out_mem, n_items, queue, dependencies);
 
@@ -128,8 +128,8 @@ SNNStatus launch_forward_nchw(
                      "Unexpected layout");
   auto n_items = params.batch * params.channels * params.rows * params.cols;
   auto queue = backend.get_queue();
-  auto in_mem = backend._get_mem_object(input, n_items);
-  auto out_mem = backend._get_mem_object(output, n_items);
+  auto in_mem = backend.get_mem_object(input, n_items);
+  auto out_mem = backend.get_mem_object(output, n_items);
   auto workspace_items = params.batch * params.rows * params.cols;
   std::vector<cl::sycl::event> dependencies = events;
 
@@ -146,7 +146,7 @@ SNNStatus launch_forward_nchw(
 
   auto const_workspace = ConstPointer{workspace};
   auto const_workspace_mem =
-      backend._get_mem_object(const_workspace, workspace_items);
+      backend.get_mem_object(const_workspace, workspace_items);
 
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       in_mem, const_workspace_mem, out_mem,
@@ -159,7 +159,7 @@ SNNStatus launch_forward_nchw(
   dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_output = ConstPointer{output};
-  auto const_output_mem = backend._get_mem_object(const_output, n_items);
+  auto const_output_mem = backend.get_mem_object(const_output, n_items);
   status = pointwise::internal::launch_pointwise<pointwise::Exp>(
       const_output_mem, out_mem, n_items, queue, dependencies);
 
@@ -228,10 +228,10 @@ SNNStatus launch_gradient_nhwc(
   auto n_items1 = params.batch * params.rows * params.cols * params.channels;
   auto n_items2 = params.batch * params.rows * params.cols;
 
-  auto in_mem = backend._get_mem_object(input, n_items1);
-  auto grad_mem = backend._get_mem_object(gradient, n_items1);
-  auto workspace_mem = backend._get_mem_object(workspace, n_items1);
-  auto out_mem = backend._get_mem_object(output, n_items1);
+  auto in_mem = backend.get_mem_object(input, n_items1);
+  auto grad_mem = backend.get_mem_object(gradient, n_items1);
+  auto workspace_mem = backend.get_mem_object(workspace, n_items1);
+  auto out_mem = backend.get_mem_object(output, n_items1);
   std::vector<cl::sycl::event> dependencies = events;
 
   auto queue = backend.get_queue();
@@ -247,7 +247,7 @@ SNNStatus launch_gradient_nhwc(
   using ConstPointer = typename Backend::template pointer_type<T const>;
 
   auto const_workspace = ConstPointer{workspace};
-  auto const_workspace_mem = backend._get_mem_object(const_workspace, n_items1);
+  auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
 
   status = reduce::internal::sublaunch<T, reduce::Add>(
       const_workspace, output, params.batch * params.rows * params.cols,
@@ -259,7 +259,7 @@ SNNStatus launch_gradient_nhwc(
   dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_output = ConstPointer{output};
-  auto const_output_mem = backend._get_mem_object(const_output, n_items2);
+  auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       grad_mem, const_output_mem, workspace_mem,
@@ -294,10 +294,10 @@ SNNStatus launch_gradient_nchw(
   auto n_items1 = params.batch * params.channels * params.rows * params.cols;
   auto n_items2 = params.batch * params.rows * params.cols;
 
-  auto in_mem = backend._get_mem_object(input, n_items1);
-  auto grad_mem = backend._get_mem_object(gradient, n_items1);
-  auto workspace_mem = backend._get_mem_object(workspace, n_items1);
-  auto out_mem = backend._get_mem_object(output, n_items1);
+  auto in_mem = backend.get_mem_object(input, n_items1);
+  auto grad_mem = backend.get_mem_object(gradient, n_items1);
+  auto workspace_mem = backend.get_mem_object(workspace, n_items1);
+  auto out_mem = backend.get_mem_object(output, n_items1);
   std::vector<cl::sycl::event> dependencies = events;
 
   auto queue = backend.get_queue();
@@ -313,7 +313,7 @@ SNNStatus launch_gradient_nchw(
   using ConstPointer = typename Backend::template pointer_type<T const>;
 
   auto const_workspace = ConstPointer{workspace};
-  auto const_workspace_mem = backend._get_mem_object(const_workspace, n_items1);
+  auto const_workspace_mem = backend.get_mem_object(const_workspace, n_items1);
 
   status = reduce::internal::sublaunch<T, reduce::Add>(
       const_workspace, output, params.batch, params.channels,
@@ -325,7 +325,7 @@ SNNStatus launch_gradient_nchw(
   dependencies = std::vector<cl::sycl::event>{status.event};
 
   auto const_output = ConstPointer{output};
-  auto const_output_mem = backend._get_mem_object(const_output, n_items2);
+  auto const_output_mem = backend.get_mem_object(const_output, n_items2);
 
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       grad_mem, const_output_mem, workspace_mem,

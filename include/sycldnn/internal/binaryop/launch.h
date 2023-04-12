@@ -107,9 +107,9 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> lhs,
   }
   size_t out_size = helpers::get_total_size(out_dims);
 
-  auto lhs_mem = backend._get_mem_object(lhs, lhs_size);
-  auto rhs_mem = backend._get_mem_object(rhs, rhs_size);
-  auto out_mem = backend._get_mem_object(out, out_size);
+  auto lhs_mem = backend.get_mem_object(lhs, lhs_size);
+  auto rhs_mem = backend.get_mem_object(rhs, rhs_size);
+  auto out_mem = backend.get_mem_object(out, out_size);
   auto queue = backend.get_queue();
   return internal::launch_binaryop<Op>(lhs_mem, rhs_mem, out_mem, lhs_dims,
                                        rhs_dims, out_dims, queue, events);

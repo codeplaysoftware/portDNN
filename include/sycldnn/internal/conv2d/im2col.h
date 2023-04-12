@@ -110,11 +110,11 @@ static SNNStatus launch_im2col_for_minibatch(
 
       auto in_mem_obj =
           backend
-              ._get_mem_object(pointers.transform + filter_size + matmul_offset,
-                               trans_size)
+              .get_mem_object(pointers.transform + filter_size + matmul_offset,
+                              trans_size)
               .as_const();
       auto out_mem_obj =
-          backend._get_mem_object(pointers.output + out_offset, trans_size);
+          backend.get_mem_object(pointers.output + out_offset, trans_size);
 
       const std::vector<int> GNHWC_TO_NHWGC = {1, 2, 0, 3};
       auto queue = backend.get_queue();

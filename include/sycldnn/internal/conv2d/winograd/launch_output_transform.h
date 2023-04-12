@@ -89,11 +89,11 @@ SNNStatus launch_output_transform(
 
   size_t const inter_size =
       A * B * params.batch * tile_info.number * params.features;
-  auto inter_acc = backend._get_mem_object_internal(inter, inter_size);
+  auto inter_acc = backend.get_mem_object_internal(inter, inter_size);
 
   size_t const output_size =
       params.batch * params.out_rows * params.out_cols * params.features;
-  auto output_acc = backend._get_mem_object_internal(output, output_size);
+  auto output_acc = backend.get_mem_object_internal(output, output_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_output_transform<T, ConvType, M, N, R, S, false>(
@@ -124,10 +124,10 @@ SNNStatus launch_output_transform_filter_backprop(
   constexpr int B = N + S - 1;
 
   size_t const inter_size = A * B * params.channels * params.features;
-  auto inter_acc = backend._get_mem_object_internal(inter, inter_size);
+  auto inter_acc = backend.get_mem_object_internal(inter, inter_size);
 
   size_t const output_size = M * N * params.channels * params.features;
-  auto output_acc = backend._get_mem_object_internal(output, output_size);
+  auto output_acc = backend.get_mem_object_internal(output, output_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_output_transform<T, ConvType, M, N, R, S, Accumulate>(

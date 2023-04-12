@@ -74,9 +74,9 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> lhs,
   size_t rhs_size = params.batches * params.k * params.n;
   size_t out_size = params.batches * params.m * params.n;
 
-  auto lhs_acc = backend._get_mem_object(lhs, lhs_size);
-  auto rhs_acc = backend._get_mem_object(rhs, rhs_size);
-  auto out_acc = backend._get_mem_object(output, out_size);
+  auto lhs_acc = backend.get_mem_object(lhs, lhs_size);
+  auto rhs_acc = backend.get_mem_object(rhs, rhs_size);
+  auto out_acc = backend.get_mem_object(output, out_size);
 
   auto sycl_queue = backend.get_queue();
 

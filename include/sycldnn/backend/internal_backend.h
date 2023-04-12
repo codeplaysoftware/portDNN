@@ -47,21 +47,6 @@ struct InternalBackend {
       : underlying_backend{std::move(backend)} {}
 
   /**
-   * Get the buffer corresponding to the provided buffer of the specified
-   * size.
-   *
-   * \param [in] ptr Pointer into a SYCL buffer.
-   * \param [in] n_elems Number of elements expected to be in the buffer.
-   * \return Buffer corresponding to the provided pointer.
-   */
-  template <typename T>
-  auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(std::declval<Backend>().get_mem_object(ptr, n_elems)) {
-    return underlying_backend.get_mem_object(ptr, n_elems);
-  }
-
-  // TODO: Replace _get_mem_object once USM is fully supported
-  /**
    * Get the mem object corresponding to the provided pointer type of the
    * specified size.
    *
@@ -70,9 +55,9 @@ struct InternalBackend {
    * \return Buffer corresponding to the provided pointer.
    */
   template <typename T>
-  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(std::declval<Backend>()._get_mem_object(ptr, n_elems)) {
-    return underlying_backend._get_mem_object(ptr, n_elems);
+  auto get_mem_object(pointer_type<T> ptr, size_t n_elems)
+      -> decltype(std::declval<Backend>().get_mem_object(ptr, n_elems)) {
+    return underlying_backend.get_mem_object(ptr, n_elems);
   }
 
   /**

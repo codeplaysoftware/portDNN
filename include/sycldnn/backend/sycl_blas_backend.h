@@ -193,27 +193,6 @@ struct SyclBLASBackend final : public CommonBackend {
                            ptr.get_offset());
   }
 
-  // TODO: REMOVE the underscore versions
-  /** \copydoc get_mem_object */
-  template <typename T>
-  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems)
-      -> decltype(_make_mem_object(
-          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-          static_cast<int>(n_elems), 0u)) {
-    return _make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
-                            ptr.get_offset());
-  }
-
-  /** \copydoc get_mem_object */
-  template <typename T>
-  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(_make_mem_object(
-          this->executor_.get_policy_handler().get_buffer(ptr).get_buffer(),
-          static_cast<int>(n_elems), 0u)) {
-    return _make_mem_object(ptr.get_buffer(), static_cast<int>(n_elems),
-                            ptr.get_offset());
-  }
-
   /**
    * Allocate a temporary buffer of the requested size.
    * \param n_elems The size of the buffer in number of elements.

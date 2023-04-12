@@ -140,9 +140,9 @@ SNNStatus sublaunch(
 
   GatherSizes sizes = get_sizes(params);
 
-  auto in_mem = backend._get_mem_object(input, sizes.input_size);
-  auto indices_mem = backend._get_mem_object(indices, sizes.indices_size);
-  auto out_mem = backend._get_mem_object(output, sizes.output_size);
+  auto in_mem = backend.get_mem_object(input, sizes.input_size);
+  auto indices_mem = backend.get_mem_object(indices, sizes.indices_size);
+  auto out_mem = backend.get_mem_object(output, sizes.output_size);
 
   auto queue = backend.get_queue();
 

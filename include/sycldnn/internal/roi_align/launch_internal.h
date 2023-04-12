@@ -45,11 +45,11 @@ SNNStatus sublaunch(
     typename Backend::template pointer_type<T> output,
     const RoiAlignParams& rap, Backend& backend,
     const std::vector<cl::sycl::event>& events = {}) {
-  auto inp_mem = backend._get_mem_object(
+  auto inp_mem = backend.get_mem_object(
       input, rap.batch * rap.channels * rap.in_height * rap.in_width);
-  auto rois_mem = backend._get_mem_object(rois, rap.num_rois * rap.roi_cols);
-  auto batch_indices_mem = backend._get_mem_object(batch_indices, rap.num_rois);
-  auto outp_mem = backend._get_mem_object(
+  auto rois_mem = backend.get_mem_object(rois, rap.num_rois * rap.roi_cols);
+  auto batch_indices_mem = backend.get_mem_object(batch_indices, rap.num_rois);
+  auto outp_mem = backend.get_mem_object(
       output, rap.num_rois * rap.channels * rap.out_height * rap.out_width);
   auto queue = backend.get_queue();
 

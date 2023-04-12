@@ -100,27 +100,6 @@ struct SNNUSMBackend final : public CommonBackend,
   }
 
   /**
-   * Get a MemObject containing the pointer.
-   * \param ptr     Memory pointer.
-   * \param n_elems The number of elements required within the MemObject.
-   * \param offset The number of elements to offset ptr by.
-   * \return Returns a MemObject corresponding to the pointer.
-   */
-  template <typename T>
-  auto get_mem_object(pointer_type<T> ptr, size_t n_elems, size_t offset)
-      -> decltype(make_usm_mem_object(ptr, n_elems, offset)) {
-    return make_usm_mem_object(ptr, n_elems, offset);
-  }
-
-  /** \copydoc get_mem_object */
-  template <typename T>
-  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems,
-                               size_t offset)
-      -> decltype(make_usm_mem_object(ptr, n_elems, offset)) {
-    return make_usm_mem_object(ptr, n_elems, offset);
-  }
-
-  /**
    * Get a USMMemObject containing the pointer.
    * \param ptr     Memory pointer.
    * \param n_elems The number of elements required within the MemObject.
@@ -128,15 +107,15 @@ struct SNNUSMBackend final : public CommonBackend,
    * \return Returns a USMMemObject corresponding to the pointer.
    */
   template <typename T>
-  auto _get_mem_object(pointer_type<T> ptr, size_t n_elems, size_t offset = 0)
+  auto get_mem_object(pointer_type<T> ptr, size_t n_elems, size_t offset = 0)
       -> decltype(make_usm_mem_object<T>(ptr, n_elems, offset)) {
     return make_usm_mem_object<T>(ptr, n_elems, offset);
   }
 
-  /** \copydoc _get_mem_object */
+  /** \copydoc get_mem_object */
   template <typename T>
-  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems,
-                                size_t offset = 0)
+  auto get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems,
+                               size_t offset = 0)
       -> decltype(make_usm_mem_object(ptr, n_elems, offset)) {
     return make_usm_mem_object(ptr, n_elems, offset);
   }

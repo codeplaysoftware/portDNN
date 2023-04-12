@@ -76,8 +76,8 @@ static SNNStatus launch_filter_transform(
   int const channels_per_group = params.channels / params.groups;
   int const total_size = params.window_rows * params.window_cols *
                          channels_per_group * params.features;
-  auto in_mem_obj = backend._get_mem_object(pointers.filter, total_size);
-  auto out_mem_obj = backend._get_mem_object(pointers.transform, total_size);
+  auto in_mem_obj = backend.get_mem_object(pointers.filter, total_size);
+  auto out_mem_obj = backend.get_mem_object(pointers.transform, total_size);
   const std::vector<int> HWCGF_TO_HWCFG = {3, 0, 1, 2, 4};
   return sycldnn::transpose::internal::launch(
       in_mem_obj, out_mem_obj,
@@ -103,10 +103,10 @@ static SNNStatus launch_filter_transform(
   size_t const filter_size = params.window_rows * params.window_cols *
                              params.channels * params.features;
   auto filter_access =
-      backend._get_mem_object_internal(pointers.original_filter, filter_size);
+      backend.get_mem_object_internal(pointers.original_filter, filter_size);
 
   auto transform_access =
-      backend._get_mem_object_internal(pointers.filter, filter_size);
+      backend.get_mem_object_internal(pointers.filter, filter_size);
 
   cl::sycl::queue queue = backend.get_queue();
   return launch_filter_transform(filter_access, transform_access, params, queue,

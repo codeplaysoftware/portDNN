@@ -149,8 +149,8 @@ SNNStatus queue_subgroup_kernel(
   auto sycl_MemObj = sycldnn::helpers::alloc<T, is_usm>(
       mem1_size.size() + mem2_size.size(), queue);
 
-  auto mem1 = _make_mem_object(sycl_MemObj, mem1_size.size(), 0);
-  auto mem2 = _make_mem_object(sycl_MemObj, mem2_size.size(), mem1_size.size());
+  auto mem1 = make_mem_object(sycl_MemObj, mem1_size.size(), 0);
+  auto mem2 = make_mem_object(sycl_MemObj, mem2_size.size(), mem1_size.size());
 
   cl::sycl::nd_range<2> nd_range0(kernel_range, local_wg_range);
   auto event = queue.submit([&](cl::sycl::handler& cgh) {

@@ -90,8 +90,8 @@ struct DeviceMemPointer {
 #endif
 
   /**
-   * Construct a DeviceMemPointer to point to a known offset into the given SYCL
-   * buffer.
+   * Construct a DeviceMemPointer to point to a known offset into the
+   * given SYCL buffer.
    *
    * \param buffer SYCL buffer to point to.
    * \param offset Offset in number of elements into the SYCL buffer.

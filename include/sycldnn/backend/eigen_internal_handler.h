@@ -100,32 +100,6 @@ struct EigenInternalHandler
     auto offset = eigen_device.get_offset(ptr) / sizeof(T);
     return make_mem_object(typed_buffer, n_elems, offset);
   }
-
-  /**\copydoc get_mem_object_internal  */
-  // TODO: Remove this function
-  template <typename T>
-  auto _get_mem_object_internal(internal_pointer_type<T> ptr, size_t n_elems)
-      -> decltype(_make_mem_object(
-          std::declval<Eigen::SyclDevice>()
-              .get_sycl_buffer(ptr)
-              .template reinterpret<T>(std::declval<cl::sycl::range<1>>()),
-          n_elems, 0u)) {
-    // This deduced return type is required to ensure that the allocator type
-    // in the returned MemObject matches the allocator used in the Eigen device.
-    // We cannot assume that std::allocator is used.
-    auto eigen_device = this->underlying_backend().get_eigen_device();
-    auto raw_buffer = eigen_device.get_sycl_buffer(ptr);
-    auto buffer_size = raw_buffer.byte_size();
-    SNN_ASSERT(buffer_size % sizeof(T) == 0,
-               "Buffer size must exactly divide the size of its type.");
-    auto cast_size = buffer_size / sizeof(T);
-    SNN_ASSERT(cast_size >= n_elems,
-               "Buffer must contain at least n_elems elements.");
-    auto cast_range = cl::sycl::range<1>{cast_size};
-    auto typed_buffer = raw_buffer.template reinterpret<T>(cast_range);
-    auto offset = eigen_device.get_offset(ptr) / sizeof(T);
-    return _make_mem_object(typed_buffer, n_elems, offset);
-  }
 };
 }  // namespace backend
 }  // namespace sycldnn

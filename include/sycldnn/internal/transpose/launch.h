@@ -127,8 +127,8 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
                       static_cast<size_t>(1), std::multiplies<int>());
   SNN_VALIDATE_PARAM(tensor_size > 0, "Tensor size must be positive.");
 
-  auto in_acc = backend._get_mem_object(input, tensor_size);
-  auto out_acc = backend._get_mem_object(output, tensor_size);
+  auto in_acc = backend.get_mem_object(input, tensor_size);
+  auto out_acc = backend.get_mem_object(output, tensor_size);
 
   auto sycl_queue = backend.get_queue();
 

@@ -164,10 +164,10 @@ SNNStatus sublaunch(
   const auto index_depth = sizes.index_depth;
   const auto tensor_size = sizes.output_size;
   const auto slice_size = sizes.slice_size;
-  auto in_mem = backend._get_mem_object(input, tensor_size);
-  auto out_mem = backend._get_mem_object(output, tensor_size);
-  auto ind_mem = backend._get_mem_object(indices, num_updates * index_depth);
-  auto upd_mem = backend._get_mem_object(update, num_updates * slice_size);
+  auto in_mem = backend.get_mem_object(input, tensor_size);
+  auto out_mem = backend.get_mem_object(output, tensor_size);
+  auto ind_mem = backend.get_mem_object(indices, num_updates * index_depth);
+  auto upd_mem = backend.get_mem_object(update, num_updates * slice_size);
   auto queue = backend.get_queue();
 
   switch (index_depth) {

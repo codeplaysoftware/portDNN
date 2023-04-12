@@ -119,9 +119,9 @@ struct SNNMatmulExecutor : public BaseExecutor {
     ConstPointer const_lhs_gpu = lhs_gpu;
     ConstPointer const_rhs_gpu = rhs_gpu;
 
-    auto lhs_mem = backend._get_mem_object(const_lhs_gpu, lhs_vec.size());
-    auto rhs_mem = backend._get_mem_object(const_rhs_gpu, rhs_vec.size());
-    auto out_mem = backend._get_mem_object(out_gpu, out_vec.size());
+    auto lhs_mem = backend.get_mem_object(const_lhs_gpu, lhs_vec.size());
+    auto rhs_mem = backend.get_mem_object(const_rhs_gpu, rhs_vec.size());
+    auto out_mem = backend.get_mem_object(out_gpu, out_vec.size());
 
     {  // Ensure the kernel is built before benchmarking
       SNNStatus status;
