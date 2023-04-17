@@ -114,17 +114,27 @@ SNNStatus launch_variance(MemObj<T const>& centered_input, MemObj<T>& variance,
 template <typename T, template <typename> class MemObj,
           typename = std::enable_if<is_mem_obj_v<MemObj<T>, T>>>
 inline SNNStatus launch_batchnorm(
-    MemObj<T const>& centered_input, MemObj<T const>& beta,
-    MemObj<T const>& gamma, MemObj<T const>& current_variance,
-    MemObj<T>& output, MemObj<T>& workspace, const float epsilon,
-    const std::vector<int>& input_dims, const std::vector<int>& channel_dims,
-    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events) {
+    MemObj<T const>& input, MemObj<T const>& beta, MemObj<T const>& gamma,
+    MemObj<T const>& current_mean, MemObj<T const>& current_variance,
+    MemObj<T>& output, MemObj<T>& centered_input, MemObj<T>& workspace,
+    const float epsilon, const std::vector<int>& input_dims,
+    const std::vector<int>& channel_dims, cl::sycl::queue& queue,
+    const std::vector<cl::sycl::event>& events) {
   constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
+  std::vector<cl::sycl::event> dependencies;
+
+  SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Sub>(
+      input, current_mean, centered_input, input_dims, channel_dims, queue,
+      events);
+  dependencies = std::vector<cl::sycl::event>{status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
   auto sycl_epsilon =
       sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &epsilon, queue);
   auto epsilon_mem = make_mem_object<T const>(sycl_epsilon, 1);
-
-  SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Add>(
+  status = binaryop::internal::launch_binaryop<binaryop::Add>(
       current_variance, epsilon_mem, workspace, channel_dims, {1}, queue,
       events);
   if (sycldnn::StatusCode::OK != status.status) {
@@ -135,13 +145,16 @@ inline SNNStatus launch_batchnorm(
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
       const_workspace, workspace, helpers::get_total_size(channel_dims), queue,
       std::vector<cl::sycl::event>{status.event});
+  dependencies.push_back(
+      status.event);  // Output depends on centered_input and workspace
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  auto const_centered_input = centered_input.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
-      centered_input, const_workspace, output, input_dims, channel_dims, queue,
-      std::vector<cl::sycl::event>{status.event});
+      const_centered_input, const_workspace, output, input_dims, channel_dims,
+      queue, dependencies);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -215,50 +228,44 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
-  auto dims = get_input_dims(params);
+  auto input_dims = get_input_dims(params);
   auto channel_dims = get_4d_channel_dims(params);
 
   SNNStatus status;
   std::vector<cl::sycl::event> dependencies = events;
 
-  auto const_input = input.as_const();
-  auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
-  auto centered_input = make_mem_object(sycl_centered_input, n_items);
-  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      const_input, input_mean, centered_input, dims, channel_dims, queue,
-      dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
-  if (sycldnn::StatusCode::OK != status.status) {
-    return status;
-  }
+  auto sycl_auxiliary_input =
+      sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
+  auto auxiliary_input =
+      make_mem_object(sycl_auxiliary_input, n_items);  // Reused-later
 
   auto sycl_workspace =
       sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = make_mem_object(sycl_workspace, params.channels);
-  auto const_centered_input = centered_input.as_const();
-  status = launch_batchnorm(const_centered_input, beta, gamma, input_variance,
-                            output, workspace, params.epsilon, dims,
-                            channel_dims, queue, dependencies);
+
+  // auxiliary_input = centered_input
+  status = launch_batchnorm(input, beta, gamma, input_mean, input_variance,
+                            output, auxiliary_input, workspace, params.epsilon,
+                            input_dims, channel_dims, queue, dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
-  auto tr_input = make_mem_object(sycl_tr_input, n_items);
   // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   if (is_nchw) {
     auto input_dims = get_input_dims(params);
-    status = transpose::internal::launch(input, tr_input, input_dims,
+    status = transpose::internal::launch(input, auxiliary_input, input_dims,
                                          NCHW_TO_NHWC, queue, dependencies);
     dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
   }
-  auto const_tr_input = tr_input.as_const();
-  auto& nhwc_input = is_nchw ? const_tr_input : const_input;
+  // auxiliary_input = transposed input
+  auto const_tr_input = auxiliary_input.as_const();
+  auto& nhwc_input = is_nchw ? const_tr_input : input;
   auto nhwc_dims = {params.batch, params.rows, params.cols, params.channels};
 
   status = reduce::internal::launch<reduce::Mean>(
@@ -269,9 +276,10 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
     return status;
   }
 
+  // auxiliary_input = new centered_input
   auto const_running_mean = running_mean.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
-      nhwc_input, const_running_mean, centered_input, nhwc_dims,
+      nhwc_input, const_running_mean, auxiliary_input, nhwc_dims,
       {params.channels}, queue, dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
@@ -295,12 +303,9 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
     return status;
   }
 
-  // const_centered_input is read to calculate centered_input_squared, and not
-  // used again
-  auto& squared_centered_input = tr_input;
-  status =
-      launch_variance(const_centered_input, running_variance,
-                      squared_centered_input, params, backend, dependencies);
+  auto const_centered_input = auxiliary_input.as_const();
+  status = launch_variance(const_centered_input, running_variance,
+                           auxiliary_input, params, backend, dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
@@ -311,9 +316,8 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
       params.channels, queue, dependencies);
 
   status.event = sycldnn::helpers::enqueue_free(
-      queue, std::vector<cl::sycl::event>{status.event}, sycl_tr_input,
-      sycl_centered_input, sycl_workspace, sycl_momentum,
-      sycl_one_minus_momentum);
+      queue, std::vector<cl::sycl::event>{status.event}, sycl_auxiliary_input,
+      sycl_workspace, sycl_momentum, sycl_one_minus_momentum);
   return status;
 }
 
@@ -340,22 +344,15 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
 
   auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto centered_input = make_mem_object(sycl_centered_input, n_items);
-  SNNStatus status;
-  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      input, running_mean, centered_input, input_dims, channel_dims, queue,
-      events);
-  if (sycldnn::StatusCode::OK != status.status) {
-    return status;
-  }
 
   auto sycl_workspace =
       sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = make_mem_object(sycl_workspace, params.channels);
-  auto const_centered_input = centered_input.as_const();
-  status = launch_batchnorm(const_centered_input, beta, gamma, running_variance,
-                            output, workspace, params.epsilon, input_dims,
-                            channel_dims, queue,
-                            std::vector<cl::sycl::event>{status.event});
+
+  SNNStatus status =
+      launch_batchnorm(input, beta, gamma, running_mean, running_variance,
+                       output, centered_input, workspace, params.epsilon,
+                       input_dims, channel_dims, queue, events);
 
   status.event = sycldnn::helpers::enqueue_free(
       queue, std::vector<cl::sycl::event>{status.event}, sycl_centered_input,
