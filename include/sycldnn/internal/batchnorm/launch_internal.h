@@ -195,9 +195,8 @@ inline SNNStatus launch_running_mean_variance(
     return status;
   }
 
-  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      input, momentum, workspace, {size}, {1}, queue,
-      std::vector<cl::sycl::event>{status.event});
+  SNNStatus status2 = binaryop::internal::launch_binaryop<binaryop::Mul>(
+      input, momentum, workspace, {size}, {1}, queue, events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -205,7 +204,7 @@ inline SNNStatus launch_running_mean_variance(
   auto const_workspace = workspace.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
       const_output, const_workspace, output, size, queue,
-      std::vector<cl::sycl::event>{status.event});
+      std::vector<cl::sycl::event>{status.event, status2.event});
   return status;
 }
 
@@ -255,7 +254,6 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   // Transpose NCHW input to NHWC to reduce NHW dimensions in one go.
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   if (is_nchw) {
-    auto input_dims = get_input_dims(params);
     status = transpose::internal::launch(input, auxiliary_input, input_dims,
                                          NCHW_TO_NHWC, queue, dependencies);
     dependencies = std::vector<cl::sycl::event>{status.event};
