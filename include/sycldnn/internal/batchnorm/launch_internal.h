@@ -464,8 +464,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status_1;
   }
 
-  auto sycl_scaled_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
-  auto scaled_input = make_mem_object(sycl_scaled_input, n_items);
+  auto& scaled_input = tr_input;  // Re-use temporary memory
   auto const_centered_input = centered_input.as_const();
   status_1 =
       sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
@@ -485,9 +484,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status_1;
   }
 
-  auto sycl_input_variance =
-      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
-  auto input_variance = make_mem_object(sycl_input_variance, params.channels);
+  auto& input_variance = mean_input;
   status_1 = launch_variance(const_centered_input, input_variance, scaled_input,
                              params, backend, dependencies_2);
   dependencies_3 = std::vector<cl::sycl::event>{status_1.event};
@@ -561,7 +558,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status_1;
   }
 
-  auto& tr_output = tr_input;  // Re-use temporary memory
+  auto& tr_output = tr_gradient;  // Re-use temporary memory
   status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_output, const_input_variance, is_nchw ? tr_output : output,
       nhwc_dims, {params.channels}, queue, dependencies_1);
@@ -587,8 +584,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1.event = sycldnn::helpers::enqueue_free(
       queue, std::vector<cl::sycl::event>{status_1.event, status_2.event},
       sycl_tr_input, sycl_tr_gradient, sycl_mean_input, sycl_centered_input,
-      sycl_scaled_input, sycl_input_variance, sycl_epsilon, sycl_mean_gradient,
-      sycl_num_elts, sycl_workspace);
+      sycl_epsilon, sycl_mean_gradient, sycl_num_elts, sycl_workspace);
 
   return status_1;
 }
