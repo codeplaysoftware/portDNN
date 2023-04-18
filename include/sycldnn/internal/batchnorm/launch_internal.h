@@ -608,7 +608,29 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto queue = backend.get_queue();
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   SNNStatus status;
-  std::vector<cl::sycl::event> dependencies = events;
+
+  // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
+  auto sycl_tr_reduce = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
+  auto tr_reduce = make_mem_object(sycl_tr_reduce, n_items);
+  auto beta_grad_dependencies = std::vector<cl::sycl::event>{};
+  if (is_nchw) {
+    status = transpose::internal::launch(gradient, tr_reduce, input_dims,
+                                         NCHW_TO_NHWC, queue, events);
+    beta_grad_dependencies.push_back(status.event);
+    if (sycldnn::StatusCode::OK != status.status) {
+      return status;
+    }
+  }
+  auto const_tr_reduce = tr_reduce.as_const();
+  MemObj<T const>& nhwc_reduce_1 = is_nchw ? const_tr_reduce : gradient;
+  SNNStatus beta_grad_status = reduce::internal::launch<reduce::Add>(
+      nhwc_reduce_1, beta_grad, 1, get_non_channel_size(params),
+      params.channels, backend, beta_grad_dependencies);
+  auto launch_gradient_dependencies =
+      std::vector<cl::sycl::event>{status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
 
   auto sycl_epsilon =
       sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &params.epsilon, queue);
@@ -618,8 +640,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto workspace = make_mem_object(sycl_workspace, params.channels);
 
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
-      pop_variance, epsilon, workspace, channel_dims, {1}, queue, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+      pop_variance, epsilon, workspace, channel_dims, {1}, queue, events);
+  auto dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -633,16 +655,16 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   }
 
   status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-      input, pop_mean, output, input_dims, channel_dims, queue, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+      input, pop_mean, output, input_dims, channel_dims, queue, events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_output = output.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
-      const_output, gradient, output, input_dims, queue, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+      const_output, gradient, output, input_dims, queue,
+      std::vector<cl::sycl::event>{status.event});
+  dependencies.push_back(status.event);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -651,32 +673,35 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
       const_output, const_workspace, output, input_dims, channel_dims, queue,
       dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
+  auto gamma_grad_dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
-  auto sycl_tr_reduce = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
-  auto tr_reduce = make_mem_object(sycl_tr_reduce, n_items);
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
   if (is_nchw) {
-    status = transpose::internal::launch(const_output, tr_reduce, input_dims,
-                                         NCHW_TO_NHWC, queue, dependencies);
-    dependencies = std::vector<cl::sycl::event>{status.event};
+    status = transpose::internal::launch(
+        const_output, tr_reduce, input_dims, NCHW_TO_NHWC, queue,
+        std::vector<cl::sycl::event>{status.event, beta_grad_status.event});
+    gamma_grad_dependencies = std::vector<cl::sycl::event>{status.event};
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
+    const_tr_reduce = tr_reduce.as_const();
   }
-  auto const_tr_reduce = tr_reduce.as_const();
-  MemObj<T const>& nhwc_reduce_1 = is_nchw ? const_tr_reduce : const_output;
+  MemObj<T const>& nhwc_reduce_2 = is_nchw ? const_tr_reduce : const_output;
 
   status = reduce::internal::launch<reduce::Add>(
-      nhwc_reduce_1, gamma_grad, 1, get_non_channel_size(params),
-      params.channels, backend, dependencies);
+      nhwc_reduce_2, gamma_grad, 1, get_non_channel_size(params),
+      params.channels, backend, gamma_grad_dependencies);
+  launch_gradient_dependencies.push_back(status.event);
   dependencies = std::vector<cl::sycl::event>{status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
+  // Being dependent on const_output, const_workspace binary op ensures
+  // values in workspace have been already used
   status = binaryop::internal::launch_binaryop<binaryop::Div>(
       gamma, const_workspace, workspace, params.channels, queue, dependencies);
   dependencies = std::vector<cl::sycl::event>{status.event};
@@ -691,21 +716,6 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
-
-  // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
-  if (is_nchw) {
-    status = transpose::internal::launch(gradient, tr_reduce, input_dims,
-                                         NCHW_TO_NHWC, queue, dependencies);
-    dependencies = std::vector<cl::sycl::event>{status.event};
-    if (sycldnn::StatusCode::OK != status.status) {
-      return status;
-    }
-    const_tr_reduce = tr_reduce.as_const();
-  }
-  MemObj<T const>& nhwc_reduce_2 = is_nchw ? const_tr_reduce : gradient;
-  status = reduce::internal::launch<reduce::Add>(
-      nhwc_reduce_2, beta_grad, 1, get_non_channel_size(params),
-      params.channels, backend, dependencies);
 
   status.event = sycldnn::helpers::enqueue_free(
       queue, std::vector<cl::sycl::event>{status.event}, sycl_epsilon,
