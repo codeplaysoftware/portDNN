@@ -25,6 +25,8 @@
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
 
+#include <cstddef>
+
 namespace sycldnn {
 namespace conv2d {
 

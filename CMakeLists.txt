@@ -78,6 +78,7 @@ option(SNN_BENCH_SNN "Benchmark SYCL-DNN's own matmul" OFF)
 option(SNN_BENCH_MKLDNN "Whether or not to build MKL-DNN benchmarks" OFF)
 option(SNN_BENCH_ARM_COMPUTE
   "Whether or not to build ARM compute library benchmarks" OFF)
+option(SNN_BENCH_CUDNN "Whether or not to build cudnn benchmarks" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_DATA_INT_TYPES uint8_t uint16_t uint32_t uint64_t)

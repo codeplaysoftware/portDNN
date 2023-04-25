@@ -17,7 +17,6 @@
 
 #ifdef SNN_BENCH_EIGEN
 #include "src/backend/eigen_backend_provider.h"
-
 #include "sycldnn/backend/eigen_backend.h"
 #endif  // SNN_BENCH_EIGEN
 

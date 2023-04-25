@@ -16,6 +16,8 @@
 #ifndef SYCLDNN_INCLUDE_HELPERS_SCOPE_EXIT_H_
 #define SYCLDNN_INCLUDE_HELPERS_SCOPE_EXIT_H_
 
+#include <utility>
+
 namespace sycldnn {
 namespace helpers {
 /** Wrapper around a task which will execute on destruction. */

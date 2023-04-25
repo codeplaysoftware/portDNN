@@ -470,6 +470,47 @@ if(SNN_BENCH_MKLDNN)
   snn_mkl_depthwise_conv2d_bench(xception)
 endif()
 
+if(SNN_BENCH_CUDNN)
+  find_package(CUDAToolkit REQUIRED)
+  find_library(CUDNN_LIBRARY
+    NAMES libcudnn.so
+    DOC "The cuDNN library"
+  )
+  add_library(cudnn SHARED IMPORTED)
+  set_target_properties(cudnn PROPERTIES IMPORTED_LOCATION ${CUDNN_LIBRARY})
+  snn_object_library(
+    TARGET
+      cudnn_conv2d_benchmark_functions
+    SOURCES
+      conv2d/cudnn_benchmark_functions.cc
+    PUBLIC_LIBRARIES
+      benchmark::benchmark
+      CUDA::cudart
+      CUDA::cuda_driver
+    PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
+  )
+  function(snn_cudnn_conv2d_bench modelname)
+    snn_bench(
+      TARGET
+        cudnn_${modelname}_convolution
+      OBJECTS
+        $<TARGET_OBJECTS:cudnn_conv2d_benchmark_functions>
+        $<TARGET_OBJECTS:${modelname}_convolution_config>
+      PUBLIC_LIBRARIES
+        CUDA::cudart
+        CUDA::cuda_driver
+        cudnn
+        bench_main
+    )
+  endfunction()
+  snn_cudnn_conv2d_bench(mobilenet)
+  snn_cudnn_conv2d_bench(resnet)
+  snn_cudnn_conv2d_bench(ssd_mobilenet)
+  snn_cudnn_conv2d_bench(vgg)
+  snn_cudnn_conv2d_bench(xception)
+endif()
+
 snn_object_library(
   WITH_SYCL
   TARGET

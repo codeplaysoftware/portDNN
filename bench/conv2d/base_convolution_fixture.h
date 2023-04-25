@@ -79,7 +79,7 @@ void BaseConvolutionBenchmark::add_bandwidth_counters(
 // Records the number of elements processed to the counter set. How this
 // calculated varies based on the type of convolution.
 template <>
-void BaseConvolutionBenchmark::set_items_processed<
+inline void BaseConvolutionBenchmark::set_items_processed<
     sycldnn::conv2d::conv_type::Forward>(
     benchmark::State& state, sycldnn::conv2d::Conv2DParams const& params) {
   state.SetItemsProcessed(state.iterations() * params.batch * params.out_rows *
@@ -89,7 +89,7 @@ void BaseConvolutionBenchmark::set_items_processed<
 }
 
 template <>
-void BaseConvolutionBenchmark::set_items_processed<
+inline void BaseConvolutionBenchmark::set_items_processed<
     sycldnn::conv2d::conv_type::InputBackprop>(
     benchmark::State& state, sycldnn::conv2d::Conv2DParams const& params) {
   state.SetItemsProcessed(state.iterations() * params.batch * params.in_rows *
@@ -99,7 +99,7 @@ void BaseConvolutionBenchmark::set_items_processed<
 }
 
 template <>
-void BaseConvolutionBenchmark::set_items_processed<
+inline void BaseConvolutionBenchmark::set_items_processed<
     sycldnn::conv2d::conv_type::FilterBackprop>(
     benchmark::State& state, sycldnn::conv2d::Conv2DParams const& params) {
   state.SetItemsProcessed(state.iterations() * params.batch * params.in_rows *
