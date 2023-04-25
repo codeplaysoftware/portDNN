@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <vector>
+#include "scaling.hpp"
 #include "sycldnn/compat/nan.h"
 #include "sycldnn/pooling/launch.h"
 #include "sycldnn/pooling/params.h"
@@ -191,11 +192,11 @@ inline sycldnn::pooling::PoolingParams descToSnnParams(
 /**
  * Performs the pooling forward operation.
  * \param handle The SNNHandle.
- * \param alpha Scaling factor, currently unused.
+ * \param alpha Scaling factor used to blend y output.
  * \param xDesc Descriptor for the input tensor.
  * \param x Pointer to device memory for the input tensor.
  * \param poolDesc Descriptor for the pooling operation.
- * \param beta Scaling factor, currently unused.
+ * \param beta Scaling factor used to blend y output.
  * \param yDesc Descriptor for the output tensor.
  * \param y Pointer to device memory for the output.
  * \return SNNStatus for the operation.
@@ -205,29 +206,36 @@ SNNStatus poolingForward(SNNHandle& handle, const PoolingDescriptor& poolDesc,
                          const void* alpha, const TensorDescriptor& xDesc,
                          const void* x, void* beta,
                          const TensorDescriptor& yDesc, void* y) {
-  SNN_UNUSED_VAR(alpha);
-  SNN_UNUSED_VAR(beta);
+  ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y);
+  SNNStatus poolingEvent;
+  poolingEvent.event = scParams.constructMem(handle.getBackend());
 
-  sycldnn::pooling::PoolingParams pool_params =
-      internal::descToSnnParams(xDesc, yDesc, poolDesc);
-  if (poolDesc.getMode() == PoolingMode::POOLING_MAX_DETERMINISTIC) {
-    if (poolDesc.getMaxPoolNanOpt() == NanPropagation::NOT_PROPAGATE_NAN) {
-      return sycldnn::pooling::launch<ValueT, sycldnn::pooling::Max,
-                                      sycldnn::pooling::Forward>(
-          static_cast<const ValueT*>(x), static_cast<ValueT*>(y), pool_params,
-          handle.getBackend(), {});
+  if (!scParams.isAlphaZero()) {
+    sycldnn::pooling::PoolingParams poolingParams =
+        internal::descToSnnParams(xDesc, yDesc, poolDesc);
+
+    if (poolDesc.getMode() == PoolingMode::POOLING_MAX_DETERMINISTIC) {
+      if (poolDesc.getMaxPoolNanOpt() == NanPropagation::NOT_PROPAGATE_NAN) {
+        poolingEvent = sycldnn::pooling::launch<ValueT, sycldnn::pooling::Max,
+                                                sycldnn::pooling::Forward>(
+            static_cast<const ValueT*>(x), static_cast<ValueT*>(y),
+            poolingParams, handle.getBackend(), {poolingEvent.event});
+      } else {
+        poolingEvent =
+            sycldnn::pooling::launch<ValueT, sycldnn::pooling::MaxWithNan,
+                                     sycldnn::pooling::Forward>(
+                static_cast<const ValueT*>(x), static_cast<ValueT*>(y),
+                poolingParams, handle.getBackend(), {poolingEvent.event});
+      }
     } else {
-      return sycldnn::pooling::launch<ValueT, sycldnn::pooling::MaxWithNan,
-                                      sycldnn::pooling::Forward>(
-          static_cast<const ValueT*>(x), static_cast<ValueT*>(y), pool_params,
-          handle.getBackend(), {});
+      poolingEvent = sycldnn::pooling::launch<ValueT, sycldnn::pooling::Average,
+                                              sycldnn::pooling::Forward>(
+          static_cast<const ValueT*>(x), static_cast<ValueT*>(y), poolingParams,
+          handle.getBackend(), {poolingEvent.event});
     }
-  } else {
-    return sycldnn::pooling::launch<ValueT, sycldnn::pooling::Average,
-                                    sycldnn::pooling::Forward>(
-        static_cast<const ValueT*>(x), static_cast<ValueT*>(y), pool_params,
-        handle.getBackend(), {});
   }
+
+  return scParams.applyScaling(handle.getBackend(), {poolingEvent.event});
 }
 }  // namespace compat
 }  // namespace sycldnn
