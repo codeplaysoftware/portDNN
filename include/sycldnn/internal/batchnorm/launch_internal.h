@@ -126,7 +126,7 @@ inline SNNStatus launch_batchnorm(
   SNNStatus status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       input, current_mean, centered_input, input_dims, channel_dims, queue,
       events);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+  dependencies = {status.event};
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -144,9 +144,9 @@ inline SNNStatus launch_batchnorm(
   auto const_workspace = workspace.as_const();
   status = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
       const_workspace, workspace, helpers::get_total_size(channel_dims), queue,
-      std::vector<cl::sycl::event>{status.event});
-  dependencies.push_back(
-      status.event);  // Output depends on centered_input and workspace
+      {status.event});
+  // Output depends on centered_input and workspace
+  dependencies.push_back(status.event);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -162,17 +162,17 @@ inline SNNStatus launch_batchnorm(
   auto const_output = output.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_output, gamma, output, input_dims, channel_dims, queue,
-      std::vector<cl::sycl::event>{status.event});
+      {status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
       const_output, beta, output, input_dims, channel_dims, queue,
-      std::vector<cl::sycl::event>{status.event});
+      {status.event});
 
-  status.event = sycldnn::helpers::enqueue_free(
-      queue, std::vector<cl::sycl::event>{status.event}, sycl_epsilon);
+  status.event =
+      sycldnn::helpers::enqueue_free(queue, {status.event}, sycl_epsilon);
 
   return status;
 }
@@ -204,7 +204,7 @@ inline SNNStatus launch_running_mean_variance(
   auto const_workspace = workspace.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
       const_output, const_workspace, output, size, queue,
-      std::vector<cl::sycl::event>{status.event, status2.event});
+      {status.event, status2.event});
   return status;
 }
 
@@ -245,8 +245,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   // auxiliary_input = centered_input
   status = launch_batchnorm(input, beta, gamma, input_mean, input_variance,
                             output, auxiliary_input, workspace, params.epsilon,
-                            input_dims, channel_dims, queue, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+                            input_dims, channel_dims, queue, events);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -255,8 +254,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   if (is_nchw) {
     status = transpose::internal::launch(input, auxiliary_input, input_dims,
-                                         NCHW_TO_NHWC, queue, dependencies);
-    dependencies = std::vector<cl::sycl::event>{status.event};
+                                         NCHW_TO_NHWC, queue, {status.event});
     if (sycldnn::StatusCode::OK != status.status) {
       return status;
     }
@@ -268,8 +266,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
 
   status = reduce::internal::launch<reduce::Mean>(
       nhwc_input, running_mean, 1, get_non_channel_size(params),
-      params.channels, backend, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+      params.channels, backend, {status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -278,8 +275,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
   auto const_running_mean = running_mean.as_const();
   status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       nhwc_input, const_running_mean, auxiliary_input, nhwc_dims,
-      {params.channels}, queue, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+      {params.channels}, queue, {status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
@@ -295,27 +291,25 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
 
   status = launch_running_mean_variance(
       input_mean, momentum, one_minus_momentum, running_mean, workspace,
-      params.channels, queue, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+      params.channels, queue, {status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   auto const_centered_input = auxiliary_input.as_const();
   status = launch_variance(const_centered_input, running_variance,
-                           auxiliary_input, params, backend, dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+                           auxiliary_input, params, backend, {status.event});
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status = launch_running_mean_variance(
       input_variance, momentum, one_minus_momentum, running_variance, workspace,
-      params.channels, queue, dependencies);
+      params.channels, queue, {status.event});
 
   status.event = sycldnn::helpers::enqueue_free(
-      queue, std::vector<cl::sycl::event>{status.event}, sycl_auxiliary_input,
-      sycl_workspace, sycl_momentum, sycl_one_minus_momentum);
+      queue, {status.event}, sycl_auxiliary_input, sycl_workspace,
+      sycl_momentum, sycl_one_minus_momentum);
   return status;
 }
 
@@ -353,8 +347,7 @@ SNNStatus launch_forward(MemObj<T const>& input, MemObj<T const>& beta,
                        input_dims, channel_dims, queue, events);
 
   status.event = sycldnn::helpers::enqueue_free(
-      queue, std::vector<cl::sycl::event>{status.event}, sycl_centered_input,
-      sycl_workspace);
+      queue, {status.event}, sycl_centered_input, sycl_workspace);
 
   return status;
 }
