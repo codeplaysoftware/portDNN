@@ -374,9 +374,9 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   const bool is_nchw = params.input_format == DataFormat::NCHW;
   SNNStatus status_1;
   SNNStatus status_2;
-  std::vector<cl::sycl::event> dependencies_1 = events;
-  std::vector<cl::sycl::event> dependencies_2 = events;
-  std::vector<cl::sycl::event> dependencies_3 = events;
+  std::vector<cl::sycl::event> dependencies_1;
+  std::vector<cl::sycl::event> dependencies_3;
+  std::vector<cl::sycl::event> dependencies_2;
 
   auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto tr_input = make_mem_object(sycl_tr_input, n_items);
@@ -388,15 +388,15 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     auto input_dims = get_input_dims(params);
     status_1 = transpose::internal::launch(gradient, tr_gradient, input_dims,
                                            NCHW_TO_NHWC, queue, events);
-    dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
-    dependencies_3 = std::vector<cl::sycl::event>{status_1.event};
+    dependencies_1 = {status_1.event};
+    dependencies_2 = {status_1.event};
     if (sycldnn::StatusCode::OK != status_1.status) {
       return status_1;
     }
 
     status_2 = transpose::internal::launch(input, tr_input, input_dims,
                                            NCHW_TO_NHWC, queue, events);
-    dependencies_2 = std::vector<cl::sycl::event>{status_2.event};
+    dependencies_3 = {status_2.event};
     if (sycldnn::StatusCode::OK != status_2.status) {
       return status_2;
     }
@@ -408,7 +408,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 = reduce::internal::launch<reduce::Add>(
       nhwc_gradient, beta_grad, 1, get_non_channel_size(params),
       params.channels, backend, dependencies_1);
-  dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
+  dependencies_1 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -424,7 +424,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_beta_grad, num_elts, mean_gradient, {params.channels}, {1}, queue,
       dependencies_1);
-  dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
+  dependencies_1 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -434,7 +434,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
       sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
           nhwc_gradient, const_mean_gradient, output, nhwc_dims,
           {params.channels}, queue, dependencies_1);
-  dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
+  dependencies_1 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -446,8 +446,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto mean_input = make_mem_object(sycl_mean_input, params.channels);
   status_1 = reduce::internal::launch<reduce::Mean>(
       nhwc_input, mean_input, 1, get_non_channel_size(params), params.channels,
-      backend, dependencies_2);
-  dependencies_2 = std::vector<cl::sycl::event>{status_1.event};
+      backend, dependencies_3);
+  dependencies_3 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -458,8 +458,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 =
       sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
           nhwc_input, const_mean_input, centered_input, nhwc_dims,
-          {params.channels}, queue, dependencies_2);
-  dependencies_3.push_back(status_1.event);
+          {params.channels}, queue, dependencies_3);
+  dependencies_2.push_back(status_1.event);
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -469,8 +469,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 =
       sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
           nhwc_gradient, const_centered_input, scaled_input, nhwc_dims, queue,
-          dependencies_3);
-  dependencies_2 = std::vector<cl::sycl::event>{status_1.event};
+          dependencies_2);
+  dependencies_3 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -478,16 +478,16 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto const_scaled_input = scaled_input.as_const();
   status_1 = reduce::internal::launch<reduce::Add>(
       const_scaled_input, gamma_grad, 1, get_non_channel_size(params),
-      params.channels, backend, dependencies_2);
-  dependencies_2 = std::vector<cl::sycl::event>{status_1.event};
+      params.channels, backend, dependencies_3);
+  dependencies_3 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
 
   auto& input_variance = mean_input;
   status_1 = launch_variance(const_centered_input, input_variance, scaled_input,
-                             params, backend, dependencies_2);
-  dependencies_3 = std::vector<cl::sycl::event>{status_1.event};
+                             params, backend, dependencies_3);
+  dependencies_2 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -498,8 +498,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto const_gamma_grad = gamma_grad.as_const();
   status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_gamma_grad, num_elts, workspace, {params.channels}, {1}, queue,
-      dependencies_2);
-  dependencies_2 = std::vector<cl::sycl::event>{status_1.event};
+      dependencies_3);
+  dependencies_3 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -510,8 +510,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto const_input_variance = input_variance.as_const();
   status_1 = binaryop::internal::launch_binaryop<binaryop::Add>(
       const_input_variance, epsilon, input_variance, {params.channels}, {1},
-      queue, dependencies_3);
-  dependencies_2.push_back(status_1.event);
+      queue, dependencies_2);
+  dependencies_3.push_back(status_1.event);
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -519,23 +519,23 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto const_workspace = workspace.as_const();
   status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_workspace, const_input_variance, workspace, params.channels, queue,
-      dependencies_2);
-  dependencies_2 = std::vector<cl::sycl::event>{status_1.event};
+      dependencies_3);
+  dependencies_3 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
 
   status_1 = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
       const_input_variance, input_variance, params.channels, queue,
-      dependencies_2);
-  dependencies_3 = std::vector<cl::sycl::event>{status_1.event};
+      dependencies_3);
+  dependencies_2 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
 
   status_1 = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_centered_input, const_workspace, centered_input, nhwc_dims,
-      {params.channels}, queue, dependencies_2);
+      {params.channels}, queue, dependencies_3);
   dependencies_1.push_back(status_1.event);
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
@@ -545,7 +545,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 = binaryop::internal::launch_binaryop<binaryop::Sub>(
       const_output, const_centered_input, output, nhwc_dims, queue,
       dependencies_1);
-  dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
+  dependencies_1 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -553,7 +553,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_output, gamma, output, nhwc_dims, {params.channels}, queue,
       dependencies_1);
-  dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
+  dependencies_1 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -562,7 +562,7 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_output, const_input_variance, is_nchw ? tr_output : output,
       nhwc_dims, {params.channels}, queue, dependencies_1);
-  dependencies_1 = std::vector<cl::sycl::event>{status_1.event};
+  dependencies_1 = {status_1.event};
   if (sycldnn::StatusCode::OK != status_1.status) {
     return status_1;
   }
@@ -579,12 +579,12 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
 
   status_2 = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_gamma_grad, const_input_variance, gamma_grad, params.channels,
-      queue, dependencies_3);
+      queue, dependencies_2);
 
   status_1.event = sycldnn::helpers::enqueue_free(
-      queue, std::vector<cl::sycl::event>{status_1.event, status_2.event},
-      sycl_tr_input, sycl_tr_gradient, sycl_mean_input, sycl_centered_input,
-      sycl_epsilon, sycl_mean_gradient, sycl_num_elts, sycl_workspace);
+      queue, {status_1.event, status_2.event}, sycl_tr_input, sycl_tr_gradient,
+      sycl_mean_input, sycl_centered_input, sycl_epsilon, sycl_mean_gradient,
+      sycl_num_elts, sycl_workspace);
 
   return status_1;
 }
