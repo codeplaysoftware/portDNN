@@ -38,13 +38,13 @@ class Conv2DCompatTest : public ::testing::Test {
                                      &out_c, &out_h, &out_w);
     const size_t out_size = out_n * out_c * out_h * out_w;
     float* out_ptr = sycl::malloc_device<float>(out_size, handle.getQueue());
+    auto out = iota_initialised_data(out_size, max_val);
+    handle.getQueue()
+        .memcpy(out_ptr, out.data(), out_size * sizeof(float))
+        .wait();
+
     TensorDescriptor out_desc;
     out_desc.set4d(in_desc.getFormat(), out_n, out_c, out_h, out_w);
-
-    auto out_data = iota_initialised_data(out_size, max_val);
-    handle.getQueue()
-        .memcpy(out_ptr, out_data.data(), out_size * sizeof(float))
-        .wait();
     return std::make_pair(out_ptr, out_desc);
   }
 
@@ -52,7 +52,8 @@ class Conv2DCompatTest : public ::testing::Test {
       const std::vector<int>& in_sizes,    // nchw
       const std::vector<int>& filt_sizes,  // kchw
       const std::vector<int>& conv_sizes,  // padhw, stridehw, dilationhw
-      const std::vector<float>& expect, const sycldnn::DataFormat format) {
+      const std::vector<float>& expect, const sycldnn::DataFormat format,
+      float alpha = 1.0, float beta = 0.0) {
     const float max_val = 2048;
     size_t in_tot_count = std::accumulate(in_sizes.begin(), in_sizes.end(), 1,
                                           std::multiplies<int>());
@@ -75,9 +76,8 @@ class Conv2DCompatTest : public ::testing::Test {
         get_out_ptr_and_desc(handle, in_desc, filt_desc, conv_desc, max_val);
 
     SNNStatus status = convolutionBackwardData(
-        handle, /*alpha*/ nullptr, filt_desc, filt_ptr, out_desc, out_ptr,
-        conv_desc, sycldnn::conv2d::Algorithm::Direct, nullptr, 0,
-        /*beta*/ nullptr, in_desc, in_ptr);
+        handle, &alpha, filt_desc, filt_ptr, out_desc, out_ptr, conv_desc,
+        sycldnn::conv2d::Algorithm::Direct, nullptr, 0, &beta, in_desc, in_ptr);
     EXPECT_EQ(status.status, StatusCode::OK);
     handle.getQueue().wait();
 
@@ -208,4 +208,156 @@ TEST_F(Conv2DCompatTest, InputBackpropWindow7Stride4SAME1x11x12x1x2) {
        1661., 1715., 3552., 3668., 3784., 1969., 4044., 4176., 4308., 2223.,
        2293.},
       sycldnn::DataFormat::NHWC);
+}
+
+/**
+ * Out deltas: 1   4    Filter: 1
+ *              2   5            2
+ *               3   6            3
+ *
+ * alpha : 0.0
+ * beta : 0.0
+ *
+ * dx_ini: 1   2
+ *
+ * Input deltas: 0*(1+4+9)+0   0*(4+10+18)+0
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_0_beta_0) {
+  float alpha = 0.0;
+  float beta = 0.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {0, 0},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+/**
+ * Out deltas: 1   4    Filter: 1
+ *              2   5            2
+ *               3   6            3
+ *
+ * alpha : 0.0
+ * beta : 1.0
+ *
+ * dx_ini: 1   2
+ *
+ * Input deltas: 0*(1+4+9)+(1*1)   0*(4+10+18)+(1*2)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_0_beta_1) {
+  float alpha = 0.0;
+  float beta = 1.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {1, 2},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+/**
+ * Out deltas: 1   4    Filter: 1
+ *              2   5            2
+ *               3   6            3
+ *
+ * alpha : 1.0
+ * beta : 1.0
+ *
+ * dx_ini: 1   2
+ *
+ * Input deltas: 1*(1+4+9)+(1*1)   1*(4+10+18)+(1*2)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_1_beta_1) {
+  float alpha = 1.0;
+  float beta = 1.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {15, 34},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+
+/**
+ * Out deltas: 1   4    Filter: 1
+ *              2   5            2
+ *               3   6            3
+ *
+ * alpha : 0.0
+ * beta : -1.0
+ *
+ * dx_ini: 1   2
+ *
+ * Input deltas: 0*(1+4+9)+(-1*1)   0*(4+10+18)+(-1*2)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_0_beta_neg_1) {
+  float alpha = 0.0;
+  float beta = -1.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {-1, -2},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+/**
+ * Out deltas: 1   4    Filter: 1
+ *              2   5            2
+ *               3   6            3
+ *
+ * alpha : 2.0
+ * beta : 1.0
+ *
+ * dx_ini: 1   2
+ *
+ * Input deltas: 2*(1+4+9)+(1*1)   2*(4+10+18)+(1*2)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_2_beta_1) {
+  float alpha = 2.0;
+  float beta = 1.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {29, 66},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+/*
+ * Input: 1   2  Filter:   1   2   3
+ *        3   4            4   5   6
+ *                         7   8   9
+ *
+ * alpha : 2.0
+ * beta : 0.0
+ *
+ * dx_ini:  1   2   3   4
+ *          5   6   7   8
+ *          9   10  11  12
+ *          13  14  15  16
+ *
+ * Output:   2x1x1        2x1x2         2x1x3+2x1           2x2x2
+ *           2x1x4        2x1x5         2x1x6+2x4           2x2x5
+ *        2x(1x7+3x1)  2x(1x8+3x2)  2x(1x9+2x7+3x3+4x1)  2x(2x8+4x2)
+ *           2x3x4        2x3x5        2x(3x6+4x4)          2x4x5
+ */
+TEST_F(Conv2DCompatTest,
+       InputBackpropWindow3Stride2VALID1x5x5x1x1_alpha_2_beta_0) {
+  float alpha = 2.0;
+  float beta = 0.0;
+  this->do_test({1, 1, 5, 5}, {1, 1, 3, 3}, {0, 0, 2, 2, 1, 1},
+                {2,  4,  10, 8,  12, 8,  10, 28, 20, 24,  20, 28, 72,
+                 48, 60, 24, 30, 68, 40, 48, 42, 48, 110, 64, 72},
+                sycldnn::DataFormat::NCHW, alpha, beta);
+}
+/*
+ * Input: 1   2  Filter:   1   2   3
+ *        3   4            4   5   6
+ *                         7   8   9
+ *
+ * alpha : 0.0
+ * beta : 1.0
+ *
+ * dx_ini:  1   2   3   4   5
+ *          6   7   8   9   10
+ *          11  12  13  14  15
+ *          16  17  18  19  20
+ *          21  22  23  24  25
+ *
+ * Output:  1x1      1x2        1x3+2x1        2x2
+ *          1x4      1x5        1x6+2x4        2x5
+ *        1x7+3x1  1x8+3x2  1x9+2x7+3x3+4x1  2x8+4x2
+ *          3x4      3x5        3x6+4x4        4x5
+ */
+TEST_F(Conv2DCompatTest,
+       InputBackpropWindow3Stride2VALID1x5x5x1x1_alpha_0_beta_1) {
+  float alpha = 0.0;
+  float beta = 1.0;
+  this->do_test({1, 1, 5, 5}, {1, 1, 3, 3}, {0, 0, 2, 2, 1, 1},
+                {1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13,
+                 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25},
+                sycldnn::DataFormat::NCHW, alpha, beta);
 }

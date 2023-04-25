@@ -48,7 +48,7 @@ void print(const float* data, int n, int c, int h, int w, sycl::queue q) {
       std::cout << "n=" << i << ", c=" << j << ":" << std::endl;
       for (int k = 0; k < h; ++k) {
         for (int l = 0; l < w; ++l) {
-          std::cout << std::setw(4) << std::right << buffer[a];
+          std::cout << std::setw(8) << std::right << buffer[a];
           ++a;
         }
         std::cout << std::endl;
@@ -138,14 +138,18 @@ int main() {
   float* out_data = (float*)sycl::malloc_device(
       out_n * out_c * out_h * out_w * sizeof(float), q);
 
-  float alpha = 1.f;
-  float beta = 0.f;
+  float alpha = 0.95f;
+  float beta = 0.05f;
+
   q.parallel_for(sycl::nd_range<1>(in_w * in_h, in_n * in_c),
                  [=](sycl::nd_item<1> item) { dev_iota(in_data, item); });
 
   q.parallel_for(
       sycl::nd_range<1>(filt_w * filt_h, filt_k * filt_c),
       [=](sycl::nd_item<1> item) { dev_const(filt_data, 1.f, item); });
+
+  q.parallel_for(sycl::nd_range<1>(out_w * out_h, out_n * out_c),
+                 [=](sycl::nd_item<1> item) { dev_iota(out_data, item); });
 
   auto status =
       convolutionForward(handle, &alpha, in_desc, in_data, filt_desc, filt_data,

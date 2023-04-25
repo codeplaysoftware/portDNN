@@ -53,7 +53,8 @@ class Conv2DCompatTest : public ::testing::Test {
       const std::vector<int>& in_sizes,    // nchw
       const std::vector<int>& filt_sizes,  // kchw
       const std::vector<int>& conv_sizes,  // padhw, stridehw, dilationhw
-      const std::vector<float>& expect, const sycldnn::DataFormat format) {
+      const std::vector<float>& expect, const sycldnn::DataFormat format,
+      float alpha = 1.0, float beta = 0.0) {
     const float max_val = 2048;
     size_t in_tot_count = std::accumulate(in_sizes.begin(), in_sizes.end(), 1,
                                           std::multiplies<int>());
@@ -76,9 +77,9 @@ class Conv2DCompatTest : public ::testing::Test {
         get_out_ptr_and_desc(handle, in_desc, filt_desc, conv_desc, max_val);
 
     SNNStatus status = convolutionBackwardFilter(
-        handle, /*alpha*/ nullptr, in_desc, in_ptr, out_desc, out_ptr,
-        conv_desc, sycldnn::conv2d::Algorithm::Direct, nullptr, 0,
-        /*beta*/ nullptr, filt_desc, filt_ptr);
+        handle, &alpha, in_desc, in_ptr, out_desc, out_ptr, conv_desc,
+        sycldnn::conv2d::Algorithm::Direct, nullptr, 0, &beta, filt_desc,
+        filt_ptr);
     EXPECT_EQ(status.status, StatusCode::OK);
     handle.getQueue().wait();
 
@@ -225,4 +226,109 @@ TEST_F(Conv2DCompatTest, FilterBackpropWindow7Stride4SAME1x11x11x1x2) {
        1492., 1736., 1512., 1760., 2260., 2544., 2288., 2576., 2984., 3410.,
        3020., 3452., 3056., 3494., 1712., 2000., 1732., 2024.},
       sycldnn::DataFormat::NHWC);
+}
+
+/**
+ * Input: 1   4    Out deltas:
+ *         2   5                1 2
+ *          3   6
+ *
+ * alpha : 0.0
+ * beta : 0.0
+ *
+ * Filter deltas:  0*(1+8)+0
+ *                0*(2+10)+0
+ *                0*(3+12)+0
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_0_beta_0) {
+  float alpha = 0.0;
+  float beta = 0.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {0, 0, 0},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+/**
+ * Input: 1   4    Out deltas:
+ *         2   5                1 2
+ *          3   6
+ *
+ * alpha : 0.0
+ * beta : 1.0
+ *
+ * dw_ini: 1 2 3
+ *
+ * Filter deltas:  0*(1+8)+(1*1)
+ *                0*(2+10)+(1*2)
+ *                0*(3+12)+(1*3)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_0_beta_1) {
+  float alpha = 0.0;
+  float beta = 1.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {1, 2, 3},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+
+/**
+ * Input: 1   4    Out deltas:
+ *         2   5                1 2
+ *          3   6
+ *
+ * alpha : 1.0
+ * beta : 1.0
+ *
+ * dw_ini: 1 2 3
+ *
+ * Filter deltas:  1*(1+8)+(1*1)
+ *                1*(2+10)+(1*2)
+ *                1*(3+12)+(1*3)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_1_beta_1) {
+  float alpha = 1.0;
+  float beta = 1.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {10, 14, 18},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+
+/**
+ * Input: 1   4    Out deltas:
+ *         2   5                1 2
+ *          3   6
+ *
+ * alpha : 2.0
+ * beta : 2.0
+ *
+ * dw_ini: 1 2 3
+ *
+ * Filter deltas:  2*(1+8)+(2*1)
+ *                2*(2+10)+(2*2)
+ *                2*(3+12)+(2*3)
+ *
+ */
+TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_2_beta_2) {
+  float alpha = 2.0;
+  float beta = 2.0;
+  this->do_test({2, 1, 1, 1}, {3, 1, 1, 1}, {0, 0, 1, 1, 1, 1}, {20, 28, 36},
+                sycldnn::DataFormat::NHWC, alpha, beta);
+}
+
+TEST_F(Conv2DCompatTest,
+       FilterBackpropWindow7Stride4SAME1x11x11x1x2_alpha_neg_1_beta_0) {
+  float alpha = -1.0;
+  float beta = 0.0;
+  this->do_test(
+      {1, 1, 11, 11}, {2, 1, 7, 7}, {2, 2, 4, 4, 1, 1},
+      {-2820., -3016., -2872., -3072., -3956., -4250., -4028., -4328., -4100.,
+       -4406., -2472., -2672., -2516., -2720., -3392., -3632., -3444., -3688.,
+       -4748., -5108., -4820., -5186., -4892., -5264., -2956., -3200., -3000.,
+       -3248., -4008., -4302., -4068., -4368., -5601., -6042., -5682., -6132.,
+       -5763., -6222., -3468., -3768., -3516., -3822., -4668., -5028., -4728.,
+       -5094., -6492., -7032., -6573., -7122., -6654., -7212., -3996., -4362.,
+       -4044., -4416., -5328., -5754., -5388., -5820., -7383., -8022., -7464.,
+       -8112., -7545., -8202., -4524., -4956., -4572., -5010., -1952., -2192.,
+       -1980., -2224., -2588., -2948., -2624., -2990., -2660., -3032., -1492.,
+       -1736., -1512., -1760., -2260., -2544., -2288., -2576., -2984., -3410.,
+       -3020., -3452., -3056., -3494., -1712., -2000., -1732., -2024.},
+      sycldnn::DataFormat::NHWC, alpha, beta);
 }

@@ -97,6 +97,12 @@ class Conv2DCompatTest : public ::testing::Test {
                                      &out_c, &out_h, &out_w);
     const size_t out_size = out_n * out_c * out_h * out_w;
     float* out_ptr = sycl::malloc_device<float>(out_size, handle.getQueue());
+    const float max_val = 2048;
+    auto out = iota_initialised_data(out_size, max_val);
+    handle.getQueue()
+        .memcpy(out_ptr, out.data(), out_size * sizeof(float))
+        .wait();
+
     TensorDescriptor out_desc;
     out_desc.set4d(in_desc.getFormat(), out_n, out_c, out_h, out_w);
     return std::make_pair(out_ptr, out_desc);
@@ -109,7 +115,7 @@ class Conv2DCompatTest : public ::testing::Test {
       const std::vector<float>& expect, const sycldnn::DataFormat format,
       const sycldnn::conv2d::Algorithm algo =
           sycldnn::conv2d::Algorithm::Direct,
-      int groupCount = 1) {
+      int groupCount = 1, float alpha = 1.0, float beta = 0.0) {
     const float max_val = 2048;
     size_t in_tot_count = std::accumulate(in_sizes.begin(), in_sizes.end(), 1,
                                           std::multiplies<int>());
@@ -133,10 +139,9 @@ class Conv2DCompatTest : public ::testing::Test {
     auto [out_ptr, out_desc] =
         get_out_ptr_and_desc(handle, in_desc, filt_desc, conv_desc);
 
-    SNNStatus status =
-        convolutionForward(handle, /*alpha*/ nullptr, in_desc, in_ptr,
-                           filt_desc, filt_ptr, conv_desc, algo, nullptr, 0,
-                           /*beta*/ nullptr, out_desc, out_ptr);
+    SNNStatus status = convolutionForward(handle, &alpha, in_desc, in_ptr,
+                                          filt_desc, filt_ptr, conv_desc, algo,
+                                          nullptr, 0, &beta, out_desc, out_ptr);
     EXPECT_EQ(status.status, StatusCode::OK);
     handle.getQueue().wait();
 
@@ -260,6 +265,184 @@ TEST_F(Conv2DCompatTest, ForwardGroup2Window2Stride1SAME1x5x5x2x2) {
                  572, 724, 636, 804, 668, 844, 700, 884, 732, 924},
                 sycldnn::DataFormat::NHWC, sycldnn::conv2d::Algorithm::Im2col,
                 groupCount);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * alpha = 2.0
+ * beta = 0.0
+ *
+ * Output: 2*(1+4+9+20+30      2*(2+6+12+24+35
+ *            +42+63+80+99)       +48+70+88+108)
+ *
+ *         2*(5+12+21+36+50      2*(6+14+24+40+55
+ *            +66+91+112+135)       +72+98+120+144)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_2_beta_0) {
+  const int groupCount = 1;
+  float alpha = 2.0;
+  float beta = 0.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1},
+                {696, 786, 1056, 1146}, sycldnn::DataFormat::NHWC,
+                sycldnn::conv2d::Algorithm::Direct, groupCount, alpha, beta);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * alpha = 0.0
+ * beta = 0.0
+ *
+ * Output: 0*(1+4+9+20+30      0*(2+6+12+24+35
+ *            +42+63+80+99)       +48+70+88+108)
+ *
+ *         0*(5+12+21+36+50    0*(6+14+24+40+55
+ *            +66+91+112+135)     +72+98+120+144)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_0_beta_0) {
+  const int groupCount = 1;
+  float alpha = 0.0;
+  float beta = 0.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1}, {0, 0, 0, 0},
+                sycldnn::DataFormat::NHWC, sycldnn::conv2d::Algorithm::Direct,
+                groupCount, alpha, beta);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * y_ini:  1 2 3 4
+ *
+ * alpha = -2.0
+ * beta = 0.0
+ *
+ * Output: -2*(1+4+9+20+30             -2*(2+6+12+24+35
+ *            +42+63+80+99)+(0*1)       +48+70+88+108)+(0*2)
+ *
+ *         -2*(5+12+21+36+50           -2*(6+14+24+40+55
+ *            +66+91+112+135)+(0*3)     +72+98+120+144)+(0*4)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_neg_2_beta_0) {
+  const int groupCount = 1;
+  float alpha = -2.0;
+  float beta = 0.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1},
+                {-696, -786, -1056, -1146}, sycldnn::DataFormat::NHWC,
+                sycldnn::conv2d::Algorithm::Direct, groupCount, alpha, beta);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * y_ini:  1 2 3 4
+ *
+ * alpha = 1.0
+ * beta = 1.0
+ *
+ * Output: 1*(1+4+9+20+30             1*(2+6+12+24+35
+ *            +42+63+80+99)+(1*1)       +48+70+88+108)+(1*2)
+ *
+ *         1*(5+12+21+36+50           1*(6+14+24+40+55
+ *            +66+91+112+135)+(1*3)     +72+98+120+144)+(1*4)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_1_beta_1) {
+  const int groupCount = 1;
+  float alpha = 1.0;
+  float beta = 1.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1},
+                {349, 395, 531, 577}, sycldnn::DataFormat::NHWC,
+                sycldnn::conv2d::Algorithm::Direct, groupCount, alpha, beta);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * y_ini:  1 2 3 4
+ *
+ * alpha = 0.0
+ * beta = 1.0
+ *
+ * Output: 0*(1+4+9+20+30             0*(2+6+12+24+35
+ *            +42+63+80+99)+(1*1)       +48+70+88+108)+(1*2)
+ *
+ *         0*(5+12+21+36+50           0*(6+14+24+40+55
+ *            +66+91+112+135)+(1*3)     +72+98+120+144)+(1*4)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_0_beta_1) {
+  const int groupCount = 1;
+  float alpha = 0.0;
+  float beta = 1.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1}, {1, 2, 3, 4},
+                sycldnn::DataFormat::NHWC, sycldnn::conv2d::Algorithm::Direct,
+                groupCount, alpha, beta);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * y_ini:  1 2 3 4
+ *
+ * alpha = 0.0
+ * beta = 2.0
+ *
+ * Output: 0*(1+4+9+20+30             0*(2+6+12+24+35
+ *            +42+63+80+99)+(2*1)       +48+70+88+108)+(2*2)
+ *
+ *         0*(5+12+21+36+50           0*(6+14+24+40+55
+ *            +66+91+112+135)+(2*3)     +72+98+120+144)+(2*4)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_0_beta_2) {
+  const int groupCount = 1;
+  float alpha = 0.0;
+  float beta = 2.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1}, {2, 4, 6, 8},
+                sycldnn::DataFormat::NHWC, sycldnn::conv2d::Algorithm::Direct,
+                groupCount, alpha, beta);
+}
+
+/**
+ * Input:  1  2  3  4    Filter:  1  2  3
+ *         5  6  7  8             4  5  6
+ *         9 10 11 12             7  8  9
+ *        13 14 15 16
+ *
+ * y_ini:  1 2 3 4
+ *
+ * alpha = 0.0
+ * beta = -2.0
+ *
+ * Output: 0*(1+4+9+20+30             0*(2+6+12+24+35
+ *            +42+63+80+99)+(-2*1)       +48+70+88+108)+(-2*2)
+ *
+ *         0*(5+12+21+36+50           0*(6+14+24+40+55
+ *            +66+91+112+135)+(-2*3)     +72+98+120+144)+(-2*4)
+ */
+TEST_F(Conv2DCompatTest, simple_3x3_alpha_0_beta_neg_2) {
+  const int groupCount = 1;
+  float alpha = 0.0;
+  float beta = -2.0;
+  this->do_test({1, 1, 4, 4}, {1, 1, 3, 3}, {0, 0, 1, 1, 1, 1},
+                {-2, -4, -6, -8}, sycldnn::DataFormat::NHWC,
+                sycldnn::conv2d::Algorithm::Direct, groupCount, alpha, beta);
 }
 
 TEST_F(Conv2DCompatTest, SetGetGroupCount) {
