@@ -31,7 +31,7 @@ namespace internal {
  * \param mode Batch normalization mode.
  * \return Validation status.
  */
-SNNStatus validateBatchnormParams(const TensorDescriptor xDesc,
+static SNNStatus validateBatchnormParams(const TensorDescriptor xDesc,
                                   const TensorDescriptor yDesc,
                                   const TensorDescriptor bnScaleBiasMeanVarDesc,
                                   BatchNormMode mode) {
@@ -81,9 +81,10 @@ SNNStatus validateBatchnormParams(const TensorDescriptor xDesc,
  * \param epsilon      Epsilon value to avoid division by zero.
  * \return             Converted sycldnn::BatchNormParams.
  */
-batchnorm::BatchNormParams descToSnnBatchnormParams(
+static batchnorm::BatchNormParams descToSnnBatchnormParams(
     const TensorDescriptor& xDesc, bool is_training, float epsilon) {
   batchnorm::BatchNormParams params{};
+  SNNDataType descDataType;
   int n, c, h, w;
   xDesc.get4dDescriptorDims(&n, &c, &h, &w);
 
@@ -129,9 +130,9 @@ SNNStatus batchNormalizationForwardInference(
       xDesc, yDesc, bnScaleBiasMeanVarDesc, mode);
   if (validationStatus.status != StatusCode::OK) return validationStatus;
 
-  ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y);
+  ScalingParams scParams(*handle.getBackend(), alpha, beta, yDesc.getSize(), y);
   SNNStatus batchnormStatus;
-  batchnormStatus.event = scParams.constructMem(handle.getBackend());
+  batchnormStatus.event = scParams.constructMem(*handle.getBackend());
 
   if (!scParams.isAlphaZero()) {
     batchnorm::BatchNormParams batchnormParams =
@@ -143,11 +144,11 @@ SNNStatus batchNormalizationForwardInference(
         static_cast<const ValueT*>(bnBias),
         static_cast<const ValueT*>(estimatedMean),
         static_cast<const ValueT*>(estimatedVariance), nullptr, nullptr,
-        static_cast<ValueT*>(y), batchnormParams, handle.getBackend(),
+        static_cast<ValueT*>(y), batchnormParams, *handle.getBackend(),
         {batchnormStatus.event});
   }
 
-  return scParams.applyScaling(handle.getBackend(), {batchnormStatus.event});
+  return scParams.applyScaling(*handle.getBackend(), {batchnormStatus.event});
 }
 
 /**
@@ -190,9 +191,9 @@ SNNStatus batchNormalizationForwardTraining(
       !resultSaveMean == !resultSaveInvVariance,
       "The optional cache pointers need to either be both valid or both null");
 
-  ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y,
+  ScalingParams scParams(*handle.getBackend(), alpha, beta, yDesc.getSize(), y,
                          true);
-  auto constructMemEvent = scParams.constructMem(handle.getBackend());
+  auto constructMemEvent = scParams.constructMem(*handle.getBackend());
 
   batchnorm::BatchNormParams batchnormParams =
       internal::descToSnnBatchnormParams(xDesc, true, epsilon);
@@ -218,7 +219,7 @@ SNNStatus batchNormalizationForwardTraining(
           static_cast<ValueT*>(resultRunningMean),
           static_cast<ValueT*>(resultRunningVariance),
           static_cast<ValueT*>(outMeanPtr), static_cast<ValueT*>(outVarPtr),
-          static_cast<ValueT*>(y), batchnormParams, handle.getBackend(),
+          static_cast<ValueT*>(y), batchnormParams, *handle.getBackend(),
           {constructMemEvent});
 
   // copy back data to match cuDNN parameters.
@@ -244,7 +245,7 @@ SNNStatus batchNormalizationForwardTraining(
     batchnormEventVector.push_back(e);
   }
 
-  return scParams.applyScaling(handle.getBackend(), batchnormEventVector);
+  return scParams.applyScaling(*handle.getBackend(), batchnormEventVector);
 }
 
 /**
@@ -294,21 +295,21 @@ SNNStatus batchNormalizationBackward(
 
   std::vector<cl::sycl::event> batchnormEventVector;
 
-  ScalingParams scDataDiff(handle.getBackend(), alphaDataDiff, betaDataDiff,
+  ScalingParams scDataDiff(*handle.getBackend(), alphaDataDiff, betaDataDiff,
                            dxDesc.getSize(), dx, true);
-  auto constructMemEvent = scDataDiff.constructMem(handle.getBackend());
+  auto constructMemEvent = scDataDiff.constructMem(*handle.getBackend());
   batchnormEventVector.push_back(constructMemEvent);
 
-  ScalingParams scScaleDiff(handle.getBackend(), alphaParamDiff, betaParamDiff,
+  ScalingParams scScaleDiff(*handle.getBackend(), alphaParamDiff, betaParamDiff,
                             bnScaleBiasDiffDesc.getSize(), resultBnScaleDiff,
                             true);
-  constructMemEvent = scScaleDiff.constructMem(handle.getBackend());
+  constructMemEvent = scScaleDiff.constructMem(*handle.getBackend());
   batchnormEventVector.push_back(constructMemEvent);
 
-  ScalingParams scBiasDiff(handle.getBackend(), alphaParamDiff, betaParamDiff,
+  ScalingParams scBiasDiff(*handle.getBackend(), alphaParamDiff, betaParamDiff,
                            bnScaleBiasDiffDesc.getSize(), resultBnBiasDiff,
                            true);
-  constructMemEvent = scBiasDiff.constructMem(handle.getBackend());
+  constructMemEvent = scBiasDiff.constructMem(*handle.getBackend());
   batchnormEventVector.push_back(constructMemEvent);
 
   SNNStatus batchnormStatus;
@@ -323,20 +324,20 @@ SNNStatus batchNormalizationBackward(
         static_cast<const ValueT*>(bnScale), nullptr, nullptr,
         static_cast<ValueT*>(resultBnScaleDiff),
         static_cast<ValueT*>(resultBnBiasDiff), static_cast<ValueT*>(dx),
-        params, handle.getBackend(), batchnormEventVector);
+        params, *handle.getBackend(), batchnormEventVector);
 
     batchnormEventVector.clear();
     batchnormEventVector.push_back(batchnormStatus.event);
   }
   std::vector<cl::sycl::event> batchnormEventVectorFinal;
   batchnormStatus =
-      scDataDiff.applyScaling(handle.getBackend(), batchnormEventVector);
+      scDataDiff.applyScaling(*handle.getBackend(), batchnormEventVector);
   batchnormEventVectorFinal.push_back(batchnormStatus.event);
   batchnormStatus =
-      scScaleDiff.applyScaling(handle.getBackend(), batchnormEventVector);
+      scScaleDiff.applyScaling(*handle.getBackend(), batchnormEventVector);
   batchnormEventVectorFinal.push_back(batchnormStatus.event);
   batchnormStatus =
-      scBiasDiff.applyScaling(handle.getBackend(), batchnormEventVector);
+      scBiasDiff.applyScaling(*handle.getBackend(), batchnormEventVector);
   batchnormEventVectorFinal.push_back(batchnormStatus.event);
 
   auto q = handle.getQueue();

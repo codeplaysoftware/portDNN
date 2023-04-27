@@ -65,15 +65,43 @@ struct convolutionFwdAlgoPerf_t {
 /**
  * Wrapper around the sycl-dnn backends.
  */
-class SNNHandle {
+class SNNHandleImpl {
   std::unique_ptr<backend::SNNUSMBackend> b_;
 
-  SNNHandle(const sycl::device_selector& d, const sycl::property_list& props)
+ public:
+  SNNHandleImpl() : b_(nullptr) {}
+  SNNHandleImpl(std::nullptr_t) : b_(nullptr) {}
+  SNNHandleImpl(const sycl::device_selector& d,
+                const sycl::property_list& props)
       : b_(std::make_unique<backend::SNNUSMBackend>(sycl::queue(d, props))) {}
 
- public:
-  SNNHandle() : b_(nullptr) {}
+  SNNHandleImpl(const SNNHandleImpl& rhs) {
+    this->b_.reset(new backend::SNNUSMBackend(*rhs.b_));
+  }
 
+  const SNNHandleImpl& operator=(const SNNHandleImpl& rhs) {
+    // this.b_ = std::unique_ptr<backend::SNNUSMBackend>(*rhs.b_);
+    this->b_.reset(new backend::SNNUSMBackend(*rhs.b_));
+
+    return *this;
+  }
+
+  void destroy() { b_.release(); }
+
+  /** \return the SNNBackend */
+  backend::SNNUSMBackend* getBackend() { return b_.get(); }
+
+  /** \return the sycl::queue */
+  sycl::queue getQueue() { return b_->get_queue(); }
+
+
+};
+
+class SNNHandle {
+
+ public:
+  SNNHandle() : handle_(nullptr) {}
+  SNNHandle(std::nullptr_t) : handle_(nullptr) {}
   /**
    * Constructs an SNNHandle object.
    *
@@ -89,16 +117,13 @@ class SNNHandle {
       return sycldnn::StatusCode::InvalidParameter;
     }
 
-    *this = SNNHandle(selector, props);
+    handle_ = new SNNHandleImpl(selector, props);
 
     return sycldnn::StatusCode::OK;
   }
 
   /** \return the SNNBackend */
-  backend::SNNUSMBackend& getBackend() { return *b_; }
-
-  /** \return the sycl::queue */
-  sycl::queue getQueue() { return b_->get_queue(); }
+  backend::SNNUSMBackend* getBackend() { return handle_->getBackend(); }
 
   /**
    * Set the queue to be used by the backend.
@@ -113,18 +138,37 @@ class SNNHandle {
    *          not an in order queue.
    */
   sycldnn::StatusCode setQueue(sycl::queue queue) {
-    if (getQueue().get_context() != queue.get_context()) {
+    if (handle_->getQueue().get_context() != queue.get_context()) {
       return sycldnn::StatusCode::InvalidParameter;
     }
 
     if (!queue.is_in_order()) {
       return sycldnn::StatusCode::InvalidParameter;
     }
+    auto backend = handle_->getBackend();
+    delete backend;
 
-    b_.reset(new backend::SNNUSMBackend(queue));
+    backend = new backend::SNNUSMBackend(queue);
 
     return sycldnn::StatusCode::OK;
   }
+
+  SNNHandleImpl* getHandleImpl() { return handle_; }
+
+  sycl::queue getQueue() { return handle_->getQueue(); }
+
+  void destroy() { delete handle_; }
+
+    operator bool() const {
+    if (handle_) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+ private:
+  SNNHandleImpl* handle_;
 };
 
 /**
@@ -138,12 +182,22 @@ class SNNHandle {
  *         sycldnn::StatusCode::InvalidParameter if the
  *         sycl::property::queue::in_order wasn't specified.
  */
-sycldnn::StatusCode SNNCreate(
-    SNNHandle& handle,
-    const sycl::device_selector& selector = sycl::default_selector(),
-    const sycl::property_list& props = {sycl::property::queue::in_order()}) {
-  return handle.init(selector, props);
+static void SNNCreate(SNNHandle* handle) {
+  if (!handle) {
+    return;
+  }
+  handle->init({sycl::default_selector()}, {sycl::property::queue::in_order()});
 }
+/*
+static void SNNCreate(SNNHandle* handle) {
+  if (!handle) {
+    return;
+  }
+  handle->init({sycl::default_selector()}, {sycl::property::queue::in_order()});
+}
+*/
+
+static void SNNDestroy(SNNHandle handle) { handle.destroy(); }
 
 /**
  * Set the queue to be used by the SNNHandle
@@ -155,8 +209,8 @@ sycldnn::StatusCode SNNCreate(
  *         and the new queue didn't match or the new queue is an out of order
  *         queue
  */
-sycldnn::StatusCode queueSet(SNNHandle& handle, sycl::queue queue) {
-  return handle.setQueue(queue);
+static sycldnn::StatusCode queueSet(SNNHandle* handle, sycl::queue queue) {
+  return handle->setQueue(queue);
 }
 
 /**
@@ -356,11 +410,11 @@ class TensorDescriptor : public DescriptorBase {
  * \return            sycldnn::StatusCode::OK or
  *                    sycldnn::StatusCode::InvalidParameter
  */
-sycldnn::StatusCode getTensor4dDescriptor(TensorDescriptor tensorDesc,
-                                          SNNDataType* dataType, int* n, int* c,
-                                          int* h, int* w, int* nStride,
-                                          int* cStride, int* hStride,
-                                          int* wStride) {
+static sycldnn::StatusCode getTensor4dDescriptor(TensorDescriptor tensorDesc,
+                                                 SNNDataType* dataType, int* n,
+                                                 int* c, int* h, int* w,
+                                                 int* nStride, int* cStride,
+                                                 int* hStride, int* wStride) {
   return tensorDesc.getTensor4dDescriptor(dataType, n, c, h, w, nStride,
                                           cStride, hStride, wStride);
 }
@@ -377,12 +431,58 @@ sycldnn::StatusCode getTensor4dDescriptor(TensorDescriptor tensorDesc,
  * \return            sycldnn::StatusCode::OK or
  *                    sycldnn::StatusCode::InvalidParameter
  */
-sycldnn::StatusCode setTensor4dDescriptor(TensorDescriptor& tensorDesc,
-                                          sycldnn::DataFormat format,
-                                          SNNDataType dataType, int n, int c,
-                                          int h, int w) {
+static sycldnn::StatusCode setTensor4dDescriptor(TensorDescriptor& tensorDesc,
+                                                 sycldnn::DataFormat format,
+                                                 SNNDataType dataType, int n,
+                                                 int c, int h, int w) {
   SNN_UNUSED_VAR(dataType);
   return tensorDesc.set4d(format, n, c, h, w);
+}
+
+/** This function sets the parameters of the previously initialized
+ * descriptor object.
+ * \param tensorDesc  Input a previously initialized tensor descriptor.
+ * \param format      Format of the tensor descriptor KCHW or KHWC
+ * \param dataType    Output data type.
+ * \param n           Output number of images.
+ * \param c           Output number of feature maps per image.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+static sycldnn::StatusCode setTensor4dDescriptor(TensorDescriptor& tensorDesc,
+                                                 sycldnn::DataFormat format,
+                                                 SNNDataType dataType, int n,
+                                                 int c, int h, int w, int s_n,
+                                                 int s_c, int s_h, int s_w) {
+  SNN_UNUSED_VAR(dataType);
+  return tensorDesc.set4d(format, n, c, h, w);
+}
+
+/** TODO ADD
+ *
+ */
+static sycldnn::StatusCode createTensorDescriptor(
+    TensorDescriptor* tensorDesc) {
+  if (!tensorDesc) {
+    tensorDesc = new TensorDescriptor;
+    return sycldnn::StatusCode::OK;
+  } else {
+    return sycldnn::StatusCode::InvalidParameter;
+  }
+}
+
+/** TODO
+ *
+ */
+static sycldnn::StatusCode destroyTensorDescriptor(
+    TensorDescriptor* tensorDesc) {
+  if (tensorDesc) {
+    delete tensorDesc;
+    return sycldnn::StatusCode::OK;
+  }
+  return sycldnn::StatusCode::InvalidParameter;
 }
 
 }  // namespace compat

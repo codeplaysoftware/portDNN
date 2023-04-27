@@ -24,7 +24,7 @@ namespace helpers {
 
 // Helper to convert a vector of events into a single event that is dependent on
 // all of the input events
-cl::sycl::event multi_event_to_one(const std::vector<cl::sycl::event>& events,
+static cl::sycl::event multi_event_to_one(const std::vector<cl::sycl::event>& events,
                                    cl::sycl::queue& q) {
   return q.submit([&](sycl::handler& cgh) {
     cgh.depends_on(events);

@@ -39,7 +39,7 @@
 namespace sycldnn {
 namespace conv2d {
 
-SNNStatus validate_params(Conv2DParams const& params) {
+static SNNStatus validate_params(Conv2DParams const& params) {
   SNN_VALIDATE_PARAM(params.batch > 0,
                      "The number of batches must be positive.");
   SNN_VALIDATE_PARAM(params.channels > 0,

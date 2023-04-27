@@ -82,8 +82,12 @@ struct CommonBackend {
   explicit CommonBackend(cl::sycl::queue& queue)
       : max_kernel_sub_group_sizes(), max_num_sub_groups() {
     auto device = queue.get_device();
-    max_num_sub_groups =
-        device.get_info<cl::sycl::info::device::max_num_sub_groups>();
+    try {
+      max_num_sub_groups =
+          device.get_info<cl::sycl::info::device::max_num_sub_groups>();
+    } catch(...) {
+      max_num_sub_groups = 1;
+    }
   }
 #endif
 

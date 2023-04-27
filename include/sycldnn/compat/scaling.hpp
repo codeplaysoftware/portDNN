@@ -70,8 +70,8 @@ class ScalingParams {
    * forward training call
    */
   ScalingParams(Backend& backend, const ValueT* alpha, const ValueT* beta,
-                unsigned int ySize, void* y, bool isBatchnormFwdTr = false) {
-    this->y = y;
+                unsigned int ySize, const void* y, bool isBatchnormFwdTr = false) {
+    this->y = const_cast<void*>(y);
     this->alpha = alpha;
     this->beta = beta;
     this->ySize = ySize;
@@ -85,7 +85,7 @@ class ScalingParams {
    * \param b         Floating point number to compare
    * \return          boolean true if values are almost equal
    */
-  bool isSame(ValueT a, ValueT b) { return (abs(a - b) < 1e-9); }
+  bool isSame(ValueT a, float b) { return (abs(a - b) < 1e-9); }
 
   /**
    * Checks if alpha parameter is equal to zero.
@@ -160,8 +160,10 @@ class ScalingParams {
     useAlpha = false;
     useBeta = false;
 
-    if ((isAlphaZero() && isBetaOne()) || (isAlphaOne() && isBetaZero()))
+    if ((isAlphaZero() && isBetaOne()) || (isAlphaOne() && isBetaZero())) {
       return syclEvent;
+    }
+
     if (isAlphaZero() && isBetaZero() && !this->isBatchnormFwdTr) {
       syclEvent = q.memset(this->y, 0, this->ySize * sizeof(ValueT));
     } else {
@@ -204,10 +206,14 @@ class ScalingParams {
     sycldnn::binaryop::BinaryParams params{};
     params.lhs_dims = {(int)this->ySize};
     params.rhs_dims = {(int)this->ySize};
-    SNNStatus scalingEvent;
 
-    if ((isAlphaZero() && isBetaOne()) || (isAlphaOne() && isBetaZero()))
-      return scalingEvent;
+    if ((isAlphaZero() && isBetaOne()) || (isAlphaOne() && isBetaZero())) {
+      return {sycldnn::StatusCode::OK};
+    }
+
+//    SNNStatus scalingEvent = {sycldnn::helpers::multi_event_to_one(convEventVector, backend.get_queue()),
+//                              sycldnn::StatusCode::OK};
+/*
     if (isAlphaOne() && isBetaOne()) {
       scalingEvent = sycldnn::binaryop::launch<ValueT, sycldnn::binaryop::Add>(
           static_cast<const ValueT*>(this->y),
@@ -278,6 +284,7 @@ class ScalingParams {
       }
     }
     return scalingEvent;
+*/
   }
 
   /**

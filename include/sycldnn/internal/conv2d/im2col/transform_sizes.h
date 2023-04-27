@@ -38,7 +38,7 @@ struct ConvTransformSizes {
 
 /** Get the tensor size needed for the filter transform. */
 template <typename ConvType>
-size_t filter_transform_size(Conv2DParams const& params) {
+static size_t filter_transform_size(Conv2DParams const& params) {
   if ((params.groups == 1 ||
        (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
         params.filter_format == sycldnn::FilterFormat::HWCF) ||
@@ -60,7 +60,7 @@ size_t filter_transform_size<conv_type::InputBackprop>(
 
 /** Get the tensor size needed for the output transform. */
 template <typename ConvType>
-size_t output_transform_size(Conv2DParams const& params) {
+static size_t output_transform_size(Conv2DParams const& params) {
   if (std::is_same_v<ConvType, conv_type::Forward> && params.groups == 1 &&
       params.batch > 1 && params.input_format == DataFormat::NCHW &&
       params.filter_format == sycldnn::FilterFormat::FCHW) {
@@ -76,13 +76,13 @@ size_t output_transform_size(Conv2DParams const& params) {
 
 /** Get the tensor size needed for the input transform. */
 template <typename ConvType>
-size_t input_transform_size(Conv2DParams const& params) {
+static size_t input_transform_size(Conv2DParams const& params) {
   auto const tile_info = im2col::get_tile_info<ConvType>(params);
   return params.groups * tile_info.number * tile_info.size;
 }
 
 template <typename ConvType>
-ConvTransformSizes get_transform_sizes(Conv2DParams const& params) {
+static ConvTransformSizes get_transform_sizes(Conv2DParams const& params) {
   ConvTransformSizes transform_sizes;
   transform_sizes.input_transform_size = input_transform_size<ConvType>(params);
   transform_sizes.filter_transform_size =

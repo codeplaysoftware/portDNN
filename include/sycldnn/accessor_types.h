@@ -75,7 +75,6 @@ struct BaseAccessor {
     return acc_.template get_multi_ptr<sycl::access::decorated::legacy>() +
            offset_;
   }
-
   /**
    * Get a reference to the underlying SYCL accessor.
    * \return A reference to the underlying SYCL accessor.
@@ -180,7 +179,6 @@ struct GenericMem {
     return acc_.template get_multi_ptr<sycl::access::decorated::legacy>() +
            offset_;
   }
-
   /**
    * Get a reference to the underlying SYCL accessor.
    * \return A reference to the underlying SYCL accessor.

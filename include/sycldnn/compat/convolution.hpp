@@ -17,9 +17,9 @@
 #ifndef SYCLDNN_INCLUDE_COMPAT_CONVOLUTION_HPP
 #define SYCLDNN_INCLUDE_COMPAT_CONVOLUTION_HPP
 
-#include "scaling.hpp"
 #include "utils.hpp"
 
+#include "scaling.hpp"
 #include "sycldnn/conv2d/algorithm.h"
 #include "sycldnn/conv2d/launch.h"
 #include "sycldnn/conv2d/params.h"
@@ -30,6 +30,9 @@
 #include "sycldnn/conv2d/selector/tiled_selector.h"
 #include "sycldnn/conv2d/selector/winograd_selector.h"
 #include "sycldnn/conv2d/workspace_size.h"
+#include "sycldnn/depthwise_conv2d/launch.h"
+#include "sycldnn/transpose/launch.h"
+
 
 #include <memory>
 #include <vector>
@@ -48,6 +51,8 @@ enum class ConvolutionMode {
                       // input. Currently not supported.
   CROSS_CORRELATION,  // Do a cross-correlation operation, applying the rotated
                       // filter to the images.
+  DEPTHWISE,          // TODO
+
 };
 
 /**
@@ -152,9 +157,10 @@ class ConvolutionDescriptor {
     SNN_VALIDATE_PARAM(stride_w > 0, "Invalid stride");
     SNN_VALIDATE_PARAM(dilation_h > 0, "Invalid dilation");
     SNN_VALIDATE_PARAM(dilation_w > 0, "Invalid dilation");
-    SNN_VALIDATE_PARAM(
-        mode == ConvolutionMode::CROSS_CORRELATION,
-        "Only ConvolutionMode::CROSS_CORRELATION is currently supported");
+    SNN_VALIDATE_PARAM(mode == ConvolutionMode::CROSS_CORRELATION ||
+                           mode == ConvolutionMode::DEPTHWISE,
+                       "Only ConvolutionMode::CROSS_CORRELATION & DEPTHWISE "
+                       "are currently supported");
     nDims_ = 2;
     padding_ = {pad_h, pad_w};
     stride_ = {stride_h, stride_w};
@@ -219,11 +225,9 @@ class ConvolutionDescriptor {
  *                    successfully. sycldnn::StatusCode::InvalidParameter if one
  *                    of the parameters had an incorrect value.
  */
-sycldnn::StatusCode setConvolution2dDescriptor(ConvolutionDescriptor& desc,
-                                               int pad_h, int pad_w,
-                                               int stride_h, int stride_w,
-                                               int dilation_h, int dilation_w,
-                                               ConvolutionMode mode) {
+static sycldnn::StatusCode setConvolution2dDescriptor(
+    ConvolutionDescriptor& desc, int pad_h, int pad_w, int stride_h,
+    int stride_w, int dilation_h, int dilation_w, ConvolutionMode mode) {
   return desc.set2d(pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
                     mode);
 }
@@ -246,7 +250,7 @@ sycldnn::StatusCode setConvolution2dDescriptor(ConvolutionDescriptor& desc,
  *                          num_spatial_dims != 2 (currently only 2D
  *                          Convolution is supported)
  */
-sycldnn::StatusCode setConvolutionNdDescriptor(
+static sycldnn::StatusCode setConvolutionNdDescriptor(
     ConvolutionDescriptor& desc, int num_spatial_dims, const int* pads,
     const int* strides, const int* dilations, ConvolutionMode mode) {
   if (num_spatial_dims != 2) {
@@ -307,7 +311,7 @@ class FilterDescriptor : public DescriptorBase {
 
     } else if (format == sycldnn::DataFormat::NHWC) {
       format_ = sycldnn::FilterFormat::HWCF;
-      dims_ = {dim2, dim3, dim1, dim0};
+      dims_ = {dim0, dim1, dim2, dim3};
 
     } else {
       return sycldnn::StatusCode::InvalidParameter;
@@ -381,10 +385,11 @@ class FilterDescriptor : public DescriptorBase {
  * \return            sycldnn::StatusCode::OK or
  *                    sycldnn::StatusCode::InvalidParameter
  */
-sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
-                                          SNNDataType* dataType,
-                                          sycldnn::FilterFormat* format, int* k,
-                                          int* c, int* h, int* w) {
+static sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
+                                                 SNNDataType* dataType,
+                                                 sycldnn::FilterFormat* format,
+                                                 int* k, int* c, int* h,
+                                                 int* w) {
   return filterDesc.getFilter4dDescriptor(dataType, format, k, c, h, w);
 }
 
@@ -400,7 +405,7 @@ sycldnn::StatusCode getFilter4dDescriptor(FilterDescriptor filterDesc,
  * \return      sycldnn::StatusCode::OK or
  *              sycldnn::StatusCode::InvalidParameter
  */
-inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
+static sycldnn::StatusCode getConvolution2dForwardOutputDim(
     const ConvolutionDescriptor& desc, const TensorDescriptor& in,
     const FilterDescriptor& filt, int* n, int* c, int* h, int* w) {
   SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
@@ -410,8 +415,12 @@ inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
   using Index_t = int;
   auto computeNewDim = [](Index_t inputDim, Index_t filterDim, Index_t pad,
                           Index_t dilation, Index_t convolutionStride) {
-    return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
-                   convolutionStride;
+    return std::ceil(
+        static_cast<float>(inputDim + (2 * pad) -
+                           (dilation * (filterDim - 1) - 1) /
+                               static_cast<float>(convolutionStride)));
+    // return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
+    //               convolutionStride;
   };
   SNNDataType descDataType;
   int inN, inC, inH, inW, inStrideN, inStrideC, inStrideH, inStrideW;
@@ -464,9 +473,9 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
   getTensor4dDescriptor(xDesc, &descDataType, &inN, &inC, &inH, &inW,
                         &inStrideN, &inStrideC, &inStrideH, &inStrideW);
 
-  sycldnn::FilterFormat format;
+  sycldnn::FilterFormat filterFormat;
   int filterK, filterC, filterH, filterW;
-  getFilter4dDescriptor(wDesc, &descDataType, &format, &filterK, &filterC,
+  getFilter4dDescriptor(wDesc, &descDataType, &filterFormat, &filterK, &filterC,
                         &filterH, &filterW);
 
   int outN, outC, outH, outW, outStrideN, outStrideC, outStrideH, outStrideW;
@@ -492,11 +501,73 @@ inline sycldnn::conv2d::Conv2DParams descToSnnParams(
   conv_params.dilation_rows = convDesc.getDilationH();
   conv_params.dilation_cols = convDesc.getDilationW();
 
-  conv_params.filter_format = format;
+  conv_params.filter_format = filterFormat;
   conv_params.input_format = xDesc.getFormat();
 
   conv_params.groups = groupCount;
 
+  return conv_params;
+}
+
+/**
+ * Converts the descriptor into a
+ * sycldnn::depthwise_conv2d::DepthwiseConv2DParams \param xDesc     Input
+ * descriptor. \param yDesc     Output descriptor. \param wDesc     Filter
+ * descriptor. \param convDesc  Convolution descriptor. \return Converted
+ * sycldnn::depthwise_conv2d::DepthwiseConv2DParams.
+ */
+inline sycldnn::depthwise_conv2d::DepthwiseConv2DParams descToDepthwiseParams(
+    const TensorDescriptor& xDesc, const TensorDescriptor& yDesc,
+    const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc) {
+  int n, x_c, w_c, h, w;
+  xDesc.get4dDescriptorDims(&n, &x_c, &h, &w);
+  wDesc.get4dDescriptorDims(&n, &w_c, &h, &w);
+
+  const int groupCount = convDesc.getGroupCount();
+  SNN_COMPAT_ASSERT((x_c / groupCount) == w_c,
+                    "Filter channels must be equal to the input channels "
+                    "divided by the number of groups");
+
+  SNN_UNUSED_VAR(n);
+  SNN_UNUSED_VAR(h);
+  SNN_UNUSED_VAR(w);
+
+  sycldnn::depthwise_conv2d::DepthwiseConv2DParams conv_params{};
+
+  SNNDataType descDataType;
+  int inN, inC, inH, inW, inStrideN, inStrideC, inStrideH, inStrideW;
+  getTensor4dDescriptor(xDesc, &descDataType, &inN, &inC, &inH, &inW,
+                        &inStrideN, &inStrideC, &inStrideH, &inStrideW);
+
+  sycldnn::FilterFormat format;
+  int filterK, filterC, filterH, filterW;
+  getFilter4dDescriptor(wDesc, &descDataType, &format, &filterK, &filterC,
+                        &filterH, &filterW);
+
+  int outN, outC, outH, outW, outStrideN, outStrideC, outStrideH, outStrideW;
+  getTensor4dDescriptor(yDesc, &descDataType, &outN, &outC, &outH, &outW,
+                        &outStrideN, &outStrideC, &outStrideH, &outStrideW);
+
+  conv_params.channels = inC;
+  conv_params.batch = inN;
+
+  conv_params.in_rows = inH;
+  conv_params.in_cols = inW;
+
+  conv_params.window_rows = filterH;
+  conv_params.window_cols = filterW;
+  conv_params.stride_rows = convDesc.getStrideH();
+  conv_params.stride_cols = convDesc.getStrideW();
+  sycldnn::DataFormat input_format = sycldnn::DataFormat::NHWC;
+  sycldnn::FilterFormat filter_format = sycldnn::FilterFormat::HWCF;
+  conv_params.out_rows = outH;
+  conv_params.out_cols = outW;
+  conv_params.pad_rows = convDesc.getPadH();
+  conv_params.pad_cols = convDesc.getPadW();
+  conv_params.channel_multiplier = filterK / inC;
+
+  conv_params.filter_format = format;
+  conv_params.input_format = xDesc.getFormat();
   return conv_params;
 }
 
@@ -534,8 +605,8 @@ inline std::unique_ptr<conv2d::Selector> getSelector(conv2d::Algorithm algo) {
  * \return SNNStatus for the operation.
  */
 template <typename ConvType>
-sycldnn::conv2d::WorkspaceSize getConvolutionWorkspaceSize(
-    SNNHandle& handle, const TensorDescriptor& xDesc,
+static sycldnn::conv2d::WorkspaceSize getConvolutionWorkspaceSize(
+    const SNNHandle& handle, const TensorDescriptor& xDesc,
     const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc,
     const TensorDescriptor& yDesc, conv2d::Algorithm algo) {
   SNN_UNUSED_VAR(handle);
@@ -562,7 +633,7 @@ sycldnn::conv2d::WorkspaceSize getConvolutionWorkspaceSize(
  * \return                    sycldnn::StatusCode for the operation.
  */
 template <typename ConvType>
-sycldnn::StatusCode findConvolutionAlgorithm(
+static sycldnn::StatusCode findConvolutionAlgorithm(
     SNNHandle& handle, const TensorDescriptor xDesc,
     const FilterDescriptor wDesc, const ConvolutionDescriptor convDesc,
     const TensorDescriptor yDesc, const int requestedAlgoCount,
@@ -574,108 +645,74 @@ sycldnn::StatusCode findConvolutionAlgorithm(
   SNN_UNUSED_VAR(requestedAlgoCount);
   sycldnn::conv2d::Conv2DParams conv1_params =
       internal::descToSnnParams(xDesc, yDesc, wDesc, convDesc);
-  std::unique_ptr<conv2d::Selector> selector =
-      std::make_unique<conv2d::DirectSelector>();
-  if (!selector) return StatusCode::InvalidAlgorithm;
+  // Hardcoding to im2col due to support and performance
+  sycldnn::conv2d::Im2colSelector selector{};
+  //sycldnn::conv2d::DirectSelector selector{};
+  // Does not support all formats
+  //sycldnn::conv2d::TiledSelector selector{};
 
-  // Get workspace size
-  auto workspace_size =
-      sycldnn::conv2d::query_workspace_size<ConvType>(conv1_params, *selector);
+  // if (!selector) return StatusCode::InvalidAlgorithm;
 
   // Allocate memory
-  ValueT* x = handle.getBackend().allocate<ValueT>(
-      conv1_params.batch * conv1_params.channels * conv1_params.in_rows *
-      conv1_params.in_cols);
+  //ValueT* x = handle.getBackend()->allocate<ValueT>(
+  //    conv1_params.batch * conv1_params.channels * conv1_params.in_rows *
+  //    conv1_params.in_cols);
 
-  ValueT* w = handle.getBackend().allocate<ValueT>(
-      conv1_params.channels * conv1_params.features * conv1_params.window_rows *
-      conv1_params.window_cols);
-
-  ValueT* workspace =
-      handle.getBackend().allocate<ValueT>(workspace_size.recommended_size);
+  //ValueT* w = handle.getBackend()->allocate<ValueT>(
+  //    conv1_params.channels * conv1_params.features * conv1_params.window_rows *
+  //    conv1_params.window_cols);
 
   // output
   int out_n, out_c, out_h, out_w;
 
-  getConvolution2dForwardOutputDim(convDesc, xDesc, wDesc, &out_n, &out_c,
+  getConvolution2dForwardOutputDim(convDesc, yDesc, wDesc, &out_n, &out_c,
                                    &out_h, &out_w);
 
-  ValueT* y =
-      handle.getBackend().allocate<ValueT>(out_n * out_c * out_h * out_w);
+  //ValueT* y =
+  //    handle.getBackend()->allocate<ValueT>(out_n * out_c * out_h * out_w);
+
+  auto algo =
+      selector.select<sycldnn::conv2d::conv_type::Forward>(conv1_params);
+  auto workspace_size =
+      getConvolutionWorkspaceSize<sycldnn::conv2d::conv_type::Forward>(
+          handle, xDesc, wDesc, convDesc, yDesc, algo);
+  //ValueT* workspace =
+  //    handle.getBackend()->allocate<ValueT>(workspace_size.recommended_size);
 
   // Run warmup
-  auto warmup_status = sycldnn::conv2d::launch<ValueT, ConvType>(
-      x, w, y, conv1_params, *selector, handle.getBackend(), workspace,
-      workspace_size.recommended_size);
-  if (warmup_status.status != StatusCode::OK) {
-    return warmup_status.status;
-  }
-  warmup_status.event.wait();
+  //auto warmup_status = sycldnn::conv2d::launch<ValueT, ConvType>(
+  //    x, w, y, conv1_params, selector, *handle.getBackend(), workspace,
+  //    workspace_size.recommended_size);
+  //if (warmup_status.status != StatusCode::OK) {
+  //  return warmup_status.status;
+  //}
+  //warmup_status.event.wait();
 
   // Start timing
-  auto start = std::chrono::high_resolution_clock::now();
-  auto run_status = sycldnn::conv2d::launch<ValueT, ConvType>(
-      x, w, y, conv1_params, *selector, handle.getBackend(), workspace,
-      workspace_size.recommended_size);
-  run_status.event.wait();
-  auto stop = std::chrono::high_resolution_clock::now();
+  //auto start = std::chrono::high_resolution_clock::now();
+  //auto run_status = sycldnn::conv2d::launch<ValueT, ConvType>(
+  //    x, w, y, conv1_params, selector, *handle.getBackend(), workspace,
+  //    workspace_size.recommended_size);
+  //run_status.event.wait();
+  //auto stop = std::chrono::high_resolution_clock::now();
   // Finish timing
 
-  auto resultTime =
-      std::chrono::duration<double, std::milli>(stop - start).count();
+  //hardcoding for now
+  double resultTime = 1;
+      //std::chrono::duration<double, std::milli>(stop - start).count();
   perfResults->time.push_back(resultTime);
-  perfResults->algo.push_back(
-      selector->select<sycldnn::conv2d::conv_type::Forward>(conv1_params));
-  perfResults->status.push_back(run_status);
+  perfResults->algo.push_back(algo);
+  perfResults->status.push_back(SNNStatus(StatusCode::OK));
+  // Algorithm workspace size
+  perfResults->memory.push_back(workspace_size.recommended_size);
+
   *returnedAlgoCount = 1;
 
-  sycl::free(x, handle.getQueue());
-  sycl::free(w, handle.getQueue());
-  sycl::free(y, handle.getQueue());
+  //sycl::free(x, handle.getQueue());
+  //sycl::free(w, handle.getQueue());
+  //sycl::free(y, handle.getQueue());
 
   return StatusCode::OK;
-}
-/**
- * Computes the dimension of the output descriptor.
- * \param desc  Descriptor for the convolution operation.
- * \param in    Descriptor for the input tensor.
- * \param filt  Descriptor for the filter tensor.
- * \param n     Output, pointer to the resulting batch size.
- * \param c     Output, pointer to the resulting number of channels.
- * \param h     Output, pointer to the resulting height.
- * \param w     Output, pointer to the resulting width.
- * \return      sycldnn::StatusCode::OK or
- * sycldnn::StatusCode::InvalidParameter
- */
-inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
-    const ConvolutionDescriptor& desc, const TensorDescriptor& in,
-    const FilterDescriptor& filt, int* n, int* c, int* h, int* w) {
-  SNN_VALIDATE_PARAM(n != nullptr, "Output pointer cannot be null");
-  SNN_VALIDATE_PARAM(c != nullptr, "Output pointer cannot be null");
-  SNN_VALIDATE_PARAM(h != nullptr, "Output pointer cannot be null");
-  SNN_VALIDATE_PARAM(w != nullptr, "Output pointer cannot be null");
-  using Index_t = int;
-  auto computeNewDim = [](Index_t inputDim, Index_t filterDim, Index_t pad,
-                          Index_t dilation, Index_t convolutionStride) {
-    return 1 + (inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1)) /
-                   convolutionStride;
-  };
-  SNNDataType descDataType;
-  int inN, inC, inH, inW, inStrideN, inStrideC, inStrideH, inStrideW;
-  getTensor4dDescriptor(in, &descDataType, &inN, &inC, &inH, &inW, &inStrideN,
-                        &inStrideC, &inStrideH, &inStrideW);
-
-  sycldnn::FilterFormat format;
-  int filterK, filterC, filterH, filterW;
-  getFilter4dDescriptor(filt, &descDataType, &format, &filterK, &filterC,
-                        &filterH, &filterW);
-  *n = inN;
-  *c = filterK;
-  *h = computeNewDim(inH, filterH, desc.getPadH(), desc.getDilationH(),
-                     desc.getStrideH());
-  *w = computeNewDim(inW, filterW, desc.getPadW(), desc.getDilationW(),
-                     desc.getStrideW());
-  return sycldnn::StatusCode::OK;
 }
 
 }  // namespace internal
@@ -683,7 +720,7 @@ inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
 /**
  * Performs the convolution forward operation.
  * \param handle                The SNNHandle.
- * \param alpha                 Scaling factor used to blend y output.
+ * \param alpha                 Scaling factor, currently unused.
  * \param xDesc                 Descriptor for the input tensor.
  * \param x                     Pointer to device memory for the input tensor.
  * \param wDesc                 Descriptor for the filter.
@@ -692,43 +729,62 @@ inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
  * \param algo                  Convolution algorithm to be employed.
  * \param workSpace             Pointer to device scratchpad memory, currently
  *                              unused.
- * \param workSpaceSizeInBytes  Size of the scratchpad memory, currently
+ * \param workSpaceSizeInBytes  Size of the scratchpad memory, currentl
  *                              unused.
- * \param beta                  Scaling factor used to blend y output.
+ * \param beta                  Scaling factor, currently unused.
  * \param yDesc                 Descriptor for the output tensor, its dimension
  *                              can be obtained with
  *                              getConvolution2dForwardOutputDim.
  * \param y                     Pointer to device memory for the output.
  * \return                      SNNStatus for the operation.
  */
-template <typename ValueT>
-SNNStatus convolutionForward(SNNHandle& handle, const ValueT* alpha,
-                             const TensorDescriptor& xDesc, const void* x,
-                             const FilterDescriptor& wDesc, const void* w,
-                             const ConvolutionDescriptor& convDesc,
-                             conv2d::Algorithm algo, void* workSpace,
-                             size_t workSpaceSizeInBytes, const ValueT* beta,
-                             const TensorDescriptor& yDesc, void* y) {
-  std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
-  SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+template <typename ValueT = float>
+static SNNStatus convolutionForward(
+    SNNHandle& handle, const ValueT* alpha, const TensorDescriptor& xDesc,
+    const void* x, const FilterDescriptor& wDesc, const void* w,
+    const ConvolutionDescriptor& convDesc, conv2d::Algorithm algo,
+    void* workSpace, size_t workSpaceSizeInBytes, const ValueT* beta,
+    const TensorDescriptor& yDesc, void* y) {
+    //TODO temp plug
+    handle.getQueue().wait();
+  if (convDesc.getMode() == sycldnn::compat::ConvolutionMode::CONVOLUTION ||
+      convDesc.getMode() ==
+          sycldnn::compat::ConvolutionMode::CROSS_CORRELATION) {
+    SNNStatus convEvent;
+    ScalingParams scParams(*handle.getBackend(), alpha, beta, yDesc.getSize(),
+                           y);
 
-  ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y);
-  SNNStatus convEvent;
-  convEvent.event = scParams.constructMem(handle.getBackend());
+    if (!scParams.isAlphaZero()) {
+      sycldnn::conv2d::Conv2DParams conv_params =
+          internal::descToSnnParams(xDesc, yDesc, wDesc, convDesc);
 
-  if (!scParams.isAlphaZero()) {
-    sycldnn::conv2d::Conv2DParams conv1Params =
-        internal::descToSnnParams(xDesc, yDesc, wDesc, convDesc);
+      std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
+      SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
 
-    convEvent =
-        sycldnn::conv2d::launch<ValueT, sycldnn::conv2d::conv_type::Forward>(
-            static_cast<const ValueT*>(x), static_cast<const ValueT*>(w),
-            static_cast<ValueT*>(y), conv1Params, *selector,
-            handle.getBackend(), static_cast<ValueT*>(workSpace),
-            workSpaceSizeInBytes / sizeof(ValueT), {convEvent.event});
+      convEvent.event = scParams.constructMem(*handle.getBackend());
+      convEvent =
+          sycldnn::conv2d::launch<ValueT, sycldnn::conv2d::conv_type::Forward>(
+              static_cast<const ValueT*>(x), static_cast<const ValueT*>(w),
+              static_cast<ValueT*>(y), conv_params, *selector,
+              *handle.getBackend(), static_cast<ValueT*>(workSpace),
+              workSpaceSizeInBytes, {convEvent.event});
+    }
+    //TODO temp plug
+    handle.getQueue().wait();
+    return scParams.applyScaling(*handle.getBackend(), {convEvent.event});
+
+  } else if (convDesc.getMode() ==
+             sycldnn::compat::ConvolutionMode::DEPTHWISE) {
+    sycldnn::depthwise_conv2d::DepthwiseConv2DParams conv_params =
+        internal::descToDepthwiseParams(xDesc, yDesc, wDesc, convDesc);
+
+    return sycldnn::depthwise_conv2d::launch<
+        ValueT, sycldnn::conv2d::conv_type::Forward>(
+        static_cast<const ValueT*>(x), static_cast<const ValueT*>(w),
+        static_cast<ValueT*>(y), conv_params, *handle.getBackend());
   }
 
-  return scParams.applyScaling(handle.getBackend(), {convEvent.event});
+  return {StatusCode::InvalidParameter};
 }
 
 /**
@@ -737,21 +793,44 @@ SNNStatus convolutionForward(SNNHandle& handle, const ValueT* alpha,
  * \param xDesc Descriptor for the input tensor.
  * \param convDesc Descriptor for the convolution operation.
  * \param wDesc Descriptor for the filter.
- * \param yDesc Descriptor for the output tensor, its dimension can be obtained
- * with getConvolution2dForwardOutputDim.
- * \param algo Convolution algorithm to be employed.
- * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
- * \return SNNStatus for the operation.
+ * \param yDesc Descriptor for the output tensor, its dimension can be
+ * obtained with getConvolution2dForwardOutputDim. \param algo Convolution
+ * algorithm to be employed. \param workSpaceSizeInBytes size of the
+ * scratchpad memory, currently unused. \return SNNStatus for the operation.
  */
-sycldnn::StatusCode getConvolutionForwardWorkspaceSize(
-    SNNHandle& handle, const TensorDescriptor& xDesc,
+static sycldnn::StatusCode getConvolutionForwardWorkspaceSize(
+    const SNNHandle& handle, const TensorDescriptor& xDesc,
     const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc,
     const TensorDescriptor& yDesc, conv2d::Algorithm algo,
     size_t* workSpaceSizeInBytes) {
   auto workspace = internal::getConvolutionWorkspaceSize<
       sycldnn::conv2d::conv_type::Forward>(handle, xDesc, wDesc, convDesc,
                                            yDesc, algo);
-  *workSpaceSizeInBytes = workspace.recommended_size;
+  *workSpaceSizeInBytes = workspace.recommended_size ;
+
+  return StatusCode::OK;
+}
+
+/**
+ * Queries the required workspace size for forward conv2d.
+ * \param handle The SNNHandle.
+ * \param xDesc Descriptor for the input tensor.
+ * \param convDesc Descriptor for the convolution operation.
+ * \param wDesc Descriptor for the filter.
+ * \param yDesc Descriptor for the output tensor, its dimension can be
+ * obtained with getConvolution2dForwardOutputDim. \param workSpaceSizeInBytes
+ * size of the scratchpad memory, currently unused. \return SNNStatus for the
+ * operation.
+ */
+static sycldnn::StatusCode getConvolutionForwardWorkspaceSize(
+    const SNNHandle& handle, const TensorDescriptor& xDesc,
+    const FilterDescriptor& wDesc, const ConvolutionDescriptor& convDesc,
+    const TensorDescriptor& yDesc, size_t* workSpaceSizeInBytes) {
+  auto workspace = internal::getConvolutionWorkspaceSize<
+      sycldnn::conv2d::conv_type::Forward>(handle, xDesc, wDesc, convDesc,
+                                           yDesc, conv2d::Algorithm::Direct);
+  *workSpaceSizeInBytes = workspace.recommended_size ;
+
   return StatusCode::OK;
 }
 
@@ -759,23 +838,43 @@ sycldnn::StatusCode getConvolutionForwardWorkspaceSize(
  * Queries the required workspace size for backwards filter conv2d.
  * \param handle The SNNHandle.
  * \param xDesc Descriptor for the input tensor.
- * \param dyDesc Descriptor for the output tensor, its dimension can be obtained
- * with getConvolution2dForwardOutputDim.
- * \param convDesc Descriptor for the convolution operation.
- * \param dwDesc Descriptor for the filter.
+ * \param dyDesc Descriptor for the output tensor, its dimension can be
+ * obtained with getConvolution2dForwardOutputDim. \param convDesc Descriptor
+ * for the convolution operation. \param dwDesc Descriptor for the filter.
  * \param algo Convolution algorithm to be employed.
- * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
- * \return SNNStatus for the operation.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently
+ * unused. \return SNNStatus for the operation.
  */
-SNNStatus getConvolutionBackwardFilterWorkspaceSize(
-    SNNHandle& handle, const TensorDescriptor& xDesc,
+static SNNStatus getConvolutionBackwardFilterWorkspaceSize(
+    const SNNHandle& handle, const TensorDescriptor& xDesc,
     const TensorDescriptor& dyDesc, const ConvolutionDescriptor& convDesc,
     const FilterDescriptor& dwDesc, conv2d::Algorithm algo,
     size_t* workSpaceSizeInBytes) {
   auto workspace = internal::getConvolutionWorkspaceSize<
       sycldnn::conv2d::conv_type::FilterBackprop>(handle, xDesc, dwDesc,
                                                   convDesc, dyDesc, algo);
-  *workSpaceSizeInBytes = workspace.recommended_size;
+  *workSpaceSizeInBytes = workspace.recommended_size * 4;
+  return {StatusCode::OK};
+}
+
+/**
+ * Queries the required workspace size for backwards filter conv2d.
+ * \param handle The SNNHandle.
+ * \param xDesc Descriptor for the input tensor.
+ * \param dyDesc Descriptor for the output tensor, its dimension can be
+ * obtained with getConvolution2dForwardOutputDim. \param convDesc Descriptor
+ * for the convolution operation. \param dwDesc Descriptor for the filter.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently
+ * unused. \return SNNStatus for the operation.
+ */
+static SNNStatus getConvolutionBackwardFilterWorkspaceSize(
+    const SNNHandle& handle, const TensorDescriptor& xDesc,
+    const TensorDescriptor& dyDesc, const ConvolutionDescriptor& convDesc,
+    const FilterDescriptor& dwDesc, size_t* workSpaceSizeInBytes) {
+  auto workspace = internal::getConvolutionWorkspaceSize<
+      sycldnn::conv2d::conv_type::FilterBackprop>(
+      handle, xDesc, dwDesc, convDesc, dyDesc, conv2d::Algorithm::Direct);
+  *workSpaceSizeInBytes = workspace.recommended_size * 4;
   return {StatusCode::OK};
 }
 
@@ -783,30 +882,50 @@ SNNStatus getConvolutionBackwardFilterWorkspaceSize(
  * Queries the required workspace size for backwards data conv2d.
  * \param handle The SNNHandle.
  * \param wDesc Descriptor for the filter.
- * \param dyDesc Descriptor for the output tensor, its dimension can be obtained
- * with getConvolution2dForwardOutputDim.
- * \param convDesc Descriptor for the convolution operation.
- * \param dxDesc Descriptor for the input tensor.
- * \param algo Convolution algorithm to be employed.
- * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
+ * \param dyDesc Descriptor for the output tensor, its dimension can be
+ * obtained with getConvolution2dForwardOutputDim. \param convDesc Descriptor
+ * for the convolution operation. \param dxDesc Descriptor for the input
+ * tensor. \param algo Convolution algorithm to be employed. \param
+ * workSpaceSizeInBytes size of the scratchpad memory, currently unused.
  * \return SNNStatus for the operation.
  */
-SNNStatus getConvolutionBackwardDataWorkspaceSize(
-    SNNHandle& handle, const FilterDescriptor& wDesc,
+static SNNStatus getConvolutionBackwardDataWorkspaceSize(
+    const SNNHandle& handle, const FilterDescriptor& wDesc,
     const TensorDescriptor& dyDesc, const ConvolutionDescriptor& convDesc,
     const TensorDescriptor& dxDesc, conv2d::Algorithm algo,
     size_t* workSpaceSizeInBytes) {
   auto workspace = internal::getConvolutionWorkspaceSize<
       sycldnn::conv2d::conv_type::InputBackprop>(handle, dxDesc, wDesc,
                                                  convDesc, dyDesc, algo);
-  *workSpaceSizeInBytes = workspace.recommended_size;
+  *workSpaceSizeInBytes = workspace.recommended_size * 4;
+  return {StatusCode::OK};
+}
+
+/**
+ * Queries the required workspace size for backwards data conv2d.
+ * \param handle The SNNHandle.
+ * \param wDesc Descriptor for the filter.
+ * \param dyDesc Descriptor for the output tensor, its dimension can be
+ * obtained with getConvolution2dForwardOutputDim. \param convDesc Descriptor
+ * for the convolution operation. \param dxDesc Descriptor for the input
+ * tensor. \param workSpaceSizeInBytes size of the scratchpad memory,
+ * currently unused. \return SNNStatus for the operation.
+ */
+static SNNStatus getConvolutionBackwardDataWorkspaceSize(
+    const SNNHandle& handle, const FilterDescriptor& wDesc,
+    const TensorDescriptor& dyDesc, const ConvolutionDescriptor& convDesc,
+    const TensorDescriptor& dxDesc, size_t* workSpaceSizeInBytes) {
+  auto workspace = internal::getConvolutionWorkspaceSize<
+      sycldnn::conv2d::conv_type::InputBackprop>(
+      handle, dxDesc, wDesc, convDesc, dyDesc, conv2d::Algorithm::Direct);
+  *workSpaceSizeInBytes = workspace.recommended_size * 4;
   return {StatusCode::OK};
 }
 
 /**
  * Performs the convolution backward data operation.
  * \param handle The SNNHandle.
- * \param alpha Scaling factor used to blend dx output.
+ * \param alpha Scaling factor, currently unused.
  * \param wDesc Descriptor for the filter.
  * \param w Pointer to device memory for the filter.
  * \param dyDesc Descriptor for the input differential tensor.
@@ -814,50 +933,57 @@ SNNStatus getConvolutionBackwardDataWorkspaceSize(
  * \param convDesc Descriptor for the convolution operation.
  * \param algo Convolution algorithm to be employed.
  * \param workSpace Pointer to device scratchpad memory, currently unused.
- * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
- * \param beta Scaling factor used to blend dx output.
- * \param dxDesc Descriptor for the output tensor, its dimension can be obtained
- * with getConvolution2dForwardOutputDim.
- * \param dx Pointer to device memory for the output.
- * \return SNNStatus for the operation.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently
+ * unused. \param beta Scaling factor, currently unused. \param dxDesc
+ * Descriptor for the output tensor, its dimension can be obtained with
+ * getConvolution2dForwardOutputDim. \param dx Pointer to device memory for
+ * the output. \return SNNStatus for the operation.
  */
-template <typename ValueT>
-SNNStatus convolutionBackwardData(SNNHandle& handle, const ValueT* alpha,
-                                  const FilterDescriptor wDesc, const void* w,
-                                  const TensorDescriptor dyDesc, const void* dy,
-                                  const ConvolutionDescriptor convDesc,
-                                  conv2d::Algorithm algo, void* workSpace,
-                                  size_t workSpaceSizeInBytes,
-                                  const ValueT* beta,
-                                  const TensorDescriptor dxDesc, void* dx) {
-  std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
-  SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+template <typename ValueT = float>
+static SNNStatus convolutionBackwardData(
+    SNNHandle& handle, const ValueT* alpha, const FilterDescriptor wDesc,
+    const void* w, const TensorDescriptor dyDesc, const void* dy,
+    const ConvolutionDescriptor convDesc, conv2d::Algorithm algo,
+    void* workSpace, size_t workSpaceSizeInBytes, const ValueT* beta,
+    const TensorDescriptor dxDesc, void* dx) {
+  if (convDesc.getMode() == sycldnn::compat::ConvolutionMode::CONVOLUTION) {
+    ScalingParams scParams(*handle.getBackend(), alpha, beta, dxDesc.getSize(),
+                           dx);
+    SNNStatus convEvent;
+    convEvent.event = scParams.constructMem(*handle.getBackend());
 
-  ScalingParams scParams(handle.getBackend(), alpha, beta, dxDesc.getSize(),
-                         dx);
-  SNNStatus convEvent;
-  convEvent.event = scParams.constructMem(handle.getBackend());
+    if (!scParams.isAlphaZero()) {
+      sycldnn::conv2d::Conv2DParams conv1_params =
+          internal::descToSnnParams(dxDesc, dyDesc, wDesc, convDesc);
 
-  if (!scParams.isAlphaZero()) {
-    sycldnn::conv2d::Conv2DParams conv1Params =
-        internal::descToSnnParams(dxDesc, dyDesc, wDesc, convDesc);
+      std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
+      SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+      convEvent =
+          sycldnn::conv2d::launch<ValueT,
+                                  sycldnn::conv2d::conv_type::InputBackprop>(
+              static_cast<const ValueT*>(dy), static_cast<const ValueT*>(w),
+              static_cast<ValueT*>(dx), conv1_params, *selector,
+              *handle.getBackend(), static_cast<ValueT*>(workSpace),
+              workSpaceSizeInBytes, {});
 
-    convEvent =
-        sycldnn::conv2d::launch<ValueT,
-                                sycldnn::conv2d::conv_type::InputBackprop>(
-            static_cast<const ValueT*>(dy), static_cast<const ValueT*>(w),
-            static_cast<ValueT*>(dx), conv1Params, *selector,
-            handle.getBackend(), static_cast<ValueT*>(workSpace),
-            workSpaceSizeInBytes / sizeof(ValueT), {convEvent.event});
+      return scParams.applyScaling(*handle.getBackend(), {convEvent.event});
+    }
+  } else if (convDesc.getMode() ==
+             sycldnn::compat::ConvolutionMode::DEPTHWISE) {
+    sycldnn::depthwise_conv2d::DepthwiseConv2DParams conv_params =
+        internal::descToDepthwiseParams(dxDesc, dyDesc, wDesc, convDesc);
+
+    return sycldnn::depthwise_conv2d::launch<
+        ValueT, sycldnn::conv2d::conv_type::InputBackprop>(
+        static_cast<const ValueT*>(dy), static_cast<const ValueT*>(w),
+        static_cast<ValueT*>(dx), conv_params, *handle.getBackend());
   }
-
-  return scParams.applyScaling(handle.getBackend(), {convEvent.event});
 }
 
 /**
  * Performs the convolution backward filter operation.
  * \param handle The SNNHandle.
- * \param alpha Scaling factor used to blend dw output.
+ * \param alpha Scaling factor, currently unused.
  * \param xDesc Descriptor for the input tensor.
  * \param x Pointer to device memory for the input tensor.
  * \param dyDesc Descriptor for the input differential tensor.
@@ -865,42 +991,49 @@ SNNStatus convolutionBackwardData(SNNHandle& handle, const ValueT* alpha,
  * \param convDesc Descriptor for the convolution operation.
  * \param algo Convolution algorithm to be employed.
  * \param workSpace Pointer to device scratchpad memory, currently unused.
- * \param workSpaceSizeInBytes size of the scratchpad memory, currently unused.
- * \param beta Scaling factor used to blend dw output.
- * \param dwDesc Descriptor for the filter gradient.
- * \param dw Pointer to device memory for the filter gradient.
- * \return SNNStatus for the operation.
+ * \param workSpaceSizeInBytes size of the scratchpad memory, currently
+ * unused. \param beta Scaling factor, currently unused. \param dwDesc
+ * Descriptor for the filter gradient. \param dw Pointer to device memory
+ * for the filter gradient. \return SNNStatus for the operation.
  */
-template <typename ValueT>
+template <typename ValueT = float>
 SNNStatus convolutionBackwardFilter(
     SNNHandle& handle, const ValueT* alpha, const TensorDescriptor& xDesc,
     const void* x, const TensorDescriptor& dyDesc, const void* dy,
     const ConvolutionDescriptor& convDesc, conv2d::Algorithm algo,
     void* workSpace, size_t workSpaceSizeInBytes, const ValueT* beta,
-    const FilterDescriptor& dwDesc, void* dw) {
-  std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
-  SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+    const FilterDescriptor& wDesc, void* dw) {
+  if (convDesc.getMode() == sycldnn::compat::ConvolutionMode::CONVOLUTION) {
+    ScalingParams scParams(*handle.getBackend(), alpha, beta, xDesc.getSize(),
+                           x);
+    SNNStatus convEvent;
+    convEvent.event = scParams.constructMem(*handle.getBackend());
 
-  std::vector<cl::sycl::event> convEventVector;
-  ScalingParams scParams(handle.getBackend(), alpha, beta, dwDesc.getSize(),
-                         dw);
-  SNNStatus convEvent;
-  convEvent.event = scParams.constructMem(handle.getBackend());
+    if (!scParams.isAlphaZero()) {
+      sycldnn::conv2d::Conv2DParams conv1_params =
+          internal::descToSnnParams(xDesc, dyDesc, wDesc, convDesc);
 
-  if (!scParams.isAlphaZero()) {
-    sycldnn::conv2d::Conv2DParams conv1Params =
-        internal::descToSnnParams(xDesc, dyDesc, dwDesc, convDesc);
+      std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
+      SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
+      convEvent =
+          sycldnn::conv2d::launch<ValueT,
+                                  sycldnn::conv2d::conv_type::FilterBackprop>(
+              static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
+              static_cast<ValueT*>(dw), conv1_params, *selector,
+              *handle.getBackend(), static_cast<ValueT*>(workSpace),
+              workSpaceSizeInBytes , {convEvent.event});
+      return scParams.applyScaling(*handle.getBackend(), {convEvent.event});
+    }
+  } else if (convDesc.getMode() ==
+             sycldnn::compat::ConvolutionMode::DEPTHWISE) {
+    sycldnn::depthwise_conv2d::DepthwiseConv2DParams conv_params =
+        internal::descToDepthwiseParams(xDesc, dyDesc, wDesc, convDesc);
 
-    convEvent =
-        sycldnn::conv2d::launch<ValueT,
-                                sycldnn::conv2d::conv_type::FilterBackprop>(
-            static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
-            static_cast<ValueT*>(dw), conv1Params, *selector,
-            handle.getBackend(), static_cast<ValueT*>(workSpace),
-            workSpaceSizeInBytes / sizeof(ValueT), {convEvent.event});
+    return sycldnn::depthwise_conv2d::launch<
+        ValueT, sycldnn::conv2d::conv_type::FilterBackprop>(
+        static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
+        static_cast<ValueT*>(dw), conv_params, *handle.getBackend());
   }
-
-  return scParams.applyScaling(handle.getBackend(), {convEvent.event});
 }
 
 /** This function queries the parameters of the previously initialized
@@ -915,11 +1048,35 @@ SNNStatus convolutionBackwardFilter(
  * \return            sycldnn::StatusCode::OK or
  *                    sycldnn::StatusCode::InvalidParameter
  */
-sycldnn::StatusCode setFilter4dDescriptor(FilterDescriptor& filterDesc,
-                                          SNNDataType dataType,
-                                          sycldnn::DataFormat format, int k,
-                                          int c, int h, int w) {
+static sycldnn::StatusCode setFilter4dDescriptor(FilterDescriptor& filterDesc,
+                                                 SNNDataType dataType,
+                                                 sycldnn::DataFormat format,
+                                                 int k, int c, int h, int w) {
   SNN_UNUSED_VAR(dataType);
+  return filterDesc.set4d(format, k, c, h, w);
+}
+
+/** This function queries the parameters of the previously initialized
+ * descriptor object.
+ * \param filterDesc  Input a previously initialized filter descriptor.
+ * \param dataType    Output data type.
+ * \param format      Format of the filter descriptor KCHW or KHWC
+ * \param k           Output number of output feature maps.
+ * \param c           Output number of input feature maps per image.
+ * \param h           Output height of each feature map.
+ * \param w           Output width of each feature map.
+ * \return            sycldnn::StatusCode::OK or
+ *                    sycldnn::StatusCode::InvalidParameter
+ */
+static sycldnn::StatusCode setFilter4dDescriptor(FilterDescriptor& filterDesc,
+                                                 SNNDataType dataType,
+                                                 sycldnn::DataFormat format,
+                                                 int k, int c, int h, int w,
+                                                 int s_k, int s_c, int s_h,
+                                                 int s_w) {
+  SNN_UNUSED_VAR(dataType);
+
+  // TODO implement set4d for strides as well
   return filterDesc.set4d(format, k, c, h, w);
 }
 
@@ -939,7 +1096,7 @@ sycldnn::StatusCode setFilter4dDescriptor(FilterDescriptor& filterDesc,
  *                            running algo.
  * \return SNNStatus for the operation.
  */
-SNNStatus findConvolutionForwardAlgorithm(
+static SNNStatus findConvolutionForwardAlgorithm(
     SNNHandle& handle, const TensorDescriptor xDesc,
     const FilterDescriptor wDesc, const ConvolutionDescriptor convDesc,
     const TensorDescriptor yDesc, const int requestedAlgoCount,
@@ -951,9 +1108,8 @@ SNNStatus findConvolutionForwardAlgorithm(
 }
 
 /**
- * Produces a set of recommended of conv2d backwards data algorithms and their
- * performance metrics
- * \param handle              The SNNHandle.
+ * Produces a set of recommended of conv2d backwards data algorithms and
+ * their performance metrics \param handle              The SNNHandle.
  * \param wDesc               Descriptor for the filter.
  * \param yDesc               Descriptor for the output tensor
  * \param convDesc            Descriptor for the convolution operation.
@@ -966,7 +1122,7 @@ SNNStatus findConvolutionForwardAlgorithm(
  *                            running algo.
  * \return SNNStatus for the operation.
  */
-SNNStatus findConvolutionBackwardDataAlgorithm(
+static SNNStatus findConvolutionBackwardDataAlgorithm(
     SNNHandle& handle, const FilterDescriptor wDesc,
     const TensorDescriptor yDesc, const ConvolutionDescriptor convDesc,
     const TensorDescriptor xDesc, const int requestedAlgoCount,
@@ -975,6 +1131,98 @@ SNNStatus findConvolutionBackwardDataAlgorithm(
       sycldnn::conv2d::conv_type::InputBackprop>(
       handle, xDesc, wDesc, convDesc, yDesc, requestedAlgoCount,
       returnedAlgoCount, perfResults);
+}
+
+/**
+ * Produces a set of recommended of conv2d backwards data algorithms and
+ * their performance metrics \param handle              The SNNHandle.
+ * \param wDesc               Descriptor for the filter.
+ * \param yDesc               Descriptor for the output tensor
+ * \param convDesc            Descriptor for the convolution operation.
+ * \param xDesc               Descriptor for the input tensor.
+ * \param requestedAlgoCount  Number of algos to be run for
+ *                            performance.
+ * \param returnedAlgoCount   Output number of alogs run for
+ *                            performance.
+ * \param perfResults         Struct containg the results of
+ *                            running algo.
+ * \return SNNStatus for the operation.
+ */
+static SNNStatus findConvolutionBackwardFilterAlgorithm(
+    SNNHandle& handle, const FilterDescriptor wDesc,
+    const TensorDescriptor yDesc, const ConvolutionDescriptor convDesc,
+    const TensorDescriptor xDesc, const int requestedAlgoCount,
+    int* returnedAlgoCount, convolutionFwdAlgoPerf_t* perfResults) {
+  return internal::findConvolutionAlgorithm<
+      sycldnn::conv2d::conv_type::FilterBackprop>(
+      handle, xDesc, wDesc, convDesc, yDesc, requestedAlgoCount,
+      returnedAlgoCount, perfResults);
+}
+
+/** TODO ADD
+ *
+ */
+static sycldnn::StatusCode createFilterDescriptor(
+    FilterDescriptor* filterDesc) {
+  if (!filterDesc) {
+    filterDesc = new FilterDescriptor;
+    return sycldnn::StatusCode::OK;
+  }
+  return sycldnn::StatusCode::InvalidParameter;
+}
+
+/** TODO
+ *
+ */
+static sycldnn::StatusCode destroyFilterDescriptor(
+    FilterDescriptor* filterDesc) {
+  if (filterDesc) {
+    delete filterDesc;
+    return sycldnn::StatusCode::OK;
+  }
+  return sycldnn::StatusCode::InvalidParameter;
+}
+
+/** TODO ADD
+ *
+ */
+static sycldnn::StatusCode createConvolutionDescriptor(
+    ConvolutionDescriptor* convDesc) {
+  if (!convDesc) {
+    convDesc = new ConvolutionDescriptor;
+    return sycldnn::StatusCode::OK;
+  }
+  return sycldnn::StatusCode::InvalidParameter;
+}
+
+/** TODO
+ *
+ */
+static sycldnn::StatusCode destroyConvolutionDescriptor(
+    ConvolutionDescriptor* convDesc) {
+  if (convDesc) {
+    delete convDesc;
+    return sycldnn::StatusCode::OK;
+  }
+  return sycldnn::StatusCode::InvalidParameter;
+}
+
+/** TODO
+ *
+ */
+
+static sycldnn::StatusCode initConvolutionNdDescriptor(
+    ConvolutionDescriptor* convDesc, int spatialDim, int* padA, int* StrideA,
+    int* dilationA, ConvolutionMode c_mode) {
+  if (spatialDim != 2) {
+    return sycldnn::StatusCode::InvalidParameter;
+  }
+  if (!convDesc) {
+    convDesc = new ConvolutionDescriptor;
+  }
+  convDesc->set2d(padA[0], padA[1], StrideA[0], StrideA[1], dilationA[0],
+                  dilationA[1], c_mode);
+  return sycldnn::StatusCode::OK;
 }
 
 }  // namespace compat
