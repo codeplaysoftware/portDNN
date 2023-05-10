@@ -34,7 +34,7 @@ namespace compat {
 /**
  * The implementation of scaling parameters for the supported operators
  */
-template <typename ValueT = float, typename Backend = backend::SNNUSMBackend>
+template <typename ValueT, typename Backend = backend::SNNUSMBackend>
 class ScalingParams {
  public:
   /** Output device memory pointer*/
@@ -69,11 +69,11 @@ class ScalingParams {
    * \param isBatchnormFwdTr    Boolean flag to check batch normalization
    * forward training call
    */
-  ScalingParams(Backend& backend, const void* alpha, const void* beta,
+  ScalingParams(Backend& backend, const ValueT* alpha, const ValueT* beta,
                 unsigned int ySize, void* y, bool isBatchnormFwdTr = false) {
     this->y = y;
-    this->alpha = static_cast<const ValueT*>(alpha);
-    this->beta = static_cast<const ValueT*>(beta);
+    this->alpha = alpha;
+    this->beta = beta;
     this->ySize = ySize;
     this->q = backend.get_queue();
     this->isBatchnormFwdTr = isBatchnormFwdTr;

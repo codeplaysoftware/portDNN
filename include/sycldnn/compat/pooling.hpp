@@ -201,10 +201,10 @@ inline sycldnn::pooling::PoolingParams descToSnnParams(
  * \param y Pointer to device memory for the output.
  * \return SNNStatus for the operation.
  */
-template <typename ValueT = float>
+template <typename ValueT>
 SNNStatus poolingForward(SNNHandle& handle, const PoolingDescriptor& poolDesc,
-                         const void* alpha, const TensorDescriptor& xDesc,
-                         const void* x, void* beta,
+                         const ValueT* alpha, const TensorDescriptor& xDesc,
+                         const void* x, const ValueT* beta,
                          const TensorDescriptor& yDesc, void* y) {
   ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y);
   SNNStatus poolingEvent;

@@ -701,13 +701,13 @@ inline sycldnn::StatusCode getConvolution2dForwardOutputDim(
  * \param y                     Pointer to device memory for the output.
  * \return                      SNNStatus for the operation.
  */
-template <typename ValueT = float>
-SNNStatus convolutionForward(SNNHandle& handle, const void* alpha,
+template <typename ValueT>
+SNNStatus convolutionForward(SNNHandle& handle, const ValueT* alpha,
                              const TensorDescriptor& xDesc, const void* x,
                              const FilterDescriptor& wDesc, const void* w,
                              const ConvolutionDescriptor& convDesc,
                              conv2d::Algorithm algo, void* workSpace,
-                             size_t workSpaceSizeInBytes, const void* beta,
+                             size_t workSpaceSizeInBytes, const ValueT* beta,
                              const TensorDescriptor& yDesc, void* y) {
   std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
   SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
@@ -821,13 +821,14 @@ SNNStatus getConvolutionBackwardDataWorkspaceSize(
  * \param dx Pointer to device memory for the output.
  * \return SNNStatus for the operation.
  */
-template <typename ValueT = float>
-SNNStatus convolutionBackwardData(SNNHandle& handle, const void* alpha,
+template <typename ValueT>
+SNNStatus convolutionBackwardData(SNNHandle& handle, const ValueT* alpha,
                                   const FilterDescriptor wDesc, const void* w,
                                   const TensorDescriptor dyDesc, const void* dy,
                                   const ConvolutionDescriptor convDesc,
                                   conv2d::Algorithm algo, void* workSpace,
-                                  size_t workSpaceSizeInBytes, const void* beta,
+                                  size_t workSpaceSizeInBytes,
+                                  const ValueT* beta,
                                   const TensorDescriptor dxDesc, void* dx) {
   std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
   SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");
@@ -870,12 +871,12 @@ SNNStatus convolutionBackwardData(SNNHandle& handle, const void* alpha,
  * \param dw Pointer to device memory for the filter gradient.
  * \return SNNStatus for the operation.
  */
-template <typename ValueT = float>
+template <typename ValueT>
 SNNStatus convolutionBackwardFilter(
-    SNNHandle& handle, const void* alpha, const TensorDescriptor& xDesc,
+    SNNHandle& handle, const ValueT* alpha, const TensorDescriptor& xDesc,
     const void* x, const TensorDescriptor& dyDesc, const void* dy,
     const ConvolutionDescriptor& convDesc, conv2d::Algorithm algo,
-    void* workSpace, size_t workSpaceSizeInBytes, const void* beta,
+    void* workSpace, size_t workSpaceSizeInBytes, const ValueT* beta,
     const FilterDescriptor& dwDesc, void* dw) {
   std::unique_ptr<conv2d::Selector> selector = internal::getSelector(algo);
   SNN_VALIDATE_PARAM(selector != nullptr, "Unsupported algorithm");

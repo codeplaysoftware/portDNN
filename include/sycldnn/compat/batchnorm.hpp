@@ -1,5 +1,6 @@
 #ifndef SYCLDNN_INCLUDE_COMPAT_BATCHNORM_HPP
 #define SYCLDNN_INCLUDE_COMPAT_BATCHNORM_HPP
+#include "scaling.hpp"
 #include "sycldnn/batchnorm/launch.h"
 #include "sycldnn/batchnorm/params.h"
 #include "utils.hpp"
@@ -102,8 +103,8 @@ batchnorm::BatchNormParams descToSnnBatchnormParams(
  * Executes forward pass during inference.
  * \param handle The SNNHandle.
  * \param mode Batch normalization mode.
- * \param alpha Scaling parameter, currently unused.
- * \param beta Scaling parameter, currently unused.
+ * \param alpha Scaling parameter used to blend y output.
+ * \param beta Scaling parameter used to blend y output.
  * \param xDesc Input tensor descriptor.
  * \param x Pointer to input device memory.
  * \param yDesc Output tensor descriptor.
@@ -116,38 +117,45 @@ batchnorm::BatchNormParams descToSnnBatchnormParams(
  * \param epsilon Epsilon value to avoid division by zero.
  * \return Status of the operation.
  */
-template <typename ValueT = float>
+template <typename ValueT>
 SNNStatus batchNormalizationForwardInference(
-    SNNHandle& handle, BatchNormMode mode, const void* alpha, const void* beta,
-    const TensorDescriptor& xDesc, const void* x, const TensorDescriptor& yDesc,
-    void* y, const TensorDescriptor& bnScaleBiasMeanVarDesc,
-    const void* bnScale, const void* bnBias, const void* estimatedMean,
+    SNNHandle& handle, BatchNormMode mode, const ValueT* alpha,
+    const ValueT* beta, const TensorDescriptor& xDesc, const void* x,
+    const TensorDescriptor& yDesc, void* y,
+    const TensorDescriptor& bnScaleBiasMeanVarDesc, const void* bnScale,
+    const void* bnBias, const void* estimatedMean,
     const void* estimatedVariance, double epsilon) {
   SNNStatus validationStatus = internal::validateBatchnormParams(
       xDesc, yDesc, bnScaleBiasMeanVarDesc, mode);
   if (validationStatus.status != StatusCode::OK) return validationStatus;
 
-  SNN_UNUSED_VAR(alpha);
-  SNN_UNUSED_VAR(beta);
+  ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y);
+  SNNStatus batchnormStatus;
+  batchnormStatus.event = scParams.constructMem(handle.getBackend());
 
-  batchnorm::BatchNormParams params =
-      internal::descToSnnBatchnormParams(xDesc, false, epsilon);
+  if (!scParams.isAlphaZero()) {
+    batchnorm::BatchNormParams batchnormParams =
+        internal::descToSnnBatchnormParams(xDesc, false, epsilon);
 
-  return batchnorm::launch<ValueT, sycldnn::backend::SNNUSMBackend,
-                           batchnorm::Forward>(
-      static_cast<const ValueT*>(x), static_cast<const ValueT*>(bnScale),
-      static_cast<const ValueT*>(bnBias),
-      static_cast<const ValueT*>(estimatedMean),
-      static_cast<const ValueT*>(estimatedVariance), nullptr, nullptr,
-      static_cast<ValueT*>(y), params, handle.getBackend());
+    batchnormStatus = batchnorm::launch<ValueT, sycldnn::backend::SNNUSMBackend,
+                                        batchnorm::Forward>(
+        static_cast<const ValueT*>(x), static_cast<const ValueT*>(bnScale),
+        static_cast<const ValueT*>(bnBias),
+        static_cast<const ValueT*>(estimatedMean),
+        static_cast<const ValueT*>(estimatedVariance), nullptr, nullptr,
+        static_cast<ValueT*>(y), batchnormParams, handle.getBackend(),
+        {batchnormStatus.event});
+  }
+
+  return scParams.applyScaling(handle.getBackend(), {batchnormStatus.event});
 }
 
 /**
  * Executes forward pass during training.
  * \param handle The SNNHandle.
  * \param mode Batch normalization mode.
- * \param alpha Scaling parameter, currently unused.
- * \param beta Scaling parameter, currently unused.
+ * \param alpha Scaling parameter used to blend y output.
+ * \param beta Scaling parameter used to blend y output.
  * \param xDesc Input tensor descriptor.
  * \param x Pointer to input device memory.
  * \param yDesc Output tensor descriptor.
@@ -165,16 +173,15 @@ SNNStatus batchNormalizationForwardInference(
  * \param resultSaveInvVariance Optional cache for saving running variance.
  * \return Status of the operation.
  */
-template <typename ValueT = float>
+template <typename ValueT>
 SNNStatus batchNormalizationForwardTraining(
-    SNNHandle& handle, BatchNormMode mode, const void* alpha, const void* beta,
-    const TensorDescriptor xDesc, const void* x, const TensorDescriptor yDesc,
-    void* y, const TensorDescriptor bnScaleBiasMeanVarDesc, const void* bnScale,
+    SNNHandle& handle, BatchNormMode mode, const ValueT* alpha,
+    const ValueT* beta, const TensorDescriptor xDesc, const void* x,
+    const TensorDescriptor yDesc, void* y,
+    const TensorDescriptor bnScaleBiasMeanVarDesc, const void* bnScale,
     const void* bnBias, double exponentialAverageFactor,
     void* resultRunningMean, void* resultRunningVariance, double epsilon,
     void* resultSaveMean, void* resultSaveInvVariance) {
-  SNN_UNUSED_VAR(alpha);
-  SNN_UNUSED_VAR(beta);
   SNNStatus validationStatus = internal::validateBatchnormParams(
       xDesc, yDesc, bnScaleBiasMeanVarDesc, mode);
   if (validationStatus.status != StatusCode::OK) return validationStatus;
@@ -183,67 +190,73 @@ SNNStatus batchNormalizationForwardTraining(
       !resultSaveMean == !resultSaveInvVariance,
       "The optional cache pointers need to either be both valid or both null");
 
-  batchnorm::BatchNormParams params =
-      internal::descToSnnBatchnormParams(xDesc, true, epsilon);
-  params.momentum = 1 - exponentialAverageFactor;
+  ScalingParams scParams(handle.getBackend(), alpha, beta, yDesc.getSize(), y,
+                         true);
+  auto constructMemEvent = scParams.constructMem(handle.getBackend());
 
-  auto C = params.channels;
-  ValueT* out_mean_ptr;
-  ValueT* out_var_ptr;
+  batchnorm::BatchNormParams batchnormParams =
+      internal::descToSnnBatchnormParams(xDesc, true, epsilon);
+  batchnormParams.momentum = 1 - exponentialAverageFactor;
+
+  auto c = batchnormParams.channels;
+  ValueT* outMeanPtr = nullptr;
+  ValueT* outVarPtr = nullptr;
 
   if (!resultSaveMean) {
-    out_mean_ptr = sycl::malloc_device<ValueT>(C, handle.getQueue());
-    out_var_ptr = sycl::malloc_device<ValueT>(C, handle.getQueue());
+    outMeanPtr = sycl::malloc_device<ValueT>(c, handle.getQueue());
+    outVarPtr = sycl::malloc_device<ValueT>(c, handle.getQueue());
   } else {
-    out_mean_ptr = static_cast<ValueT*>(resultSaveMean);
-    out_var_ptr = static_cast<ValueT*>(resultSaveInvVariance);
+    outMeanPtr = static_cast<ValueT*>(resultSaveMean);
+    outVarPtr = static_cast<ValueT*>(resultSaveInvVariance);
   }
 
-  auto batchnorm_status =
+  SNNStatus batchnormStatus =
       batchnorm::launch<ValueT, sycldnn::backend::SNNUSMBackend,
                         batchnorm::Forward>(
           static_cast<const ValueT*>(x), static_cast<const ValueT*>(bnScale),
           static_cast<const ValueT*>(bnBias),
           static_cast<ValueT*>(resultRunningMean),
           static_cast<ValueT*>(resultRunningVariance),
-          static_cast<ValueT*>(out_mean_ptr), static_cast<ValueT*>(out_var_ptr),
-          static_cast<ValueT*>(y), params, handle.getBackend());
+          static_cast<ValueT*>(outMeanPtr), static_cast<ValueT*>(outVarPtr),
+          static_cast<ValueT*>(y), batchnormParams, handle.getBackend(),
+          {constructMemEvent});
 
   // copy back data to match cuDNN parameters.
   auto q = handle.getQueue();
-  size_t C_size = C * sizeof(ValueT);
-  std::vector<sycl::event> dep_events;
-  auto copy_mean_event = q.memcpy(resultRunningMean, out_mean_ptr, C_size,
-                                  {batchnorm_status.event});
-  auto copy_var_event = q.memcpy(resultRunningVariance, out_var_ptr, C_size,
-                                 {batchnorm_status.event});
-  dep_events.push_back(copy_mean_event);
-  dep_events.push_back(copy_var_event);
+  size_t cSize = c * sizeof(ValueT);
+  auto copyMeanEvent =
+      q.memcpy(resultRunningMean, outMeanPtr, cSize, {batchnormStatus.event});
+  auto copyVarEvent = q.memcpy(resultRunningVariance, outVarPtr, cSize,
+                               {batchnormStatus.event});
 
-  sycl::event final_event;
+  std::vector<cl::sycl::event> batchnormEventVector{copyMeanEvent,
+                                                    copyVarEvent};
+
   if (!resultSaveMean) {
-    final_event = q.submit([&](sycl::handler& cgh) {
-      cgh.depends_on(dep_events);
+    auto e = q.submit([&](sycl::handler& cgh) {
+      cgh.depends_on(batchnormEventVector);
       cgh.host_task([=]() {
-        sycl::free(out_mean_ptr, q);
-        sycl::free(out_var_ptr, q);
+        sycl::free(outMeanPtr, q);
+        sycl::free(outVarPtr, q);
       });
     });
-  } else {
-    final_event = sycldnn::helpers::multi_event_to_one(dep_events, q);
+    batchnormEventVector.clear();
+    batchnormEventVector.push_back(e);
   }
 
-  return {final_event, sycldnn::StatusCode::OK};
+  return scParams.applyScaling(handle.getBackend(), batchnormEventVector);
 }
 
 /**
  * Executes backward pass.
  * \param handle The SNNHandle.
  * \param mode Batch normalization mode.
- * \param alphaDataDiff Scaling parameter, currently unused.
- * \param betaDataDiff Scaling parameter, currently unused.
- * \param alphaParamDiff Scaling parameter, currently unused.
- * \param betaParamDiff Scaling parameter, currently unused.
+ * \param alphaDataDiff Scaling parameter used to blend dx output.
+ * \param betaDataDiff Scaling parameter used to blend dx output.
+ * \param alphaParamDiff Scaling parameter used to blend resultBnScaleDiff
+ *                       and resultBnBiasDiff.
+ * \param betaParamDiff Scaling parameter used to blend resultBnScaleDiff
+ *                      and resultBnBiasDiff.
  * \param xDesc Input tensor descriptor.
  * \param x Pointer to input device memory.
  * \param dyDesc Backpropagation differential tensor descriptor.
@@ -257,14 +270,14 @@ SNNStatus batchNormalizationForwardTraining(
  * \param epsilon Epsilon value to avoid division by zero.
  * \param savedMean Optional cache for the running mean, currently unused.
  * \param savedInvVariance Optional cache for the running variance, currently
- * unused.
+ *                         unused.
  * \return Status of the operation.
  */
-template <typename ValueT = float>
+template <typename ValueT>
 SNNStatus batchNormalizationBackward(
-    SNNHandle& handle, BatchNormMode mode, const void* alphaDataDiff,
-    const void* betaDataDiff, const void* alphaParamDiff,
-    const void* betaParamDiff, const TensorDescriptor xDesc, const void* x,
+    SNNHandle& handle, BatchNormMode mode, const ValueT* alphaDataDiff,
+    const ValueT* betaDataDiff, const ValueT* alphaParamDiff,
+    const ValueT* betaParamDiff, const TensorDescriptor xDesc, const void* x,
     const TensorDescriptor dyDesc, const void* dy,
     const TensorDescriptor dxDesc, void* dx,
     const TensorDescriptor bnScaleBiasDiffDesc, const void* bnScale,
@@ -276,25 +289,61 @@ SNNStatus batchNormalizationBackward(
     if (validationStatus.status != StatusCode::OK) return validationStatus;
   }
 
-  SNN_UNUSED_VAR(alphaParamDiff);
-  SNN_UNUSED_VAR(betaParamDiff);
   SNN_UNUSED_VAR(savedMean);
   SNN_UNUSED_VAR(savedInvVariance);
-  SNN_UNUSED_VAR(alphaDataDiff);
-  SNN_UNUSED_VAR(betaDataDiff);
 
-  batchnorm::BatchNormParams params =
-      internal::descToSnnBatchnormParams(xDesc, true, epsilon);
+  std::vector<cl::sycl::event> batchnormEventVector;
 
-  return batchnorm::launch<ValueT, sycldnn::backend::SNNUSMBackend,
-                           batchnorm::Gradient>(
-      static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
-      static_cast<const ValueT*>(bnScale), nullptr, nullptr,
-      static_cast<ValueT*>(resultBnScaleDiff),
-      static_cast<ValueT*>(resultBnBiasDiff), static_cast<ValueT*>(dx), params,
-      handle.getBackend());
+  ScalingParams scDataDiff(handle.getBackend(), alphaDataDiff, betaDataDiff,
+                           dxDesc.getSize(), dx, true);
+  auto constructMemEvent = scDataDiff.constructMem(handle.getBackend());
+  batchnormEventVector.push_back(constructMemEvent);
+
+  ScalingParams scScaleDiff(handle.getBackend(), alphaParamDiff, betaParamDiff,
+                            bnScaleBiasDiffDesc.getSize(), resultBnScaleDiff,
+                            true);
+  constructMemEvent = scScaleDiff.constructMem(handle.getBackend());
+  batchnormEventVector.push_back(constructMemEvent);
+
+  ScalingParams scBiasDiff(handle.getBackend(), alphaParamDiff, betaParamDiff,
+                           bnScaleBiasDiffDesc.getSize(), resultBnBiasDiff,
+                           true);
+  constructMemEvent = scBiasDiff.constructMem(handle.getBackend());
+  batchnormEventVector.push_back(constructMemEvent);
+
+  SNNStatus batchnormStatus;
+
+  if (!scDataDiff.isAlphaZero() || !scScaleDiff.isAlphaZero()) {
+    batchnorm::BatchNormParams params =
+        internal::descToSnnBatchnormParams(xDesc, true, epsilon);
+
+    batchnormStatus = batchnorm::launch<ValueT, sycldnn::backend::SNNUSMBackend,
+                                        batchnorm::Gradient>(
+        static_cast<const ValueT*>(x), static_cast<const ValueT*>(dy),
+        static_cast<const ValueT*>(bnScale), nullptr, nullptr,
+        static_cast<ValueT*>(resultBnScaleDiff),
+        static_cast<ValueT*>(resultBnBiasDiff), static_cast<ValueT*>(dx),
+        params, handle.getBackend(), batchnormEventVector);
+
+    batchnormEventVector.clear();
+    batchnormEventVector.push_back(batchnormStatus.event);
+  }
+  std::vector<cl::sycl::event> batchnormEventVectorFinal;
+  batchnormStatus =
+      scDataDiff.applyScaling(handle.getBackend(), batchnormEventVector);
+  batchnormEventVectorFinal.push_back(batchnormStatus.event);
+  batchnormStatus =
+      scScaleDiff.applyScaling(handle.getBackend(), batchnormEventVector);
+  batchnormEventVectorFinal.push_back(batchnormStatus.event);
+  batchnormStatus =
+      scBiasDiff.applyScaling(handle.getBackend(), batchnormEventVector);
+  batchnormEventVectorFinal.push_back(batchnormStatus.event);
+
+  auto q = handle.getQueue();
+  cl::sycl::event syclEvent =
+      sycldnn::helpers::multi_event_to_one(batchnormEventVectorFinal, q);
+  return {syclEvent, sycldnn::StatusCode::OK};
 }
-
 }  // namespace compat
 }  // namespace sycldnn
 
