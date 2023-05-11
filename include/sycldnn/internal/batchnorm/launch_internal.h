@@ -714,14 +714,14 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       gradient, const_workspace, output, input_dims, channel_dims, queue,
       dependencies);
-  dependencies = std::vector<cl::sycl::event>{status.event};
+  launch_gradient_dependencies.push_back(status.event);
   if (sycldnn::StatusCode::OK != status.status) {
     return status;
   }
 
   status.event = sycldnn::helpers::enqueue_free(
-      queue, std::vector<cl::sycl::event>{status.event}, sycl_epsilon,
-      sycl_workspace, sycl_tr_reduce);
+      queue, launch_gradient_dependencies, sycl_epsilon, sycl_workspace,
+      sycl_tr_reduce);
   return status;
 }
 
