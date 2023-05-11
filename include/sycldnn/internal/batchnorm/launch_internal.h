@@ -609,11 +609,14 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   const bool is_nchw = params.input_format == DataFormat::NCHW;
+  // Allocate extra_memory only for transposition
+  size_t tr_reduce_size = is_nchw ? n_items : 0;
   SNNStatus status;
 
   // Transpose NCHW tensor to NHWC to reduce NHW dimensions in one go.
-  auto sycl_tr_reduce = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
-  auto tr_reduce = make_mem_object(sycl_tr_reduce, n_items);
+  auto sycl_tr_reduce_workspace = sycldnn::helpers::alloc<T, is_usm>(
+      tr_reduce_size + params.channels, queue);
+  auto tr_reduce = make_mem_object(sycl_tr_reduce_workspace, tr_reduce_size);
   auto beta_grad_dependencies = std::vector<cl::sycl::event>{};
   if (is_nchw) {
     status = transpose::internal::launch(gradient, tr_reduce, input_dims,
@@ -637,9 +640,8 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto sycl_epsilon =
       sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &params.epsilon, queue);
   auto epsilon = make_mem_object<T const>(sycl_epsilon, 1);
-  auto sycl_workspace =
-      sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
-  auto workspace = make_mem_object(sycl_workspace, params.channels);
+  auto workspace = make_mem_object(sycl_tr_reduce_workspace, params.channels,
+                                   tr_reduce_size);
 
   status = binaryop::internal::launch_binaryop<binaryop::Add>(
       pop_variance, epsilon, workspace, channel_dims, {1}, queue, events);
@@ -719,9 +721,9 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
     return status;
   }
 
-  status.event = sycldnn::helpers::enqueue_free(
-      queue, launch_gradient_dependencies, sycl_epsilon, sycl_workspace,
-      sycl_tr_reduce);
+  status.event =
+      sycldnn::helpers::enqueue_free(queue, launch_gradient_dependencies,
+                                     sycl_epsilon, sycl_tr_reduce_workspace);
   return status;
 }
 
