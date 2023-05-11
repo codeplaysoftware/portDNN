@@ -372,11 +372,10 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto n_items = get_total_size(params);
   auto queue = backend.get_queue();
   const bool is_nchw = params.input_format == DataFormat::NCHW;
-  SNNStatus status_1;
-  SNNStatus status_2;
-  std::vector<cl::sycl::event> dependencies_1;
-  std::vector<cl::sycl::event> dependencies_3;
-  std::vector<cl::sycl::event> dependencies_2;
+  SNNStatus status;
+  std::vector<cl::sycl::event> beta_grad_deps = events;
+  std::vector<cl::sycl::event> scaled_input_deps = events;
+  std::vector<cl::sycl::event> mean_input_deps = events;
 
   auto sycl_tr_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto tr_input = make_mem_object(sycl_tr_input, n_items);
@@ -386,31 +385,31 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   // go.
   if (is_nchw) {
     auto input_dims = get_input_dims(params);
-    status_1 = transpose::internal::launch(gradient, tr_gradient, input_dims,
-                                           NCHW_TO_NHWC, queue, events);
-    dependencies_1 = {status_1.event};
-    dependencies_2 = {status_1.event};
-    if (sycldnn::StatusCode::OK != status_1.status) {
-      return status_1;
+    status = transpose::internal::launch(gradient, tr_gradient, input_dims,
+                                         NCHW_TO_NHWC, queue, events);
+    beta_grad_deps = {status.event};
+    scaled_input_deps = {status.event};
+    if (sycldnn::StatusCode::OK != status.status) {
+      return status;
     }
 
-    status_2 = transpose::internal::launch(input, tr_input, input_dims,
-                                           NCHW_TO_NHWC, queue, events);
-    dependencies_3 = {status_2.event};
-    if (sycldnn::StatusCode::OK != status_2.status) {
-      return status_2;
+    status = transpose::internal::launch(input, tr_input, input_dims,
+                                         NCHW_TO_NHWC, queue, events);
+    mean_input_deps = {status.event};
+    if (sycldnn::StatusCode::OK != status.status) {
+      return status;
     }
   }
 
   auto const_tr_gradient = tr_gradient.as_const();
   auto& nhwc_gradient = is_nchw ? const_tr_gradient : gradient;
 
-  status_1 = reduce::internal::launch<reduce::Add>(
+  status = reduce::internal::launch<reduce::Add>(
       nhwc_gradient, beta_grad, 1, get_non_channel_size(params),
-      params.channels, backend, dependencies_1);
-  dependencies_1 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      params.channels, backend, beta_grad_deps);
+  std::vector<cl::sycl::event> mean_gradient_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto sycl_mean_gradient =
@@ -421,22 +420,21 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
       sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &num_elts_val, queue);
   auto num_elts = make_mem_object<T const>(sycl_num_elts, 1);
   auto const_beta_grad = beta_grad.as_const();
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_beta_grad, num_elts, mean_gradient, {params.channels}, {1}, queue,
-      dependencies_1);
-  dependencies_1 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      mean_gradient_deps);
+  std::vector<cl::sycl::event> output_binaryop_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto const_mean_gradient = mean_gradient.as_const();
-  status_1 =
-      sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-          nhwc_gradient, const_mean_gradient, output, nhwc_dims,
-          {params.channels}, queue, dependencies_1);
-  dependencies_1 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
+      nhwc_gradient, const_mean_gradient, output, nhwc_dims, {params.channels},
+      queue, output_binaryop_deps);
+  output_binaryop_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto const_tr_input = tr_input.as_const();
@@ -444,149 +442,149 @@ SNNStatus launch_gradient(MemObj<T const>& input, MemObj<T const>& gradient,
   auto sycl_mean_input =
       sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto mean_input = make_mem_object(sycl_mean_input, params.channels);
-  status_1 = reduce::internal::launch<reduce::Mean>(
+  status = reduce::internal::launch<reduce::Mean>(
       nhwc_input, mean_input, 1, get_non_channel_size(params), params.channels,
-      backend, dependencies_3);
-  dependencies_3 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      backend, mean_input_deps);
+  std::vector<cl::sycl::event> centered_input_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto sycl_centered_input = sycldnn::helpers::alloc<T, is_usm>(n_items, queue);
   auto centered_input = make_mem_object(sycl_centered_input, n_items);
   auto const_mean_input = mean_input.as_const();
-  status_1 =
-      sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
-          nhwc_input, const_mean_input, centered_input, nhwc_dims,
-          {params.channels}, queue, dependencies_3);
-  dependencies_2.push_back(status_1.event);
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Sub>(
+      nhwc_input, const_mean_input, centered_input, nhwc_dims,
+      {params.channels}, queue, centered_input_deps);
+  scaled_input_deps.push_back(status.event);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto& scaled_input = tr_input;  // Re-use temporary memory
   auto const_centered_input = centered_input.as_const();
-  status_1 =
-      sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
-          nhwc_gradient, const_centered_input, scaled_input, nhwc_dims, queue,
-          dependencies_2);
-  dependencies_3 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+  status = sycldnn::binaryop::internal::launch_binaryop<sycldnn::binaryop::Mul>(
+      nhwc_gradient, const_centered_input, scaled_input, nhwc_dims, queue,
+      scaled_input_deps);
+  std::vector<cl::sycl::event> gamma_grad_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto const_scaled_input = scaled_input.as_const();
-  status_1 = reduce::internal::launch<reduce::Add>(
+  status = reduce::internal::launch<reduce::Add>(
       const_scaled_input, gamma_grad, 1, get_non_channel_size(params),
-      params.channels, backend, dependencies_3);
-  dependencies_3 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
-  }
-
-  auto& input_variance = mean_input;
-  status_1 = launch_variance(const_centered_input, input_variance, scaled_input,
-                             params, backend, dependencies_3);
-  dependencies_2 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      params.channels, backend, gamma_grad_deps);
+  std::vector<cl::sycl::event> input_variance_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto sycl_workspace =
       sycldnn::helpers::alloc<T, is_usm>(params.channels, queue);
   auto workspace = make_mem_object(sycl_workspace, params.channels);
   auto const_gamma_grad = gamma_grad.as_const();
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_gamma_grad, num_elts, workspace, {params.channels}, {1}, queue,
-      dependencies_3);
-  dependencies_3 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      input_variance_deps);
+  std::vector<cl::sycl::event> workspace_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
+  }
+
+  auto& input_variance = mean_input;
+  status = launch_variance(const_centered_input, input_variance, scaled_input,
+                           params, backend, input_variance_deps);
+  input_variance_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto sycl_epsilon =
       sycldnn::helpers::alloc_and_assign<T, is_usm>(1, &params.epsilon, queue);
   auto epsilon = make_mem_object<T const>(sycl_epsilon, 1);
   auto const_input_variance = input_variance.as_const();
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Add>(
+  status = binaryop::internal::launch_binaryop<binaryop::Add>(
       const_input_variance, epsilon, input_variance, {params.channels}, {1},
-      queue, dependencies_2);
-  dependencies_3.push_back(status_1.event);
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      queue, input_variance_deps);
+  workspace_deps.push_back(status.event);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto const_workspace = workspace.as_const();
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_workspace, const_input_variance, workspace, params.channels, queue,
-      dependencies_3);
-  dependencies_3 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+  SNNStatus workspace_status =
+      binaryop::internal::launch_binaryop<binaryop::Div>(
+          const_workspace, const_input_variance, workspace, params.channels,
+          queue, workspace_deps);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
-  status_1 = pointwise::internal::launch_pointwise<pointwise::Sqrt>(
-      const_input_variance, input_variance, params.channels, queue,
-      dependencies_3);
-  dependencies_2 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+  SNNStatus input_variance_status =
+      pointwise::internal::launch_pointwise<pointwise::Sqrt>(
+          const_input_variance, input_variance, params.channels, queue,
+          {workspace_status.event});
+  gamma_grad_deps = {input_variance_status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Mul>(
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_centered_input, const_workspace, centered_input, nhwc_dims,
-      {params.channels}, queue, dependencies_3);
-  dependencies_1.push_back(status_1.event);
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      {params.channels}, queue, {workspace_status.event});
+  output_binaryop_deps.push_back(status.event);
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto const_output = output.as_const();
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Sub>(
+  status = binaryop::internal::launch_binaryop<binaryop::Sub>(
       const_output, const_centered_input, output, nhwc_dims, queue,
-      dependencies_1);
-  dependencies_1 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      output_binaryop_deps);
+  output_binaryop_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Mul>(
+  status = binaryop::internal::launch_binaryop<binaryop::Mul>(
       const_output, gamma, output, nhwc_dims, {params.channels}, queue,
-      dependencies_1);
-  dependencies_1 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      output_binaryop_deps);
+  output_binaryop_deps = {status.event, input_variance_status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   auto& tr_output = tr_gradient;  // Re-use temporary memory
-  status_1 = binaryop::internal::launch_binaryop<binaryop::Div>(
+  status = binaryop::internal::launch_binaryop<binaryop::Div>(
       const_output, const_input_variance, is_nchw ? tr_output : output,
-      nhwc_dims, {params.channels}, queue, dependencies_1);
-  dependencies_1 = {status_1.event};
-  if (sycldnn::StatusCode::OK != status_1.status) {
-    return status_1;
+      nhwc_dims, {params.channels}, queue, output_binaryop_deps);
+  std::vector<cl::sycl::event> tr_output_deps = {status.event};
+  if (sycldnn::StatusCode::OK != status.status) {
+    return status;
   }
 
   // Transpose NHWC output back to NCHW.
   if (is_nchw) {
     auto const_tr_output = tr_output.as_const();
-    status_1 = transpose::internal::launch(const_tr_output, output, nhwc_dims,
-                                           NHWC_TO_NCHW, queue, dependencies_1);
-    if (sycldnn::StatusCode::OK != status_1.status) {
-      return status_1;
+    status = transpose::internal::launch(const_tr_output, output, nhwc_dims,
+                                         NHWC_TO_NCHW, queue, tr_output_deps);
+    if (sycldnn::StatusCode::OK != status.status) {
+      return status;
     }
   }
 
-  status_2 = binaryop::internal::launch_binaryop<binaryop::Div>(
-      const_gamma_grad, const_input_variance, gamma_grad, params.channels,
-      queue, dependencies_2);
+  SNNStatus gamma_grad_status =
+      binaryop::internal::launch_binaryop<binaryop::Div>(
+          const_gamma_grad, const_input_variance, gamma_grad, params.channels,
+          queue, gamma_grad_deps);
 
-  status_1.event = sycldnn::helpers::enqueue_free(
-      queue, {status_1.event, status_2.event}, sycl_tr_input, sycl_tr_gradient,
-      sycl_mean_input, sycl_centered_input, sycl_epsilon, sycl_mean_gradient,
-      sycl_num_elts, sycl_workspace);
+  status.event = sycldnn::helpers::enqueue_free(
+      queue, {status.event, gamma_grad_status.event}, sycl_tr_input,
+      sycl_tr_gradient, sycl_mean_input, sycl_centered_input, sycl_epsilon,
+      sycl_mean_gradient, sycl_num_elts, sycl_workspace);
 
-  return status_1;
+  return status;
 }
 
 /**
