@@ -32,7 +32,7 @@ namespace internal {
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
-          template <typename> class MemObj>
+          typename Layout, template <typename> class MemObj>
 SNNStatus queue_tiled_kernel(MemObj<T const>& input, MemObj<T const>& filter,
                              MemObj<T>& output,
                              Conv2DParams const& kernel_params,

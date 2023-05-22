@@ -22,6 +22,7 @@
 #include "sycldnn/conv2d/params.h"
 
 #include "sycldnn/helpers/ratio.h"
+#include "sycldnn/format_type.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
 #include "src/conv2d/tiled/queue_tiled_kernel.h"
@@ -89,10 +90,37 @@ inline bool can_use_sizes<conv_type::InputBackprop>(Conv2DParams const& params,
 }
 
 /**
+ * Check the Data Layout, and launch whichever kernel is required.
+ */
+template <typename T, typename Index, typename ConvType, DataFormat Format,
+          int TileRows, int TileCols, int ChannelVectorWidth,
+          int FeatureVectorWidth, bool UseFastDiv, int Window, int Stride,
+          template <typename> class MemObj>
+SNNStatus launch_with_fast_div(MemObj<T const>& input, MemObj<T const>& filter,
+                               MemObj<T>& output, Conv2DParams const& params,
+                               tiled::TileInfo const& tile_info,
+                               cl::sycl::queue& queue,
+                               const std::vector<cl::sycl::event>& events) {
+  if constexpr (Format == DataFormat::NHWC) {
+    return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
+                              ChannelVectorWidth, FeatureVectorWidth,
+                              UseFastDiv, Window, Window, Stride, layout::NHWC>(
+        input, filter, output, params, tile_info, queue, events);
+  } else {
+    // TODO Problem here - queue_tiled_kernel for both branches are instantiated
+    // even if one doesn't exist.
+    return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
+                              ChannelVectorWidth, FeatureVectorWidth,
+                              UseFastDiv, Window, Window, Stride, layout::NCHW>(
+        input, filter, output, params, tile_info, queue, events);
+  }
+}
+
+/**
  * Check whether fast divisions can be used for the convolution, and launch
  * whichever kernel is required.
  */
-template <typename T, typename Index, typename ConvType, int TileRows,
+template <typename T, typename Index, typename ConvType, DataFormat Format, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           int Window, int Stride, template <typename> class MemObj>
 SNNStatus launch_with_index_type(MemObj<T const>& input,
@@ -104,14 +132,14 @@ SNNStatus launch_with_index_type(MemObj<T const>& input,
   auto kernel_params = get_kernel_params<ConvType>(params);
   if (can_use_fast_div<ConvType>(kernel_params, ChannelVectorWidth,
                                  FeatureVectorWidth, TileRows, TileCols)) {
-    return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
+    return launch_with_fast_div<T, Index, ConvType, Format, TileRows, TileCols,
                               ChannelVectorWidth, FeatureVectorWidth, true,
-                              Window, Window, Stride>(
+                              Window, Stride>(
         input, filter, output, kernel_params, tile_info, queue, events);
   } else {
-    return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
+    return launch_with_fast_div<T, Index, ConvType, Format, TileRows, TileCols,
                               ChannelVectorWidth, FeatureVectorWidth, false,
-                              Window, Window, Stride>(
+                              Window, Stride>(
         input, filter, output, kernel_params, tile_info, queue, events);
   }
 }
@@ -119,7 +147,7 @@ SNNStatus launch_with_index_type(MemObj<T const>& input,
  * Check what data type is required to fit the index sizes, and launch the
  * required kernel.
  */
-template <typename T, typename ConvType, int TileRows, int TileCols,
+template <typename T, typename ConvType, DataFormat Format, int TileRows, int TileCols,
           int ChannelVectorWidth, int FeatureVectorWidth, int Window,
           int Stride, template <typename> class MemObj>
 SNNStatus launch_with_sizes(MemObj<T const>& input, MemObj<T const>& filter,
@@ -132,7 +160,7 @@ SNNStatus launch_with_sizes(MemObj<T const>& input, MemObj<T const>& filter,
                              tile_info.n_cols * tile_info.output_vectors;
   if (output_size > static_cast<size_t>(std::numeric_limits<int32_t>::max())) {
 #ifdef SNN_USE_INT64
-    return launch_with_index_type<T, int64_t, ConvType, TileRows, TileCols,
+    return launch_with_index_type<T, int64_t, ConvType, Format, TileRows, TileCols,
                                   ChannelVectorWidth, FeatureVectorWidth,
                                   Window, Stride>(input, filter, output, params,
                                                   tile_info, queue, events);
@@ -140,7 +168,7 @@ SNNStatus launch_with_sizes(MemObj<T const>& input, MemObj<T const>& filter,
     return StatusCode::IndexExceeded;
 #endif  // SNN_USE_INT64
   } else {
-    return launch_with_index_type<T, int32_t, ConvType, TileRows, TileCols,
+    return launch_with_index_type<T, int32_t, ConvType, Format, TileRows, TileCols,
                                   ChannelVectorWidth, FeatureVectorWidth,
                                   Window, Stride>(input, filter, output, params,
                                                   tile_info, queue, events);
@@ -148,9 +176,10 @@ SNNStatus launch_with_sizes(MemObj<T const>& input, MemObj<T const>& filter,
 }
 
 /** Internal tile size launcher for Forward.  */
-template <typename T, typename ConvType, template <typename> class MemObj,
-          typename std::enable_if<
-              std::is_same<ConvType, conv_type::Forward>::value, int>::type = 0>
+template <
+    typename T, typename ConvType, DataFormat Format,
+    template <typename> class MemObj,
+    typename std::enable_if<std::is_same<ConvType, conv_type::Forward>::value, int>::type = 0>
 inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
                                    MemObj<T const>& filter, MemObj<T>& output,
                                    Conv2DParams const& params,
@@ -160,78 +189,113 @@ inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
                         channel_vector, feature_vector)                       \
   if (can_use_sizes<ConvType>(params, channel_vector, feature_vector, window, \
                               stride)) {                                      \
-    return launch_with_sizes<T, ConvType, tile_row, tile_col, channel_vector, \
+    return launch_with_sizes<T, ConvType, Format, tile_row, tile_col, channel_vector, \
                              feature_vector, window, stride>(                 \
         input, filter, output, params, queue, events);                        \
   }
 
-// clang-format off
-#ifdef POWER_VR
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 2, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 8)
-  LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 8, 2)
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 8, 1)
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 5, 2, 8, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 4, 4, 1, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 5, 5, 8, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 5, 4, 1, 1)
-#endif
-#ifdef ARM_GPU
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 4, 2)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 4)
-  LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 4, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 1, 1)
-#endif
-#ifdef AMD_GPU
-  LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 4, 2)
-  LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 2, 2)
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 4, 1)
-  LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 1, 5, 4, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 4, 4)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 5, 1, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 8, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 1)
-#endif
-#ifdef INTEL_GPU
-  LAUNCH_IF_MATCH(params, 3, 1, 3, 3, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 4, 2, 4, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 1)
-#endif
-#ifdef INTEL_CPU
-  LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 16)
-  LAUNCH_IF_MATCH(params, 3, 1, 4, 4, 1, 8)
-  LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 16)
-  LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 8)
-  LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
-#endif
-  LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 5, 1, 2, 2, 1, 2)
-  LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-  // clang-format on
+  if constexpr (Format == DataFormat::NHWC) {
+    // clang-format off
+    #ifdef POWER_VR
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 2, 4)
+      LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 8)
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 8, 2)
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 4)
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 8, 1)
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 5, 2, 8, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 4, 4, 1, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 5, 5, 8, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 5, 4, 1, 1)
+    #endif
+    #ifdef ARM_GPU
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 4, 2)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 4)
+      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 4, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 1, 1)
+    #endif
+    #ifdef AMD_GPU
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 4, 2)
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 2, 2)
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 4, 1)
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 1, 4)
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 1, 5, 4, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 4, 4)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 5, 1, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 8, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 1)
+    #endif
+    #ifdef INTEL_GPU
+      LAUNCH_IF_MATCH(params, 3, 1, 3, 3, 1, 4)
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 4, 2, 4, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 1)
+    #endif
+    #ifdef INTEL_CPU
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 16)
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 4, 1, 8)
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 16)
+      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 8)
+      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
+    #endif
+      LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
+      LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 4)
+      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
+      LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 5, 1, 2, 2, 1, 2)
+      LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 4)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+        // clang-format on
 
-  return StatusCode::InvalidAlgorithm;
+        return StatusCode::InvalidAlgorithm;
+  } else {  // NCHW
+// TODO confirm which to instantiate & check it matches cmake
+      // clang-format off
+    #ifdef POWER_VR
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 5, 4, 1, 1)
+    #endif
+    #ifdef ARM_GPU
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 1, 1)
+    #endif
+    #ifdef AMD_GPU
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 1)
+    #endif
+    #ifdef INTEL_GPU
+      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 1)
+    #endif
+    #ifdef INTEL_CPU
+      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
+    #endif
+      LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
+      LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+        // clang-format on
+
+        return StatusCode::InvalidAlgorithm;
+  }
 }
 
 /** Internal tile size launcher for InputBackprop.  */
 template <
-    typename T, typename ConvType, template <typename> class MemObj,
+    typename T, typename ConvType, DataFormat Format, template <typename> class MemObj,
     typename std::enable_if<
         std::is_same<ConvType, conv_type::InputBackprop>::value, int>::type = 0>
 inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
@@ -239,6 +303,8 @@ inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
                                    Conv2DParams const& params,
                                    cl::sycl::queue& queue,
                                    const std::vector<cl::sycl::event>& events) {
+  if constexpr (Format == DataFormat::NHWC) {
+
   // clang-format off
   LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 4)
   LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
@@ -253,14 +319,29 @@ inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
   LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
   LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
   // clang-format on
-
   return StatusCode::InvalidAlgorithm;
+
+  } else { //NCHW
+
+// TODO InputBackprop tiled!
+
+    // clang-format off
+    // LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+    // LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
+    // LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
+    // LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
+    // LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
+    // LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+
+    return StatusCode::InvalidAlgorithm;
+
+  }
 }
 
 #undef LAUNCH_IF_MATCH
 
 /** Internal tile size launcher for FilterBackprop.  */
-template <typename T, typename ConvType, template <typename> class MemObj,
+template <typename T, typename ConvType, DataFormat Format, template <typename> class MemObj,
           typename std::enable_if<
               std::is_same<ConvType, conv_type::FilterBackprop>::value,
               int>::type = 0>
@@ -279,8 +360,13 @@ inline SNNStatus launch_tiled(MemObj<T const>& input, MemObj<T const>& filter,
                               MemObj<T>& output, Conv2DParams const& params,
                               cl::sycl::queue& queue,
                               const std::vector<cl::sycl::event>& events) {
-  return launch_tiled_impl<T, ConvType>(input, filter, output, params, queue,
-                                        events);
+  if (params.input_format == DataFormat::NHWC) {
+    return launch_tiled_impl<T, ConvType, DataFormat::NHWC>(input, filter, output,
+                                                        params, queue, events);
+  } else { //NCHW
+    return launch_tiled_impl<T, ConvType, DataFormat::NCHW>(input, filter, output,
+                                                        params, queue, events);
+  }
 }
 
 #define INSTANTIATE_LAUNCHER(DTYPE, DIR, MEM_OBJ)                  \
