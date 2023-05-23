@@ -19,6 +19,7 @@
 #include "sycldnn/mem_object.h"
 #include "sycldnn/padding_mode.h"
 #include "sycldnn/status.h"
+#include "sycldnn/format_type.h"
 
 #include "sycldnn/backend/snn_backend.h"
 
@@ -67,9 +68,10 @@ sycldnn::SNNStatus launch_kernel(
   auto kernel_params =
       sycldnn::conv2d::internal::get_kernel_params<ConvType>(params);
 
+  // TODO(jtodd) benchmark layout::NCHW too
   auto status = sycldnn::conv2d::internal::queue_tiled_kernel<
       T, Index, ConvType, TileRows, TileCols, ChannelVectorWidth,
-      FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride>(
+      FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride, layout::NHWC>(
       in_acc, fil_acc, out_acc, kernel_params, tile_info, queue, {});
   return status;
 }
