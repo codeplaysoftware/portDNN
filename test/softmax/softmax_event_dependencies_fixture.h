@@ -174,8 +174,8 @@ struct SoftmaxEventFixture<Pair, sycldnn::softmax::Gradient>
     cl::sycl::event dependee_e = create_event(backend, dep_test_params);
 
     status = sycldnn::softmax::launch<DataType, sycldnn::softmax::Gradient>(
-        out_fwd_gpu, inp_gpu, workspace_grad_gpu, out_grad_gpu, params,
-        backend);
+        out_fwd_gpu, inp_gpu, workspace_grad_gpu, out_grad_gpu, params, backend,
+        {dependee_e});
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
 

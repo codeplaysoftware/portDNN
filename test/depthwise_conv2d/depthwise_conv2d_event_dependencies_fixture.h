@@ -71,7 +71,7 @@ struct DepthwiseConv2DEventFixture
     cl::sycl::event dependee_e = create_event(backend, dep_test_params);
 
     auto status = sycldnn::depthwise_conv2d::launch<DataType, ConvType>(
-        inp_gpu, fil_gpu, out_gpu, params, backend);
+        inp_gpu, fil_gpu, out_gpu, params, backend, {dependee_e});
 
     if (status.status == sycldnn::StatusCode::InvalidAlgorithm) {
       // Do not check results if the implementation is not supported.
