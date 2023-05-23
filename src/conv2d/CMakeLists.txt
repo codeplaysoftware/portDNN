@@ -91,7 +91,7 @@ macro(instantiate_tiled_conv_impl out_var window stride tile_row tile_col
   set(_filename "${INST_TILED_FILENAME}_${DTYPE_ID}_${INDEX_TYPE}")
   set(_filename "${_filename}_${CONV_TYPE_IDX}_${tile_row}_${tile_col}")
   set(_filename
-    "${_filename}_${channel_vector}_${feature_vector}_${window}_${stride}.cc"
+    "${_filename}_${channel_vector}_${feature_vector}_${window}_${stride}_${LAYOUT}.cc"
   )
   set(_gen_file ${CMAKE_BINARY_DIR}/generated/conv2d/tiled/${_filename})
   set(TILE_ROW ${tile_row})
@@ -122,82 +122,152 @@ function(instantiate_tiled_conv)
     ${ARGN}
   )
   set(_sources "")
+
   foreach(DATA_TYPE IN LISTS SNN_DATA_TYPES)
     foreach(INDEX_TYPE IN LISTS SNN_INDEX_TYPES)
       foreach(CONV_TYPE IN LISTS SNN_CONV_TYPES)
-        # The following tile sizes and kernel parameters should match those
-        # required in sycldnn::conv2d::launch_tiled_impl() function defined in
-        # src/conv2d/tiled/launch_tiled.cc
-        # TODO(dmcbain): Some of these are commented out as they are
-        # duplicates of earlier list entries.
-        if(NOT CONV_TYPE STREQUAL "conv_type::FilterBackprop")
-          if(CONV_TYPE STREQUAL "conv_type::Forward")
-            # PowerVR
-            instantiate_tiled_conv_impl(_sources 3 1 5 4 2 4)
-            instantiate_tiled_conv_impl(_sources 3 1 3 4 1 8)
-            instantiate_tiled_conv_impl(_sources 3 1 4 3 8 2)
-            instantiate_tiled_conv_impl(_sources 3 1 5 4 1 4)
-            instantiate_tiled_conv_impl(_sources 3 1 5 4 8 1)
-            instantiate_tiled_conv_impl(_sources 3 1 5 5 1 1)
-            instantiate_tiled_conv_impl(_sources 1 1 5 2 8 8)
-            instantiate_tiled_conv_impl(_sources 1 1 4 4 1 8)
-            instantiate_tiled_conv_impl(_sources 1 1 5 5 8 1)
-            instantiate_tiled_conv_impl(_sources 1 1 5 4 1 1)
-            # ARM GPU
-            instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
-            instantiate_tiled_conv_impl(_sources 1 1 2 4 4 2)
-            instantiate_tiled_conv_impl(_sources 1 1 2 3 1 4)
-            instantiate_tiled_conv_impl(_sources 1 1 3 4 4 1)
-            instantiate_tiled_conv_impl(_sources 1 1 2 4 1 1)
-            # AMD GPU
-            instantiate_tiled_conv_impl(_sources 3 1 4 5 4 2)
-            instantiate_tiled_conv_impl(_sources 3 1 4 5 2 2)
-            instantiate_tiled_conv_impl(_sources 3 1 5 5 4 1)
-            instantiate_tiled_conv_impl(_sources 3 1 4 3 1 4)
-            #instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
-            instantiate_tiled_conv_impl(_sources 1 1 1 5 4 8)
-            instantiate_tiled_conv_impl(_sources 1 1 2 3 4 4)
-            instantiate_tiled_conv_impl(_sources 1 1 2 5 1 8)
-            instantiate_tiled_conv_impl(_sources 1 1 3 4 8 1)
-            instantiate_tiled_conv_impl(_sources 1 1 2 3 1 1)
-            # Intel GPU
-            instantiate_tiled_conv_impl(_sources 3 1 3 3 1 4)
-            #instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
-            instantiate_tiled_conv_impl(_sources 1 1 4 2 4 8)
-            instantiate_tiled_conv_impl(_sources 1 1 3 4 1 8)
-            instantiate_tiled_conv_impl(_sources 1 1 3 4 1 1)
-            #Intel CPU
-            instantiate_tiled_conv_impl(_sources 3 1 5 4 1 16)
-            instantiate_tiled_conv_impl(_sources 3 1 4 4 1 8)
-            instantiate_tiled_conv_impl(_sources 3 1 4 5 1 1)
-            instantiate_tiled_conv_impl(_sources 1 1 1 4 1 16)
-            instantiate_tiled_conv_impl(_sources 1 1 1 4 1 8)
-            instantiate_tiled_conv_impl(_sources 1 1 1 4 1 1)
+        foreach(LAYOUT IN LISTS SNN_LAYOUTS)
+          # The following tile sizes and kernel parameters should match those
+          # required in sycldnn::conv2d::launch_tiled_impl() function defined in
+          # src/conv2d/tiled/launch_tiled.cc
+          # TODO(dmcbain): Some of these are commented out as they are
+          # duplicates of earlier list entries.
+          if(CONV_TYPE STREQUAL "conv_type::FilterBackprop")
+           continue()
+          endif()
 
-            # Generic device
-            instantiate_tiled_conv_impl(_sources 1 2 1 2 1 4)
-            instantiate_tiled_conv_impl(_sources 1 2 1 2 1 1)
-            instantiate_tiled_conv_impl(_sources 3 2 2 2 1 4)
-            #instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+          if(CONV_TYPE STREQUAL "conv_type::Forward")
+            if(LAYOUT STREQUAL "NHWC")
+                # PowerVR
+                instantiate_tiled_conv_impl(_sources 3 1 5 4 2 4)
+                instantiate_tiled_conv_impl(_sources 3 1 3 4 1 8)
+                instantiate_tiled_conv_impl(_sources 3 1 4 3 8 2)
+                instantiate_tiled_conv_impl(_sources 3 1 5 4 1 4)
+                instantiate_tiled_conv_impl(_sources 3 1 5 4 8 1)
+                instantiate_tiled_conv_impl(_sources 3 1 5 5 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 5 2 8 8)
+                instantiate_tiled_conv_impl(_sources 1 1 4 4 1 8)
+                instantiate_tiled_conv_impl(_sources 1 1 5 5 8 1)
+                instantiate_tiled_conv_impl(_sources 1 1 5 4 1 1)
+
+                # ARM GPU
+                instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 2 4 4 2)
+                instantiate_tiled_conv_impl(_sources 1 1 2 3 1 4)
+                instantiate_tiled_conv_impl(_sources 1 1 3 4 4 1)
+                instantiate_tiled_conv_impl(_sources 1 1 2 4 1 1)
+
+                # AMD GPU
+                instantiate_tiled_conv_impl(_sources 3 1 4 5 4 2)
+                instantiate_tiled_conv_impl(_sources 3 1 4 5 2 2)
+                instantiate_tiled_conv_impl(_sources 3 1 5 5 4 1)
+                instantiate_tiled_conv_impl(_sources 3 1 4 3 1 4)
+                # instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 1 5 4 8)
+                instantiate_tiled_conv_impl(_sources 1 1 2 3 4 4)
+                instantiate_tiled_conv_impl(_sources 1 1 2 5 1 8)
+                instantiate_tiled_conv_impl(_sources 1 1 3 4 8 1)
+                instantiate_tiled_conv_impl(_sources 1 1 2 3 1 1)
+
+                # Intel GPU
+                instantiate_tiled_conv_impl(_sources 3 1 3 3 1 4)
+                # instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 4 2 4 8)
+                instantiate_tiled_conv_impl(_sources 1 1 3 4 1 8)
+                instantiate_tiled_conv_impl(_sources 1 1 3 4 1 1)
+
+                # Intel CPU
+                instantiate_tiled_conv_impl(_sources 3 1 5 4 1 16)
+                instantiate_tiled_conv_impl(_sources 3 1 4 4 1 8)
+                instantiate_tiled_conv_impl(_sources 3 1 4 5 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 1 4 1 16)
+                instantiate_tiled_conv_impl(_sources 1 1 1 4 1 8)
+                instantiate_tiled_conv_impl(_sources 1 1 1 4 1 1)
+
+                # Generic device
+                instantiate_tiled_conv_impl(_sources 1 2 1 2 1 4)
+                instantiate_tiled_conv_impl(_sources 1 2 1 2 1 1)
+                instantiate_tiled_conv_impl(_sources 3 2 2 2 1 4)
+
+              # instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+
+              # (ex)Common tiles for Forward and InputBackprop
+              instantiate_tiled_conv_impl(_sources 3 1 2 2 1 4)
+              instantiate_tiled_conv_impl(_sources 5 1 2 2 1 2)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 4)
+
+              # Common (all)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 1)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 5 1 2 4 1 1)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+              
+            else() # NCHW
+               # TODO add instantiations with larger windows?
+                # PowerVR
+                instantiate_tiled_conv_impl(_sources 3 1 5 5 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 5 4 1 1)
+
+                # ARM GPU
+                instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 2 4 1 1)
+
+                # AMD GPU
+                # instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 2 3 1 1)
+
+                # Intel GPU
+                # instantiate_tiled_conv_impl(_sources 3 1 5 4 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 3 4 1 1)
+
+                # Intel CPU
+                instantiate_tiled_conv_impl(_sources 3 1 4 5 1 1)
+                instantiate_tiled_conv_impl(_sources 1 1 1 4 1 1)
+
+                # Generic device
+                instantiate_tiled_conv_impl(_sources 1 2 1 2 1 1)
+
+                # instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+              # Common (all)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 1)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 5 1 2 4 1 1)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+
+            endif()
           endif()
 
           if(CONV_TYPE STREQUAL "conv_type::InputBackprop")
-            instantiate_tiled_conv_impl(_sources 1 2 2 2 1 4)
-            #instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
-            instantiate_tiled_conv_impl(_sources 3 2 2 4 1 2)
-            instantiate_tiled_conv_impl(_sources 3 1 3 4 1 4)
-          endif()
+            if(LAYOUT STREQUAL "NHWC")
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 4)
 
-          # Common tiles for Forward and InputBackprop
-          instantiate_tiled_conv_impl(_sources 3 1 2 2 1 4)
-          instantiate_tiled_conv_impl(_sources 3 1 3 4 1 1)
-          instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
-          instantiate_tiled_conv_impl(_sources 5 1 2 2 1 2)
-          instantiate_tiled_conv_impl(_sources 5 1 2 4 1 1)
-          instantiate_tiled_conv_impl(_sources 1 1 2 2 1 4)
-          instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
-          instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
-        endif()
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 3 2 2 4 1 2)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 4)
+              instantiate_tiled_conv_impl(_sources 3 1 2 2 1 4)
+              instantiate_tiled_conv_impl(_sources 5 1 2 2 1 2)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 4)
+
+              # Common (all)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 1)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 5 1 2 4 1 1)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+            else() # NCHW
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+
+              # Common (all)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 1)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 5 1 2 4 1 1)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
+            endif()
+          endif()
+        endforeach()
       endforeach()
     endforeach()
   endforeach()
