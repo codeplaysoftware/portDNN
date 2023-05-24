@@ -41,9 +41,20 @@ if(DPCPP_FOUND AND NOT TARGET DPCPP::DPCPP)
   set(CMAKE_CXX_STANDARD 17)
   add_library(DPCPP::DPCPP INTERFACE IMPORTED)
   set(DEVICE_TRIPLE_STR "$<JOIN:${SNN_DEVICE_TRIPLE},,>")
+  set(DPCPP_FLAGS "-fsycl;-fsycl-targets=${DEVICE_TRIPLE_STR}")
+  set(DPCPP_INTERFACE_FLAGS "-Xclang;-cl-mad-enable;-fsycl-unnamed-lambda")
+
+  if(NOT "${SNN_DPCPP_ARCH}" STREQUAL "")
+    if("${SNN_DEVICE_TRIPLE}" STREQUAL "amdgcn-amd-amdhsa")
+      list(APPEND DPCPP_FLAGS "-Xsycl-target-backend;--offload-arch=${SNN_DPCPP_ARCH}")
+    elseif("${SNN_DEVICE_TRIPLE}" STREQUAL "nvptx64-nvidia-cuda")
+      list(APPEND DPCPP_FLAGS "-Xsycl-target-backend;--cuda-gpu-arch=${SNN_DPCPP_ARCH}")
+    endif()
+  endif()
+
   set_target_properties(DPCPP::DPCPP PROPERTIES
-    INTERFACE_COMPILE_OPTIONS "-fsycl;-fsycl-targets=${DEVICE_TRIPLE_STR};-Xclang;-cl-mad-enable;-fsycl-unnamed-lambda;${SNN_DPCPP_USER_FLAGS}"
-    INTERFACE_LINK_OPTIONS "-fsycl;-fsycl-targets=${DEVICE_TRIPLE_STR};${SNN_DPCPP_USER_FLAGS}"
+    INTERFACE_COMPILE_OPTIONS "${DPCPP_FLAGS};${DPCPP_INTERFACE_FLAGS};${SNN_DPCPP_USER_FLAGS}"
+    INTERFACE_LINK_OPTIONS "${DPCPP_FLAGS};${SNN_DPCPP_USER_FLAGS}"
     INTERFACE_LINK_LIBRARIES ${DPCPP_LIB}
     INTERFACE_INCLUDE_DIRECTORIES "${DPCPP_BIN_DIR}/../include/sycl;${DPCPP_BIN_DIR}/../include")
 endif()

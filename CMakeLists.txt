@@ -138,6 +138,7 @@ endif()
 find_package(ComputeCpp QUIET)
 set(SNN_DEVICE_TRIPLE "spir64" CACHE STRING
   "Device triple(s) to use when building with DPCPP (semicolon-separated if multiple triples are used)")
+set(SNN_DPCPP_ARCH "" CACHE STRING "Device architecture to use when building with DPCPP. Can be e.g. sm_80 for NVIDIA or gfx908 for AMD.")
 set(SNN_DPCPP_USER_FLAGS "" CACHE STRING "Extra flags to pass to the DPC++ compiler (semicolon-separated)")
 find_package(DPCPP QUIET)
 

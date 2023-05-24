@@ -23,6 +23,7 @@
  */
 #include "sycldnn/backend/backend_traits.h"
 #include "sycldnn/backend/common_backend.h"
+#include "sycldnn/batch_format.h"
 #include "sycldnn/helpers/macros.h"
 #include "sycldnn/reduce/operators.h"
 
