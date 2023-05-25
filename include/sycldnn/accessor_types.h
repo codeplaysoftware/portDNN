@@ -71,7 +71,10 @@ struct BaseAccessor {
    * Get the underlying pointer from the accessor.
    * \return A global pointer to the underlying memory.
    */
-  MultiPtr get_pointer() const { return acc_.get_pointer() + offset_; }
+  auto get_pointer() const {
+    return acc_.template get_multi_ptr<sycl::access::decorated::legacy>() +
+           offset_;
+  }
 
   /**
    * Get a reference to the underlying SYCL accessor.
@@ -173,7 +176,10 @@ struct GenericMem {
    * Get the underlying pointer from the accessor.
    * \return A global pointer to the underlying memory.
    */
-  MultiPtr get_pointer() const { return acc_.get_pointer() + offset_; }
+  auto get_pointer() const {
+    return acc_.template get_multi_ptr<sycl::access::decorated::legacy>() +
+           offset_;
+  }
 
   /**
    * Get a reference to the underlying SYCL accessor.
