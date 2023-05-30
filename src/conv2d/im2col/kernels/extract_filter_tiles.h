@@ -17,6 +17,7 @@
 #define SYCLDNN_SRC_CONV2D_IM2COL_KERNELS_H_
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/format_type.h"
 
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
@@ -31,7 +32,7 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, typename Index, bool isUSM>
+template <typename T, typename Index, bool isUSM, typename Layout>
 struct ExtractFilterTiles {
   using Load = helpers::io::Load<T>;
   using Store = helpers::io::Store<T>;

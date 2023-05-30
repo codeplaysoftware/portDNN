@@ -82,10 +82,48 @@ static SNNStatus launch_im2col_for_minibatch(
           pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
           matmul_size, dependencies);
     } else {
-      event = backend.template matmul<false, false>(
-          ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
-          pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
-          matmul_size, dependencies);
+      if (params.filter_format == sycldnn::FilterFormat::FCHW) {
+        if (params.batch == 1) {
+          event = backend.template matmul<false, false>(
+              ConstPointer{pointers.filter}, ConstPointer{pointers.transform},
+              pointers.output + out_offset, static_cast<T>(0), matmul_size,
+              tile_size, n_tiles, dependencies);
+        } else {
+          auto matmul_offset = n_tiles * tile_size * params.groups;
+          event = backend.template matmul<false, false>(
+              ConstPointer{pointers.filter}, ConstPointer{pointers.transform},
+              pointers.transform + matmul_offset, static_cast<T>(0),
+              matmul_size, tile_size, n_tiles, dependencies);
+
+          // Transpose needed at the end to reshape the output from FH_oW_oN to
+          // NFH_oW_o/checkin FNH_oW_o to NFH_oW_o
+          size_t const trans_size = params.groups * n_tiles * matmul_size;
+
+          auto in_mem_obj =
+              backend
+                  .get_mem_object(pointers.transform + matmul_offset,
+                                  trans_size)
+                  .as_const();
+          auto out_mem_obj =
+              backend.get_mem_object(pointers.output + out_offset, trans_size);
+
+          const std::vector<int> FNHW_TO_NFHW = {1, 0, 2, 3};
+          auto queue = backend.get_queue();
+          auto status = sycldnn::transpose::internal::launch(
+              in_mem_obj, out_mem_obj,
+              {params.features, params.batch, params.out_rows, params.out_cols},
+              FNHW_TO_NFHW, queue, {event});
+          if (status.status != StatusCode::OK) {
+            return status;
+          }
+          event = status.event;
+        }
+      } else {
+        event = backend.template matmul<false, false>(
+            ConstPointer{pointers.transform}, ConstPointer{pointers.filter},
+            pointers.output + out_offset, static_cast<T>(0), n_tiles, tile_size,
+            matmul_size, dependencies);
+      }
     }
   } else {
     // Group convolution cases

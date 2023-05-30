@@ -17,6 +17,7 @@
 #define SYCLDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_
 
 #include "sycldnn/accessor_types.h"
+#include "sycldnn/format_type.h"
 
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/params.h"
@@ -35,7 +36,7 @@ namespace internal {
 namespace im2col {
 
 template <typename T, typename Index, int VectorWidth, typename ConvType,
-          bool isUSM>
+          bool isUSM, typename Layout>
 struct ExtractInputTiles;
 /**
  * Have one thread per input entry. That thread is then responsible for writing
@@ -43,7 +44,8 @@ struct ExtractInputTiles;
  * contraction.
  */
 template <typename T, typename Index, int VectorWidth, bool isUSM>
-struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
+struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM,
+                         layout::NHWC> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<VecType>;
   using Store = helpers::io::Store<VecType>;
@@ -168,8 +170,135 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM> {
 };
 
 template <typename T, typename Index, int VectorWidth, bool isUSM>
-struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop,
-                         isUSM> {
+struct ExtractInputTiles<T, Index, VectorWidth, conv_type::Forward, isUSM,
+                         layout::NCHW> {
+  using VecType = typename helpers::VectorType<T, VectorWidth>::type;
+  using Load = helpers::io::Load<VecType>;
+  using Store = helpers::io::Store<VecType>;
+
+  ExtractInputTiles(Index tile_size, Conv2DParams const& params,
+                    ReadMem<T const, isUSM> const& input,
+                    WriteMem<T, isUSM> const& output)
+      : tile_size_{params.group_format == sycldnn::BatchFormat::STRIDED
+                       ? tile_size
+                       : tile_size * params.groups},
+        groups_{params.group_format == sycldnn::BatchFormat::STRIDED
+                    ? params.groups
+                    : 1},
+        channels_{params.group_format == sycldnn::BatchFormat::STRIDED
+                      ? params.channels / params.groups
+                      : params.channels},
+        features_{params.features},
+        batch_{params.batch},
+        in_rows_{params.in_rows},
+        in_cols_{params.in_cols},
+        window_rows_{params.window_rows},
+        window_cols_{params.window_cols},
+        stride_rows_{params.stride_rows},
+        stride_cols_{params.stride_cols},
+        out_rows_{params.out_rows},
+        out_cols_{params.out_cols},
+        pad_rows_{params.window_rows - params.pad_rows - 1},
+        pad_cols_{params.window_cols - params.pad_cols - 1},
+        input_accessor_{input},
+        output_accessor_{output} {}
+
+  void SNN_ALWAYS_INLINE operator()(cl::sycl::item<3> item) const {
+    Index const channel = item.get_id(0);
+    Index const col_idx = item.get_id(1) * VectorWidth;
+    Index row_idx;
+    Index batch;
+    if (batch_ == 1) {
+      row_idx = item.get_id(2);
+      batch = 0;
+    } else {
+      auto const tensor_idx =
+          helpers::TensorIndexHelper<Index, false>::unflatten2d(
+              item.get_id(2), in_rows_, in_rows_);
+      row_idx = tensor_idx.s1;
+      batch = tensor_idx.s0;
+    }
+
+    Index group;
+    Index group_channel;
+    if (groups_ == 1) {
+      group = 0;
+      group_channel = channel;
+    } else {
+      auto channel_groups_idx =
+          helpers::TensorIndexHelper<Index, false>::unflatten2d(
+              channel, channels_, channels_);
+
+      group = channel_groups_idx.s0;
+      group_channel = channel_groups_idx.s1;
+    }
+
+    if (group_channel < channels_ && group < groups_ && col_idx < in_cols_ &&
+        row_idx < in_rows_ && batch < batch_) {
+      auto input_data = input_accessor_.get_pointer();
+      auto output_data = output_accessor_.get_pointer();
+
+      Index const in_idx =
+          (((batch * channels_ + group_channel) * in_rows_ + row_idx)) *
+              in_cols_ +
+          col_idx;
+      VecType in_val = Load()(input_data, in_idx);
+
+      auto const col_window_struct =
+          helpers::out_window_from_input(col_idx, stride_cols_, pad_cols_);
+      Index const cstart = col_window_struct.window_start;
+      Index const firstc = col_window_struct.filter_start;
+
+      auto const row_window_struct =
+          helpers::out_window_from_input(row_idx, stride_rows_, pad_rows_);
+      Index const rstart = row_window_struct.window_start;
+      Index const firstr = row_window_struct.filter_start;
+
+      for (Index r = rstart, in_r = window_rows_ - 1 - firstr; in_r >= 0;
+           ++r, in_r -= stride_rows_) {
+        if (r >= 0 && r < out_rows_) {
+          for (Index c = cstart, in_c = window_cols_ - 1 - firstc; in_c >= 0;
+               ++c, in_c -= stride_cols_) {
+            if (c >= 0 && c < out_cols_) {
+              const auto tile_col_size = out_rows_ * out_cols_ * batch_;
+              auto tile_start =
+                  output_data +
+                  ((group_channel * window_rows_ + in_r) * window_cols_ +
+                   in_c) *
+                      tile_col_size;
+              Index tile_idx = (batch * out_rows_ + r) * out_cols_ + c;
+              Store()(tile_start, tile_idx, in_val);
+            }
+          }
+        }
+      }
+    }
+  }
+
+ private:
+  Index const tile_size_;
+  Index const groups_;
+  Index const channels_;
+  Index const features_;
+  Index const batch_;
+  Index const in_rows_;
+  Index const in_cols_;
+  Index const window_rows_;
+  Index const window_cols_;
+  Index const stride_rows_;
+  Index const stride_cols_;
+  Index const out_rows_;
+  Index const out_cols_;
+  Index const pad_rows_;
+  Index const pad_cols_;
+  ReadMem<T const, isUSM> input_accessor_;
+  WriteMem<T, isUSM> output_accessor_;
+};
+
+template <typename T, typename Index, int VectorWidth, bool isUSM,
+          typename Layout>
+struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop, isUSM,
+                         Layout> {
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   using Load = helpers::io::Load<VecType>;
   using Store = helpers::io::Store<VecType>;
@@ -259,9 +388,10 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::InputBackprop,
   WriteMem<T, isUSM> output_accessor_;
 };
 
-template <typename T, typename Index, int VectorWidth, bool isUSM>
+template <typename T, typename Index, int VectorWidth, bool isUSM,
+          typename Layout>
 struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop,
-                         isUSM> {
+                         isUSM, Layout> {
   using VecType = typename helpers::VectorType<T, 1>::type;
   using Load = helpers::io::Load<VecType>;
   using Store = helpers::io::Store<VecType>;

@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "sycldnn/format_type.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -56,9 +58,27 @@ size_t get_thread_size<conv_type::InputBackprop>(Conv2DParams const& params,
 template <typename ConvType>
 bool can_use_vector(Conv2DParams const& params, int vector_width) {
   if (params.group_format == sycldnn::BatchFormat::STRIDED) {
-    return (params.channels / params.groups) % vector_width == 0;
+    if (params.input_format == DataFormat::NCHW) {
+      if ((params.dilation_cols > 1) ||
+          (params.window_cols % vector_width != 0)) {
+        return false;
+      } else {
+        return (params.in_cols / params.groups) % vector_width == 0;
+      }
+    } else {
+      return (params.channels / params.groups) % vector_width == 0;
+    }
   } else {
-    return params.channels % vector_width == 0;
+    if (params.input_format == DataFormat::NCHW) {
+      if ((params.dilation_cols > 1) ||
+          (params.window_cols % vector_width != 0)) {
+        return false;
+      } else {
+        return params.in_cols % vector_width == 0;
+      }
+    } else {
+      return params.channels % vector_width == 0;
+    }
   }
 }
 template <>
@@ -84,8 +104,20 @@ SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
     return status;
   } else {
     std::vector<cl::sycl::event> dependencies{status.event};
-    return queue_input_transform<T, Index, VectorWidth, ConvType>(
-        input, output, params, tile_size, queue, dependencies);
+    if (params.input_format == DataFormat::NCHW &&
+        params.filter_format == FilterFormat::FCHW) {
+      return queue_input_transform<T, Index, VectorWidth, ConvType,
+                                   layout::NCHW>(
+          input, output, params, tile_size, queue, dependencies);
+    } else if (params.input_format == DataFormat::NHWC &&
+               params.filter_format ==
+                   FilterFormat::HWCF) {  // NOTE: FHWC HWC filter format with
+                                          // group convs
+      return queue_input_transform<T, Index, VectorWidth, ConvType,
+                                   layout::NHWC>(
+          input, output, params, tile_size, queue, dependencies);
+    }
+    return StatusCode::InvalidAlgorithm;
   }
 }
 

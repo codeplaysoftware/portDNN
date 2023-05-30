@@ -109,10 +109,11 @@ WorkspaceSize workspace_size_for_im2col(Conv2DParams const& params) {
                   transform_sizes.filter_transform_size;
   recommended_size = (params.batch * transform_sizes.input_transform_size) +
                      transform_sizes.filter_transform_size;
-  if (params.groups > 1 &&
-      params.group_format == sycldnn::BatchFormat::STRIDED) {
-    // NHWC strided group convolution also requires memory in the
-    // workspace buffer large enough to transpose the output result
+  if ((params.groups > 1 &&
+       params.group_format == sycldnn::BatchFormat::STRIDED) ||
+      params.input_format == sycldnn::DataFormat::NCHW) {
+    // NHWC strided group convolution and NCHW convolution also requires memory
+    // in the workspace buffer large enough to transpose the output result
     required_size += transform_sizes.output_transform_size;
     recommended_size += params.batch * transform_sizes.output_transform_size;
   }

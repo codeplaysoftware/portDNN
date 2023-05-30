@@ -43,7 +43,8 @@ size_t filter_transform_size(Conv2DParams const& params) {
        (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
         params.filter_format == sycldnn::FilterFormat::HWCF) ||
        (params.group_format == sycldnn::BatchFormat::STRIDED &&
-        params.filter_format == sycldnn::FilterFormat::FHWC))) {
+        params.filter_format == sycldnn::FilterFormat::FHWC) ||
+       (params.filter_format == sycldnn::FilterFormat::FCHW))) {
     return 0;
   }
   return params.window_rows * params.window_cols * params.channels *
@@ -60,10 +61,14 @@ size_t filter_transform_size<conv_type::InputBackprop>(
 /** Get the tensor size needed for the output transform. */
 template <typename ConvType>
 size_t output_transform_size(Conv2DParams const& params) {
-  if (!std::is_same<ConvType, conv_type::Forward>::value ||
-      params.groups == 1 ||
-      (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
-       params.filter_format == sycldnn::FilterFormat::HWCF)) {
+  if (std::is_same_v<ConvType, conv_type::Forward> && params.groups == 1 &&
+      params.batch > 1 && params.input_format == DataFormat::NCHW &&
+      params.filter_format == sycldnn::FilterFormat::FCHW) {
+    return (params.out_rows * params.out_cols * params.features);
+  } else if (!std::is_same<ConvType, conv_type::Forward>::value ||
+             params.groups == 1 ||
+             (params.group_format == sycldnn::BatchFormat::INTERLEAVED &&
+              params.filter_format == sycldnn::FilterFormat::HWCF)) {
     return 0;
   }
   return params.out_rows * params.out_cols * params.features;

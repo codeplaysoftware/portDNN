@@ -29,7 +29,7 @@ namespace internal {
 namespace im2col {
 
 template <typename T, typename Index, int VectorWidth, typename ConvType,
-          template <typename> class MemObj>
+          typename Layout, template <typename> class MemObj>
 SNNStatus queue_input_transform(MemObj<T const>& input, MemObj<T>& output,
                                 Conv2DParams const& params, int tile_size,
                                 cl::sycl::queue& queue,

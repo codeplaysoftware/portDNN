@@ -27,7 +27,8 @@ namespace sycldnn {
 namespace conv2d {
 namespace internal {
 namespace im2col {
-template <typename T, typename Index, template <typename> class MemObj>
+template <typename T, typename Index, typename Layout,
+          template <typename> class MemObj>
 SNNStatus queue_filter_transform(MemObj<T const>& input, MemObj<T>& output,
                                  Conv2DParams const& params, Index thread_size,
                                  cl::sycl::queue& queue,

@@ -189,10 +189,19 @@ SNNStatus sublaunch(typename Backend::template pointer_type<T const> input,
 
   Algorithm algo_tag = selector.select<ConvType>(params);
   if (params.input_format == DataFormat::NCHW &&
-      algo_tag != Algorithm::Direct && algo_tag != Algorithm::Tiled) {
+      algo_tag != Algorithm::Direct && algo_tag != Algorithm::Im2col && algo_tag != Algorithm::Tiled) {
     return StatusCode::InvalidAlgorithm;
   }
   if (params.groups > 1 && algo_tag != Algorithm::Im2col) {
+    return StatusCode::InvalidAlgorithm;
+  }
+  if (params.input_format == DataFormat::NCHW &&
+      algo_tag == Algorithm::Im2col &&
+      !std::is_same_v<ConvType, conv_type::Forward>) {
+    return StatusCode::InvalidAlgorithm;
+  }
+  if (params.input_format == DataFormat::NCHW &&
+      algo_tag == Algorithm::Im2col && params.groups > 1) {
     return StatusCode::InvalidAlgorithm;
   }
   if constexpr (backend::is_usm_backend<Backend>::value) {

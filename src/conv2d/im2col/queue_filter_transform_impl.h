@@ -33,7 +33,8 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, typename Index, template <typename> class MemObj>
+template <typename T, typename Index, typename Layout,
+          template <typename> class MemObj>
 SNNStatus queue_filter_transform(MemObj<T const>& input_mem,
                                  MemObj<T>& output_mem,
                                  Conv2DParams const& params, Index thread_size,
@@ -41,7 +42,7 @@ SNNStatus queue_filter_transform(MemObj<T const>& input_mem,
                                  const std::vector<cl::sycl::event>& events) {
   constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
 
-  using Functor = ExtractFilterTiles<T, Index, is_usm>;
+  using Functor = ExtractFilterTiles<T, Index, is_usm, Layout>;
   cl::sycl::device device = queue.get_device();
   Index const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();

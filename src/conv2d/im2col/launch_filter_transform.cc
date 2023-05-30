@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "sycldnn/format_type.h"
 #include "sycldnn/mem_object.h"
 #include "sycldnn/status.h"
 
@@ -39,8 +40,17 @@ SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
                             Conv2DParams const& params, size_t thread_size,
                             cl::sycl::queue& queue,
                             const std::vector<cl::sycl::event>& events) {
-  return queue_filter_transform<T, Index>(input, output, params, thread_size,
-                                          queue, events);
+  if (params.input_format == DataFormat::NCHW &&
+      params.filter_format == FilterFormat::FCHW) {
+    return queue_filter_transform<T, Index, layout::NCHW>(
+        input, output, params, thread_size, queue, events);
+  } else if (params.input_format == DataFormat::NHWC &&
+             (params.filter_format == FilterFormat::HWCF ||
+              params.filter_format == FilterFormat::FHWC)) {
+    return queue_filter_transform<T, Index, layout::NHWC>(
+        input, output, params, thread_size, queue, events);
+  }
+  return StatusCode::InvalidAlgorithm;
 }
 }  // namespace
 
