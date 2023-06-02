@@ -80,7 +80,26 @@ class TiledSelector final : public Selector {
     // worst it causes some OpenCL implementations to crash when compiling the
     // module. Disable these kernels until this can be fixed.
     // TODO(jwlawson): Re-enable support when kernels fixed.
-    SNN_UNUSED_VAR(params);
+
+    if (params.window_rows != params.window_cols ||
+        params.stride_rows != params.stride_cols) {
+      return Algorithm::NotSupported;
+    }
+    if (params.window_rows == 1 && params.stride_rows == 2) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 1 && params.stride_rows == 1) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 3 && params.stride_rows == 2) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 3 && params.stride_rows == 1) {
+      return Algorithm::Tiled;
+    }
+    if (params.window_rows == 5 && params.stride_rows == 1) {
+      return Algorithm::Tiled;
+    }
     return Algorithm::NotSupported;
   }
 
