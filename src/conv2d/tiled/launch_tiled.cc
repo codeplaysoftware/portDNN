@@ -107,8 +107,6 @@ SNNStatus launch_with_fast_div(MemObj<T const>& input, MemObj<T const>& filter,
                               UseFastDiv, Window, Window, Stride, layout::NHWC>(
         input, filter, output, params, tile_info, queue, events);
   } else {
-    // TODO Problem here - queue_tiled_kernel for both branches are instantiated
-    // even if one doesn't exist.
     return queue_tiled_kernel<T, Index, ConvType, TileRows, TileCols,
                               ChannelVectorWidth, FeatureVectorWidth,
                               UseFastDiv, Window, Window, Stride, layout::NCHW>(
@@ -258,7 +256,6 @@ inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
 
         return StatusCode::InvalidAlgorithm;
   } else {  // NCHW
-// TODO confirm which to instantiate & check it matches cmake
       // clang-format off
     #ifdef POWER_VR
       LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
