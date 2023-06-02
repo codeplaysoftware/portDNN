@@ -71,7 +71,7 @@ sycldnn::SNNStatus launch_kernel(
   // TODO(jtodd) benchmark layout::NCHW too
   auto status = sycldnn::conv2d::internal::queue_tiled_kernel<
       T, Index, ConvType, TileRows, TileCols, ChannelVectorWidth,
-      FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride, layout::NHWC>(
+      FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride, sycldnn::layout::NHWC>(
       in_acc, fil_acc, out_acc, kernel_params, tile_info, queue, {});
   return status;
 }
