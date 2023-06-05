@@ -262,14 +262,13 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       auto filter_data = filter_mem_.get_pointer();
       auto output_data = output_mem_.get_pointer();
 
-      // TODO(joeatodd) flip this around
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
-              index, div_n_tile_rows_, n_tile_rows_, div_n_tile_cols_,
-              n_tile_cols_, div_feature_vectors_, n_feature_vectors_);
-      Index const feature = tensor_idx.s3 * 1/*FeatureVectorWidth*/;
-      Index const col_idx = tensor_idx.s2 * OutTileCols;
-      Index const row_idx = tensor_idx.s1 * OutTileRows;
+              index, div_feature_vectors_, n_feature_vectors_, div_n_tile_rows_,
+              n_tile_rows_, div_n_tile_cols_, n_tile_cols_);
+      Index const col_idx = tensor_idx.s3 * OutTileCols;
+      Index const row_idx = tensor_idx.s2 * OutTileRows;
+      Index const feature = tensor_idx.s1 * 1 /*FeatureVectorWidth*/;
       Index const batch = tensor_idx.s0;
 
       const auto col_window =
@@ -605,14 +604,13 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       auto filter_data = filter_mem_.get_pointer();
       auto output_data = output_mem_.get_pointer();
 
-      // TODO(jtodd) flip this around
       auto const tensor_idx =
           helpers::TensorIndexHelper<Index, UseFastDiv>::unflatten4d(
-              index, div_n_tile_rows_, n_tile_rows_, div_n_tile_cols_,
-              n_tile_cols_, div_channels_, n_channel_vectors_);
-      Index const channel = tensor_idx.s3 * 1/*ChannelVectorWidth*/;
-      Index const col_idx = tensor_idx.s2 * OutTileCols;
-      Index const row_idx = tensor_idx.s1 * OutTileRows;
+              index, div_channels_, n_channel_vectors_, div_n_tile_rows_,
+              n_tile_rows_, div_n_tile_cols_, n_tile_cols_);
+      Index const col_idx = tensor_idx.s3 * OutTileCols;
+      Index const row_idx = tensor_idx.s2 * OutTileRows;
+      Index const channel = tensor_idx.s1 * 1/*ChannelVectorWidth*/;
       Index const batch = tensor_idx.s0;
 
       const auto col_window =
