@@ -65,6 +65,7 @@ void check_dependency(cl::sycl::event e1, cl::sycl::event e2,
   while (e2_status != cl::sycl::info::event_command_status::complete) {
     e2_status = e2.get_info<cl::sycl::info::event::command_execution_status>();
   }
+  e1_status = e1.get_info<cl::sycl::info::event::command_execution_status>();
   bool done = e1_status == cl::sycl::info::event_command_status::complete;
   EXPECT_TRUE(done);
 
