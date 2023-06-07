@@ -173,6 +173,15 @@ SNNStatus launch_with_sizes(MemObj<T const>& input, MemObj<T const>& filter,
   }
 }
 
+// The launch_tiled_impl functions use X Macros to automatically
+// include available tiled convolution kernels as defined in
+// conv2d/CMakeLists.txt. Four macros are defined for every combination of
+// NCHW/NHWC and Forward/InputBackprop, and the generated file
+// tiled_variants.def defines the various window sizes, tile sizes &
+// vectorizations available. For each of the four cases, it's necessary
+// to define the other 3 macros as empty ('empty def') so that only
+// the relevant parameter sets are exposed.
+
 /** Internal tile size launcher for Forward.  */
 template <
     typename T, typename ConvType, DataFormat Format,
@@ -192,107 +201,48 @@ inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
         input, filter, output, params, queue, events);                        \
   }
 
+#define X_INPUTBACKPROP_NHWC(window, stride, tile_row, tile_col, \
+                             channel_vector, feature_vector)  // empty def
+#define X_INPUTBACKPROP_NCHW(window, stride, tile_row, tile_col, \
+                             channel_vector, feature_vector)  // empty def
+
   if constexpr (Format == DataFormat::NHWC) {
-    // clang-format off
-    #ifdef POWER_VR
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 2, 4)
-      LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 8)
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 8, 2)
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 4)
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 8, 1)
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 5, 2, 8, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 4, 4, 1, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 5, 5, 8, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 5, 4, 1, 1)
-    #endif
-    #ifdef ARM_GPU
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 4, 2)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 4)
-      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 4, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 1, 1)
-    #endif
-    #ifdef AMD_GPU
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 4, 2)
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 2, 2)
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 4, 1)
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 3, 1, 4)
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 1, 5, 4, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 4, 4)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 5, 1, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 8, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 1)
-    #endif
-    #ifdef INTEL_GPU
-      LAUNCH_IF_MATCH(params, 3, 1, 3, 3, 1, 4)
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 4, 2, 4, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 1)
-    #endif
-    #ifdef INTEL_CPU
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 16)
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 4, 1, 8)
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 16)
-      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 8)
-      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
-    #endif
-      LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 4)
-      LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 4)
-      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
-      LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 5, 1, 2, 2, 1, 2)
-      LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 4)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-        // clang-format on
+#define X_FORWARD_NHWC(window, stride, tile_row, tile_col, channel_vector,    \
+                       feature_vector)                                        \
+  LAUNCH_IF_MATCH(params, window, stride, tile_row, tile_col, channel_vector, \
+                  feature_vector)
+#define X_FORWARD_NCHW(window, stride, tile_row, tile_col, channel_vector, \
+                       feature_vector)  // empty def
 
-        return StatusCode::InvalidAlgorithm;
+#include "conv2d/tiled/tiled_variants.def"
+
+#undef X_FORWARD_NHWC
+#undef X_FORWARD_NCHW
+
+    return StatusCode::InvalidAlgorithm;
   } else {  // NCHW
-      // clang-format off
-    #ifdef POWER_VR
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 5, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 5, 4, 1, 1)
-    #endif
-    #ifdef ARM_GPU
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 4, 1, 1)
-    #endif
-    #ifdef AMD_GPU
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 3, 1, 1)
-    #endif
-    #ifdef INTEL_GPU
-      LAUNCH_IF_MATCH(params, 3, 1, 5, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 3, 4, 1, 1)
-    #endif
-    #ifdef INTEL_CPU
-      LAUNCH_IF_MATCH(params, 3, 1, 4, 5, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 1, 4, 1, 1)
-    #endif
-      LAUNCH_IF_MATCH(params, 1, 2, 1, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
-      LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-        // clang-format on
 
-        return StatusCode::InvalidAlgorithm;
+#define X_FORWARD_NCHW(window, stride, tile_row, tile_col, channel_vector,    \
+                       feature_vector)                                        \
+  LAUNCH_IF_MATCH(params, window, stride, tile_row, tile_col, channel_vector, \
+                  feature_vector)
+#define X_FORWARD_NHWC(window, stride, tile_row, tile_col, channel_vector, \
+                       feature_vector)  // empty def
+
+#include "conv2d/tiled/tiled_variants.def"
+
+#undef X_FORWARD_NHWC
+#undef X_FORWARD_NCHW
+    return StatusCode::InvalidAlgorithm;
   }
+#undef X_INPUTBACKPROP_NHWC
+#undef X_INPUTBACKPROP_NCHW
 }
 
 /** Internal tile size launcher for InputBackprop.  */
 template <
-    typename T, typename ConvType, DataFormat Format, template <typename> class MemObj,
+    typename T, typename ConvType, DataFormat Format,
+    template <typename> class MemObj,
     typename std::enable_if<
         std::is_same<ConvType, conv_type::InputBackprop>::value, int>::type = 0>
 inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
@@ -300,37 +250,44 @@ inline SNNStatus launch_tiled_impl(MemObj<T const>& input,
                                    Conv2DParams const& params,
                                    cl::sycl::queue& queue,
                                    const std::vector<cl::sycl::event>& events) {
+#define X_FORWARD_NHWC(window, stride, tile_row, tile_col, channel_vector, \
+                       feature_vector)  // empty def
+#define X_FORWARD_NCHW(window, stride, tile_row, tile_col, channel_vector, \
+                       feature_vector)  // empty def
+
   if constexpr (Format == DataFormat::NHWC) {
+#define X_INPUTBACKPROP_NHWC(window, stride, tile_row, tile_col,              \
+                             channel_vector, feature_vector)                  \
+  LAUNCH_IF_MATCH(params, window, stride, tile_row, tile_col, channel_vector, \
+                  feature_vector)
+#define X_INPUTBACKPROP_NCHW(window, stride, tile_row, tile_col, \
+                             channel_vector, feature_vector)  // empty def
 
-  // clang-format off
-  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 3, 2, 2, 4, 1, 2)
-  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 2, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 5, 1, 2, 2, 1, 2)
-  LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 4)
-  LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
-  LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-  // clang-format on
-  return StatusCode::InvalidAlgorithm;
+#include "conv2d/tiled/tiled_variants.def"
 
-  } else { //NCHW
-
-    // clang-format off
-    LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
-    LAUNCH_IF_MATCH(params, 3, 1, 3, 4, 1, 1)
-    LAUNCH_IF_MATCH(params, 3, 2, 2, 2, 1, 1)
-    LAUNCH_IF_MATCH(params, 5, 1, 2, 4, 1, 1)
-    LAUNCH_IF_MATCH(params, 1, 1, 2, 2, 1, 1)
-    LAUNCH_IF_MATCH(params, 1, 2, 2, 2, 1, 1)
+#undef X_INPUTBACKPROP_NHWC
+#undef X_INPUTBACKPROP_NCHW
 
     return StatusCode::InvalidAlgorithm;
 
+  } else {  // NCHW
+
+#define X_INPUTBACKPROP_NCHW(window, stride, tile_row, tile_col,              \
+                             channel_vector, feature_vector)                  \
+  LAUNCH_IF_MATCH(params, window, stride, tile_row, tile_col, channel_vector, \
+                  feature_vector)
+#define X_INPUTBACKPROP_NHWC(window, stride, tile_row, tile_col, \
+                             channel_vector, feature_vector)  // empty def
+
+#include "conv2d/tiled/tiled_variants.def"
+
+#undef X_INPUTBACKPROP_NHWC
+#undef X_INPUTBACKPROP_NCHW
+
+    return StatusCode::InvalidAlgorithm;
   }
+#undef X_FORWARD_NHWC
+#undef X_FORWARD_NCHW
 }
 
 #undef LAUNCH_IF_MATCH
