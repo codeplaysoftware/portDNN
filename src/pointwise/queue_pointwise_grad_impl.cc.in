@@ -19,6 +19,7 @@
 #define SNN_OP_TYPE    @OP_TYPE@
 #define SNN_DIRECTION  @DIRECTION@
 #define SNN_WIDTH      @VECTOR_WIDTH@
+#define SNN_BLOCK_SIZE @BLOCK_SIZE@
 // clang-format on
 
 #include "sycldnn/pointwise/direction.h"
@@ -32,7 +33,7 @@ namespace internal {
 
 #ifdef SNN_ENABLE_USM
 template SNNStatus queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE,
-                                   SNN_DIRECTION, SNN_WIDTH>(
+                                   SNN_DIRECTION, SNN_WIDTH, SNN_BLOCK_SIZE>(
     USMMemObject<SNN_DATA_TYPE const>& in_forward_mem,
     USMMemObject<SNN_DATA_TYPE const>& in_backprop_mem,
     USMMemObject<SNN_DATA_TYPE>& out_backprop_mem, SNN_INDEX_TYPE const n_items,
@@ -40,7 +41,7 @@ template SNNStatus queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE,
 #endif  // SNN_ENABLE_USM
 
 template SNNStatus queue_pointwise<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP_TYPE,
-                                   SNN_DIRECTION, SNN_WIDTH>(
+                                   SNN_DIRECTION, SNN_WIDTH, SNN_BLOCK_SIZE>(
     BufferMemObject<SNN_DATA_TYPE const>& in_forward_mem,
     BufferMemObject<SNN_DATA_TYPE const>& in_backprop_mem,
     BufferMemObject<SNN_DATA_TYPE>& out_backprop_mem,

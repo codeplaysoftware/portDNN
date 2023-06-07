@@ -30,7 +30,8 @@ namespace internal {
  * Queue a pointwise operation on the SYCL queue queue.
  */
 template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction, int VectorWidth, template <typename> class MemObj>
+          typename Direction, int VectorWidth, int BlockSize,
+          template <typename> class MemObj>
 SNNStatus queue_pointwise(MemObj<T const>& in_forward_mem,
                           MemObj<T const>& in_backprop_mem,
                           MemObj<T>& out_backprop_mem, Index const n_items,

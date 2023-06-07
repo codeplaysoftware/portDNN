@@ -153,7 +153,7 @@ DType Sqrt<Gradient>::apply(DType val, DType err) {
 }
 
 template <typename T, typename Index, template <typename> class Op,
-          typename Direction, int VectorWidth, bool IsUSM>
+          typename Direction, int VectorWidth, int BlockSize, bool IsUSM>
 class PointwiseOp;
 
 /**
@@ -163,8 +163,8 @@ class PointwiseOp;
  */
 
 template <typename T, typename Index, template <typename> class Op,
-          int VectorWidth, bool IsUSM>
-class PointwiseOp<T, Index, Op, Forward, VectorWidth, IsUSM> {
+          int VectorWidth, int BlockSize, bool IsUSM>
+class PointwiseOp<T, Index, Op, Forward, VectorWidth, BlockSize, IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
@@ -181,23 +181,36 @@ class PointwiseOp<T, Index, Op, Forward, VectorWidth, IsUSM> {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const idx = item.get_id(0);
 
-    if (idx < n_items_) {
-      Op<Forward> op;
-      auto vec_idx = idx * VectorWidth;
+    Op<Forward> op;
+    auto vec_idx = idx * BlockSize;
 
-      auto in_ptr = input_.get_pointer();
-      auto out_ptr = output_.get_pointer();
+    auto constexpr vector_block_size = BlockSize / VectorWidth;
 
-      auto in_value = LoadData()(in_ptr, vec_idx);
-      auto out_value = op.apply(in_value);
-      StoreData()(out_ptr, vec_idx, out_value);
+    auto in_ptr = input_.get_pointer();
+    auto out_ptr = output_.get_pointer();
+
+    DataType in_values[vector_block_size];
+
+    SNN_PRAGMA_UNROLL
+    for (int i = 0; i < vector_block_size; i++) {
+      if (vec_idx + (i * VectorWidth) < n_items_) {
+        in_values[i] = LoadData()(in_ptr, vec_idx + (i * VectorWidth));
+      }
+    }
+
+    SNN_PRAGMA_UNROLL
+    for (int i = 0; i < vector_block_size; i++) {
+      if (vec_idx + (i * VectorWidth) < n_items_) {
+        StoreData()(out_ptr, vec_idx + (i * VectorWidth),
+                    op.apply(in_values[i]));
+      }
     }
   }
 };
 
 template <typename T, typename Index, template <typename> class Op,
-          int VectorWidth, bool IsUSM>
-class PointwiseOp<T, Index, Op, Gradient, VectorWidth, IsUSM> {
+          int VectorWidth, int BlockSize, bool IsUSM>
+class PointwiseOp<T, Index, Op, Gradient, VectorWidth, BlockSize, IsUSM> {
   using DataType = typename helpers::VectorType<T, VectorWidth>::type;
   using LoadData = helpers::io::Load<DataType>;
   using StoreData = helpers::io::Store<DataType>;
@@ -219,20 +232,33 @@ class PointwiseOp<T, Index, Op, Gradient, VectorWidth, IsUSM> {
   void SNN_ALWAYS_INLINE operator()(cl::sycl::item<1> item) const {
     Index const idx = item.get_id(0);
 
-    if (idx < n_items_) {
-      Op<Gradient> op;
-      auto vec_idx = idx * VectorWidth;
+    Op<Gradient> op;
+    auto vec_idx = idx * BlockSize;
 
-      auto out_fwd_ptr = output_forward_.get_pointer();
-      auto in_bk_ptr = input_backprop_.get_pointer();
-      auto out_bk_ptr = output_backprop_.get_pointer();
+    auto constexpr vector_block_size = BlockSize / VectorWidth;
 
-      auto out_fwd_value = LoadData()(out_fwd_ptr, vec_idx);
-      auto in_bk_value = LoadData()(in_bk_ptr, vec_idx);
+    auto out_fwd_ptr = output_forward_.get_pointer();
+    auto in_bk_ptr = input_backprop_.get_pointer();
+    auto out_bk_ptr = output_backprop_.get_pointer();
 
-      auto out_bk_value = op.apply(out_fwd_value, in_bk_value);
+    DataType out_fwd_values[vector_block_size];
+    DataType in_bk_values[vector_block_size];
 
-      StoreData()(out_bk_ptr, vec_idx, out_bk_value);
+    SNN_PRAGMA_UNROLL
+    for (int i = 0; i < vector_block_size; i++) {
+      if (vec_idx + (i * VectorWidth) < n_items_) {
+        out_fwd_values[i] =
+            LoadData()(out_fwd_ptr, vec_idx + (i * VectorWidth));
+        in_bk_values[i] = LoadData()(in_bk_ptr, vec_idx + (i * VectorWidth));
+      }
+    }
+
+    SNN_PRAGMA_UNROLL
+    for (int i = 0; i < vector_block_size; i++) {
+      if (vec_idx + (i * VectorWidth) < n_items_) {
+        StoreData()(out_bk_ptr, vec_idx + (i * VectorWidth),
+                    op.apply(out_fwd_values[i], in_bk_values[i]));
+      }
     }
   }
 };

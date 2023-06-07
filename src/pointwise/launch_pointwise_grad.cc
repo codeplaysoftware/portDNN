@@ -36,14 +36,17 @@ SNNStatus launch_vector_pointwise(MemObj<T const>& input_forward,
                                   MemObj<T>& output_backprop,
                                   Index const n_items, cl::sycl::queue& queue,
                                   const std::vector<cl::sycl::event>& events) {
-  if (n_items % 4 == 0) {
-    return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
+  constexpr int block_size = 4;
+  const auto remainder = n_items % block_size;
+  auto is_divisible = [](int n, int div) { return n % div == 0; };
+  if (is_divisible(block_size, 4) && is_divisible(remainder, 4)) {
+    return queue_pointwise<T, Index, PointwiseType, Direction, 4, block_size>(
         input_forward, input_backprop, output_backprop, n_items, queue, events);
-  } else if (n_items % 2 == 0) {
-    return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
+  } else if (is_divisible(block_size, 2) && is_divisible(remainder, 2)) {
+    return queue_pointwise<T, Index, PointwiseType, Direction, 2, block_size>(
         input_forward, input_backprop, output_backprop, n_items, queue, events);
   } else {
-    return queue_pointwise<T, Index, PointwiseType, Direction, 1>(
+    return queue_pointwise<T, Index, PointwiseType, Direction, 1, block_size>(
         input_forward, input_backprop, output_backprop, n_items, queue, events);
   }
 }
