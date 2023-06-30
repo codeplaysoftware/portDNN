@@ -117,15 +117,27 @@ struct InputRow<T, ChannelVector, Width, DataFormat::NHWC> final
   }
 };
 
-template <typename T, int VectorWidth, int Width>
-struct InputRow<T, VectorWidth, Width, DataFormat::NCHW> final
-    : public helpers::RegisterTile1D<
-          typename helpers::VectorType<T, VectorWidth>::type, Width/VectorWidth> {
- public:
+// TODO(jtodd) move this
+// Vectorize load/store
+constexpr int getDivisor(const int numerator){
+    if (numerator % 16 == 0U){ return 16;}
+    else if(numerator % 8 == 0U){return 8;}
+    else if(numerator % 4 == 0U){return 4;}
+    else if(numerator % 2 == 0U){return 2;}
+    else {return 1;}
+}
+
+template <typename T, int Dummy, int Width>
+struct InputRow<T, Dummy, Width, DataFormat::NCHW> final
+    : public helpers::RegisterTile1D<T, Width> {
+ private:
+  static constexpr int VectorWidth = getDivisor(Width);
   static_assert(Width % VectorWidth == 0 && "Bad tile width/vector width combination.");
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   static constexpr auto NumVecElems = Width / VectorWidth;
-  using helpers::RegisterTile1D<VecType, NumVecElems>::data;
+ public:
+  using helpers::RegisterTile1D<T, Width>::data;
+
   /**
    * Input row factory method. Will load the input data specified by row, col
    * and channel into an InputRow tile from the given multi pointer.
@@ -150,8 +162,8 @@ struct InputRow<T, VectorWidth, Width, DataFormat::NCHW> final
       Index const /*n_channels*/) {
     Index idx = offset + col;
     SNN_PRAGMA_UNROLL
-    for (int i = 0; i < NumVecElems; ++i) {
-      data(i) = helpers::io::Load<VecType>()(input, idx);
+    for (int i = 0; i < Width; i+=VectorWidth) {
+      *reinterpret_cast<VecType*>(&data(i)) = helpers::io::Load<VecType>()(input, idx);
       idx += VectorWidth;
     }
   }
@@ -164,11 +176,11 @@ struct InputRow<T, VectorWidth, Width, DataFormat::NCHW> final
     SNN_UNUSED_VAR(n_channels);
     Index idx = offset + col;
     SNN_PRAGMA_UNROLL
-    for (int i = 0; i < NumVecElems; ++i) {
+    for (int i = 0; i < Width; ++i) {
       data(i) = (col + i < 0 || col + i >= n_cols)
-                    ? VecType{0}
-                    : helpers::io::Load<VecType>()(input, idx);
-      idx += VectorWidth;
+                    ? static_cast<sycl::vec<T,1>>(0)
+                    : helpers::io::Load<sycl::vec<T,1>>()(input, idx);
+      ++idx;
     }
   }
 };
@@ -243,19 +255,19 @@ struct FilterTile<T, ChannelVector, FeatureVector, WindowRows, WindowCols,
  *  The redundant 3rd dimension remains in case, in future, we want the option
  *  to load  the filter for every channel at once.
  */
-template <typename T, int ColVectorWidth, int WindowRows, int WindowCols>
-struct FilterTile<T, 1, ColVectorWidth, WindowRows, WindowCols,
+template <typename T, int Dummy, int WindowRows, int WindowCols>
+struct FilterTile<T, 1, Dummy, WindowRows, WindowCols,
                   FilterFormat::FCHW>
-    : public helpers::RegisterTile3D<
-          typename helpers::VectorType<T, ColVectorWidth>::type, WindowRows,
-          WindowCols / ColVectorWidth, 1> {
-  static_assert(WindowCols % ColVectorWidth == 0 && "Bad tile width/vector width combination.");
-  static constexpr auto NumVecElems = WindowCols / ColVectorWidth;
+    : public helpers::RegisterTile3D<T, WindowRows, WindowCols, 1> { //TODO(jtodd) Multiple features
+ private:
+  static constexpr int VectorWidth = getDivisor(WindowCols);
+  static_assert(WindowCols % VectorWidth == 0 && "Bad tile width/vector width combination.");
+  static constexpr auto NumVecElems = WindowCols / VectorWidth;
 
-  using VecType = typename helpers::VectorType<T, ColVectorWidth>::type;
-  using helpers::RegisterTile3D<VecType, WindowRows, NumVecElems,
+  using VecType = typename helpers::VectorType<T, VectorWidth>::type;
+ public:
+  using helpers::RegisterTile3D<T, WindowRows, WindowCols,
                                 1>::data;
-
   template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   SNN_ALWAYS_INLINE FilterTile(
       cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
@@ -267,9 +279,9 @@ struct FilterTile<T, 1, ColVectorWidth, WindowRows, WindowCols,
     for (int i = 0; i < WindowRows; ++i) {
       Index col_idx = row_idx;
       SNN_PRAGMA_UNROLL
-      for (int j = 0; j < NumVecElems; ++j) {
-        data(i, j, 0) = helpers::io::Load<VecType>()(input, col_idx);
-        col_idx += ColVectorWidth;
+      for (int j = 0; j < WindowCols; j+=VectorWidth) {
+        *reinterpret_cast<VecType*>(&data(i, j, 0)) = helpers::io::Load<VecType>()(input, col_idx);
+        col_idx += VectorWidth;
       }
       row_idx += WindowCols;
     }
@@ -287,10 +299,13 @@ struct FilterTile<T, 1, ColVectorWidth, WindowRows, WindowCols,
     for (int i = 0; i < WindowRows; ++i) {
       Index col_idx = row_idx;
       SNN_PRAGMA_UNROLL
-      for (int j = 0; j < NumVecElems; ++j) {
-          data(WindowRows - 1 - i, WindowCols - 1 - j, 0) =
-              helpers::io::Load<VecType>()(input, col_idx);
-        col_idx += ColVectorWidth;
+      for (int j = 0; j < WindowCols; j+=VectorWidth) {
+          VecType filter_vals = helpers::io::Load<VecType>()(input, col_idx);
+          for (int v = 0; v < VectorWidth; ++v){
+            data(WindowRows - 1 - i, WindowCols - 1 - j - v, 0) =
+              helpers::vector_element::get(filter_vals, v);
+          }
+        col_idx += VectorWidth;
       }
       row_idx += WindowCols;
     }
@@ -379,15 +394,18 @@ struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NHWC> fi
  * results composed of T elements, to collect output results. VectorWidth allows
  * multiple values in a row to be stored at once.
  */
-template <typename T, int VectorWidth, int OutTileRows, int OutTileCols>
-struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NCHW>
+template <typename T, int Dummy, int OutTileRows, int OutTileCols>
+struct OutputTile<T, Dummy, OutTileRows, OutTileCols, DataFormat::NCHW>
     final : helpers::RegisterTile2D<
-                typename helpers::VectorType<T, VectorWidth>::type, OutTileRows,
-                OutTileCols / VectorWidth> {
+                T, OutTileRows,
+                OutTileCols> {
+ private:
+  static constexpr int VectorWidth = getDivisor(OutTileCols);
   static_assert(OutTileCols % VectorWidth == 0);
   static constexpr auto NumVecElems = OutTileCols / VectorWidth;
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
-  using helpers::RegisterTile2D<VecType, OutTileRows, NumVecElems>::data;
+ public:
+  using helpers::RegisterTile2D<T, OutTileRows, OutTileCols>::data;
 
   template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   void SNN_ALWAYS_INLINE write_out(
@@ -419,11 +437,9 @@ struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NCHW>
       if (tile_row < n_rows - out_row) {
         Index idx = row_idx;
         SNN_PRAGMA_UNROLL
-        for (int i = 0; i < NumVecElems; ++i) {
+        for (int i = 0; i < OutTileCols; ++i) {
           if (i < n_cols - out_col) {
-            helpers::io::Store<VecType>()(output, idx,
-                                          data(tile_row, i));
-            idx += VectorWidth;
+            helpers::io::Store<sycl::vec<T,1>>()(output, idx++, data(tile_row, i));
           }
         }
         row_idx += n_cols;
@@ -444,8 +460,8 @@ struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NCHW>
     for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
       Index idx = row_idx;
       SNN_PRAGMA_UNROLL
-      for (int i = 0; i < NumVecElems; ++i) {
-        helpers::io::Store<VecType>()(output, idx, data(tile_row, i));
+      for (int i = 0; i < OutTileCols; i+=VectorWidth) {
+        helpers::io::Store<VecType>()(output, idx, *reinterpret_cast<VecType*>(&data(tile_row, i)));
         idx += VectorWidth;
       }
       row_idx += n_cols;

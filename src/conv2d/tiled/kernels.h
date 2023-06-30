@@ -227,8 +227,6 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   using Filter = FilterTile<T, 1/*ChannelVectorWidth*/, 1/*FeatureVectorWidth*/,
                             WindowRows, WindowCols, layout::NCHW::filter_layout>;
   using Output = OutputTile<T, 1/*FeatureVectorWidth*/, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
-  using InVecType = typename Input::VecType;
-  using OutVecType = typename Output::VecType;
 
  public:
   TiledConv2D(ReadMem<T const, IsUSM> input, ReadMem<T const, IsUSM> filter,
@@ -333,16 +331,15 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
     }
   }
 
-  OutVecType SNN_ALWAYS_INLINE forward_accumulate(InVecType input,
+  T SNN_ALWAYS_INLINE forward_accumulate(T input,
                                                   Filter const& filter,
                                                   int const filter_row,
                                                   int const filter_col,
-                                                  OutVecType value) const {
+                                                  T value) const {
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < 1/*ChannelVectorWidth*/; i++) {
       value =
-          helpers::math::mad(OutVecType{helpers::vector_element::get(input, i)},
-                             filter.data(filter_row, filter_col, i), value);
+          helpers::math::mad(input, filter.data(filter_row, filter_col, i), value);
     }
     return value;
   }
@@ -568,8 +565,6 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   using Filter = FilterTile<T, 1/*ChannelVectorWidth*/, 1/*FeatureVectorWidth*/,
                             WindowRows, WindowCols, layout::NCHW::filter_layout>;
   using Output = OutputTile<T, 1/*ChannelVectorWidth*/, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
-  using InVecType = typename Input::VecType;
-  using OutVecType = typename Output::VecType;
 
  public:
   TiledConv2D(ReadMem<T const, IsUSM> input, ReadMem<T const, IsUSM> filter,
@@ -691,31 +686,16 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       }
     }
   }
-  OutVecType SNN_ALWAYS_INLINE inputbackprop_accumulate(
-      InVecType input, Filter const& filter, int const filter_row,
-      int const filter_col, OutVecType value) const {
+  T SNN_ALWAYS_INLINE inputbackprop_accumulate(
+      T input, Filter const& filter, int const filter_row,
+      int const filter_col, T value) const {
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < 1/*FeatureVectorWidth*/; ++i) {
-      OutVecType filter_slice =
-          slice_transpose(filter, filter_row, filter_col, i);
       value =
-          helpers::math::mad(OutVecType{helpers::vector_element::get(input, i)},
-                             filter_slice, value);
+          helpers::math::mad(input,
+                             filter.data(filter_row, filter_col, i), value);
     }
     return value;
-  }
-  OutVecType SNN_ALWAYS_INLINE slice_transpose(Filter const& filter,
-                                               int filter_row, int filter_col,
-                                               int index) const {
-    OutVecType output;
-    SNN_PRAGMA_UNROLL
-    for (int i = 0; i < 1/*ChannelVectorWidth*/; ++i) {
-      helpers::vector_element::set(
-          output, i,
-          helpers::vector_element::get(filter.data(filter_row, filter_col, i),
-                                       index));
-    }
-    return output;
   }
 
   const Index n_tile_cols_;
