@@ -67,7 +67,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   static constexpr auto InputTileRows = (OutTileRows - 1) * Stride + WindowRows;
   using Input = InputRow<T, ChannelVectorWidth, InputTileCols, layout::NHWC::input_layout>;
   using Filter = FilterTile<T, ChannelVectorWidth, FeatureVectorWidth,
-                            WindowRows, WindowCols, layout::NHWC::filter_layout>;
+                            WindowRows, WindowCols, layout::NHWC::filter_layout, conv_type::Forward>;
   using Output = OutputTile<T, FeatureVectorWidth, OutTileRows, OutTileCols, layout::NHWC::input_layout>;
   using InVecType = typename Input::VecType;
   using OutVecType = typename Output::VecType;
@@ -225,7 +225,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
   static constexpr auto InputTileRows = (OutTileRows - 1) * Stride + WindowRows;
   using Input = InputRow<T, 1/*ChannelVectorWidth*/, InputTileCols, layout::NCHW::input_layout>;
   using Filter = FilterTile<T, 1/*ChannelVectorWidth*/, FeatureVectorWidth,
-                            WindowRows, WindowCols, layout::NCHW::filter_layout>;
+                            WindowRows, WindowCols, layout::NCHW::filter_layout, conv_type::Forward>;
   using Output = OutputTile<T, FeatureVectorWidth, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
 
  public:
@@ -367,7 +367,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   static constexpr auto InputTileRows = OutTileRows + WindowRows - 1;
   using Input = InputRow<T, FeatureVectorWidth, InputTileCols, layout::NHWC::input_layout>;
   using Filter = FilterTile<T, ChannelVectorWidth, FeatureVectorWidth,
-                            WindowRows, WindowCols, layout::NHWC::filter_layout>;
+                            WindowRows, WindowCols, layout::NHWC::filter_layout, conv_type::InputBackprop>;
   using Output = OutputTile<T, ChannelVectorWidth, OutTileRows, OutTileCols, layout::NHWC::input_layout>;
   using InVecType = typename Input::VecType;
   using OutVecType = typename Output::VecType;
@@ -429,8 +429,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       Index input_feat_offset = batch * out_cols_ * out_rows_ * features_;
       for (Index feature = 0; feature < features_;
            feature += FeatureVectorWidth) {
-        Filter filter_tile{filter_data, filter_offset, channels_, features_,
-                           mirror_filter_tag{}};
+        Filter filter_tile{filter_data, filter_offset, channels_, features_};
 
         Index input_offset = input_feat_offset + rstart * out_cols_ * features_;
         for (Index r = rstart, i = first_row; i < InputTileRows;
@@ -553,7 +552,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
   static constexpr auto InputTileRows = OutTileRows + WindowRows - 1;
   using Input = InputRow<T, 1/*FeatureVectorWidth*/, InputTileCols, layout::NCHW::input_layout>;
   using Filter = FilterTile<T, 1/*ChannelVectorWidth*/, ChannelVectorWidth,
-                            WindowRows, WindowCols, layout::NCHW::filter_layout>;
+                            WindowRows, WindowCols, layout::NCHW::filter_layout, conv_type::InputBackprop>;
   using Output = OutputTile<T, ChannelVectorWidth, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
 
  public:
@@ -612,7 +611,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       Index filter_offset = channel * WindowRows * WindowCols;
       Index input_feat_offset = batch * out_cols_ * out_rows_ * features_;
       for (Index feature = 0; feature < features_; ++feature) {
-        Filter filter_tile{filter_data, filter_offset, channels_, features_, mirror_filter_tag{}};
+        Filter filter_tile{filter_data, filter_offset, channels_, features_};
 
         Index input_offset = input_feat_offset +
                              out_cols_ * out_rows_ * feature +

@@ -39,7 +39,6 @@ namespace internal {
 namespace tiled {
 
 struct check_bounds_tag {};
-struct mirror_filter_tag {};
 
 #if SNN_ENABLE_USM
 #define MULTI_PTR_TEMPLATE_DECL          \
@@ -186,19 +185,21 @@ struct InputRow<T, Dummy, Width, DataFormat::NCHW> final
 };
 
 template <typename T, int ChannelVector, int FeatureVector, int WindowRows,
-          int WindowCols, FilterFormat Layout>
+          int WindowCols, FilterFormat Layout, typename ConvType>
 struct FilterTile;
 
 /** HWCF: A 3D tile (WindowRows x WindowCols x ChannelVector) from the filter tensor,
  * composed of sycl::vec<T,FeatureVector> elements.
 */
 template <typename T, int ChannelVector, int FeatureVector, int WindowRows,
-          int WindowCols>
+          int WindowCols, typename ConvType>
 struct FilterTile<T, ChannelVector, FeatureVector, WindowRows, WindowCols,
-                  FilterFormat::HWCF>
+                  FilterFormat::HWCF, ConvType>
     : public helpers::RegisterTile3D<
           typename helpers::VectorType<T, FeatureVector>::type, WindowRows,
           WindowCols, ChannelVector> {
+  static_assert(std::is_same_v<ConvType, conv_type::Forward> ||
+                std::is_same_v<ConvType, conv_type::InputBackprop>);
   using VecType = typename helpers::VectorType<T, FeatureVector>::type;
   using helpers::RegisterTile3D<VecType, WindowRows, WindowCols,
                                 ChannelVector>::data;
@@ -216,7 +217,12 @@ struct FilterTile<T, ChannelVector, FeatureVector, WindowRows, WindowCols,
         Index ch_idx = col_idx;
         SNN_PRAGMA_UNROLL
         for (int ch_v = 0; ch_v < ChannelVector; ++ch_v) {
-          data(i, j, ch_v) = helpers::io::Load<VecType>()(input, ch_idx);
+          if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
+            data(WindowRows - 1 - i, WindowCols - 1 - j, ch_v) =
+              helpers::io::Load<VecType>()(input, ch_idx);
+          }else{
+            data(i, j, ch_v) = helpers::io::Load<VecType>()(input, ch_idx);
+          }
           ch_idx += n_features;
         }
         col_idx += n_channels * n_features;
@@ -225,29 +231,6 @@ struct FilterTile<T, ChannelVector, FeatureVector, WindowRows, WindowCols,
     }
   }
 
-  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
-  SNN_ALWAYS_INLINE FilterTile(
-      cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
-      Index const offset, Index const n_channels, Index const n_features,
-      mirror_filter_tag) {
-    Index row_idx = offset;
-    SNN_PRAGMA_UNROLL
-    for (int i = 0; i < WindowRows; ++i) {
-      Index col_idx = row_idx;
-      SNN_PRAGMA_UNROLL
-      for (int j = 0; j < WindowCols; ++j) {
-        Index ch_idx = col_idx;
-        SNN_PRAGMA_UNROLL
-        for (int ch_v = 0; ch_v < ChannelVector; ++ch_v) {
-          data(WindowRows - 1 - i, WindowCols - 1 - j, ch_v) =
-              helpers::io::Load<VecType>()(input, ch_idx);
-          ch_idx += n_features;
-        }
-        col_idx += n_channels * n_features;
-      }
-      row_idx += WindowCols * n_channels * n_features;
-    }
-  }
 };
 
 /** FCHW: A 3D tile (WindowRows x WindowCols/ColVectorWidth x 1)
@@ -255,10 +238,12 @@ struct FilterTile<T, ChannelVector, FeatureVector, WindowRows, WindowCols,
  *  The redundant 3rd dimension remains in case, in future, we want the option
  *  to load  the filter for every channel at once.
  */
-template <typename T, int FeatureVector, int WindowRows, int WindowCols>
+template <typename T, int FeatureVector, int WindowRows, int WindowCols, typename ConvType>
 struct FilterTile<T, 1, FeatureVector, WindowRows, WindowCols,
-                  FilterFormat::FCHW>
+                  FilterFormat::FCHW, ConvType>
     : public helpers::RegisterTile3D<T, FeatureVector, WindowRows, WindowCols> {
+  static_assert(std::is_same_v<ConvType, conv_type::Forward> ||
+                std::is_same_v<ConvType, conv_type::InputBackprop>);
  private:
   static constexpr int VectorWidth = getDivisor(WindowCols);
   static_assert(WindowCols % VectorWidth == 0 && "Bad tile width/vector width combination.");
@@ -267,6 +252,7 @@ struct FilterTile<T, 1, FeatureVector, WindowRows, WindowCols,
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
  public:
   using helpers::RegisterTile3D<T, FeatureVector, WindowRows, WindowCols>::data;
+
   template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   SNN_ALWAYS_INLINE FilterTile(
       cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
@@ -281,41 +267,25 @@ struct FilterTile<T, 1, FeatureVector, WindowRows, WindowCols,
         Index col_idx = row_idx;
         SNN_PRAGMA_UNROLL
         for (int j = 0; j < WindowCols; j+=VectorWidth) {
-          *reinterpret_cast<VecType*>(&data(feat, i, j)) = helpers::io::Load<VecType>()(input, col_idx);
-          col_idx += VectorWidth;
-        }
-        row_idx += WindowCols;
-      }
-      feat_idx += n_channels * WindowRows * WindowCols;
-    }
-  }
-
-  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
-  SNN_ALWAYS_INLINE FilterTile(
-      cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
-      Index const offset, Index const n_channels, Index const n_features,
-      mirror_filter_tag) {
-    SNN_UNUSED_VAR(n_channels);
-    SNN_UNUSED_VAR(n_features);
-    Index feat_idx = offset;
-    SNN_PRAGMA_UNROLL
-    for (int feat = 0; feat < FeatureVector; ++feat) {
-      Index row_idx = feat_idx;
-      SNN_PRAGMA_UNROLL
-      for (int i = 0; i < WindowRows; ++i) {
-        Index col_idx = row_idx;
-        SNN_PRAGMA_UNROLL
-        for (int j = 0; j < WindowCols; j+=VectorWidth) {
+          if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
             VecType filter_vals = helpers::io::Load<VecType>()(input, col_idx);
             for (int v = 0; v < VectorWidth; ++v){
               data(feat, WindowRows - 1 - i, WindowCols - 1 - j - v) =
                 helpers::vector_element::get(filter_vals, v);
             }
+          }else{
+            *reinterpret_cast<VecType*>(&data(feat, i, j)) = helpers::io::Load<VecType>()(input, col_idx);
+          }
           col_idx += VectorWidth;
         }
         row_idx += WindowCols;
       }
-      feat_idx += /*n_channels **/ WindowRows * WindowCols; //TODO(joeatodd) this is untidy...
+      if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
+        feat_idx += WindowRows * WindowCols;
+      }else{
+        feat_idx += n_channels * WindowRows * WindowCols;
+      }
+
     }
   }
 };
