@@ -607,17 +607,12 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       const Index rstart = row_window.window_start;
       const Index first_row = row_window.filter_start;
 
-      printf("index %d col_idx %d row_idx %d channel %d batch %d cstart %d first_col %d rstart %d first_row %d \n", index, col_idx, row_idx, channel, batch, cstart, first_col, rstart, first_row);
       Output out_tile{};
 
       Index filter_offset = channel * WindowRows * WindowCols;
       Index input_feat_offset = batch * out_cols_ * out_rows_ * features_;
       for (Index feature = 0; feature < features_; ++feature) {
         Filter filter_tile{filter_data, filter_offset, channels_, features_, mirror_filter_tag{}};
-
-        // printf("filter vals: %f %f %f \n", filter_tile.data(0, 0, 0), filter_tile.data(0, 0, 1), filter_tile.data(0, 0, 2));
-        // printf("filter vals: %f %f %f \n", filter_tile.data(0, 1, 0), filter_tile.data(0, 1, 1), filter_tile.data(0, 1, 2));
-        // printf("filter vals: %f %f %f \n", filter_tile.data(0, 2, 0), filter_tile.data(0, 2, 1), filter_tile.data(0, 2, 2));
 
         Index input_offset = input_feat_offset +
                              out_cols_ * out_rows_ * feature +
@@ -628,8 +623,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
             auto input_tile = Input::load_input_row(
                 input_data, input_offset, cstart, out_cols_, features_);
 
-            if(InputTileCols == 4) printf("Index %d Row values: %f %f %f %f\n", index, input_tile.data(0), input_tile.data(1), input_tile.data(2), input_tile.data(3));
-            convolve_tile(input_tile, filter_tile, out_tile, i, first_col, index);
+            convolve_tile(input_tile, filter_tile, out_tile, i, first_col);
           }
           input_offset += out_cols_;
         }
@@ -644,12 +638,12 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
  private:
   void SNN_ALWAYS_INLINE convolve_tile(Input const& input, Filter const& filter,
                                        Output& output, int const row_idx,
-                                       int const first_col, Index index) const {
+                                       int const first_col) const {
     SNN_PRAGMA_UNROLL
     for (int out_row = 0; out_row < OutTileRows; ++out_row) {
       int const filter_row = row_idx - out_row;
       if (filter_row >= 0 && filter_row < WindowRows) {
-        convolve_one_row(input, filter, output, out_row, filter_row, first_col, index);
+        convolve_one_row(input, filter, output, out_row, filter_row, first_col);
       }
     }
   }
@@ -657,7 +651,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
                                           Filter const& filter, Output& output,
                                           int const out_row,
                                           int const filter_row,
-                                          int offset, Index index) const {
+                                          int offset) const {
     SNN_PRAGMA_UNROLL
     for (int out_col = 0; out_col < OutTileCols; ++out_col) {
       auto padded_out = out_col - offset;
@@ -681,10 +675,6 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
                 helpers::math::mad(input.data(in_offset),
                                    filter.data(channel, filter_row, shifted_filter_col),
                                    output.data(channel, out_row, out_col));
-            printf("Idx %d Output (%d,%d) chan %d contrib: %f * %f -> %f\n", index, out_row, out_col, channel,
-                   input.data(in_offset),
-                   filter.data(channel, filter_row, shifted_filter_col),
-                   output.data(channel, out_row, out_col));
           }
           ++in_offset;
         }
