@@ -214,19 +214,19 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
 };
 
 template <typename T, typename Index, int OutTileRows, int OutTileCols,
-          int FeatureVectorWidth, bool UseFastDiv, int WindowRows, int WindowCols,
+          int OutTileFeatures, bool UseFastDiv, int WindowRows, int WindowCols,
           int Stride, bool IsUSM>
 struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
-                   1/*ChannelVectorWidth*/, FeatureVectorWidth/*TODO(joeatodd) rename*/, UseFastDiv,
+                   1, OutTileFeatures, UseFastDiv,
                    WindowRows, WindowCols, Stride, layout::NCHW, IsUSM> {
  private:
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   static constexpr auto InputTileCols = (OutTileCols - 1) * Stride + WindowCols;
   static constexpr auto InputTileRows = (OutTileRows - 1) * Stride + WindowRows;
   using Input = InputRow<T, 1/*ChannelVectorWidth*/, InputTileCols, layout::NCHW::input_layout>;
-  using Filter = FilterTile<T, 1/*ChannelVectorWidth*/, FeatureVectorWidth,
-                            WindowRows, WindowCols, layout::NCHW::filter_layout, conv_type::Forward>;
-  using Output = OutputTile<T, FeatureVectorWidth, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
+  using Filter = FilterTile<T, 1, OutTileFeatures, WindowRows, WindowCols,
+                            layout::NCHW::filter_layout, conv_type::Forward>;
+  using Output = OutputTile<T, OutTileFeatures, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
 
  public:
   TiledConv2D(ReadMem<T const, IsUSM> input, ReadMem<T const, IsUSM> filter,
@@ -266,7 +266,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
               n_tile_rows_, div_n_tile_cols_, n_tile_cols_);
       Index const col_idx = tensor_idx.s3 * OutTileCols;
       Index const row_idx = tensor_idx.s2 * OutTileRows;
-      Index const feature = tensor_idx.s1 * FeatureVectorWidth;
+      Index const feature = tensor_idx.s1 * OutTileFeatures;
       Index const batch = tensor_idx.s0;
 
       const auto col_window =
@@ -323,7 +323,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       SNN_PRAGMA_UNROLL
       for (int filter_col = 0; filter_col < WindowCols; ++filter_col) {
         SNN_PRAGMA_UNROLL
-        for (int feature = 0; feature < FeatureVectorWidth; ++feature) {
+        for (int feature = 0; feature < OutTileFeatures; ++feature) {
           output.data(feature, out_row, out_col) = helpers::math::mad(
                                               input.data(in_offset + filter_col),
                                               filter.data(feature, filter_row, filter_col),
@@ -541,19 +541,19 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
 
 
 template <typename T, typename Index, int OutTileRows, int OutTileCols,
-          int ChannelVectorWidth, bool UseFastDiv, int WindowRows, int WindowCols,
+          int OutTileChannels, bool UseFastDiv, int WindowRows, int WindowCols,
           int Stride, bool IsUSM>
 struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
-                   ChannelVectorWidth, 1/*FeatureVectorWidth*/, UseFastDiv,
+                   OutTileChannels, 1, UseFastDiv,
                    WindowRows, WindowCols, Stride, layout::NCHW, IsUSM> {
  private:
   using IndexDivType = typename fast_div::IndexDiv<Index, UseFastDiv>::type;
   static constexpr auto InputTileCols = (OutTileCols + WindowCols - 1) / Stride;
   static constexpr auto InputTileRows = OutTileRows + WindowRows - 1;
   using Input = InputRow<T, 1/*FeatureVectorWidth*/, InputTileCols, layout::NCHW::input_layout>;
-  using Filter = FilterTile<T, 1/*ChannelVectorWidth*/, ChannelVectorWidth,
-                            WindowRows, WindowCols, layout::NCHW::filter_layout, conv_type::InputBackprop>;
-  using Output = OutputTile<T, ChannelVectorWidth, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
+  using Filter = FilterTile<T, OutTileChannels, 1, WindowRows, WindowCols, 
+                            layout::NCHW::filter_layout, conv_type::InputBackprop>;
+  using Output = OutputTile<T, OutTileChannels, OutTileRows, OutTileCols, layout::NCHW::input_layout>;
 
  public:
   TiledConv2D(ReadMem<T const, IsUSM> input, ReadMem<T const, IsUSM> filter,
@@ -594,7 +594,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
               n_tile_rows_, div_n_tile_cols_, n_tile_cols_);
       Index const col_idx = tensor_idx.s3 * OutTileCols;
       Index const row_idx = tensor_idx.s2 * OutTileRows;
-      Index const channel = tensor_idx.s1 * ChannelVectorWidth;
+      Index const channel = tensor_idx.s1 * OutTileChannels;
       Index const batch = tensor_idx.s0;
 
       const auto col_window =
@@ -669,7 +669,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
         auto const shifted_filter_col = filter_col + first_col;
         if (shifted_filter_col < WindowCols) {
           SNN_PRAGMA_UNROLL
-          for (int channel = 0; channel < ChannelVectorWidth; ++channel) {
+          for (int channel = 0; channel < OutTileChannels; ++channel) {
             output.data(channel, out_row, out_col) =
                 helpers::math::mad(input.data(in_offset),
                                    filter.data(channel, filter_row, shifted_filter_col),

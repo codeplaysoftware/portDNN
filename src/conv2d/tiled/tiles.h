@@ -40,24 +40,6 @@ namespace tiled {
 
 struct check_bounds_tag {};
 
-#if SNN_ENABLE_USM
-#define MULTI_PTR_TEMPLATE_DECL          \
-  cl::sycl::access::address_space Space, \
-      cl::sycl::access::decorated DecorateAddress
-#else
-#define MULTI_PTR_TEMPLATE_DECL cl::sycl::access::address_space Space
-#endif  // SNN_ENABLE_USM
-
-#if SNN_ENABLE_USM
-#define MULTI_PTR_TEMPLATE Space, DecorateAddress
-#else
-#define MULTI_PTR_TEMPLATE Space
-#endif  // SNN_ENABLE_USM
-
-// TODO(joeatodd) can we rename ChannelVector to Vector & generalize it to
-// vectorizing the smallest dimension?
-// If we do that, the template params Width and VectorWidth are no longer
-// independent
 /** A 1 x Width row from the input tensor. */
 template <typename T, int VectorWidth, int Width, DataFormat Layout>
 struct InputRow;
@@ -116,21 +98,11 @@ struct InputRow<T, ChannelVector, Width, DataFormat::NHWC> final
   }
 };
 
-// TODO(joeatodd) move this
-// Vectorize load/store
-constexpr int getDivisor(const int numerator){
-    if (numerator % 16 == 0U){ return 16;}
-    else if(numerator % 8 == 0U){return 8;}
-    else if(numerator % 4 == 0U){return 4;}
-    else if(numerator % 2 == 0U){return 2;}
-    else {return 1;}
-}
-
 template <typename T, int Dummy, int Width>
 struct InputRow<T, Dummy, Width, DataFormat::NCHW> final
     : public helpers::RegisterTile1D<T, Width> {
  private:
-  static constexpr int VectorWidth = getDivisor(Width);
+  static constexpr int VectorWidth = helpers::io::get_vec_size(Width);
   static_assert(Width % VectorWidth == 0 && "Bad tile width/vector width combination.");
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
   static constexpr auto NumVecElems = Width / VectorWidth;
@@ -233,35 +205,46 @@ struct FilterTile<T, ChannelVector, FeatureVector, WindowRows, WindowCols,
 
 };
 
-/** FCHW: A 3D tile (WindowRows x WindowCols/ColVectorWidth x 1)
+/** FCHW: A 3D tile (SliceCount x WindowRows x WindowCols/ColVectorWidth)
  *  from the filter tensor, composed of sycl::vec<T,ColVectorWidth> elements.
- *  The redundant 3rd dimension remains in case, in future, we want the option
- *  to load  the filter for every channel at once.
+ *  SliceCount is either FeatureCount (Forward) or ChannelCount (InputBackprop)
+ *  and enables a thread to process multiple features xor channels. Note that since
+ *  format is FCHW, load vectorization is done opportunistically along the row dimension
+ *  if WindowCols is a multiple of a sycl::vec type.
  */
-template <typename T, int FeatureVector, int WindowRows, int WindowCols, typename ConvType>
-struct FilterTile<T, 1, FeatureVector, WindowRows, WindowCols,
+template <typename T, int ChannelCount, int FeatureCount, int WindowRows, int WindowCols, typename ConvType>
+struct FilterTile<T, ChannelCount, FeatureCount, WindowRows, WindowCols,
                   FilterFormat::FCHW, ConvType>
-    : public helpers::RegisterTile3D<T, FeatureVector, WindowRows, WindowCols> {
+    : public helpers::RegisterTile3D<T, std::is_same_v<ConvType, conv_type::Forward>
+                                       ? FeatureCount
+                                       : ChannelCount, WindowRows, WindowCols> {
+ private:
   static_assert(std::is_same_v<ConvType, conv_type::Forward> ||
                 std::is_same_v<ConvType, conv_type::InputBackprop>);
- private:
-  static constexpr int VectorWidth = getDivisor(WindowCols);
+  static_assert(!std::is_same_v<ConvType, conv_type::Forward> ||
+                ChannelCount == 1);
+  static_assert(!std::is_same_v<ConvType, conv_type::InputBackprop> ||
+                FeatureCount == 1);
+  static constexpr int SliceCount = std::is_same_v<ConvType, conv_type::Forward>
+                                       ? FeatureCount
+                                       : ChannelCount;
+  static constexpr int VectorWidth = helpers::io::get_vec_size(WindowCols);
   static_assert(WindowCols % VectorWidth == 0 && "Bad tile width/vector width combination.");
   static constexpr auto NumVecElems = WindowCols / VectorWidth;
 
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;
  public:
-  using helpers::RegisterTile3D<T, FeatureVector, WindowRows, WindowCols>::data;
+  using helpers::RegisterTile3D<T, SliceCount, WindowRows, WindowCols>::data;
 
   template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   SNN_ALWAYS_INLINE FilterTile(
       cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
       Index const offset, Index const n_channels, Index const n_features) {
     SNN_UNUSED_VAR(n_features);
-    Index feat_idx = offset;
+    Index slice_idx = offset;
     SNN_PRAGMA_UNROLL
-    for (int feat = 0; feat < FeatureVector; ++feat) {
-      Index row_idx = feat_idx;
+    for (int slice = 0; slice < SliceCount; ++slice) {
+      Index row_idx = slice_idx;
       SNN_PRAGMA_UNROLL
       for (int i = 0; i < WindowRows; ++i) {
         Index col_idx = row_idx;
@@ -270,20 +253,20 @@ struct FilterTile<T, 1, FeatureVector, WindowRows, WindowCols,
           if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
             VecType filter_vals = helpers::io::Load<VecType>()(input, col_idx);
             for (int v = 0; v < VectorWidth; ++v){
-              data(feat, WindowRows - 1 - i, WindowCols - 1 - j - v) =
+              data(slice, WindowRows - 1 - i, WindowCols - 1 - j - v) =
                 helpers::vector_element::get(filter_vals, v);
             }
           }else{
-            *reinterpret_cast<VecType*>(&data(feat, i, j)) = helpers::io::Load<VecType>()(input, col_idx);
+            *reinterpret_cast<VecType*>(&data(slice, i, j)) = helpers::io::Load<VecType>()(input, col_idx);
           }
           col_idx += VectorWidth;
         }
         row_idx += WindowCols;
       }
       if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
-        feat_idx += WindowRows * WindowCols;
+        slice_idx += WindowRows * WindowCols; // Next channel
       }else{
-        feat_idx += n_channels * WindowRows * WindowCols;
+        slice_idx += n_channels * WindowRows * WindowCols; // Next feature
       }
 
     }
@@ -378,7 +361,7 @@ struct OutputTile<T, OutFeatures, OutTileRows, OutTileCols, DataFormat::NCHW>
                 T, OutFeatures, OutTileRows,
                 OutTileCols> {
  private:
-  static constexpr int VectorWidth = getDivisor(OutTileCols);
+  static constexpr int VectorWidth = helpers::io::get_vec_size(OutTileCols);
   static_assert(OutTileCols % VectorWidth == 0);
   static constexpr auto NumVecElems = OutTileCols / VectorWidth;
   using VecType = typename helpers::VectorType<T, VectorWidth>::type;

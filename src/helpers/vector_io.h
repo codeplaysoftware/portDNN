@@ -75,6 +75,19 @@ cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> as_const_ptr(
 namespace io {
 
 /**
+ * Helper function to return size of largest sycl::vec type which
+ * cleanly divides the given numerator. Note that sycl::vec<T,3> is omitted
+ * due to alignment issues.
+ */
+constexpr int get_vec_size(const int numerator){
+    std::array<int, 5> divisors{16, 8, 4, 2, 1};
+    for(auto div : divisors) 
+        if(numerator % div == 0)
+            return div;
+    SNN_UNREACHABLE;
+}
+
+/**
  * Identifier function to mark an index as a vector index, rather than a scalar
  * index. When used in a Load or Store operation these will use strides of
  * vector size, rather than strides of scalar size to compute offsets from the
