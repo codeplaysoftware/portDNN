@@ -280,7 +280,7 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
       Index filter_offset = feature * WindowRows * WindowCols * channels_;
       Index input_channel_offset = batch * in_cols_ * in_rows_ * channels_;
       for (Index channel = 0; channel < channels_; ++channel) {
-        Filter filter_tile{filter_data, filter_offset, channels_, features_}; // TODO(joeatodd) channels_, features_ unused args
+        Filter filter_tile{filter_data, filter_offset, channels_};
 
         Index input_offset =
             input_channel_offset + in_cols_ * in_rows_ * channel + rstart * in_cols_;
@@ -292,7 +292,6 @@ struct TiledConv2D<T, Index, conv_type::Forward, OutTileRows, OutTileCols,
           }
           input_offset += in_cols_;
         }
-        // input_channel_offset += ChannelVectorWidth;
         filter_offset += WindowRows * WindowCols;
       }
       out_tile.write_out(output_data, batch, row_idx, out_rows_, col_idx,
@@ -611,7 +610,7 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
       Index filter_offset = channel * WindowRows * WindowCols;
       Index input_feat_offset = batch * out_cols_ * out_rows_ * features_;
       for (Index feature = 0; feature < features_; ++feature) {
-        Filter filter_tile{filter_data, filter_offset, channels_, features_};
+        Filter filter_tile{filter_data, filter_offset, channels_};
 
         Index input_offset = input_feat_offset +
                              out_cols_ * out_rows_ * feature +
@@ -626,7 +625,6 @@ struct TiledConv2D<T, Index, conv_type::InputBackprop, OutTileRows, OutTileCols,
           }
           input_offset += out_cols_;
         }
-        // input_feat_offset += 1/*FeatureVectorWidth*/;
         filter_offset += channels_ * WindowRows * WindowCols/*FeatureVectorWidth*/;
       }
       out_tile.write_out(output_data, batch, row_idx, in_rows_, col_idx,

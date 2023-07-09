@@ -239,8 +239,7 @@ struct FilterTile<T, ChannelCount, FeatureCount, WindowRows, WindowCols,
   template <typename Index, MULTI_PTR_TEMPLATE_DECL>
   SNN_ALWAYS_INLINE FilterTile(
       cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> input,
-      Index const offset, Index const n_channels, Index const n_features) {
-    SNN_UNUSED_VAR(n_features);
+      Index const offset, Index const n_channels) {
     Index slice_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int slice = 0; slice < SliceCount; ++slice) {
