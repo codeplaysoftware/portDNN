@@ -292,18 +292,19 @@ struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NHWC> fi
       cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
       Index const out_row, Index const n_rows, Index const out_col,
       Index const n_cols, Index const feature, Index const n_features) {
+    // Check range bounds
     if (out_row + OutTileRows < n_rows && out_col + OutTileCols < n_cols) {
-      write_out_no_check(output, batch, out_row, n_rows, out_col, n_cols,
+      write_out_impl<false>(output, batch, out_row, n_rows, out_col, n_cols,
                          feature, n_features);
     } else {
-      write_out_checked(output, batch, out_row, n_rows, out_col, n_cols,
+      write_out_impl<true>(output, batch, out_row, n_rows, out_col, n_cols,
                         feature, n_features);
     }
   }
 
  private:
-  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
-  void SNN_ALWAYS_INLINE write_out_checked(
+  template <bool CheckRange, typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE write_out_impl(
       cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
       Index const out_row, Index const n_rows, Index const out_col,
       Index const n_cols, Index const feature, Index const n_features) {
@@ -313,11 +314,11 @@ struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NHWC> fi
     Index row_idx = offset;
     SNN_PRAGMA_UNROLL
     for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
-      if (tile_row < n_rows - out_row) {
+      if (!CheckRange || tile_row < n_rows - out_row) {
         Index idx = row_idx;
         SNN_PRAGMA_UNROLL
         for (int tile_col = 0; tile_col < OutTileCols; ++tile_col) {
-          if (tile_col < n_cols - out_col) {
+          if (!CheckRange || tile_col < n_cols - out_col) {
             helpers::io::Store<VecType>()(output, idx,
                                           data(tile_row, tile_col));
             idx += n_features;
@@ -325,27 +326,6 @@ struct OutputTile<T, VectorWidth, OutTileRows, OutTileCols, DataFormat::NHWC> fi
         }
         row_idx += n_cols * n_features;
       }
-    }
-  }
-
-  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
-  void SNN_ALWAYS_INLINE write_out_no_check(
-      cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
-      Index const out_row, Index const n_rows, Index const out_col,
-      Index const n_cols, Index const feature, Index const n_features) {
-    Index const offset =
-        ((batch * n_rows + out_row) * n_cols + out_col) * n_features + feature;
-
-    Index row_idx = offset;
-    SNN_PRAGMA_UNROLL
-    for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
-      Index idx = row_idx;
-      SNN_PRAGMA_UNROLL
-      for (int tile_col = 0; tile_col < OutTileCols; ++tile_col) {
-        helpers::io::Store<VecType>()(output, idx, data(tile_row, tile_col));
-        idx += n_features;
-      }
-      row_idx += n_cols * n_features;
     }
   }
 };
@@ -372,18 +352,19 @@ struct OutputTile<T, OutFeatures, OutTileRows, OutTileCols, DataFormat::NCHW>
       cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
       Index const out_row, Index const n_rows, Index const out_col,
       Index const n_cols, Index const feature, Index const n_features) {
+    // Check range bounds
     if (out_row + OutTileRows < n_rows && out_col + OutTileCols < n_cols) {
-      write_out_no_check(output, batch, out_row, n_rows, out_col, n_cols,
+      write_out_impl<false>(output, batch, out_row, n_rows, out_col, n_cols,
                          feature, n_features);
     } else {
-      write_out_checked(output, batch, out_row, n_rows, out_col, n_cols,
+      write_out_impl<true>(output, batch, out_row, n_rows, out_col, n_cols,
                         feature, n_features);
     }
   }
 
  private:
-  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
-  void SNN_ALWAYS_INLINE write_out_checked(
+  template <bool CheckRange, typename Index, MULTI_PTR_TEMPLATE_DECL>
+  void SNN_ALWAYS_INLINE write_out_impl(
       cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
       Index const out_row, Index const n_rows, Index const out_col,
       Index const n_cols, Index const feature, Index const n_features) {
@@ -397,44 +378,17 @@ struct OutputTile<T, OutFeatures, OutTileRows, OutTileCols, DataFormat::NCHW>
       Index row_idx = feat_idx;
       SNN_PRAGMA_UNROLL
       for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
-        if (tile_row < n_rows - out_row) {
+        if (!CheckRange || tile_row < n_rows - out_row) {
           Index idx = row_idx;
           SNN_PRAGMA_UNROLL
           for (int i = 0; i < OutTileCols; ++i) {
-            if (i < n_cols - out_col) {
+            if (!CheckRange || i < n_cols - out_col) {
               helpers::io::Store<sycl::vec<T,1>>()(output, idx, data(tile_feature, tile_row, i));
               ++idx;
             }
           }
           row_idx += n_cols;
         }
-      }
-      feat_idx += n_rows * n_cols;
-    }
-  }
-
-  template <typename Index, MULTI_PTR_TEMPLATE_DECL>
-  void SNN_ALWAYS_INLINE write_out_no_check(
-      cl::sycl::multi_ptr<T, MULTI_PTR_TEMPLATE> output, Index const batch,
-      Index const out_row, Index const n_rows, Index const out_col,
-      Index const n_cols, Index const feature, Index const n_features) {
-
-    Index const offset = batch * n_rows * n_cols * n_features +
-                         feature * n_rows * n_cols + out_row * n_cols + out_col;
-    //TODO(joeatodd) feature range check
-    Index feat_idx = offset;
-    SNN_PRAGMA_UNROLL
-    for (int tile_feature = 0; tile_feature < OutFeatures; ++tile_feature) {
-      Index row_idx = feat_idx;
-      SNN_PRAGMA_UNROLL
-      for (int tile_row = 0; tile_row < OutTileRows; ++tile_row) {
-        Index idx = row_idx;
-        SNN_PRAGMA_UNROLL
-        for (int i = 0; i < OutTileCols; i+=VectorWidth) {
-          helpers::io::Store<VecType>()(output, idx, *reinterpret_cast<VecType*>(&data(tile_feature, tile_row, i)));
-          idx += VectorWidth;
-        }
-        row_idx += n_cols;
       }
       feat_idx += n_rows * n_cols;
     }
