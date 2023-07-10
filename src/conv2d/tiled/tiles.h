@@ -134,7 +134,10 @@ struct InputRow<T, Dummy, Width, DataFormat::NCHW> final
     Index idx = offset + col;
     SNN_PRAGMA_UNROLL
     for (int i = 0; i < Width; i+=VectorWidth) {
-      *reinterpret_cast<VecType*>(&data(i)) = helpers::io::Load<VecType>()(input, idx);
+      VecType input_vals = helpers::io::Load<VecType>()(input, idx);
+      for (int v = 0; v < VectorWidth; ++v){
+        data(i + v) = helpers::vector_element::get(input_vals, v);
+      }
       idx += VectorWidth;
     }
   }
@@ -249,14 +252,15 @@ struct FilterTile<T, ChannelCount, FeatureCount, WindowRows, WindowCols,
         Index col_idx = row_idx;
         SNN_PRAGMA_UNROLL
         for (int j = 0; j < WindowCols; j+=VectorWidth) {
-          if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
-            VecType filter_vals = helpers::io::Load<VecType>()(input, col_idx);
-            for (int v = 0; v < VectorWidth; ++v){
-              data(slice, WindowRows - 1 - i, WindowCols - 1 - j - v) =
+          VecType filter_vals = helpers::io::Load<VecType>()(input, col_idx);
+          for (int v = 0; v < VectorWidth; ++v){
+            if constexpr(std::is_same_v<ConvType, conv_type::InputBackprop>){
+              data(slice, WindowRows - 1 - i, WindowCols - 1 - j - v) = 
+                helpers::vector_element::get(filter_vals, v);
+            }else{
+              data(slice, i, j + v) =
                 helpers::vector_element::get(filter_vals, v);
             }
-          }else{
-            *reinterpret_cast<VecType*>(&data(slice, i, j)) = helpers::io::Load<VecType>()(input, col_idx);
           }
           col_idx += VectorWidth;
         }
