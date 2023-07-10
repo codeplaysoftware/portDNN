@@ -167,6 +167,23 @@ function(instantiate_tiled_conv)
               instantiate_tiled_conv_impl(_sources 1 1 2 2 1 1)
               instantiate_tiled_conv_impl(_sources 1 2 2 2 1 1)
             else() # NCHW
+              # TODO(joeatodd) pick instantiations based on internal bench
+              instantiate_tiled_conv_impl(_sources 1 2 1 2 1 4)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 4)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 4)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 4)
+              instantiate_tiled_conv_impl(_sources 5 1 2 4 1 4)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 4)
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 4)
+
+              instantiate_tiled_conv_impl(_sources 1 2 1 2 1 3)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 3)
+              instantiate_tiled_conv_impl(_sources 3 1 3 4 1 3)
+              instantiate_tiled_conv_impl(_sources 3 2 2 2 1 3)
+              instantiate_tiled_conv_impl(_sources 5 1 2 4 1 3)
+              instantiate_tiled_conv_impl(_sources 1 1 2 2 1 3)
+              instantiate_tiled_conv_impl(_sources 1 2 2 2 1 3)
+
               instantiate_tiled_conv_impl(_sources 1 2 1 2 1 2)
               instantiate_tiled_conv_impl(_sources 3 2 2 2 1 2)
               instantiate_tiled_conv_impl(_sources 3 1 3 4 1 2)

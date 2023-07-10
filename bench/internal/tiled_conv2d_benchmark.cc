@@ -329,12 +329,12 @@ BENCH_BASE(Forward, sycldnn::conv2d::conv_type::Forward, 3, 3, 1);
                          window_row, window_col, stride)                \
   PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 1, fast_div,  \
                   window_row, window_col, stride)                       \
-  // PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 2, 1, fast_div,  \
-  //                 window_row, window_col, stride)                       \
-  // PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 4, 1, fast_div,  \
-  //                 window_row, window_col, stride)                       \
-  // PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 8, 1, fast_div,  \
-  //                 window_row, window_col, stride)                       \
+  PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 2, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 3, fast_div,  \
+                  window_row, window_col, stride)                       \
+  PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 4, fast_div,  \
+                  window_row, window_col, stride)                       \
 
 #define BENCH_WITH_FAST_DIV_NCHW(name, direction, fast_div, window_row, window_col, \
                             stride)                                            \
