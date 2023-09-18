@@ -16,30 +16,30 @@
 #include "snn_fixture.h"
 
 #ifdef SNN_BENCH_EIGEN
+#include "portdnn/backend/eigen_backend.h"
 #include "src/backend/eigen_backend_provider.h"
-#include "sycldnn/backend/eigen_backend.h"
 #endif  // SNN_BENCH_EIGEN
 
 #ifdef SNN_BENCH_SYCLBLAS
+#include "portdnn/backend/sycl_blas_backend.h"
 #include "src/backend/syclblas_backend_provider.h"
-#include "sycldnn/backend/sycl_blas_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
 #ifdef SNN_BENCH_CLBLAST
+#include "portdnn/backend/clblast_backend.h"
 #include "src/backend/clblast_backend_provider.h"
-#include "sycldnn/backend/clblast_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
+#include "portdnn/backend/snn_backend.h"
 #include "src/backend/snn_backend_provider.h"
-#include "sycldnn/backend/snn_backend.h"
 
-#include "sycldnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/conv_type.h"
 
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/im2col_selector.h"
-#include "sycldnn/conv2d/selector/matmul_selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-#include "sycldnn/conv2d/selector/winograd_selector.h"
+#include "portdnn/conv2d/selector/direct_selector.h"
+#include "portdnn/conv2d/selector/im2col_selector.h"
+#include "portdnn/conv2d/selector/matmul_selector.h"
+#include "portdnn/conv2d/selector/tiled_selector.h"
+#include "portdnn/conv2d/selector/winograd_selector.h"
 
 #define BM_WITH_ALGO_DIR_BACK_DTYPE(ALGO, DIR, BACK, DTYPE)                   \
   CONVOLUTION_BENCHMARK(ALGO##_##DIR##_##BACK, sycldnn::backend::BACK, DTYPE, \

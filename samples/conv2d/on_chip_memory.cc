@@ -19,7 +19,7 @@
  * A sample containing benchmarks of convolutions to compare performance when
  * using on chip memory and when just using global memory.
  *
- * Both benchmarks run the same convolution using two different SYCL-DNN
+ * Both benchmarks run the same convolution using two different portDNN
  * kernels:
  *   a) Direct is a naive convolution implementation
  *   b) Tiled is a more complex implementation which introduces data re-use
@@ -59,16 +59,16 @@
 // relevant Eigen header.
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend.h"
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-#include "sycldnn/conv2d/sizes.h"
-#include "sycldnn/conv2d/workspace_size.h"
-#include "sycldnn/status.h"
+#include "portdnn/backend/eigen_backend.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/launch.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/selector/direct_selector.h"
+#include "portdnn/conv2d/selector/selector.h"
+#include "portdnn/conv2d/selector/tiled_selector.h"
+#include "portdnn/conv2d/sizes.h"
+#include "portdnn/conv2d/workspace_size.h"
+#include "portdnn/status.h"
 
 // Include the codeplay specific onchip_memory buffer property
 #include <SYCL/codeplay.hpp>

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_MATMUL_BENCHMARK_PARAMS_H_
-#define SYCLDNN_BENCH_MATMUL_BENCHMARK_PARAMS_H_
+#ifndef PORTDNN_BENCH_MATMUL_BENCHMARK_PARAMS_H_
+#define PORTDNN_BENCH_MATMUL_BENCHMARK_PARAMS_H_
 
 #include <benchmark/benchmark.h>
 
@@ -66,4 +66,4 @@ inline MatmulParams deserialize(benchmark::State const& state) {
 
 }  // namespace matmul_benchmark_params
 
-#endif  // SYCLDNN_BENCH_MATMUL_BENCHMARK_PARAMS_H_
+#endif  // PORTDNN_BENCH_MATMUL_BENCHMARK_PARAMS_H_

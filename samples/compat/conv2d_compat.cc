@@ -19,8 +19,8 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/backend/snn_backend.h"
-#include "sycldnn/compat/convolution.hpp"
+#include "portdnn/backend/snn_backend.h"
+#include "portdnn/compat/convolution.hpp"
 
 #include <cstdlib>
 #include <iomanip>

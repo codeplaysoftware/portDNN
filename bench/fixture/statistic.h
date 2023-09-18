@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_FIXTURE_STATISTIC_H_
-#define SYCLDNN_BENCH_FIXTURE_STATISTIC_H_
+#ifndef PORTDNN_BENCH_FIXTURE_STATISTIC_H_
+#define PORTDNN_BENCH_FIXTURE_STATISTIC_H_
 
 #include <benchmark/benchmark.h>
 
@@ -138,4 +138,4 @@ struct StdDevStatistic final : Statistic {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_FIXTURE_STATISTIC_H_
+#endif  // PORTDNN_BENCH_FIXTURE_STATISTIC_H_

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_BINARYOP_QUEUE_IMPL_H_
-#define SYCLDNN_SRC_BINARYOP_QUEUE_IMPL_H_
+#ifndef PORTDNN_SRC_BINARYOP_QUEUE_IMPL_H_
+#define PORTDNN_SRC_BINARYOP_QUEUE_IMPL_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
+#include "portdnn/helpers/dims.h"
 #include "src/binaryop/queue_binaryop_kernel.h"
-#include "sycldnn/helpers/dims.h"
 
 #include <CL/sycl.hpp>
 
@@ -53,4 +53,4 @@ SNNStatus queue_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
 }  // namespace binaryop
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_BINARYOP_QUEUE_IMPL_H_
+#endif  // PORTDNN_SRC_BINARYOP_QUEUE_IMPL_H_

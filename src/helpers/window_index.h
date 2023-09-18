@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_HELPERS_WINDOW_INDEX_H_
-#define SYCLDNN_SRC_HELPERS_WINDOW_INDEX_H_
+#ifndef PORTDNN_SRC_HELPERS_WINDOW_INDEX_H_
+#define PORTDNN_SRC_HELPERS_WINDOW_INDEX_H_
 
-#include "sycldnn/helpers/macros.h"
-#include "sycldnn/helpers/non_deduced_type.h"
-#include "sycldnn/helpers/ratio.h"
+#include "portdnn/helpers/macros.h"
+#include "portdnn/helpers/non_deduced_type.h"
+#include "portdnn/helpers/ratio.h"
 
 namespace sycldnn {
 namespace helpers {
@@ -71,4 +71,4 @@ inline SNN_ALWAYS_INLINE WindowIndices<Index> out_window_from_input(
 }
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_HELPERS_WINDOW_INDEX_H_
+#endif  // PORTDNN_SRC_HELPERS_WINDOW_INDEX_H_

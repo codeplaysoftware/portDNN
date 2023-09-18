@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
-#define SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
+#ifndef PORTDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
+#define PORTDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
 
 #include <algorithm>
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/depthwise_conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/depthwise_conv2d/params.h"
 
 namespace sycldnn {
 namespace depthwise_conv2d {
@@ -52,4 +52,4 @@ get_kernel_params<conv2d::conv_type::FilterBackprop>(
 }  // namespace depthwise_conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_
+#endif  // PORTDNN_SRC_DEPTHWISE_CONV2D_KERNEL_PARAMS_H_

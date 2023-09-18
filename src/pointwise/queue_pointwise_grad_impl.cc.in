@@ -21,8 +21,8 @@
 #define SNN_WIDTH      @VECTOR_WIDTH@
 // clang-format on
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/operators.h"
 
 #include "src/pointwise/queue_pointwise_grad_impl.h"
 

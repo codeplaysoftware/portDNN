@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "sycldnn/internal/gather/launch.h"
+#include "portdnn/internal/gather/launch.h"
 #include "src/gather/queue_kernel.h"
 
 namespace sycldnn {

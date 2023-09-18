@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
 #include "src/scatter_nd/queue_scatter_nd_kernel_impl.h"
 
-#include "sycldnn/scatter_nd/operators.h"
-#include "sycldnn/scatter_nd/sizes.h"
+#include "portdnn/scatter_nd/operators.h"
+#include "portdnn/scatter_nd/sizes.h"
 
 // clang-format off
 #define SNN_DATA_TYPE        @DATA_TYPE@

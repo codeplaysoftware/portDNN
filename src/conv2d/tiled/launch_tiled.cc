@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/internal/conv2d/tiled.h"
+#include "portdnn/internal/conv2d/tiled.h"
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/helpers/ratio.h"
+#include "portdnn/helpers/ratio.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
 #include "src/conv2d/tiled/queue_tiled_kernel.h"
@@ -34,7 +34,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/export.h"
+#include "portdnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {

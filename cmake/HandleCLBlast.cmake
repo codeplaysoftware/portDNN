@@ -30,8 +30,8 @@ if(NOT CLBlast_FOUND AND (SNN_DOWNLOAD_CLBLAST OR SNN_DOWNLOAD_MISSING_DEPS))
   set(CLBlast_GIT_TAG "8433985" CACHE STRING
     "Git tag, branch or commit to use for the CLBlast library"
   )
-  set(CLBlast_SOURCE_DIR ${sycldnn_BINARY_DIR}/CLBlast-src)
-  set(CLBlast_BINARY_DIR ${sycldnn_BINARY_DIR}/CLBlast-build)
+  set(CLBlast_SOURCE_DIR ${portdnn_BINARY_DIR}/CLBlast-src)
+  set(CLBlast_BINARY_DIR ${portdnn_BINARY_DIR}/CLBlast-build)
   set(CLBlast_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}clblast${CMAKE_STATIC_LIBRARY_SUFFIX})
   set(CLBlast_LIBRARIES ${CLBlast_BINARY_DIR}/${CLBlast_LIBNAME})
   set(CLBlast_BYPRODUCTS ${CLBlast_LIBRARIES})

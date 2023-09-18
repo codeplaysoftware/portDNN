@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_SCATTER_ND_HELPERS_H_
-#define SYCLDNN_SRC_SCATTER_ND_HELPERS_H_
-#include "sycldnn/helpers/macros.h"
+#ifndef PORTDNN_SRC_SCATTER_ND_HELPERS_H_
+#define PORTDNN_SRC_SCATTER_ND_HELPERS_H_
+#include "portdnn/helpers/macros.h"
 
 namespace sycldnn {
 namespace scatter_nd {
@@ -264,4 +264,4 @@ SNN_ALWAYS_INLINE IType IndexHelper<4>::operator()(MultiPtr index_ptr,
 #undef SNN_BOUNDS_CHECK
 }  // namespace scatter_nd
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_SCATTER_ND_HELPERS_H_
+#endif  // PORTDNN_SRC_SCATTER_ND_HELPERS_H_

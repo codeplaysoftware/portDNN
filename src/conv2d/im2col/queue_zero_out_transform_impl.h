@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
-#define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
+#ifndef PORTDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
+#define PORTDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/helpers/ratio.h"
+#include "portdnn/helpers/ratio.h"
 
 #include "src/conv2d/im2col/kernels/zero_out.h"
 #include "src/conv2d/im2col/queue_zero_out_transform.h"
@@ -60,4 +60,4 @@ SNNStatus queue_zero_out_transform(MemObj<T>& output_mem, size_t n_tiles,
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_
+#endif  // PORTDNN_SRC_CONV2D_IM2COL_QUEUE_ZERO_OUT_TRANSFORM_IMPL_H_

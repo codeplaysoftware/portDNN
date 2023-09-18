@@ -39,7 +39,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
   ARGS
     ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
   WORKING_DIRECTORY
-    ${sycldnn_SOURCE_DIR}
+    ${portdnn_SOURCE_DIR}
   DEPENDS
     ${DOC_SOURCES}
   COMMENT
@@ -54,4 +54,3 @@ add_custom_target(doc ALL
     "Building API documentation with Doxygen"
   VERBATIM
 )
-

@@ -32,8 +32,8 @@ if(NOT sycl_blas_FOUND AND (SNN_DOWNLOAD_SYCLBLAS OR SNN_DOWNLOAD_MISSING_DEPS))
   set(sycl_blas_GIT_TAG "ba739c7" CACHE STRING
     "Git tag, branch or commit to use for the sycl_blas library"
   )
-  set(sycl_blas_SOURCE_DIR ${sycldnn_BINARY_DIR}/sycl_blas-src)
-  set(sycl_blas_BINARY_DIR ${sycldnn_BINARY_DIR}/sycl_blas-build)
+  set(sycl_blas_SOURCE_DIR ${portdnn_BINARY_DIR}/sycl_blas-src)
+  set(sycl_blas_BINARY_DIR ${portdnn_BINARY_DIR}/sycl_blas-build)
   set(sycl_blas_LIBNAME ${CMAKE_SHARED_LIBRARY_PREFIX}sycl_blas${CMAKE_SHARED_LIBRARY_SUFFIX})
   set(sycl_blas_LIBRARY ${sycl_blas_BINARY_DIR}/${sycl_blas_LIBNAME})
   set(sycl_blas_BYPRODUCTS ${sycl_blas_LIBRARY})

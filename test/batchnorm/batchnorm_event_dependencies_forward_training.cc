@@ -20,10 +20,10 @@
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/data_format.h"
+#include "portdnn/data_format.h"
 
-#include "sycldnn/batchnorm/direction.h"
-#include "sycldnn/batchnorm/params.h"
+#include "portdnn/batchnorm/direction.h"
+#include "portdnn/batchnorm/params.h"
 
 #include "test/batchnorm/batchnorm_event_dependencies_fixture.h"
 #include "test/types/cartesian_product.h"

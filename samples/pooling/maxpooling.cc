@@ -23,11 +23,11 @@
 
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend.h"
-#include "sycldnn/pooling/launch.h"
-#include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
-#include "sycldnn/status.h"
+#include "portdnn/backend/eigen_backend.h"
+#include "portdnn/pooling/launch.h"
+#include "portdnn/pooling/operators.h"
+#include "portdnn/pooling/params.h"
+#include "portdnn/status.h"
 
 int main() {
   /* Default selectors behave in an implementation-defined manner, but will

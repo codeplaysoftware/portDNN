@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
-#define SYCLDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
+#ifndef PORTDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
+#define PORTDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
 
 #include <limits>
 #include <type_traits>
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
 #include "src/helpers/math.h"
 #include "src/reduce/default_kernel.h"
 #include "src/reduce/queue_reduction.h"
 
-#include "sycldnn/helpers/mem_utils.h"
+#include "portdnn/helpers/mem_utils.h"
 
 #ifndef SNN_DISABLE_SYCL_PROGRAM
 #include "src/reduce/subgroup_kernel.h"
@@ -206,4 +206,4 @@ SNNStatus queue_subgroup_kernel(
 }  // namespace internal
 }  // namespace reduce
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_
+#endif  // PORTDNN_SRC_REDUCE_QUEUE_REDUCTION_IMPL_H_

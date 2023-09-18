@@ -1,18 +1,18 @@
-# The SYCL-DNN neural network acceleration library
+# The portDNN neural network acceleration library
 
 ## Table of Contents
 
   * [Supported Platforms](#supported-platforms)
-  * [Getting Started with SYCL-DNN](#getting-started-with-sycl-dnn)
+  * [Getting Started with portDNN](#getting-started-with-portDNN)
   * [Support](#support)
   * [Cross-compilation with ComputeCpp](#cross-compilation-with-computecpp)
   * [Contributions](#contributions)
   * [Citation](#citation)
 
-SYCL-DNN is a library implementing various neural network algorithms such as
+portDNN is a library implementing various neural network algorithms such as
 pooling and convolution written using SYCL and C++.
 
-SYCL-DNN currently supports the following operations:
+portDNN currently supports the following operations:
 
 * 2D convolutions
 * 2D depthwise convolutions
@@ -26,15 +26,15 @@ The project is maintained by [Codeplay Software][codeplay developer].
 
 ## Supported Platforms
 
-The master branch of SYCL-DNN is regularly tested with the "Supported" hardware
+The master branch of portDNN is regularly tested with the "Supported" hardware
 listed on [the ComputeCpp Supported Platforms page][supported platforms].
-SYCL-DNN may also work on other hardware and platforms assuming they implement
-SPIR or SPIR-V support. SYCL-DNN is primarily tested on Ubuntu 16.04 LTS with
-the corresponding default package versions. SYCL-DNN will generally match the
+portDNN may also work on other hardware and platforms assuming they implement
+SPIR or SPIR-V support. portDNN is primarily tested on Ubuntu 16.04 LTS with
+the corresponding default package versions. portDNN will generally match the
 most recently released ComputeCpp, though it is likely to be compatible with
 other versions. We test against the most recent version.
 
-## Getting Started with SYCL-DNN
+## Getting Started with portDNN
 
 ### Pre-requisites
 
@@ -47,20 +47,20 @@ other versions. We test against the most recent version.
 * Building documentation requires Doxygen and Graphviz/Dot. Tested
   against versions 1.8.11 and 2.38.0 respectively.
 
-### Building SYCL-DNN
+### Building portDNN
 
-SYCL-DNN uses CMake as its build system. There are provisions in the CMake
-files for downloading SYCL-DNN's dependencies automatically, for finding
-other dependencies and for selecting which bits of SYCL-DNN to build. All
+portDNN uses CMake as its build system. There are provisions in the CMake
+files for downloading portDNN's dependencies automatically, for finding
+other dependencies and for selecting which bits of portDNN to build. All
 these configuration options can be found in the main CMakeLists.txt for the
 project and will show up in the CMake GUI if you use it. By default, the
 tests and library will be built, but not the benchmarks.
 
 It is recommended to leave the option `SNN_DOWNLOAD_MISSING_DEPS` set to
 on. This will automatically download the source libraries necessary for
-SYCL-DNN to build and run (such as Google Test, Google benchmark and
+portDNN to build and run (such as Google Test, Google benchmark and
 the Eigen linear algebra library). Even if you already have these on your
-machine, downloading them as part of the SYCL-DNN means a more consistent
+machine, downloading them as part of the portDNN means a more consistent
 configuration.
 
 #### Building with ComputeCpp
@@ -71,16 +71,16 @@ where `bin/`, `lib/` etc. are. This should be the only argument that is
 mandatory, everything else should be optional. The default build type is
 Release, though this can be overridden.
 
-ComputeCpp with SYCL-DNN does not currently support USM. If you build with
+ComputeCpp with portDNN does not currently support USM. If you build with
 ComputeCpp you must disable USM support.
 
-The following command shows how to compile SYCL-DNN.
+The following command shows how to compile portDNN.
 
 ```bash
 # Setup build environment
 mkdir build && cd build
 cmake .. -DComputeCpp_DIR=/path/to/computecpp -DSNN_ENABLE_USM=OFF
-# Compile SYCL-DNN
+# Compile portDNN
 make -j$(nproc)
 ```
 
@@ -95,17 +95,17 @@ disable it with `-DSNN_ENABLE_USM=OFF`.
 ```bash
 mkdir build && cd build
 cmake .. -DCMAKE_CXX_COMPILER=/path/to/llvm/bin/clang++ -DSNN_BUILD_BENCHMARKS=OFF -DSNN_BENCH_SYCLBLAS=OFF 
-# Compile SYCL-DNN
+# Compile portDNN
 make -j$(nproc)
 ```
 
 ### Undefined reference linker errors
 
-SYCL-DNN exposes optional features (`double` and `half` data types, `NCHW` data format, USM support), 
+portDNN exposes optional features (`double` and `half` data types, `NCHW` data format, USM support), 
 that can be enabled and disabled when building the library.
 
-Attempting to use those feature in an application that links to a build of SYCL-DNN that doesn't support them may 
-cause `undefined reference` error at link time. Please ensure that your build of SYCL-DNN has the required features enabled.
+Attempting to use those feature in an application that links to a build of portDNN that doesn't support them may 
+cause `undefined reference` error at link time. Please ensure that your build of portDNN has the required features enabled.
 
 You can refer to [OPTIONS.md](docs/OPTIONS.md) for a full list of the supported CMake options.
 
@@ -114,12 +114,12 @@ You can refer to [OPTIONS.md](docs/OPTIONS.md) for a full list of the supported 
 ### Sample Code
 
 The "samples" directory contains sample code for the 2D convolution and pooling
-operations offered by SYCL-DNN. These binaries are compiled when building SYCL-DNN
+operations offered by portDNN. These binaries are compiled when building portDNN
 using CMake.
 
-### Running the SYCL-DNN Tests
+### Running the portDNN Tests
 
-The SYCL-DNN tests are compiled when building SYCL-DNN using CMake.
+The portDNN tests are compiled when building portDNN using CMake.
 The following command shows how to run the tests.
 
 ```bash
@@ -151,9 +151,9 @@ Please make sure that your bug report contains the following information:
 
 ## Cross-compilation with ComputeCpp
 
-SYCL-DNN supports cross-compilation targeting a number of devices. However,
+portDNN supports cross-compilation targeting a number of devices. However,
 because of the two-step compilation process used in ComputeCpp, standard
-CMake toolchain files won't provide enough information to SYCL-DNN's build
+CMake toolchain files won't provide enough information to portDNN's build
 scripts to work properly.
 
 To that end, two toolchains are available. The first, gcc-generic.cmake,
@@ -218,17 +218,17 @@ you would like to contribute code, build systems, bug fixes or similar.
 
 ## Citation
 
-If you use SYCL-DNN in your research, please cite the library as follows:
+If you use portDNN in your research, please cite the library as follows:
 
 > Rod Burns, John Lawson, Duncan McBain, and Daniel Soutar. 2019. *Accelerated
-> Neural Networks on OpenCL Devices Using SYCL-DNN.* In Proceedings of the
+> Neural Networks on OpenCL Devices Using portDNN.* In Proceedings of the
 > International Workshop on OpenCL (IWOCL'19). ACM, New York, NY, USA, Article
 > 10, 4 pages. DOI: https://doi.org/10.1145/3318170.3318183
 
 ```bibtex
 @inproceedings{Burns:2019:ANN:3318170.3318183,
  author = {Burns, Rod and Lawson, John and McBain, Duncan and Soutar, Daniel},
- title = {Accelerated Neural Networks on OpenCL Devices Using SYCL-DNN},
+ title = {Accelerated Neural Networks on OpenCL Devices Using portDNN},
  booktitle = {Proceedings of the International Workshop on OpenCL},
  series = {IWOCL'19},
  year = {2019},
@@ -247,6 +247,6 @@ If you use SYCL-DNN in your research, please cite the library as follows:
 ```
 
 [supported platforms]: https://developer.codeplay.com/products/computecpp/ce/guides/platform-support
-[issues]: https://github.com/codeplaysoftware/SYCL-DNN/issues
+[issues]: https://github.com/codeplaysoftware/portDNN/issues
 [ocl headers]: https://github.com/KhronosGroup/OpenCL-Headers
 [codeplay developer]: https://developer.codeplay.com

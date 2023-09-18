@@ -23,7 +23,7 @@
 #define SNN_LAYOUT        ${LAYOUT}
 // clang-format on
 
-#include "sycldnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/conv_type.h"
 
 #include "src/conv2d/direct/queue_direct_kernel_impl.h"
 

@@ -15,10 +15,10 @@
  */
 #include "src/pooling/queue_pooling_kernel_impl.h"
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/params.h"
 
 #include <CL/sycl.hpp>
 

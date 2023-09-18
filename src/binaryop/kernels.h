@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_BINARYOP_KERNELS_H_
-#define SYCLDNN_SRC_BINARYOP_KERNELS_H_
+#ifndef PORTDNN_SRC_BINARYOP_KERNELS_H_
+#define PORTDNN_SRC_BINARYOP_KERNELS_H_
 
 #include <CL/sycl.hpp>
 #include <array>
@@ -24,11 +24,11 @@
 #include "src/helpers/vector_io.h"
 #include "src/helpers/vector_type.h"
 
-#include "sycldnn/accessor_types.h"
+#include "portdnn/accessor_types.h"
 
-#include "sycldnn/binaryop/operators.h"
-#include "sycldnn/binaryop/params.h"
-#include "sycldnn/helpers/dims.h"
+#include "portdnn/binaryop/operators.h"
+#include "portdnn/binaryop/params.h"
+#include "portdnn/helpers/dims.h"
 
 namespace sycldnn {
 namespace binaryop {
@@ -350,4 +350,4 @@ class BinaryOpBcastRhsVec3D {
 }  // namespace binaryop
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_BINARYOP_KERNELS_H_
+#endif  // PORTDNN_SRC_BINARYOP_KERNELS_H_

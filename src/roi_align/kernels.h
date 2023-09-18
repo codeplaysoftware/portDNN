@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_ROI_ALIGN_KERNELS_H_
-#define SYCLDNN_SRC_ROI_ALIGN_KERNELS_H_
+#ifndef PORTDNN_SRC_ROI_ALIGN_KERNELS_H_
+#define PORTDNN_SRC_ROI_ALIGN_KERNELS_H_
 
 #include <CL/sycl.hpp>
 
@@ -24,11 +24,11 @@
 #include "src/helpers/vector_type.h"
 #include "src/roi_align/operators_impl.h"
 
-#include "sycldnn/accessor_types.h"
+#include "portdnn/accessor_types.h"
 
-#include "sycldnn/helpers/minmax.h"
+#include "portdnn/helpers/minmax.h"
 
-#include "sycldnn/roi_align/params.h"
+#include "portdnn/roi_align/params.h"
 
 namespace sycldnn {
 
@@ -195,4 +195,4 @@ class RoiAlignOp {
 }  // namespace roi_align
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_ROI_ALIGN_KERNELS_H_
+#endif  // PORTDNN_SRC_ROI_ALIGN_KERNELS_H_

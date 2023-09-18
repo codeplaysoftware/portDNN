@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_H_
-#define SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_H_
+#ifndef PORTDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_H_
+#define PORTDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/internal/conv2d/winograd/tile_info.h"
+#include "portdnn/internal/conv2d/winograd/tile_info.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -42,4 +42,4 @@ SNNStatus queue_input_transform(MemObj<T const>& input, MemObj<T>& in_transform,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_H_
+#endif  // PORTDNN_SRC_CONV2D_WINOGRAD_QUEUE_INPUT_TRANSFORM_H_

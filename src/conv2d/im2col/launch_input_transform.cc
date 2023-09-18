@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/internal/conv2d/im2col/launch_input_transform.h"
+#include "portdnn/internal/conv2d/im2col/launch_input_transform.h"
 
 #include "src/conv2d/im2col/queue_input_transform.h"
 #include "src/conv2d/im2col/queue_zero_out_transform.h"
@@ -31,7 +31,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/export.h"
+#include "portdnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {

@@ -35,8 +35,8 @@ DIRECTIONS = ["forward", "grad"]
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/operators.h"
 
 #include "test/pointwise/pointwise_fixture.h"
 #include "test/types/cartesian_product.h"

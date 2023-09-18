@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_CONV2D_EXECUTOR_H_
-#define SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_CONV2D_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_DEPTHWISE_CONV2D_SNN_CONV2D_EXECUTOR_H_
+#define PORTDNN_BENCH_DEPTHWISE_CONV2D_SNN_CONV2D_EXECUTOR_H_
 
-#include "sycldnn/depthwise_conv2d/launch.h"
-#include "sycldnn/depthwise_conv2d/params.h"
+#include "portdnn/depthwise_conv2d/launch.h"
+#include "portdnn/depthwise_conv2d/params.h"
 
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Executor to perform the DepthwiseConv2d benchmark using SYCL-DNN.  */
+/** Executor to perform the DepthwiseConv2d benchmark using portDNN.  */
 template <typename Benchmark, typename ConvType>
 struct SNNDepthwiseConv2DExecutor : public BaseExecutor {
  private:
@@ -123,4 +123,4 @@ struct SNNDepthwiseConv2DExecutor : public BaseExecutor {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_CONV2D_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_DEPTHWISE_CONV2D_SNN_CONV2D_EXECUTOR_H_

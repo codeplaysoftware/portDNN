@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_NCHW_H_
-#define SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_NCHW_H_
+#ifndef PORTDNN_SRC_CONV2D_DIRECT_KERNELS_NCHW_H_
+#define PORTDNN_SRC_CONV2D_DIRECT_KERNELS_NCHW_H_
 
 #include "src/conv2d/direct/kernels.h"
 #include "src/helpers/vector_element.h"
@@ -427,4 +427,4 @@ struct DirectConv2D<T, Index, conv_type::FilterBackprop, UseFastDiv, StaticOut,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_CONV2D_DIRECT_KERNELS_NCHW_H_
+#endif  // PORTDNN_SRC_CONV2D_DIRECT_KERNELS_NCHW_H_

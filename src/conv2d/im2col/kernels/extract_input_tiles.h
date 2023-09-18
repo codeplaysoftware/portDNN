@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_
-#define SYCLDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_
+#ifndef PORTDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_
+#define PORTDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_
 
-#include "sycldnn/accessor_types.h"
+#include "portdnn/accessor_types.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/helpers/macros.h"
-#include "sycldnn/helpers/minmax.h"
+#include "portdnn/helpers/macros.h"
+#include "portdnn/helpers/minmax.h"
 
 #include "src/helpers/tensor_index.h"
 #include "src/helpers/vector_io.h"
@@ -390,4 +390,4 @@ struct ExtractInputTiles<T, Index, VectorWidth, conv_type::FilterBackprop,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_
+#endif  // PORTDNN_SRC_CONV2D_IM2COL_KERNELS_EXTRACT_INPUT_TILES_H_

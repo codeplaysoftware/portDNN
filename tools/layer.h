@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/selector/default_selector.h"
-#include "sycldnn/conv2d/workspace_size.h"
+#include "portdnn/conv2d/launch.h"
+#include "portdnn/conv2d/selector/default_selector.h"
+#include "portdnn/conv2d/workspace_size.h"
 
-#include "sycldnn/helpers/dims.h"
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/helpers/ratio.h"
+#include "portdnn/helpers/dims.h"
+#include "portdnn/helpers/padding.h"
+#include "portdnn/helpers/ratio.h"
 
-#include "sycldnn/pointwise/launch.h"
-#include "sycldnn/pointwise/params.h"
+#include "portdnn/pointwise/launch.h"
+#include "portdnn/pointwise/params.h"
 
-#include "sycldnn/pooling/launch.h"
+#include "portdnn/pooling/launch.h"
 
-#include "sycldnn/binaryop/launch.h"
-#include "sycldnn/binaryop/operators.h"
+#include "portdnn/binaryop/launch.h"
+#include "portdnn/binaryop/operators.h"
 
-#include "sycldnn/batchnorm/launch.h"
+#include "portdnn/batchnorm/launch.h"
 
-#include "sycldnn/matmul/launch.h"
-#include "sycldnn/matmul/params.h"
+#include "portdnn/matmul/launch.h"
+#include "portdnn/matmul/params.h"
 
-#include "sycldnn/softmax/launch.h"
-#include "sycldnn/softmax/sizes.h"
+#include "portdnn/softmax/launch.h"
+#include "portdnn/softmax/sizes.h"
 
-#include "sycldnn/padding_mode.h"
-#include "sycldnn/status.h"
+#include "portdnn/padding_mode.h"
+#include "portdnn/status.h"
 
 #include <CL/sycl.hpp>
 

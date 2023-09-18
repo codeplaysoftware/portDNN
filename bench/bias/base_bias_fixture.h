@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_BIAS_BASE_BIAS_FIXTURE_H_
-#define SYCLDNN_BENCH_BIAS_BASE_BIAS_FIXTURE_H_
+#ifndef PORTDNN_BENCH_BIAS_BASE_BIAS_FIXTURE_H_
+#define PORTDNN_BENCH_BIAS_BASE_BIAS_FIXTURE_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/binaryop/params.h"
-#include "sycldnn/helpers/dims.h"
+#include "portdnn/binaryop/params.h"
+#include "portdnn/helpers/dims.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -77,4 +77,4 @@ inline void BaseBiasBenchmark::set_items_processed(benchmark::State& state,
   state.SetItemsProcessed(state.iterations() * tensor_size);
 }
 
-#endif  // SYCLDNN_BENCH_BIAS_BASE_BIAS_FIXTURE_H_
+#endif  // PORTDNN_BENCH_BIAS_BASE_BIAS_FIXTURE_H_

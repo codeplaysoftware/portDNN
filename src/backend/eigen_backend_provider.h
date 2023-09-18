@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
-#define SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
+#ifndef PORTDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
+#define PORTDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
 
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend.h"
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/backend/eigen_backend.h"
+#include "portdnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -100,4 +100,4 @@ struct BackendProvider<EigenBackend> {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_
+#endif  // PORTDNN_SRC_BACKEND_EIGEN_BACKEND_PROVIDER_H_

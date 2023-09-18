@@ -15,15 +15,15 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/selector/default_selector.h"
-#include "sycldnn/conv2d/sizes.h"
-#include "sycldnn/conv2d/workspace_size.h"
+#include "portdnn/conv2d/launch.h"
+#include "portdnn/conv2d/selector/default_selector.h"
+#include "portdnn/conv2d/sizes.h"
+#include "portdnn/conv2d/workspace_size.h"
 
+#include "portdnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_usm_backend.h"
 #include "src/backend/snn_backend_provider.h"
 #include "src/backend/snn_usm_backend_provider.h"
-#include "sycldnn/backend/snn_backend.h"
-#include "sycldnn/backend/snn_usm_backend.h"
 #include "test/backend/backend_test_fixture.h"
 
 #include "test/types/test_backend_types.h"

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_GATHER_KERNELS_H_
-#define SYCLDNN_SRC_GATHER_KERNELS_H_
+#ifndef PORTDNN_SRC_GATHER_KERNELS_H_
+#define PORTDNN_SRC_GATHER_KERNELS_H_
 
 #include <CL/sycl.hpp>
 
@@ -22,10 +22,10 @@
 #include "src/helpers/vector_io.h"
 #include "src/helpers/vector_type.h"
 
-#include "sycldnn/accessor_types.h"
+#include "portdnn/accessor_types.h"
 
-#include "sycldnn/gather/params.h"
-#include "sycldnn/gather/sizes.h"
+#include "portdnn/gather/params.h"
+#include "portdnn/gather/sizes.h"
 
 namespace sycldnn {
 namespace gather {
@@ -92,4 +92,4 @@ class GatherOp {
 }  // namespace gather
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_GATHER_KERNELS_H_
+#endif  // PORTDNN_SRC_GATHER_KERNELS_H_

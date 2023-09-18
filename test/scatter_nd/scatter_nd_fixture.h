@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_SCATTER_ND_FIXTURE_H_
-#define SYCLDNN_TEST_SCATTER_ND_FIXTURE_H_
+#ifndef PORTDNN_TEST_SCATTER_ND_FIXTURE_H_
+#define PORTDNN_TEST_SCATTER_ND_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/scatter_nd/launch.h"
-#include "sycldnn/scatter_nd/operators.h"
-#include "sycldnn/scatter_nd/sizes.h"
+#include "portdnn/scatter_nd/launch.h"
+#include "portdnn/scatter_nd/operators.h"
+#include "portdnn/scatter_nd/sizes.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -89,4 +89,4 @@ struct ScatterNDFixture : public BackendTestFixture<typename Pair::SecondType> {
   }
 };
 
-#endif  // SYCLDNN_TEST_SCATTER_ND_FIXTURE_H_
+#endif  // PORTDNN_TEST_SCATTER_ND_FIXTURE_H_

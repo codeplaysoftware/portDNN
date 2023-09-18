@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/params.h"
 
 #include "src/conv2d/im2col/queue_filter_transform.h"
 
@@ -26,7 +26,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/export.h"
+#include "portdnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {

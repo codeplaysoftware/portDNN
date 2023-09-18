@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_
-#define SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_
+#ifndef PORTDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_
+#define PORTDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_
 
 #include "test/backend/backend_test_fixture.h"
 
@@ -35,4 +35,4 @@ struct BackendMatmul : public BackendTestFixture<Backend> {
                                 Index dim);
 };
 
-#endif  // SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_
+#endif  // PORTDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_H_

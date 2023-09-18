@@ -41,8 +41,8 @@
  * http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
  */
 
-#ifndef SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
-#define SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
+#ifndef PORTDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
+#define PORTDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
 
 #ifdef SNN_USE_HALF
 #include <CL/sycl.hpp>
@@ -317,4 +317,4 @@ inline ::testing::AssertionResult expect_almost_equal(
 #define SNN_ALMOST_EQUAL_EPS(expected, actual, max_ulps, eps) \
   SNN_PREDICATE_COMPARISON(expect_almost_equal, expected, actual, max_ulps, eps)
 
-#endif  // SYCLDNN_TEST_HELPERS_FLOAT_COMPARISON_H_
+#endif  // PORTDNN_TEST_HELPERS_FLOAT_COMPARISON_H_

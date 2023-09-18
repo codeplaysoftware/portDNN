@@ -47,7 +47,7 @@ TEST_TYPES = ["forward", "input_backprop", "filter_backprop"]
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/data_format_types.h"

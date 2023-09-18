@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_FIXTURE_ADD_COMPUTECPP_INFO_H_
-#define SYCLDNN_BENCH_FIXTURE_ADD_COMPUTECPP_INFO_H_
+#ifndef PORTDNN_BENCH_FIXTURE_ADD_COMPUTECPP_INFO_H_
+#define PORTDNN_BENCH_FIXTURE_ADD_COMPUTECPP_INFO_H_
 
 #include <CL/sycl.hpp>
 
@@ -34,7 +34,7 @@ namespace computecpp_info {
  * version of compute++ is tied to the version of ComputeCpp, so the associated
  * meta-data of compute++ will be the same.
  *
- * SYCL-DNN benchmarks will include these attributes only if ComputeCpp info is
+ * portDNN benchmarks will include these attributes only if ComputeCpp info is
  * available. Benchmarks from other libraries such as MKL-DNN will never include
  * them.
  *
@@ -51,4 +51,4 @@ inline void add_computecpp_version(StringReporter& reporter) {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_FIXTURE_ADD_COMPUTECPP_INFO_H_
+#endif  // PORTDNN_BENCH_FIXTURE_ADD_COMPUTECPP_INFO_H_

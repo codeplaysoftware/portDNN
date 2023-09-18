@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_REDUCE_FIXTURE_H_
-#define SYCLDNN_TEST_REDUCE_FIXTURE_H_
+#ifndef PORTDNN_TEST_REDUCE_FIXTURE_H_
+#define PORTDNN_TEST_REDUCE_FIXTURE_H_
 
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "sycldnn/helpers/scope_exit.h"
-#include "sycldnn/reduce/launch.h"
+#include "portdnn/helpers/scope_exit.h"
+#include "portdnn/reduce/launch.h"
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
@@ -71,4 +71,4 @@ struct ReduceFixture : public BackendTestFixture<typename Pair::SecondType> {
   }
 };
 
-#endif  // SYCLDNN_TEST_REDUCE_FIXTURE_H_
+#endif  // PORTDNN_TEST_REDUCE_FIXTURE_H_

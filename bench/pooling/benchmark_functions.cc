@@ -17,9 +17,9 @@
 
 #include "src/backend/snn_backend_provider.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/pooling/operators.h"
+#include "portdnn/pooling/operators.h"
 
 #define BM_WITH_DIR_OP_DTYPE(DIR, OP, DTYPE)                                 \
   POOLING_BENCHMARK(OP##_##DIR##_##SNNBackend, sycldnn::backend::SNNBackend, \

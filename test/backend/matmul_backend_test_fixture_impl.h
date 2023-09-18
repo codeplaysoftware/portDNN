@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_
-#define SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_
+#ifndef PORTDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_
+#define PORTDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_
 #include "test/backend/matmul_backend_test_fixture.h"
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
 template <typename Backend>
 template <bool TransposeLHS, bool TransposeRHS, typename T, typename Index>
@@ -124,4 +124,4 @@ void BackendMatmul<Backend>::test_square_batch_matmul(
     EXPECT_EQ(expected[i], output[i]);
   }
 }
-#endif  // SYCLDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_
+#endif  // PORTDNN_TEST_BACKEND_MATMUL_BACKEND_TEST_FIXTURE_IMPL_H_

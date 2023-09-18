@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POOLING_KERNELS_H_
-#define SYCLDNN_SRC_POOLING_KERNELS_H_
+#ifndef PORTDNN_SRC_POOLING_KERNELS_H_
+#define PORTDNN_SRC_POOLING_KERNELS_H_
 
 #include <CL/sycl.hpp>
 
@@ -25,12 +25,12 @@
 #include "src/helpers/vector_type.h"
 #include "src/pooling/operators_impl.h"
 
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/format_type.h"
+#include "portdnn/accessor_types.h"
+#include "portdnn/format_type.h"
 
-#include "sycldnn/helpers/minmax.h"
+#include "portdnn/helpers/minmax.h"
 
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/params.h"
 
 namespace sycldnn {
 namespace pooling {
@@ -484,4 +484,4 @@ class PoolingOp<T, Index, Op, Forward, /*VectorWidth=*/1, UseFastDiv,
 }  // namespace pooling
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POOLING_KERNELS_H_
+#endif  // PORTDNN_SRC_POOLING_KERNELS_H_

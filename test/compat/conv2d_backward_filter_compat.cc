@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <sycldnn/compat/convolution.hpp>
+#include <portdnn/compat/convolution.hpp>
 #include <type_traits>
 #include "test/gen/iota_initialised_data.h"
 

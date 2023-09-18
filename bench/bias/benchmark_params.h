@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
-#define SYCLDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
+#ifndef PORTDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
+#define PORTDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
 
-#include "sycldnn/binaryop/params.h"
+#include "portdnn/binaryop/params.h"
 
 #include <benchmark/benchmark.h>
 
@@ -56,4 +56,4 @@ inline sycldnn::binaryop::BinaryParams deserialize(
 
 }  // namespace benchmark_params
 
-#endif  // SYCLDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_
+#endif  // PORTDNN_BENCH_BIAS_BENCHMARK_PARAMS_H_

@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_POOLING_POOLING_EVENT_DEPENDENCIES_FIXTURE_H_
-#define SYCLDNN_TEST_POOLING_POOLING_EVENT_DEPENDENCIES_FIXTURE_H_
+#ifndef PORTDNN_TEST_POOLING_POOLING_EVENT_DEPENDENCIES_FIXTURE_H_
+#define PORTDNN_TEST_POOLING_POOLING_EVENT_DEPENDENCIES_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/padding.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/pooling/launch.h"
-#include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
-#include "sycldnn/pooling/sizes.h"
+#include "portdnn/pooling/launch.h"
+#include "portdnn/pooling/operators.h"
+#include "portdnn/pooling/params.h"
+#include "portdnn/pooling/sizes.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -73,4 +73,4 @@ struct PoolingEventDependenciesFixture
   }
 };
 
-#endif  // SYCLDNN_TEST_POOLING_POOLING_EVENT_DEPENDENCIES_FIXTURE_H_
+#endif  // PORTDNN_TEST_POOLING_POOLING_EVENT_DEPENDENCIES_FIXTURE_H_

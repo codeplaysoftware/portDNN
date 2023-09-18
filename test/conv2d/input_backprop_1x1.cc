@@ -16,8 +16,8 @@
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
 
 #include "test/conv2d/convolution_fixture.h"
 #include "test/conv2d/selector_list.h"

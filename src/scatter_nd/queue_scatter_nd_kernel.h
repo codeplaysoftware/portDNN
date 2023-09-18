@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_SCATTER_ND_QUEUE_SCATTER_ND_H
-#define SYCLDNN_SRC_SCATTER_ND_QUEUE_SCATTER_ND_H
+#ifndef PORTDNN_SRC_SCATTER_ND_QUEUE_SCATTER_ND_H
+#define PORTDNN_SRC_SCATTER_ND_QUEUE_SCATTER_ND_H
 
-#include "sycldnn/scatter_nd/params.h"
+#include "portdnn/scatter_nd/params.h"
 
 #include <CL/sycl.hpp>
-#include "sycldnn/status.h"
+#include "portdnn/status.h"
 
 namespace sycldnn {
 namespace scatter_nd {
@@ -36,4 +36,4 @@ SNNStatus queue_scatter_nd(MemObj<Index const>& ind_mem,
 }  // namespace scatter_nd
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_SCATTER_ND_QUEUE_SCATTER_ND_H
+#endif  // PORTDNN_SRC_SCATTER_ND_QUEUE_SCATTER_ND_H

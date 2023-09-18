@@ -16,7 +16,7 @@
 #include "src/binaryop/kernels.h"
 #include "src/binaryop/queue_binaryop_kernel_impl.h"
 
-#include "sycldnn/binaryop/operators.h"
+#include "portdnn/binaryop/operators.h"
 
 #include <CL/sycl.hpp>
 

@@ -15,12 +15,12 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
-#include "sycldnn/helpers/padding.h"
+#include "portdnn/helpers/padding.h"
 
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/pooling/params.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/pooling/params.h"
 
 /** Input parameters for each test case. */
 struct TestParams {

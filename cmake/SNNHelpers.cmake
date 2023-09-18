@@ -164,9 +164,9 @@ function(snn_target)
   endif()
   target_include_directories(${SNN_TARGET_TARGET}
     PUBLIC  $<INSTALL_INTERFACE:${include_dest}>
-            $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${sycldnn_BINARY_DIR}>
-    PRIVATE $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}>
+            $<BUILD_INTERFACE:${portdnn_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${portdnn_BINARY_DIR}>
+    PRIVATE $<BUILD_INTERFACE:${portdnn_SOURCE_DIR}>
   )
 
   # Specify some C++11 features used widely across the library

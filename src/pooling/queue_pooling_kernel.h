@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POOLING_QUEUE_H_
-#define SYCLDNN_SRC_POOLING_QUEUE_H_
+#ifndef PORTDNN_SRC_POOLING_QUEUE_H_
+#define PORTDNN_SRC_POOLING_QUEUE_H_
 
-#include "sycldnn/mem_object.h"
+#include "portdnn/mem_object.h"
 
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/params.h"
 
 namespace sycldnn {
 namespace pooling {
@@ -37,4 +37,4 @@ SNNStatus queue_pooling(MemObj<T const>& in_mem, MemObj<T>& out_mem,
 }  // namespace pooling
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POOLING_QUEUE_H_
+#endif  // PORTDNN_SRC_POOLING_QUEUE_H_

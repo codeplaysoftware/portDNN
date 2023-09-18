@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POINTWISE_BASE_POINTWISE_FIXTURE_H_
-#define SYCLDNN_BENCH_POINTWISE_BASE_POINTWISE_FIXTURE_H_
+#ifndef PORTDNN_BENCH_POINTWISE_BASE_POINTWISE_FIXTURE_H_
+#define PORTDNN_BENCH_POINTWISE_BASE_POINTWISE_FIXTURE_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/operators.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -69,4 +69,4 @@ void BasePointwiseBenchmark::set_bytes_processed(benchmark::State& state,
   state.SetBytesProcessed(state.iterations() * n_items * 3 * element_bytes);
 }
 
-#endif  // SYCLDNN_BENCH_POINTWISE_BASE_POINTWISE_FIXTURE_H_
+#endif  // PORTDNN_BENCH_POINTWISE_BASE_POINTWISE_FIXTURE_H_

@@ -2,7 +2,7 @@
 
 The python scripts in `test/gen` generate a large number of distinct test
 cases to cover a number of corner cases and different configurations of the
-different operations provided by SYCL-DNN.
+different operations provided by portDNN.
 
 ### Generating the tests
 
@@ -61,4 +61,3 @@ generated tests then it should be appended to the selector list:
 using Selectors = sycldnn::types::TypeList<sycldnn::conv2d::DirectSelector,
                                            sycldnn::conv2d::TiledSelector>;
 ```
-

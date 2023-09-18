@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_
-#define SYCLDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_
+#ifndef PORTDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_
+#define PORTDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_
 #include <gtest/gtest.h>
 
 #include "src/backend/snn_backend_provider.h"
@@ -23,20 +23,20 @@
 #if defined(SNN_TEST_EIGEN) || defined(SNN_TEST_EIGEN_MATMULS)
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend.h"
+#include "portdnn/backend/eigen_backend.h"
 
 #include "src/backend/eigen_backend_provider.h"
 #include "src/backend/eigen_backend_snn_matmul_provider.h"
 #endif
 
 #if defined(SNN_TEST_SYCLBLAS) || defined(SNN_TEST_SYCLBLAS_MATMULS)
+#include "portdnn/backend/sycl_blas_backend.h"
 #include "src/backend/syclblas_backend_provider.h"
-#include "sycldnn/backend/sycl_blas_backend.h"
 #endif  // SNN_TEST_SYCLBLAS_MATMULS
 
 #if defined(SNN_TEST_CLBLAST) || defined(SNN_TEST_CLBLAST_MATMULS)
+#include "portdnn/backend/clblast_backend.h"
 #include "src/backend/clblast_backend_provider.h"
-#include "sycldnn/backend/clblast_backend.h"
 #endif  // SNN_TEST_CLBLAST
 
 template <typename Backend>
@@ -84,4 +84,4 @@ inline void BackendTestFixture<sycldnn::backend::CLBlastBackend>::TearDown() {
 }
 #endif  // SNN_TEST_CLBLAST || SNN_TEST_CLBLAST_MATMULS
 
-#endif  // SYCLDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_
+#endif  // PORTDNN_TEST_BACKEND_BACKEND_TEST_FIXTURE_H_

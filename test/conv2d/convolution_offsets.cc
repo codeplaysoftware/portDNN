@@ -15,13 +15,13 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/padding_mode.h"
+#include "portdnn/helpers/padding.h"
+#include "portdnn/padding_mode.h"
 
 #include "test/conv2d/convolution_fixture.h"
 #include "test/conv2d/selector_list.h"

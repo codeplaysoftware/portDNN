@@ -15,9 +15,9 @@
  */
 
 #if defined(SNN_TEST_SYCLBLAS)
-#include "sycldnn/backend/sycl_blas_backend.h"
+#include "portdnn/backend/sycl_blas_backend.h"
 #else
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 #endif
 
 #include "tools/network.h"

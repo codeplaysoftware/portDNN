@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_TYPES_KERNEL_DATA_TYPES_H_
-#define SYCLDNN_TEST_TYPES_KERNEL_DATA_TYPES_H_
+#ifndef PORTDNN_TEST_TYPES_KERNEL_DATA_TYPES_H_
+#define PORTDNN_TEST_TYPES_KERNEL_DATA_TYPES_H_
 
 #include "test/types/to_gtest_types.h"
 #include "test/types/type_list.h"
@@ -52,4 +52,4 @@ using GTestKernelDataTypes = ToGTestTypes<KernelDataTypes>::type;
 
 }  // namespace types
 }  // namespace sycldnn
-#endif  // SYCLDNN_TEST_TYPES_KERNEL_DATA_TYPES_H_
+#endif  // PORTDNN_TEST_TYPES_KERNEL_DATA_TYPES_H_

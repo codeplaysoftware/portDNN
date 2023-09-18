@@ -15,12 +15,12 @@
  */
 #include "src/pooling/queue_max_grad_kernel_impl.h"
 
-#include "sycldnn/data_format.h"
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/data_format.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/operators.h"
+#include "portdnn/pooling/params.h"
 
 #include <CL/sycl.hpp>
 

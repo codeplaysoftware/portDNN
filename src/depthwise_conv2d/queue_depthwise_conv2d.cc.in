@@ -19,12 +19,12 @@
 #define SNN_VECTOR_WIDTH ${VECTOR_WIDTH}
 // clang-format on
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/conv_type.h"
 
-#include "sycldnn/depthwise_conv2d/params.h"
+#include "portdnn/depthwise_conv2d/params.h"
 
 #include "src/depthwise_conv2d/queue_depthwise_conv2d_impl.h"
 

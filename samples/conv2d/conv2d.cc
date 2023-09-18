@@ -18,17 +18,17 @@
 // relevant Eigen header.
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend.h"
+#include "portdnn/backend/eigen_backend.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/im2col_selector.h"
-#include "sycldnn/conv2d/selector/winograd_selector.h"
-#include "sycldnn/conv2d/sizes.h"
-#include "sycldnn/conv2d/workspace_size.h"
-#include "sycldnn/status.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/launch.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/selector/direct_selector.h"
+#include "portdnn/conv2d/selector/im2col_selector.h"
+#include "portdnn/conv2d/selector/winograd_selector.h"
+#include "portdnn/conv2d/sizes.h"
+#include "portdnn/conv2d/workspace_size.h"
+#include "portdnn/status.h"
 
 #include <iterator>
 #include <memory>
@@ -51,18 +51,18 @@ int main() {
   auto im2col_algo_selector = sycldnn::conv2d::Im2colSelector{};
   auto winograd_algo_selector = sycldnn::conv2d::WinogradSelector{};
 
-  // This sample relies upon SYCL-DNN's Eigen backend. Here, we construct the
+  // This sample relies upon portDNN's Eigen backend. Here, we construct the
   // necessary Eigen objects, a dispatch queue and associated device.
   auto queue = std::unique_ptr<Eigen::QueueInterface>(
       new Eigen::QueueInterface{device_selector});
   auto device = Eigen::SyclDevice{queue.get()};
 
-  // Construct a SYCL-DNN Eigen backend instance, which provides memory
+  // Construct a portDNN Eigen backend instance, which provides memory
   // allocation routines and an accelerated matrix multiply.
   //
   // To accomplish this, we first construct an Eigen::SyclDevice, which is an
   // Eigen-specific abstraction over a compute accelerator, such as a GPU. We
-  // then use this to instantiate a SYCL-DNN backend, based on the device.
+  // then use this to instantiate a portDNN backend, based on the device.
   auto backend = sycldnn::backend::EigenBackend{device};
 
   // In order to execute a convolution we construct a parameters object, which

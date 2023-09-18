@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/binaryop/launch.h"
-#include "sycldnn/binaryop/operators.h"
-#include "sycldnn/binaryop/params.h"
+#include "portdnn/binaryop/launch.h"
+#include "portdnn/binaryop/operators.h"
+#include "portdnn/binaryop/params.h"
 
-#include "sycldnn/status.h"
+#include "portdnn/status.h"
 
 #include <iostream>
 

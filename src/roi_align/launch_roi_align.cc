@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_ROI_ALIGN_LAUNCH_ROI_ALIGN_H_
-#define SYCLDNN_SRC_ROI_ALIGN_LAUNCH_ROI_ALIGN_H_
+#ifndef PORTDNN_SRC_ROI_ALIGN_LAUNCH_ROI_ALIGN_H_
+#define PORTDNN_SRC_ROI_ALIGN_LAUNCH_ROI_ALIGN_H_
 
-#include "sycldnn/mem_object.h"
+#include "portdnn/mem_object.h"
 
-#include "sycldnn/roi_align/operators.h"
-#include "sycldnn/roi_align/params.h"
+#include "portdnn/roi_align/operators.h"
+#include "portdnn/roi_align/params.h"
 
-#include "sycldnn/internal/roi_align/launch_internal.h"
+#include "portdnn/internal/roi_align/launch_internal.h"
 
 #include "src/roi_align/queue_roi_align_kernel.h"
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/export.h"
+#include "portdnn/export.h"
 
 namespace sycldnn {
 namespace roi_align {
@@ -101,4 +101,4 @@ INSTANTIATE_FOR_DTYPE_AND_MEM_OBJ_TYPE(double, int64_t, USMMemObject);
 }  // namespace roi_align
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_ROI_ALIGN_LAUNCH_ROI_ALIGN_H_
+#endif  // PORTDNN_SRC_ROI_ALIGN_LAUNCH_ROI_ALIGN_H_

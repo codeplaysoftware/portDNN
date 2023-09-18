@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_HELPERS_TRANSPOSE_H_
-#define SYCLDNN_TEST_HELPERS_TRANSPOSE_H_
+#ifndef PORTDNN_TEST_HELPERS_TRANSPOSE_H_
+#define PORTDNN_TEST_HELPERS_TRANSPOSE_H_
 
 #include <vector>
 
@@ -46,4 +46,4 @@ void transpose(std::vector<T>& output, const std::vector<T>& input, size_t N,
   }
 }
 
-#endif  // SYCLDNN_TEST_HELPERS_TRANSPOSE_H_
+#endif  // PORTDNN_TEST_HELPERS_TRANSPOSE_H_

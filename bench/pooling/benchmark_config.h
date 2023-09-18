@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POOLING_BENCHMARK_CONFIG_H_
-#define SYCLDNN_BENCH_POOLING_BENCHMARK_CONFIG_H_
+#ifndef PORTDNN_BENCH_POOLING_BENCHMARK_CONFIG_H_
+#define PORTDNN_BENCH_POOLING_BENCHMARK_CONFIG_H_
 
 #include <benchmark/benchmark.h>
 
@@ -51,4 +51,4 @@ auto RunForAllParamSets = [](benchmark::internal::Benchmark* b) {
 };
 }  // namespace
 
-#endif  // SYCLDNN_BENCH_POOLING_BENCHMARK_CONFIG_H_
+#endif  // PORTDNN_BENCH_POOLING_BENCHMARK_CONFIG_H_

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_POOLING_POOLING_FIXTURE_H_
-#define SYCLDNN_TEST_POOLING_POOLING_FIXTURE_H_
+#ifndef PORTDNN_TEST_POOLING_POOLING_FIXTURE_H_
+#define PORTDNN_TEST_POOLING_POOLING_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/roi_align/launch.h"
-#include "sycldnn/roi_align/operators.h"
-#include "sycldnn/roi_align/params.h"
+#include "portdnn/roi_align/launch.h"
+#include "portdnn/roi_align/operators.h"
+#include "portdnn/roi_align/params.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -123,4 +123,4 @@ struct RoiAlignFixture : public BackendTestFixture<Backend> {
   }
 };
 
-#endif  // SYCLDNN_TEST_POOLING_POOLING_FIXTURE_H_
+#endif  // PORTDNN_TEST_POOLING_POOLING_FIXTURE_H_

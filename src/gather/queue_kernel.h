@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_GATHER_QUEUE_H_
-#define SYCLDNN_SRC_GATHER_QUEUE_H_
+#ifndef PORTDNN_SRC_GATHER_QUEUE_H_
+#define PORTDNN_SRC_GATHER_QUEUE_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/gather/sizes.h"
+#include "portdnn/gather/sizes.h"
 
 namespace sycldnn {
 namespace gather {
@@ -36,4 +36,4 @@ SNNStatus queue_gather(MemObj<T const>& in_mem,
 }  // namespace gather
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_GATHER_QUEUE_H_
+#endif  // PORTDNN_SRC_GATHER_QUEUE_H_

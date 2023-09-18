@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
-#define SYCLDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
+#ifndef PORTDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
+#define PORTDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/params.h"
 
-#include "sycldnn/helpers/padding.h"
+#include "portdnn/helpers/padding.h"
 
 #include <benchmark/benchmark.h>
 
@@ -68,4 +68,4 @@ inline sycldnn::pooling::PoolingParams deserialize(
 
 }  // namespace benchmark_params
 
-#endif  // SYCLDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
+#endif  // PORTDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_

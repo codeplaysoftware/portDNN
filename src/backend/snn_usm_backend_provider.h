@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
-#define SYCLDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
+#ifndef PORTDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
+#define PORTDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
 
-#include "sycldnn/backend/snn_usm_backend.h"
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/backend/snn_usm_backend.h"
+#include "portdnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -100,4 +100,4 @@ struct BackendProvider<SNNUSMBackend> {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
+#endif  // PORTDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_

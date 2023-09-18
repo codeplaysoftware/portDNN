@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_BIAS_SNN_BIAS_EXECUTOR_H_
-#define SYCLDNN_BENCH_BIAS_SNN_BIAS_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_BIAS_SNN_BIAS_EXECUTOR_H_
+#define PORTDNN_BENCH_BIAS_SNN_BIAS_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/helpers/dims.h"
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/dims.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/binaryop/launch.h"
-#include "sycldnn/binaryop/operators.h"
-#include "sycldnn/binaryop/params.h"
+#include "portdnn/binaryop/launch.h"
+#include "portdnn/binaryop/operators.h"
+#include "portdnn/binaryop/params.h"
 
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Executor to perform the bias benchmark using SYCL-DNN.  */
+/** Executor to perform the bias benchmark using portDNN.  */
 template <typename Benchmark>
 struct SNNBiasExecutor : public BaseExecutor {
  private:
@@ -132,4 +132,4 @@ struct SNNBiasExecutor : public BaseExecutor {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_BIAS_SNN_BIAS_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_BIAS_SNN_BIAS_EXECUTOR_H_

@@ -17,7 +17,7 @@
 
 #include "src/backend/snn_backend_provider.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
 #define BM_WITH_DTYPE(DTYPE) \
   BIAS_BENCHMARK(SNNBackend, sycldnn::backend::SNNBackend, DTYPE)

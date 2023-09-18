@@ -16,7 +16,7 @@
 #include "benchmark_config.h"
 #include "benchmark_params.h"
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
 #include <vector>
 

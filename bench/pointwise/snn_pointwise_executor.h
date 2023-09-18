@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POINTWISE_SNN_POINTWISE_EXECUTOR_H_
-#define SYCLDNN_BENCH_POINTWISE_SNN_POINTWISE_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_POINTWISE_SNN_POINTWISE_EXECUTOR_H_
+#define PORTDNN_BENCH_POINTWISE_SNN_POINTWISE_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/launch.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/launch.h"
+#include "portdnn/pointwise/operators.h"
 
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Executor to perform the pointwise benchmark using SYCL-DNN.  */
+/** Executor to perform the pointwise benchmark using portDNN.  */
 template <typename Benchmark, typename Direction,
           template <typename> class Operator>
 struct SNNPointwiseExecutor;
@@ -130,7 +130,7 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Forward, Operator>
 
 /**
  * Specialized executor to perform the backprop pointwise benchmark using
- * SYCL-DNN.
+ * portDNN.
  *
  * Pointwise gradients requires the output buffer from the forward pass as
  * well as the backprop buffers. This requires a different executor which
@@ -230,4 +230,4 @@ struct SNNPointwiseExecutor<Benchmark, sycldnn::pointwise::Gradient, Operator>
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_POINTWISE_SNN_POINTWISE_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_POINTWISE_SNN_POINTWISE_EXECUTOR_H_

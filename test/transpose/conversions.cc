@@ -26,9 +26,9 @@
 #include <utility>
 #include <vector>
 
-#include "sycldnn/helpers/scope_exit.h"
-#include "sycldnn/status.h"
-#include "sycldnn/transpose/launch.h"
+#include "portdnn/helpers/scope_exit.h"
+#include "portdnn/status.h"
+#include "portdnn/transpose/launch.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"

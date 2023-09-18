@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POOLING_CAN_FASTDIV_H_
-#define SYCLDNN_SRC_POOLING_CAN_FASTDIV_H_
+#ifndef PORTDNN_SRC_POOLING_CAN_FASTDIV_H_
+#define PORTDNN_SRC_POOLING_CAN_FASTDIV_H_
 
-#include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/operators.h"
+#include "portdnn/pooling/params.h"
 
 namespace sycldnn {
 namespace pooling {
@@ -40,4 +40,4 @@ inline bool can_use_fastdiv<Backpropagate>(PoolingParams const& pp,
 }  // namespace internal
 }  // namespace pooling
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_POOLING_CAN_FASTDIV_H_
+#endif  // PORTDNN_SRC_POOLING_CAN_FASTDIV_H_

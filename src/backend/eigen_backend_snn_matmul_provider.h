@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_SNN_MATMUL_PROVIDER_H_
-#define SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_SNN_MATMUL_PROVIDER_H_
+#ifndef PORTDNN_SRC_BACKEND_EIGEN_BACKEND_SNN_MATMUL_PROVIDER_H_
+#define PORTDNN_SRC_BACKEND_EIGEN_BACKEND_SNN_MATMUL_PROVIDER_H_
 
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/backend/eigen_backend_with_snn_matmul.h"
+#include "portdnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -27,7 +27,7 @@ namespace sycldnn {
 namespace backend {
 /**
  * Specialisation of the backend provider using Eigen with matmuls provided
- * by SYCL-DNN's own matmul implementation.
+ * by portDNN's own matmul implementation.
  *
  * Provides access to sycldnn::backend::BackendProvider using Eigen and its
  * helper methods to allocate and deallocate memory.
@@ -101,4 +101,4 @@ struct BackendProvider<sycldnn::backend::EigenBackendSNNMatmul> {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_BACKEND_EIGEN_BACKEND_SNN_MATMUL_PROVIDER_H_
+#endif  // PORTDNN_SRC_BACKEND_EIGEN_BACKEND_SNN_MATMUL_PROVIDER_H_

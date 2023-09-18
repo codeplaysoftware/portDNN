@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_DEPTHWISE_CONV2D_WINDOW_STIRDE_FIXTURE_H_
-#define SYCLDNN_TEST_DEPTHWISE_CONV2D_WINDOW_STIRDE_FIXTURE_H_
+#ifndef PORTDNN_TEST_DEPTHWISE_CONV2D_WINDOW_STIRDE_FIXTURE_H_
+#define PORTDNN_TEST_DEPTHWISE_CONV2D_WINDOW_STIRDE_FIXTURE_H_
 #include <gtest/gtest.h>
 
-#include "sycldnn/depthwise_conv2d/params.h"
+#include "portdnn/depthwise_conv2d/params.h"
 
-#include "sycldnn/helpers/padding.h"
+#include "portdnn/helpers/padding.h"
 
 #include "test/depthwise_conv2d/depthwise_conv2d_fixture.h"
 
@@ -96,4 +96,4 @@ struct WindowStrideTest : public DepthwiseConv2DFixture<Pair> {
 }  // namespace depthwise_conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_TEST_DEPTHWISE_CONV2D_WINDOW_STIRDE_FIXTURE_H_
+#endif  // PORTDNN_TEST_DEPTHWISE_CONV2D_WINDOW_STIRDE_FIXTURE_H_

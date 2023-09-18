@@ -15,9 +15,9 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/compat/convolution.hpp"
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/padding_mode.h"
+#include "portdnn/compat/convolution.hpp"
+#include "portdnn/helpers/padding.h"
+#include "portdnn/padding_mode.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include <type_traits>

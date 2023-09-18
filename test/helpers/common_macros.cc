@@ -15,7 +15,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/helpers/macros.h"
 
 TEST(HelperMacro, BasicStringify) {
   auto test_str = SNN_MAKE_STRING(abc);

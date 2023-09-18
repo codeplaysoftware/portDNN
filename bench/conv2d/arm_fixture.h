@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_
-#define SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_
+#ifndef PORTDNN_BENCH_CONV2D_ARM_FIXTURE_H_
+#define PORTDNN_BENCH_CONV2D_ARM_FIXTURE_H_
 
 #include "arm_conv2d_executor.h"
 #include "base_convolution_fixture.h"
@@ -75,4 +75,4 @@ class ARMConvolutionBenchmark
       ->Unit(benchmark::kNanosecond)                                      \
       ->Apply(RunForAllParamSets);
 
-#endif  // define SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_
+#endif  // define PORTDNN_BENCH_CONV2D_ARM_FIXTURE_H_

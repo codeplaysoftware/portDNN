@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sycldnn/internal/matmul/launch.h"
-#include "sycldnn/matmul/params.h"
+#include "portdnn/internal/matmul/launch.h"
+#include "portdnn/matmul/params.h"
 
-#include "sycldnn/mem_object.h"
+#include "portdnn/mem_object.h"
 
 #include "src/matmul/queue_kernel.h"
 

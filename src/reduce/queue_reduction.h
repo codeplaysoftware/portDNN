@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
-#define SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
+#ifndef PORTDNN_SRC_REDUCE_QUEUE_KERNEL_H_
+#define PORTDNN_SRC_REDUCE_QUEUE_KERNEL_H_
 
 #include <unordered_map>
 
-#include "sycldnn/internal/helpers/types.h"
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/internal/helpers/types.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
 namespace sycldnn {
 namespace reduce {
@@ -48,4 +48,4 @@ SNNStatus queue_subgroup_kernel(
 }  // namespace reduce
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
+#endif  // PORTDNN_SRC_REDUCE_QUEUE_KERNEL_H_

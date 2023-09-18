@@ -17,14 +17,14 @@
 #include "src/helpers/vector_io.h"
 #include "src/helpers/vector_type.h"
 
-#include "sycldnn/accessor_types.h"
+#include "portdnn/accessor_types.h"
 
 #include "helpers.h"
-#include "sycldnn/scatter_nd/operators.h"
-#include "sycldnn/scatter_nd/sizes.h"
+#include "portdnn/scatter_nd/operators.h"
+#include "portdnn/scatter_nd/sizes.h"
 
-#ifndef SYCLDNN_SRC_SCATTER_ND_KERNELS_H_
-#define SYCLDNN_SRC_SCATTER_ND_KERNELS_H_
+#ifndef PORTDNN_SRC_SCATTER_ND_KERNELS_H_
+#define PORTDNN_SRC_SCATTER_ND_KERNELS_H_
 namespace sycldnn {
 namespace scatter_nd {
 
@@ -112,4 +112,4 @@ class ScatterNDOp {
 };
 }  // namespace scatter_nd
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_SCATTER_ND_KERNELS_H_
+#endif  // PORTDNN_SRC_SCATTER_ND_KERNELS_H_

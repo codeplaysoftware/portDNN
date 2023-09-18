@@ -20,7 +20,7 @@
 #define SNN_CTYPE        ${CONV_TYPE}
 // clang-format on
 
-#include "sycldnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/conv_type.h"
 
 #include "src/conv2d/im2col/queue_input_transform_impl.h"
 

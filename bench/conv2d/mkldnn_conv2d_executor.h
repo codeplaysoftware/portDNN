@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_
-#define SYCLDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_
+#define PORTDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/sizes.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/sizes.h"
+#include "portdnn/helpers/scope_exit.h"
 
 #include "base_convolution_fixture.h"
 #include "benchmark_config.h"
@@ -202,4 +202,4 @@ class MKLConvolutionBenchmark : public sycldnn::bench::MKLConv2DExecutor<
       ->Unit(benchmark::kNanosecond)                                      \
       ->Apply(RunForAllParamSets);
 
-#endif  // SYCLDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_CONV2D_MKLDNN_CONV2D_EXECUTOR_H_

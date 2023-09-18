@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_FIXTURE_H_
-#define SYCLDNN_BENCH_FIXTURE_H_
+#ifndef PORTDNN_BENCH_FIXTURE_H_
+#define PORTDNN_BENCH_FIXTURE_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/sizes.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/sizes.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -108,4 +108,4 @@ inline void BaseConvolutionBenchmark::set_items_processed<
                           params.features * 2);
 }
 
-#endif  // define SYCLDNN_BENCH_FIXTURE_H_
+#endif  // define PORTDNN_BENCH_FIXTURE_H_

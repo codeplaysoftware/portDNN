@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
-#define SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
+#ifndef PORTDNN_SRC_MATMUL_QUEUE_KERNEL_H_
+#define PORTDNN_SRC_MATMUL_QUEUE_KERNEL_H_
 
-#include "sycldnn/matmul/params.h"
+#include "portdnn/matmul/params.h"
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
 namespace sycldnn {
 namespace matmul {
@@ -39,4 +39,4 @@ SNNStatus queue_kernel(MemObj<T const>& lhs, MemObj<T const>& rhs,
 }  // namespace matmul
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_MATMUL_QUEUE_KERNEL_H_
+#endif  // PORTDNN_SRC_MATMUL_QUEUE_KERNEL_H_

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "sycldnn/internal/pointwise/launch_internal.h"
+#include "portdnn/internal/pointwise/launch_internal.h"
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/operators.h"
 
 #include "src/pointwise/queue_pointwise_forward.h"
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/export.h"
+#include "portdnn/export.h"
 
 namespace sycldnn {
 namespace pointwise {

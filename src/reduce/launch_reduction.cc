@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "portdnn/internal/helpers/types.h"
+#include "portdnn/internal/reduce/launch.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/reduce/operators.h"
 #include "src/reduce/queue_reduction.h"
-#include "sycldnn/internal/helpers/types.h"
-#include "sycldnn/internal/reduce/launch.h"
-#include "sycldnn/mem_object.h"
-#include "sycldnn/reduce/operators.h"
 
 namespace sycldnn {
 namespace reduce {

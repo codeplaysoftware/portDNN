@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_TYPES_TYPE_TUPLE4_H_
-#define SYCLDNN_TEST_TYPES_TYPE_TUPLE4_H_
+#ifndef PORTDNN_TEST_TYPES_TYPE_TUPLE4_H_
+#define PORTDNN_TEST_TYPES_TYPE_TUPLE4_H_
 
 namespace sycldnn {
 namespace types {
@@ -27,4 +27,4 @@ struct TypeTuple4 {
 };
 }  // namespace types
 }  // namespace sycldnn
-#endif  // SYCLDNN_TEST_TYPES_TYPE_TUPLE4_H_
+#endif  // PORTDNN_TEST_TYPES_TYPE_TUPLE4_H_

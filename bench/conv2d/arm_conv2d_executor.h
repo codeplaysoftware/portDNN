@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_CONV2D_ARM_CONV2D_EXECUTOR_H_
-#define SYCLDNN_BENCH_CONV2D_ARM_CONV2D_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_CONV2D_ARM_CONV2D_EXECUTOR_H_
+#define PORTDNN_BENCH_CONV2D_ARM_CONV2D_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
 #include "bench/fixture/add_arm_opencl_device_info.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/sizes.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/sizes.h"
+#include "portdnn/helpers/scope_exit.h"
 
 #include "bench/fixture/base_executor.h"
 
@@ -167,4 +167,4 @@ struct ARMConv2DExecutor : public BaseExecutor {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_CONV2D_ARM_CONV2D_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_CONV2D_ARM_CONV2D_EXECUTOR_H_

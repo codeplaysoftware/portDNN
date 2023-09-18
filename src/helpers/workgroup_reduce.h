@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
-#define SYCLDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
+#ifndef PORTDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
+#define PORTDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
 
 #include "src/helpers/flattened_id.h"
 #include "src/helpers/tensor_index.h"
@@ -22,10 +22,10 @@
 #include "src/helpers/vector_type.h"
 #include "src/helpers/window_index.h"
 
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/depthwise_conv2d/params.h"
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/accessor_types.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/depthwise_conv2d/params.h"
+#include "portdnn/helpers/macros.h"
 
 #include <CL/sycl.hpp>
 
@@ -118,4 +118,4 @@ workgroup_reduce(DataType value, cl::sycl::nd_item<Dimensions> item,
 }  // namespace helpers
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_
+#endif  // PORTDNN_SRC_HELPERS_WORKGROUP_REDUCE_H_

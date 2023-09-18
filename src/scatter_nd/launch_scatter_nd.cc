@@ -15,24 +15,24 @@
  */
 
 #if defined(SNN_TEST_SYCLBLAS)
-#include "sycldnn/backend/sycl_blas_backend.h"
+#include "portdnn/backend/sycl_blas_backend.h"
 #else
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 #endif
 
-#include "sycldnn/helpers/dims.h"
-#include "sycldnn/status.h"
+#include "portdnn/helpers/dims.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/scatter_nd/operators.h"
-#include "sycldnn/scatter_nd/sizes.h"
+#include "portdnn/scatter_nd/operators.h"
+#include "portdnn/scatter_nd/sizes.h"
 
+#include "portdnn/helpers/mem_utils.h"
+#include "portdnn/internal/scatter_nd/launch_internal.h"
 #include "src/scatter_nd/queue_scatter_nd_kernel.h"
-#include "sycldnn/helpers/mem_utils.h"
-#include "sycldnn/internal/scatter_nd/launch_internal.h"
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/export.h"
+#include "portdnn/export.h"
 
 namespace sycldnn {
 namespace scatter_nd {

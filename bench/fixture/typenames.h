@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_
-#define SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_
+#ifndef PORTDNN_BENCH_FIXTURE_TYPENAMES_H_
+#define PORTDNN_BENCH_FIXTURE_TYPENAMES_H_
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pooling/operators.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pooling/operators.h"
 
 namespace sycldnn {
 namespace bench {
@@ -68,4 +68,4 @@ constexpr const char*
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_
+#endif  // PORTDNN_BENCH_FIXTURE_TYPENAMES_H_

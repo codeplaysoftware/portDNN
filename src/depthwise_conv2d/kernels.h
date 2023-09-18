@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNELS_H_
-#define SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNELS_H_
+#ifndef PORTDNN_SRC_DEPTHWISE_CONV2D_KERNELS_H_
+#define PORTDNN_SRC_DEPTHWISE_CONV2D_KERNELS_H_
 
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/accessor_types.h"
+#include "portdnn/helpers/macros.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/depthwise_conv2d/params.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/depthwise_conv2d/params.h"
 
 #include "src/helpers/math.h"
 #include "src/helpers/tensor_index.h"
@@ -369,4 +369,4 @@ struct DepthwiseConv2D<T, Index, conv2d::conv_type::FilterBackprop, VectorWidth,
 }  // namespace depthwise_conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_DEPTHWISE_CONV2D_KERNELS_H_
+#endif  // PORTDNN_SRC_DEPTHWISE_CONV2D_KERNELS_H_

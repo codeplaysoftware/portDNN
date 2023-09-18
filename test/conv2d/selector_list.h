@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_CONV2D_SELECTOR_LIST_H_
-#define SYCLDNN_TEST_CONV2D_SELECTOR_LIST_H_
+#ifndef PORTDNN_TEST_CONV2D_SELECTOR_LIST_H_
+#define PORTDNN_TEST_CONV2D_SELECTOR_LIST_H_
 
 #include "test/types/type_list.h"
 
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/im2col_selector.h"
-#include "sycldnn/conv2d/selector/matmul_selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-#include "sycldnn/conv2d/selector/winograd_selector.h"
+#include "portdnn/conv2d/selector/direct_selector.h"
+#include "portdnn/conv2d/selector/im2col_selector.h"
+#include "portdnn/conv2d/selector/matmul_selector.h"
+#include "portdnn/conv2d/selector/tiled_selector.h"
+#include "portdnn/conv2d/selector/winograd_selector.h"
 
 namespace sycldnn {
 namespace types {
@@ -35,4 +35,4 @@ using SelectorList = sycldnn::types::TypeList<
 }  // namespace types
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_TEST_CONV2D_SELECTOR_LIST_H_
+#endif  // PORTDNN_TEST_CONV2D_SELECTOR_LIST_H_

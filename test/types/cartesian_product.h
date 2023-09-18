@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_TYPES_CARTESIAN_PRODUCT_H_
-#define SYCLDNN_TEST_TYPES_CARTESIAN_PRODUCT_H_
+#ifndef PORTDNN_TEST_TYPES_CARTESIAN_PRODUCT_H_
+#define PORTDNN_TEST_TYPES_CARTESIAN_PRODUCT_H_
 
 #include <gtest/gtest.h>
 
@@ -82,4 +82,4 @@ static_assert(
     "Error in general CartesianProduct");
 }  // namespace types
 }  // namespace sycldnn
-#endif  // SYCLDNN_TEST_TYPES_CARTESIAN_PRODUCT_H_
+#endif  // PORTDNN_TEST_TYPES_CARTESIAN_PRODUCT_H_

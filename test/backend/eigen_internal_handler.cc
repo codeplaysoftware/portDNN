@@ -19,7 +19,7 @@
 
 #include "test/backend/backend_test_fixture.h"
 
-#include "sycldnn/backend/eigen_backend.h"
+#include "portdnn/backend/eigen_backend.h"
 
 #include "src/backend/eigen_backend_provider.h"
 

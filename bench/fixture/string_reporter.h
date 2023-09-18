@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_FIXTURE_STRING_REPORTER_H_
-#define SYCLDNN_BENCH_FIXTURE_STRING_REPORTER_H_
+#ifndef PORTDNN_BENCH_FIXTURE_STRING_REPORTER_H_
+#define PORTDNN_BENCH_FIXTURE_STRING_REPORTER_H_
 
 #include <benchmark/benchmark.h>
 
@@ -60,4 +60,4 @@ struct StringReporter {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_FIXTURE_STRING_REPORTER_H_
+#endif  // PORTDNN_BENCH_FIXTURE_STRING_REPORTER_H_

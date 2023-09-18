@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POINTWISE_SNN_FIXTURE_H_
-#define SYCLDNN_BENCH_POINTWISE_SNN_FIXTURE_H_
+#ifndef PORTDNN_BENCH_POINTWISE_SNN_FIXTURE_H_
+#define PORTDNN_BENCH_POINTWISE_SNN_FIXTURE_H_
 
 #include "base_pointwise_fixture.h"
 #include "snn_pointwise_executor.h"
@@ -61,7 +61,7 @@ class SNNPointwiseBenchmark
     this->add_to_label("@operator",
                        sycldnn::bench::OperatorTypeName<Operator>::name);
     this->add_to_label("@direction", sycldnn::bench::TypeName<Direction>::name);
-    this->add_to_label("@library", "SYCL-DNN");
+    this->add_to_label("@library", "portDNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Pointwise");
     this->add_to_label("git_hash", commit_hash);
@@ -76,4 +76,4 @@ class SNNPointwiseBenchmark
       ->UseManualTime()                                                 \
       ->Unit(benchmark::kNanosecond);
 
-#endif  // define SYCLDNN_BENCH_POINTWISE_SNN_FIXTURE_H_
+#endif  // define PORTDNN_BENCH_POINTWISE_SNN_FIXTURE_H_

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_HELPERS_MATH_H_
-#define SYCLDNN_SRC_HELPERS_MATH_H_
+#ifndef PORTDNN_SRC_HELPERS_MATH_H_
+#define PORTDNN_SRC_HELPERS_MATH_H_
 
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/helpers/macros.h"
 
 #include <CL/sycl.hpp>
 
@@ -122,4 +122,4 @@ inline SNN_ALWAYS_INLINE T align(T x, T alignment) {
 }  // namespace math
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_HELPERS_MATH_H_
+#endif  // PORTDNN_SRC_HELPERS_MATH_H_

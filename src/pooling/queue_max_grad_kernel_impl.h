@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
-#define SYCLDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
+#ifndef PORTDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
+#define PORTDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/pooling/params.h"
+#include "portdnn/pooling/params.h"
 
 #include "src/pooling/kernels.h"
 
@@ -60,4 +60,4 @@ SNNStatus queue_max_grad_pooling(MemObj<T const>& input_mem,
 }  // namespace pooling
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_
+#endif  // PORTDNN_SRC_POOLING_QUEUE_MAX_GRAD_KERNEL_IMPL_H_

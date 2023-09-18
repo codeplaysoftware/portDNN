@@ -38,10 +38,10 @@ DIRECTIONS = ['forward', 'grad']
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
-#include "sycldnn/data_format.h"
+#include "portdnn/data_format.h"
 
-#include "sycldnn/softmax/direction.h"
-#include "sycldnn/softmax/params.h"
+#include "portdnn/softmax/direction.h"
+#include "portdnn/softmax/params.h"
 
 #include "test/softmax/softmax_fixture.h"
 #include "test/types/cartesian_product.h"

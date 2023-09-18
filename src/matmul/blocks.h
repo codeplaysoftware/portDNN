@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_MATMUL_BLOCKS_H_
-#define SYCLDNN_SRC_MATMUL_BLOCKS_H_
+#ifndef PORTDNN_SRC_MATMUL_BLOCKS_H_
+#define PORTDNN_SRC_MATMUL_BLOCKS_H_
 
 #include "src/helpers/math.h"
 #include "src/helpers/register_tile.h"
@@ -219,4 +219,4 @@ store_block(VectorBlock<T, Rows, Cols> const& block,
 
 }  // namespace matmul
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_MATMUL_BLOCKS
+#endif  // PORTDNN_SRC_MATMUL_BLOCKS

@@ -4,7 +4,7 @@ The [VGG16 network][vgg16-paper] and [ResNet50 network][resnet50-paper] are well
 convolutional neural networks that outperformed the conventional machine learning 
 methods for image classification on the ImageNet dataset in the ILSVRC competition
 held in the years 2014 and 2015 respectively. These sample codes implement said networks in 
-pure SYCL code, for inference only, showing a larger example of using the SYCL-DNN API. 
+pure SYCL code, for inference only, showing a larger example of using the portDNN API. 
 Some rough instructions for how they might be used are provided.
 
 ## Obtaining the model weights and classes
@@ -19,13 +19,13 @@ mkdir data && pushd data
 # For VGG16
 ```bash
 wget --no-verbose https://storage.googleapis.com/tensorflow/keras-applications/vgg16/vgg16_weights_tf_dim_ordering_tf_kernels.h5
-python ${SYCL_DNN}/samples/networks/vgg/h5toBin.py vgg16_weights_tf_dim_ordering_tf_kernels.h5
+python ${PORT_DNN}/samples/networks/vgg/h5toBin.py vgg16_weights_tf_dim_ordering_tf_kernels.h5
 popd
 ```
 # For ResNet50
 ```bash
 wget --no-verbose https://storage.googleapis.com/tensorflow/keras-applications/resnet/resnet50_weights_tf_dim_ordering_tf_kernels.h5
-python ${SYCL_DNN}/samples/networks/resnet50/h5toBin.py resnet50_weights_tf_dim_ordering_tf_kernels.h5
+python ${PORT_DNN}/samples/networks/resnet50/h5toBin.py resnet50_weights_tf_dim_ordering_tf_kernels.h5
 popd
 ```
 
@@ -38,12 +38,12 @@ script is available to perform this transformation for any image and format
 supported by the [PIL][py-img-lib].
 
 ```bash
-python ${SYCL_DNN}/samples/networks/img2bin.py my-favourite-pet.jpg
+python ${PORT_DNN}/samples/networks/img2bin.py my-favourite-pet.jpg
 ```
 
 ## Testing on an image
 
-The SYCL-DNN samples are built in the default CMake configuration. The samples
+The portDNN samples are built in the default CMake configuration. The samples
 are built by the targets `vgg` and `resnet50` respectively. The samples first must
 be passed the directory where the binary weights files are stored and the second 
 argument should be the preprocessed picture that should be classified. The expected
@@ -52,11 +52,11 @@ to the total time to run the network on an input, not including data transfer ti
 
 # For VGG16
 ```bash
-${SYCL_DNN_BUILD_DIR}/samples/networks/vgg/vgg data/ my-favourite-pet.jpg.bin
+${PORT_DNN_BUILD_DIR}/samples/networks/vgg/vgg data/ my-favourite-pet.jpg.bin
 ```
 # For ResNet50
 ```bash
-${SYCL_DNN_BUILD_DIR}/samples/networks/resnet50/resnet50 data/ my-favourite-pet.jpg.bin
+${PORT_DNN_BUILD_DIR}/samples/networks/resnet50/resnet50 data/ my-favourite-pet.jpg.bin
 ```
 
 ## Classifying Images
@@ -69,13 +69,13 @@ the final classification, obtained from the classes data.
 
 # For VGG16
 ```bash
-class_id=`{SYCL_DNN_BUILD_DIR}/samples/networks/vgg/vgg data my-favourite-pet.jpg.bin | \
+class_id=`{PORT_DNN_BUILD_DIR}/samples/networks/vgg/vgg data my-favourite-pet.jpg.bin | \
 grep 'classed' | sed -r 's/[^0-9]*([0-9]+).*/\"\1\"/'`
 cat imagenet_class_index.json | jq ".$class_id"
 ```
 # For ResNet50
 ```bash
-class_id=`{SYCL_DNN_BUILD_DIR}/samples/networks/resnet50/resnet50 data my-favourite-pet.jpg.bin | \
+class_id=`{PORT_DNN_BUILD_DIR}/samples/networks/resnet50/resnet50 data my-favourite-pet.jpg.bin | \
 grep 'classed' | sed -r 's/[^0-9]*([0-9]+).*/\"\1\"/'`
 cat imagenet_class_index.json | jq ".$class_id"
 ```

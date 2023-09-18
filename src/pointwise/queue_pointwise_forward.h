@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
-#define SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#ifndef PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#define PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
 #include <CL/sycl.hpp>
 
@@ -38,4 +38,4 @@ SNNStatus queue_pointwise(MemObj<T const>& in_mem, MemObj<T>& out_mem,
 }  // namespace pointwise
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#endif  // PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_

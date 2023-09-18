@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_ROI_ALIGN_QUEUE_IMPL_H_
-#define SYCLDNN_SRC_ROI_ALIGN_QUEUE_IMPL_H_
+#ifndef PORTDNN_SRC_ROI_ALIGN_QUEUE_IMPL_H_
+#define PORTDNN_SRC_ROI_ALIGN_QUEUE_IMPL_H_
 
-#include "sycldnn/helpers/ratio.h"
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/helpers/ratio.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/roi_align/params.h"
+#include "portdnn/roi_align/params.h"
 
 #include "src/roi_align/kernels.h"
 #include "src/roi_align/queue_roi_align_kernel.h"
@@ -58,4 +58,4 @@ SNNStatus queue_roi_align(MemObj<T const>& in_mem, MemObj<T const>& rois_mem,
 }  // namespace roi_align
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_ROI_ALIGN_QUEUE_IMPL_H_
+#endif  // PORTDNN_SRC_ROI_ALIGN_QUEUE_IMPL_H_

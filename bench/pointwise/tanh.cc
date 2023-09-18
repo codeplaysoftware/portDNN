@@ -17,10 +17,10 @@
 
 #include "src/backend/snn_backend_provider.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/operators.h"
 
 #define TANH_BM_WITH_DIRECTION_AND_DTYPE(N, DIRECTION, DTYPE)        \
   POINTWISE_BENCHMARK("Tanh", OP##_##DIRECTION##_##N##_##SNNBackend, \

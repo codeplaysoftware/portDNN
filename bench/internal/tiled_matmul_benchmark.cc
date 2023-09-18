@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
+#include "portdnn/matmul/params.h"
 #include "src/backend/backend_provider.h"
 #include "src/backend/snn_backend_provider.h"
 #include "src/matmul/queue_kernel.h"
-#include "sycldnn/matmul/params.h"
 
 #include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_datatype_info.h"
@@ -45,7 +45,7 @@
 namespace sycldnn {
 namespace bench {
 
-/** Helper function that checks if SYCL-DNN can wait on events directly, or
+/** Helper function that checks if portDNN can wait on events directly, or
  * has to wait on the queue. This is because Eigen cannot return us the events
  * corresponding to the kernel launch directly. */
 /* TODO: SD-404 Remove queue::wait_and_throw workaround when Eigen removed */
@@ -57,7 +57,7 @@ inline void wait_for_event(cl::sycl::event& ev, cl::sycl::queue q) {
   }
 }
 
-/** Executor to perform a matrix multiply benchmark using SYCL-DNN.  */
+/** Executor to perform a matrix multiply benchmark using portDNN.  */
 template <typename Benchmark, typename DataType, int RowTile, int AccTile,
           int ColTile>
 struct SNNMatmulExecutor : public BaseExecutor {
@@ -254,7 +254,7 @@ class SNNMatmulBenchmark
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
-    this->add_to_label("@library", "SYCL-DNN");
+    this->add_to_label("@library", "portDNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Matmul");
     this->add_to_label("git_hash", commit_hash);

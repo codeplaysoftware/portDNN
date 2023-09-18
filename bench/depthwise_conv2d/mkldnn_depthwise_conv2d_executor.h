@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_
-#define SYCLDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_
+#define PORTDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/depthwise_conv2d/params.h"
-#include "sycldnn/depthwise_conv2d/sizes.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/depthwise_conv2d/params.h"
+#include "portdnn/depthwise_conv2d/sizes.h"
 
 #include "base_depthwise_convolution_fixture.h"
 #include "benchmark_config.h"
@@ -219,4 +219,4 @@ class MKLDepthwiseConvolutionBenchmark
       ->Unit(benchmark::kNanosecond)                                  \
       ->Apply(RunForAllParamSets);
 
-#endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_DEPTHWISE_CONV2D_MKLDNN_DEPTHWISE_CONV2D_EXECUTOR_H_

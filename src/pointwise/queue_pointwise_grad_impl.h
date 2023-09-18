@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
-#define SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
+#ifndef PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
+#define PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
 
-#include "sycldnn/helpers/ratio.h"
-#include "sycldnn/mem_object.h"
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/operators.h"
-#include "sycldnn/status.h"
+#include "portdnn/helpers/ratio.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/operators.h"
+#include "portdnn/status.h"
 
 #include "src/pointwise/kernels.h"
 #include "src/pointwise/queue_pointwise_grad.h"
@@ -64,4 +64,4 @@ SNNStatus queue_pointwise(MemObj<T const>& in_forward_mem,
 }  // namespace pointwise
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_
+#endif  // PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_GRAD_IMPL_H_

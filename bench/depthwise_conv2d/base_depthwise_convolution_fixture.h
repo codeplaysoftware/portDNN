@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_FIXTURE_H_
-#define SYCLDNN_BENCH_FIXTURE_H_
+#ifndef PORTDNN_BENCH_FIXTURE_H_
+#define PORTDNN_BENCH_FIXTURE_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/depthwise_conv2d/params.h"
-#include "sycldnn/depthwise_conv2d/sizes.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/depthwise_conv2d/params.h"
+#include "portdnn/depthwise_conv2d/sizes.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -121,4 +121,4 @@ void BaseDepthwiseConvolutionBenchmark::set_items_processed<
                           num_ops);
 }
 
-#endif  // define SYCLDNN_BENCH_FIXTURE_H_
+#endif  // define PORTDNN_BENCH_FIXTURE_H_

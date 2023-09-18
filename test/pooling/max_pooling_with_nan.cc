@@ -15,18 +15,18 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/pooling/launch.h"
-#include "sycldnn/pooling/operators.h"
-#include "sycldnn/pooling/params.h"
-#include "sycldnn/pooling/sizes.h"
+#include "portdnn/pooling/launch.h"
+#include "portdnn/pooling/operators.h"
+#include "portdnn/pooling/params.h"
+#include "portdnn/pooling/sizes.h"
 
-#include "sycldnn/status.h"
+#include "portdnn/status.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/pooling/pooling_fixture.h"

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <sycldnn/compat/batchnorm.hpp>
+#include <portdnn/compat/batchnorm.hpp>
 #include <type_traits>
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"

@@ -15,8 +15,8 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/padding_mode.h"
+#include "portdnn/helpers/padding.h"
+#include "portdnn/padding_mode.h"
 
 #include <stddef.h>
 #include <cstdint>

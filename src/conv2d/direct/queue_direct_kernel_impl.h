@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
-#define SYCLDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
+#ifndef PORTDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
+#define PORTDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
 
-#include "sycldnn/mem_object.h"
+#include "portdnn/mem_object.h"
 
-#include "sycldnn/helpers/minmax.h"
-#include "sycldnn/helpers/ratio.h"
+#include "portdnn/helpers/minmax.h"
+#include "portdnn/helpers/ratio.h"
 
 #include "src/conv2d/direct/kernels_nchw.h"
 #include "src/conv2d/direct/kernels_nhwc.h"
@@ -74,4 +74,4 @@ SNNStatus queue_direct_kernel(MemObj<T const>& in_mem, MemObj<T const>& fil_mem,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_
+#endif  // PORTDNN_SRC_CONV2D_DIRECT_LAUNCHER_H_

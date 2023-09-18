@@ -17,11 +17,11 @@
 #include <CL/sycl.hpp>
 #include <utility>
 
+#include "portdnn/binaryop/operators.h"
+#include "portdnn/export.h"
+#include "portdnn/internal/binaryop/launch.h"
 #include "src/binaryop/kernels.h"
 #include "src/binaryop/queue_binaryop_kernel.h"
-#include "sycldnn/binaryop/operators.h"
-#include "sycldnn/export.h"
-#include "sycldnn/internal/binaryop/launch.h"
 
 namespace sycldnn {
 namespace binaryop {

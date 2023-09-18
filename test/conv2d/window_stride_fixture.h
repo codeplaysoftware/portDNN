@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_CONV2D_WINDOW_STRIDE_FIXTURE_H_
-#define SYCLDNN_TEST_CONV2D_WINDOW_STRIDE_FIXTURE_H_
+#ifndef PORTDNN_TEST_CONV2D_WINDOW_STRIDE_FIXTURE_H_
+#define PORTDNN_TEST_CONV2D_WINDOW_STRIDE_FIXTURE_H_
 #include <gtest/gtest.h>
 
-#include "sycldnn/conv2d/params.h"
+#include "portdnn/conv2d/params.h"
 
-#include "sycldnn/helpers/padding.h"
+#include "portdnn/helpers/padding.h"
 
 #include "test/conv2d/convolution_fixture.h"
 
@@ -87,4 +87,4 @@ struct WindowStrideTest : public ConvolutionFixture<Tuple> {
     this->template test_conv<FilterBackprop>(exp, params, max_val);
   }
 };
-#endif  // SYCLDNN_TEST_CONV2D_WINDOW_STRIDE_FIXTURE_H_
+#endif  // PORTDNN_TEST_CONV2D_WINDOW_STRIDE_FIXTURE_H_

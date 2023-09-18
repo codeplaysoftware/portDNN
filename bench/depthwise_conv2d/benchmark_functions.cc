@@ -17,9 +17,9 @@
 
 #include "src/backend/snn_backend_provider.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/conv_type.h"
 
 #define BM_WITH_DIR_DTYPE(DIR, DTYPE)                                       \
   DEPTHWISE_CONVOLUTION_BENCHMARK(DIR, sycldnn::backend::SNNBackend, DTYPE, \

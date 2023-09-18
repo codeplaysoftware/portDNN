@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_BATCHNORM_SNN_BATCHNORM_EXECUTOR_H_
-#define SYCLDNN_BENCH_BATCHNORM_SNN_BATCHNORM_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_BATCHNORM_SNN_BATCHNORM_EXECUTOR_H_
+#define PORTDNN_BENCH_BATCHNORM_SNN_BATCHNORM_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/batchnorm/direction.h"
-#include "sycldnn/batchnorm/launch.h"
+#include "portdnn/batchnorm/direction.h"
+#include "portdnn/batchnorm/launch.h"
 
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Executor to perform the batchnorm benchmark using SYCL-DNN.  */
+/** Executor to perform the batchnorm benchmark using portDNN.  */
 template <typename Benchmark, typename DataType, typename Backend>
 struct SNNBatchnormExecutor : public BaseExecutor {
  private:
@@ -132,4 +132,4 @@ struct SNNBatchnormExecutor : public BaseExecutor {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_BATCHNORM_SNN_BATCHNORM_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_BATCHNORM_SNN_BATCHNORM_EXECUTOR_H_

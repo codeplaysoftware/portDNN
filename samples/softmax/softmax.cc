@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/softmax/direction.h"
-#include "sycldnn/softmax/launch.h"
-#include "sycldnn/softmax/params.h"
+#include "portdnn/softmax/direction.h"
+#include "portdnn/softmax/launch.h"
+#include "portdnn/softmax/params.h"
 
 #include <CL/sycl.hpp>
 #include <iostream>

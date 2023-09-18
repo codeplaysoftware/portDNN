@@ -15,7 +15,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/minmax.h"
+#include "portdnn/helpers/minmax.h"
 
 #include <stddef.h>
 #include <vector>

@@ -15,13 +15,13 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/mem_object.h"
+#include "portdnn/accessor_types.h"
+#include "portdnn/mem_object.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/helpers/ratio.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/ratio.h"
+#include "portdnn/helpers/scope_exit.h"
 
 #include "src/helpers/flattened_id.h"
 #include "src/helpers/vector_io.h"

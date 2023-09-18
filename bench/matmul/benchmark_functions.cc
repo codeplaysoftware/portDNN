@@ -16,23 +16,23 @@
 #include "snn_fixture.h"
 
 #ifdef SNN_BENCH_EIGEN
+#include "portdnn/backend/eigen_backend.h"
 #include "src/backend/eigen_backend_provider.h"
-#include "sycldnn/backend/eigen_backend.h"
 #endif  // SNN_BENCH_EIGEN
 
 #ifdef SNN_BENCH_SYCLBLAS
+#include "portdnn/backend/sycl_blas_backend.h"
 #include "src/backend/syclblas_backend_provider.h"
-#include "sycldnn/backend/sycl_blas_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
 #ifdef SNN_BENCH_CLBLAST
+#include "portdnn/backend/clblast_backend.h"
 #include "src/backend/clblast_backend_provider.h"
-#include "sycldnn/backend/clblast_backend.h"
 #endif  // SNN_BENCH_SYCLBLAS
 
 #ifdef SNN_BENCH_SNNBACKEND
+#include "portdnn/backend/snn_backend.h"
 #include "src/backend/snn_backend_provider.h"
-#include "sycldnn/backend/snn_backend.h"
 #endif  // SNN_BENCH_SNNBACKEND
 
 #define BM_INSTANTIATE(BACK, DTYPE) \

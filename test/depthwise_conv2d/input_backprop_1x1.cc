@@ -16,9 +16,9 @@
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/conv_type.h"
 
-#include "sycldnn/depthwise_conv2d/params.h"
+#include "portdnn/depthwise_conv2d/params.h"
 
 #include "test/depthwise_conv2d/depthwise_conv2d_fixture.h"
 

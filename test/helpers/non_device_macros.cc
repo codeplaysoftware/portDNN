@@ -15,7 +15,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/helpers/macros.h"
 
 TEST(NonDeviceHelperMacro, NoAlwaysInlineOnHost) {
 // These tests depend on certain preprocessor behaviour which is not

@@ -20,8 +20,8 @@
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/scatter_nd/operators.h"
-#include "sycldnn/scatter_nd/params.h"
+#include "portdnn/scatter_nd/operators.h"
+#include "portdnn/scatter_nd/params.h"
 
 #include "test/scatter_nd/scatter_nd_fixture.h"
 #include "test/types/cartesian_product.h"

@@ -17,8 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_HELPERS_REGISTER_TILE_H_
-#define SYCLDNN_SRC_HELPERS_REGISTER_TILE_H_
+#ifndef PORTDNN_SRC_HELPERS_REGISTER_TILE_H_
+#define PORTDNN_SRC_HELPERS_REGISTER_TILE_H_
 
 namespace sycldnn {
 namespace helpers {
@@ -3015,4 +3015,4 @@ struct RegisterTile3D<T, 16, Y, Z> {
 
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // SYCLDNN_SRC_HELPERS_REGISTER_TILE_H_
+#endif  // PORTDNN_SRC_HELPERS_REGISTER_TILE_H_

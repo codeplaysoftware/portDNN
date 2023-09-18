@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
-#define SYCLDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
+#ifndef PORTDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
+#define PORTDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
 
 #include "base_batchnorm_fixture.h"
 #include "benchmark_config.h"
@@ -59,7 +59,7 @@ class SNNBatchnormBenchmark
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
-    this->add_to_label("@library", "SYCL-DNN");
+    this->add_to_label("@library", "portDNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Batchnorm");
     this->add_to_label("git_hash", commit_hash);
@@ -82,4 +82,4 @@ class SNNBatchnormBenchmark
       ->Unit(benchmark::kNanosecond)                                    \
       ->Apply(RunForAllParamSets);
 
-#endif  // define SYCLDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
+#endif  // define PORTDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
-#define SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
+#ifndef PORTDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
+#define PORTDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
 
-#include "sycldnn/mem_object.h"
-#include "sycldnn/status.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/status.h"
 
 #include "src/transpose/kernels.h"
 
@@ -53,4 +53,4 @@ SNNStatus queue_kernel(MemObj<T const>& input_mem, MemObj<T>& output_mem,
 }  // namespace transpose
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_
+#endif  // PORTDNN_SRC_TRANSPOSE_QUEUE_KERNEL_IMPL_H_

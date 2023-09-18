@@ -15,19 +15,19 @@
  */
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/accessor_types.h"
-#include "sycldnn/mem_object.h"
-#include "sycldnn/padding_mode.h"
-#include "sycldnn/status.h"
+#include "portdnn/accessor_types.h"
+#include "portdnn/mem_object.h"
+#include "portdnn/padding_mode.h"
+#include "portdnn/status.h"
 
-#include "sycldnn/backend/snn_backend.h"
+#include "portdnn/backend/snn_backend.h"
 
-#include "sycldnn/conv2d/launch.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/selector/selector.h"
+#include "portdnn/conv2d/launch.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/selector/selector.h"
 
-#include "sycldnn/helpers/padding.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/padding.h"
+#include "portdnn/helpers/scope_exit.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
 #include "src/conv2d/tiled/queue_tiled_kernel_impl.h"
@@ -173,7 +173,7 @@ void TiledConvolutionBenchmark<
   add_bandwidth_counters<float>(state, conv_sizes);
 
   add_to_label("@selector", "TiledSelector");
-  add_to_label("@library", "SYCL-DNN");
+  add_to_label("@library", "portDNN");
   add_to_label("git_hash", commit_hash);
   sycldnn::bench::computecpp_info::add_computecpp_version(*this);
   set_label(state);

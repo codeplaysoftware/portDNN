@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_BATCHNORM_FIXTURE_H_
-#define SYCLDNN_TEST_BATCHNORM_FIXTURE_H_
+#ifndef PORTDNN_TEST_BATCHNORM_FIXTURE_H_
+#define PORTDNN_TEST_BATCHNORM_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/batchnorm/direction.h"
-#include "sycldnn/batchnorm/launch.h"
-#include "sycldnn/batchnorm/params.h"
+#include "portdnn/batchnorm/direction.h"
+#include "portdnn/batchnorm/launch.h"
+#include "portdnn/batchnorm/params.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -238,4 +238,4 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
   }
 };
 
-#endif  // SYCLDNN_TEST_BATCHNORM_FIXTURE_H_
+#endif  // PORTDNN_TEST_BATCHNORM_FIXTURE_H_

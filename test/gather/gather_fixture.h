@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_GATHER_GATHER_FIXTURE_H_
-#define SYCLDNN_TEST_GATHER_GATHER_FIXTURE_H_
+#ifndef PORTDNN_TEST_GATHER_GATHER_FIXTURE_H_
+#define PORTDNN_TEST_GATHER_GATHER_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/gather/launch.h"
-#include "sycldnn/gather/sizes.h"
+#include "portdnn/gather/launch.h"
+#include "portdnn/gather/sizes.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -77,4 +77,4 @@ struct GatherFixture : public BackendTestFixture<typename Pair::SecondType> {
   }
 };
 
-#endif  // SYCLDNN_TEST_GATHER_GATHER__FIXTURE_H_
+#endif  // PORTDNN_TEST_GATHER_GATHER__FIXTURE_H_

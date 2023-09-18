@@ -24,7 +24,7 @@ set(CSV_REPO "https://github.com/ben-strasser/fast-cpp-csv-parser" CACHE STRING
 set(CSV_GIT_TAG "6636561" CACHE STRING
   "Commit-ish to check out in CSV repo"
 )
-set(CSV_SOURCE_DIR ${sycldnn_BINARY_DIR}/fast-cpp-csv-parser)
+set(CSV_SOURCE_DIR ${portdnn_BINARY_DIR}/fast-cpp-csv-parser)
 
 if(NOT TARGET CSV_download)
   ExternalProject_Add(CSV_download

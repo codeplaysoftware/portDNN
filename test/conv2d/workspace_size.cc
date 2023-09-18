@@ -15,18 +15,18 @@
  */
 #include <gtest/gtest.h>
 
-#include "sycldnn/padding_mode.h"
+#include "portdnn/padding_mode.h"
 
-#include "sycldnn/helpers/padding.h"
+#include "portdnn/helpers/padding.h"
 
-#include "sycldnn/conv2d/conv_type.h"
-#include "sycldnn/conv2d/params.h"
-#include "sycldnn/conv2d/workspace_size.h"
+#include "portdnn/conv2d/conv_type.h"
+#include "portdnn/conv2d/params.h"
+#include "portdnn/conv2d/workspace_size.h"
 
-#include "sycldnn/conv2d/selector/direct_selector.h"
-#include "sycldnn/conv2d/selector/im2col_selector.h"
-#include "sycldnn/conv2d/selector/tiled_selector.h"
-#include "sycldnn/conv2d/selector/winograd_selector.h"
+#include "portdnn/conv2d/selector/direct_selector.h"
+#include "portdnn/conv2d/selector/im2col_selector.h"
+#include "portdnn/conv2d/selector/tiled_selector.h"
+#include "portdnn/conv2d/selector/winograd_selector.h"
 
 #include <stddef.h>
 

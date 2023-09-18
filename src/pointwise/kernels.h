@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_SRC_POINTWISE_KERNELS_H_
-#define SYCLDNN_SRC_POINTWISE_KERNELS_H_
+#ifndef PORTDNN_SRC_POINTWISE_KERNELS_H_
+#define PORTDNN_SRC_POINTWISE_KERNELS_H_
 
 #include <CL/sycl.hpp>
 
-#include "sycldnn/helpers/macros.h"
+#include "portdnn/helpers/macros.h"
 
 #include "src/helpers/vector_io.h"
 #include "src/helpers/vector_type.h"
 
-#include "sycldnn/accessor_types.h"
+#include "portdnn/accessor_types.h"
 
-#include "sycldnn/helpers/minmax.h"
+#include "portdnn/helpers/minmax.h"
 
-#include "sycldnn/pointwise/direction.h"
+#include "portdnn/pointwise/direction.h"
 
 namespace sycldnn {
 namespace pointwise {
@@ -240,4 +240,4 @@ class PointwiseOp<T, Index, Op, Gradient, VectorWidth, IsUSM> {
 }  // namespace pointwise
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_SRC_POINTWISE_KERNELS_H_
+#endif  // PORTDNN_SRC_POINTWISE_KERNELS_H_

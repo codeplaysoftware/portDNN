@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_MATMUL_SNN_MATMUL_EXECUTOR_H_
-#define SYCLDNN_BENCH_MATMUL_SNN_MATMUL_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_MATMUL_SNN_MATMUL_EXECUTOR_H_
+#define PORTDNN_BENCH_MATMUL_SNN_MATMUL_EXECUTOR_H_
 
-#include "sycldnn/matmul/launch.h"
+#include "portdnn/matmul/launch.h"
 
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Helper function that checks if SYCL-DNN can wait on events directly, or
+/** Helper function that checks if portDNN can wait on events directly, or
  * has to wait on the queue. This is because Eigen cannot return us the events
  * corresponding to the kernel launch directly. */
 /* TODO: SD-404 Remove queue::wait_and_throw workaround when Eigen removed */
@@ -38,7 +38,7 @@ inline void wait_for_event(cl::sycl::event& ev, cl::sycl::queue q) {
   }
 }
 
-/** Executor to perform a matrix multiply benchmark using SYCL-DNN.  */
+/** Executor to perform a matrix multiply benchmark using portDNN.  */
 template <typename Benchmark>
 struct SNNMatmulExecutor : public BaseExecutor {
  private:
@@ -153,4 +153,4 @@ struct SNNMatmulExecutor : public BaseExecutor {
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_MATMUL_SNN_MATMUL_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_MATMUL_SNN_MATMUL_EXECUTOR_H_

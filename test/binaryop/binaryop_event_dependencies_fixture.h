@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_BINARYOP_FIXTURE_H_
-#define SYCLDNN_TEST_BINARYOP_FIXTURE_H_
+#ifndef PORTDNN_TEST_BINARYOP_FIXTURE_H_
+#define PORTDNN_TEST_BINARYOP_FIXTURE_H_
 
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "sycldnn/binaryop/launch.h"
-#include "sycldnn/helpers/dims.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/binaryop/launch.h"
+#include "portdnn/helpers/dims.h"
+#include "portdnn/helpers/scope_exit.h"
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/dependency_check.h"
@@ -71,4 +71,4 @@ struct BinaryOpEventFixture
   }
 };
 
-#endif  // SYCLDNN_TEST_BINARYOP_FIXTURE_H_
+#endif  // PORTDNN_TEST_BINARYOP_FIXTURE_H_

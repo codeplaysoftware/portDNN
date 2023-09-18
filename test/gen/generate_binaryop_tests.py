@@ -32,7 +32,7 @@ INCLUDES = r"""
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "sycldnn/binaryop/operators.h"
+#include "portdnn/binaryop/operators.h"
 #include "test/binaryop/fixture.h"
 #include "test/types/cartesian_product.h"
 #include "test/types/kernel_data_types.h"

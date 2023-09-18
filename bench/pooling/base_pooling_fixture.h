@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
-#define SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
+#ifndef PORTDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
+#define PORTDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/pooling/sizes.h"
+#include "portdnn/pooling/sizes.h"
 
 extern const char* commit_date;
 extern const char* commit_hash;
@@ -106,4 +106,4 @@ void BasePoolingBenchmark::set_items_processed<sycldnn::pooling::Backpropagate>(
   state.SetItemsProcessed(state.iterations() * flops_per_input * tensor_size);
 }
 
-#endif  // SYCLDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_
+#endif  // PORTDNN_BENCH_POOLING_BASE_POOLING_FIXTURE_H_

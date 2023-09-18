@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_TEST_ROI_ALIGN_EVENT_DEPENDENCIES_FIXTURE_H
-#define SYCLDNN_TEST_ROI_ALIGN_EVENT_DEPENDENCIES_FIXTURE_H
+#ifndef PORTDNN_TEST_ROI_ALIGN_EVENT_DEPENDENCIES_FIXTURE_H
+#define PORTDNN_TEST_ROI_ALIGN_EVENT_DEPENDENCIES_FIXTURE_H
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/roi_align/launch.h"
-#include "sycldnn/roi_align/operators.h"
-#include "sycldnn/roi_align/params.h"
+#include "portdnn/roi_align/launch.h"
+#include "portdnn/roi_align/operators.h"
+#include "portdnn/roi_align/params.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -113,4 +113,4 @@ struct RoiAlignFixtureEventDependencies
   }
 };
 
-#endif  // SYCLDNN_TEST_ROI_ALIGN_EVENT_DEPENDENCIES_FIXTURE_H
+#endif  // PORTDNN_TEST_ROI_ALIGN_EVENT_DEPENDENCIES_FIXTURE_H

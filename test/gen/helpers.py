@@ -156,7 +156,7 @@ def to_camel_case(snake_case):
 
 
 def get_test_directory():
-    "Get the root test directory for SYCL-DNN."
+    "Get the root test directory for portDNN."
     file_path = os.path.dirname(__file__)
     test_dir = os.path.normpath(os.path.join(file_path, ".."))
     return test_dir

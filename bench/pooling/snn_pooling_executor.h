@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SYCLDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
-#define SYCLDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
+#ifndef PORTDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
+#define PORTDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
 
 #include <benchmark/benchmark.h>
 
-#include "sycldnn/helpers/handle_exception.h"
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/handle_exception.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/pooling/launch.h"
-#include "sycldnn/pooling/params.h"
-#include "sycldnn/pooling/sizes.h"
+#include "portdnn/pooling/launch.h"
+#include "portdnn/pooling/params.h"
+#include "portdnn/pooling/sizes.h"
 
 #include "bench/fixture/base_executor.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Executor to perform the pooling benchmark using SYCL-DNN.  */
+/** Executor to perform the pooling benchmark using portDNN.  */
 template <typename Benchmark, typename Direction,
           template <typename> class Operator>
 struct SNNPoolingExecutor : public BaseExecutor {
@@ -127,7 +127,7 @@ struct SNNPoolingExecutor : public BaseExecutor {
 
 /**
  * Specialized executor to perform the max grad pooling benchmark using
- * SYCL-DNN.
+ * portDNN.
  *
  * Max pool gradients require both the original input buffers and the backprop
  * buffers, whereas the other operations do not require both. This requires a
@@ -243,4 +243,4 @@ struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // SYCLDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
+#endif  // PORTDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_

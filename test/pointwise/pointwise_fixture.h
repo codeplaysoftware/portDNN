@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef SYCLDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
-#define SYCLDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
+#ifndef PORTDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
+#define PORTDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "sycldnn/helpers/scope_exit.h"
+#include "portdnn/helpers/scope_exit.h"
 
-#include "sycldnn/pointwise/direction.h"
-#include "sycldnn/pointwise/launch.h"
-#include "sycldnn/pointwise/operators.h"
+#include "portdnn/pointwise/direction.h"
+#include "portdnn/pointwise/launch.h"
+#include "portdnn/pointwise/operators.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -134,4 +134,4 @@ struct PointwiseFixture<Pair, Op, sycldnn::pointwise::Gradient>
     }
   }
 };
-#endif  // SYCLDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
+#endif  // PORTDNN_TEST_POINTWISE_POINTWISE_FIXTURE_H_
