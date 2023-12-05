@@ -22,7 +22,14 @@ include_guard()
 include(FindPackageHandleStandardArgs)
 
 get_filename_component(DPCPP_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
-find_library(DPCPP_LIB NAMES sycl PATHS "${DPCPP_BIN_DIR}/../lib")
+find_library(DPCPP_LIB NAMES sycl PATHS "$ENV{CMPLR_ROOT}/lib" "${DPCPP_BIN_DIR}/../lib" )
+
+find_path(DPCPP_INCLUDE_DIR
+  NAMES sycl.hpp
+  PATH_SUFFIXES lib/include/sycl
+  HINTS "$ENV{CMPLR_ROOT}/include/CL/sycl" "${DPCPP_BIN_DIR}/../include/sycl"
+  DOC "The DPCPP include directory"
+)
 
 find_package_handle_standard_args(DPCPP
   FOUND_VAR     DPCPP_FOUND
@@ -56,7 +63,7 @@ if(DPCPP_FOUND AND NOT TARGET DPCPP::DPCPP)
     INTERFACE_COMPILE_OPTIONS "${DPCPP_FLAGS};${DPCPP_INTERFACE_FLAGS};${SNN_DPCPP_USER_FLAGS}"
     INTERFACE_LINK_OPTIONS "${DPCPP_FLAGS};${SNN_DPCPP_USER_FLAGS}"
     INTERFACE_LINK_LIBRARIES ${DPCPP_LIB}
-    INTERFACE_INCLUDE_DIRECTORIES "${DPCPP_BIN_DIR}/../include/sycl;${DPCPP_BIN_DIR}/../include")
+    INTERFACE_INCLUDE_DIRECTORIES "${DPCPP_INCLUDE_DIR};${DPCPP_INCLUDE_DIR}/../")
 endif()
 
 function(add_sycl_to_target)
