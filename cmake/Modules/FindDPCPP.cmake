@@ -27,7 +27,7 @@ find_library(DPCPP_LIB NAMES sycl PATHS "$ENV{CMPLR_ROOT}/lib" "${DPCPP_BIN_DIR}
 find_path(DPCPP_INCLUDE_DIR
   NAMES sycl.hpp
   PATH_SUFFIXES lib/include/sycl
-  HINTS "$ENV{CMPLR_ROOT}/include/CL/sycl" "${DPCPP_BIN_DIR}/../include/sycl"
+  HINTS "$ENV{CMPLR_ROOT}/include/sycl" "${DPCPP_BIN_DIR}/../include/sycl"
   DOC "The DPCPP include directory"
 )
 
