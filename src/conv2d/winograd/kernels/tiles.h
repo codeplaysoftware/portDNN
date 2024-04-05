@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_CONV2D_WINOGRAD_KERNELS_TILES_H_
-#define PORTDNN_SRC_CONV2D_WINOGRAD_KERNELS_TILES_H_
+#ifndef SYCLDNN_SRC_CONV2D_WINOGRAD_KERNELS_TILES_H_
+#define SYCLDNN_SRC_CONV2D_WINOGRAD_KERNELS_TILES_H_
 
-#include "portdnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/conv_type.h"
 
 #include "src/helpers/register_tile.h"
 #include "src/helpers/vector_io.h"
@@ -406,4 +406,4 @@ struct OutputData {
 
 #include "tiles_impl.h"
 
-#endif  // PORTDNN_SRC_CONV2D_WINOGRAD_KERNELS_TILES_H_
+#endif  // SYCLDNN_SRC_CONV2D_WINOGRAD_KERNELS_TILES_H_

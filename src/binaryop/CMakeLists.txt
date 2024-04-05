@@ -41,7 +41,7 @@ function(generate_binary)
   )
   set(_general_template queue_binaryop_kernel_impl.cc.in)
   set(_sources "")
-  set(OPS Add Sub Mul Div)
+  set(OPS Add Sub SubSqr Mul Div)
   set(VEC_KERNELS
     BinaryOpVec
     BinaryOpBcastLhsVec2D

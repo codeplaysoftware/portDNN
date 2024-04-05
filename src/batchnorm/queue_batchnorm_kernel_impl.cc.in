@@ -1,0 +1,110 @@
+/*
+ * Copyright Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "src/batchnorm/kernels.h"
+#include "src/batchnorm/queue_batchnorm_kernel_impl.h"
+
+#include <CL/sycl.hpp>
+
+// clang-format off
+#define SNN_DATA_TYPE         @DATA_TYPE@
+#define SNN_INDEX_TYPE        @INDEX_TYPE@
+#define SNN_VEC_WIDTH         @VEC_WIDTH@
+
+// clang-format on
+
+namespace sycldnn {
+namespace batchnorm {
+namespace internal {
+
+// Forward Inference
+template SNNStatus queue_batchnorm_inference<SNN_DATA_TYPE, SNN_INDEX_TYPE,
+                                             SNN_VEC_WIDTH, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE const>& beta,
+    BufferMemObject<SNN_DATA_TYPE const>& gamma,
+    BufferMemObject<SNN_DATA_TYPE const>& input_mean,
+    BufferMemObject<SNN_DATA_TYPE const>& input_variance,
+    BufferMemObject<SNN_DATA_TYPE>& output, BatchNormParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+
+// Forward Training
+template SNNStatus
+queue_batchnorm_training<SNN_DATA_TYPE, SNN_INDEX_TYPE, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE const>& beta,
+    BufferMemObject<SNN_DATA_TYPE const>& gamma,
+    BufferMemObject<SNN_DATA_TYPE>& running_mean,
+    BufferMemObject<SNN_DATA_TYPE>& running_variance,
+    BufferMemObject<SNN_DATA_TYPE>& cache_mean,
+    BufferMemObject<SNN_DATA_TYPE>& cache_invvariance,
+    BufferMemObject<SNN_DATA_TYPE>& workspace_var,
+    BufferMemObject<SNN_DATA_TYPE>& output, BatchNormParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+
+// Gradient
+template SNNStatus queue_batchnorm_gradient<SNN_DATA_TYPE, SNN_INDEX_TYPE,
+                                            SNN_VEC_WIDTH, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE const>& out_grad,
+    BufferMemObject<SNN_DATA_TYPE>& in_grad,
+    BufferMemObject<SNN_DATA_TYPE const>& gamma,
+    BufferMemObject<SNN_DATA_TYPE const>& cache_mean,
+    BufferMemObject<SNN_DATA_TYPE const>& cache_invvariance,
+    BufferMemObject<SNN_DATA_TYPE>& workspace, BatchNormParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+
+#ifdef SNN_ENABLE_USM
+// Forward Inference
+template SNNStatus queue_batchnorm_inference<SNN_DATA_TYPE, SNN_INDEX_TYPE,
+                                             SNN_VEC_WIDTH, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE const>& beta,
+    USMMemObject<SNN_DATA_TYPE const>& gamma,
+    USMMemObject<SNN_DATA_TYPE const>& input_mean,
+    USMMemObject<SNN_DATA_TYPE const>& input_variance,
+    USMMemObject<SNN_DATA_TYPE>& output, BatchNormParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+
+// Forward Training
+template SNNStatus
+queue_batchnorm_training<SNN_DATA_TYPE, SNN_INDEX_TYPE, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE const>& beta,
+    USMMemObject<SNN_DATA_TYPE const>& gamma,
+    USMMemObject<SNN_DATA_TYPE>& running_mean,
+    USMMemObject<SNN_DATA_TYPE>& running_variance,
+    USMMemObject<SNN_DATA_TYPE>& cache_mean,
+    USMMemObject<SNN_DATA_TYPE>& cache_invvariance,
+    USMMemObject<SNN_DATA_TYPE>& workspace_var,
+    USMMemObject<SNN_DATA_TYPE>& output, BatchNormParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+
+// Gradient
+template SNNStatus queue_batchnorm_gradient<SNN_DATA_TYPE, SNN_INDEX_TYPE,
+                                            SNN_VEC_WIDTH, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE const>& out_grad,
+    USMMemObject<SNN_DATA_TYPE>& in_grad,
+    USMMemObject<SNN_DATA_TYPE const>& gamma,
+    USMMemObject<SNN_DATA_TYPE const>& cache_mean,
+    USMMemObject<SNN_DATA_TYPE const>& cache_invvariance,
+    USMMemObject<SNN_DATA_TYPE>& workspace, BatchNormParams const& params,
+    cl::sycl::queue& queue, const std::vector<cl::sycl::event>& events);
+#endif
+
+}  // namespace internal
+}  // namespace batchnorm
+}  // namespace sycldnn

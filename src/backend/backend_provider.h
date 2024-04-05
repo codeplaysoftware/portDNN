@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_SRC_BACKEND_BACKEND_PROVIDER_H_
-#define PORTDNN_SRC_BACKEND_BACKEND_PROVIDER_H_
+#ifndef SYCLDNN_SRC_BACKEND_BACKEND_PROVIDER_H_
+#define SYCLDNN_SRC_BACKEND_BACKEND_PROVIDER_H_
 
 /**
  * Abstraction layer over a given backend, used in benchmarks and tests.
@@ -27,10 +27,10 @@
 namespace sycldnn {
 namespace backend {
 
-template <typename Backend>
+template <typename Backend, bool InOrderQueue = false>
 struct BackendProvider;
 
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_BACKEND_BACKEND_PROVIDER_H_
+#endif  // SYCLDNN_SRC_BACKEND_BACKEND_PROVIDER_H_

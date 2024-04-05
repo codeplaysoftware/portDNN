@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include "portdnn/compat/utils.hpp"
+#include "sycldnn/compat/utils.hpp"
 
 using namespace sycldnn;
 using namespace sycldnn::compat;

@@ -20,9 +20,9 @@
 
 #include <gtest/gtest.h>
 
-#include "portdnn/padding_mode.h"
+#include "sycldnn/padding_mode.h"
 
-#include "portdnn/pooling/operators.h"
+#include "sycldnn/pooling/operators.h"
 
 #include "test/types/cartesian_product.h"
 #include "test/types/data_format_types.h"

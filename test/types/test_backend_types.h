@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_TEST_TYPES_TEST_BACKEND_TYPES_H_
-#define PORTDNN_TEST_TYPES_TEST_BACKEND_TYPES_H_
+#ifndef SYCLDNN_TEST_TYPES_TEST_BACKEND_TYPES_H_
+#define SYCLDNN_TEST_TYPES_TEST_BACKEND_TYPES_H_
 
 #include "test/types/to_gtest_types.h"
 #include "test/types/type_list.h"
 
-#include "portdnn/backend/snn_backend.h"
-#include "portdnn/backend/snn_usm_backend.h"
+#include "sycldnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_usm_backend.h"
 
 #if defined(SNN_TEST_EIGEN_MATMULS) || defined(SNN_TEST_EIGEN)
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "portdnn/backend/eigen_backend.h"
+#include "sycldnn/backend/eigen_backend.h"
 #endif
 
-#if defined(SNN_TEST_SYCLBLAS_MATMULS) || defined(SNN_TEST_SYCLBLAS)
-#include "portdnn/backend/sycl_blas_backend.h"
+#if defined(SNN_TEST_PORTBLAS_MATMULS) || defined(SNN_TEST_SYCLBLAS)
+#include "sycldnn/backend/sycl_blas_backend.h"
 #endif
 
 #if defined(SNN_TEST_CLBLAST_MATMULS) || defined(SNN_TEST_CLBLAST)
-#include "portdnn/backend/clblast_backend.h"
+#include "sycldnn/backend/clblast_backend.h"
 #endif
 
 namespace sycldnn {
@@ -56,7 +56,7 @@ using AllMatmulBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN_MATMULS
     sycldnn::backend::EigenBackend,
 #endif
-#ifdef SNN_TEST_SYCLBLAS_MATMULS
+#ifdef SNN_TEST_PORTBLAS_MATMULS
     sycldnn::backend::SyclBLASBackend,
 #endif
 #ifdef SNN_TEST_CLBLAST_MATMULS
@@ -73,7 +73,7 @@ using AllBackendTypes = sycldnn::types::TypeList<
 #ifdef SNN_TEST_EIGEN
     sycldnn::backend::EigenBackend,
 #endif
-#ifdef SNN_TEST_SYCLBLAS
+#ifdef SNN_TEST_PORTBLAS
     sycldnn::backend::SyclBLASBackend,
 #endif
 #ifdef SNN_TEST_CLBLAST
@@ -87,4 +87,4 @@ using AllBackendTypes = sycldnn::types::TypeList<
 }  // namespace types
 }  // namespace sycldnn
 
-#endif  // PORTDNN_TEST_TYPES_TEST_BACKEND_TYPES_H_
+#endif  // SYCLDNN_TEST_TYPES_TEST_BACKEND_TYPES_H_

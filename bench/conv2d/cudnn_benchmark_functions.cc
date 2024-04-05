@@ -13,11 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "cudnn_conv2d_executor.h"
+#include "cudnn_conv2d_bench_executor.h"
+#include "sycldnn/format_type.h"
 
-CONVOLUTION_BENCHMARK(cuDNN_implicit_gemm, float,
-                      CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM);
-CONVOLUTION_BENCHMARK(cuDNN_gemm, float, CUDNN_CONVOLUTION_FWD_ALGO_GEMM);
-CONVOLUTION_BENCHMARK(cuDNN_fft, float, CUDNN_CONVOLUTION_FWD_ALGO_FFT);
-CONVOLUTION_BENCHMARK(cuDNN_winograd, float,
-                      CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD);
+#define BM_WITH_DIR_ALGO_DTYPE_LAYOUT(DIR, ALGO, DTYPE, LAYOUT)         \
+  CONVOLUTION_BENCHMARK(                                                \
+      CUDNN##_##DIR##_##LAYOUT##_##DTYPE##_##ALGO##_TensorOp, DTYPE,    \
+      sycldnn::layout::LAYOUT, sycldnn::conv2d::conv_type::DIR,         \
+      sycldnn::bench::ALGO, true)                                       \
+  CONVOLUTION_BENCHMARK(                                                \
+      CUDNN##_##DIR##_##LAYOUT##_##DTYPE##_##ALGO##_NonTensorOp, DTYPE, \
+      sycldnn::layout::LAYOUT, sycldnn::conv2d::conv_type::DIR,         \
+      sycldnn::bench::ALGO, false)
+
+#ifdef SNN_ENABLE_NCHW
+#define BM_WITH_DIR_ALGO_DTYPE(DIR, ALGO, DTYPE)              \
+  BM_WITH_DIR_ALGO_DTYPE_LAYOUT(DIR, ALGO, DTYPE, NHWC_CUDNN) \
+  BM_WITH_DIR_ALGO_DTYPE_LAYOUT(DIR, ALGO, DTYPE, NCHW)
+#else
+#define BM_WITH_DIR_ALGO_DTYPE(DIR, ALGO, DTYPE) \
+  BM_WITH_DIR_ALGO_DTYPE_LAYOUT(DIR, ALGO, DTYPE, NHWC_CUDNN)
+#endif
+
+#define BM_WITH_DIR_ALGO(DIR, ALGO) BM_WITH_DIR_ALGO_DTYPE(DIR, ALGO, float)
+
+BM_WITH_DIR_ALGO(Forward, IMPLICIT_GEMM_DETERMINISTIC)
+BM_WITH_DIR_ALGO(Forward, GEMM)
+BM_WITH_DIR_ALGO(Forward, WINOGRAD)
+BM_WITH_DIR_ALGO(Forward, FFT)
+
+BM_WITH_DIR_ALGO(InputBackprop, IMPLICIT_GEMM_DETERMINISTIC)
+BM_WITH_DIR_ALGO(InputBackprop, IMPLICIT_GEMM_NONDETERMINISTIC)
+BM_WITH_DIR_ALGO(InputBackprop, WINOGRAD)
+BM_WITH_DIR_ALGO(InputBackprop, FFT)
+
+BM_WITH_DIR_ALGO(FilterBackprop, IMPLICIT_GEMM_DETERMINISTIC)
+BM_WITH_DIR_ALGO(FilterBackprop, IMPLICIT_GEMM_NONDETERMINISTIC)
+BM_WITH_DIR_ALGO(FilterBackprop, IMPLICIT_GEMM_PRECOMP)
+BM_WITH_DIR_ALGO(FilterBackprop, WINOGRAD)
+BM_WITH_DIR_ALGO(FilterBackprop, FFT)

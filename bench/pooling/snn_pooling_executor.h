@@ -1,8 +1,8 @@
 /*
- * Copyright Codeplay Software Ltd.
+ * Copyright Codeplay Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use these files except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -13,234 +13,150 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
-#define PORTDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
+#ifndef SYCLDNN_BENCH_SNN_POOLING_EXECUTOR_H_
+#define SYCLDNN_BENCH_SNN_POOLING_EXECUTOR_H_
 
-#include <benchmark/benchmark.h>
+#include "sycldnn/pooling/launch.h"
 
-#include "portdnn/helpers/handle_exception.h"
-#include "portdnn/helpers/scope_exit.h"
+#include "src/backend/backend_provider.h"
 
-#include "portdnn/pooling/launch.h"
-#include "portdnn/pooling/params.h"
-#include "portdnn/pooling/sizes.h"
-
-#include "bench/fixture/base_executor.h"
+#include "bench/common/event_handling.h"
+#include "bench/common/verification_utils.h"
 
 namespace sycldnn {
 namespace bench {
 
-/** Executor to perform the pooling benchmark using portDNN.  */
-template <typename Benchmark, typename Direction,
-          template <typename> class Operator>
-struct SNNPoolingExecutor : public BaseExecutor {
- private:
-  using State = ::benchmark::State;
+template <typename DataType, template <typename> class Operator,
+          typename Direction, typename Backend, bool InOrderQueue>
+class SNNPoolingExecutor {
   using PoolingParams = pooling::PoolingParams;
+  using PoolingSizes = pooling::PoolingSizes;
+  using Provider = typename backend::BackendProvider<Backend, InOrderQueue>;
+  using Pointer = typename Provider::template Pointer<DataType>;
 
-  /** Get a reference to the underlying benchmark fixture. */
-  Benchmark& underlying_benchmark() { return static_cast<Benchmark&>(*this); }
+  Pointer inp_gpu_;
+  Pointer out_gpu_;
+
+  PoolingParams params_;
+  PoolingSizes sizes_;
+
+  Provider provider_;
+
+  std::vector<DataType> inp_host_;
 
  public:
-  /** Execute the pooling benchmark for the given parameters. */
-  void execute(State& state, PoolingParams const& params) {
-    auto& benchmark = underlying_benchmark();
-    auto& backend = benchmark.get_backend();
+  SNNPoolingExecutor(std::vector<DataType> const& inp_host,
+                     PoolingParams const& params)
+      : params_{params},
+        sizes_{pooling::get_sizes<Direction>(params)},
+        provider_{},
+        inp_host_(inp_host.begin(), inp_host.end()) {}
 
-    auto pool_sizes = sycldnn::pooling::get_sizes<Direction>(params);
+  // Allocate and initialise device memory
+  void setup() {
+    std::vector<DataType> out_host(this->sizes_.output_size,
+                                   static_cast<DataType>(0));
+    // Initialise device memory and copy host inputs to initialised memory
+    this->inp_gpu_ = this->provider_.get_initialised_device_memory(
+        this->sizes_.input_size, this->inp_host_);
+    this->out_gpu_ = this->provider_.get_initialised_device_memory(
+        this->sizes_.output_size, out_host);
+  }
 
-    std::vector<float> inp_vec(pool_sizes.input_size);
-    std::vector<float> out_vec(pool_sizes.output_size);
+  // Execute the SNN pooling once.
+  SNNStatus execute() {
+    auto& backend = this->provider_.get_backend();
+    return sycldnn::pooling::launch<DataType, Operator, Direction>(
+        this->inp_gpu_, this->out_gpu_, this->params_, backend);
+  }
 
-    auto inp_gpu =
-        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
-    auto out_gpu =
-        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
+  // Deallocates device memory
+  void teardown() {
+    this->provider_.deallocate_ptr(this->out_gpu_);
+    this->provider_.deallocate_ptr(this->inp_gpu_);
+  }
 
-    SNN_ON_SCOPE_EXIT {
-      benchmark.deallocate_ptr(out_gpu);
-      benchmark.deallocate_ptr(inp_gpu);
-    };
+  // Returns cl::sycl::queue
+  auto get_queue() { return this->provider_.get_backend.get_queue(); }
 
-    {  // Ensure the kernel is built before benchmarking
-      SNNStatus status;
-      try {
-        status = sycldnn::pooling::launch<float, Operator, Direction>(
-            inp_gpu, out_gpu, params, backend);
-      } catch (cl::sycl::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      }
-
-      if (sycldnn::StatusCode::OK != status.status) {
-        state.SkipWithError(UnsupportedFailure);
-        return;
-      }
-
-      try {
-        status.event.wait_and_throw();
-      } catch (cl::sycl::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      } catch (std::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      }
-    }
-
-    for (auto _ : state) {
-      this->start_timing();
-      try {
-        auto status = sycldnn::pooling::launch<float, Operator, Direction>(
-            inp_gpu, out_gpu, params, backend);
-
-        status.event.wait_and_throw();
-      } catch (cl::sycl::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      } catch (std::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      }
-
-      this->end_timing();
-      this->set_iteration_time(state);
-    }
-
-    benchmark.template set_items_processed<Direction>(state, params);
-    benchmark.add_param_counters(state, params);
-    benchmark.template add_bandwidth_counters<float>(state, pool_sizes);
-
-    this->finish_benchmark(state);
+  // Retrieves the pooling result from device memory
+  void copy_output_to_host(std::vector<DataType>& host_data) {
+    this->provider_.copy_device_data_to_host(this->sizes_.output_size,
+                                             this->out_gpu_, host_data);
   }
 };
 
-/**
- * Specialized executor to perform the max grad pooling benchmark using
- * portDNN.
- *
- * Max pool gradients require both the original input buffers and the backprop
- * buffers, whereas the other operations do not require both. This requires a
- * different executor which can provide the additional buffers.
- */
-template <typename Benchmark>
-struct SNNPoolingExecutor<Benchmark, sycldnn::pooling::Backpropagate,
-                          sycldnn::pooling::Max> : public BaseExecutor {
- private:
-  using State = ::benchmark::State;
+template <typename DataType, typename Backend, bool InOrderQueue>
+class SNNPoolingExecutor<DataType, pooling::Max, pooling::Backpropagate,
+                         Backend, InOrderQueue> {
   using PoolingParams = pooling::PoolingParams;
+  using PoolingSizes = pooling::PoolingSizes;
+  using Provider = typename backend::BackendProvider<Backend>;
+  using Pointer = typename Provider::template Pointer<DataType>;
 
-  /** Get a reference to the underlying benchmark fixture. */
-  Benchmark& underlying_benchmark() { return static_cast<Benchmark&>(*this); }
+  Pointer inp_gpu_;
+  Pointer inp_grad_gpu_;
+  Pointer out_gpu_;
+  Pointer out_grad_gpu_;
+
+  PoolingParams params_;
+  PoolingSizes fwd_sizes_;
+  PoolingSizes back_sizes_;
+
+  Provider provider_;
+
+  std::vector<DataType> inp_host_;
+  std::vector<DataType> out_grad_host_;
 
  public:
-  /** Execute the pooling benchmark for the given parameters. */
-  void execute(State& state, PoolingParams const& params) {
-    auto& benchmark = underlying_benchmark();
-    auto& backend = benchmark.get_backend();
+  SNNPoolingExecutor(std::vector<DataType> const& inp_host,
+                     std::vector<DataType> const& out_grad_host,
+                     PoolingParams const& params)
+      : params_{params},
+        fwd_sizes_{pooling::get_sizes<pooling::Forward>(params)},
+        back_sizes_{pooling::get_sizes<pooling::Backpropagate>(params)},
+        provider_{},
+        inp_host_(inp_host),
+        out_grad_host_(out_grad_host) {}
 
-    auto fwd_sizes =
-        sycldnn::pooling::get_sizes<sycldnn::pooling::Forward>(params);
-    auto back_sizes =
-        sycldnn::pooling::get_sizes<sycldnn::pooling::Backpropagate>(params);
+  // Allocate and initialise device memory
+  void setup() {
+    std::vector<DataType> inp_grad_host(this->back_sizes_.output_size,
+                                        static_cast<DataType>(0));
+    // Initialise device memory and copy host inputs to initialised memory
+    this->inp_gpu_ = this->provider_.get_initialised_device_memory(
+        this->fwd_sizes_.input_size, this->inp_host_);
+    this->out_grad_gpu_ = this->provider_.get_initialised_device_memory(
+        this->back_sizes_.input_size, this->out_grad_host_);
+    this->out_gpu_ = this->provider_.get_initialised_device_memory(
+        this->fwd_sizes_.output_size, this->out_grad_host_);
+    this->inp_grad_gpu_ = this->provider_.get_initialised_device_memory(
+        this->back_sizes_.output_size, inp_grad_host);
+  }
 
-    std::vector<float> inp_vec(fwd_sizes.input_size);
-    std::vector<float> inp_back_vec(back_sizes.input_size);
-    std::vector<float> out_vec(back_sizes.output_size);
-    std::vector<float> out_back_vec(back_sizes.output_size);
+  // Execute the SNN pooling once.
+  SNNStatus execute() {
+    auto& backend = this->provider_.get_backend();
+    return sycldnn::pooling::launch<DataType, pooling::Max,
+                                    pooling::Backpropagate>(
+        this->inp_gpu_, this->out_gpu_, this->out_grad_gpu_,
+        this->inp_grad_gpu_, this->params_, backend);
+  }
 
-    auto inp_gpu =
-        benchmark.get_initialised_device_memory(inp_vec.size(), inp_vec);
-    auto out_gpu =
-        benchmark.get_initialised_device_memory(out_vec.size(), out_vec);
-    auto inp_back_gpu = benchmark.get_initialised_device_memory(
-        inp_back_vec.size(), inp_back_vec);
-    auto out_back_gpu = benchmark.get_initialised_device_memory(
-        out_back_vec.size(), out_back_vec);
-
-    SNN_ON_SCOPE_EXIT {
-      benchmark.deallocate_ptr(out_back_gpu);
-      benchmark.deallocate_ptr(inp_back_gpu);
-      benchmark.deallocate_ptr(out_gpu);
-      benchmark.deallocate_ptr(inp_gpu);
-    };
-
-    {  // Ensure the kernel is built before benchmarking
-      SNNStatus status;
-      try {
-        status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
-                                          sycldnn::pooling::Backpropagate>(
-            inp_gpu, out_gpu, inp_back_gpu, out_back_gpu, params, backend);
-      } catch (cl::sycl::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      }
-
-      try {
-        status.event.wait_and_throw();
-      } catch (cl::sycl::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      } catch (std::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      }
-
-      if (sycldnn::StatusCode::OK != status.status) {
-        state.SkipWithError(UnsupportedFailure);
-        return;
-      }
-    }
-
-    for (auto _ : state) {
-      this->start_timing();
-      try {
-        auto status = sycldnn::pooling::launch<float, sycldnn::pooling::Max,
-                                               sycldnn::pooling::Backpropagate>(
-            inp_gpu, out_gpu, inp_back_gpu, out_back_gpu, params, backend);
-        status.event.wait_and_throw();
-      } catch (cl::sycl::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      } catch (std::exception const& e) {
-        helpers::handle_exception(e, [&](std::string& msg) {
-          state.SkipWithError((msg + UnexpectedFailure).c_str());
-        });
-        return;
-      }
-
-      this->end_timing();
-      this->set_iteration_time(state);
-    }
-
-    benchmark.template set_items_processed<sycldnn::pooling::Backpropagate>(
-        state, params);
-    benchmark.add_param_counters(state, params);
-    benchmark.template add_bandwidth_counters<float>(state, back_sizes);
-
-    this->finish_benchmark(state);
+  // Deallocates device memory
+  void teardown() {
+    this->provider_.deallocate_ptr(this->inp_gpu_);
+    this->provider_.deallocate_ptr(this->inp_grad_gpu_);
+    this->provider_.deallocate_ptr(this->out_gpu_);
+    this->provider_.deallocate_ptr(this->out_grad_gpu_);
+  }
+  // Retrieves the pooling result from device memory
+  void copy_output_to_host(std::vector<DataType>& host_data) {
+    this->provider_.copy_device_data_to_host(this->back_sizes_.output_size,
+                                             this->inp_grad_gpu_, host_data);
   }
 };
 
 }  // namespace bench
 }  // namespace sycldnn
-
-#endif  // PORTDNN_BENCH_POOLING_SNN_POOLING_EXECUTOR_H_
+#endif  // SYCLDNN_BENCH_SNN_POOLING_EXECUTOR_H_

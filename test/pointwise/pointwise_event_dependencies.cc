@@ -20,8 +20,8 @@
 
 #include <gtest/gtest.h>
 
-#include "portdnn/pointwise/direction.h"
-#include "portdnn/pointwise/operators.h"
+#include "sycldnn/pointwise/direction.h"
+#include "sycldnn/pointwise/operators.h"
 
 #include "test/helpers/dependency_check.h"
 #include "test/pointwise/pointwise_event_dependencies_fixture.h"

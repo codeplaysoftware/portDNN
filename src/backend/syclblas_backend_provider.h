@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_
-#define PORTDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_
+#ifndef SYCLDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_
+#define SYCLDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_
 
-#include "portdnn/backend/sycl_blas_backend.h"
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/backend/sycl_blas_backend.h"
+#include "sycldnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -33,8 +33,8 @@ namespace backend {
  * Provides access to sycldnn::backend::BackendProvider using SYCL-BLAS and its
  * helper methods to allocate and deallocate memory.
  */
-template <>
-struct BackendProvider<SyclBLASBackend> {
+template <bool InOrderQueue>
+struct BackendProvider<SyclBLASBackend, InOrderQueue> {
   template <typename T>
   using Pointer = SyclBLASBackend::pointer_type<T>;
 
@@ -54,7 +54,7 @@ struct BackendProvider<SyclBLASBackend> {
     if (!size) {
       return Pointer<T>{};
     }
-    auto gpu_ptr = get_backend().allocate<T>(size);
+    auto gpu_ptr = get_backend().template allocate<T>(size);
     auto& handle = get_backend().get_handle();
     auto event = blas::helper::copy_to_device(handle.get_queue(), data.data(),
                                               gpu_ptr, size);
@@ -94,8 +94,12 @@ struct BackendProvider<SyclBLASBackend> {
         }
       }
     };
+    cl::sycl::property_list q_prop{};
+    if constexpr (InOrderQueue) {
+      q_prop = {cl::sycl::property::queue::in_order()};
+    }
     static cl::sycl::queue queue{cl::sycl::default_selector(),
-                                 exception_handler};
+                                 exception_handler, q_prop};
     return queue;
   }
 };
@@ -103,4 +107,4 @@ struct BackendProvider<SyclBLASBackend> {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_
+#endif  // SYCLDNN_SRC_BACKEND_SYCLBLAS_BACKEND_PROVIDER_H_

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_HELPERS_VECTOR_ELEMENT_H_
-#define PORTDNN_SRC_HELPERS_VECTOR_ELEMENT_H_
+#ifndef SYCLDNN_SRC_HELPERS_VECTOR_ELEMENT_H_
+#define SYCLDNN_SRC_HELPERS_VECTOR_ELEMENT_H_
 
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/helpers/macros.h"
 
 #include <CL/sycl.hpp>
 
@@ -308,4 +308,4 @@ static inline SNN_ALWAYS_INLINE void set(cl::sycl::vec<T, 16>& vec, int index,
 }  // namespace vector_element
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // PORTDNN_SRC_HELPERS_VECTOR_ELEMENT_H_
+#endif  // SYCLDNN_SRC_HELPERS_VECTOR_ELEMENT_H_

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
-#define PORTDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
+#ifndef SYCLDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
+#define SYCLDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
 
-#include "portdnn/padding_mode.h"
+#include "sycldnn/padding_mode.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
-#include "portdnn/helpers/padding.h"
+#include "sycldnn/helpers/padding.h"
 
 #include <benchmark/benchmark.h>
 
@@ -72,4 +72,4 @@ inline sycldnn::conv2d::Conv2DParams deserialize(
 
 }  // namespace benchmark_params
 
-#endif  // PORTDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_
+#endif  // SYCLDNN_BENCH_CONV2D_BENCHMARK_PARAMS_H_

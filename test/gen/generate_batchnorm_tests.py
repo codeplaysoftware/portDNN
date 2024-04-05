@@ -33,17 +33,17 @@ BATCHES = [1, 3]
 CHANNELS = [1, 5, 8]
 IN_SIZES = [1, 8, 9]
 DIRECTIONS = ['Forward', 'Gradient']
-OPERATIONS = ['Training', 'Frozen']
+OPERATIONS = ['Training', 'Inference']
 
 INCLUDES = r"""
 #include <gtest/gtest.h>
 
-#include "portdnn/data_format.h"
+#include "sycldnn/data_format.h"
 
-#include "portdnn/batchnorm/direction.h"
-#include "portdnn/batchnorm/params.h"
+#include "sycldnn/batchnorm/direction.h"
+#include "sycldnn/batchnorm/params.h"
 
-#include "test/batchnorm/batchnorm_fixture.h"
+#include "test/batchnorm/batchnorm_{fixture}fixture.h"
 #include "test/types/cartesian_product.h"
 #include "test/types/data_format_types.h"
 #include "test/types/kernel_data_types.h"
@@ -71,8 +71,9 @@ using GTestTypeTriples = sycldnn::types::ToGTestTypes<TestTriples>::type;
 TYPED_TEST_CASE_DECL_TPL = r"""
 using namespace sycldnn; // NOLINT(google-build-using-namespace)
 template <typename Triple>
-using {test_case} = BatchNormFixture<Triple, batchnorm::{direction}>;
+using {test_case} = {fixture}Fixture<Triple, batchnorm::{direction}>;
 TYPED_TEST_CASE({test_case}, GTestTypeTriples);"""
+
 
 TestCaseParams = namedtuple('TestCaseParams', ['direction', 'operation'])
 TestParams = namedtuple(
@@ -106,35 +107,21 @@ def compute_gradients(grad_y,
       for x, grad_scale the gradient for scale, and grad_offset the gradient
       for offset.
     """
-    if is_training:
-        mean_grad_y = np.mean(grad_y, axis=(0, 1, 2))
-        mean_x = np.mean(x, axis=(0, 1, 2))
-        var_x = np.var(x, axis=(0, 1, 2))
-        grad_y_offset = grad_y - mean_grad_y
-        x_offset = x - mean_x
-        mean = np.mean(grad_y * x_offset, axis=(0, 1, 2))
-        grad_x = scale * np.reciprocal(np.sqrt(var_x + epsilon)) * (
-            grad_y_offset - np.reciprocal(var_x + epsilon) * mean * x_offset)
-        grad_scale = np.reciprocal(np.sqrt(var_x + epsilon)) * np.sum(
-            grad_y * x_offset, axis=(0, 1, 2))
-        grad_offset = np.sum(grad_y, axis=(0, 1, 2))
-        return grad_x, grad_scale, grad_offset
-    else:
-        channel_size = input_shape[-1]
-        pop_mean = np.array(
-            helpers.get_tensor_data(
-                channel_size,
-                max_pop_mean_val))
-        pop_var = np.array(
-            helpers.get_tensor_data(
-                channel_size,
-                max_pop_var_val))
-        grad_offset = np.sum(grad_y, axis=(0, 1, 2))
-        var_rsqrt = np.reciprocal(np.sqrt(pop_var + epsilon))
-        grad_scale = np.sum(
-            grad_y * (x - pop_mean) * var_rsqrt, axis=(0, 1, 2))
-        grad_x = grad_y * scale * var_rsqrt
-        return grad_x, grad_scale, grad_offset
+    channel_size = input_shape[-1]
+    pop_mean = np.array(
+        helpers.get_tensor_data(
+            channel_size,
+            max_pop_mean_val))
+    pop_var = np.array(
+        helpers.get_tensor_data(
+            channel_size,
+            max_pop_var_val))
+    grad_offset = np.sum(grad_y, axis=(0, 1, 2))
+    var_rsqrt = pop_var
+    grad_scale = np.sum(
+        grad_y * (x - pop_mean) * var_rsqrt, axis=(0, 1, 2))
+    grad_x = grad_y * scale * var_rsqrt
+    return grad_x, grad_scale, grad_offset
 
 
 def compute_batchnorm_grad(
@@ -217,6 +204,10 @@ def compute_batchnorm_fwd(
                                    shape=[channel_size],
                                    dtype=np.float64)
 
+    if is_training:
+        input_mean_tensor, input_var_tensor = tf.nn.moments(
+            inp_tensor, axes=[0, 1, 2], keepdims=False)
+
     output = tf.nn.batch_normalization(
         inp_tensor,
         input_mean_tensor,
@@ -226,10 +217,8 @@ def compute_batchnorm_fwd(
         epsilon)
 
     if is_training:
-        running_mean = input_mean_tensor * momentum + \
-            tf.math.reduce_mean(inp_tensor, axis=[0, 1, 2]) * (1 - momentum)
-        running_variance = input_var_tensor * momentum + \
-            tf.math.reduce_variance(inp_tensor, axis=[0, 1, 2]) * (1 - momentum)
+        running_mean = input_mean_tensor * (1.0 - momentum)
+        running_variance = input_var_tensor * (1.0 - momentum)
     else:
         running_mean = []
         running_variance = []
@@ -268,7 +257,31 @@ def get_gradient_result(max_input_val, test_params):
             max_gamma_val, max_pop_mean_val, max_pop_var_val)
 
 
-def get_test_lines(test_case, test_params):
+TEST_BATCHNORM_EVENT_DEPS = r"""
+  this->test_batchnorm(params, max_input_val,
+    max_beta_val, max_gamma_val,
+    max_input_mean_val, max_input_var_val);
+"""
+TEST_BATCHNORM = r"""
+  this->test_batchnorm(exp_running_mean, exp_running_var,
+    exp_out, params, max_input_val,
+    max_beta_val, max_gamma_val,
+    max_input_mean_val, max_input_var_val);
+"""
+TEST_BATCHNORM_EVENT_DEPS_GRADIENT = r"""
+  this->test_batchnorm(params, max_input_val,
+    max_gradient_val, max_gamma_val,
+    max_pop_mean_val, max_pop_var_val);
+"""
+TEST_BATCHNORM_GRADIENT = r"""
+  this->test_batchnorm(exp_grad, beta_grad, gamma_grad,
+    params, max_input_val,
+    max_gradient_val, max_gamma_val,
+    max_pop_mean_val, max_pop_var_val);
+"""
+
+
+def get_test_lines(test_case, test_params, is_event_deps=False):
     """
     Create a list of strings corresponding to the lines in a single test case.
 
@@ -296,10 +309,9 @@ def get_test_lines(test_case, test_params):
             "  const std::vector<DataType> exp_out = {};".format(
                 helpers.format_tensor(output)),
             "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-            "  const bool is_training = {};".format(helpers.to_lower_case_str(test_params.is_training)),
             "  const float momentum = {};".format(test_params.momentum),
             "  const float epsilon = {};".format(test_params.epsilon),
-            "  const auto params = getBatchNormParams(in_shape, is_training, momentum, epsilon);",
+            "  const auto params = getBatchNormParams(in_shape, momentum, epsilon);",
             "  const DataType max_input_val = {:.1f};".format(max_input_val),
             "  const DataType max_beta_val = {:.1f};".format(max_beta_val),
             "  const DataType max_gamma_val = {:.1f};".format(max_gamma_val),
@@ -307,10 +319,7 @@ def get_test_lines(test_case, test_params):
                 max_input_mean_val),
             "  const DataType max_input_var_val = {:.1f};".format(
                 max_input_var_val),
-            "  this->test_batchnorm(exp_running_mean, exp_running_var, ",
-            "                       exp_out, params, max_input_val, ",
-            "                       max_beta_val, max_gamma_val, ",
-            "                       max_input_mean_val, max_input_var_val);",
+            TEST_BATCHNORM_EVENT_DEPS if is_event_deps else TEST_BATCHNORM,
             "}",
         ]
         return test_lines
@@ -329,19 +338,18 @@ def get_test_lines(test_case, test_params):
             "  const std::vector<DataType> gamma_grad = {};".format(
                 helpers.format_tensor(grad_scale)),
             "  const std::array<int, 4> in_shape = {};".format(in_shape_init),
-            "  const bool is_training = {};".format(helpers.to_lower_case_str(test_params.is_training)),
             "  const float momentum = {};".format(test_params.momentum),
             "  const float epsilon = {};".format(test_params.epsilon),
-            "  const auto params = getBatchNormParams(in_shape, is_training, momentum, epsilon);",
+            "  const auto params = getBatchNormParams(in_shape, momentum, epsilon);",
             "  const DataType max_input_val = {:.1f};".format(max_input_val),
-            "  const DataType max_gradient_val = {:.1f};".format(max_gradient_val),
+            "  const DataType max_gradient_val = {:.1f};".format(
+                max_gradient_val),
             "  const DataType max_gamma_val = {:.1f};".format(max_gamma_val),
-            "  const DataType max_pop_mean_val = {:.1f};".format(max_pop_mean_val),
-            "  const DataType max_pop_var_val = {:.1f};".format(max_pop_var_val),
-            "  this->test_batchnorm(exp_grad, beta_grad, gamma_grad, params, ",
-            "                       max_input_val, max_gradient_val, ",
-            "                       max_gamma_val, max_pop_mean_val, ",
-            "                       max_pop_var_val);",
+            "  const DataType max_pop_mean_val = {:.1f};".format(
+                max_pop_mean_val),
+            "  const DataType max_pop_var_val = {:.1f};".format(
+                max_pop_var_val),
+            TEST_BATCHNORM_EVENT_DEPS_GRADIENT if is_event_deps else TEST_BATCHNORM_GRADIENT,
             "}",
         ]
         return test_lines
@@ -353,7 +361,17 @@ def test_params_for_test_case(test_case):
         yield TestParams(in_shape=in_shape, is_training=test_case.operation == 'Training', momentum=0.99, epsilon=0.001)
 
 
-def output_for_test_case(test_case):
+def get_direction_string_for_test_case(test_case):
+    if test_case.direction == "Forward":
+        if test_case.operation == "Training":
+            return "ForwardTraining"
+        else:
+            return "ForwardInference"
+    else:
+        return "Gradient"
+
+
+def output_for_test_case(test_case, is_event_deps=False):
     """
     Create a list of strings corresponding to separate lines in the full test
     case. The output contains headers, includes, setup and all the tests for
@@ -365,25 +383,30 @@ def output_for_test_case(test_case):
     output = [
         helpers.get_license(),
         helpers.get_dont_modify_comment(scriptname=scriptname),
-        INCLUDES,
+        INCLUDES.format(
+            fixture="event_dependencies_" if is_event_deps else ""),
         TEST_TYPES_TPL,
         TYPED_TEST_CASE_DECL_TPL.format(
             test_case=test_case_name,
-            direction=test_case.direction),
+            fixture="BatchNormEvent" if is_event_deps else "BatchNorm",
+            direction=get_direction_string_for_test_case(test_case)),
     ]
 
     for test_params in test_params_for_test_case(test_case):
-        output.extend(get_test_lines(test_case, test_params))
+        output.extend(get_test_lines(
+            test_case, test_params, is_event_deps=is_event_deps))
     output.append("\n")
     return output
 
 
 FILENAME_TPL = "batchnorm/batchnorm_{direction}_{operation}.cc"
+FILENAME_EVENT_DEPS_TPL = "batchnorm/batchnorm_event_dependencies_{direction}_{operation}.cc"
 
 
-def get_test_case_filename(test_case):
+def get_test_case_filename(test_case, is_event_deps=False):
     "Get filename for test case."
-    return FILENAME_TPL.format(
+    format_str = FILENAME_EVENT_DEPS_TPL if is_event_deps else FILENAME_TPL
+    return format_str.format(
         direction=helpers.to_lower_case_str(
             test_case.direction), operation=helpers.to_lower_case_str(
             test_case.operation))
@@ -392,6 +415,8 @@ def get_test_case_filename(test_case):
 def test_cases():
     "Test case generator giving all possible test cases."
     for direction, operation in itertools.product(DIRECTIONS, OPERATIONS):
+        if direction == "Gradient" and operation == "Inference":
+            continue
         yield TestCaseParams(direction=direction, operation=operation)
 
 
@@ -400,11 +425,14 @@ def generate_batchnorm_tests():
     test_dir = helpers.get_test_directory()
     os.chdir(test_dir)
     for test_case in test_cases():
-        filename = get_test_case_filename(test_case)
-        output = output_for_test_case(test_case)
-        with open(filename, 'w') as f:
-            f.write('\n'.join(output))
-        print("File '{}' written".format(filename))
+        for is_event_deps in [True, False]:
+            filename = get_test_case_filename(
+                test_case, is_event_deps=is_event_deps)
+            output = output_for_test_case(
+                test_case, is_event_deps=is_event_deps)
+            with open(filename, 'w') as f:
+                f.write('\n'.join(output))
+            print("File '{}' written".format(filename))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <portdnn/compat/convolution.hpp>
+#include <sycldnn/compat/convolution.hpp>
 #include <type_traits>
 #include "test/gen/iota_initialised_data.h"
 
@@ -184,12 +184,14 @@ TEST_F(Conv2DCompatTest, Deep1x1And3x3Input) {
  *        1x7+3x1  1x8+3x2  1x9+2x7+3x3+4x1  2x8+4x2
  *          3x4      3x5        3x6+4x4        4x5
  */
+#ifdef SNN_ENABLE_NCHW
 TEST_F(Conv2DCompatTest, InputBackpropWindow3Stride2VALID1x5x5x1x1) {
   this->do_test({1, 1, 5, 5}, {1, 1, 3, 3}, {0, 0, 2, 2, 1, 1},
                 {1,  2,  5,  4,  6,  4,  5,  14, 10, 12, 10, 14, 36,
                  24, 30, 12, 15, 34, 20, 24, 21, 24, 55, 32, 36},
                 sycldnn::DataFormat::NCHW);
 }
+#endif
 
 TEST_F(Conv2DCompatTest, InputBackpropWindow7Stride4SAME1x11x12x1x2) {
   this->do_test(
@@ -324,6 +326,7 @@ TEST_F(Conv2DCompatTest, BatchedDeep1x1_alpha_2_beta_1) {
  *        2x(1x7+3x1)  2x(1x8+3x2)  2x(1x9+2x7+3x3+4x1)  2x(2x8+4x2)
  *           2x3x4        2x3x5        2x(3x6+4x4)          2x4x5
  */
+#ifdef SNN_ENABLE_NCHW
 TEST_F(Conv2DCompatTest,
        InputBackpropWindow3Stride2VALID1x5x5x1x1_alpha_2_beta_0) {
   float alpha = 2.0;
@@ -333,6 +336,7 @@ TEST_F(Conv2DCompatTest,
                  48, 60, 24, 30, 68, 40, 48, 42, 48, 110, 64, 72},
                 sycldnn::DataFormat::NCHW, alpha, beta);
 }
+#endif
 /*
  * Input: 1   2  Filter:   1   2   3
  *        3   4            4   5   6
@@ -352,6 +356,7 @@ TEST_F(Conv2DCompatTest,
  *        1x7+3x1  1x8+3x2  1x9+2x7+3x3+4x1  2x8+4x2
  *          3x4      3x5        3x6+4x4        4x5
  */
+#ifdef SNN_ENABLE_NCHW
 TEST_F(Conv2DCompatTest,
        InputBackpropWindow3Stride2VALID1x5x5x1x1_alpha_0_beta_1) {
   float alpha = 0.0;
@@ -361,3 +366,4 @@ TEST_F(Conv2DCompatTest,
                  14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25},
                 sycldnn::DataFormat::NCHW, alpha, beta);
 }
+#endif

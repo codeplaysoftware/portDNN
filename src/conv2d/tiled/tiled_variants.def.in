@@ -1,0 +1,43 @@
+/*
+ * Copyright Codeplay Software Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * \file
+ * X-Macro definition file for tiled convolution sizes.
+ *
+ * Contains a number of calls to the X_FORWARD_NHWC, X_FORWARD_NCHW etc function-like macroS defining
+ * the following tiled convolution parameters.
+ *
+ * The ordering of the arguments is:
+ * \code
+ *   X_FORWARD_NHWC(Window, Stride, Tile Row, Tile Col, Channel Vector Width, Feature Vector Width)
+ * \endcode
+ */
+#ifndef X_FORWARD_NHWC
+#error This file expects the X_FORWARD_NHWC macro to be defined.
+#endif
+#ifndef X_FORWARD_NCHW
+#error This file expects the X_FORWARD_NCHW macro to be defined.
+#endif
+#ifndef X_INPUTBACKPROP_NHWC
+#error This file expects the X_INPUTBACKPROP_NHWC macro to be defined.
+#endif
+#ifndef X_INPUTBACKPROP_NCHW
+#error This file expects the X_INPUTBACKPROP_NCHW macro to be defined.
+#endif
+
+${TILED_XMACROS_LINES}
+

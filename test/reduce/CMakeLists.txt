@@ -31,6 +31,22 @@ foreach(_op IN ITEMS add mean max min)
   )
 endforeach()
 
+foreach(_op IN ITEMS add mean max min)
+  set(_target nd_reduce_${_op})
+  snn_test(
+    WITH_SYCL
+    TARGET
+      ${_target}
+    SIZE
+      moderate
+    SOURCES
+      ${_target}.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+endforeach()
+snn_set_tuning_target(nd_reduce_mean_test_bin)
+
 if(SNN_ENABLE_USM)
   set(_target reduce_event_dependencies)
   snn_test(

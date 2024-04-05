@@ -16,10 +16,10 @@ cmake_minimum_required(VERSION 3.10.2)
 set(_cxx_opts)
 set(backend_providers)
 
-if(SNN_TEST_SYCLBLAS)
-  include(Handlesycl_blas)
-  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS=1)
-  list(APPEND backend_providers SYCL_BLAS::sycl_blas)
+if(SNN_TEST_PORTBLAS)
+  include(HandlePortBLAS)
+  list(APPEND _cxx_opts -DSNN_TEST_PORTBLAS=1)
+  list(APPEND backend_providers PORTBLAS::portblas)
 endif()
 
 snn_executable(

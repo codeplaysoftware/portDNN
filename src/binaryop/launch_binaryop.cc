@@ -17,11 +17,11 @@
 #include <CL/sycl.hpp>
 #include <utility>
 
-#include "portdnn/binaryop/operators.h"
-#include "portdnn/export.h"
-#include "portdnn/internal/binaryop/launch.h"
 #include "src/binaryop/kernels.h"
 #include "src/binaryop/queue_binaryop_kernel.h"
+#include "sycldnn/binaryop/operators.h"
+#include "sycldnn/export.h"
+#include "sycldnn/internal/binaryop/launch.h"
 
 namespace sycldnn {
 namespace binaryop {
@@ -192,6 +192,7 @@ SNNStatus launch_binaryop(MemObj<T const>& lhs, MemObj<T const>& rhs,
 #define INSTANTIATE_BINARYOP_FOR_TYPE(DTYPE, MEMOBJ) \
   INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Add, MEMOBJ)    \
   INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Sub, MEMOBJ)    \
+  INSTANTIATE_BINARYOP_LAUNCH(DTYPE, SubSqr, MEMOBJ) \
   INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Mul, MEMOBJ)    \
   INSTANTIATE_BINARYOP_LAUNCH(DTYPE, Div, MEMOBJ)
 

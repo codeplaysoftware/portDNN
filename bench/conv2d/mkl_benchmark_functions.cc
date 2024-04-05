@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mkldnn_conv2d_executor.h"
+#include "mkldnn_conv2d_bench_executor.h"
 
 CONVOLUTION_BENCHMARK(Forward, float);

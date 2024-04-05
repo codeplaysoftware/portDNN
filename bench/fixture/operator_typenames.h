@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
-#define PORTDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
+#ifndef SYCLDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
+#define SYCLDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
 
-#include "portdnn/pointwise/operators.h"
-#include "portdnn/pooling/operators.h"
+#include "sycldnn/pointwise/operators.h"
+#include "sycldnn/pooling/operators.h"
 
 namespace sycldnn {
 namespace bench {
@@ -46,4 +46,4 @@ constexpr const char* OperatorTypeName<sycldnn::pointwise::Tanh>::name = "Tanh";
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // PORTDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_
+#endif  // SYCLDNN_BENCH_FIXTURE_OPERATOR_TYPENAMES_H_

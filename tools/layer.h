@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-#include "portdnn/conv2d/launch.h"
-#include "portdnn/conv2d/selector/default_selector.h"
-#include "portdnn/conv2d/workspace_size.h"
+#include "sycldnn/conv2d/launch.h"
+#include "sycldnn/conv2d/selector/default_selector.h"
+#include "sycldnn/conv2d/workspace_size.h"
 
-#include "portdnn/helpers/dims.h"
-#include "portdnn/helpers/padding.h"
-#include "portdnn/helpers/ratio.h"
+#include "sycldnn/helpers/dims.h"
+#include "sycldnn/helpers/padding.h"
+#include "sycldnn/helpers/ratio.h"
 
-#include "portdnn/pointwise/launch.h"
-#include "portdnn/pointwise/params.h"
+#include "sycldnn/pointwise/launch.h"
+#include "sycldnn/pointwise/params.h"
 
-#include "portdnn/pooling/launch.h"
+#include "sycldnn/pooling/launch.h"
 
-#include "portdnn/binaryop/launch.h"
-#include "portdnn/binaryop/operators.h"
+#include "sycldnn/binaryop/launch.h"
+#include "sycldnn/binaryop/operators.h"
 
-#include "portdnn/batchnorm/launch.h"
+#include "sycldnn/batchnorm/launch.h"
 
-#include "portdnn/matmul/launch.h"
-#include "portdnn/matmul/params.h"
+#include "sycldnn/matmul/launch.h"
+#include "sycldnn/matmul/params.h"
 
-#include "portdnn/softmax/launch.h"
-#include "portdnn/softmax/sizes.h"
+#include "sycldnn/softmax/launch.h"
+#include "sycldnn/softmax/sizes.h"
 
-#include "portdnn/padding_mode.h"
-#include "portdnn/status.h"
+#include "sycldnn/padding_mode.h"
+#include "sycldnn/status.h"
 
 #include <CL/sycl.hpp>
 
@@ -96,6 +96,7 @@ struct ConvolutionLayer : Layer<DType, Backend> {
         workspace_, workspace_size_);
   }
 };
+
 template <typename DType, typename Backend>
 struct BiasAddLayer : Layer<DType, Backend> {
   using DeviceMem = typename Backend::template pointer_type<DType>;
@@ -121,47 +122,6 @@ struct BiasAddLayer : Layer<DType, Backend> {
   sycldnn::SNNStatus run() override {
     return sycldnn::binaryop::launch<DType, sycldnn::binaryop::Add>(
         input_, biases_, output_, params_, this->backend_);
-  }
-};
-
-template <typename DType, typename Backend>
-struct BatchNormTrainingLayer : Layer<DType, Backend> {
-  using DeviceMem = typename Backend::template pointer_type<DType>;
-  sycldnn::batchnorm::BatchNormParams params_;
-  DeviceMem input_;
-  DeviceMem beta_;
-  DeviceMem gamma_;
-  DeviceMem input_mean_, running_mean_;
-  DeviceMem input_variance_, running_variance_;
-  DeviceMem output_;
-
-  BatchNormTrainingLayer(sycldnn::batchnorm::BatchNormParams const& params,
-                         DeviceMem const input, DeviceMem const beta,
-                         DeviceMem const gamma, DeviceMem const input_mean,
-                         DeviceMem const input_variance, DeviceMem running_mean,
-                         DeviceMem running_variance, DeviceMem output,
-                         Backend& b)
-      : Layer<DType, Backend>(b),
-        params_{params},
-        input_{input},
-        beta_{beta},
-        gamma_{gamma},
-        input_mean_{input_mean},
-        input_variance_{input_variance},
-        running_mean_{running_mean},
-        running_variance_{running_variance},
-        output_{output} {}
-
-  DeviceMem get_output() override { return output_; }
-  size_t get_output_size() const override {
-    return params_.batch * params_.rows * params_.cols * params_.channels;
-  }
-
-  sycldnn::SNNStatus run() override {
-    return sycldnn::batchnorm::launch<DType, Backend,
-                                      sycldnn::batchnorm::Forward>(
-        input_, beta_, gamma_, input_mean_, input_variance_, running_mean_,
-        running_variance_, output_, params_, this->backend_);
   }
 };
 
@@ -196,7 +156,7 @@ struct BatchNormFrozenLayer : Layer<DType, Backend> {
 
   sycldnn::SNNStatus run() override {
     return sycldnn::batchnorm::launch<DType, Backend,
-                                      sycldnn::batchnorm::Forward>(
+                                      sycldnn::batchnorm::ForwardInference>(
         input_, beta_, gamma_, mean_, variance_, output_, params_,
         this->backend_);
   }
@@ -308,4 +268,30 @@ struct SoftmaxLayer : Layer<DType, Backend> {
         input_, workspace_, output_, params_, this->backend_);
   }
 };
+
+template <typename DType, typename Backend>
+struct MatMulLayer : sycldnn::Layer<DType, Backend> {
+  using DeviceMem = typename Backend::template pointer_type<DType>;
+  sycldnn::matmul::MatmulParams params_;
+  DeviceMem lhs_;
+  DeviceMem rhs_;
+  DeviceMem output_;
+
+  MatMulLayer(sycldnn::matmul::MatmulParams const& p, DeviceMem const lhs,
+              DeviceMem const rhs, DeviceMem output, Backend& b)
+      : sycldnn::Layer<DType, Backend>(b),
+        params_(p),
+        lhs_{lhs},
+        rhs_{rhs},
+        output_{output} {}
+
+  DeviceMem get_output() override { return output_; }
+  size_t get_output_size() const override { return params_.n; }
+
+  sycldnn::SNNStatus run() override {
+    return sycldnn::matmul::launch<DType, false, false, Backend>(
+        lhs_, rhs_, output_, params_, this->backend_);
+  }
+};
+
 }  // namespace sycldnn

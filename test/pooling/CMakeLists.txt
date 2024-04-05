@@ -83,5 +83,6 @@ snn_test(
     pooling_event_dependencies_test.cc
   OBJECTS
     $<TARGET_OBJECTS:pooling>
+    $<TARGET_OBJECTS:reduce>
 )
 endif()

@@ -4,7 +4,7 @@
 # you may not use these files except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,11 @@ include(SNNHelpers)
 # target ensures that this command is always executed.
 add_custom_target(generate_git_config
   ${CMAKE_CURRENT_SOURCE_DIR}/make_git_config.$<IF:$<BOOL:${WIN32}>,bat,sh> >
-    ${CMAKE_CURRENT_BINARY_DIR}/git_config.tmp
+  ${CMAKE_CURRENT_BINARY_DIR}/git_config.tmp
   BYPRODUCTS
-    git_config.tmp
+  git_config.tmp
   WORKING_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # Conditionally copies the new git-config.tmp to git-config.h if the file has
@@ -33,11 +33,11 @@ add_custom_target(generate_git_config
 # history hasn't changed.
 add_custom_command(OUTPUT git_config.h
   COMMAND
-    ${CMAKE_COMMAND} -E copy_if_different git_config.tmp git_config.h
+  ${CMAKE_COMMAND} -E copy_if_different git_config.tmp git_config.h
   DEPENDS
-    generate_git_config git_config.tmp
+  generate_git_config git_config.tmp
   WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # Assume ComputeCpp not available by default.
@@ -50,6 +50,7 @@ if(ComputeCpp_FOUND)
     OUTPUT_VARIABLE ComputeCpp_DEVICE_COMPILER_VERSION
     RESULT_VARIABLE ComputeCpp_DEVICE_COMPILER_EXECUTABLE_RESULT
     OUTPUT_STRIP_TRAILING_WHITESPACE)
+
   if(NOT ComputeCpp_DEVICE_COMPILER_EXECUTABLE_RESULT EQUAL "0")
     message(WARNING "Compute++ not found - Error obtaining device compiler and ComputeCpp version!")
   else()
@@ -57,9 +58,11 @@ if(ComputeCpp_FOUND)
     set(ComputeCpp_INFO_AVAILABLE true)
     string(REGEX MATCH
       "(CE|PE|RC)" ComputeCpp_EDITION ${ComputeCpp_DEVICE_COMPILER_VERSION})
+
     if(${ComputeCpp_EDITION} STREQUAL "RC")
       set(ComputeCpp_EDITION "Internal")
     endif()
+
     string(REGEX MATCH "([0-9]+\.[0-9]+\.[0-9]+)"
       ComputeCpp_VERSION_NUMBER ${ComputeCpp_DEVICE_COMPILER_VERSION})
   endif()
@@ -87,10 +90,10 @@ if(SNN_BENCH_EIGEN)
   list(APPEND _BACKENDS Eigen::Eigen)
 endif()
 
-if(SNN_BENCH_SYCLBLAS)
-  include(Handlesycl_blas)
-  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_SYCLBLAS)
-  list(APPEND _BACKENDS SYCL_BLAS::sycl_blas)
+if(SNN_BENCH_PORTBLAS)
+  include(HandlePortBLAS)
+  list(APPEND _BENCHMARK_DEFINITIONS -DSNN_BENCH_PORTBLAS)
+  list(APPEND _BACKENDS PORTBLAS::portblas)
 endif()
 
 if(SNN_BENCH_CLBLAST)
@@ -106,142 +109,96 @@ endif()
 snn_bench(
   WITH_SYCL
   TARGET
-    set_buffer
+  set_buffer
   KERNEL_SOURCES
-    basic_sycl.cc
+  basic_sycl.cc
   PUBLIC_LIBRARIES
-    bench_main
+  bench_main
 )
 
 snn_object_library(
-  WITH_SYCL
   TARGET
-    conv2d_benchmark_functions
-  KERNEL_SOURCES
-    conv2d/benchmark_functions.cc
+  simple_conv2d_config
+  SOURCES
+  conv2d/simple_convolution.cc
   PUBLIC_LIBRARIES
+  benchmark::benchmark
+  PUBLIC_COMPILE_DEFINITIONS
+  ${_BENCHMARK_DEFINITIONS}
+)
+
+function (snn_compile_benchmark_functions operator)
+  snn_object_library(
+    WITH_SYCL
+    TARGET
+    ${operator}_benchmark_functions
+    KERNEL_SOURCES
+    ${operator}/benchmark_functions.cc
+    PUBLIC_LIBRARIES
     benchmark::benchmark
     ${_BACKENDS}
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-snn_object_library(
-  TARGET
-    simple_convolution_config
-  SOURCES
-    conv2d/simple_convolution.cc
-  PUBLIC_LIBRARIES
-    benchmark::benchmark
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-
-function(snn_conv2d_config_lib modelname)
-  snn_object_library(
-    TARGET
-      ${modelname}_convolution_config
-    SOURCES
-      conv2d/${modelname}.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
     PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
+    ${_BENCHMARK_DEFINITIONS}
   )
 endfunction()
 
-snn_conv2d_config_lib(mobilenet)
-snn_conv2d_config_lib(ssd_mobilenet)
-snn_conv2d_config_lib(resnet)
-snn_conv2d_config_lib(vgg)
-snn_conv2d_config_lib(xception)
+snn_compile_benchmark_functions(conv2d)
+snn_compile_benchmark_functions(pooling)
+snn_compile_benchmark_functions(batchnorm)
+snn_compile_benchmark_functions(depthwise_conv2d)
+snn_compile_benchmark_functions(bias)
+snn_compile_benchmark_functions(binary)
 
-function(snn_conv2d_bench modelname)
+function(snn_operator_bench operator modelname)
+  snn_object_library(
+    TARGET
+    ${modelname}_${operator}_config
+    SOURCES
+    ${operator}/${modelname}.cc
+    PUBLIC_LIBRARIES
+    benchmark::benchmark
+    PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+  )
   snn_bench(
     WITH_SYCL
     TARGET
-      ${modelname}_convolution
+    ${modelname}_${operator}
     OBJECTS
-      $<TARGET_OBJECTS:conv2d_benchmark_functions>
-      $<TARGET_OBJECTS:${modelname}_convolution_config>
+    $<TARGET_OBJECTS:${operator}_benchmark_functions>
+    $<TARGET_OBJECTS:${modelname}_${operator}_config>
     PUBLIC_LIBRARIES
-      bench_main
-      sycl_dnn
-      ${_BACKENDS}
-  )
-endfunction()
-
-snn_conv2d_bench(simple)
-snn_conv2d_bench(mobilenet)
-snn_conv2d_bench(ssd_mobilenet)
-snn_conv2d_bench(resnet)
-snn_conv2d_bench(vgg)
-snn_conv2d_bench(xception)
-
-snn_object_library(
-  WITH_SYCL
-  TARGET
-    pooling_benchmark_functions
-  KERNEL_SOURCES
-    pooling/benchmark_functions.cc
-  PUBLIC_LIBRARIES
-    benchmark::benchmark
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-
-function(snn_pooling_config_lib modelname)
-  snn_object_library(
-    TARGET
-      ${modelname}_pooling_config
-    SOURCES
-      pooling/${modelname}.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-    PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
-  )
-endfunction()
-
-snn_pooling_config_lib(mobilenet)
-snn_pooling_config_lib(resnet)
-snn_pooling_config_lib(vgg)
-
-function(snn_pooling_bench modelname)
-  snn_bench(
-    WITH_SYCL
-    TARGET
-      ${modelname}_pooling
-    OBJECTS
-      $<TARGET_OBJECTS:pooling_benchmark_functions>
-      $<TARGET_OBJECTS:${modelname}_pooling_config>
-    PUBLIC_LIBRARIES
-      bench_main
-      sycl_dnn
-  )
-endfunction()
-
-snn_pooling_bench(mobilenet)
-snn_pooling_bench(resnet)
-snn_pooling_bench(vgg)
-
-snn_bench(
-  WITH_SYCL
-  TARGET
-    relu
-  SOURCES
-    pointwise/relu.cc
-  PUBLIC_LIBRARIES
     bench_main
     sycl_dnn
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
+    ${_BACKENDS}
+  )
+endfunction()
+
+snn_operator_bench(conv2d mobilenet)
+snn_operator_bench(conv2d ssd_mobilenet)
+snn_operator_bench(conv2d resnet)
+snn_operator_bench(conv2d vgg)
+snn_operator_bench(conv2d xception)
+
+snn_operator_bench(pooling mobilenet)
+snn_operator_bench(pooling resnet)
+snn_operator_bench(pooling vgg)
+
+snn_operator_bench(batchnorm resnet50)
+
+snn_operator_bench(depthwise_conv2d mobilenet)
+snn_operator_bench(depthwise_conv2d xception)
+
+snn_operator_bench(bias net)
+
+snn_operator_bench(binary net_bias)
+
 snn_bench(
   WITH_SYCL
   TARGET
-    tanh
+    binary
   SOURCES
-    pointwise/tanh.cc
+    binary/binary.cc
   PUBLIC_LIBRARIES
     bench_main
     sycl_dnn
@@ -249,50 +206,72 @@ snn_bench(
     ${_BENCHMARK_DEFINITIONS}
 )
 
-snn_object_library(
+snn_bench(
   WITH_SYCL
   TARGET
-    depthwise_conv2d_benchmark_functions
-  KERNEL_SOURCES
-    depthwise_conv2d/benchmark_functions.cc
+  relu
+  SOURCES
+  pointwise/relu.cc
   PUBLIC_LIBRARIES
-    benchmark::benchmark
+  bench_main
+  sycl_dnn
+  PUBLIC_COMPILE_DEFINITIONS
+  ${_BENCHMARK_DEFINITIONS}
+)
+
+snn_bench(
+  WITH_SYCL
+  TARGET
+  tanh
+  SOURCES
+  pointwise/tanh.cc
+  PUBLIC_LIBRARIES
+  bench_main
+  sycl_dnn
+  PUBLIC_COMPILE_DEFINITIONS
+  ${_BENCHMARK_DEFINITIONS}
+)
+
+snn_bench(
+  WITH_SYCL
+  TARGET
+  concat
+  SOURCES
+  concat/concat.cc
+  PUBLIC_LIBRARIES
+  bench_main
+  sycl_dnn
+  PUBLIC_COMPILE_DEFINITIONS
+  ${_BENCHMARK_DEFINITIONS}
+)
+
+snn_bench(
+  WITH_SYCL
+  TARGET
+    reduction_benchmark_functions
+  SOURCES
+    reduction/benchmark_functions.cc
+    reduction/reductions.cc
+  PUBLIC_LIBRARIES
+    bench_main
+    sycl_dnn
   PUBLIC_COMPILE_DEFINITIONS
     ${_BENCHMARK_DEFINITIONS}
 )
 
-function(snn_depthwise_conv2d_config_lib modelname)
-  snn_object_library(
-    TARGET
-      ${modelname}_depthwise_conv2d_config
-    SOURCES
-      depthwise_conv2d/${modelname}.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-    PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
-  )
-endfunction()
-
-snn_depthwise_conv2d_config_lib(mobilenet)
-snn_depthwise_conv2d_config_lib(xception)
-
-function(snn_depthwise_conv2d_bench modelname)
-  snn_bench(
-    WITH_SYCL
-    TARGET
-      ${modelname}_depthwise_convolution
-    OBJECTS
-      $<TARGET_OBJECTS:depthwise_conv2d_benchmark_functions>
-      $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
-    PUBLIC_LIBRARIES
-      bench_main
-      sycl_dnn
-  )
-endfunction()
-
-snn_depthwise_conv2d_bench(mobilenet)
-snn_depthwise_conv2d_bench(xception)
+snn_bench(
+  WITH_SYCL
+  TARGET
+    nd_reduction_benchmark_functions
+  SOURCES
+    nd_reduction/benchmark_functions.cc
+    nd_reduction/nd_reductions.cc
+  PUBLIC_LIBRARIES
+    bench_main
+    sycl_dnn
+  PUBLIC_COMPILE_DEFINITIONS
+    ${_BENCHMARK_DEFINITIONS}
+)
 
 add_subdirectory(matmul)
 
@@ -302,172 +281,110 @@ endif()
 
 if(SNN_BENCH_ARM_COMPUTE)
   find_package(ARMCompute REQUIRED)
-  snn_object_library(
-    TARGET
-      arm_opencl_conv2d_benchmark_functions
-    SOURCES
-      conv2d/arm_benchmark_functions.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_object_library(
-    TARGET
-      arm_neon_conv2d_benchmark_functions
-    SOURCES
-      conv2d/arm_benchmark_functions.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-
-  function(snn_arm_conv2d_bench modelname)
-    snn_bench(
+  function(snn_arm_compile_benchmark_functions operator)
+    snn_object_library(
       TARGET
-        arm_opencl_${modelname}_convolution
-      OBJECTS
-        $<TARGET_OBJECTS:arm_opencl_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_convolution_config>
+      arm_neon_${operator}_benchmark_functions
+      SOURCES
+      ${operator}/arm_benchmark_functions.cc
       PUBLIC_LIBRARIES
-        bench_main
-        ARMCompute::ARMCompute
-        ARMCompute::Core
+      benchmark::benchmark
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+      PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
     )
-    snn_bench(
+    snn_object_library(
       TARGET
-        arm_neon_${modelname}_convolution
-      OBJECTS
-        $<TARGET_OBJECTS:arm_neon_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_convolution_config>
+      arm_opencl_${operator}_benchmark_functions
+      SOURCES
+      ${operator}/arm_benchmark_functions.cc
       PUBLIC_LIBRARIES
-        bench_main
-        ARMCompute::ARMCompute
-        ARMCompute::Core
+      benchmark::benchmark
+      ARMCompute::ARMCompute
+      ARMCompute::Core
+      PUBLIC_COMPILE_DEFINITIONS
+      ${_BENCHMARK_DEFINITIONS}
     )
   endfunction()
-  snn_arm_conv2d_bench(mobilenet)
-  snn_arm_conv2d_bench(resnet)
-  snn_arm_conv2d_bench(ssd_mobilenet)
-  snn_arm_conv2d_bench(vgg)
-  snn_arm_conv2d_bench(xception)
-
-  snn_object_library(
-    TARGET
-      arm_opencl_depthwise_conv2d_benchmark_functions
-    SOURCES
-      depthwise_conv2d/arm_benchmark_functions.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  snn_object_library(
-    TARGET
-      arm_neon_depthwise_conv2d_benchmark_functions
-    SOURCES
-      depthwise_conv2d/arm_benchmark_functions.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-      ARMCompute::ARMCompute
-      ARMCompute::Core
-    PUBLIC_COMPILE_DEFINITIONS
-      ARM_NEON
-      ${_BENCHMARK_DEFINITIONS}
-  )
-
-  function(snn_arm_depthwise_conv2d_bench modelname)
+  snn_arm_compile_benchmark_functions(conv2d)
+  snn_arm_compile_benchmark_functions(depthwise_conv2d)
+  
+  function(snn_arm_conv2d_bench operator modelname)
     snn_bench(
       TARGET
-        arm_opencl_${modelname}_depthwise_convolution
+      arm_opencl_${modelname}_${operator}
       OBJECTS
-        $<TARGET_OBJECTS:arm_opencl_depthwise_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+      $<TARGET_OBJECTS:arm_opencl_${operator}_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_${operator}_config>
       PUBLIC_LIBRARIES
-        bench_main
-        ARMCompute::ARMCompute
-        ARMCompute::Core
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
     )
     snn_bench(
       TARGET
-        arm_neon_${modelname}_depthwise_convolution
+      arm_neon_${modelname}_${operator}
       OBJECTS
-        $<TARGET_OBJECTS:arm_neon_depthwise_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+      $<TARGET_OBJECTS:arm_neon_${operator}_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_${operator}_config>
       PUBLIC_LIBRARIES
-        bench_main
-        ARMCompute::ARMCompute
-        ARMCompute::Core
+      bench_main
+      ARMCompute::ARMCompute
+      ARMCompute::Core
     )
   endfunction()
-  snn_arm_depthwise_conv2d_bench(mobilenet)
-  snn_arm_depthwise_conv2d_bench(xception)
+
+  snn_arm_bench(conv2d mobilenet)
+  snn_arm_bench(conv2d resnet)
+  snn_arm_bench(conv2d ssd_mobilenet)
+  snn_arm_bench(conv2d vgg)
+  snn_arm_bench(conv2d xception)
+
+  snn_arm_bench(depthwise_conv2d mobilenet)
+  snn_arm_bench(depthwise_conv2d xception)
 endif()
 
 if(SNN_BENCH_MKLDNN)
   find_package(mkldnn REQUIRED)
-  snn_object_library(
-    TARGET
-      mkl_conv2d_benchmark_functions
-    SOURCES
-      conv2d/mkl_benchmark_functions.cc
-    PUBLIC_LIBRARIES
+  function (snn_mkl_compile_benchmark_functions operator)
+    snn_object_library(
+      TARGET
+      mkl_${operator}_benchmark_functions
+      SOURCES
+      ${operator}/mkl_benchmark_functions.cc
+      PUBLIC_LIBRARIES
       benchmark::benchmark
       MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
+      PUBLIC_COMPILE_DEFINITIONS
       ${_BENCHMARK_DEFINITIONS}
-  )
-  function(snn_mkl_conv2d_bench modelname)
-    snn_bench(
-      TARGET
-        mkl_${modelname}_convolution
-      OBJECTS
-        $<TARGET_OBJECTS:mkl_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_convolution_config>
-      PUBLIC_LIBRARIES
-        bench_main
-        MKLDNN::mkldnn
     )
   endfunction()
-  snn_mkl_conv2d_bench(mobilenet)
-  snn_mkl_conv2d_bench(resnet)
-  snn_mkl_conv2d_bench(ssd_mobilenet)
-  snn_mkl_conv2d_bench(vgg)
-  snn_mkl_conv2d_bench(xception)
 
-  snn_object_library(
-    TARGET
-      mkl_depthwise_conv2d_benchmark_functions
-    SOURCES
-      depthwise_conv2d/mkl_benchmark_functions.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-      MKLDNN::mkldnn
-    PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
-  )
-  function(snn_mkl_depthwise_conv2d_bench modelname)
+  snn_mkl_compile_benchmark_functions(conv2d)
+  snn_mkl_compile_benchmark_functions(depthwise_conv2d)
+
+  function(snn_mkl_bench modelname)
     snn_bench(
       TARGET
-        mkl_${modelname}_depthwise_convolution
+      mkl_${modelname}_${operator}
       OBJECTS
-        $<TARGET_OBJECTS:mkl_depthwise_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_depthwise_conv2d_config>
+      $<TARGET_OBJECTS:mkl_${operator}_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_${operator}_config>
       PUBLIC_LIBRARIES
-        bench_main
-        MKLDNN::mkldnn
+      bench_main
+      MKLDNN::mkldnn
     )
   endfunction()
-  snn_mkl_depthwise_conv2d_bench(mobilenet)
-  snn_mkl_depthwise_conv2d_bench(xception)
+
+  snn_mkl_bench(conv2d mobilenet)
+  snn_mkl_bench(conv2d resnet)
+  snn_mkl_bench(conv2d ssd_mobilenet)
+  snn_mkl_bench(conv2d vgg)
+  snn_mkl_bench(conv2d xception)
+
+  snn_mkl_bench(depthwise_conv2d mobilenet)
+  snn_mkl_bench(depthwise_conv2d xception)
 endif()
 
 if(SNN_BENCH_CUDNN)
@@ -478,121 +395,105 @@ if(SNN_BENCH_CUDNN)
   )
   add_library(cudnn SHARED IMPORTED)
   set_target_properties(cudnn PROPERTIES IMPORTED_LOCATION ${CUDNN_LIBRARY})
-  snn_object_library(
-    TARGET
-      cudnn_conv2d_benchmark_functions
-    SOURCES
-      conv2d/cudnn_benchmark_functions.cc
-    PUBLIC_LIBRARIES
+
+  function(snn_cudnn_compile_benchmark_functions operator)
+    snn_object_library(
+      WITH_SYCL
+      TARGET
+      cudnn_${operator}_benchmark_functions
+      SOURCES
+      ${operator}/cudnn_benchmark_functions.cc
+      PUBLIC_LIBRARIES
       benchmark::benchmark
       CUDA::cudart
       CUDA::cuda_driver
-    PUBLIC_COMPILE_DEFINITIONS
+      sycl_dnn
+      PUBLIC_COMPILE_DEFINITIONS
       ${_BENCHMARK_DEFINITIONS}
-  )
-  function(snn_cudnn_conv2d_bench modelname)
-    snn_bench(
-      TARGET
-        cudnn_${modelname}_convolution
-      OBJECTS
-        $<TARGET_OBJECTS:cudnn_conv2d_benchmark_functions>
-        $<TARGET_OBJECTS:${modelname}_convolution_config>
-      PUBLIC_LIBRARIES
-        CUDA::cudart
-        CUDA::cuda_driver
-        cudnn
-        bench_main
     )
   endfunction()
-  snn_cudnn_conv2d_bench(mobilenet)
-  snn_cudnn_conv2d_bench(resnet)
-  snn_cudnn_conv2d_bench(ssd_mobilenet)
-  snn_cudnn_conv2d_bench(vgg)
-  snn_cudnn_conv2d_bench(xception)
+  snn_cudnn_compile_benchmark_functions(conv2d)
+  snn_cudnn_compile_benchmark_functions(batchnorm)
+  snn_cudnn_compile_benchmark_functions(pooling)
+
+  function(snn_cudnn_bench operator modelname)
+    snn_bench(
+      WITH_SYCL
+      TARGET
+      cudnn_${modelname}_${operator}
+      OBJECTS
+      $<TARGET_OBJECTS:cudnn_${operator}_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_${operator}_config>
+      PUBLIC_LIBRARIES
+      CUDA::cudart
+      CUDA::cuda_driver
+      cudnn
+      bench_main
+      sycl_dnn
+    )
+  endfunction()
+
+  snn_cudnn_bench(conv2d mobilenet)
+  snn_cudnn_bench(conv2d resnet)
+  snn_cudnn_bench(conv2d vgg)
+
+  snn_cudnn_bench(batchnorm resnet50)
+
+  snn_cudnn_bench(pooling mobilenet)
+  snn_cudnn_bench(pooling resnet)
+  snn_cudnn_bench(pooling vgg)
 endif()
 
-snn_object_library(
-  WITH_SYCL
-  TARGET
-    bias_benchmark_functions
-  KERNEL_SOURCES
-    bias/benchmark_functions.cc
-  PUBLIC_LIBRARIES
-    benchmark::benchmark
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
+if(SNN_BENCH_MIOPEN)
+  set(ROCM_PATH "/opt/rocm" CACHE STRING 
+      "Path to rocm installation. /opt/rocm by default")
+  list(APPEND CMAKE_MODULE_PATH "${ROCM_PATH}/hip/cmake")
+  find_package(hip REQUIRED)
+  find_package(miopen REQUIRED)
+  target_compile_definitions(hip::amdhip64 INTERFACE __HIP_PLATFORM_AMD__)
 
-function(snn_bias_config_lib modelname)
-  snn_object_library(
-    TARGET
-      ${modelname}_bias_config
-    SOURCES
-      bias/${modelname}.cc
-    PUBLIC_LIBRARIES
+  function(snn_miopen_compile_benchmark_functions operator)
+    snn_object_library(
+      WITH_SYCL
+      TARGET
+      miopen_${operator}_benchmark_functions
+      SOURCES
+      ${operator}/miopen_benchmark_functions.cc
+      PUBLIC_LIBRARIES
       benchmark::benchmark
-    PUBLIC_COMPILE_DEFINITIONS
+      hip::amdhip64
+      sycl_dnn
+      PUBLIC_COMPILE_DEFINITIONS
       ${_BENCHMARK_DEFINITIONS}
-  )
-endfunction()
+    )
+  endfunction()
+  snn_miopen_compile_benchmark_functions(conv2d)
+  snn_miopen_compile_benchmark_functions(batchnorm)
+  snn_miopen_compile_benchmark_functions(pooling)
 
-snn_bias_config_lib(net)
-
-function(snn_bias_bench modelname)
-  snn_bench(
-    WITH_SYCL
-    TARGET
-      ${modelname}_bias
-    OBJECTS
-      $<TARGET_OBJECTS:bias_benchmark_functions>
-      $<TARGET_OBJECTS:${modelname}_bias_config>
-    PUBLIC_LIBRARIES
+  function(snn_miopen_bench operator modelname)
+    snn_bench(
+      WITH_SYCL
+      TARGET
+      miopen_${modelname}_${operator}
+      OBJECTS
+      $<TARGET_OBJECTS:miopen_${operator}_benchmark_functions>
+      $<TARGET_OBJECTS:${modelname}_${operator}_config>
+      PUBLIC_LIBRARIES
+      hip::amdhip64
+      MIOpen
       bench_main
       sycl_dnn
-  )
-endfunction()
+    )
+  endfunction()
 
-snn_bias_bench(net)
+  snn_miopen_bench(conv2d mobilenet)
+  snn_miopen_bench(conv2d resnet)
+  snn_miopen_bench(conv2d vgg)
 
-snn_object_library(
-  WITH_SYCL
-  TARGET
-    batchnorm_benchmark_functions
-  KERNEL_SOURCES
-    batchnorm/benchmark_functions.cc
-  PUBLIC_LIBRARIES
-    benchmark::benchmark
-  PUBLIC_COMPILE_DEFINITIONS
-    ${_BENCHMARK_DEFINITIONS}
-)
-
-function(snn_batchnorm_config_lib modelname)
-  snn_object_library(
-    TARGET
-      ${modelname}_batchnorm_config
-    SOURCES
-      batchnorm/${modelname}.cc
-    PUBLIC_LIBRARIES
-      benchmark::benchmark
-    PUBLIC_COMPILE_DEFINITIONS
-      ${_BENCHMARK_DEFINITIONS}
-  )
-endfunction()
-
-snn_batchnorm_config_lib(resnet50)
-
-function(snn_batchnorm_bench modelname)
-  snn_bench(
-    WITH_SYCL
-    TARGET
-      ${modelname}_batchnorm
-    OBJECTS
-      $<TARGET_OBJECTS:batchnorm_benchmark_functions>
-      $<TARGET_OBJECTS:${modelname}_batchnorm_config>
-    PUBLIC_LIBRARIES
-      bench_main
-      sycl_dnn
-  )
-endfunction()
-
-snn_batchnorm_bench(resnet50)
+  snn_miopen_bench(batchnorm resnet50)
+  
+  snn_miopen_bench(pooling mobilenet)
+  snn_miopen_bench(pooling resnet)
+  snn_miopen_bench(pooling vgg)
+endif()

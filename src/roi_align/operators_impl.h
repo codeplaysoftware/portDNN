@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_SRC_ROI_ALIGN_OPERATORS_IMPL_H_
-#define PORTDNN_SRC_ROI_ALIGN_OPERATORS_IMPL_H_
+#ifndef SYCLDNN_SRC_ROI_ALIGN_OPERATORS_IMPL_H_
+#define SYCLDNN_SRC_ROI_ALIGN_OPERATORS_IMPL_H_
 
 #include <CL/sycl.hpp>
 
-#include "portdnn/roi_align/operators.h"
 #include "src/pooling/operators_impl.h"
+#include "sycldnn/roi_align/operators.h"
 
-#endif  // PORTDNN_SRC_ROI_ALIGN_OPERATORS_IMPL_H_
+#endif  // SYCLDNN_SRC_ROI_ALIGN_OPERATORS_IMPL_H_

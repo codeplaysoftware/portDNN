@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_BATCHNORM_BENCHMARK_PARAMS_H_
-#define PORTDNN_BENCH_BATCHNORM_BENCHMARK_PARAMS_H_
+#ifndef SYCLDNN_BENCH_BATCHNORM_BENCHMARK_PARAMS_H_
+#define SYCLDNN_BENCH_BATCHNORM_BENCHMARK_PARAMS_H_
 
-#include "portdnn/batchnorm/params.h"
+#include "sycldnn/batchnorm/params.h"
 
 #include <benchmark/benchmark.h>
 
@@ -52,10 +52,9 @@ inline sycldnn::batchnorm::BatchNormParams deserialize(
   params.rows = state.range(1);
   params.cols = state.range(2);
   params.channels = state.range(3);
-  params.is_training = false;
   return params;
 }
 
 }  // namespace benchmark_params
 
-#endif  // PORTDNN_BENCH_BATCHNORM_BENCHMARK_PARAMS_H_
+#endif  // SYCLDNN_BENCH_BATCHNORM_BENCHMARK_PARAMS_H_

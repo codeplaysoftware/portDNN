@@ -15,7 +15,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "portdnn/helpers/ratio.h"
+#include "sycldnn/helpers/ratio.h"
 
 #include <stddef.h>
 #include <cstdint>

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
-#define PORTDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
+#ifndef SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
+#define SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
 
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
 #include "src/conv2d/tiled/tile_info.h"
 
@@ -32,7 +32,7 @@ namespace internal {
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
-          template <typename> class MemObj>
+          typename Layout, template <typename> class MemObj>
 SNNStatus queue_tiled_kernel(MemObj<T const>& input, MemObj<T const>& filter,
                              MemObj<T>& output,
                              Conv2DParams const& kernel_params,
@@ -44,4 +44,4 @@ SNNStatus queue_tiled_kernel(MemObj<T const>& input, MemObj<T const>& filter,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_
+#endif  // SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_H_

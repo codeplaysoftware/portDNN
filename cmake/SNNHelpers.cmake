@@ -164,9 +164,9 @@ function(snn_target)
   endif()
   target_include_directories(${SNN_TARGET_TARGET}
     PUBLIC  $<INSTALL_INTERFACE:${include_dest}>
-            $<BUILD_INTERFACE:${portdnn_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${portdnn_BINARY_DIR}>
-    PRIVATE $<BUILD_INTERFACE:${portdnn_SOURCE_DIR}>
+            $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${sycldnn_BINARY_DIR}>
+    PRIVATE $<BUILD_INTERFACE:${sycldnn_SOURCE_DIR}>
   )
 
   # Specify some C++11 features used widely across the library
@@ -429,6 +429,27 @@ function(snn_bench)
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output)
 endfunction()
 
+# snn_set_tuning_target helper function
+# Sets the compiler definition for desired target device
+# based on the cached variable `SNN_TUNING_TARGET`.
+function(snn_set_tuning_target target)
+  # Setting compiler flag for backend
+  if(${SNN_TUNING_TARGET} STREQUAL "INTEL_GPU")
+    target_compile_definitions(${target} PUBLIC INTEL_GPU=1)
+  elseif(${SNN_TUNING_TARGET} STREQUAL "AMD_GPU")
+    target_compile_definitions(${target} PUBLIC AMD_GPU=1)
+  elseif(${SNN_TUNING_TARGET} STREQUAL "NVIDIA_GPU")
+    target_compile_definitions(${target} PUBLIC NVIDIA_GPU=1)
+  else()
+    if(NOT ${SNN_TUNING_TARGET} STREQUAL "DEFAULT_CPU")
+      message(STATUS "${SNN_TUNING_TARGET} not supported. Switching to DEFAULT_CPU instead.")
+      set(SNN_TUNING_TARGET "DEFAULT_CPU")
+    endif()
+    target_compile_definitions(${target} PUBLIC DEFAULT_CPU=1)
+  endif()
+  message(STATUS "Adding ${SNN_TUNING_TARGET} backend to target ${target}")
+endfunction()
+
 # snn_object_library helper function
 # Adds an object library target with the specified sources, libraries and include
 # directories. If SYCL support is requested then that is added to the target as
@@ -479,4 +500,5 @@ function(snn_object_library)
     PUBLIC_COMPILE_DEFINITIONS ${SNN_OBJLIB_PUBLIC_COMPILE_DEFINITIONS}
     CXX_OPTS             ${SNN_OBJLIB_CXX_OPTS}
   )
+  snn_set_tuning_target(${SNN_OBJLIB_TARGET})
 endfunction()

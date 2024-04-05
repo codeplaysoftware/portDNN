@@ -1,7 +1,7 @@
 // original sample from
 // https://github.com/kaixih/dl_samples/blob/main/batch_norm/cudnn_batch_norm.cu
 #include <iostream>
-#include <portdnn/compat/batchnorm.hpp>
+#include <sycldnn/compat/batchnorm.hpp>
 
 using namespace sycldnn::compat;
 

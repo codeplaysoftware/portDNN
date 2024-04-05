@@ -62,10 +62,10 @@ if(SNN_TEST_EIGEN_MATMULS)
   list(APPEND _matmul_providers Eigen::Eigen)
 endif()
 
-if(SNN_TEST_SYCLBLAS_MATMULS)
-  include(Handlesycl_blas)
-  list(APPEND _cxx_opts -DSNN_TEST_SYCLBLAS_MATMULS=1)
-  list(APPEND _matmul_providers SYCL_BLAS::sycl_blas)
+if(SNN_TEST_PORTBLAS_MATMULS)
+  include(HandlePortBLAS)
+  list(APPEND _cxx_opts -DSNN_TEST_PORTBLAS_MATMULS=1)
+  list(APPEND _matmul_providers PORTBLAS::portblas)
 endif()
 
 if(SNN_TEST_CLBLAST_MATMULS)
@@ -82,7 +82,7 @@ foreach(_index RANGE ${_list_len})
   list(GET _windows ${_index} _window)
   list(GET _strides ${_index} _stride)
   foreach(_type IN ITEMS "forward" "input_backprop" "filter_backprop")
-    if(SNN_TEST_EIGEN_MATMULS OR SNN_TEST_SYCLBLAS_MATMULS)
+    if(SNN_TEST_EIGEN_MATMULS OR SNN_TEST_PORTBLAS_MATMULS)
       set(_kernel_src KERNEL_SOURCES
         ${_type}_window${_window}_stride${_stride}.cc
       )
@@ -126,7 +126,7 @@ foreach(_index RANGE ${_list_len})
   list(GET _strides ${_index} _stride)
   list(GET _groups ${_index} _group)
   foreach(_type IN ITEMS "forward") # "input_backprop" "filter_backprop")
-    if(SNN_TEST_EIGEN_MATMULS OR SNN_TEST_SYCLBLAS_MATMULS)
+    if(SNN_TEST_EIGEN_MATMULS OR SNN_TEST_PORTBLAS_MATMULS)
       set(_kernel_src KERNEL_SOURCES
         ${_type}_window${_window}_stride${_stride}_groups${_group}.cc
       )

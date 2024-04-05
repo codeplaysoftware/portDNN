@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-#include "portdnn/compat/convolution.hpp"
+#include "sycldnn/compat/convolution.hpp"
 #include "test/gen/iota_initialised_data.h"
 
 #include <type_traits>
@@ -244,10 +244,12 @@ TEST_F(Conv2DCompatTest, ForwardWindow3Stride1) {
                 {348., 393., 528., 573.}, sycldnn::DataFormat::NHWC);
 }
 
+#ifdef SNN_ENABLE_NCHW
 TEST_F(Conv2DCompatTest, ForwardWindow3Stride2VALID1x5x5x1x1) {
   this->do_test({1, 1, 5, 5}, {1, 1, 3, 3}, {0, 0, 2, 2, 1, 1},
                 {411., 501., 861., 951.}, sycldnn::DataFormat::NCHW);
 }
+#endif
 
 TEST_F(Conv2DCompatTest, ForwardWindow7Stride4SAME1x11x11x1x2) {
   this->do_test({1, 1, 11, 11}, {2, 1, 7, 7}, {2, 2, 4, 4, 1, 1},

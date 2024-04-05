@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
 
-#include "portdnn/conv2d/conv_type.h"
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/format_type.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/internal/conv2d/im2col/launch_input_transform.h"
+#include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/params.h"
+
+#include "sycldnn/internal/conv2d/im2col/launch_input_transform.h"
 
 #include "src/conv2d/im2col/queue_input_transform.h"
 #include "src/conv2d/im2col/queue_zero_out_transform.h"
@@ -31,7 +33,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -51,19 +53,30 @@ size_t get_thread_size<conv_type::InputBackprop>(Conv2DParams const& params,
   return params.batch * params.out_rows * params.out_cols * params.features /
          vector_width;
 }
-
-/** Check whether a certain vector size can be used for the given parameters. */
 template <typename ConvType>
 bool can_use_vector(Conv2DParams const& params, int vector_width) {
-  if (params.group_format == sycldnn::BatchFormat::STRIDED) {
-    return (params.channels / params.groups) % vector_width == 0;
+  if (params.input_format == DataFormat::NCHW) {
+    return params.dilation_rows == 1 && params.dilation_cols == 1 &&
+           params.window_cols % vector_width == 0 &&
+           params.in_cols % vector_width == 0;
   } else {
-    return params.channels % vector_width == 0;
+    if (params.group_format == sycldnn::BatchFormat::STRIDED) {
+      return (params.channels / params.groups) % vector_width == 0;
+    } else {
+      return params.channels % vector_width == 0;
+    }
   }
 }
 template <>
 bool can_use_vector<conv_type::InputBackprop>(Conv2DParams const& params,
                                               int vector_width) {
+  if (params.input_format == DataFormat::NCHW) {
+    if (params.dilation_cols > 1 || params.stride_cols > 1 ||
+        params.window_cols % vector_width != 0)
+      return false;
+    else
+      return (params.out_cols / params.groups) % vector_width == 0;
+  }
   return (params.features / params.groups) % vector_width == 0;
 }
 template <>
@@ -84,8 +97,16 @@ SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
     return status;
   } else {
     std::vector<cl::sycl::event> dependencies{status.event};
-    return queue_input_transform<T, Index, VectorWidth, ConvType>(
-        input, output, params, tile_size, queue, dependencies);
+    if (params.input_format == DataFormat::NCHW) {
+      return queue_input_transform<T, Index, VectorWidth, ConvType,
+                                   layout::NCHW>(
+          input, output, params, tile_size, queue, dependencies);
+    } else if (params.input_format == DataFormat::NHWC) {
+      return queue_input_transform<T, Index, VectorWidth, ConvType,
+                                   layout::NHWC>(
+          input, output, params, tile_size, queue, dependencies);
+    }
+    return StatusCode::InvalidAlgorithm;
   }
 }
 

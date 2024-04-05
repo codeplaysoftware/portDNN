@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/internal/conv2d/winograd/launch_input_transform.h"
+#include "sycldnn/internal/conv2d/winograd/launch_input_transform.h"
 
-#include "portdnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/conv_type.h"
 
 #include "src/conv2d/winograd/queue_input_transform.h"
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {

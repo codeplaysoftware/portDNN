@@ -16,9 +16,21 @@ cmake_minimum_required(VERSION 3.10.2)
 include(HandleGTest)
 include(SNNHelpers)
 
-foreach(_dir IN ITEMS forward gradient)
-  foreach(_op IN ITEMS training frozen)
-    set(_target batchnorm_${_dir}_${_op})
+function(batchnorm_tests dir op)
+  set(_target batchnorm_${dir}_${op})
+  snn_test(
+    WITH_SYCL
+    TARGET
+      ${_target}
+    SIZE
+      moderate
+    SOURCES
+      ${_target}.cc
+    PUBLIC_LIBRARIES
+      sycl_dnn
+  )
+  if (SNN_ENABLE_USM)
+    set(_target batchnorm_event_dependencies_${dir}_${op})
     snn_test(
       WITH_SYCL
       TARGET
@@ -30,19 +42,9 @@ foreach(_dir IN ITEMS forward gradient)
       PUBLIC_LIBRARIES
         sycl_dnn
     )
-    if (SNN_ENABLE_USM)
-      set(_target batchnorm_event_dependencies_${_dir}_${_op})
-      snn_test(
-        WITH_SYCL
-        TARGET
-          ${_target}
-        SIZE
-          moderate
-        SOURCES
-          ${_target}.cc
-        PUBLIC_LIBRARIES
-          sycl_dnn
-      )
-    endif()
-  endforeach()
-endforeach()
+  endif()
+endfunction()
+
+batchnorm_tests("forward" "inference")
+batchnorm_tests("forward" "training")
+batchnorm_tests("gradient" "training")

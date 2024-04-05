@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_TEST_TYPES_DATA_FORMAT_TYPES_H_
-#define PORTDNN_TEST_TYPES_DATA_FORMAT_TYPES_H_
+#ifndef SYCLDNN_TEST_TYPES_DATA_FORMAT_TYPES_H_
+#define SYCLDNN_TEST_TYPES_DATA_FORMAT_TYPES_H_
 
-#include "portdnn/format_type.h"
+#include "sycldnn/format_type.h"
 
 #include "test/types/type_list.h"
 
@@ -29,8 +29,12 @@ namespace types {
  * We use intermediate types to represent data formats to workaround a GTest
  * limitation which does not allow for typed tests with parameters.
  */
+#ifdef SNN_ENABLE_NCHW
 using DataFormatTypes = TypeList<layout::NHWC, layout::NCHW>;
+#else
+using DataFormatTypes = TypeList<layout::NHWC>;
+#endif
 
 }  // namespace types
 }  // namespace sycldnn
-#endif  // PORTDNN_TEST_TYPES_DATA_FORMAT_TYPES_H_
+#endif  // SYCLDNN_TEST_TYPES_DATA_FORMAT_TYPES_H_

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_CONV2D_ARM_FIXTURE_H_
-#define PORTDNN_BENCH_CONV2D_ARM_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_
+#define SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_
 
-#include "arm_depthwise_conv2d_executor.h"
+#include "arm_depthwise_conv2d_bench_executor.h"
 #include "base_depthwise_convolution_fixture.h"
 #include "benchmark_config.h"
 #include "benchmark_params.h"
@@ -30,10 +30,11 @@
 extern const char* commit_date;
 extern const char* commit_hash;
 
-template <typename DataType, typename ACLExecutor>
+template <typename DataType, typename ACLBenchExecutor>
 class ARMDepthwiseConvolutionBenchmark
-    : public sycldnn::bench::ARMDepthwiseConv2DExecutor<
-          ARMDepthwiseConvolutionBenchmark<DataType, ACLExecutor>, ACLExecutor>,
+    : public sycldnn::bench::ARMDepthwiseConv2DBenchExecutor<
+          ARMDepthwiseConvolutionBenchmark<DataType, ACLBenchExecutor>,
+          ACLBenchExecutor>,
       public sycldnn::bench::StringReporter,
       public BaseDepthwiseConvolutionBenchmark {
  private:
@@ -77,4 +78,4 @@ class ARMDepthwiseConvolutionBenchmark
       ->Unit(benchmark::kNanosecond)                                  \
       ->Apply(RunForAllParamSets);
 
-#endif  // define PORTDNN_BENCH_CONV2D_ARM_FIXTURE_H_
+#endif  // define SYCLDNN_BENCH_CONV2D_ARM_FIXTURE_H_

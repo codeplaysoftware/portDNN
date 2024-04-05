@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
-#define PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#ifndef SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#define SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
 
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
 #include <CL/sycl.hpp>
 
@@ -30,7 +30,8 @@ namespace internal {
  * Submit a pointwise transformation to a SYCL queue.
  */
 template <typename T, typename Index, template <typename> class PointwiseType,
-          typename Direction, int VectorWidth, template <typename> class MemObj>
+          typename Direction, int VectorWidth, int BlockSize,
+          template <typename> class MemObj>
 SNNStatus queue_pointwise(MemObj<T const>& in_mem, MemObj<T>& out_mem,
                           Index const n_items, cl::sycl::queue& queue,
                           const std::vector<cl::sycl::event>& events);
@@ -38,4 +39,4 @@ SNNStatus queue_pointwise(MemObj<T const>& in_mem, MemObj<T>& out_mem,
 }  // namespace pointwise
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_
+#endif  // SYCLDNN_SRC_POINTWISE_QUEUE_POINTWISE_FORWARD_H_

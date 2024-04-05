@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_REDUCE_QUEUE_KERNEL_H_
-#define PORTDNN_SRC_REDUCE_QUEUE_KERNEL_H_
+#ifndef SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
+#define SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_
 
+#include <algorithm>
+#include <cstddef>
 #include <unordered_map>
+#include <vector>
 
-#include "portdnn/internal/helpers/types.h"
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/internal/reduce/internal_params.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
 namespace sycldnn {
 namespace reduce {
@@ -34,18 +37,16 @@ SNNStatus queue_default_kernel(MemObj<T const>& input, MemObj<T>& output,
                                int finalizeParam, cl::sycl::queue& queue,
                                const std::vector<cl::sycl::event>& events);
 
-#ifndef SNN_DISABLE_SYCL_PROGRAM
-template <typename T, typename Index, typename Op,
-          template <typename> class MemObj>
-SNNStatus queue_subgroup_kernel(
-    MemObj<T const>& input_mem, MemObj<T>& output_mem, int batches, int outer,
-    int inner, cl::sycl::queue& queue, cl::sycl::program& program,
-    sycldnn::internal::types::KernelSubgroupSizesMap&
-        max_kernel_sub_group_sizes,
-    const std::vector<cl::sycl::event>& events);
-#endif
+/** Add a lm reduce kernel to the provided SYCL queue. */
+template <typename T, typename Index, typename Op, int NumSGReductions,
+          bool Transpose, bool BankOffset, template <typename> class MemObj>
+SNNStatus queue_lm_kernel(MemObj<T const>& input_mem, MemObj<T>& output_mem,
+                          internal::ReduceParams const& params, Index row_wg,
+                          Index col_wg, cl::sycl::queue queue,
+                          const std::vector<cl::sycl::event>& events);
+
 }  // namespace internal
 }  // namespace reduce
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_REDUCE_QUEUE_KERNEL_H_
+#endif  // SYCLDNN_SRC_REDUCE_QUEUE_KERNEL_H_

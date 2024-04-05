@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_BACKEND_SNN_BACKEND_PROVIDER_H_
-#define PORTDNN_SRC_BACKEND_SNN_BACKEND_PROVIDER_H_
+#ifndef SYCLDNN_SRC_BACKEND_SNN_BACKEND_PROVIDER_H_
+#define SYCLDNN_SRC_BACKEND_SNN_BACKEND_PROVIDER_H_
 
-#include "portdnn/backend/snn_backend.h"
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/backend/snn_backend.h"
+#include "sycldnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -25,8 +25,8 @@ namespace sycldnn {
 namespace backend {
 
 /** Specialisation of the backend provider for the SNNBackend.  */
-template <>
-struct BackendProvider<SNNBackend> {
+template <bool InOrderQueue>
+struct BackendProvider<SNNBackend, InOrderQueue> {
  public:
   template <typename T>
   using Pointer = SNNBackend::pointer_type<T>;
@@ -48,14 +48,8 @@ struct BackendProvider<SNNBackend> {
       return Pointer<T>{};
     }
     auto gpu_ptr = Pointer<T>{size};
-    auto event = backend_.get_queue().submit([&](cl::sycl::handler& cgh) {
-      auto acc =
-          gpu_ptr.get_buffer()
-              .template get_access<cl::sycl::access::mode::discard_write>(
-                  cgh, cl::sycl::range<1>{size},
-                  cl::sycl::id<1>{gpu_ptr.get_offset()});
-      cgh.copy(data.data(), acc);
-    });
+    sycl::accessor acc{gpu_ptr.get_buffer()};
+    auto event = backend_.get_queue().copy(data.data(), acc);
     event.wait_and_throw();
     return gpu_ptr;
   }
@@ -65,13 +59,8 @@ struct BackendProvider<SNNBackend> {
   void copy_device_data_to_host(size_t size, Pointer<T> gpu_ptr,
                                 std::vector<T>& host_data) {
     host_data.resize(size);
-    auto event = backend_.get_queue().submit([&](cl::sycl::handler& cgh) {
-      auto acc = gpu_ptr.get_buffer()
-                     .template get_access<cl::sycl::access::mode::read>(
-                         cgh, cl::sycl::range<1>{size},
-                         cl::sycl::id<1>{gpu_ptr.get_offset()});
-      cgh.copy(acc, host_data.data());
-    });
+    sycl::accessor acc{gpu_ptr.get_buffer()};
+    auto event = backend_.get_queue().copy(acc, host_data.data());
     event.wait_and_throw();
   }
 
@@ -97,10 +86,14 @@ struct BackendProvider<SNNBackend> {
         }
       }
     };
+    cl::sycl::property_list q_prop{};
+    if constexpr (InOrderQueue) {
+      q_prop = {cl::sycl::property::queue::in_order()};
+    }
     // By making the SYCL queue static any compiled kernels will be cached,
     // and so do not need to be recompiled for each test.
-    static cl::sycl::queue queue{cl::sycl::default_selector{},
-                                 exception_handler};
+    static cl::sycl::queue queue{cl::sycl::default_selector(),
+                                 exception_handler, q_prop};
     return queue;
   }
 };
@@ -108,4 +101,4 @@ struct BackendProvider<SNNBackend> {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_BACKEND_SNN_BACKEND_PROVIDER_H_
+#endif  // SYCLDNN_SRC_BACKEND_SNN_BACKEND_PROVIDER_H_

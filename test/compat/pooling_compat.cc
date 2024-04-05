@@ -16,10 +16,10 @@
 
 #include <gtest/gtest.h>
 
-#include "portdnn/compat/pooling.hpp"
+#include "sycldnn/compat/pooling.hpp"
 #include "test/gen/iota_initialised_data.h"
 
-#include "portdnn/helpers/padding.h"
+#include "sycldnn/helpers/padding.h"
 #include "test/helpers/float_comparison.h"
 
 #include <type_traits>

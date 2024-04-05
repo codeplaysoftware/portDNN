@@ -16,9 +16,9 @@
 
 #include <gtest/gtest.h>
 
-#include "portdnn/padding_mode.h"
+#include "sycldnn/padding_mode.h"
 
-#include "portdnn/pooling/operators.h"
+#include "sycldnn/pooling/operators.h"
 
 #include "test/pooling/pooling_fixture.h"
 #include "test/types/cartesian_product.h"

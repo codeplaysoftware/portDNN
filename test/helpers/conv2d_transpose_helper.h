@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_TEST_HELPERS_CONV2D_TRANSPOSE_H_
-#define PORTDNN_TEST_HELPERS_CONV2D_TRANSPOSE_H_
+#ifndef SYCLDNN_TEST_HELPERS_CONV2D_TRANSPOSE_H_
+#define SYCLDNN_TEST_HELPERS_CONV2D_TRANSPOSE_H_
 
 #include "test/helpers/transpose.h"
 
@@ -162,4 +162,4 @@ transpose_helper<sycldnn::conv2d::conv_type::FilterBackprop>::transpose_output(
   return outputData;
 }
 
-#endif  // PORTDNN_TEST_HELPERS_CONV2D_TRANSPOSE_H_
+#endif  // SYCLDNN_TEST_HELPERS_CONV2D_TRANSPOSE_H_

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
-#define PORTDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
+#define SYCLDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
 
 #include "base_batchnorm_fixture.h"
 #include "benchmark_config.h"
 #include "benchmark_params.h"
-#include "snn_batchnorm_executor.h"
+#include "snn_batchnorm_bench_executor.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -31,10 +31,13 @@
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename DataType>
+template <typename Backend, typename DataType, typename DataLayout,
+          typename Direction, bool InOrderQueue>
 class SNNBatchnormBenchmark
-    : public sycldnn::bench::SNNBatchnormExecutor<
-          SNNBatchnormBenchmark<Backend, DataType>, DataType, Backend>,
+    : public sycldnn::bench::SNNBatchnormBenchExecutor<
+          SNNBatchnormBenchmark<Backend, DataType, DataLayout, Direction,
+                                InOrderQueue>,
+          DataType, Backend, Direction, InOrderQueue>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BaseBatchnormBenchmark {
@@ -44,6 +47,7 @@ class SNNBatchnormBenchmark
  protected:
   void run(State& state) {
     auto params = benchmark_params::deserialize(state);
+    params.input_format = DataLayout::input_layout;
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -59,10 +63,22 @@ class SNNBatchnormBenchmark
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
-    this->add_to_label("@library", "portDNN");
+    this->add_to_label("@library", "SYCL-DNN");
     this->add_to_label("@backend", backend.name());
+    this->add_to_label("@layout", sycldnn::bench::TypeName<DataLayout>::name);
+    this->add_to_label("@direction", "Forward");
     this->add_to_label("short_name", "Batchnorm");
     this->add_to_label("git_hash", commit_hash);
+    this->add_to_label("@in_order_queue", InOrderQueue ? "true" : "false");
+    this->add_to_label("@direction",
+                       std::is_same_v<Direction, sycldnn::batchnorm::Gradient>
+                           ? "Gradient"
+                           : "Forward");
+    this->add_to_label(
+        "@is_training",
+        std::is_same_v<Direction, sycldnn::batchnorm::ForwardInference>
+            ? "false"
+            : "true");
     this->set_label(state);
   }
 
@@ -82,4 +98,4 @@ class SNNBatchnormBenchmark
       ->Unit(benchmark::kNanosecond)                                    \
       ->Apply(RunForAllParamSets);
 
-#endif  // define PORTDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_
+#endif  // define SYCLDNN_BENCH_BATCHNORM_SNN_FIXTURE_H_

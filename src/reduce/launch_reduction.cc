@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/internal/helpers/types.h"
-#include "portdnn/internal/reduce/launch.h"
-#include "portdnn/mem_object.h"
-#include "portdnn/reduce/operators.h"
+#include "sycldnn/internal/reduce/launch.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/reduce/operators.h"
+
 #include "src/reduce/queue_reduction.h"
 
 namespace sycldnn {
 namespace reduce {
 namespace internal {
 
-#ifdef SNN_DISABLE_SYCL_PROGRAM
 // Launch the reduce kernel for the passed parameters.
 template <typename T, typename Op, template <typename> class MemObj>
 SNNStatus launch(MemObj<T const>& input, MemObj<T>& output, int batches,
@@ -32,46 +31,45 @@ SNNStatus launch(MemObj<T const>& input, MemObj<T>& output, int batches,
   return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
                                           outer, queue, events);
 }
-#else
-// Launch the reduce kernel for the passed parameters.
-template <typename T, typename Op, template <typename> class MemObj>
-SNNStatus launch(MemObj<T const>& input, MemObj<T>& output, int batches,
-                 int outer, int inner, cl::sycl::queue& queue,
-                 cl::sycl::program& program, bool supports_subgroup,
-                 sycldnn::internal::types::KernelSubgroupSizesMap&
-                     max_kernel_sub_group_sizes,
-                 const std::vector<cl::sycl::event>& events) {
-#if SNN_ENABLE_SUBGROUPS
-  if (supports_subgroup && inner == 1) {
-    return queue_subgroup_kernel<T, int, Op>(
-        input, output, batches, outer, inner, queue, program,
-        max_kernel_sub_group_sizes, events);
-  }
-#endif
-  SNN_UNUSED_VAR(program);
-  SNN_UNUSED_VAR(supports_subgroup);
-  SNN_UNUSED_VAR(max_kernel_sub_group_sizes);
-  return queue_default_kernel<T, int, Op>(input, output, batches, outer, inner,
-                                          outer, queue, events);
-}
-#endif
 
-#ifdef SNN_DISABLE_SYCL_PROGRAM
-#define INSTANTIATE_LAUNCHER(DTYPE, OP, MEMOBJ)                         \
-  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                      \
-      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output, int batches, \
-      int outer, int inner, cl::sycl::queue& queue,                     \
-      const std::vector<cl::sycl::event>& events);
+// Launch the reduce kernel for the passed parameters.
+template <typename T, typename Op, template <typename> class MemObj>
+SNNStatus launch(MemObj<T const>& input_mem, MemObj<T>& output_mem,
+                 internal::ReduceParams const& params, cl::sycl::queue& queue,
+                 const std::vector<cl::sycl::event>& events) {
+  using Index = int;
+  auto constexpr local_row_wg = 256;
+  auto constexpr local_col_wg = 8;
+#ifdef DEFAULT_CPU
+  auto constexpr NumSGReductions = 0;
 #else
+  auto constexpr NumSGReductions = 4;
+#endif
+  if (params.stride_size == 1) {
+    return queue_lm_kernel<T, Index, Op, NumSGReductions, false, false>(
+        input_mem, output_mem, params, local_row_wg, local_col_wg, queue,
+        events);
+  } else if (params.stride_size > 4) {
+    return queue_lm_kernel<T, Index, Op, NumSGReductions, true, true>(
+        input_mem, output_mem, params, local_row_wg, local_col_wg, queue,
+        events);
+  } else {
+    return queue_lm_kernel<T, Index, Op, NumSGReductions, false, true>(
+        input_mem, output_mem, params, local_row_wg, local_col_wg, queue,
+        events);
+  }
+}
+
 #define INSTANTIATE_LAUNCHER(DTYPE, OP, MEMOBJ)                         \
   template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                      \
       MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output, int batches, \
       int outer, int inner, cl::sycl::queue& queue,                     \
-      cl::sycl::program& program, bool supports_subgroup,               \
-      sycldnn::internal::types::KernelSubgroupSizesMap&                 \
-          max_kernel_sub_group_sizes,                                   \
+      const std::vector<cl::sycl::event>& events);                      \
+                                                                        \
+  template SNN_EXPORT SNNStatus launch<DTYPE, OP>(                      \
+      MEMOBJ<DTYPE const> & input, MEMOBJ<DTYPE> & output,              \
+      internal::ReduceParams const& params, cl::sycl::queue& queue,     \
       const std::vector<cl::sycl::event>& events);
-#endif
 
 #define INSTANTIATE_FOR_TYPE(DTYPE, MEMOBJ) \
   INSTANTIATE_LAUNCHER(DTYPE, Add, MEMOBJ)  \

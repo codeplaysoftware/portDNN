@@ -1,6 +1,6 @@
-# portDNN Configuration Options
+# SYCL-DNN Configuration Options
 
-portDNN's CMake provides a number of configuration options to control which
+SYCL-DNN's CMake provides a number of configuration options to control which
 parts of the code will be built, tested and benchmarked. They are described
 here.
 
@@ -10,9 +10,9 @@ Option                             | Type     | Default   | Description
 ---------------------------------- | -------- | --------- | -----------
 `CMAKE_BUILD_TYPE`                 | `STRING` | `Release` | Release, RelWithDebInfo etc. Controls compiler flags.
 `SNN_FASTBUILD`                    | `BOOL`   | `OFF`     | Disables default-set `CMAKE_BUILD_TYPE` when `ON`
-`SNN_BUILD_TESTS`                  | `BOOL`   | `ON`      | Enables the portDNN test suite
-`SNN_BUILD_SAMPLES`                | `BOOL`   | `ON`      | Builds portDNN's sample code
-`SNN_BUILD_BENCHMARKS`             | `BOOL`   | `ON`      | Builds portDNN's benchmarks
+`SNN_BUILD_TESTS`                  | `BOOL`   | `ON`      | Enables the SYCL-DNN test suite
+`SNN_BUILD_SAMPLES`                | `BOOL`   | `ON`      | Builds SYCL-DNN's sample code
+`SNN_BUILD_BENCHMARKS`             | `BOOL`   | `ON`      | Builds SYCL-DNN's benchmarks
 `SNN_BUILD_EXTENDED_BENCHMARKS`    | `BOOL`   | `OFF`     | `OFF` disables batch sizes 2, 8, 16,     64.
 `SNN_BUILD_LARGE_BATCH_BENCHMARKS` | `BOOL`   | `OFF`     | `OFF` disables batch sizes    8, 16, 32, 64. Slow.
 `SNN_BUILD_INTERNAL_BENCHMARKS`    | `BOOL`   | `OFF`     | Builds a large tiled convolution benchmark.
@@ -36,9 +36,9 @@ Option                      | Type     | Default         | Description
 `EIGEN_REPO`                | `STRING` | Eigen GitLab    | The remote to download Eigen from
 `EIGEN_GIT_TAG`             | `STRING` | `00de5707`      | Commit-ish object (e.g. tag, branch, commit hash)
 `EIGEN_INCLUDE_DIR`         | `STRING` | build/eigen     | The Eigen include directory. Can be set by download.
-`SNN_DOWNLOAD_SYCLBLAS`     | `BOOL`   | `ON`            | Download SYCLBLAS, rather than look locally
-`sycl_blas_REPO`            | `STRING` | Codeplay GitHub | The remote to download SYCLBLAS from
-`sycl_blas_GIT_TAG`         | `STRING` | `dd2455c`       | Commit-ish object (e.g. tag, branch, commit hash)
+`SNN_DOWNLOAD_PORTBLAS`     | `BOOL`   | `ON`            | Download PORTBLAS, rather than look locally
+`portBLAS_REPO`            | `STRING` | Codeplay GitHub | The remote to download PORTBLAS from
+`portBLAS_GIT_TAG`         | `STRING` | `dd2455c`       | Commit-ish object (e.g. tag, branch, commit hash)
 `SNN_DOWNLOAD_MISSING_DEPS` | `BOOL`   | `ON`            | Downloads any `-NOTFOUND` dependencies
 
 ## Test options
@@ -47,18 +47,18 @@ Option                      | Type   | Default | Description
 --------------------------- | ------ | ------- | -----------
 `SNN_TEST_EIGEN`            | `BOOL` | `OFF`   | Test the Eigen backend
 `SNN_TEST_EIGEN_MATMULS`    | `BOOL` | `OFF`   | Use Eigen matmuls to test convolutions (very slow)
-`SNN_TEST_SYCLBLAS`         | `BOOL` | `OFF`   | Test the SYCLBLAS backend
-`SNN_TEST_SYCLBLAS_MATMULS` | `BOOL` | `OFF`   | Use SYCLBLAS matmuls to test convolutions (very slow)
+`SNN_TEST_PORTBLAS`         | `BOOL` | `OFF`   | Test the PORTBLAS backend
+`SNN_TEST_PORTBLAS_MATMULS` | `BOOL` | `OFF`   | Use PORTBLAS matmuls to test convolutions (very slow)
 
 ## Benchmark options
 
 Option                  | Type   | Default | Description
 ----------------------- | ------ | ------- | -----------
 `SNN_BENCH_EIGEN`       | `BOOL` | `OFF`   | Build benchmarks with Eigen matmul support
-`SNN_BENCH_SYCLBLAS`    | `BOOL` | `ON`    | Build benchmarks with SYCLBLAS support
+`SNN_BENCH_PORTBLAS`    | `BOOL` | `ON`    | Build benchmarks with PORTBLAS support
 `SNN_BENCH_MKLDNN`      | `BOOL` | `OFF`   | Build MKLDNN benchmarks
 `SNN_BENCH_ARM_COMPUTE` | `BOOL` | `OFF`   | Build ARM Compute Library benchmarks
-`SNN_BENCH_SNN`         | `BOOL` | `OFF`   | Build benchmarks with portDNN matmul support
+`SNN_BENCH_SNN`         | `BOOL` | `OFF`   | Build benchmarks with SYCL-DNN matmul support
 
 ## Eigen options
 

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_TEST_TRANSPOSE_TRANSPOSE_FIXTURE_H_
-#define PORTDNN_TEST_TRANSPOSE_TRANSPOSE_FIXTURE_H_
+#ifndef SYCLDNN_TEST_TRANSPOSE_TRANSPOSE_FIXTURE_H_
+#define SYCLDNN_TEST_TRANSPOSE_TRANSPOSE_FIXTURE_H_
 
 #include <gtest/gtest.h>
 #include <numeric>
@@ -24,9 +24,9 @@
 
 #include <CL/sycl.hpp>
 
-#include "portdnn/helpers/scope_exit.h"
+#include "sycldnn/helpers/scope_exit.h"
 
-#include "portdnn/transpose/launch.h"
+#include "sycldnn/transpose/launch.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -81,4 +81,4 @@ struct TransposeFixture : public BackendTestFixture<typename Pair::SecondType> {
     }
   }
 };
-#endif  // PORTDNN_TEST_TRANSPOSE_TRANSPOSE_FIXTURE_H_
+#endif  // SYCLDNN_TEST_TRANSPOSE_TRANSPOSE_FIXTURE_H_

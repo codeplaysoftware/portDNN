@@ -24,7 +24,7 @@
 // clang-format on
 
 #include "src/matmul/queue_kernel_impl.h"
-#include "portdnn/matmul/params.h"
+#include "sycldnn/matmul/params.h"
 
 namespace sycldnn {
 namespace matmul {

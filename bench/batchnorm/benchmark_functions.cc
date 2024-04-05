@@ -17,9 +17,52 @@
 
 #include "src/backend/snn_backend_provider.h"
 
-#include "portdnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_usm_backend.h"
+#include "sycldnn/batchnorm/direction.h"
+#include "sycldnn/format_type.h"
 
-#define BM_WITH_DTYPE(DTYPE) \
-  BATCHNORM_BENCHMARK(SNNBackend, sycldnn::backend::SNNBackend, DTYPE)
+#define BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, BACKEND, \
+                                                      DIR)                    \
+  BATCHNORM_BENCHMARK(BACKEND##_##LAYOUT##_##DTYPE##_##DIR##_InOrder,         \
+                      sycldnn::backend::BACKEND, DTYPE,                       \
+                      sycldnn::layout::LAYOUT, sycldnn::batchnorm::DIR,       \
+                      /*InOrderQueue*/ true)                                  \
+  BATCHNORM_BENCHMARK(BACKEND##_##LAYOUT##_##DTYPE##_##DIR##_OutOfOrder,      \
+                      sycldnn::backend::BACKEND, DTYPE,                       \
+                      sycldnn::layout::LAYOUT, sycldnn::batchnorm::DIR,       \
+                      /*InOrderQueue*/ false);
 
-BM_WITH_DTYPE(float)
+#ifdef SNN_ENABLE_USM
+#define BENCHMARK_WITH_DTYPE_LAYOUT(DTYPE, LAYOUT)                            \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNBackend,    \
+                                                ForwardTraining)              \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNBackend,    \
+                                                ForwardInference)             \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNBackend,    \
+                                                Gradient)                     \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNUSMBackend, \
+                                                ForwardTraining)              \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNUSMBackend, \
+                                                ForwardInference)             \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNUSMBackend, \
+                                                Gradient)
+#else
+#define BENCHMARK_WITH_DTYPE_LAYOUT(DTYPE, LAYOUT)                         \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNBackend, \
+                                                ForwardTraining)           \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNBackend, \
+                                                ForwardInference)          \
+  BENCHMARK_WITH_DTYPE_LAYOUT_BACKEND_DIRECTION(DTYPE, LAYOUT, SNNBackend, \
+                                                Gradient)
+#endif
+
+#ifdef SNN_ENABLE_NCHW
+#define BENCHMARK_WITH_DTYPE(DTYPE)        \
+  BENCHMARK_WITH_DTYPE_LAYOUT(DTYPE, NCHW) \
+  BENCHMARK_WITH_DTYPE_LAYOUT(DTYPE, NHWC)
+#else
+#define BENCHMARK_WITH_DTYPE(DTYPE) BENCHMARK_WITH_DTYPE_LAYOUT(DTYPE, NHWC)
+#endif
+
+BENCHMARK_WITH_DTYPE(float)

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_TEST_BATCHNORM_FIXTURE_H_
-#define PORTDNN_TEST_BATCHNORM_FIXTURE_H_
+#ifndef SYCLDNN_TEST_BATCHNORM_FIXTURE_H_
+#define SYCLDNN_TEST_BATCHNORM_FIXTURE_H_
 
 #include <gtest/gtest.h>
 
-#include "portdnn/helpers/scope_exit.h"
+#include "sycldnn/helpers/scope_exit.h"
 
-#include "portdnn/batchnorm/direction.h"
-#include "portdnn/batchnorm/launch.h"
-#include "portdnn/batchnorm/params.h"
+#include "sycldnn/batchnorm/direction.h"
+#include "sycldnn/batchnorm/launch.h"
+#include "sycldnn/batchnorm/params.h"
 
 #include "test/backend/backend_test_fixture.h"
 #include "test/gen/iota_initialised_data.h"
@@ -32,14 +32,12 @@
 #include "test/helpers/transpose.h"
 
 inline sycldnn::batchnorm::BatchNormParams getBatchNormParams(
-    std::array<int, 4> in_shape, bool is_training, float momentum,
-    float epsilon) {
+    std::array<int, 4> in_shape, float momentum, float epsilon) {
   sycldnn::batchnorm::BatchNormParams params;
   params.batch = in_shape[0];
   params.rows = in_shape[1];
   params.cols = in_shape[2];
   params.channels = in_shape[3];
-  params.is_training = is_training;
   params.momentum = momentum;
   params.epsilon = epsilon;
   params.input_format = sycldnn::DataFormat::NHWC;
@@ -71,20 +69,23 @@ const std::vector<T>& transposeOutput(
 }
 
 template <typename Triple, typename Direction>
-struct BatchNormEventFixture;
-
-template <typename Pair>
-struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Forward>
+struct BatchNormEventFixture
     : public BackendTestFixture<sycldnn::backend::SNNUSMBackend> {
-  using DataType = typename Pair::FirstType;
+  using DataType = typename Triple::FirstType;
   using Backend = sycldnn::backend::SNNUSMBackend;
   static constexpr sycldnn::DataFormat INPUT_FORMAT =
-      Pair::SecondType::input_layout;
+      Triple::ThirdType::input_layout;
+  static constexpr bool IsTraining =
+      std::is_same_v<Direction, sycldnn::batchnorm::ForwardTraining>;
 
   void test_batchnorm(sycldnn::batchnorm::BatchNormParams params,
                       DataType max_input_val, DataType max_beta_val,
                       DataType max_gamma_val, DataType max_input_mean_val,
                       DataType max_input_var_val) {
+    static_assert(
+        std::is_same_v<Direction, sycldnn::batchnorm::ForwardInference> ||
+            std::is_same_v<Direction, sycldnn::batchnorm::ForwardTraining>,
+        "This fixture is for batchnorm forward training & inference.");
     ASSERT_EQ(params.input_format, sycldnn::DataFormat::NHWC)
         << "Tests should be written for the NHWC layout. The input layout is "
            "set from the fixture type.";
@@ -126,6 +127,14 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Forward>
     auto running_variance_gpu =
         provider.get_initialised_device_memory(params.channels, input_var);
     auto out_gpu = provider.get_initialised_device_memory(size, output);
+    if constexpr (IsTraining) {
+      sycldnn::batchnorm::compute_workspace_size<
+          sycldnn::batchnorm::ForwardTraining>(params);
+    }
+    std::vector<DataType> workspace(params.required_workspace_size, 0);
+    auto workspace_gpu = provider.get_initialised_device_memory(
+        params.required_workspace_size, workspace);
+
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
       provider.deallocate_ptr(beta_gpu);
@@ -134,17 +143,26 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Forward>
       provider.deallocate_ptr(input_variance_gpu);
       provider.deallocate_ptr(running_mean_gpu);
       provider.deallocate_ptr(running_variance_gpu);
+      provider.deallocate_ptr(workspace_gpu);
       provider.deallocate_ptr(out_gpu);
     };
 
     dependency_test_params dep_test_params;
     cl::sycl::event dependee_e = create_event(backend, dep_test_params);
 
-    auto status = sycldnn::batchnorm::launch<DataType, Backend,
-                                             sycldnn::batchnorm::Forward>(
-        inp_gpu, beta_gpu, gamma_gpu, input_mean_gpu, input_variance_gpu,
-        running_mean_gpu, running_variance_gpu, out_gpu, params, backend,
-        std::vector<cl::sycl::event>{dependee_e});
+    sycldnn::SNNStatus status;
+    if constexpr (!IsTraining) {
+      status = sycldnn::batchnorm::launch<DataType, Backend,
+                                          sycldnn::batchnorm::ForwardInference>(
+          inp_gpu, beta_gpu, gamma_gpu, input_mean_gpu, input_variance_gpu,
+          out_gpu, params, backend, std::vector<cl::sycl::event>{dependee_e});
+    } else {
+      status = sycldnn::batchnorm::launch<DataType, Backend,
+                                          sycldnn::batchnorm::ForwardTraining>(
+          inp_gpu, beta_gpu, gamma_gpu, running_mean_gpu, running_variance_gpu,
+          input_mean_gpu, input_variance_gpu, workspace_gpu, out_gpu, params,
+          backend, std::vector<cl::sycl::event>{dependee_e});
+    }
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
 
@@ -152,13 +170,13 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Forward>
   }
 };
 
-template <typename Pair>
-struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
+template <typename Triple>
+struct BatchNormEventFixture<Triple, sycldnn::batchnorm::Gradient>
     : public BackendTestFixture<sycldnn::backend::SNNUSMBackend> {
-  using DataType = typename Pair::FirstType;
+  using DataType = typename Triple::FirstType;
   using Backend = sycldnn::backend::SNNUSMBackend;
   static constexpr sycldnn::DataFormat INPUT_FORMAT =
-      Pair::SecondType::input_layout;
+      Triple::ThirdType::input_layout;
 
   void test_batchnorm(sycldnn::batchnorm::BatchNormParams params,
                       DataType max_input_val, DataType max_gradient_val,
@@ -170,7 +188,6 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
     params.input_format = INPUT_FORMAT;
 
     auto size = params.batch * params.rows * params.cols * params.channels;
-    std::cout << "size:" << size << std::endl;
 
     std::vector<DataType> inputData =
         iota_initialised_data<DataType>(size, max_input_val);
@@ -185,7 +202,10 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
     std::vector<DataType> beta_grad(params.channels);
     std::vector<DataType> gamma_grad(params.channels);
     std::vector<DataType> outputData(size);
-    std::vector<DataType>& output = outputData;
+
+    sycldnn::batchnorm::compute_workspace_size<sycldnn::batchnorm::Gradient>(
+        params);
+    std::vector<DataType> workspace(params.required_workspace_size, 0);
 
     std::vector<DataType> trInputData;
     const std::vector<DataType>& input =
@@ -199,7 +219,8 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
     auto& backend = provider.get_backend();
 
     auto inp_gpu = provider.get_initialised_device_memory(size, input);
-    auto gradient_gpu = provider.get_initialised_device_memory(size, gradient);
+    auto in_grad_gpu = provider.get_initialised_device_memory(size, outputData);
+    auto out_grad_gpu = provider.get_initialised_device_memory(size, gradient);
     auto gamma_gpu =
         provider.get_initialised_device_memory(params.channels, gamma);
     auto pop_mean_gpu =
@@ -210,17 +231,19 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
         provider.get_initialised_device_memory(params.channels, beta_grad);
     auto gamma_grad_gpu =
         provider.get_initialised_device_memory(params.channels, gamma_grad);
-    auto out_gpu = provider.get_initialised_device_memory(size, output);
+    auto workspace_gpu = provider.get_initialised_device_memory(
+        params.required_workspace_size, workspace);
 
     SNN_ON_SCOPE_EXIT {
       provider.deallocate_ptr(inp_gpu);
-      provider.deallocate_ptr(gradient_gpu);
+      provider.deallocate_ptr(in_grad_gpu);
+      provider.deallocate_ptr(out_grad_gpu);
       provider.deallocate_ptr(gamma_gpu);
       provider.deallocate_ptr(pop_mean_gpu);
       provider.deallocate_ptr(pop_variance_gpu);
       provider.deallocate_ptr(beta_grad_gpu);
       provider.deallocate_ptr(gamma_grad_gpu);
-      provider.deallocate_ptr(out_gpu);
+      provider.deallocate_ptr(workspace_gpu);
     };
 
     dependency_test_params dep_test_params;
@@ -228,9 +251,9 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
 
     auto status = sycldnn::batchnorm::launch<DataType, Backend,
                                              sycldnn::batchnorm::Gradient>(
-        inp_gpu, gradient_gpu, gamma_gpu, pop_mean_gpu, pop_variance_gpu,
-        beta_grad_gpu, gamma_grad_gpu, out_gpu, params, backend,
-        std::vector<cl::sycl::event>{dependee_e});
+        inp_gpu, out_grad_gpu, in_grad_gpu, gamma_gpu, beta_grad_gpu,
+        gamma_grad_gpu, pop_mean_gpu, pop_variance_gpu, workspace_gpu, params,
+        backend, std::vector<cl::sycl::event>{dependee_e});
 
     ASSERT_EQ(sycldnn::StatusCode::OK, status.status);
 
@@ -238,4 +261,4 @@ struct BatchNormEventFixture<Pair, sycldnn::batchnorm::Gradient>
   }
 };
 
-#endif  // PORTDNN_TEST_BATCHNORM_FIXTURE_H_
+#endif  // SYCLDNN_TEST_BATCHNORM_FIXTURE_H_

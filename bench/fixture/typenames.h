@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_FIXTURE_TYPENAMES_H_
-#define PORTDNN_BENCH_FIXTURE_TYPENAMES_H_
+#ifndef SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_
+#define SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_
 
-#include "portdnn/conv2d/conv_type.h"
-#include "portdnn/pointwise/direction.h"
-#include "portdnn/pooling/operators.h"
+#include "sycldnn/binaryop/operators.h"
+#include "sycldnn/conv2d/conv_type.h"
+#include "sycldnn/format_type.h"
+#include "sycldnn/pointwise/direction.h"
+#include "sycldnn/pooling/operators.h"
 
 namespace sycldnn {
 namespace bench {
@@ -65,7 +67,30 @@ template <>
 constexpr const char*
     TypeName<sycldnn::conv2d::conv_type::InputBackprop>::name = "InputBackprop";
 
+// Data Layouts
+template <>
+constexpr const char* TypeName<sycldnn::layout::NCHW>::name = "NCHW";
+
+template <>
+constexpr const char* TypeName<sycldnn::layout::NHWC>::name = "NHWC";
+
+template <>
+constexpr const char* TypeName<sycldnn::layout::NHWC_CUDNN>::name =
+    "NHWC_CUDNN";
+
+// Binary Operators
+template <>
+constexpr const char* TypeName<sycldnn::binaryop::Add>::name = "Add";
+
+template <>
+constexpr const char* TypeName<sycldnn::binaryop::Sub>::name = "Sub";
+
+template <>
+constexpr const char* TypeName<sycldnn::binaryop::Mul>::name = "Mul";
+
+template <>
+constexpr const char* TypeName<sycldnn::binaryop::Div>::name = "Div";
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // PORTDNN_BENCH_FIXTURE_TYPENAMES_H_
+#endif  // SYCLDNN_BENCH_FIXTURE_TYPENAMES_H_

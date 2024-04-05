@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_TEST_HELPERS_DEPENDENCY_CHECK_H_
-#define PORTDNN_TEST_HELPERS_DEPENDENCY_CHECK_H_
+#ifndef SYCLDNN_TEST_HELPERS_DEPENDENCY_CHECK_H_
+#define SYCLDNN_TEST_HELPERS_DEPENDENCY_CHECK_H_
 
 #include <CL/sycl.hpp>
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/helpers/macros.h"
 
 struct dependency_test_params {
   uint64_t* event_mem_h = nullptr;
@@ -78,4 +78,4 @@ void check_dependency(cl::sycl::event e1, cl::sycl::event e2,
   params.event_mem_d = nullptr;
 }
 
-#endif  // PORTDNN_TEST_HELPERS_DEPENDENCY_CHECK_H_
+#endif  // SYCLDNN_TEST_HELPERS_DEPENDENCY_CHECK_H_

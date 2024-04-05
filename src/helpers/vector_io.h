@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_HELPERS_VECTOR_IO_H_
-#define PORTDNN_SRC_HELPERS_VECTOR_IO_H_
+#ifndef SYCLDNN_SRC_HELPERS_VECTOR_IO_H_
+#define SYCLDNN_SRC_HELPERS_VECTOR_IO_H_
 
 #include <CL/sycl.hpp>
 #include <type_traits>
 
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/helpers/macros.h"
 
 #if SNN_ENABLE_USM
 #define MULTI_PTR_TEMPLATE_DECL          \
@@ -73,6 +73,18 @@ cl::sycl::multi_ptr<T const, MULTI_PTR_TEMPLATE> as_const_ptr(
  * type.
  */
 namespace io {
+
+/**
+ * Helper function to return size of largest sycl::vec type which
+ * cleanly divides the given numerator. Note that sycl::vec<T,3> is omitted
+ * due to alignment issues.
+ */
+constexpr int get_vec_size(const int numerator) {
+  std::array<int, 5> divisors{16, 8, 4, 2, 1};
+  for (auto div : divisors)
+    if (numerator % div == 0) return div;
+  SNN_UNREACHABLE;
+}
 
 /**
  * Identifier function to mark an index as a vector index, rather than a scalar
@@ -227,4 +239,4 @@ struct Store<cl::sycl::vec<T, 1>> {
 }  // namespace io
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // PORTDNN_SRC_HELPERS_VECTOR_IO_H_
+#endif  // SYCLDNN_SRC_HELPERS_VECTOR_IO_H_

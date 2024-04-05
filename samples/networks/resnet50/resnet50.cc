@@ -14,53 +14,23 @@
  * limitations under the License.
  */
 
-#if defined(SNN_TEST_SYCLBLAS)
-#include "portdnn/backend/sycl_blas_backend.h"
+#if defined(SNN_TEST_PORTBLAS)
+#include "sycldnn/backend/sycl_blas_backend.h"
 #else
-#include "portdnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 #endif
 
+#include "tools/io_helpers.h"
 #include "tools/network.h"
-
-#include <fstream>
-#include <iostream>
 
 using DType = float;
 
-#if defined(SNN_TEST_SYCLBLAS)
+#if defined(SNN_TEST_PORTBLAS)
 using Backend = sycldnn::backend::SyclBLASBackend;
 #else
 using Backend = sycldnn::backend::SNNBackend;
 #endif
 using DeviceMem = Backend::pointer_type<DType>;
-
-// Helper function that reads binary data produced by h5tobin.py into a vector
-std::vector<char> read_binary_data(std::string const& name) {
-  std::ifstream file(name, std::ios_base::binary | std::ios_base::in);
-  if (!file.is_open()) {
-    throw std::runtime_error("Failed to open file " + name);
-  }
-  std::vector<char> output{std::istreambuf_iterator<char>{file}, {}};
-  return output;
-}
-
-// read image data from disk
-DeviceMem read_image_data(std::string const& name, Backend& backend) {
-  cl::sycl::range<1> r{224 * 224 * 3};  // resnet input size
-  cl::sycl::buffer<DType> b{r};
-  auto data = read_binary_data(name);
-  assert(data.size() == 224 * 224 * 3 * sizeof(DType));
-  {
-    auto char_data = b.reinterpret<char>(r * sizeof(DType));
-    auto event = backend.get_queue().submit([&](cl::sycl::handler& cgh) {
-      auto acc =
-          char_data.get_access<cl::sycl::access::mode::discard_write>(cgh);
-      cgh.copy(data.data(), acc);
-    });
-    event.wait_and_throw();
-  }
-  return DeviceMem{b, 0};
-}
 
 // make conv layer parameters
 inline sycldnn::conv2d::Conv2DParams make_conv_params(
@@ -97,7 +67,7 @@ inline sycldnn::ConvolutionLayer<T, Backend>* create_conv_layer(
   if (data_dir == "")
     std::fill(filter.begin(), filter.end(), 'a');
   else
-    filter = read_binary_data(data_dir);
+    filter = sycldnn::helpers::read_binary_data(data_dir);
   assert(filter.size() == sizes.filter_size * sizeof(T));
   auto data_size = cl::sycl::range<1>{sizes.filter_size};
   auto queue = backend.get_queue();
@@ -138,7 +108,7 @@ inline sycldnn::BiasAddLayer<T, Backend>* create_bias_layer(
   if (data_dir == "")
     std::fill(biases.begin(), biases.end(), 'a');
   else
-    biases = read_binary_data(data_dir);
+    biases = sycldnn::helpers::read_binary_data(data_dir);
   assert(biases.size() == rhs_size * sizeof(T));
   auto data_size = cl::sycl::range<1>(rhs_size);
   auto buf = bias.get_buffer();
@@ -157,10 +127,9 @@ inline sycldnn::BiasAddLayer<T, Backend>* create_bias_layer(
 inline sycldnn::batchnorm::BatchNormParams make_batchnorm_params(int batch,
                                                                  int rows,
                                                                  int channels) {
-  bool is_training = false;
   float epsilon = 1.001e-5;
-  sycldnn::batchnorm::BatchNormParams params{batch,    rows,        rows,
-                                             channels, is_training, epsilon};
+  sycldnn::batchnorm::BatchNormParams params{batch, rows, rows, channels,
+                                             epsilon};
   return params;
 }
 
@@ -187,22 +156,22 @@ inline sycldnn::BatchNormFrozenLayer<T, Backend>* create_batchnorm_layer(
   if (beta_file == "")
     std::fill(beta_vec.begin(), beta_vec.end(), 'a');
   else
-    beta_vec = read_binary_data(beta_file);
+    beta_vec = sycldnn::helpers::read_binary_data(beta_file);
 
   if (gamma_file == "")
     std::fill(gamma_vec.begin(), gamma_vec.end(), 'a');
   else
-    gamma_vec = read_binary_data(gamma_file);
+    gamma_vec = sycldnn::helpers::read_binary_data(gamma_file);
 
   if (mean_file == "")
     std::fill(mean_vec.begin(), mean_vec.end(), 'a');
   else
-    mean_vec = read_binary_data(mean_file);
+    mean_vec = sycldnn::helpers::read_binary_data(mean_file);
 
   if (variance_file == "")
     std::fill(variance_vec.begin(), variance_vec.end(), 'a');
   else
-    variance_vec = read_binary_data(variance_file);
+    variance_vec = sycldnn::helpers::read_binary_data(variance_file);
 
   assert(beta_vec.size() == static_cast<size_t>(params.channels) * sizeof(T));
   assert(gamma_vec.size() == static_cast<size_t>(params.channels) * sizeof(T));
@@ -331,7 +300,7 @@ inline sycldnn::FCLayer<T, Backend>* create_fc_layer(
   if (data_dir == "")
     std::fill(weights.begin(), weights.end(), 'a');
   else
-    weights = read_binary_data(data_dir);
+    weights = sycldnn::helpers::read_binary_data(data_dir);
   assert(weights.size() == filter_size * sizeof(T));
   auto data_size = cl::sycl::range<1>{static_cast<size_t>(filter_size)};
   auto buf = filter.get_buffer();
@@ -387,7 +356,8 @@ int main(int argc, char* argv[]) {
   auto selector = sycldnn::conv2d::get_default_selector(q.get_device());
   std::vector<DType> output;
   std::string data_dir{argv[1]};
-  auto input = read_image_data(argv[2], backend);
+  auto input = sycldnn::helpers::read_image_data<DType, DeviceMem>(
+      argv[2], backend, 224 * 224 * 3);
   sycldnn::Network<DType, Backend> network(backend, output);
 
   network.add_layer(create_conv_layer<DType>(

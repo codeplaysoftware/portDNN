@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/internal/conv2d/direct.h"
+#include "sycldnn/internal/conv2d/direct.h"
 
-#include "portdnn/format_type.h"
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/format_type.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/conv_type.h"
 
-#include "portdnn/conv2d/params.h"
-#include "portdnn/conv2d/sizes.h"
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/sizes.h"
 
 #include "src/conv2d/direct/kernel_params.h"
 #include "src/conv2d/direct/queue_direct_kernel.h"
@@ -33,7 +33,7 @@
 #include <cstdint>
 #include <limits>
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {

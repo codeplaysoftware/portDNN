@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_FIXTURE_ADD_SYCL_DEVICE_INFO_H_
-#define PORTDNN_BENCH_FIXTURE_ADD_SYCL_DEVICE_INFO_H_
+#ifndef SYCLDNN_BENCH_FIXTURE_ADD_SYCL_DEVICE_INFO_H_
+#define SYCLDNN_BENCH_FIXTURE_ADD_SYCL_DEVICE_INFO_H_
 
 #include "string_reporter.h"
 
@@ -58,4 +58,4 @@ inline void add_opencl_device_info(cl::sycl::device const& device,
 }  // namespace bench
 }  // namespace sycldnn
 
-#endif  // PORTDNN_BENCH_FIXTURE_ADD_SYCL_DEVICE_INFO_H_
+#endif  // SYCLDNN_BENCH_FIXTURE_ADD_SYCL_DEVICE_INFO_H_

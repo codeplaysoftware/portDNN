@@ -18,13 +18,13 @@
 #ifdef SNN_TEST_EIGEN
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include "portdnn/backend/eigen_backend.h"
-#include "portdnn/backend/eigen_backend_with_snn_matmul.h"
+#include "sycldnn/backend/eigen_backend.h"
+#include "sycldnn/backend/eigen_backend_with_snn_matmul.h"
 #endif  // SNN_TEST_EIGEN
 
-#ifdef SNN_TEST_SYCLBLAS
-#include "portdnn/backend/sycl_blas_backend.h"
-#endif  // SNN_TEST_SYCLBLAS
+#ifdef SNN_TEST_PORTBLAS
+#include "sycldnn/backend/sycl_blas_backend.h"
+#endif  // SNN_TEST_PORTBLAS
 
 #include "test/backend/matmul_backend_test_fixture.h"
 #include "test/types/cartesian_product.h"
@@ -46,7 +46,7 @@ using EigenBackends = sycldnn::types::TypeList<
 #endif
     >;
 using SyclblasBackends = sycldnn::types::TypeList<
-#ifdef SNN_TEST_SYCLBLAS
+#ifdef SNN_TEST_PORTBLAS
     sycldnn::backend::SyclBLASBackend
 #endif
     >;

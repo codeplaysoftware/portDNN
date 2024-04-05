@@ -1,5 +1,5 @@
 /**
- * \namespace sycldnn The root namespace for portDNN.
+ * \namespace sycldnn The root namespace for SYCL-DNN.
  */
 
 /**

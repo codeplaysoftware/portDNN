@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
-#define PORTDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
+#define SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
 
 #include "base_depthwise_convolution_fixture.h"
 #include "benchmark_config.h"
 #include "benchmark_params.h"
-#include "snn_depthwise_conv2d_executor.h"
+#include "snn_depthwise_conv2d_bench_executor.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -32,7 +32,7 @@
 
 template <typename Backend, typename DataType, typename ConvType>
 class SNNDepthwiseConvolutionBenchmark
-    : public sycldnn::bench::SNNDepthwiseConv2DExecutor<
+    : public sycldnn::bench::SNNDepthwiseConv2DBenchExecutor<
           SNNDepthwiseConvolutionBenchmark<Backend, DataType, ConvType>,
           ConvType>,
       public sycldnn::backend::BackendProvider<Backend>,
@@ -60,7 +60,7 @@ class SNNDepthwiseConvolutionBenchmark
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
     this->add_to_label("@conv_type", sycldnn::bench::TypeName<ConvType>::name);
-    this->add_to_label("@library", "portDNN");
+    this->add_to_label("@library", "SYCL-DNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Depthwise Convolution");
     this->add_to_label("git_hash", commit_hash);
@@ -84,4 +84,4 @@ class SNNDepthwiseConvolutionBenchmark
       ->Unit(benchmark::kNanosecond)                                  \
       ->Apply(RunForAllParamSets);
 
-#endif  // PORTDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_
+#endif  // SYCLDNN_BENCH_DEPTHWISE_CONV2D_SNN_FIXTURE_H_

@@ -1,4 +1,4 @@
-build/
+build*/
 Testing/
 
 # SYCL files

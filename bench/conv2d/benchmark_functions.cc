@@ -16,69 +16,106 @@
 #include "snn_fixture.h"
 
 #ifdef SNN_BENCH_EIGEN
-#include "portdnn/backend/eigen_backend.h"
 #include "src/backend/eigen_backend_provider.h"
+#include "sycldnn/backend/eigen_backend.h"
 #endif  // SNN_BENCH_EIGEN
 
-#ifdef SNN_BENCH_SYCLBLAS
-#include "portdnn/backend/sycl_blas_backend.h"
+#ifdef SNN_BENCH_PORTBLAS
 #include "src/backend/syclblas_backend_provider.h"
-#endif  // SNN_BENCH_SYCLBLAS
+#include "sycldnn/backend/sycl_blas_backend.h"
+#endif  // SNN_BENCH_PORTBLAS
 
 #ifdef SNN_BENCH_CLBLAST
-#include "portdnn/backend/clblast_backend.h"
 #include "src/backend/clblast_backend_provider.h"
-#endif  // SNN_BENCH_SYCLBLAS
+#include "sycldnn/backend/clblast_backend.h"
+#endif  // SNN_BENCH_PORTBLAS
 
-#include "portdnn/backend/snn_backend.h"
+#ifdef SNN_ENABLE_USM
+#include "src/backend/snn_usm_backend_provider.h"
+#include "sycldnn/backend/snn_usm_backend.h"
+#endif  // SNN_ENABLE_USM
+
 #include "src/backend/snn_backend_provider.h"
+#include "sycldnn/backend/snn_backend.h"
 
-#include "portdnn/conv2d/conv_type.h"
+#include "sycldnn/conv2d/conv_type.h"
 
-#include "portdnn/conv2d/selector/direct_selector.h"
-#include "portdnn/conv2d/selector/im2col_selector.h"
-#include "portdnn/conv2d/selector/matmul_selector.h"
-#include "portdnn/conv2d/selector/tiled_selector.h"
-#include "portdnn/conv2d/selector/winograd_selector.h"
+#include "sycldnn/format_type.h"
 
-#define BM_WITH_ALGO_DIR_BACK_DTYPE(ALGO, DIR, BACK, DTYPE)                   \
-  CONVOLUTION_BENCHMARK(ALGO##_##DIR##_##BACK, sycldnn::backend::BACK, DTYPE, \
-                        sycldnn::conv2d::conv_type::DIR,                      \
-                        sycldnn::conv2d::ALGO##Selector)
+#include "sycldnn/conv2d/selector/direct_selector.h"
+#include "sycldnn/conv2d/selector/im2col_selector.h"
+#include "sycldnn/conv2d/selector/matmul_selector.h"
+#include "sycldnn/conv2d/selector/tiled_selector.h"
+#include "sycldnn/conv2d/selector/winograd_selector.h"
 
-#define BM_WITH_ALGO_DIR_BACK(ALGO, DIR, BACK) \
-  BM_WITH_ALGO_DIR_BACK_DTYPE(ALGO, DIR, BACK, float)
+#define TensorOp true
+#define NonTensorOp false
+#define InOrder true
+#define OutOfOrder false
+
+#define BM_WITH_ALGO_DIR_BACK_DTYPE_LAYOUT(ALGO, DIR, BACK, TENSORMATH, DTYPE, \
+                                           LAYOUT)                             \
+  CONVOLUTION_BENCHMARK(                                                       \
+      ALGO##_##DIR##_##BACK##_##LAYOUT##_##DTYPE##_##TENSORMATH##_OutOfOrder,  \
+      sycldnn::backend::BACK, DTYPE, sycldnn::layout::LAYOUT,                  \
+      sycldnn::conv2d::conv_type::DIR, sycldnn::conv2d::ALGO##Selector,        \
+      TENSORMATH, OutOfOrder)                                                  \
+  CONVOLUTION_BENCHMARK(                                                       \
+      ALGO##_##DIR##_##BACK##_##LAYOUT##_##DTYPE##_##TENSORMATH##_InOrder,     \
+      sycldnn::backend::BACK, DTYPE, sycldnn::layout::LAYOUT,                  \
+      sycldnn::conv2d::conv_type::DIR, sycldnn::conv2d::ALGO##Selector,        \
+      TENSORMATH, InOrder)
+
+#ifdef SNN_ENABLE_NCHW
+#define BM_WITH_ALGO_DIR_BACK_DTYPE(ALGO, DIR, BACK, TENSORMATH, DTYPE)        \
+  BM_WITH_ALGO_DIR_BACK_DTYPE_LAYOUT(ALGO, DIR, BACK, TENSORMATH, DTYPE, NHWC) \
+  BM_WITH_ALGO_DIR_BACK_DTYPE_LAYOUT(ALGO, DIR, BACK, TENSORMATH, DTYPE, NCHW)
+#else
+#define BM_WITH_ALGO_DIR_BACK_DTYPE(ALGO, DIR, BACK, TENSORMATH, DTYPE) \
+  BM_WITH_ALGO_DIR_BACK_DTYPE_LAYOUT(ALGO, DIR, BACK, TENSORMATH, DTYPE, NHWC)
+#endif
+
+#define BM_WITH_ALGO_DIR_BACK(ALGO, DIR, BACK, TENSORMATH) \
+  BM_WITH_ALGO_DIR_BACK_DTYPE(ALGO, DIR, BACK, TENSORMATH, float)
 
 #ifdef SNN_BENCH_EIGEN
-#define BM_WITH_EIGEN(ALGO, DIR) BM_WITH_ALGO_DIR_BACK(ALGO, DIR, EigenBackend)
+#define BM_WITH_EIGEN(ALGO, DIR) \
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, EigenBackend, NonTensorOp)
 #else
 #define BM_WITH_EIGEN(ALGO, DIR)
 #endif
 
-#ifdef SNN_BENCH_SYCLBLAS
-#define BM_WITH_SYCLBLAS(ALGO, DIR) \
-  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SyclBLASBackend)
+#ifdef SNN_BENCH_PORTBLAS
+#define BM_WITH_PORTBLAS(ALGO, DIR)                              \
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SyclBLASBackend, NonTensorOp) \
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SyclBLASBackend, TensorOp)
 #else
-#define BM_WITH_SYCLBLAS(ALGO, DIR)
+#define BM_WITH_PORTBLAS(ALGO, DIR)
 #endif
 
 #ifdef SNN_BENCH_CLBLAST
 #define BM_WITH_CLBLAST(ALGO, DIR) \
-  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, CLBlastBackend)
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, CLBlastBackend, NonTensorOp)
 #else
 #define BM_WITH_CLBLAST(ALGO, DIR)
 #endif
 
 #ifdef SNN_BENCH_SNNBACKEND
+#ifdef SNN_ENABLE_USM
+#define BM_WITH_SNNBACKEND(ALGO, DIR)                       \
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SNNBackend, NonTensorOp) \
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SNNUSMBackend, NonTensorOp)
+#else
 #define BM_WITH_SNNBACKEND(ALGO, DIR) \
-  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SNNBackend)
+  BM_WITH_ALGO_DIR_BACK(ALGO, DIR, SNNBackend, NonTensorOp)
+#endif
 #else
 #define BM_WITH_SNNBACKEND(ALGO, DIR)
 #endif
 
 #define BM_WITH_ALGO_AND_DIR(ALGO, DIR) \
   BM_WITH_EIGEN(ALGO, DIR)              \
-  BM_WITH_SYCLBLAS(ALGO, DIR)           \
+  BM_WITH_PORTBLAS(ALGO, DIR)           \
   BM_WITH_CLBLAST(ALGO, DIR)            \
   BM_WITH_SNNBACKEND(ALGO, DIR)
 
@@ -87,10 +124,20 @@
   BM_WITH_ALGO_AND_DIR(ALGO, InputBackprop) \
   BM_WITH_ALGO_AND_DIR(ALGO, FilterBackprop)
 
-#define BM_ALGO_WITH_SNNBACKEND(ALGO)                    \
-  BM_WITH_ALGO_DIR_BACK(ALGO, Forward, SNNBackend)       \
-  BM_WITH_ALGO_DIR_BACK(ALGO, InputBackprop, SNNBackend) \
-  BM_WITH_ALGO_DIR_BACK(ALGO, FilterBackprop, SNNBackend)
+#ifdef SNN_ENABLE_USM
+#define BM_ALGO_WITH_SNNBACKEND(ALGO)                                    \
+  BM_WITH_ALGO_DIR_BACK(ALGO, Forward, SNNBackend, NonTensorOp)          \
+  BM_WITH_ALGO_DIR_BACK(ALGO, InputBackprop, SNNBackend, NonTensorOp)    \
+  BM_WITH_ALGO_DIR_BACK(ALGO, FilterBackprop, SNNBackend, NonTensorOp)   \
+  BM_WITH_ALGO_DIR_BACK(ALGO, Forward, SNNUSMBackend, NonTensorOp)       \
+  BM_WITH_ALGO_DIR_BACK(ALGO, InputBackprop, SNNUSMBackend, NonTensorOp) \
+  BM_WITH_ALGO_DIR_BACK(ALGO, FilterBackprop, SNNUSMBackend, NonTensorOp)
+#else
+#define BM_ALGO_WITH_SNNBACKEND(ALGO)                                 \
+  BM_WITH_ALGO_DIR_BACK(ALGO, Forward, SNNBackend, NonTensorOp)       \
+  BM_WITH_ALGO_DIR_BACK(ALGO, InputBackprop, SNNBackend, NonTensorOp) \
+  BM_WITH_ALGO_DIR_BACK(ALGO, FilterBackprop, SNNBackend, NonTensorOp)
+#endif
 
 BM_ALGO_WITH_SNNBACKEND(Direct)
 BM_ALGO_WITH_SNNBACKEND(Tiled)

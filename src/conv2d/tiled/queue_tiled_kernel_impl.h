@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
-#define PORTDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
+#ifndef SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
+#define SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
 
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/helpers/ratio.h"
+#include "sycldnn/helpers/ratio.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
 #include "src/conv2d/tiled/kernels.h"
 #include "src/conv2d/tiled/tile_info.h"
@@ -57,7 +57,7 @@ cl::sycl::range<1> get_thread_range(Conv2DParams const& params,
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
-          template <typename> class MemObj>
+          typename Layout, template <typename> class MemObj>
 SNNStatus queue_tiled_kernel(MemObj<T const>& in_mem, MemObj<T const>& fil_mem,
                              MemObj<T>& out_mem,
                              Conv2DParams const& kernel_params,
@@ -67,7 +67,7 @@ SNNStatus queue_tiled_kernel(MemObj<T const>& in_mem, MemObj<T const>& fil_mem,
   using Functor = tiled::TiledConv2D<T, Index, ConvType, TileRows, TileCols,
                                      ChannelVectorWidth, FeatureVectorWidth,
                                      UseFastDiv, WindowRows, WindowCols, Stride,
-                                     is_usm_obj_v<MemObj<T>, T>>;
+                                     Layout, is_usm_obj_v<MemObj<T>, T>>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.depends_on(events);
@@ -88,4 +88,4 @@ SNNStatus queue_tiled_kernel(MemObj<T const>& in_mem, MemObj<T const>& fil_mem,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_
+#endif  // SYCLDNN_SRC_CONV2D_TILED_QUEUE_TILED_KERNEL_IMPL_H_

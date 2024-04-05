@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_POOLING_SNN_FIXTURE_H_
-#define PORTDNN_BENCH_POOLING_SNN_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
+#define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_
 
 #include "base_pooling_fixture.h"
 #include "benchmark_config.h"
 #include "benchmark_params.h"
-#include "snn_pooling_executor.h"
+#include "snn_pooling_bench_executor.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -31,12 +31,14 @@
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
 
-template <typename Backend, typename DataType, typename Direction,
-          template <typename> class Operator>
+template <typename Backend, typename DataType, typename DataLayout,
+          typename Direction, template <typename> class Operator,
+          bool InOrderQueue = false>
 class SNNPoolingBenchmark
-    : public sycldnn::bench::SNNPoolingExecutor<
-          SNNPoolingBenchmark<Backend, DataType, Direction, Operator>,
-          Direction, Operator>,
+    : public sycldnn::bench::SNNPoolingBenchExecutor<
+          SNNPoolingBenchmark<Backend, DataType, DataLayout, Direction,
+                              Operator, InOrderQueue>,
+          Direction, Operator, Backend, InOrderQueue>,
       public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
       public BasePoolingBenchmark {
@@ -46,6 +48,7 @@ class SNNPoolingBenchmark
  protected:
   void run(State& state) {
     auto params = benchmark_params::deserialize(state);
+    params.input_format = DataLayout::input_layout;
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
         new sycldnn::bench::MaxStatistic{}});
     this->add_statistic(std::unique_ptr<sycldnn::bench::Statistic>{
@@ -61,13 +64,15 @@ class SNNPoolingBenchmark
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
+    this->add_to_label("@layout", sycldnn::bench::TypeName<DataLayout>::name);
     this->add_to_label("@operator",
                        sycldnn::bench::OperatorTypeName<Operator>::name);
     this->add_to_label("@direction", sycldnn::bench::TypeName<Direction>::name);
-    this->add_to_label("@library", "portDNN");
+    this->add_to_label("@library", "SYCL-DNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Pooling");
     this->add_to_label("git_hash", commit_hash);
+    this->add_to_label("@in_order_queue", InOrderQueue ? "true" : "false");
     this->set_label(state);
   }
 
@@ -87,4 +92,4 @@ class SNNPoolingBenchmark
       ->Unit(benchmark::kNanosecond)                                  \
       ->Apply(RunForAllParamSets);
 
-#endif  // define PORTDNN_BENCH_POOLING_SNN_FIXTURE_H_
+#endif  // define SYCLDNN_BENCH_POOLING_SNN_FIXTURE_H_

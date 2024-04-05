@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "portdnn/internal/pointwise/launch_internal.h"
+#include "sycldnn/internal/pointwise/launch_internal.h"
 
-#include "portdnn/pointwise/direction.h"
-#include "portdnn/pointwise/operators.h"
+#include "sycldnn/pointwise/direction.h"
+#include "sycldnn/pointwise/operators.h"
 
 #include "src/pointwise/queue_pointwise_forward.h"
 
 #include <CL/sycl.hpp>
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace pointwise {
@@ -34,14 +34,17 @@ template <typename T, typename Index, template <typename> class PointwiseType,
 SNNStatus launch_vector_pointwise(MemObj<T const>& input, MemObj<T>& output,
                                   Index const n_items, cl::sycl::queue& queue,
                                   const std::vector<cl::sycl::event>& events) {
-  if (n_items % 4 == 0) {
-    return queue_pointwise<T, Index, PointwiseType, Direction, 4>(
+  constexpr int block_size = 4;
+  const auto remainder = n_items % block_size;
+  auto is_divisible = [](int n, int div) { return n % div == 0; };
+  if (is_divisible(block_size, 4) && is_divisible(remainder, 4)) {
+    return queue_pointwise<T, Index, PointwiseType, Direction, 4, block_size>(
         input, output, n_items, queue, events);
-  } else if (n_items % 2 == 0) {
-    return queue_pointwise<T, Index, PointwiseType, Direction, 2>(
+  } else if (is_divisible(block_size, 2) && is_divisible(remainder, 2)) {
+    return queue_pointwise<T, Index, PointwiseType, Direction, 2, block_size>(
         input, output, n_items, queue, events);
   } else {
-    return queue_pointwise<T, Index, PointwiseType, Direction, 1>(
+    return queue_pointwise<T, Index, PointwiseType, Direction, 1, block_size>(
         input, output, n_items, queue, events);
   }
 }

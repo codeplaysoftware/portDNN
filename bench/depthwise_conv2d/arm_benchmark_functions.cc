@@ -18,9 +18,9 @@
 // For ARM Compute Library, need to provide the executor to specify whether
 // running on NEON or OpenCL.
 #ifdef ACL_NEON
-#define EXEC sycldnn::bench::ACLNeonExecutor
+#define EXEC sycldnn::bench::ACLNeonBenchExecutor
 #else
-#define EXEC sycldnn::bench::ACLOpenCLExecutor
+#define EXEC sycldnn::bench::ACLOpenCLBenchExecutor
 #endif  // ACL_NEON
 
 #define BM_WITH_DTYPE(DTYPE) \

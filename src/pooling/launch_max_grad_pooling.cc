@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/mem_object.h"
+#include "sycldnn/mem_object.h"
 
-#include "portdnn/pooling/params.h"
-#include "portdnn/pooling/sizes.h"
+#include "sycldnn/pooling/params.h"
+#include "sycldnn/pooling/sizes.h"
 
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/helpers/macros.h"
 
-#include "portdnn/internal/pooling/launch_internal.h"
+#include "sycldnn/internal/pooling/launch_internal.h"
 
 #include "src/pooling/can_fastdiv.h"
 #include "src/pooling/can_vectorize.h"
@@ -31,7 +31,7 @@
 
 #include <type_traits>
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace pooling {

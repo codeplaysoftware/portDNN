@@ -14,7 +14,7 @@
 #
 cmake_minimum_required(VERSION 3.10.2)
 
-project(portdnn LANGUAGES C CXX VERSION 0.6.0)
+project(sycldnn LANGUAGES C CXX VERSION 0.6.0)
 
 # Configuration options controlling automatic downloading of dependencies.
 option(SNN_DOWNLOAD_GTEST
@@ -22,11 +22,11 @@ option(SNN_DOWNLOAD_GTEST
 option(SNN_DOWNLOAD_BENCHMARK
   "Download and build google benchmark, rather than use the system version" ON)
 option(SNN_DOWNLOAD_EIGEN "Download Eigen headers" ON)
-option(SNN_DOWNLOAD_SYCLBLAS "Download SYCL-BLAS repository" ON)
+option(SNN_DOWNLOAD_PORTBLAS "Download portBLAS repository" ON)
 option(SNN_DOWNLOAD_MISSING_DEPS
   "Download any dependencies which cannot be found" ON)
 
-# Configuration options controlling which portDNN components are built.
+# Configuration options controlling which SYCL-DNN components are built.
 option(SNN_BUILD_TESTS "Whether or not to build unit tests" ON)
 option(SNN_BUILD_BENCHMARKS "Whether or not to build benchmarks" ON)
 option(SNN_BUILD_INTERNAL_BENCHMARKS
@@ -51,11 +51,11 @@ option(SNN_FASTBUILD
 
 # Testing configuration options
 option(SNN_TEST_EIGEN "Test Eigen backend" OFF)
-option(SNN_TEST_SYCLBLAS "Test SYCL-BLAS backend" OFF)
+option(SNN_TEST_PORTBLAS "Test SYCL-BLAS backend" OFF)
 option(SNN_TEST_CLBLAST "Test CLBlast backend" OFF)
 option(SNN_TEST_EIGEN_MATMULS
   "Enable testing using Eigen matmul in addition to internal matmul" OFF)
-option(SNN_TEST_SYCLBLAS_MATMULS
+option(SNN_TEST_PORTBLAS_MATMULS
   "Enable testing using SYCL-BLAS matmul in addition to internal matmul" OFF)
 option(SNN_TEST_CLBLAST_MATMULS
   "Enable testing using CLBlast matmul in addition to internal matmul" OFF)
@@ -71,14 +71,15 @@ option(SNN_EIGEN_NO_BARRIER
   "Use Eigen matmul which does not use barriers (implies NO_LOCAL_MEM)" OFF)
 
 # Benchmark configuration options
-option(SNN_BENCH_EIGEN "Benchmark portDNN using Eigen" OFF)
-option(SNN_BENCH_SYCLBLAS "Benchmark portDNN using SYCL-BLAS" ON)
-option(SNN_BENCH_CLBLAST "Benchmark portDNN using CLBlast" OFF)
-option(SNN_BENCH_SNN "Benchmark portDNN's own matmul" OFF)
+option(SNN_BENCH_EIGEN "Benchmark SYCL-DNN using Eigen" OFF)
+option(SNN_BENCH_PORTBLAS "Benchmark SYCL-DNN using portBLAS" ON)
+option(SNN_BENCH_CLBLAST "Benchmark SYCL-DNN using CLBlast" OFF)
+option(SNN_BENCH_SNN "Benchmark SYCL-DNN's own matmul" OFF)
 option(SNN_BENCH_MKLDNN "Whether or not to build MKL-DNN benchmarks" OFF)
 option(SNN_BENCH_ARM_COMPUTE
   "Whether or not to build ARM compute library benchmarks" OFF)
 option(SNN_BENCH_CUDNN "Whether or not to build cudnn benchmarks" OFF)
+option(SNN_BENCH_MIOPEN "Whether or not to build MIOpen benchmarks" OFF)
 
 set(SNN_DATA_TYPES float)
 set(SNN_DATA_INT_TYPES uint8_t uint16_t uint32_t uint64_t)
@@ -135,6 +136,9 @@ if(NOT SNN_FASTBUILD)
   include(DefaultBuildType)
 endif()
 
+set(SNN_TUNING_TARGET "DEFAULT_CPU" CACHE STRING
+  "SYCL-DNN device tuning target.")
+
 find_package(ComputeCpp QUIET)
 set(SNN_DEVICE_TRIPLE "spir64" CACHE STRING
   "Device triple(s) to use when building with DPCPP (semicolon-separated if multiple triples are used)")
@@ -171,7 +175,6 @@ elseif(DPCPP_FOUND)
   set(SNN_BENCH_EIGEN OFF)
   set(SNN_TEST_EIGEN OFF)
   set(SNN_TEST_EIGEN_MATMULS OFF)
-  add_definitions(-DSNN_DISABLE_SYCL_PROGRAM)
 endif()
 
 if(SNN_ENABLE_USM)
@@ -181,7 +184,7 @@ endif()
 set(CMAKE_DEBUG_POSTFIX "-debug")
 set(include_dest "include")
 set(library_dest "lib")
-set(cmake_config_dest "${library_dest}/portdnn/cmake")
+set(cmake_config_dest "${library_dest}/sycldnn/cmake")
 set(runtime_dest "bin")
 
 add_subdirectory(src)
@@ -215,12 +218,14 @@ add_library(sycl_dnn SHARED
   $<TARGET_OBJECTS:reduce>
   $<TARGET_OBJECTS:scatter_nd>
   $<TARGET_OBJECTS:gather>
+  $<TARGET_OBJECTS:concat>
+  $<TARGET_OBJECTS:batchnorm>
 )
 snn_target(TARGET sycl_dnn WITH_SYCL)
 set_target_properties(sycl_dnn PROPERTIES
-  OUTPUT_NAME "portdnn"
-  VERSION ${portdnn_VERSION}
-  SOVERSION ${portdnn_VERSION}
+  OUTPUT_NAME "sycldnn"
+  VERSION ${sycldnn_VERSION}
+  SOVERSION ${sycldnn_VERSION}
 )
 
 add_library(sycl_dnn_static STATIC
@@ -239,40 +244,42 @@ add_library(sycl_dnn_static STATIC
   $<TARGET_OBJECTS:reduce>
   $<TARGET_OBJECTS:scatter_nd>
   $<TARGET_OBJECTS:gather>
+  $<TARGET_OBJECTS:concat>
+  $<TARGET_OBJECTS:batchnorm>
 )
 snn_target(TARGET sycl_dnn_static WITH_SYCL)
 set_target_properties(sycl_dnn_static PROPERTIES
-  OUTPUT_NAME "portdnn_static"
-  VERSION ${portdnn_VERSION}
+  OUTPUT_NAME "sycldnn_static"
+  VERSION ${sycldnn_VERSION}
 )
 
 include(GenerateExportHeader)
 generate_export_header(sycl_dnn
   BASE_NAME "SNN"
-  EXPORT_FILE_NAME "portdnn/export.h"
+  EXPORT_FILE_NAME "sycldnn/export.h"
 )
 
 include(CMakePackageConfigHelpers)
-set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/portdnn-version.cmake")
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/sycldnn-version.cmake")
 write_basic_package_version_file(${version_file}
-  VERSION ${portdnn_VERSION}
+  VERSION ${sycldnn_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
 install(TARGETS sycl_dnn sycl_dnn_static
-  EXPORT portdnn
+  EXPORT sycldnn
   LIBRARY DESTINATION ${library_dest}
   ARCHIVE DESTINATION ${library_dest}
   PUBLIC_HEADER DESTINATION ${include_dest}
   INCLUDES DESTINATION ${include_dest}
 )
-install(DIRECTORY include/portdnn DESTINATION ${include_dest})
+install(DIRECTORY include/sycldnn DESTINATION ${include_dest})
 install(FILES ${version_file} DESTINATION ${cmake_config_dest})
-install(FILES ${portdnn_BINARY_DIR}/portdnn/export.h DESTINATION ${include_dest}/portdnn)
-install(EXPORT portdnn
+install(FILES ${sycldnn_BINARY_DIR}/sycldnn/export.h DESTINATION ${include_dest}/sycldnn)
+install(EXPORT sycldnn
   DESTINATION ${cmake_config_dest}
-  NAMESPACE portdnn::
-  FILE portdnn-config.cmake
+  NAMESPACE SYCLDNN::
+  FILE sycldnn-config.cmake
 )
 
 # Optionally build the samples.

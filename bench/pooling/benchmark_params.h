@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
-#define PORTDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
+#ifndef SYCLDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
+#define SYCLDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
 
-#include "portdnn/padding_mode.h"
+#include "sycldnn/padding_mode.h"
 
-#include "portdnn/pooling/params.h"
+#include "sycldnn/pooling/params.h"
 
-#include "portdnn/helpers/padding.h"
+#include "sycldnn/helpers/padding.h"
 
 #include <benchmark/benchmark.h>
 
@@ -33,7 +33,7 @@
 namespace benchmark_params {
 
 /**
- * Encode convolution parameters as a vector.
+ * Encode pooling parameters as a vector.
  *
  * By passing this vector as an argument to a benchmark::internal::Benchmark
  * instance, these parameters can be provided to each benchmark::State for that
@@ -46,7 +46,7 @@ inline std::vector<int> serialize(int batch, int window, int stride, int rows,
 }
 
 /**
- * Extract convolution parameters from a benchmark::State instance.
+ * Extract pooling parameters from a benchmark::State instance.
  *
  * Expects the parameters of the benchmark::State to match those provided by the
  * serialize function.
@@ -68,4 +68,4 @@ inline sycldnn::pooling::PoolingParams deserialize(
 
 }  // namespace benchmark_params
 
-#endif  // PORTDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_
+#endif  // SYCLDNN_BENCH_POOLING_BENCHMARK_PARAMS_H_

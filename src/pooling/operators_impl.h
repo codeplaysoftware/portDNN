@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef PORTDNN_SRC_POOLING_OPERATORS_IMPL_H_
-#define PORTDNN_SRC_POOLING_OPERATORS_IMPL_H_
+#ifndef SYCLDNN_SRC_POOLING_OPERATORS_IMPL_H_
+#define SYCLDNN_SRC_POOLING_OPERATORS_IMPL_H_
 
 #include <CL/sycl.hpp>
 
-#include "portdnn/pooling/operators.h"
+#include "sycldnn/pooling/operators.h"
 
 namespace sycldnn {
 namespace pooling {
@@ -110,4 +110,4 @@ struct EqualCheck<MaxWithNan> {
 }  // namespace pooling
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_POOLING_OPERATORS_IMPL_H_
+#endif  // SYCLDNN_SRC_POOLING_OPERATORS_IMPL_H_

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
-#define PORTDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
+#ifndef SYCLDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
+#define SYCLDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
 
-#include "portdnn/backend/snn_usm_backend.h"
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/backend/snn_usm_backend.h"
+#include "sycldnn/helpers/macros.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -25,8 +25,8 @@ namespace sycldnn {
 namespace backend {
 
 /** Specialisation of the backend provider for the SNNUSMBackend.  */
-template <>
-struct BackendProvider<SNNUSMBackend> {
+template <bool InOrderQueue>
+struct BackendProvider<SNNUSMBackend, InOrderQueue> {
  public:
   template <typename T>
   using Pointer = SNNUSMBackend::pointer_type<T>;
@@ -89,10 +89,14 @@ struct BackendProvider<SNNUSMBackend> {
         }
       }
     };
+    cl::sycl::property_list q_prop{};
+    if constexpr (InOrderQueue) {
+      q_prop = {cl::sycl::property::queue::in_order()};
+    }
     // By making the SYCL queue static any compiled kernels will be cached,
     // and so do not need to be recompiled for each test.
-    static cl::sycl::queue queue{cl::sycl::default_selector{},
-                                 exception_handler};
+    static cl::sycl::queue queue{cl::sycl::default_selector(),
+                                 exception_handler, q_prop};
     return queue;
   }
 };
@@ -100,4 +104,4 @@ struct BackendProvider<SNNUSMBackend> {
 }  // namespace backend
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_
+#endif  // SYCLDNN_SRC_BACKEND_SNN_USM_BACKEND_PROVIDER_H_

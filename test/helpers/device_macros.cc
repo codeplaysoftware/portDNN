@@ -17,7 +17,7 @@
 
 // Manually define __SYCL_DEVICE_ONLY__ to simulate compiling on device
 #define __SYCL_DEVICE_ONLY__
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/helpers/macros.h"
 
 TEST(DeviceHelperMacro, AlwaysInlineOnDevice) {
 // These tests depend on certain preprocessor behaviour which is not

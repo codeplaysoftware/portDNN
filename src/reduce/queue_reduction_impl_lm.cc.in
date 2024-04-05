@@ -1,0 +1,51 @@
+/*
+ * Copyright Codeplay Software Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// clang-format off
+#define SNN_DATA_TYPE  ${DATA_TYPE}
+#define SNN_INDEX_TYPE ${INDEX_TYPE}
+#define SNN_OP ${OP}
+#define SNN_SG_REDUCTIONS ${NUM_SG_REDUCTIONS}
+#define SNN_TRANSPOSE ${TRANSPOSE}
+#define SNN_BANK_OFFSET ${BANK_OFFSET}
+// clang-format on
+
+#include "src/reduce/queue_reduction_impl.h"
+
+namespace sycldnn {
+namespace reduce {
+namespace internal {
+
+#ifdef SNN_ENABLE_USM
+template SNNStatus
+queue_lm_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP, SNN_SG_REDUCTIONS,
+                SNN_TRANSPOSE, SNN_BANK_OFFSET, USMMemObject>(
+    USMMemObject<SNN_DATA_TYPE const>& input,
+    USMMemObject<SNN_DATA_TYPE>& output, internal::ReduceParams const& params,
+    SNN_INDEX_TYPE row_wg, SNN_INDEX_TYPE col_wg, cl::sycl::queue queue,
+    const std::vector<cl::sycl::event>& events);
+#endif
+
+template SNNStatus
+queue_lm_kernel<SNN_DATA_TYPE, SNN_INDEX_TYPE, SNN_OP, SNN_SG_REDUCTIONS,
+                SNN_TRANSPOSE, SNN_BANK_OFFSET, BufferMemObject>(
+    BufferMemObject<SNN_DATA_TYPE const>& input,
+    BufferMemObject<SNN_DATA_TYPE>& output,
+    internal::ReduceParams const& params, SNN_INDEX_TYPE row_wg,
+    SNN_INDEX_TYPE col_wg, cl::sycl::queue queue,
+    const std::vector<cl::sycl::event>& events);
+}  // namespace internal
+}  // namespace reduce
+}  // namespace sycldnn

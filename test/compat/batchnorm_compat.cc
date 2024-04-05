@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <portdnn/compat/batchnorm.hpp>
+#include <sycldnn/compat/batchnorm.hpp>
 #include <type_traits>
 #include "test/gen/iota_initialised_data.h"
 #include "test/helpers/float_comparison.h"
@@ -14,6 +14,60 @@ class BatchnormCompatTest : public ::testing::Test {
   using DataType = float;
 
   void SetUp() override { SNNCreate(handle); }
+
+  int flatten_index(int batch, int channel, int hw,
+                    sycldnn::batchnorm::BatchNormParams const& params) {
+    if (params.input_format == sycldnn::DataFormat::NHWC) {
+      return (batch * params.rows * params.cols * params.channels) +
+             (hw * params.channels) + channel;
+    } else {
+      return (batch * params.rows * params.cols * params.channels) +
+             (channel * params.rows * params.cols) + hw;
+    }
+  }
+
+  template <typename T>
+  std::vector<T> compute_expected_mean(
+      std::vector<T> const& input,
+      sycldnn::batchnorm::BatchNormParams const& params) {
+    std::vector<T> mean(params.channels, 0);
+    for (int batch = 0; batch < params.batch; ++batch) {
+      for (int hw = 0; hw < params.rows * params.cols; ++hw) {
+        for (int channel = 0; channel < params.channels; ++channel) {
+          mean[channel] += input[flatten_index(batch, channel, hw, params)];
+        }
+      }
+    }
+
+    for (size_t i = 0; i < mean.size(); ++i) {
+      mean[i] /= (params.batch * params.rows * params.cols);
+    }
+
+    return mean;
+  }
+
+  template <typename T>
+  std::vector<T> compute_expected_inv_variance(
+      std::vector<T> const& input, std::vector<T> const& mean,
+      sycldnn::batchnorm::BatchNormParams const& params) {
+    std::vector<T> inv_var(params.channels, 0);
+    for (int batch = 0; batch < params.batch; ++batch) {
+      for (int hw = 0; hw < params.rows * params.cols; ++hw) {
+        for (int channel = 0; channel < params.channels; ++channel) {
+          auto const in_val = input[flatten_index(batch, channel, hw, params)];
+          auto const mean_val = mean[channel];
+          inv_var[channel] += (in_val - mean_val) * (in_val - mean_val);
+        }
+      }
+    }
+
+    for (size_t i = 0; i < inv_var.size(); ++i) {
+      inv_var[i] /= (params.batch * params.rows * params.cols);
+      inv_var[i] = T{1} / std::sqrt(inv_var[i] + params.epsilon);
+    }
+
+    return inv_var;
+  }
 
   auto getPtr(const std::vector<DataType>& data) {
     const int size = data.size();
@@ -75,8 +129,8 @@ class BatchnormCompatTest : public ::testing::Test {
     auto status = batchNormalizationBackward(
         handle, BatchNormMode::BATCHNORM_SPATIAL, &alphaDataDiff, &betaDataDiff,
         &alphaParamDiff, &betaParamDiff, x_desc, in_ptr, x_desc, in_grad_ptr,
-        x_desc, out_ptr, mean_desc, pop_mean_ptr, beta_grad_ptr, gamma_grad_ptr,
-        epsilon, nullptr, nullptr);
+        x_desc, out_ptr, mean_desc, gamma_ptr, gamma_grad_ptr, beta_grad_ptr,
+        epsilon, pop_mean_ptr, pop_var_ptr);
     status.event.wait();
 
     auto beta_copy_event =
@@ -97,7 +151,7 @@ class BatchnormCompatTest : public ::testing::Test {
     }
 
     out_copy_event.wait();
-    for (unsigned long i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       SNN_ALMOST_EQUAL_EPS(exp_out_grad[i], outputData[i], 30u, 1e-2);
     }
 
@@ -138,6 +192,7 @@ class BatchnormCompatTest : public ::testing::Test {
         iota_initialised_data<DataType>(c, max_input_mean_val);
     std::vector<DataType> input_var =
         iota_initialised_data<DataType>(c, max_input_var_val);
+    std::vector<DataType> mean_var_zeros(c, 0);
     const auto size = exp_out.size();
     float max_value = 2048;
     std::vector<DataType> outputData =
@@ -156,10 +211,10 @@ class BatchnormCompatTest : public ::testing::Test {
     auto q = handle.getQueue();
 
     auto in_ptr = getPtr(inputData);
-    auto scale_ptr = getPtr(beta);
-    auto bias_ptr = getPtr(gamma);
-    auto running_mean_ptr = getPtr(input_mean);
-    auto running_var_ptr = getPtr(input_var);
+    auto scale_ptr = getPtr(gamma);
+    auto bias_ptr = getPtr(beta);
+    auto running_mean_ptr = getPtr(is_training ? mean_var_zeros : input_mean);
+    auto running_var_ptr = getPtr(is_training ? mean_var_zeros : input_var);
     auto saved_mean_ptr =
         use_cache ? sycl::malloc_device<DataType>(c, q) : nullptr;
     auto saved_var_ptr =
@@ -199,15 +254,27 @@ class BatchnormCompatTest : public ::testing::Test {
                                              mean_var_size * sizeof(DataType));
 
         saved_mean_copy_event.wait();
+        sycldnn::batchnorm::BatchNormParams test_params;
+        test_params.batch = in_shape[0];
+        test_params.rows = in_shape[1];
+        test_params.cols = in_shape[2];
+        test_params.channels = in_shape[3];
+        test_params.input_format = format;
+        const auto expected_saved_mean =
+            compute_expected_mean(inputData, test_params);
         for (int i = 0; i < mean_var_size; i++) {
           SCOPED_TRACE("Element: " + std::to_string(i));
-          SNN_ALMOST_EQUAL_EPS(exp_mean[i], outputMean[i], 10u, 1e-5);
+          SNN_ALMOST_EQUAL_EPS(expected_saved_mean[i], outputMean[i], 10u,
+                               1e-5);
         }
 
         saved_var_copy_event.wait();
+        const auto expected_saved_invvar = compute_expected_inv_variance(
+            inputData, expected_saved_mean, test_params);
         for (int i = 0; i < mean_var_size; i++) {
           SCOPED_TRACE("Element: " + std::to_string(i));
-          SNN_ALMOST_EQUAL_EPS(exp_var[i], outputVar[i], 30u, 1e-5);
+          SNN_ALMOST_EQUAL_EPS(expected_saved_invvar[i], outputVar[i], 30u,
+                               1e-5);
         }
       }
     } else {
@@ -237,29 +304,22 @@ class BatchnormCompatTest : public ::testing::Test {
 
 TEST_F(BatchnormCompatTest, ForwardTr1x1x1x8Cache) {
   const std::vector<DataType> exp_running_mean = {
-      1., 2., 3., 4., 5., 5.949999999999999, 1.01, 2.01};
-  const std::vector<DataType> exp_running_var = {0.99, 1.98, 2.9699999999999998,
-                                                 3.96, 4.95, 5.9399999999999995,
-                                                 6.93, 0.99};
-  const std::vector<DataType> exp_out = {1.,
-                                         2.,
-                                         3.,
-                                         4.,
-                                         1.,
-                                         -0.04107137012493428,
-                                         3.7558749568782206,
-                                         6.998501124063319};
+      0.010000000000000009, 0.020000000000000018, 0.030000000000000027,
+      0.040000000000000036, 0.050000000000000044, 0.010000000000000009,
+      0.020000000000000018, 0.030000000000000027};
+  const std::vector<DataType> exp_running_var = {0., 0., 0., 0.,
+                                                 0., 0., 0., 0.};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4., 1., 2., 3., 4.};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
-
+  const bool is_training = true;
+  const float momentum = 1 - 0.99;
+  const float epsilon = 0.001;
   const DataType max_input_val = 5.0;
   const DataType max_beta_val = 4.0;
   const DataType max_gamma_val = 5.0;
   const DataType max_input_mean_val = 6.0;
   const DataType max_input_var_val = 7.0;
-  const float momentum = 0.01;  // 1 - 0.99;
-  const float epsilon = 0.001;
-  const bool is_training = true;
-  const bool use_cache = true;
+  bool use_cache = true;
 
   this->test_forward(sycldnn::DataFormat::NHWC, in_shape, exp_out,
                      exp_running_mean, exp_running_var, max_input_val,
@@ -270,18 +330,12 @@ TEST_F(BatchnormCompatTest, ForwardTr1x1x1x8Cache) {
 
 TEST_F(BatchnormCompatTest, ForwardTr1x1x1x8NoCache) {
   const std::vector<DataType> exp_running_mean = {
-      1., 2., 3., 4., 5., 5.949999999999999, 1.01, 2.01};
-  const std::vector<DataType> exp_running_var = {0.99, 1.98, 2.9699999999999998,
-                                                 3.96, 4.95, 5.9399999999999995,
-                                                 6.93, 0.99};
-  const std::vector<DataType> exp_out = {1.,
-                                         2.,
-                                         3.,
-                                         4.,
-                                         1.,
-                                         -0.04107137012493428,
-                                         3.7558749568782206,
-                                         6.998501124063319};
+      0.010000000000000009, 0.020000000000000018, 0.030000000000000027,
+      0.040000000000000036, 0.050000000000000044, 0.010000000000000009,
+      0.020000000000000018, 0.030000000000000027};
+  const std::vector<DataType> exp_running_var = {0., 0., 0., 0.,
+                                                 0., 0., 0., 0.};
+  const std::vector<DataType> exp_out = {1., 2., 3., 4., 1., 2., 3., 4.};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
 
   const DataType max_input_val = 5.0;
@@ -302,72 +356,31 @@ TEST_F(BatchnormCompatTest, ForwardTr1x1x1x8NoCache) {
 }
 
 TEST_F(BatchnormCompatTest, ForwardTr1x8x8x1) {
-  const std::vector<DataType> exp_running_mean = {1.0196875};
-  const std::vector<DataType> exp_running_var = {1.009677734375};
-  const std::vector<DataType> exp_out = {1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197,
-                                         4.998001498751092,
-                                         1.,
-                                         1.999500374687773,
-                                         2.9990007493755466,
-                                         3.9985011240633197};
+  const std::vector<DataType> exp_running_mean = {0.029687500000000026};
+  const std::vector<DataType> exp_running_var = {0.019677734375000016};
+  const std::vector<DataType> exp_out = {
+      -0.4031131682009884, 0.3095792346947517,  1.0222716375904919,
+      1.7349640404862319,  2.447656443381972,   -0.4031131682009884,
+      0.3095792346947517,  1.0222716375904919,  1.7349640404862319,
+      2.447656443381972,   -0.4031131682009884, 0.3095792346947517,
+      1.0222716375904919,  1.7349640404862319,  2.447656443381972,
+      -0.4031131682009884, 0.3095792346947517,  1.0222716375904919,
+      1.7349640404862319,  2.447656443381972,   -0.4031131682009884,
+      0.3095792346947517,  1.0222716375904919,  1.7349640404862319,
+      2.447656443381972,   -0.4031131682009884, 0.3095792346947517,
+      1.0222716375904919,  1.7349640404862319,  2.447656443381972,
+      -0.4031131682009884, 0.3095792346947517,  1.0222716375904919,
+      1.7349640404862319,  2.447656443381972,   -0.4031131682009884,
+      0.3095792346947517,  1.0222716375904919,  1.7349640404862319,
+      2.447656443381972,   -0.4031131682009884, 0.3095792346947517,
+      1.0222716375904919,  1.7349640404862319,  2.447656443381972,
+      -0.4031131682009884, 0.3095792346947517,  1.0222716375904919,
+      1.7349640404862319,  2.447656443381972,   -0.4031131682009884,
+      0.3095792346947517,  1.0222716375904919,  1.7349640404862319,
+      2.447656443381972,   -0.4031131682009884, 0.3095792346947517,
+      1.0222716375904919,  1.7349640404862319,  2.447656443381972,
+      -0.4031131682009884, 0.3095792346947517,  1.0222716375904919,
+      1.7349640404862319};
   const std::array<int, 4> in_shape = {{1, 8, 8, 1}};
   const float momentum = 1 - 0.99;
   const float epsilon = 0.001;
@@ -491,12 +504,9 @@ TEST_F(BatchnormCompatTest, ForwardInf1x1x8x8) {
 
 TEST_F(BatchnormCompatTest, Backward1x1x8x1) {
   using DataType = float;
-  const std::vector<DataType> exp_grad = {
-      -0.9165282260134587, -0.2941179649043309, 0.328292296204797,
-      0.9507025573139248,  -1.4633175268209155, -0.1574206397024667,
-      0.46498962140666117, 1.087399882515789};
+  const std::vector<DataType> exp_grad = {1., 2., 3., 4., 1., 2., 3., 4.};
   const std::vector<DataType> beta_grad = {20.};
-  const std::vector<DataType> gamma_grad = {1.89776896577748};
+  const std::vector<DataType> gamma_grad = {35.};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const float epsilon = 0.001;
   const DataType max_input_val = 5.0;
@@ -661,12 +671,11 @@ TEST_F(BatchnormCompatTest, ForwardInf1x1x8x8_alpha_0_beta_1) {
 
 TEST_F(BatchnormCompatTest, ForwardTr1x1x1x8Cache_alpha_0_beta_0) {
   const std::vector<DataType> exp_running_mean = {
-      1., 2., 3., 4., 5., 5.949999999999999, 1.01, 2.01};
-
-  const std::vector<DataType> exp_running_var = {0.99, 1.98, 2.9699999999999998,
-                                                 3.96, 4.95, 5.9399999999999995,
-                                                 6.93, 0.99};
-
+      0.010000000000000009, 0.020000000000000018, 0.030000000000000027,
+      0.040000000000000036, 0.050000000000000044, 0.010000000000000009,
+      0.020000000000000018, 0.030000000000000027};
+  const std::vector<DataType> exp_running_var = {0., 0., 0., 0.,
+                                                 0., 0., 0., 0.};
   const std::vector<DataType> exp_out = {0., 0., 0., 0., 0., 0., 0., 0.};
   const std::array<int, 4> in_shape = {{1, 1, 1, 8}};
 
@@ -692,13 +701,9 @@ TEST_F(BatchnormCompatTest, ForwardTr1x1x1x8Cache_alpha_0_beta_0) {
 TEST_F(BatchnormCompatTest,
        Backward1x1x8x1_alpha_data_2_beta_data_0_alpha_param_2_beta_param_0) {
   using DataType = float;
-  const std::vector<DataType> exp_grad = {
-      -0.9165282260134587 * 2, -0.2941179649043309 * 2,
-      0.328292296204797 * 2,   0.9507025573139248 * 2,
-      -1.4633175268209155 * 2, -0.15742063970246678 * 2,
-      0.46498962140666117 * 2, 1.087399882515789 * 2};
-  const std::vector<DataType> beta_grad = {40.};
-  const std::vector<DataType> gamma_grad = {2 * 1.89776896577748};
+  const std::vector<DataType> exp_grad = {2., 4., 6., 8., 2., 4., 6., 8.};
+  const std::vector<DataType> beta_grad = {2 * 20.};
+  const std::vector<DataType> gamma_grad = {2 * 35.};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const float epsilon = 0.001;
   const DataType max_input_val = 5.0;
@@ -720,11 +725,7 @@ TEST_F(BatchnormCompatTest,
 TEST_F(BatchnormCompatTest,
        Backward1x1x8x1_alpha_data_2_beta_data_0_alpha_param_0_beta_param_0) {
   using DataType = float;
-  const std::vector<DataType> exp_grad = {
-      -0.9165282260134587 * 2, -0.2941179649043309 * 2,
-      0.328292296204797 * 2,   0.9507025573139248 * 2,
-      -1.4633175268209155 * 2, -0.15742063970246678 * 2,
-      0.46498962140666117 * 2, 1.087399882515789 * 2};
+  const std::vector<DataType> exp_grad = {2., 4., 6., 8., 2., 4., 6., 8.};
   const std::vector<DataType> beta_grad = {0.};
   const std::vector<DataType> gamma_grad = {0.};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
@@ -749,8 +750,8 @@ TEST_F(BatchnormCompatTest,
        Backward1x1x8x1_alpha_data_0_beta_data_0_alpha_param_2_beta_param_0) {
   using DataType = float;
   const std::vector<DataType> exp_grad = {0., 0., 0., 0., 0., 0., 0., 0.};
-  const std::vector<DataType> beta_grad = {40.};
-  const std::vector<DataType> gamma_grad = {2 * 1.89776896577748};
+  const std::vector<DataType> beta_grad = {2 * 20.};
+  const std::vector<DataType> gamma_grad = {2 * 35.};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const float epsilon = 0.001;
   const DataType max_input_val = 5.0;
@@ -774,9 +775,8 @@ TEST_F(
     Backward1x1x8x1_alpha_data_0_beta_data_0_alpha_param_0_5_beta_param_0_5) {
   using DataType = float;
   const std::vector<DataType> exp_grad = {0., 0., 0., 0., 0., 0., 0., 0.};
-  const std::vector<DataType> beta_grad = {(0.5 * 20) + (0.5 * 1.)};
-  const std::vector<DataType> gamma_grad = {(0.5 * 1.89776896577748) +
-                                            (0.5 * 1.)};
+  const std::vector<DataType> beta_grad = {(0.5 * 20.) + (0.5 * 1.)};
+  const std::vector<DataType> gamma_grad = {(0.5 * 35.) + (0.5 * 1.)};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const float epsilon = 0.001;
   const DataType max_input_val = 5.0;
@@ -800,14 +800,9 @@ TEST_F(
     Backward1x1x8x1_alpha_data_0_5_beta_data_0_5_alpha_param_0_beta_param_0) {
   using DataType = float;
   const std::vector<DataType> exp_grad = {
-      (-0.9165282260134587 * 0.5) + (1. * 0.5),
-      (-0.2941179649043309 * 0.5) + (2. * 0.5),
-      (0.328292296204797 * 0.5) + (3. * 0.5),
-      (0.9507025573139248 * 0.5) + (4. * 0.5),
-      (-1.4633175268209155 * 0.5) + (5. * 0.5),
-      (-0.15742063970246678 * 0.5) + (6. * 0.5),
-      (0.46498962140666117 * 0.5) + (7. * 0.5),
-      (1.087399882515789 * 0.5) + (8. * 0.5)};
+      (1. * 0.5) + (1. * 0.5), (2. * 0.5) + (2. * 0.5), (3. * 0.5) + (3. * 0.5),
+      (4. * 0.5) + (4. * 0.5), (1. * 0.5) + (5. * 0.5), (2. * 0.5) + (6. * 0.5),
+      (3. * 0.5) + (7. * 0.5), (4. * 0.5) + (8. * 0.5)};
   const std::vector<DataType> beta_grad = {0.};
   const std::vector<DataType> gamma_grad = {0.};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
@@ -833,17 +828,11 @@ TEST_F(
     Backward1x1x8x1_alpha_data_0_5_beta_data_0_5_alpha_param_0_5_beta_param_0_5) {
   using DataType = float;
   const std::vector<DataType> exp_grad = {
-      (-0.9165282260134587 * 0.5) + (1. * 0.5),
-      (-0.2941179649043309 * 0.5) + (2. * 0.5),
-      (0.328292296204797 * 0.5) + (3. * 0.5),
-      (0.9507025573139248 * 0.5) + (4. * 0.5),
-      (-1.4633175268209155 * 0.5) + (5. * 0.5),
-      (-0.15742063970246678 * 0.5) + (6. * 0.5),
-      (0.46498962140666117 * 0.5) + (7. * 0.5),
-      (1.087399882515789 * 0.5) + (8. * 0.5)};
+      (1. * 0.5) + (1. * 0.5), (2. * 0.5) + (2. * 0.5), (3. * 0.5) + (3. * 0.5),
+      (4. * 0.5) + (4. * 0.5), (1. * 0.5) + (5. * 0.5), (2. * 0.5) + (6. * 0.5),
+      (3. * 0.5) + (7. * 0.5), (4. * 0.5) + (8. * 0.5)};
   const std::vector<DataType> beta_grad = {(0.5 * 20) + (0.5 * 1.)};
-  const std::vector<DataType> gamma_grad = {(0.5 * 1.89776896577748) +
-                                            (0.5 * 1.)};
+  const std::vector<DataType> gamma_grad = {(0.5 * 35.) + (0.5 * 1.)};
   const std::array<int, 4> in_shape = {{1, 1, 8, 1}};
   const float epsilon = 0.001;
   const DataType max_input_val = 5.0;

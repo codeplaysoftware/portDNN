@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_IMPL_H_
-#define PORTDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_IMPL_H_
+#ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_IMPL_H_
+#define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_IMPL_H_
 
-#include "portdnn/mem_object.h"
+#include "sycldnn/format_type.h"
+#include "sycldnn/mem_object.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
-#include "portdnn/helpers/ratio.h"
+#include "sycldnn/helpers/ratio.h"
 
 #include "src/conv2d/im2col/kernels/extract_input_tiles.h"
 #include "src/conv2d/im2col/queue_input_transform.h"
@@ -45,9 +46,18 @@ template <int VectorWidth, typename ConvType,
               !std::is_same<ConvType, conv_type::InputBackprop>::value,
               int>::type = 0>
 cl::sycl::range<3> get_thread_range(Conv2DParams const& params) {
-  size_t x = round_up(params.channels / VectorWidth);
-  size_t y = round_up(params.in_cols);
-  size_t z = round_up(params.in_rows * params.batch);
+  size_t x = 0;
+  size_t y = 0;
+  size_t z = 0;
+  if (params.input_format == DataFormat::NCHW) {
+    x = round_up(params.in_cols / VectorWidth);
+    y = round_up(params.in_rows);
+    z = round_up(params.batch * params.channels);
+  } else if (params.input_format == DataFormat::NHWC) {
+    x = round_up(params.channels / VectorWidth);
+    y = round_up(params.in_cols);
+    z = round_up(params.in_rows * params.batch);
+  }
   return cl::sycl::range<3>{x, y, z};
 }
 
@@ -56,16 +66,25 @@ template <
     typename std::enable_if<
         std::is_same<ConvType, conv_type::InputBackprop>::value, int>::type = 0>
 cl::sycl::range<3> get_thread_range(Conv2DParams const& params) {
-  size_t x = round_up(params.features / VectorWidth);
-  size_t y = round_up(params.out_cols);
-  size_t z = round_up(params.out_rows * params.batch);
+  size_t x = 0;
+  size_t y = 0;
+  size_t z = 0;
+  if (params.input_format == DataFormat::NCHW) {
+    x = round_up(params.out_cols / VectorWidth);
+    y = round_up(params.out_rows);
+    z = round_up(params.features * params.batch);
+  } else if (params.input_format == DataFormat::NHWC) {
+    x = round_up(params.features / VectorWidth);
+    y = round_up(params.out_cols);
+    z = round_up(params.out_rows * params.batch);
+  }
   return cl::sycl::range<3>{x, y, z};
 }
 
 }  // namespace
 
 template <typename T, typename Index, int VectorWidth, typename ConvType,
-          template <typename> class MemObj>
+          typename Layout, template <typename> class MemObj>
 SNNStatus queue_input_transform(MemObj<T const>& input_mem,
                                 MemObj<T>& output_mem,
                                 Conv2DParams const& params, int tile_size,
@@ -73,7 +92,8 @@ SNNStatus queue_input_transform(MemObj<T const>& input_mem,
                                 const std::vector<cl::sycl::event>& events) {
   constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
 
-  using Functor = ExtractInputTiles<T, Index, VectorWidth, ConvType, is_usm>;
+  using Functor =
+      ExtractInputTiles<T, Index, VectorWidth, ConvType, is_usm, Layout>;
 
   auto event = queue.submit([&](cl::sycl::handler& cgh) {
     cgh.depends_on(events);
@@ -92,4 +112,4 @@ SNNStatus queue_input_transform(MemObj<T const>& input_mem,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_IMPL_H_
+#endif  // SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_INPUT_TRANSFORM_IMPL_H_

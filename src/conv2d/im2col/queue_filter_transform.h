@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
-#define PORTDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
+#ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
+#define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
 
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
 #include <CL/sycl.hpp>
 
@@ -27,7 +27,8 @@ namespace sycldnn {
 namespace conv2d {
 namespace internal {
 namespace im2col {
-template <typename T, typename Index, template <typename> class MemObj>
+template <typename T, typename Index, typename Layout,
+          template <typename> class MemObj>
 SNNStatus queue_filter_transform(MemObj<T const>& input, MemObj<T>& output,
                                  Conv2DParams const& params, Index thread_size,
                                  cl::sycl::queue& queue,
@@ -36,4 +37,4 @@ SNNStatus queue_filter_transform(MemObj<T const>& input, MemObj<T>& output,
 }  // namespace internal
 }  // namespace conv2d
 }  // namespace sycldnn
-#endif  // PORTDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_
+#endif  // SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_H_

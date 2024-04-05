@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/internal/transpose/launch.h"
+#include "sycldnn/internal/transpose/launch.h"
 
-#include "portdnn/mem_object.h"
+#include "sycldnn/mem_object.h"
 
-#include "portdnn/helpers/mem_utils.h"
 #include "src/transpose/queue_kernel.h"
+#include "sycldnn/helpers/mem_utils.h"
 
 #include <iterator>
 #include <vector>
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace transpose {

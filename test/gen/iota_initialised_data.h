@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_
-#define PORTDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_
+#ifndef SYCLDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_
+#define SYCLDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_
 
 #include <algorithm>
 #include <vector>
@@ -96,4 +96,4 @@ std::vector<DataType> iota_initialised_signed_data(size_t size) {
   return data;
 }
 
-#endif  // PORTDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_
+#endif  // SYCLDNN_TEST_GEN_IOTA_INITIALISED_DATA_H_

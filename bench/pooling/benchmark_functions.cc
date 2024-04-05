@@ -17,13 +17,36 @@
 
 #include "src/backend/snn_backend_provider.h"
 
-#include "portdnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_usm_backend.h"
 
-#include "portdnn/pooling/operators.h"
+#include "sycldnn/pooling/operators.h"
 
-#define BM_WITH_DIR_OP_DTYPE(DIR, OP, DTYPE)                                 \
-  POOLING_BENCHMARK(OP##_##DIR##_##SNNBackend, sycldnn::backend::SNNBackend, \
-                    DTYPE, sycldnn::pooling::DIR, sycldnn::pooling::OP)
+#define BM_WITH_DIR_OP_DTYPE_LAYOUT_BACKEND(DIR, OP, DTYPE, LAYOUT, BACKEND)   \
+  POOLING_BENCHMARK(LAYOUT##_##OP##_##DIR##_##BACKEND##_##OutOfOrder,          \
+                    sycldnn::backend::BACKEND, DTYPE, sycldnn::layout::LAYOUT, \
+                    sycldnn::pooling::DIR, sycldnn::pooling::OP, false)        \
+  POOLING_BENCHMARK(LAYOUT##_##OP##_##DIR##_##BACKEND##_##InOrder,             \
+                    sycldnn::backend::BACKEND, DTYPE, sycldnn::layout::LAYOUT, \
+                    sycldnn::pooling::DIR, sycldnn::pooling::OP, true)
+
+#ifdef SNN_ENABLE_USM
+#define BM_WITH_DIR_OP_DTYPE_LAYOUT(DIR, OP, DTYPE, LAYOUT)               \
+  BM_WITH_DIR_OP_DTYPE_LAYOUT_BACKEND(DIR, OP, DTYPE, LAYOUT, SNNBackend) \
+  BM_WITH_DIR_OP_DTYPE_LAYOUT_BACKEND(DIR, OP, DTYPE, LAYOUT, SNNUSMBackend)
+#else
+#define BM_WITH_DIR_OP_DTYPE_LAYOUT(DIR, OP, DTYPE, LAYOUT, BACKEND) \
+  BM_WITH_DIR_OP_DTYPE_LAYOUT_BACKEND(DIR, OP, DTYPE, LAYOUT, SNNBackend)
+#endif
+
+#ifdef SNN_ENABLE_NCHW
+#define BM_WITH_DIR_OP_DTYPE(DIR, OP, DTYPE)        \
+  BM_WITH_DIR_OP_DTYPE_LAYOUT(DIR, OP, DTYPE, NHWC) \
+  BM_WITH_DIR_OP_DTYPE_LAYOUT(DIR, OP, DTYPE, NCHW)
+#else
+#define BM_WITH_DIR_OP_DTYPE(DIR, OP, DTYPE) \
+  BM_WITH_DIR_OP_DTYPE_LAYOUT(DIR, OP, DTYPE, NHWC)
+#endif
 
 #define BM_WITH_DIR_OP(DIR, OP) BM_WITH_DIR_OP_DTYPE(DIR, OP, float)
 

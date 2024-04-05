@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "portdnn/helpers/handle_exception.h"
-#include "portdnn/helpers/scope_exit.h"
+#include "sycldnn/helpers/handle_exception.h"
+#include "sycldnn/helpers/scope_exit.h"
 
-#include "portdnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 
-#include "portdnn/matmul/params.h"
 #include "src/backend/backend_provider.h"
 #include "src/backend/snn_backend_provider.h"
 #include "src/matmul/queue_kernel.h"
+#include "sycldnn/matmul/params.h"
 
 #include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_datatype_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/base_executor.h"
+#include "bench/fixture/base_bench_executor.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 #include "bench/fixture/typenames.h"
@@ -45,22 +45,10 @@
 namespace sycldnn {
 namespace bench {
 
-/** Helper function that checks if portDNN can wait on events directly, or
- * has to wait on the queue. This is because Eigen cannot return us the events
- * corresponding to the kernel launch directly. */
-/* TODO: SD-404 Remove queue::wait_and_throw workaround when Eigen removed */
-inline void wait_for_event(cl::sycl::event& ev, cl::sycl::queue q) {
-  if (ev.is_host()) {
-    q.wait_and_throw();
-  } else {
-    ev.wait_and_throw();
-  }
-}
-
-/** Executor to perform a matrix multiply benchmark using portDNN.  */
+/** BenchExecutor to perform a matrix multiply benchmark using SYCL-DNN.  */
 template <typename Benchmark, typename DataType, int RowTile, int AccTile,
           int ColTile>
-struct SNNMatmulExecutor : public BaseExecutor {
+struct SNNMatmulBenchExecutor : public BaseBenchExecutor {
  private:
   using State = ::benchmark::State;
 
@@ -154,7 +142,7 @@ struct SNNMatmulExecutor : public BaseExecutor {
       }
 
       try {
-        wait_for_event(status.event, queue);
+        status.event.wait_and_throw();
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
@@ -185,7 +173,7 @@ struct SNNMatmulExecutor : public BaseExecutor {
                       lhs_mem, rhs_mem, out_mem,
                       sycldnn::matmul::MatmulParams{batch, m, k, n, 0.f}, queue,
                       workgroup_rows, workgroup_cols, workgroup_batch, {});
-        wait_for_event(status.event, backend.get_queue());
+        status.event.wait_and_throw();
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
@@ -226,7 +214,7 @@ extern const char* commit_hash;
 template <typename Backend, typename DataType, int RowTile, int AccTile,
           int ColTile>
 class SNNMatmulBenchmark
-    : public sycldnn::bench::SNNMatmulExecutor<
+    : public sycldnn::bench::SNNMatmulBenchExecutor<
           SNNMatmulBenchmark<Backend, DataType, RowTile, AccTile, ColTile>,
           DataType, RowTile, AccTile, ColTile>,
       public sycldnn::backend::BackendProvider<Backend>,
@@ -254,7 +242,7 @@ class SNNMatmulBenchmark
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
-    this->add_to_label("@library", "portDNN");
+    this->add_to_label("@library", "SYCL-DNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Matmul");
     this->add_to_label("git_hash", commit_hash);

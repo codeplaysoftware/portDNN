@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
-#define PORTDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
+#ifndef SYCLDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
+#define SYCLDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
 
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/depthwise_conv2d/params.h"
+#include "sycldnn/depthwise_conv2d/params.h"
 
 #include <CL/sycl.hpp>
 
@@ -47,4 +47,4 @@ SNNStatus queue_kernel_fil_bk(MemObj<T const>& input, MemObj<T const>& filter,
 }  // namespace depthwise_conv2d
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_
+#endif  // SYCLDNN_SRC_DEPTHWISE_CONV2D_QUEUE_DEPTHWISE_CONV2D_H_

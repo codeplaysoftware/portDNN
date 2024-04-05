@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/format_type.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
 #include "src/conv2d/im2col/queue_filter_transform.h"
 
@@ -26,7 +27,7 @@
 
 #include <CL/sycl.hpp>
 
-#include "portdnn/export.h"
+#include "sycldnn/export.h"
 
 namespace sycldnn {
 namespace conv2d {
@@ -39,8 +40,14 @@ SNNStatus launch_with_index(MemObj<T const>& input, MemObj<T>& output,
                             Conv2DParams const& params, size_t thread_size,
                             cl::sycl::queue& queue,
                             const std::vector<cl::sycl::event>& events) {
-  return queue_filter_transform<T, Index>(input, output, params, thread_size,
-                                          queue, events);
+  if (params.input_format == DataFormat::NCHW) {
+    return queue_filter_transform<T, Index, layout::NCHW>(
+        input, output, params, thread_size, queue, events);
+  } else if (params.input_format == DataFormat::NHWC) {
+    return queue_filter_transform<T, Index, layout::NHWC>(
+        input, output, params, thread_size, queue, events);
+  }
+  return StatusCode::InvalidAlgorithm;
 }
 }  // namespace
 

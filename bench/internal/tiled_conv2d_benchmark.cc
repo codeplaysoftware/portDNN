@@ -15,19 +15,20 @@
  */
 #include <benchmark/benchmark.h>
 
-#include "portdnn/accessor_types.h"
-#include "portdnn/mem_object.h"
-#include "portdnn/padding_mode.h"
-#include "portdnn/status.h"
+#include "sycldnn/accessor_types.h"
+#include "sycldnn/format_type.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/padding_mode.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/backend/snn_backend.h"
+#include "sycldnn/backend/snn_backend.h"
 
-#include "portdnn/conv2d/launch.h"
-#include "portdnn/conv2d/params.h"
-#include "portdnn/conv2d/selector/selector.h"
+#include "sycldnn/conv2d/launch.h"
+#include "sycldnn/conv2d/params.h"
+#include "sycldnn/conv2d/selector/selector.h"
 
-#include "portdnn/helpers/padding.h"
-#include "portdnn/helpers/scope_exit.h"
+#include "sycldnn/helpers/padding.h"
+#include "sycldnn/helpers/scope_exit.h"
 
 #include "src/conv2d/tiled/kernel_params.h"
 #include "src/conv2d/tiled/queue_tiled_kernel_impl.h"
@@ -40,7 +41,7 @@
 
 #include "bench/fixture/add_computecpp_info.h"
 #include "bench/fixture/add_sycl_device_info.h"
-#include "bench/fixture/base_executor.h"
+#include "bench/fixture/base_bench_executor.h"
 #include "bench/fixture/statistic.h"
 #include "bench/fixture/string_reporter.h"
 
@@ -49,7 +50,7 @@ namespace {
 template <typename T, typename Index, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
           bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
-          typename Backend>
+          typename Layout, typename Backend>
 sycldnn::SNNStatus launch_kernel(
     typename Backend::template pointer_type<const T> input,
     typename Backend::template pointer_type<const T> filter,
@@ -69,18 +70,19 @@ sycldnn::SNNStatus launch_kernel(
 
   auto status = sycldnn::conv2d::internal::queue_tiled_kernel<
       T, Index, ConvType, TileRows, TileCols, ChannelVectorWidth,
-      FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride>(
+      FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride, Layout>(
       in_acc, fil_acc, out_acc, kernel_params, tile_info, queue, {});
   return status;
 }
 
 template <typename Backend, typename ParamGen, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
-          bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
+          bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
+          typename Layout>
 class TiledConvolutionBenchmark
     : public sycldnn::backend::BackendProvider<Backend>,
       public sycldnn::bench::StringReporter,
-      public sycldnn::bench::BaseExecutor,
+      public sycldnn::bench::BaseBenchExecutor,
       public BaseConvolutionBenchmark {
  private:
   using State = benchmark::State;
@@ -109,11 +111,12 @@ class TiledConvolutionBenchmark
 
 template <typename Backend, typename ParamGen, typename ConvType, int TileRows,
           int TileCols, int ChannelVectorWidth, int FeatureVectorWidth,
-          bool UseFastDiv, int WindowRows, int WindowCols, int Stride>
+          bool UseFastDiv, int WindowRows, int WindowCols, int Stride,
+          typename Layout>
 void TiledConvolutionBenchmark<
     Backend, ParamGen, ConvType, TileRows, TileCols, ChannelVectorWidth,
-    FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols,
-    Stride>::execute(benchmark::State& state,
+    FeatureVectorWidth, UseFastDiv, WindowRows, WindowCols, Stride,
+    Layout>::execute(benchmark::State& state,
                      sycldnn::conv2d::Conv2DParams const& params) {
   auto& backend = this->get_backend();
 
@@ -133,10 +136,11 @@ void TiledConvolutionBenchmark<
   };
 
   {  // Ensure the kernel is built before benchmarking
-    auto status = launch_kernel<float, int, ConvType, TileRows, TileCols,
-                                ChannelVectorWidth, FeatureVectorWidth,
-                                UseFastDiv, WindowRows, WindowCols, Stride>(
-        inp_gpu, fil_gpu, out_gpu, params, conv_sizes, backend);
+    auto status =
+        launch_kernel<float, int, ConvType, TileRows, TileCols,
+                      ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
+                      WindowRows, WindowCols, Stride, Layout>(
+            inp_gpu, fil_gpu, out_gpu, params, conv_sizes, backend);
     status.event.wait_and_throw();
 
     if (sycldnn::StatusCode::OK != status.status) {
@@ -149,10 +153,11 @@ void TiledConvolutionBenchmark<
 
   for (auto _ : state) {
     this->start_timing();
-    auto status = launch_kernel<float, int, ConvType, TileRows, TileCols,
-                                ChannelVectorWidth, FeatureVectorWidth,
-                                UseFastDiv, WindowRows, WindowCols, Stride>(
-        inp_gpu, fil_gpu, out_gpu, params, conv_sizes, backend);
+    auto status =
+        launch_kernel<float, int, ConvType, TileRows, TileCols,
+                      ChannelVectorWidth, FeatureVectorWidth, UseFastDiv,
+                      WindowRows, WindowCols, Stride, Layout>(
+            inp_gpu, fil_gpu, out_gpu, params, conv_sizes, backend);
 
     status.event.wait_and_throw();
     this->end_timing();
@@ -170,10 +175,11 @@ void TiledConvolutionBenchmark<
   state.counters["ch_vect"] = ChannelVectorWidth;
   state.counters["feat_vect"] = FeatureVectorWidth;
   state.counters["fast_div"] = UseFastDiv;
+  state.counters["NHWC"] = std::is_same_v<Layout, sycldnn::layout::NHWC>;
   add_bandwidth_counters<float>(state, conv_sizes);
 
   add_to_label("@selector", "TiledSelector");
-  add_to_label("@library", "portDNN");
+  add_to_label("@library", "SYCL-DNN");
   add_to_label("git_hash", commit_hash);
   sycldnn::bench::computecpp_info::add_computecpp_version(*this);
   set_label(state);
@@ -208,13 +214,14 @@ struct ParamGenerator {
       ->UseManualTime()                                                     \
       ->Unit(benchmark::kNanosecond);
 
-#define PARAM_BENCHMARK(name, direction, tile_row, tile_col, ch_vect,        \
-                        feat_vect, fast_div, window_row, window_col, stride) \
-  TILED_BENCHMARK(                                                           \
-      name##_##tile_row##_##tile_col##_##ch_vect##_##feat_vect##_##fast_div, \
-      sycldnn::backend::SNNBackend,                                          \
-      ParamGenerator<window_row, window_col, stride>, direction, tile_row,   \
-      tile_col, ch_vect, feat_vect, fast_div, window_row, window_col, stride);
+#define PARAM_BENCHMARK(name, direction, tile_row, tile_col, ch_vect,               \
+                        feat_vect, fast_div, window_row, window_col, stride)        \
+  TILED_BENCHMARK(                                                                  \
+      name##_##tile_row##_##tile_col##_##ch_vect##_##feat_vect##_##fast_div##_NHWC, \
+      sycldnn::backend::SNNBackend,                                                 \
+      ParamGenerator<window_row, window_col, stride>, direction, tile_row,          \
+      tile_col, ch_vect, feat_vect, fast_div, window_row, window_col, stride,       \
+      sycldnn::layout::NHWC);
 
 #define BENCH_WITH_TILES(name, direction, tile_row, tile_col, fast_div, \
                          window_row, window_col, stride)                \
@@ -308,3 +315,103 @@ struct ParamGenerator {
   BENCH_WITH_FAST_DIV(name, direction, true, window_row, window_col, stride)
 
 BENCH_BASE(Forward, sycldnn::conv2d::conv_type::Forward, 3, 3, 1);
+
+#define PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, ch_vect,                                                   \
+                             feat_vect, fast_div, window_row, window_col,                                                    \
+                             stride)                                                                                         \
+  TILED_BENCHMARK(                                                                                                           \
+      name##_##window_col##_##stride##_##window_col##_##tile_row##_##tile_col##_##ch_vect##_##feat_vect##_##fast_div##_NCHW, \
+      sycldnn::backend::SNNBackend,                                                                                          \
+      ParamGenerator<window_row, window_col, stride>, direction, tile_row,                                                   \
+      tile_col, ch_vect, feat_vect, fast_div, window_row, window_col, stride,                                                \
+      sycldnn::layout::NCHW);
+
+#define BENCH_WITH_TILES_NCHW(name, direction, tile_row, tile_col, fast_div, \
+                              window_row, window_col, stride)                \
+  PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 1, fast_div,  \
+                       window_row, window_col, stride)                       \
+  PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 2, fast_div,  \
+                       window_row, window_col, stride)                       \
+  PARAM_BENCHMARK_NCHW(name, direction, tile_row, tile_col, 1, 4, fast_div,  \
+                       window_row, window_col, stride)
+
+#define BENCH_WITH_FAST_DIV_NCHW(name, direction, fast_div, window_row, \
+                                 window_col, stride)                    \
+  BENCH_WITH_TILES_NCHW(name, direction, 1, 1, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 1, 2, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 1, 3, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 1, 4, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 1, 5, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 2, 1, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 2, 2, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 2, 3, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 2, 4, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 2, 5, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 3, 1, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 3, 2, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 3, 3, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 3, 4, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 3, 5, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 4, 1, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 4, 2, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 4, 3, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 4, 4, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 4, 5, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 5, 1, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 5, 2, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 5, 3, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 5, 4, fast_div, window_row,    \
+                        window_col, stride)                             \
+  BENCH_WITH_TILES_NCHW(name, direction, 5, 5, fast_div, window_row,    \
+                        window_col, stride)
+
+#define BENCH_BASE_NCHW(name, direction, window_row, window_col, stride)  \
+  BENCH_WITH_FAST_DIV_NCHW(name, direction, true, window_row, window_col, \
+                           stride)
+
+BENCH_BASE_NCHW(Forward, sycldnn::conv2d::conv_type::Forward, 3, 3, 1);
+/*
+Additional filter shape & stride combinations:
+BENCH_BASE_NCHW(Forward, sycldnn::conv2d::conv_type::Forward, 1, 1, 1);
+BENCH_BASE_NCHW(Forward, sycldnn::conv2d::conv_type::Forward, 1, 1, 2);
+BENCH_BASE_NCHW(Forward, sycldnn::conv2d::conv_type::Forward, 3, 3, 2);
+BENCH_BASE_NCHW(Forward, sycldnn::conv2d::conv_type::Forward, 5, 5, 1);
+
+To benchmark InputBackprop, uncomment these calls to BENCH_BASE_NCHW
+and comment the Forward ones above. switch feature vectorization for channel
+vectorization in BENCH_WITH_TILES_NCHW, and remove instantiations which
+have either tile_cols == 1 or tile_rows == 1.
+BENCH_BASE_NCHW(InputBackprop, sycldnn::conv2d::conv_type::InputBackprop, 1, 1,
+                1);
+BENCH_BASE_NCHW(InputBackprop, sycldnn::conv2d::conv_type::InputBackprop, 1, 1,
+                2);
+BENCH_BASE_NCHW(InputBackprop, sycldnn::conv2d::conv_type::InputBackprop, 3, 3,
+                1);
+BENCH_BASE_NCHW(InputBackprop, sycldnn::conv2d::conv_type::InputBackprop, 3, 3,
+                2);
+BENCH_BASE_NCHW(InputBackprop, sycldnn::conv2d::conv_type::InputBackprop, 5, 5,
+                1);
+*/

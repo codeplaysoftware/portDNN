@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_BENCH_MATMUL_SNN_FIXTURE_H_
-#define PORTDNN_BENCH_MATMUL_SNN_FIXTURE_H_
+#ifndef SYCLDNN_BENCH_MATMUL_SNN_FIXTURE_H_
+#define SYCLDNN_BENCH_MATMUL_SNN_FIXTURE_H_
 
 #include "benchmark_config.h"
 #include "benchmark_params.h"
-#include "snn_matmul_executor.h"
+#include "snn_matmul_bench_executor.h"
 
 #include "src/backend/backend_provider.h"
 
@@ -35,7 +35,7 @@ extern const char* commit_date;
 extern const char* commit_hash;
 
 template <typename Backend, typename DataType>
-class SNNMatmulBenchmark : public sycldnn::bench::SNNMatmulExecutor<
+class SNNMatmulBenchmark : public sycldnn::bench::SNNMatmulBenchExecutor<
                                SNNMatmulBenchmark<Backend, DataType>>,
                            public sycldnn::backend::BackendProvider<Backend>,
                            public sycldnn::bench::StringReporter,
@@ -62,7 +62,7 @@ class SNNMatmulBenchmark : public sycldnn::bench::SNNMatmulExecutor<
     sycldnn::bench::computecpp_info::add_computecpp_version(*this);
     sycldnn::bench::datatype_info::add_datatype_info<DataType>(*this);
 
-    this->add_to_label("@library", "portDNN");
+    this->add_to_label("@library", "SYCL-DNN");
     this->add_to_label("@backend", backend.name());
     this->add_to_label("short_name", "Matmul");
     this->add_to_label("git_hash", commit_hash);
@@ -85,4 +85,4 @@ class SNNMatmulBenchmark : public sycldnn::bench::SNNMatmulExecutor<
       ->Unit(benchmark::kNanosecond)                                 \
       ->Apply(RunForAllMatmulParamSets);
 
-#endif  // PORTDNN_BENCH_MATMUL_SNN_FIXTURE_H_
+#endif  // SYCLDNN_BENCH_MATMUL_SNN_FIXTURE_H_

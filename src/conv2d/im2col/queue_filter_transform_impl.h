@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
-#define PORTDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
+#ifndef SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
+#define SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
 
-#include "portdnn/mem_object.h"
-#include "portdnn/status.h"
+#include "sycldnn/mem_object.h"
+#include "sycldnn/status.h"
 
-#include "portdnn/conv2d/params.h"
+#include "sycldnn/conv2d/params.h"
 
-#include "portdnn/helpers/ratio.h"
+#include "sycldnn/helpers/ratio.h"
 
 #include "src/conv2d/im2col/kernels/extract_filter_tiles.h"
 #include "src/conv2d/im2col/queue_filter_transform.h"
@@ -33,7 +33,8 @@ namespace conv2d {
 namespace internal {
 namespace im2col {
 
-template <typename T, typename Index, template <typename> class MemObj>
+template <typename T, typename Index, typename Layout,
+          template <typename> class MemObj>
 SNNStatus queue_filter_transform(MemObj<T const>& input_mem,
                                  MemObj<T>& output_mem,
                                  Conv2DParams const& params, Index thread_size,
@@ -41,7 +42,7 @@ SNNStatus queue_filter_transform(MemObj<T const>& input_mem,
                                  const std::vector<cl::sycl::event>& events) {
   constexpr bool is_usm = is_usm_obj_v<MemObj<T>, T>;
 
-  using Functor = ExtractFilterTiles<T, Index, is_usm>;
+  using Functor = ExtractFilterTiles<T, Index, is_usm, Layout>;
   cl::sycl::device device = queue.get_device();
   Index const workgroup_size =
       device.get_info<cl::sycl::info::device::max_work_group_size>();
@@ -65,4 +66,4 @@ SNNStatus queue_filter_transform(MemObj<T const>& input_mem,
 }  // namespace conv2d
 }  // namespace sycldnn
 
-#endif  // PORTDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_
+#endif  // SYCLDNN_SRC_CONV2D_IM2COL_QUEUE_FILTER_TRANSFORM_IMPL_H_

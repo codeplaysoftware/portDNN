@@ -15,9 +15,9 @@
  */
 #include <gtest/gtest.h>
 
-#include "portdnn/compat/convolution.hpp"
-#include "portdnn/helpers/padding.h"
-#include "portdnn/padding_mode.h"
+#include "sycldnn/compat/convolution.hpp"
+#include "sycldnn/helpers/padding.h"
+#include "sycldnn/padding_mode.h"
 #include "test/gen/iota_initialised_data.h"
 
 #include <type_traits>
@@ -53,7 +53,7 @@ static void initDescriptors(TensorDescriptor& inDesc, FilterDescriptor& fDesc,
   const int in_h = 5;
   const int in_w = 5;
 
-  inDesc.set4d(sycldnn::DataFormat::NCHW, in_n, in_c, in_h, in_w);
+  inDesc.set4d(sycldnn::DataFormat::NHWC, in_n, in_c, in_h, in_w);
 
   // filter
   const int filt_k = 1;
@@ -61,7 +61,7 @@ static void initDescriptors(TensorDescriptor& inDesc, FilterDescriptor& fDesc,
   const int filt_h = 2;
   const int filt_w = 2;
 
-  fDesc.set4d(sycldnn::DataFormat::NCHW, filt_k, filt_c, filt_h, filt_w);
+  fDesc.set4d(sycldnn::DataFormat::NHWC, filt_k, filt_c, filt_h, filt_w);
 
   // convolution
   const int pad_h = 1;
@@ -82,7 +82,7 @@ static void initDescriptors(TensorDescriptor& inDesc, FilterDescriptor& fDesc,
   getConvolution2dForwardOutputDim(convDesc, inDesc, fDesc, &out_n, &out_c,
                                    &out_h, &out_w);
 
-  out_desc.set4d(sycldnn::DataFormat::NCHW, out_n, out_c, out_h, out_w);
+  out_desc.set4d(sycldnn::DataFormat::NHWC, out_n, out_c, out_h, out_w);
 }
 // TODO: Extend the Testing for the other algorithms after the wrapper
 // integrates them
@@ -102,7 +102,7 @@ TEST(Conv2DFindAlgorithm, Forward) {
                                                 &returnedAlgoCount, &results);
   EXPECT_EQ(status.status, StatusCode::OK);
   EXPECT_EQ(results.status[0].status, StatusCode::OK);
-  EXPECT_GT(results.time[0], 0);
+  EXPECT_EQ(results.time[0], 0);
   EXPECT_NE(results.algo[0], sycldnn::conv2d::Algorithm::NotSupported);
 }
 
@@ -123,6 +123,6 @@ TEST(Conv2DFindAlgorithm, InputBackprop) {
       &results);
   EXPECT_EQ(status.status, StatusCode::OK);
   EXPECT_EQ(results.status[0].status, StatusCode::OK);
-  EXPECT_GT(results.time[0], 0);
+  EXPECT_EQ(results.time[0], 0);
   EXPECT_NE(results.algo[0], sycldnn::conv2d::Algorithm::NotSupported);
 }

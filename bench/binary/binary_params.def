@@ -1,0 +1,77 @@
+/*
+ * Copyright Codeplay Software Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * \file
+ * X-Macro definition file for dummy bias layer sizes.
+ *
+ * Contains a number of calls to the BINARY_PARAMS function macro defining
+ * the following bias parameters, as used in the dummy network.
+ *
+ * The ordering of the arguments is:
+ * \code
+ *   BINARY_PARAMS(Channels1, Rows1, Cols1, Channels2, Rows2, Cols2 )
+ * \endcode
+ *
+ * Batch1 | Channels1 | Rows1 | Cols1 | Batch2 | Channels2 | Rows2 | Cols2 |
+ * ------ | --------- | ----- | ----- | ------ | --------- | ----- | ----- |
+ *     1  |     1024  |    7  |    7  |     1  |     1024  |    1  |    1  |
+ *     1  |       16  |   16  |   16  |     1  |       16  |   16  |   16  |
+ *     1  |       16  |   16  |   16  |     1  |       16  |   16  |    1  |
+ *     1  |       16  |   16  |   16  |     1  |       16  |   1   |   16  |
+ *     1  |       16  |   16  |   16  |     1  |        1  |   16  |   16  |
+ *     4  |       32  |    8  |    1  |     4  |       32  |    1  |    1  |
+ *     8  |       16  |    8  |    1  |     1  |       16  |    8  |    1  |
+ *     8  |       16  |   16  |    1  |     1  |       16  |   16  |    1  |
+ *    32  |       32  |    1  |    1  |     1  |        1  |    1  |    1  |
+ *    16  |      384  |   20  |   20  |    16  |      384  |   20  |   20  |
+ *     8  |      128  |   64  |   64  |     8  |      128  |   64  |   64  |
+ *    16  |       64  |   16  |   16  |    16  |       64  |   16  |   16  |
+ *     3  |        5  |    6  |    9  |     3  |        5  |    6  |    9  |
+ *     5  |        3  |    2  |    9  |     1  |        3  |    2  |    9  |
+ *    32  |       17  |    2  |    3  |    32  |       17  |    1  |    1  |
+ *    32  |       17  |    2  |    3  |     1  |       17  |    1  |    1  |
+ *    15  |       12  |    3  |    5  |    15  |        1  |    1  |    1  |
+ *    15  |       12  |    3  |    5  |     1  |        1  |    1  |    1  |
+ *     5  |        3  |    2  |    9  |     1  |        3  |    2  |    9  |
+ *    12  |       12  |    1  |    1  |     1  |       12  |    1  |    1  |
+ *     2  |        3  |   48  |    1  |     1  |        3  |   48  |    1  |
+ */
+#ifndef BINARY_PARAMS
+#error This file expects the BINARY_PARAMS macro to be defined.
+#endif
+
+BINARY_PARAMS(1, 1024, 7, 7, 1, 1024, 1, 1)
+BINARY_PARAMS(1, 16, 16, 16, 1, 16, 16, 16)
+BINARY_PARAMS(1, 16, 16, 16, 1, 16, 16, 1)
+BINARY_PARAMS(1, 16, 16, 16, 1, 16, 1, 16)
+BINARY_PARAMS(1, 16, 16, 16, 1, 1, 16, 16)
+BINARY_PARAMS(4, 32, 8, 1, 4, 32, 1, 1)
+BINARY_PARAMS(8, 16, 8, 1, 1, 16, 8, 1)
+BINARY_PARAMS(8, 16, 16, 1, 1, 16, 16, 1)
+BINARY_PARAMS(32, 32, 1, 1, 1, 1, 1, 1)
+BINARY_PARAMS(16, 384, 20, 20, 16, 384, 20, 20)
+BINARY_PARAMS(8, 128, 64, 64, 8, 128, 64, 64)
+BINARY_PARAMS(16, 64, 16, 16, 16, 64, 16, 16)
+BINARY_PARAMS(3, 5, 6, 9, 3, 5, 6, 9)
+BINARY_PARAMS(5, 3, 2, 9, 1, 3, 2, 9)
+BINARY_PARAMS(32, 17, 2, 3, 32, 17, 1, 1)
+BINARY_PARAMS(32, 17, 2, 3, 1, 17, 1, 1)
+BINARY_PARAMS(15, 12, 3, 5, 15, 1, 1, 1)
+BINARY_PARAMS(15, 12, 3, 5, 1, 1, 1, 1)
+BINARY_PARAMS(5, 3, 2, 9, 1, 3, 2, 9)
+BINARY_PARAMS(12, 12, 1, 1, 1, 12, 1, 1)
+BINARY_PARAMS(2, 3, 48, 1, 1, 3, 48, 1)

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
-#define PORTDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
+#ifndef SYCLDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
+#define SYCLDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
 
-#include "portdnn/accessor_types.h"
-#include "portdnn/reduce/operators.h"
-#include "portdnn/status.h"
+#include "sycldnn/accessor_types.h"
+#include "sycldnn/reduce/operators.h"
+#include "sycldnn/status.h"
 
 namespace sycldnn {
 namespace reduce {
@@ -119,4 +119,4 @@ struct ReduceKernel {
 
 }  // namespace reduce
 }  // namespace sycldnn
-#endif  // PORTDNN_SRC_REDUCE_DEFAULT_KERNEL_H_
+#endif  // SYCLDNN_SRC_REDUCE_DEFAULT_KERNEL_H_

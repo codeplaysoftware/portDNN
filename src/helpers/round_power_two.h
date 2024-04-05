@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PORTDNN_SRC_HELPERS_ROUND_POWER_TWO_H_
-#define PORTDNN_SRC_HELPERS_ROUND_POWER_TWO_H_
+#ifndef SYCLDNN_SRC_HELPERS_ROUND_POWER_TWO_H_
+#define SYCLDNN_SRC_HELPERS_ROUND_POWER_TWO_H_
 
-#include "portdnn/helpers/macros.h"
+#include "sycldnn/helpers/macros.h"
 
 #include <cmath>
 
@@ -33,4 +33,4 @@ inline SNN_ALWAYS_INLINE Index round_to_power_of_two(Index value) {
 }
 }  // namespace helpers
 }  // namespace sycldnn
-#endif  // PORTDNN_SRC_HELPERS_ROUND_POWER_TWO_H_
+#endif  // SYCLDNN_SRC_HELPERS_ROUND_POWER_TWO_H_

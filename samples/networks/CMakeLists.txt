@@ -15,3 +15,4 @@
 
 add_subdirectory(vgg)
 add_subdirectory(resnet50)
+add_subdirectory(pointnet)
